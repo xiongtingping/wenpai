@@ -1,19 +1,27 @@
-// Backend proxy server for handling API calls securely
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const dotenv = require('dotenv');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+// server.js
+import express from 'express';
+import cors from 'cors';
+import fetch from 'node-fetch';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv'; // Added dotenv import
 
 // Load environment variables from .env file
-dotenv.config();
+dotenv.config(); // Added dotenv config call
 
+// For ES Modules, __dirname needs to be derived
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+console.log('Server.js: Starting up...'); // <--- 新增诊断日志
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001; // Changed to PORT to match server.js content
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+console.log('Server.js: Middleware configured.'); // <--- 新增诊断日志
 
 // API keys from environment variables (these will be set on the server)
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -28,23 +36,24 @@ if (!GEMINI_API_KEY) {
   console.warn('Warning: GEMINI_API_KEY is not set in environment variables');
 }
 
-// OpenAI API proxy endpoint
+// API routes
+console.log('Server.js: Defining API routes...'); // <--- 新增诊断日志
+
+// OpenAI proxy route
 app.post('/api/proxy/openai', async (req, res) => {
+  console.log('Server.js: Received POST request for /api/proxy/openai'); // <--- 新增诊断日志
   try {
     const { messages, model, temperature } = req.body;
     
     if (!OPENAI_API_KEY) {
+      console.error('Server.js: OpenAI API Key not configured!'); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         error: 'OpenAI API key is not configured on the server' 
       });
     }
     
-    console.log('OpenAI API Request:', JSON.stringify({
-      model: model || 'gpt-3.5-turbo-0125',
-      messages: messages.map(m => ({ role: m.role })), // Log without content for privacy
-      temperature: temperature || 0.7
-    }));
+    console.log('OpenAI API Request initiated.'); // <--- 新增诊断日志
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -59,26 +68,22 @@ app.post('/api/proxy/openai', async (req, res) => {
       })
     });
     
-    console.log('OpenAI response status:', response.status);
-    console.log('OpenAI response headers:', JSON.stringify([...response.headers.entries()]));
+    console.log('OpenAI response status:', response.status); // <--- 新增诊断日志
 
-    // First check if response is actually JSON before attempting to parse it
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      // If not JSON, read as text for debugging
       const textBody = await response.text();
-      console.error('Non-JSON response from OpenAI API:', textBody.substring(0, 500));
+      console.error('Non-JSON response from OpenAI API:', textBody.substring(0, 500)); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         error: `Unexpected non-JSON response from API: ${textBody.substring(0, 100)}...` 
       });
     }
 
-    // It's JSON, so now we can parse it
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('OpenAI API error:', data);
+      console.error('OpenAI API error:', data); // <--- 新增诊断日志
       return res.status(response.status).json({ 
         success: false, 
         error: data.error?.message || `API error: ${response.status}` 
@@ -87,7 +92,7 @@ app.post('/api/proxy/openai', async (req, res) => {
 
     res.json({ success: true, data });
   } catch (error) {
-    console.error('Error in OpenAI proxy:', error);
+    console.error('Error in OpenAI proxy:', error); // <--- 新增诊断日志
     res.status(500).json({ 
       success: false, 
       error: error.message || 'Unknown error calling OpenAI API' 
@@ -97,10 +102,12 @@ app.post('/api/proxy/openai', async (req, res) => {
 
 // Google Gemini API proxy endpoint
 app.post('/api/proxy/gemini', async (req, res) => {
+  console.log('Server.js: Received POST request for /api/proxy/gemini'); // <--- 新增诊断日志
   try {
     const { prompt } = req.body;
     
     if (!GEMINI_API_KEY) {
+      console.error('Server.js: Gemini API Key not configured!'); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         error: 'Gemini API key is not configured on the server' 
@@ -109,8 +116,7 @@ app.post('/api/proxy/gemini', async (req, res) => {
     
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
     
-    console.log('Gemini API Request to URL:', apiUrl.replace(GEMINI_API_KEY, 'REDACTED_KEY'));
-    console.log('Request body length:', JSON.stringify(prompt).length);
+    console.log('Gemini API Request to URL initiated.'); // <--- 新增诊断日志
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -136,26 +142,22 @@ app.post('/api/proxy/gemini', async (req, res) => {
       })
     });
     
-    console.log('Gemini response status:', response.status);
-    console.log('Gemini response headers:', JSON.stringify([...response.headers.entries()]));
+    console.log('Gemini response status:', response.status); // <--- 新增诊断日志
 
-    // First check if response is actually JSON before attempting to parse it
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      // If not JSON, read as text for debugging
       const textBody = await response.text();
-      console.error('Non-JSON response from Gemini API:', textBody.substring(0, 500));
+      console.error('Non-JSON response from Gemini API:', textBody.substring(0, 500)); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         error: `Unexpected non-JSON response from API: ${textBody.substring(0, 100)}...` 
       });
     }
 
-    // It's JSON, so now we can parse it
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini API error:', data);
+      console.error('Gemini API error:', data); // <--- 新增诊断日志
       return res.status(response.status).json({ 
         success: false, 
         error: data.error?.message || `API error: ${response.status}` 
@@ -164,7 +166,7 @@ app.post('/api/proxy/gemini', async (req, res) => {
 
     res.json({ success: true, data });
   } catch (error) {
-    console.error('Error in Gemini proxy:', error);
+    console.error('Error in Gemini proxy:', error); // <--- 新增诊断日志
     res.status(500).json({ 
       success: false, 
       error: error.message || 'Unknown error calling Gemini API' 
@@ -174,8 +176,10 @@ app.post('/api/proxy/gemini', async (req, res) => {
 
 // OpenAI API status check endpoint
 app.get('/api/status/openai', async (req, res) => {
+  console.log('Server.js: Received GET request for /api/status/openai'); // <--- 新增诊断日志
   try {
     if (!OPENAI_API_KEY) {
+      console.error('Server.js: OpenAI API Key not configured for status check!'); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         error: 'OpenAI API key is not configured on the server' 
@@ -191,12 +195,10 @@ app.get('/api/status/openai', async (req, res) => {
 
     const responseTime = Date.now() - startTime;
     
-    // First check if response is actually JSON before attempting to parse it
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      // If not JSON, read as text for debugging
       const textBody = await response.text();
-      console.error('Non-JSON response from OpenAI status check:', textBody.substring(0, 500));
+      console.error('Non-JSON response from OpenAI status check:', textBody.substring(0, 500)); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         available: false,
@@ -205,10 +207,10 @@ app.get('/api/status/openai', async (req, res) => {
       });
     }
 
-    // It's JSON, so now we can parse it
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('OpenAI status check error:', data); // <--- 新增诊断日志
       return res.status(response.status).json({ 
         success: false, 
         available: false,
@@ -224,7 +226,7 @@ app.get('/api/status/openai', async (req, res) => {
       models: data.data.length
     });
   } catch (error) {
-    console.error('Error checking OpenAI API status:', error);
+    console.error('Error checking OpenAI API status:', error); // <--- 新增诊断日志
     res.status(500).json({ 
       success: false, 
       available: false,
@@ -235,8 +237,10 @@ app.get('/api/status/openai', async (req, res) => {
 
 // Google Gemini API status check endpoint
 app.get('/api/status/gemini', async (req, res) => {
+  console.log('Server.js: Received GET request for /api/status/gemini'); // <--- 新增诊断日志
   try {
     if (!GEMINI_API_KEY) {
+      console.error('Server.js: Gemini API Key not configured for status check!'); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         error: 'Gemini API key is not configured on the server' 
@@ -246,7 +250,6 @@ app.get('/api/status/gemini', async (req, res) => {
     const startTime = Date.now();
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
 
-    // Simple test content
     const testContent = {
       contents: [
         {
@@ -263,7 +266,7 @@ app.get('/api/status/gemini', async (req, res) => {
       }
     };
     
-    console.log('Making Gemini status check to:', apiUrl.replace(GEMINI_API_KEY, 'REDACTED_KEY'));
+    console.log('Making Gemini status check to API.'); // <--- 新增诊断日志
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -274,14 +277,12 @@ app.get('/api/status/gemini', async (req, res) => {
     });
 
     const responseTime = Date.now() - startTime;
-    console.log('Gemini status check response status:', response.status);
+    console.log('Gemini status check response status:', response.status); // <--- 新增诊断日志
     
-    // First check if response is actually JSON before attempting to parse it
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
-      // If not JSON, read as text for debugging
       const textBody = await response.text();
-      console.error('Non-JSON response from Gemini status check:', textBody.substring(0, 500));
+      console.error('Non-JSON response from Gemini status check:', textBody.substring(0, 500)); // <--- 新增诊断日志
       return res.status(500).json({ 
         success: false, 
         available: false,
@@ -290,11 +291,10 @@ app.get('/api/status/gemini', async (req, res) => {
       });
     }
 
-    // It's JSON, so now we can parse it
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini status check error:', data);
+      console.error('Gemini status check error:', data); // <--- 新增诊断日志
       return res.status(response.status).json({ 
         success: false, 
         available: false,
@@ -309,7 +309,7 @@ app.get('/api/status/gemini', async (req, res) => {
       responseTime
     });
   } catch (error) {
-    console.error('Error checking Gemini API status:', error);
+    console.error('Error checking Gemini API status:', error); // <--- 新增诊断日志
     res.status(500).json({ 
       success: false, 
       available: false,
@@ -319,15 +319,23 @@ app.get('/api/status/gemini', async (req, res) => {
 });
 
 // Serve static files from the 'dist' directory when in production
+// <--- 请将下方整个 if (process.env.NODE_ENV === 'production') 块注释掉，例如：
+/*
 if (process.env.NODE_ENV === 'production') {
+  console.log('Server.js: Running in production mode, attempting to serve static files...'); // <--- 新增诊断日志
   // Serve static files
   app.use(express.static(path.join(__dirname, 'dist')));
 
   // Handle any requests that don't match the API routes
   app.get('*', (req, res) => {
+    console.log('Server.js: Serving index.html for unknown GET route.'); // <--- 新增诊断日志
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
+} else {
+    console.log('Server.js: Running in development mode, static file serving skipped.'); // <--- 新增诊断日志
 }
+*/
+// <--- 注释结束。确保您在注释时没有删除任何代码，只是用 /* ... */ 包裹起来
 
 // Start the server
 app.listen(PORT, () => {
@@ -335,3 +343,4 @@ app.listen(PORT, () => {
   console.log(`OpenAI API key ${OPENAI_API_KEY ? 'is' : 'is NOT'} configured`);
   console.log(`Gemini API key ${GEMINI_API_KEY ? 'is' : 'is NOT'} configured`);
 });
+console.log('Server.js: End of file reached, server setup complete.'); // <--- 新增诊断日志
