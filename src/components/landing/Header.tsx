@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, HelpCircle, UserPlus, Zap } from "lucide-react"
+import { Menu, HelpCircle, UserPlus, Zap, User } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -71,19 +71,22 @@ export function Header() {
           <span className="font-bold text-xl text-gray-800">文派</span>
         </Link>
         
-        {/* Desktop Menu */}
+        {/* Desktop Menu - Reordered as requested */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition">品牌库</Link>
-            <Link to="/invite" className="text-gray-600 hover:text-blue-600 transition">邀请奖励</Link>
-            <Link to="/api-test" className="text-gray-600 hover:text-blue-600 transition flex items-center">
-              API测试
-              <Badge variant="outline" className="ml-1 bg-emerald-50 text-emerald-700 border-emerald-200">
-                <Zap className="h-3 w-3 mr-0.5" />
-                新
+            <a href="#features" className="text-gray-600 hover:text-blue-600 transition">产品功能</a>
+            <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              品牌库
+              <Badge variant="outline" className="ml-1 bg-amber-50 text-amber-700 border-amber-200">
+                开发中
               </Badge>
             </Link>
-            <a href="#features" className="text-gray-600 hover:text-blue-600 transition">产品功能</a>
+            <Link to="/invite" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              邀请奖励
+              <Badge variant="outline" className="ml-1 bg-blue-50 text-blue-700 border-blue-200">
+                登录可查
+              </Badge>
+            </Link>
             <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">定价方案</a>
           </div>
         )}
@@ -100,17 +103,15 @@ export function Header() {
               </PopoverTrigger>
               <HelpDocumentation />
             </Popover>
+            
+            {/* Direct login/register button - no dropdown */}
             <Link to="/login-register">
-              <Button variant="ghost" className="flex items-center gap-1">
-                登录
-              </Button>
-            </Link>
-            <Link to="/login-register?tab=register">
               <Button variant="outline" className="flex items-center gap-1">
                 <UserPlus className="h-4 w-4 mr-1" />
-                注册
+                登录/注册
               </Button>
             </Link>
+            
             <Link to="/adapt">
               <Button className="bg-blue-600 hover:bg-blue-700">免费开始</Button>
             </Link>
@@ -127,32 +128,37 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                <Link to="/brand-library" className="text-lg font-medium py-2">品牌库</Link>
-                <Link to="/invite" className="text-lg font-medium py-2">邀请奖励</Link>
-                <Link to="/api-test" className="text-lg font-medium py-2 flex items-center">
-                  API测试
-                  <Badge variant="outline" className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200">
-                    <Zap className="h-3 w-3 mr-0.5" />
-                    新
+                {/* Reordered mobile menu items */}
+                <a href="#features" className="text-lg font-medium py-2">产品功能</a>
+                <Link to="/brand-library" className="text-lg font-medium py-2 flex items-center">
+                  品牌库
+                  <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
+                    开发中
                   </Badge>
                 </Link>
-                <a href="#features" className="text-lg font-medium py-2">产品功能</a>
+                <Link to="/invite" className="text-lg font-medium py-2 flex items-center">
+                  邀请奖励
+                  <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
+                    登录可查
+                  </Badge>
+                </Link>
                 <a href="#pricing" className="text-lg font-medium py-2">定价方案</a>
                 <a href="#testimonials" className="text-lg font-medium py-2">客户案例</a>
+
                 <Button variant="ghost" className="flex items-center justify-start px-2 gap-1">
                   <HelpCircle className="h-4 w-4 mr-1" />
                   帮助文档
                 </Button>
                 <hr className="my-4" />
+                
+                {/* Direct login/register for mobile */}
                 <Link to="/login-register">
-                  <Button variant="outline" className="w-full">登录</Button>
-                </Link>
-                <Link to="/login-register?tab=register">
                   <Button variant="outline" className="w-full flex items-center justify-center">
                     <UserPlus className="h-4 w-4 mr-1" />
-                    注册
+                    登录/注册
                   </Button>
                 </Link>
+                
                 <Link to="/adapt">
                   <Button className="w-full bg-blue-600 hover:bg-blue-700">免费开始</Button>
                 </Link>

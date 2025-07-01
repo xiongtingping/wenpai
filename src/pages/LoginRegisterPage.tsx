@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,17 +7,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, Phone, User, Shield, Loader2, ArrowLeft } from "lucide-react";
 import { sendVerificationCode, verifyCode, registerUser } from "@/api/authService";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocation } from "react-router-dom";
 
 export default function LoginRegisterPage() {
-  // Get URL search parameters
-  const location = useLocation();
-  const urlParams = new URLSearchParams(location.search);
-  const tabParam = urlParams.get('tab');
-  
-  const [activeTab, setActiveTab] = useState(tabParam === 'register' ? 'register' : 'login');
-  
   // Login state
   const [loginData, setLoginData] = useState({
     username: "",
@@ -48,17 +40,11 @@ export default function LoginRegisterPage() {
   });
 
   const { toast } = useToast();
-
-  // Update URL when tab changes
-  useEffect(() => {
-    const newUrl = new URL(window.location.href);
-    if (activeTab === 'register') {
-      newUrl.searchParams.set('tab', 'register');
-    } else {
-      newUrl.searchParams.delete('tab');
-    }
-    window.history.replaceState({}, '', newUrl.toString());
-  }, [activeTab]);
+  const navigate = useNavigate();
+  
+  // Check if we should show registration form based on URL params
+  const location = useLocation();
+  const showRegistration = location.pathname === "/register";
 
   // Countdown timer for SMS code resend
   useEffect(() => {
@@ -288,14 +274,11 @@ export default function LoginRegisterPage() {
           <p className="mt-2 text-muted-foreground">一个账户解锁全平台内容适配</p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="login">登录</TabsTrigger>
-            <TabsTrigger value="register">注册</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="login">
-            <Card>
+        {/* Show Login Form or Register Form based on route */}
+        {!showRegistration ? (
+          <>
+            {/* Login Form */}
+            <Card className="mb-8">
               <CardHeader>
                 <CardTitle>登录账户</CardTitle>
                 <CardDescription>
@@ -305,13 +288,13 @@ export default function LoginRegisterPage() {
               <form onSubmit={handleLoginSubmit}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="username">花名/手机号/邮箱</Label>
+                    <Label htmlFor="username">手机号/邮箱</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="username"
                         name="username"
-                        placeholder="请输入花名/手机号/邮箱"
+                        placeholder="请输入手机号/邮箱"
                         className="pl-10"
                         value={loginData.username}
                         onChange={handleLoginChange}
@@ -383,214 +366,242 @@ export default function LoginRegisterPage() {
                 </CardFooter>
               </form>
             </Card>
-          </TabsContent>
-          
-          <TabsContent value="register">
-            <Card>
-              <CardHeader>
-                <CardTitle>注册账户</CardTitle>
-                <CardDescription>
-                  填写以下信息完成注册
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleRegisterSubmit}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">
-                      手机号 <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative flex space-x-2">
-                      <div className="relative flex-1">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="phone"
-                          name="phone"
-                          placeholder="请输入您的手机号"
-                          className="pl-10"
-                          value={formData.phone}
-                          onChange={handleRegisterChange}
-                          required
-                          disabled={verificationData.verified || loading.sendingCode || loading.registering}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label htmlFor="verificationCode">
-                        短信验证码 <span className="text-red-500">*</span>
-                      </Label>
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-8"
-                        disabled={loading.countdown > 0 || verificationData.verified || loading.registering}
-                        onClick={handleSendCode}
-                      >
-                        {loading.sendingCode ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : loading.countdown > 0 ? (
-                          `${loading.countdown}秒后重发`
-                        ) : verificationData.verified ? (
-                          "已验证"
-                        ) : (
-                          "获取验证码"
-                        )}
-                      </Button>
-                    </div>
-                    <div className="relative flex space-x-2">
-                      <div className="relative flex-1">
-                        <Shield className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="verificationCode"
-                          name="verificationCode"
-                          placeholder="请输入6位验证码"
-                          className="pl-10"
-                          value={verificationData.verificationCode}
-                          onChange={handleVerificationCodeChange}
-                          maxLength={6}
-                          required
-                          disabled={verificationData.verified || loading.registering}
-                        />
-                      </div>
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        className="w-24"
-                        disabled={loading.verifyingCode || !verificationData.verificationCode || verificationData.verified}
-                        onClick={handleVerifyCode}
-                      >
-                        {loading.verifyingCode ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : verificationData.verified ? (
-                          "已验证"
-                        ) : (
-                          "验证"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">
-                      邮箱 <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="请输入您的邮箱"
-                        className="pl-10"
-                        value={formData.email}
-                        onChange={handleRegisterChange}
-                        required
-                        disabled={loading.registering}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password">
-                      密码 <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="请设置您的密码"
-                        className="pl-10"
-                        value={formData.password}
-                        onChange={handleRegisterChange}
-                        required
-                        disabled={loading.registering}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">
-                      确认密码 <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        placeholder="请再次输入密码"
-                        className="pl-10"
-                        value={formData.confirmPassword}
-                        onChange={handleRegisterChange}
-                        required
-                        disabled={loading.registering}
-                      />
-                    </div>
-                  </div>
-                  
-                  {verificationData.verified && (
-                    <div className="rounded-md bg-green-50 p-4 border border-green-200">
-                      <div className="flex">
-                        <div className="flex-shrink-0">
-                          <Shield className="h-5 w-5 text-green-400" aria-hidden="true" />
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-green-800">
-                            手机号验证成功
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="flex-col space-y-4">
+            
+            {/* Register Link - Now navigates to /register */}
+            <div className="text-center mb-6">
+              <p className="text-muted-foreground">
+                还没有账号? 
+                <Link to="/register">
                   <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600"
-                    disabled={loading.registering || !verificationData.verified}
+                    variant="link" 
+                    className="p-0 h-auto ml-1 text-blue-600" 
                   >
-                    {loading.registering ? (
-                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> 注册中...</>
-                    ) : (
-                      "注册并继续"
-                    )}
+                    立即注册
                   </Button>
-
-                  <div className="relative w-full">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">
-                        或使用微信快速注册
-                      </span>
+                </Link>
+              </p>
+            </div>
+          </>
+        ) : (
+          /* Registration Form */
+          <Card>
+            <CardHeader>
+              <CardTitle>注册账户</CardTitle>
+              <CardDescription>
+                填写以下信息完成注册
+              </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleRegisterSubmit}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">
+                    手机号 <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative flex space-x-2">
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="phone"
+                        name="phone"
+                        placeholder="请输入您的手机号"
+                        className="pl-10"
+                        value={formData.phone}
+                        onChange={handleRegisterChange}
+                        required
+                        disabled={verificationData.verified || loading.sendingCode || loading.registering}
+                      />
                     </div>
                   </div>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full bg-[#07C160] hover:bg-[#07C160]/90 text-white border-0"
-                    onClick={handleWechatLogin}
-                  >
-                    <svg viewBox="0 0 24 24" className="h-5 w-5 mr-2" aria-hidden="true">
-                      <path
-                        fill="currentColor"
-                        d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.328.328 0 0 0 .165-.054l1.9-1.106a.585.585 0 0 1 .449-.072c.78.203 1.57.305 2.38.305.153 0 .305-.003.458-.01-.357-1.088-.547-2.22-.546-3.365 0-3.809 3.592-6.894 8.017-6.894.147 0 .292.008.439.016-.88-2.287-3.56-4.364-7.628-4.364m-2.13 4.816c.635 0 1.152.525 1.152 1.17 0 .648-.517 1.173-1.153 1.173-.639 0-1.156-.525-1.156-1.173 0-.645.517-1.17 1.156-1.17m4.254 0c.639 0 1.156.525 1.156 1.17 0 .648-.517 1.173-1.156 1.173-.636 0-1.153-.525-1.153-1.173 0-.645.517-1.17 1.153-1.17M24 14.192c0-3.36-3.358-6.087-7.488-6.087-4.126 0-7.488 2.727-7.488 6.087 0 3.367 3.362 6.09 7.488 6.09.876 0 1.687-.145 2.418-.405a.64.64 0 0 1 .418.055l1.664.88c.05.03.104.05.158.05.166 0 .3-.14.3-.305 0-.065-.027-.141-.047-.206l-.375-1.4a.551.551 0 0 1 .214-.637A6.212 6.212 0 0 0 24 14.192m-9.93-1.3c-.508 0-.919-.419-.919-.934 0-.512.41-.934.92-.934.51 0 .923.422.923.934 0 .515-.413.934-.923.934m4.968 0c-.508 0-.919-.419-.919-.934 0-.512.41-.934.919-.934.51 0 .924.422.924.934 0 .515-.414.934-.924.934"
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="verificationCode">
+                      短信验证码 <span className="text-red-500">*</span>
+                    </Label>
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      disabled={loading.countdown > 0 || verificationData.verified || loading.registering}
+                      onClick={handleSendCode}
+                    >
+                      {loading.sendingCode ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : loading.countdown > 0 ? (
+                        `${loading.countdown}秒后重发`
+                      ) : verificationData.verified ? (
+                        "已验证"
+                      ) : (
+                        "获取验证码"
+                      )}
+                    </Button>
+                  </div>
+                  <div className="relative flex space-x-2">
+                    <div className="relative flex-1">
+                      <Shield className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="verificationCode"
+                        name="verificationCode"
+                        placeholder="请输入6位验证码"
+                        className="pl-10"
+                        value={verificationData.verificationCode}
+                        onChange={handleVerificationCodeChange}
+                        maxLength={6}
+                        required
+                        disabled={verificationData.verified || loading.registering}
                       />
-                    </svg>
-                    微信注册并绑定
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                    </div>
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      className="w-24"
+                      disabled={loading.verifyingCode || !verificationData.verificationCode || verificationData.verified}
+                      onClick={handleVerifyCode}
+                    >
+                      {loading.verifyingCode ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : verificationData.verified ? (
+                        "已验证"
+                      ) : (
+                        "验证"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">
+                    邮箱 <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="请输入您的邮箱"
+                      className="pl-10"
+                      value={formData.email}
+                      onChange={handleRegisterChange}
+                      required
+                      disabled={loading.registering}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">
+                    密码 <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="请设置您的密码"
+                      className="pl-10"
+                      value={formData.password}
+                      onChange={handleRegisterChange}
+                      required
+                      disabled={loading.registering}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">
+                    确认密码 <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      placeholder="请再次输入密码"
+                      className="pl-10"
+                      value={formData.confirmPassword}
+                      onChange={handleRegisterChange}
+                      required
+                      disabled={loading.registering}
+                    />
+                  </div>
+                </div>
+                
+                {verificationData.verified && (
+                  <div className="rounded-md bg-green-50 p-4 border border-green-200">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <Shield className="h-5 w-5 text-green-400" aria-hidden="true" />
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-green-800">
+                          手机号验证成功
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex-col space-y-4">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600"
+                  disabled={loading.registering || !verificationData.verified}
+                >
+                  {loading.registering ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> 注册中...</>
+                  ) : (
+                    "注册并继续"
+                  )}
+                </Button>
+
+                <div className="relative w-full">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      或使用微信快速注册
+                    </span>
+                  </div>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full bg-[#07C160] hover:bg-[#07C160]/90 text-white border-0"
+                  onClick={handleWechatLogin}
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5 mr-2" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.328.328 0 0 0 .165-.054l1.9-1.106a.585.585 0 0 1 .449-.072c.78.203 1.57.305 2.38.305.153 0 .305-.003.458-.01-.357-1.088-.547-2.22-.546-3.365 0-3.809 3.592-6.894 8.017-6.894.147 0 .292.008.439.016-.88-2.287-3.56-4.364-7.628-4.364m-2.13 4.816c.635 0 1.152.525 1.152 1.17 0 .648-.517 1.173-1.153 1.173-.639 0-1.156-.525-1.156-1.173 0-.645.517-1.17 1.156-1.17m4.254 0c.639 0 1.156.525 1.156 1.17 0 .648-.517 1.173-1.156 1.173-.636 0-1.153-.525-1.153-1.173 0-.645.517-1.17 1.153-1.17M24 14.192c0-3.36-3.358-6.087-7.488-6.087-4.126 0-7.488 2.727-7.488 6.087 0 3.367 3.362 6.09 7.488 6.09.876 0 1.687-.145 2.418-.405a.64.64 0 0 1 .418.055l1.664.88c.05.03.104.05.158.05.166 0 .3-.14.3-.305 0-.065-.027-.141-.047-.206l-.375-1.4a.551.551 0 0 1 .214-.637A6.212 6.212 0 0 0 24 14.192m-9.93-1.3c-.508 0-.919-.419-.919-.934 0-.512.41-.934.92-.934.51 0 .923.422.923.934 0 .515-.413.934-.923.934m4.968 0c-.508 0-.919-.419-.919-.934 0-.512.41-.934.919-.934.51 0 .924.422.924.934 0 .515-.414.934-.924.934"
+                    />
+                  </svg>
+                  微信注册并绑定
+                </Button>
+
+                <div className="text-center mt-4">
+                  <p className="text-muted-foreground">
+                    已有账户?
+                    <Link to="/login-register">
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto ml-1 text-blue-600" 
+                      >
+                        立即登录
+                      </Button>
+                    </Link>
+                  </p>
+                </div>
+              </CardFooter>
+            </form>
+          </Card>
+        )}
       </div>
     </div>
   );

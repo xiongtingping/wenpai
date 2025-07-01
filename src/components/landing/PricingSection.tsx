@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -9,6 +9,25 @@ import { useToast } from "@/hooks/use-toast"
 export function PricingSection() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly")
   const { toast } = useToast()
+  const [timeLeft, setTimeLeft] = useState<number>(30 * 60) // 30 minutes in seconds
+  
+  // Format time left as MM:SS
+  const formatTimeLeft = () => {
+    const minutes = Math.floor(timeLeft / 60)
+    const seconds = timeLeft % 60
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
+  
+  // Countdown timer effect
+  useEffect(() => {
+    if (timeLeft <= 0) return
+    
+    const intervalId = setInterval(() => {
+      setTimeLeft(timeLeft => timeLeft - 1)
+    }, 1000)
+    
+    return () => clearInterval(intervalId)
+  }, [timeLeft])
 
   // Handle Pro plan selection
   const handleProPlanClick = () => {
@@ -88,10 +107,25 @@ export function PricingSection() {
             <span className="absolute top-0 -translate-y-1/2 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">最受欢迎</span>
             <h3 className="text-2xl font-semibold">专业版</h3>
             <p className="mt-2 text-gray-500">适合个人创作者和小型团队</p>
-            <p className="mt-6 text-5xl font-extrabold">
-              {billing === "monthly" ? "¥19.9" : "¥199"}
-            </p>
-            <p className="text-gray-500">{billing === "monthly" ? "/月" : "/年"}</p>
+            <div className="mt-6">
+              <div className="flex items-center gap-2">
+                <p className="text-5xl font-extrabold">
+                  {billing === "monthly" ? "¥19.9" : "¥199"}
+                </p>
+                <span className="text-gray-400 line-through font-medium text-xl">
+                  {billing === "monthly" ? "¥29.9" : "¥299"}
+                </span>
+              </div>
+              <p className="text-gray-500">{billing === "monthly" ? "/月" : "/年"}</p>
+              
+              {/* Countdown timer */}
+              <div className="mt-2 flex items-center">
+                <span className="text-red-500 font-semibold text-sm">限时优惠</span>
+                <span className="ml-2 inline-block bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-mono font-bold">
+                  {formatTimeLeft()}
+                </span>
+              </div>
+            </div>
             <ul className="mt-8 space-y-4 text-gray-600 flex-grow">
               <li className="flex items-center space-x-3">
                 <span>✔️</span> 
@@ -110,7 +144,7 @@ export function PricingSection() {
               className="mt-8 w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90"
               onClick={handleProPlanClick}
             >
-              选择专业版
+              立即抢购
             </Button>
           </Card>
 

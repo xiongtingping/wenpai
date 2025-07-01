@@ -21,15 +21,24 @@ export function HeroSection() {
               立即免费试用 →
             </Button>
           </Link>
-          <p className="mt-4 text-sm text-gray-500">无需信用卡，10秒完成注册</p>
+          {/* Removed "无需信用卡，10秒完成注册" text */}
+          <p className="mt-6 text-sm text-green-600 font-medium">
+            <span className="inline-flex items-center bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+              <span className="mr-1">⏱️</span>
+              每天帮您节省45分钟内容适配时间
+            </span>
+          </p>
         </div>
 
         {/* Product Demo Visual */}
         <div className="mt-16 max-w-5xl mx-auto p-4 md:p-8 bg-gray-100 rounded-2xl shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Input */}
-            <Card className="p-6">
-              <h3 className="font-bold text-lg mb-2 text-left">原始文案 (小红书风格)</h3>
+            <Card className="p-6 border-0 shadow-md">
+              <h3 className="font-bold text-lg mb-2 text-left flex items-center">
+                <div className="h-6 w-6 bg-gray-200 rounded-full flex items-center justify-center mr-2 text-gray-700 text-xs">原</div>
+                原始文案
+              </h3>
               <div className="text-left text-gray-700 space-y-3">
                 <p>今天试了一款XXX身体乳，味道太治愈了！🌿</p>
                 <p>像小时候喝的牛奶糖味道，甜而不腻，闻着就想咬一口！</p>
@@ -40,18 +49,24 @@ export function HeroSection() {
             {/* Output */}
             <div className="space-y-4">
               {/* Douyin Output */}
-              <Card className="p-4 flex items-start space-x-3">
+              <Card className="p-4 flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-purple-50 border-0 shadow-md transform transition-transform hover:scale-105">
                 <div className="h-10 w-10 bg-black text-white rounded-full flex items-center justify-center text-xs">抖音</div>
                 <div className="text-left">
-                  <h4 className="font-semibold">抖音脚本</h4>
+                  <h4 className="font-semibold flex items-center">
+                    抖音脚本
+                    <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">AI升级</span>
+                  </h4>
                   <p className="text-sm text-gray-600">【镜头特写】干皮姐妹们！秋冬身体乳还在乱选吗？【试用】这个牛奶糖味道，一秒回到童年！【涂抹】冲！</p>
                 </div>
               </Card>
               {/* Zhihu Output */}
-              <Card className="p-4 flex items-start space-x-3">
+              <Card className="p-4 flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-blue-100 border-0 shadow-md transform transition-transform hover:scale-105">
                 <div className="h-10 w-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">知乎</div>
                 <div className="text-left">
-                  <h4 className="font-semibold">知乎风格</h4>
+                  <h4 className="font-semibold flex items-center">
+                    知乎风格
+                    <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">AI升级</span>
+                  </h4>
                   <p className="text-sm text-gray-600">从成分党角度分析，秋冬身体乳的核心诉求是保湿与肤感。XXX身体乳在采用传统保湿剂的基础上，通过其香氛设计提升了用户体验...</p>
                 </div>
               </Card>

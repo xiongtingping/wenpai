@@ -5,7 +5,6 @@ import AdaptPage from "@/pages/AdaptPage";
 import InvitePage from "@/pages/InvitePage";
 import BrandLibraryPage from "@/pages/BrandLibraryPage";
 import ApiTestPage from "@/pages/ApiTestPage";
-import RegisterPage from "@/pages/RegisterPage";
 import PaymentPage from "@/pages/PaymentPage";
 import LoginRegisterPage from "@/pages/LoginRegisterPage";
 import { Toaster } from "@/components/ui/toaster";
@@ -22,10 +21,10 @@ function App() {
           <Route path="/invite" element={<ToolLayout><InvitePage /></ToolLayout>} />
           <Route path="/brand-library" element={<ToolLayout><BrandLibraryPage /></ToolLayout>} />
           <Route path="/api-test" element={<ApiTestPage />} />
-          {/* Combined login and register page */}
+          {/* Login page */}
           <Route path="/login-register" element={<LoginRegisterPage />} />
-          {/* Keep register route for backward compatibility */}
-          <Route path="/register" element={<RegisterPage />} />
+          {/* Register page - same component but different view */}
+          <Route path="/register" element={<LoginRegisterPage />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

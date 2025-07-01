@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Database, Upload, FileText, File, FileImage, 
   FileX, AlertCircle, Trash2, Info, Plus, Search,
-  SortAsc, SortDesc, Filter, Check
+  SortAsc, SortDesc, Filter, Check, Clock
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -188,10 +188,25 @@ export default function BrandLibraryPage() {
     <div className="container py-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">品牌资料库</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent flex items-center">
+            品牌资料库
+            <Badge variant="outline" className="ml-3 bg-amber-50 text-amber-700 border-amber-200">
+              <Clock className="h-3 w-3 mr-1" />
+              功能开发中
+            </Badge>
+          </h1>
           <p className="text-gray-500 mt-1">上传、管理和应用您的品牌资料，提升内容生成质量</p>
         </div>
       </div>
+      
+      {/* Development In Progress Notification */}
+      <Alert className="mb-6 bg-amber-50 border-amber-200">
+        <AlertCircle className="h-5 w-5 text-amber-600" />
+        <AlertDescription className="text-amber-700 flex-1">
+          <p className="font-medium">品牌库功能正在开发中</p>
+          <p className="text-sm mt-1">我们正在努力开发这项高级功能，预计将于近期上线。品牌库将帮助您维护品牌一致性，确保所有生成内容符合您的品牌调性。</p>
+        </AlertDescription>
+      </Alert>
       
       <div className="grid grid-cols-1 gap-6">
         {/* Upload Section */}
@@ -214,25 +229,21 @@ export default function BrandLibraryPage() {
                 multiple
                 accept=".pdf,.doc,.docx,.txt,.md,.jpg,.png,.gif"
                 onChange={handleFileUpload}
-                disabled={isUploading}
+                disabled={isUploading || true} // Disabled for development notification
               />
               <Label 
                 htmlFor="file-upload" 
-                className="cursor-pointer flex flex-col items-center justify-center"
+                className="cursor-not-allowed flex flex-col items-center justify-center opacity-70"
               >
                 <Database className="h-12 w-12 text-blue-500 mb-3" />
                 <p className="text-lg font-medium mb-1">点击或拖拽文件上传</p>
                 <p className="text-sm text-gray-500 mb-4">支持 PDF, Word, Markdown, TXT 等文本格式</p>
                 
                 <Button 
-                  disabled={isUploading}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90"
+                  disabled={true}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 opacity-50"
                 >
-                  {isUploading ? (
-                    <>上传中...</>
-                  ) : (
-                    <>选择文件</>
-                  )}
+                  功能即将上线
                 </Button>
               </Label>
             </div>
@@ -260,7 +271,7 @@ export default function BrandLibraryPage() {
                 </CardDescription>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 opacity-50">
                 {/* Search Input */}
                 <div className="relative">
                   <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -269,13 +280,14 @@ export default function BrandLibraryPage() {
                     className="pl-9 w-full sm:w-64" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    disabled={true}
                   />
                 </div>
                 
                 {/* Sort Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-10 w-10">
+                    <Button variant="outline" size="icon" className="h-10 w-10" disabled={true}>
                       <SortAsc className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -283,33 +295,15 @@ export default function BrandLibraryPage() {
                     <DropdownMenuItem onClick={() => setSortOption('date-new')} className="flex items-center justify-between">
                       最新上传 {sortOption === 'date-new' && <Check className="h-4 w-4 ml-2" />}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOption('date-old')} className="flex items-center justify-between">
-                      最早上传 {sortOption === 'date-old' && <Check className="h-4 w-4 ml-2" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOption('name-asc')} className="flex items-center justify-between">
-                      名称 A-Z {sortOption === 'name-asc' && <Check className="h-4 w-4 ml-2" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOption('name-desc')} className="flex items-center justify-between">
-                      名称 Z-A {sortOption === 'name-desc' && <Check className="h-4 w-4 ml-2" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOption('size-asc')} className="flex items-center justify-between">
-                      大小（小到大） {sortOption === 'size-asc' && <Check className="h-4 w-4 ml-2" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOption('size-desc')} className="flex items-center justify-between">
-                      大小（大到小） {sortOption === 'size-desc' && <Check className="h-4 w-4 ml-2" />}
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
                 {/* Category Filter */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-1 px-3">
+                    <Button variant="outline" className="flex items-center gap-1 px-3" disabled={true}>
                       <Filter className="h-4 w-4 mr-1" />
                       分类筛选
-                      {selectedCategories.length > 0 && (
-                        <Badge variant="secondary" className="ml-1">{selectedCategories.length}</Badge>
-                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-64">
@@ -331,265 +325,54 @@ export default function BrandLibraryPage() {
                         </CommandGroup>
                       </CommandList>
                     </Command>
-                    <div className="mt-2 flex justify-between">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setSelectedCategories([])}
-                        disabled={selectedCategories.length === 0}
-                      >
-                        清除筛选
-                      </Button>
-                      <div className="text-xs text-muted-foreground pt-2">
-                        已选: {selectedCategories.length}/{categories.length}
-                      </div>
-                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
-            
-            {/* Active Filters and Sorting Display */}
-            {(selectedCategories.length > 0 || sortOption !== 'date-new') && (
-              <div className="flex flex-wrap items-center gap-2 mt-4 text-sm">
-                <span className="text-gray-500">当前:</span>
-                {sortOption !== 'date-new' && (
-                  <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
-                    排序: {getSortOptionName(sortOption)}
-                  </Badge>
-                )}
-                {selectedCategories.map(category => (
-                  <Badge 
-                    key={category} 
-                    variant="secondary" 
-                    className="bg-purple-50 text-purple-700 border-purple-200 cursor-pointer"
-                    onClick={() => toggleCategory(category)}
-                  >
-                    {category} ×
-                  </Badge>
-                ))}
-                {(selectedCategories.length > 0 || sortOption !== 'date-new') && (
-                  <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-gray-500 text-xs"
-                    onClick={() => {
-                      setSelectedCategories([]);
-                      setSortOption('date-new');
-                    }}
-                  >
-                    重置
-                  </Button>
-                )}
-              </div>
-            )}
           </CardHeader>
           <CardContent className="pt-4">
             <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-4">
-                <TabsTrigger value="all" className="flex items-center">
+                <TabsTrigger value="all" className="flex items-center" disabled>
                   <FileText className="h-4 w-4 mr-1" />
                   全部文件
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center">
+                <TabsTrigger value="documents" className="flex items-center" disabled>
                   <File className="h-4 w-4 mr-1" />
                   文本资料
                 </TabsTrigger>
-                <TabsTrigger value="images" className="flex items-center">
+                <TabsTrigger value="images" className="flex items-center" disabled>
                   <FileImage className="h-4 w-4 mr-1" />
                   图像资料
                 </TabsTrigger>
               </TabsList>
               
               <TabsContent value="all">
-                <div className="space-y-4">
-                  {filteredAndSortedAssets.length === 0 ? (
-                    <div className="text-center py-12 border border-dashed rounded-lg">
-                      <FileX className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                      <p className="text-lg font-medium text-gray-600">暂无资料文件</p>
-                      <p className="text-sm text-gray-500 mb-4">上传品牌文档、指南或图像以增强内容生成</p>
-                      <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90" asChild>
-                        <Label htmlFor="file-upload" className="cursor-pointer m-0">
-                          <Plus className="h-4 w-4 mr-2" />
-                          添加文件
-                        </Label>
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-1 gap-4">
-                        {filteredAndSortedAssets.map((asset) => (
-                          <Card key={asset.id} className="overflow-hidden border-gray-200 hover:border-blue-300 transition-colors">
-                            <div className="flex items-center p-4">
-                              <div className="mr-4">
-                                {asset.fileIcon}
-                              </div>
-                              <div className="flex-grow">
-                                <h3 className="font-medium text-gray-900">{asset.name}</h3>
-                                <div className="flex flex-wrap items-center text-xs text-gray-500 mt-1 gap-2">
-                                  <span>{asset.type.split('/')[1]?.toUpperCase()}</span>
-                                  <span className="text-gray-300">•</span>
-                                  <span>{asset.size}</span>
-                                  <span className="text-gray-300">•</span>
-                                  <span>{asset.uploadDate.toLocaleDateString()}</span>
-                                  {asset.category && (
-                                    <>
-                                      <span className="text-gray-300">•</span>
-                                      <span className="text-blue-600">{asset.category}</span>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                              <Badge variant="outline" className="ml-2 text-xs border-blue-200 text-blue-700 bg-blue-50">
-                                品牌资料
-                              </Badge>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => handleDeleteFile(asset.id)}
-                                className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="documents">
-                <div className="space-y-4">
-                  {filteredAndSortedAssets.filter(asset => asset.type.includes('pdf') || asset.type.includes('word') || asset.type.includes('text')).length === 0 ? (
-                    <div className="text-center py-12 border border-dashed rounded-lg">
-                      <File className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                      <p className="text-lg font-medium text-gray-600">暂无文档资料</p>
-                      <p className="text-sm text-gray-500 mb-4">上传品牌文档或指南以增强内容生成</p>
-                      <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90" asChild>
-                        <Label htmlFor="file-upload" className="cursor-pointer m-0">
-                          <Plus className="h-4 w-4 mr-2" />
-                          添加文件
-                        </Label>
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-4">
-                      {filteredAndSortedAssets
-                        .filter(asset => asset.type.includes('pdf') || asset.type.includes('word') || asset.type.includes('text'))
-                        .map((asset) => (
-                          <Card key={asset.id} className="overflow-hidden border-gray-200 hover:border-blue-300 transition-colors">
-                            <div className="flex items-center p-4">
-                              <div className="mr-4">
-                                {asset.fileIcon}
-                              </div>
-                              <div className="flex-grow">
-                                <h3 className="font-medium text-gray-900">{asset.name}</h3>
-                                <div className="flex flex-wrap items-center text-xs text-gray-500 mt-1 gap-2">
-                                  <span>{asset.type.split('/')[1]?.toUpperCase()}</span>
-                                  <span className="text-gray-300">•</span>
-                                  <span>{asset.size}</span>
-                                  <span className="text-gray-300">•</span>
-                                  <span>{asset.uploadDate.toLocaleDateString()}</span>
-                                  {asset.category && (
-                                    <>
-                                      <span className="text-gray-300">•</span>
-                                      <span className="text-blue-600">{asset.category}</span>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                              <Badge variant="outline" className="ml-2 text-xs border-blue-200 text-blue-700 bg-blue-50">
-                                品牌文档
-                              </Badge>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => handleDeleteFile(asset.id)}
-                                className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </Card>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="images">
-                <div className="space-y-4">
-                  {filteredAndSortedAssets.filter(asset => asset.type.includes('image')).length === 0 ? (
-                    <div className="text-center py-12 border border-dashed rounded-lg">
-                      <FileImage className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                      <p className="text-lg font-medium text-gray-600">暂无图像资料</p>
-                      <p className="text-sm text-gray-500 mb-4">上传品牌相关图像以增强视觉内容生成</p>
-                      <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90" asChild>
-                        <Label htmlFor="file-upload" className="cursor-pointer m-0">
-                          <Plus className="h-4 w-4 mr-2" />
-                          添加图像
-                        </Label>
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-4">
-                      {filteredAndSortedAssets
-                        .filter(asset => asset.type.includes('image'))
-                        .map((asset) => (
-                          <Card key={asset.id} className="overflow-hidden border-gray-200 hover:border-blue-300 transition-colors">
-                            <div className="flex items-center p-4">
-                              <div className="mr-4">
-                                {asset.fileIcon}
-                              </div>
-                              <div className="flex-grow">
-                                <h3 className="font-medium text-gray-900">{asset.name}</h3>
-                                <div className="flex flex-wrap items-center text-xs text-gray-500 mt-1 gap-2">
-                                  <span>{asset.type.split('/')[1]?.toUpperCase()}</span>
-                                  <span className="text-gray-300">•</span>
-                                  <span>{asset.size}</span>
-                                  <span className="text-gray-300">•</span>
-                                  <span>{asset.uploadDate.toLocaleDateString()}</span>
-                                  {asset.category && (
-                                    <>
-                                      <span className="text-gray-300">•</span>
-                                      <span className="text-blue-600">{asset.category}</span>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                              <Badge variant="outline" className="ml-2 text-xs border-blue-200 text-blue-700 bg-blue-50">
-                                品牌图像
-                              </Badge>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => handleDeleteFile(asset.id)}
-                                className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </Card>
-                        ))}
-                    </div>
-                  )}
+                <div className="text-center py-12 border border-dashed rounded-lg">
+                  <Clock className="h-12 w-12 mx-auto text-amber-500 mb-3" />
+                  <p className="text-lg font-medium text-gray-600">功能即将上线</p>
+                  <p className="text-sm text-gray-500 mb-4">我们正在开发品牌库功能，敬请期待！</p>
+                  <div className="mt-4 flex justify-center">
+                    <span className="inline-flex items-center bg-amber-50 text-amber-700 px-4 py-2 rounded-full text-sm">
+                      <Clock className="h-4 w-4 mr-2" />
+                      预计7月15日上线
+                    </span>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
           </CardContent>
-          <Separator />
           <CardFooter className="p-4 bg-gray-50">
             <div className="flex justify-between w-full items-center">
               <div className="text-sm text-gray-500">
-                已使用: <span className="font-medium">{brandAssets.length} 个文件</span>
+                功能开发中，敬请期待
               </div>
-              <Button variant="outline" className="text-sm" asChild>
-                <Label htmlFor="file-upload" className="cursor-pointer m-0">
-                  <Plus className="h-4 w-4 mr-1" />
-                  添加更多
-                </Label>
-              </Button>
+              <div className="text-sm text-blue-600">
+                <span className="inline-flex items-center">
+                  <Info className="h-4 w-4 mr-1" />
+                  上线后将会通知您
+                </span>
+              </div>
             </div>
           </CardFooter>
         </Card>
@@ -599,7 +382,7 @@ export default function BrandLibraryPage() {
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
               <Info className="h-5 w-5 mr-2" />
-              品牌资料使用说明
+              品牌库功能预览
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -635,10 +418,32 @@ export default function BrandLibraryPage() {
               </div>
             </div>
             
+            <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <h3 className="font-medium mb-2 text-blue-700">品牌库功能计划：</h3>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                  <span>支持上传多种文档类型（PDF、Word、TXT等）</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                  <span>智能提取品牌表达风格、关键词和语气</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                  <span>生成内容时自动应用品牌风格和禁用词规避</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                  <span>多平台内容适配时保持品牌一致性</span>
+                </li>
+              </ul>
+            </div>
+            
             <Alert className="mt-6 bg-amber-50 border-amber-200">
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-700">
-                品牌资料仅存储在您的账户中，不会共享给其他用户，确保品牌信息安全。
+                敬请期待！品牌库功能即将上线，帮助您维护跨平台内容的品牌一致性。
               </AlertDescription>
             </Alert>
           </CardContent>
