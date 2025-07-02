@@ -166,10 +166,13 @@ app.post('/api/proxy/gemini', async (req, res) => {
 
     res.json({ success: true, data });
   } catch (error) {
-    console.error('Error in Gemini proxy:', error); // <--- 新增诊断日志
-    res.status(500).json({ 
-      success: false, 
-      error: error.message || 'Unknown error calling Gemini API' 
+    console.error('Error in Gemini proxy:', error);
+    if (error.cause) {
+      console.error('Cause of error in Gemini proxy:', error.cause);
+    }
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error calling Gemini API'
     });
   }
 });
