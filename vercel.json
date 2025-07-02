@@ -14,10 +14,24 @@
     }
   ],
   "routes": [
+    // 1. 最优先：路由 API 请求到 server.js
     {
       "src": "/api/(.*)",
       "dest": "server.js"
     },
+    // 2. 第二优先：直接提供 /assets/ 目录下的静态文件 (例如你的JS和CSS文件)
+    // 这条规则必须在 SPA 回退规则之前
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    // 3. 第三优先：直接提供根目录下的 index.html
+    {
+      "src": "/index.html",
+      "dest": "/index.html"
+    },
+    // 4. 最后：SPA 回退规则，将所有其他未匹配的路径重写到 index.html
+    // 这用于客户端路由，让你的React应用来处理路径
     {
       "src": "/(.*)",
       "dest": "/index.html"
