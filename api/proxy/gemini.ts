@@ -7,8 +7,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const { prompt } = req.body;
-  if (!prompt) {
-    return res.status(400).json({ error: 'Missing prompt in request body' });
+  if (!prompt || typeof prompt !== 'string') {
+    return res.status(400).json({ error: 'Missing or invalid prompt in request body' });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -21,22 +21,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }]
       })
     });
 
-    const data = await geminiResponse.json();
+    const contentType = geminiResponse.headers.get('content-type');
+    const isJson = contentType?.includes('application/json');
 
     if (!geminiResponse.ok) {
-      return res.status(500).json({ error: data.error?.message || 'Gemini API error' });
+      const errData = isJson ? await geminiResponse.json() : await geminiResponse.text();
+      return res.status(500).json({
+        error: 'Gemini API error',
+        detail: errData
+      });
     }
 
+    const data = await geminiResponse.json();
     return res.status(200).json({ result: data });
-  } catch (error) {
-    console.error('Error in Gemini proxy:', error);
-    return res.status(500).json({ error: 'Server error', detail: error instanceof Error ? error.message : error });
+  } catch (err: any) {
+    return res.status(500).json({
+      error: 'Server error',
+      detail: err?.message || String(err)
+    });
   }
 }
