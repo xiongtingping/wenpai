@@ -5,13 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
   Database, Upload, FileText, File, FileImage, 
-  FileX, AlertCircle, Trash2, Info, Plus, Search,
-  SortAsc, SortDesc, Filter, Check, Clock
+  AlertCircle, Info, Search,
+  SortAsc, Filter, Check, Clock
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -34,7 +33,7 @@ type SortOption = 'date-new' | 'date-old' | 'name-asc' | 'name-desc' | 'size-asc
 
 export default function BrandLibraryPage() {
   const [activeTab, setActiveTab] = useState('all');
-  const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
+  // const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('date-new');
@@ -86,7 +85,7 @@ export default function BrandLibraryPage() {
     
     // Simulate uploading delay
     setTimeout(() => {
-      setBrandAssets(prev => [...prev, ...newAssets]);
+      // setBrandAssets(prev => [...prev, ...newAssets]);
       setIsUploading(false);
       
       // Reset file input
@@ -99,15 +98,15 @@ export default function BrandLibraryPage() {
     }, 1500);
   };
   
-  // Handle file deletion
-  const handleDeleteFile = (assetId: string) => {
-    setBrandAssets(prev => prev.filter(asset => asset.id !== assetId));
-    
-    toast({
-      title: "文件已删除",
-      description: "品牌资料文件已从品牌库中移除"
-    });
-  };
+  // Handle file deletion (currently unused but kept for future implementation)
+  // const handleDeleteFile = (assetId: string) => {
+  //   setBrandAssets(prev => prev.filter(asset => asset.id !== assetId));
+  //   
+  //   toast({
+  //     title: "文件已删除",
+  //     description: "品牌资料文件已从品牌库中移除"
+  //   });
+  // };
   
   // Format file size
   const formatFileSize = (bytes: number): string => {
@@ -129,60 +128,20 @@ export default function BrandLibraryPage() {
     });
   };
   
-  // Get sort option display name
-  const getSortOptionName = (option: SortOption): string => {
-    switch (option) {
-      case 'date-new': return '最新上传';
-      case 'date-old': return '最早上传';
-      case 'name-asc': return '名称 A-Z';
-      case 'name-desc': return '名称 Z-A';
-      case 'size-asc': return '大小（小到大）';
-      case 'size-desc': return '大小（大到小）';
-      default: return '最新上传';
-    }
-  };
+  // Get sort option display name (currently unused but kept for future implementation)
+  // const getSortOptionName = (option: SortOption): string => {
+  //   switch (option) {
+  //     case 'date-new': return '最新上传';
+  //     case 'date-old': return '最早上传';
+  //     case 'name-asc': return '名称 A-Z';
+  //     case 'name-desc': return '名称 Z-A';
+  //     case 'size-asc': return '大小（小到大）';
+  //     case 'size-desc': return '大小（大到小）';
+  //     default: return '最新上传';
+  //   }
+  // };
   
-  // Sort and filter assets based on search, tab, sort option, and categories
-  const filteredAndSortedAssets = (() => {
-    // First filter by search query
-    let assets = brandAssets.filter(asset => {
-      const matchesSearch = asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (asset.description && asset.description.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      if (activeTab === 'all') return matchesSearch;
-      
-      const matchesTab = activeTab === 'documents' ? 
-        (asset.type.includes('pdf') || asset.type.includes('word') || asset.type.includes('text')) :
-        (activeTab === 'images' ? asset.type.includes('image') : true);
-      
-      return matchesSearch && matchesTab;
-    });
-    
-    // Then filter by selected categories (if any)
-    if (selectedCategories.length > 0) {
-      assets = assets.filter(asset => asset.category && selectedCategories.includes(asset.category));
-    }
-    
-    // Finally sort based on selected option
-    return assets.sort((a, b) => {
-      switch (sortOption) {
-        case 'date-new':
-          return b.uploadDate.getTime() - a.uploadDate.getTime();
-        case 'date-old':
-          return a.uploadDate.getTime() - b.uploadDate.getTime();
-        case 'name-asc':
-          return a.name.localeCompare(b.name);
-        case 'name-desc':
-          return b.name.localeCompare(a.name);
-        case 'size-asc':
-          return parseFloat(a.size) - parseFloat(b.size);
-        case 'size-desc':
-          return parseFloat(b.size) - parseFloat(a.size);
-        default:
-          return 0;
-      }
-    });
-  })();
+
   
   return (
     <div className="container py-8">

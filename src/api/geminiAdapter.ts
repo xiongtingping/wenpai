@@ -39,12 +39,13 @@ export async function callGeminiAPI(
       content,
       source: 'ai'
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Gemini Proxy API 出错:', err);
+    const errorMessage = err instanceof Error ? err.message : '未知错误';
     return {
       content: generateSimulatedAIResponse(userPrompt, platformId),
       source: 'simulation',
-      error: err?.message || '未知错误'
+      error: errorMessage
     };
   }
 }

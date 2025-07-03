@@ -91,7 +91,7 @@ export default function RegisterPage() {
         });
         setLoading(prev => ({ ...prev, sendingCode: false }));
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "发送失败",
         description: "短信验证码发送失败，请稍后重试",
@@ -136,7 +136,7 @@ export default function RegisterPage() {
         });
         setLoading(prev => ({ ...prev, verifyingCode: false }));
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "验证失败",
         description: "验证码验证失败，请稍后重试",
@@ -214,7 +214,7 @@ export default function RegisterPage() {
         });
         setLoading(prev => ({ ...prev, registering: false }));
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "注册失败",
         description: "注册过程中发生错误，请稍后重试",

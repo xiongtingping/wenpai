@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,7 +137,7 @@ const ApiTestPage = () => {
               <RadioGroup 
                 className="flex flex-col space-y-4"
                 value={apiProvider} 
-                onValueChange={(value: any) => handleApiProviderChange(value)}
+                onValueChange={(value: 'openai' | 'gemini') => handleApiProviderChange(value)}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="openai" id="openai" />

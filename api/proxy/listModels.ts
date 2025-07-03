@@ -23,7 +23,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const data = await response.json();
     return res.status(200).json(data);
-  } catch (err: any) {
-    return res.status(500).json({ error: 'Server error', detail: err.message || String(err) });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: 'Server error', detail: errorMessage });
   }
 }

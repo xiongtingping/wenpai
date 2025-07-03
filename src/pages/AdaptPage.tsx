@@ -5,17 +5,14 @@ import {
   Smile, FileText, Hash, Save, Twitter, SquarePlay
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { 
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Tabs,
@@ -37,7 +34,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { generateAdaptedContent, regeneratePlatformContent, platformStyles, AIApiResponse } from "@/api/contentAdapter";
+import { generateAdaptedContent, regeneratePlatformContent, platformStyles } from "@/api/contentAdapter";
 import { useUserStore } from "@/store/userStore";
 import { cn } from "@/lib/utils";
 
@@ -173,14 +170,12 @@ interface GlobalSettings {
 
 // Checkbox Card Component
 function CheckboxCard({
-  id,
   icon,
   title,
   description,
   checked,
   onChange
 }: {
-  id: string;
   icon: React.ReactNode;
   title: string;
   description: string;
@@ -239,72 +234,6 @@ export default function AdaptPage() {
     decrementUsage 
   } = useUserStore();
 
-  // Initialize platform settings
-  useEffect(() => {
-    // Try to load saved settings from localStorage
-    const savedSettings = localStorage.getItem('platformSettings');
-    const savedGlobalSettings = localStorage.getItem('globalSettings');
-    
-    if (savedSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedSettings);
-        setPlatformSettings(parsedSettings);
-      } catch (e) {
-        console.error("Failed to parse saved platform settings");
-        initializeDefaultSettings();
-      }
-    } else {
-      initializeDefaultSettings();
-    }
-    
-    if (savedGlobalSettings) {
-      try {
-        const parsedGlobalSettings = JSON.parse(savedGlobalSettings);
-        setGlobalSettings(parsedGlobalSettings);
-      } catch (e) {
-        console.error("Failed to parse saved global settings");
-      }
-    }
-    
-    // Initialize showSettings
-    const initialShowSettings: Record<string, boolean> = {};
-    platforms.forEach(platform => {
-      initialShowSettings[platform.id] = false;
-    });
-    setShowSettings(initialShowSettings);
-  }, []);
-  
-  const initializeDefaultSettings = () => {
-    const initialSettings: Record<string, PlatformSettings> = {};
-    platforms.forEach(platform => {
-      initialSettings[platform.id] = {
-        charCount: Math.floor(getCharCountMax(platform.id) * 0.6), // Default to 60% of max
-        useEmoji: platform.id === 'xiaohongshu' || platform.id === 'weibo',
-        useMdFormat: platform.id === 'zhihu' || platform.id === 'wechat',
-        useAutoFormat: true
-      };
-    });
-    setPlatformSettings(initialSettings);
-  };
-
-  // Save settings to localStorage
-  const saveSettings = () => {
-    try {
-      localStorage.setItem('platformSettings', JSON.stringify(platformSettings));
-      localStorage.setItem('globalSettings', JSON.stringify(globalSettings));
-      toast({
-        title: "设置已保存",
-        description: "您的平台设置已成功保存",
-      });
-    } catch (e) {
-      toast({
-        title: "保存设置失败",
-        description: "无法保存您的设置，请稍后再试",
-        variant: "destructive"
-      });
-    }
-  };
-
   // Platform selection with custom settings
   const platforms = [
     {
@@ -357,6 +286,73 @@ export default function AdaptPage() {
     }
   ];
 
+  // Initialize default settings function
+  const initializeDefaultSettings = () => {
+    const initialSettings: Record<string, PlatformSettings> = {};
+    platforms.forEach(platform => {
+      initialSettings[platform.id] = {
+        charCount: Math.floor(getCharCountMax(platform.id) * 0.6), // Default to 60% of max
+        useEmoji: platform.id === 'xiaohongshu' || platform.id === 'weibo',
+        useMdFormat: platform.id === 'zhihu' || platform.id === 'wechat',
+        useAutoFormat: true
+      };
+    });
+    setPlatformSettings(initialSettings);
+  };
+
+  // Save settings to localStorage
+  const saveSettings = () => {
+    try {
+      localStorage.setItem('platformSettings', JSON.stringify(platformSettings));
+      localStorage.setItem('globalSettings', JSON.stringify(globalSettings));
+      toast({
+        title: "设置已保存",
+        description: "您的平台设置已成功保存",
+      });
+    } catch {
+      toast({
+        title: "保存设置失败",
+        description: "无法保存您的设置，请稍后再试",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Initialize platform settings
+  useEffect(() => {
+    // Try to load saved settings from localStorage
+    const savedSettings = localStorage.getItem('platformSettings');
+    const savedGlobalSettings = localStorage.getItem('globalSettings');
+    
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        setPlatformSettings(parsedSettings);
+      } catch {
+        console.error("Failed to parse saved platform settings");
+        initializeDefaultSettings();
+      }
+    } else {
+      initializeDefaultSettings();
+    }
+    
+    if (savedGlobalSettings) {
+      try {
+        const parsedGlobalSettings = JSON.parse(savedGlobalSettings);
+        setGlobalSettings(parsedGlobalSettings);
+      } catch {
+        console.error("Failed to parse saved global settings");
+      }
+    }
+    
+    // Initialize showSettings
+    const initialShowSettings: Record<string, boolean> = {};
+    platforms.forEach(platform => {
+      initialShowSettings[platform.id] = false;
+    });
+    setShowSettings(initialShowSettings);
+  }, []);
+
   // Character count display
   const contentCharCount = originalContent.length;
   
@@ -381,7 +377,7 @@ export default function AdaptPage() {
   };
 
   // Update platform settings
-  const updatePlatformSetting = (platformId: string, key: keyof PlatformSettings, value: any) => {
+  const updatePlatformSetting = (platformId: string, key: keyof PlatformSettings, value: unknown) => {
     setPlatformSettings(prev => ({
       ...prev,
       [platformId]: {
@@ -392,7 +388,7 @@ export default function AdaptPage() {
   };
 
   // Update global settings
-  const updateGlobalSetting = (key: keyof GlobalSettings, value: any) => {
+  const updateGlobalSetting = (key: keyof GlobalSettings, value: unknown) => {
     setGlobalSettings(prev => ({
       ...prev,
       [key]: value
@@ -472,7 +468,7 @@ export default function AdaptPage() {
     
     try {
       // Prepare the settings for each platform
-      const platformSettingsForAPI: Record<string, any> = {};
+      const platformSettingsForAPI: Record<string, unknown> = {};
       selectedPlatforms.forEach(platformId => {
         const settings = platformSettings[platformId];
         platformSettingsForAPI[`${platformId}-charCount`] = settings?.charCount || getCharCountMax(platformId) * 0.6;
@@ -608,7 +604,7 @@ export default function AdaptPage() {
     
     try {
       // Prepare settings for the specific platform
-      const platformSettingsForAPI: Record<string, any> = {};
+      const platformSettingsForAPI: Record<string, unknown> = {};
       const settings = platformSettings[platformId];
       platformSettingsForAPI[`${platformId}-charCount`] = settings?.charCount || getCharCountMax(platformId) * 0.6;
       platformSettingsForAPI[`${platformId}-emoji`] = settings?.useEmoji || false;
@@ -792,7 +788,7 @@ export default function AdaptPage() {
                   <Label className="text-xs mb-2 block">全局字符数限制</Label>
                   <Select 
                     value={globalSettings.charCountPreset}
-                    onValueChange={(value) => updateGlobalSetting('charCountPreset', value as any)}
+                    onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="选择字符数限制" />
@@ -852,7 +848,6 @@ export default function AdaptPage() {
           {platforms.map(platform => (
             <CheckboxCard
               key={platform.id}
-              id={platform.id}
               icon={platform.icon}
               title={platform.title}
               description={platform.description}

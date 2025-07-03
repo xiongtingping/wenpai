@@ -1,9 +1,9 @@
-import { callGeminiProxy, checkGeminiAvailability } from './apiProxy';
+import { checkGeminiAvailability } from './apiProxy';
 
 interface ContentGenerationParams {
   originalContent: string;
   targetPlatforms: string[];
-  platformSettings: Record<string, any>;
+  platformSettings: Record<string, unknown>;
 }
 
 // Generation step interface
@@ -36,7 +36,6 @@ export interface ApiStatus {
 }
 
 // API timeout settings (in milliseconds)
-const API_TIMEOUT = 30000; // 30 seconds
 const MAX_RETRIES = 2;
 const RETRY_DELAY = 1000; // 1 second
 
@@ -152,12 +151,13 @@ export async function checkApiAvailability(): Promise<boolean> {
       const responseTime = Date.now() - startTime;
       
       if (proxyResponse.success) {
+        const data = proxyResponse.data as { available: boolean };
         currentApiStatus = {
-          available: proxyResponse.data.available,
+          available: data.available,
           lastChecked: new Date(),
           responseTime
         };
-        return proxyResponse.data.available;
+        return data.available;
       } else {
         currentApiStatus = {
           available: false,
@@ -240,14 +240,14 @@ export async function generateAdaptedContent(params: ContentGenerationParams): P
     // Log which API provider is being used
     console.log(`Using API provider: ${currentApiProvider}`);
     
-    // Generate the steps for visualization
-    const generationSteps = getGenerationSteps(params);
+    // Generate the steps for visualization (currently unused but kept for future UI integration)
+    getGenerationSteps(params);
     
     // Process each platform in sequence, calling the selected API for each
     const results: Record<string, AIApiResponse> = {};
     
     for (const platformId of params.targetPlatforms) {
-      const useBrandLibrary = params.platformSettings[`${platformId}-brandLibrary`] || false;
+      const useBrandLibrary = (params.platformSettings[`${platformId}-brandLibrary`] as boolean) || false;
       const adaptedContent = await adaptContentForPlatform(params.originalContent, platformId, useBrandLibrary);
       results[platformId] = adaptedContent;
     }
@@ -280,11 +280,11 @@ export async function regeneratePlatformContent(
     // Log which API provider is being used
     console.log(`Using API provider for regeneration: ${currentApiProvider}`);
     
-    // Generate the steps for visualization
-    const generationSteps = getGenerationSteps(singlePlatformParams);
+    // Generate the steps for visualization (currently unused but kept for future UI integration)
+    getGenerationSteps(singlePlatformParams);
     
     // Get platform-specific settings
-    const useBrandLibrary = params.platformSettings[`${platformId}-brandLibrary`] || false;
+    const useBrandLibrary = (params.platformSettings[`${platformId}-brandLibrary`] as boolean) || false;
     
     // Call the selected AI API to generate the content
     const adaptedContent = await adaptContentForPlatform(params.originalContent, platformId, useBrandLibrary);
@@ -348,7 +348,6 @@ export async function adaptContentForPlatform(
   useBrandLibrary: boolean = false
 ): Promise<AIApiResponse> {
   // Get platform style info and prompt
-  const platformStyle = platformStyles[platformId as keyof typeof platformStyles];
   const platformPrompt = getPlatformPrompt(platformId);
   
   // Log the prompt being used
@@ -737,8 +736,8 @@ function generateSimulatedAIResponse(prompt: string, platformId: string): string
   const contentMatch = prompt.match(/Original content: ([\s\S]+?)(?=Platform requirements:|$)/);
   const originalContent = contentMatch ? contentMatch[1].trim() : "Sample content";
   
-  // Get platform style
-  const platformStyle = platformStyles[platformId as keyof typeof platformStyles];
+  // Get platform style (currently unused but kept for future enhancement)
+  // const platformStyle = platformStyles[platformId as keyof typeof platformStyles];
   
   // Generate platform-specific simulated response
   // NOTE: In production this would be completely replaced by the OpenAI response

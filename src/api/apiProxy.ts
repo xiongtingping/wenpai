@@ -12,7 +12,7 @@ export const API_ENDPOINTS = {
 /**
  * Interface for proxy response
  */
-export interface ProxyResponse<T = any> {
+export interface ProxyResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -25,7 +25,7 @@ export interface ProxyResponse<T = any> {
  * @returns Promise with response data
  */
 export async function callOpenAIProxy(
-  messages: any[],
+  messages: unknown[],
   model: string = 'gpt-3.5-turbo-0125'
 ): Promise<ProxyResponse> {
   try {

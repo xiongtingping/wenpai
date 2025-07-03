@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
 
 export function FeaturesSection() {
-  const [activeTab, setActiveTab] = useState("adapt")
+  const [, setActiveTab] = useState("adapt")
   
   return (
     <section id="features" className="py-20 opacity-0 animate-fadeIn">

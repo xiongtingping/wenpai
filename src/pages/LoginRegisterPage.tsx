@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, Phone, User, Shield, Loader2, ArrowLeft } from "lucide-react";
-import { sendVerificationCode, verifyCode, registerUser } from "@/api/authService";
+// import { sendVerificationCode, verifyCode, registerUser } from "@/api/authService";
 import { useLocation } from "react-router-dom";
 
 export default function LoginRegisterPage() {
@@ -40,7 +40,7 @@ export default function LoginRegisterPage() {
   });
 
   const { toast } = useToast();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   
   // Check if we should show registration form based on URL params
   const location = useLocation();
@@ -153,7 +153,7 @@ export default function LoginRegisterPage() {
           countdown: 60 // 60 second countdown for resend
         }));
       }, 1000);
-    } catch (error) {
+    } catch {
       toast({
         title: "发送失败",
         description: "短信验证码发送失败，请稍后重试",
