@@ -23,17 +23,23 @@ const ApiTestPage = () => {
   const [testResponse, setTestResponse] = useState<AIApiResponse | null>(null);
   const [apiStatus, setApiStatus] = useState(getApiStatus());
   const [apiCheckLoading, setApiCheckLoading] = useState(false);
-  const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini'>(getApiProvider());
+  const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'siliconflow'>(getApiProvider());
   const { toast } = useToast();
 
   // Update API provider when selection changes
-  const handleApiProviderChange = (value: 'openai' | 'gemini') => {
+  const handleApiProviderChange = (value: 'openai' | 'gemini' | 'siliconflow') => {
     setCurrentApiProvider(value);
     setApiProvider(value);
     
+    const providerNames = {
+      'openai': 'OpenAI',
+      'gemini': 'Google Gemini',
+      'siliconflow': 'SiliconFlow'
+    };
+    
     toast({
       title: "API 提供商已更改",
-      description: `现在使用 ${value === 'openai' ? 'OpenAI' : 'Google Gemini'} API`,
+      description: `现在使用 ${providerNames[value]} API`,
       variant: "default",
     });
     
@@ -53,10 +59,16 @@ const ApiTestPage = () => {
       const isAvailable = await checkApiAvailability();
       setApiStatus(getApiStatus());
       
+      const providerNames = {
+        'openai': 'OpenAI',
+        'gemini': 'Google Gemini',
+        'siliconflow': 'SiliconFlow'
+      };
+      
       toast({
         title: isAvailable ? "API连接正常" : "API连接失败",
         description: isAvailable 
-          ? `成功连接到${apiProvider === 'openai' ? 'OpenAI' : 'Google Gemini'} API` 
+          ? `成功连接到${providerNames[apiProvider]} API` 
           : `连接失败: ${getApiStatus().errorMessage || "未知错误"}`,
         variant: isAvailable ? "default" : "destructive",
       });
@@ -100,10 +112,16 @@ const ApiTestPage = () => {
       const adaptedContent = result['zhihu'];
       setTestResponse(adaptedContent);
 
+      const providerNames = {
+        'openai': 'OpenAI',
+        'gemini': 'Google Gemini',
+        'siliconflow': 'SiliconFlow'
+      };
+      
       toast({
         title: adaptedContent.source === "ai" ? "内容生成成功" : "使用模拟内容",
         description: adaptedContent.source === "ai" 
-          ? `${apiProvider === 'openai' ? 'OpenAI' : 'Google Gemini'} API成功生成内容` 
+          ? `${providerNames[apiProvider]} API成功生成内容` 
           : `使用了模拟内容: ${adaptedContent.error || "API可能不可用"}`,
         variant: adaptedContent.source === "ai" ? "default" : "destructive",
       });
@@ -124,7 +142,7 @@ const ApiTestPage = () => {
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">多模型 API 连接测试工具</h1>
         <p className="text-gray-500 mb-8">
-          本页面用于测试与 AI API 的连接情况，支持 OpenAI 和 Google Gemini，验证内容生成功能是否正常工作。
+          本页面用于测试与 AI API 的连接情况，支持 OpenAI、Google Gemini 和 SiliconFlow，验证内容生成功能是否正常工作。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -137,7 +155,7 @@ const ApiTestPage = () => {
               <RadioGroup 
                 className="flex flex-col space-y-4"
                 value={apiProvider} 
-                onValueChange={(value: 'openai' | 'gemini') => handleApiProviderChange(value)}
+                onValueChange={(value: 'openai' | 'gemini' | 'siliconflow') => handleApiProviderChange(value)}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="openai" id="openai" />
@@ -156,6 +174,16 @@ const ApiTestPage = () => {
                     </Badge>
                   </Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="siliconflow" id="siliconflow" />
+                  <Label htmlFor="siliconflow" className="flex items-center">
+                    <span className="text-purple-600 font-semibold">SiliconFlow</span>
+                    <span className="ml-2 text-gray-500 text-sm">(qwen2.5-32b-instruct)</span>
+                    <Badge variant="secondary" className="ml-2">
+                      <Zap className="h-3 w-3 mr-1" /> 备用
+                    </Badge>
+                  </Label>
+                </div>
               </RadioGroup>
             </CardContent>
           </Card>
@@ -164,7 +192,7 @@ const ApiTestPage = () => {
             <CardHeader>
               <CardTitle>API 连接状态</CardTitle>
               <CardDescription>
-                检查与 {apiProvider === 'openai' ? 'OpenAI' : 'Google Gemini'} API 的连接状态
+                检查与 {apiProvider === 'openai' ? 'OpenAI' : apiProvider === 'gemini' ? 'Google Gemini' : 'SiliconFlow'} API 的连接状态
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -239,11 +267,14 @@ const ApiTestPage = () => {
               <CardDescription>
                 内容生成源: {' '}
                 {testResponse.source === 'ai' ? (
-                  <Badge variant="outline" className={apiProvider === 'openai' ? 
-                    "bg-blue-50 text-blue-700 border-blue-200" : 
-                    "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  <Badge variant="outline" className={
+                    apiProvider === 'openai' ? "bg-blue-50 text-blue-700 border-blue-200" :
+                    apiProvider === 'gemini' ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                    "bg-purple-50 text-purple-700 border-purple-200"
                   }>
-                    {apiProvider === 'openai' ? 'OpenAI API' : 'Google Gemini API'}
+                    {apiProvider === 'openai' ? 'OpenAI API' : 
+                     apiProvider === 'gemini' ? 'Google Gemini API' : 
+                     'SiliconFlow API'}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">

@@ -45,9 +45,9 @@ let currentApiStatus: ApiStatus = {
   lastChecked: new Date()
 };
 
-// API provider selection - toggle between 'openai' and 'gemini'
+// API provider selection - toggle between 'openai', 'gemini', and 'siliconflow'
 // Set default to Gemini since we want to implement Gemini API
-let currentApiProvider: 'openai' | 'gemini' = 'gemini';
+let currentApiProvider: 'openai' | 'gemini' | 'siliconflow' = 'gemini';
 
 // Platform style definitions and prompts
 export const platformStyles = {
@@ -119,9 +119,9 @@ export function getApiStatus(): ApiStatus {
 
 /**
  * Set the current API provider
- * @param provider The API provider to use ('openai' or 'gemini')
+ * @param provider The API provider to use ('openai' or 'gemini' or 'siliconflow')
  */
-export function setApiProvider(provider: 'openai' | 'gemini'): void {
+export function setApiProvider(provider: 'openai' | 'gemini' | 'siliconflow'): void {
   currentApiProvider = provider;
   console.log(`API provider set to: ${provider}`);
 }
@@ -130,7 +130,7 @@ export function setApiProvider(provider: 'openai' | 'gemini'): void {
  * Get the current API provider
  * @returns Current API provider
  */
-export function getApiProvider(): 'openai' | 'gemini' {
+export function getApiProvider(): 'openai' | 'gemini' | 'siliconflow' {
   return currentApiProvider;
 }
 
@@ -378,6 +378,8 @@ export async function adaptContentForPlatform(
     
     if (currentApiProvider === 'gemini') {
       result = await callGeminiAPI(systemPrompt, userPrompt, platformId);
+    } else if (currentApiProvider === 'siliconflow') {
+      result = await callSiliconFlowAPI(systemPrompt, userPrompt, platformId);
     } else {
       result = await callOpenAIAPI(systemPrompt, userPrompt, platformId);
     }
@@ -534,6 +536,168 @@ async function callOpenAIAPI(
       }
     } catch (error) {
       console.error(`API call error on attempt ${attempt + 1}:`, error);
+      
+      // Update API status
+      currentApiStatus = {
+        available: false,
+        lastChecked: new Date(),
+        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      };
+      
+      // For the last attempt, fall back to simulation
+      if (attempt >= MAX_RETRIES) {
+        return {
+          content: generateSimulatedAIResponse(userPrompt, platformId),
+          source: "simulation",
+          error: error instanceof Error ? error.message : "API 调用失败"
+        };
+      }
+      
+      // Wait before next retry (with exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
+    }
+  }
+  
+  // This should never be reached due to the return in the final attempt, but TypeScript requires it
+  return {
+    content: generateSimulatedAIResponse(userPrompt, platformId),
+    source: "simulation",
+    error: "所有 API 重试尝试失败，已使用模拟内容"
+  };
+}
+
+/**
+ * Make an API call to SiliconFlow through the backend proxy
+ * @param systemPrompt The system prompt
+ * @param userPrompt The user prompt
+ * @param platformId The platform ID for context (used for fallback)
+ * @returns Generated content with source information
+ */
+async function callSiliconFlowAPI(
+  systemPrompt: string, 
+  userPrompt: string, 
+  platformId: string
+): Promise<AIApiResponse> {
+  const messages = [
+    {
+      role: "system",
+      content: systemPrompt
+    },
+    {
+      role: "user",
+      content: userPrompt
+    }
+  ];
+  
+  // Retry loop implementation
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`SiliconFlow API call attempt ${attempt + 1}/${MAX_RETRIES + 1} for ${platformId}`);
+      
+      try {
+        console.log('Sending request to SiliconFlow API via proxy...');
+        
+        const response = await fetch('/api/proxy/siliconflow', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages,
+            model: "qwen2.5-32b-instruct", 
+            temperature: 0.7
+          })
+        });
+        
+        console.log(`SiliconFlow API response status: ${response.status}`);
+        
+        // Check if we have a JSON response
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const textBody = await response.text();
+          console.error('Non-JSON response from SiliconFlow API:', textBody.substring(0, 500));
+          
+          // Update API status
+          currentApiStatus = {
+            available: false,
+            lastChecked: new Date(),
+            errorMessage: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
+          };
+          
+          if (attempt < MAX_RETRIES) {
+            console.log(`Will retry after error: Non-JSON response`);
+            // Wait before retrying (with exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
+            continue; // Try again
+          }
+          
+          // Fall back to simulation when all retries fail
+          return {
+            content: generateSimulatedAIResponse(userPrompt, platformId),
+            source: "simulation",
+            error: `非JSON响应: ${textBody.substring(0, 100)}...`
+          };
+        }
+        
+        // Now safe to parse JSON
+        const data = await response.json();
+        
+        // Handle non-200 responses
+        if (!response.ok) {
+          // Get response body for more error details
+          console.error('Error response body:', JSON.stringify(data));
+          
+          const errorMessage = data.error || `API error: ${response.status}`;
+          
+          // Update API status
+          currentApiStatus = {
+            available: false,
+            lastChecked: new Date(),
+            errorMessage: errorMessage
+          };
+          
+          if (attempt < MAX_RETRIES) {
+            console.log(`Will retry after error: ${errorMessage}`);
+            // Wait before retrying (with exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
+            continue; // Try again
+          }
+          
+          console.error(`SiliconFlow API error after ${attempt + 1} attempts:`, errorMessage);
+          
+          // Fall back to simulation when all retries fail
+          return {
+            content: generateSimulatedAIResponse(userPrompt, platformId),
+            source: "simulation",
+            error: errorMessage
+          };
+        }
+        
+        // Update API status to available
+        currentApiStatus = {
+          available: true,
+          lastChecked: new Date()
+        };
+        
+        // Process successful response
+        console.log('Processing successful SiliconFlow API response');
+        
+        if (!data.success) {
+          throw new Error(data.error || 'API proxy returned an unsuccessful response');
+        }
+        
+        return {
+          content: data.data.choices[0].message.content,
+          source: "ai" // Indicate this content came from the AI
+        };
+      } catch (fetchError) {
+        console.error('Fetch error:', fetchError);
+        
+        // Re-throw other fetch errors
+        throw fetchError;
+      }
+    } catch (error) {
+      console.error(`SiliconFlow API call error on attempt ${attempt + 1}:`, error);
       
       // Update API status
       currentApiStatus = {
