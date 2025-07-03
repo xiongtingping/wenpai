@@ -129,7 +129,7 @@ function getCharCountMax(platformId: string): number {
   switch (platformId) {
     case 'zhihu': return 10000;      // 知乎回答可以很长
     case 'douyin': return 1000;      // 抖音脚本通常较短
-    case 'xiaohongshu': return 5000; // 小红书笔记有字数限制
+    case 'xiaohongshu': return 1000; // 小红书笔记字数限制1000字
     case 'wechat': return 20000;     // 公众号文章可以很长
     case 'weibo': return 2000;       // 微博有2000字上限
     case 'twitter': return 280;      // Twitter(X)有280字符限制

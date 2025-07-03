@@ -46,8 +46,8 @@ let currentApiStatus: ApiStatus = {
 };
 
 // API provider selection - toggle between 'openai', 'gemini', and 'siliconflow'
-// Set default to Gemini since we want to implement Gemini API
-let currentApiProvider: 'openai' | 'gemini' | 'siliconflow' = 'gemini';
+// Set default to OpenAI since Gemini is temporarily hidden
+let currentApiProvider: 'openai' | 'gemini' | 'siliconflow' = 'openai';
 
 // Platform style definitions and prompts
 export const platformStyles = {
@@ -492,7 +492,7 @@ async function callOpenAIAPI(
           },
           body: JSON.stringify({
             messages,
-            model: "gpt-3.5-turbo-0125", 
+            model: "gpt-4o-mini", 
             temperature: 0.7
           })
         });

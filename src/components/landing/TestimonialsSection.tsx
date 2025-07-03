@@ -31,11 +31,11 @@ function TestimonialCard({ content, name, position, index }: TestimonialProps) {
   return (
     <Card className="bg-gray-100 p-8 rounded-xl shadow-lg">
       <p className="text-gray-700">{content}</p>
-      <div className="mt-6 flex items-center">
-        <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden">
+      <div className="mt-6 flex items-start">
+        <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden flex-shrink-0">
           <img src={getAvatarUrl(index)} alt={name} className="w-full h-full object-cover" />
         </div>
-        <div className="ml-4">
+        <div className="ml-4 flex-1">
           <p className="font-semibold text-gray-900">{name}</p>
           <p className="text-sm text-gray-500">{position}</p>
         </div>

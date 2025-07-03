@@ -54,19 +54,29 @@ export function HowItWorks() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center relative z-10">
-            {/* Step 1 */}
-            <div className="step flex flex-col items-center">
-              <div className="flex justify-center items-center h-20 w-20 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-full text-3xl font-bold shadow-lg relative border-2 border-blue-200">
-                1
+            {/* Step 1: Input */}
+            <div className="step flex flex-col items-center group">
+              <div className="relative">
+                <div className="flex justify-center items-center h-24 w-24 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-full text-4xl font-bold shadow-lg border-4 border-blue-200 group-hover:border-blue-300 transition-all duration-300 group-hover:scale-110">
+                  1
+                </div>
+                <div className="absolute -top-3 -right-3 flex h-8 w-8">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-8 w-8 bg-blue-500 text-sm text-white items-center justify-center font-bold">
+                    ✓
+                  </span>
+                </div>
                 {/* Arrow for mobile */}
-                <div className="md:hidden absolute -bottom-14 left-1/2 transform -translate-x-1/2">
+                <div className="md:hidden absolute -bottom-16 left-1/2 transform -translate-x-1/2">
                   <svg className="w-12 h-12 text-blue-400" viewBox="0 0 24 24" fill="none">
                     <path d="M12 4L12 20M12 20L18 14M12 20L6 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
               </div>
-              <h3 className="mt-6 text-xl font-semibold">输入任意内容</h3>
-              <p className="mt-2 text-gray-600">粘贴您的原始文案、文章段落，甚至是已发布的文章链接。</p>
+              <div className="mt-8 text-center max-w-xs">
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">输入原始内容</h3>
+                <p className="text-gray-600 leading-relaxed">粘贴或输入您想要适配的内容，AI将智能分析内容结构和核心信息，为后续适配做准备。</p>
+              </div>
               
               {/* Arrow for desktop */}
               <div className="hidden md:block absolute top-1/2 left-[calc(33.33%-2.5rem)] transform -translate-y-1/2 translate-x-[170px]">
@@ -79,19 +89,29 @@ export function HowItWorks() {
               </div>
             </div>
             
-            {/* Step 2 */}
-            <div className="step flex flex-col items-center">
-              <div className="flex justify-center items-center h-20 w-20 bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-600 rounded-full text-3xl font-bold shadow-lg relative border-2 border-indigo-200">
-                2
+            {/* Step 2: Select */}
+            <div className="step flex flex-col items-center group">
+              <div className="relative">
+                <div className="flex justify-center items-center h-24 w-24 bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-600 rounded-full text-4xl font-bold shadow-lg border-4 border-indigo-200 group-hover:border-indigo-300 transition-all duration-300 group-hover:scale-110">
+                  2
+                </div>
+                <div className="absolute -top-3 -right-3 flex h-8 w-8">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-8 w-8 bg-indigo-500 text-sm text-white items-center justify-center font-bold">
+                    ✓
+                  </span>
+                </div>
                 {/* Arrow for mobile */}
-                <div className="md:hidden absolute -bottom-14 left-1/2 transform -translate-x-1/2">
+                <div className="md:hidden absolute -bottom-16 left-1/2 transform -translate-x-1/2">
                   <svg className="w-12 h-12 text-indigo-500" viewBox="0 0 24 24" fill="none">
                     <path d="M12 4L12 20M12 20L18 14M12 20L6 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
               </div>
-              <h3 className="mt-6 text-xl font-semibold">选择目标平台</h3>
-              <p className="mt-2 text-gray-600">勾选您想分发的所有平台，并可选择精细化风格。</p>
+              <div className="mt-8 text-center max-w-xs">
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">选择目标平台</h3>
+                <p className="text-gray-600 leading-relaxed">勾选需要适配的平台，支持多平台同时生成。每个平台都有独特的风格和优化设置。</p>
+              </div>
               
               {/* Arrow for desktop */}
               <div className="hidden md:block absolute top-1/2 left-[calc(66.66%-2.5rem)] transform -translate-y-1/2 translate-x-[170px]">
@@ -104,19 +124,23 @@ export function HowItWorks() {
               </div>
             </div>
             
-            {/* Step 3 */}
-            <div className="step flex flex-col items-center">
-              <div className="flex justify-center items-center h-20 w-20 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-600 rounded-full text-3xl font-bold shadow-lg border-2 border-purple-200">
-                3
-                <span className="absolute -top-2 -right-2 flex h-6 w-6">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-50"></span>
-                  <span className="relative inline-flex rounded-full h-6 w-6 bg-purple-500 text-xs text-white items-center justify-center">
+            {/* Step 3: Generate */}
+            <div className="step flex flex-col items-center group">
+              <div className="relative">
+                <div className="flex justify-center items-center h-24 w-24 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-600 rounded-full text-4xl font-bold shadow-lg border-4 border-purple-200 group-hover:border-purple-300 transition-all duration-300 group-hover:scale-110">
+                  3
+                </div>
+                <div className="absolute -top-3 -right-3 flex h-8 w-8">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-8 w-8 bg-purple-500 text-sm text-white items-center justify-center font-bold">
                     ✓
                   </span>
-                </span>
+                </div>
               </div>
-              <h3 className="mt-6 text-xl font-semibold">一键获取所有版本</h3>
-              <p className="mt-2 text-gray-600">AI瞬间为您生成所有适配版本，一键复制、导出或分享。</p>
+              <div className="mt-8 text-center max-w-xs">
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">一键获取所有版本</h3>
+                <p className="text-gray-600 leading-relaxed">AI瞬间为您生成所有适配版本，一键复制、导出或分享。每个版本都完美适配对应平台特性。</p>
+              </div>
             </div>
           </div>
         </div>

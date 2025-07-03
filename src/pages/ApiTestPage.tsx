@@ -161,10 +161,11 @@ const ApiTestPage = () => {
                   <RadioGroupItem value="openai" id="openai" />
                   <Label htmlFor="openai" className="flex items-center">
                     <span className="text-blue-600 font-semibold">OpenAI</span>
-                    <span className="ml-2 text-gray-500 text-sm">(gpt-3.5-turbo)</span>
+                    <span className="ml-2 text-gray-500 text-sm">(gpt-4o-mini)</span>
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                {/* 暂时隐藏 Gemini API 选项 */}
+                {/* <div className="flex items-center space-x-2">
                   <RadioGroupItem value="gemini" id="gemini" />
                   <Label htmlFor="gemini" className="flex items-center">
                     <span className="text-emerald-600 font-semibold">Google Gemini</span>
@@ -173,7 +174,7 @@ const ApiTestPage = () => {
                       <Zap className="h-3 w-3 mr-1" /> 当前使用
                     </Badge>
                   </Label>
-                </div>
+                </div> */}
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="siliconflow" id="siliconflow" />
                   <Label htmlFor="siliconflow" className="flex items-center">

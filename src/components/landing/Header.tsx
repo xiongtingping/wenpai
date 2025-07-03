@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, HelpCircle, UserPlus, TestTube } from "lucide-react"
+import { Menu, HelpCircle, UserPlus, TestTube, User } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -108,14 +108,14 @@ export function Header() {
             </Popover>
             
             {/* Direct login/register button - no dropdown */}
-            <Link to="/login-register">
+            <Link to="/profile">
               <Button variant="outline" className="flex items-center gap-1">
-                <UserPlus className="h-4 w-4 mr-1" />
-                登录/注册
+                <User className="h-4 w-4 mr-1" />
+                我的
               </Button>
             </Link>
             
-            <Link to="/adapt">
+            <Link to="/register">
               <Button className="bg-blue-600 hover:bg-blue-700">免费开始</Button>
             </Link>
           </div>
@@ -159,14 +159,14 @@ export function Header() {
                 <hr className="my-4" />
                 
                 {/* Direct login/register for mobile */}
-                <Link to="/login-register">
+                <Link to="/profile">
                   <Button variant="outline" className="w-full flex items-center justify-center">
-                    <UserPlus className="h-4 w-4 mr-1" />
-                    登录/注册
+                    <User className="h-4 w-4 mr-1" />
+                    我的
                   </Button>
                 </Link>
                 
-                <Link to="/adapt">
+                <Link to="/register">
                   <Button className="w-full bg-blue-600 hover:bg-blue-700">免费开始</Button>
                 </Link>
               </div>

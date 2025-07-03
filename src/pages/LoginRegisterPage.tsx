@@ -44,7 +44,7 @@ export default function LoginRegisterPage() {
   
   // Check if we should show registration form based on URL params
   const location = useLocation();
-  const showRegistration = location.pathname === "/register";
+  const showRegistration = location.pathname === "/register" || location.pathname === "/login-register";
 
   // Countdown timer for SMS code resend
   useEffect(() => {
@@ -237,7 +237,7 @@ export default function LoginRegisterPage() {
     setTimeout(() => {
       toast({
         title: "注册成功",
-        description: "正在为您跳转到支付页面...",
+        description: "正在为您跳转到内容适配页面...",
       });
       
       // Store mock data
@@ -247,9 +247,9 @@ export default function LoginRegisterPage() {
         phone: formData.phone
       }));
       
-      // Redirect to payment page
+      // Redirect to adapt page instead of payment page
       setTimeout(() => {
-        window.location.href = "/payment";
+        window.location.href = "/adapt";
       }, 1500);
       
       setLoading(prev => ({ ...prev, registering: false }));

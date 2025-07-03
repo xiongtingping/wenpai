@@ -7,6 +7,7 @@ import BrandLibraryPage from "@/pages/BrandLibraryPage";
 import ApiTestPage from "@/pages/ApiTestPage";
 import PaymentPage from "@/pages/PaymentPage";
 import LoginRegisterPage from "@/pages/LoginRegisterPage";
+import ProfilePage from "@/pages/ProfilePage";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ToolLayout from "@/components/layout/ToolLayout";
@@ -26,6 +27,7 @@ function App() {
           {/* Register page - same component but different view */}
           <Route path="/register" element={<LoginRegisterPage />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

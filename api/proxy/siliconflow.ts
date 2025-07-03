@@ -1,6 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('=== SiliconFlow Proxy Debug Start ===');
+  console.log('req.method:', req.method);
+  console.log('req.headers:', JSON.stringify(req.headers, null, 2));
+  console.log('req.body:', JSON.stringify(req.body, null, 2));
+  
   // 设置 CORS 头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');

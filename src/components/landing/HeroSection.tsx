@@ -13,7 +13,7 @@ export function HeroSection() {
           一键智能改写任意内容，让内容精准适配每一个平台。精准适配小红书、公众号、抖音、B站、知乎、微博等平台风格，确保内容风格各异、表达一致，始终严守品牌口径。
         </p>
         <div className="mt-10">
-          <Link to="/adapt">
+          <Link to="/register">
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-white font-bold py-6 px-8 rounded-lg shadow-lg text-lg"
@@ -68,6 +68,28 @@ export function HeroSection() {
                     <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">AI升级</span>
                   </h4>
                   <p className="text-sm text-gray-600">从成分党角度分析，秋冬身体乳的核心诉求是保湿与肤感。XXX身体乳在采用传统保湿剂的基础上，通过其香氛设计提升了用户体验...</p>
+                </div>
+              </Card>
+              {/* WeChat Output */}
+              <Card className="p-4 flex items-start space-x-3 bg-gradient-to-r from-green-50 to-green-100 border-0 shadow-md transform transition-transform hover:scale-105">
+                <div className="h-10 w-10 bg-green-500 text-white rounded-full flex items-center justify-center text-xs">公众号</div>
+                <div className="text-left">
+                  <h4 className="font-semibold flex items-center">
+                    公众号文章
+                    <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">AI升级</span>
+                  </h4>
+                  <p className="text-sm text-gray-600">秋冬护肤必备：如何选择适合自己的身体乳？从成分、质地到香氛，一文详解身体乳选购指南...</p>
+                </div>
+              </Card>
+              {/* Xiaohongshu Output */}
+              <Card className="p-4 flex items-start space-x-3 bg-gradient-to-r from-rose-50 to-rose-100 border-0 shadow-md transform transition-transform hover:scale-105">
+                <div className="h-10 w-10 bg-rose-500 text-white rounded-full flex items-center justify-center text-xs">小红书</div>
+                <div className="text-left">
+                  <h4 className="font-semibold flex items-center">
+                    小红书笔记
+                    <span className="ml-2 px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded-full">AI升级</span>
+                  </h4>
+                  <p className="text-sm text-gray-600">✨秋冬身体乳测评✨ 这款牛奶糖味道的身体乳真的太治愈了！质地像冰淇淋慕斯，推开超水润...</p>
                 </div>
               </Card>
             </div>
