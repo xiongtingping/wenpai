@@ -14,36 +14,6 @@ export function TrustSection() {
           <div className="mt-4 w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
         </div>
 
-        {/* 视频平台 */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">视频平台</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 justify-center items-center gap-4">
-            <div className="flex flex-col items-center justify-center transition py-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transform hover:-translate-y-1 duration-300 border border-blue-100">
-              <div className="flex items-center mb-2">
-                <Video className="h-7 w-7 text-black mr-2" />
-                <span className="text-gray-800 font-medium">抖音</span>
-              </div>
-              <span className="text-xs text-gray-500">短视频平台</span>
-            </div>
-            
-            <div className="flex flex-col items-center justify-center transition py-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transform hover:-translate-y-1 duration-300 border border-blue-100">
-              <div className="flex items-center mb-2">
-                <Video className="h-7 w-7 text-blue-400 mr-2" />
-                <span className="text-gray-800 font-medium">B站</span>
-              </div>
-              <span className="text-xs text-gray-500">视频社区平台</span>
-            </div>
-            
-            <div className="flex flex-col items-center justify-center transition py-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transform hover:-translate-y-1 duration-300 border border-blue-100">
-              <div className="flex items-center mb-2">
-                <SquarePlay className="h-7 w-7 text-green-600 mr-2" />
-                <span className="text-gray-800 font-medium">视频号</span>
-              </div>
-              <span className="text-xs text-gray-500">短视频平台</span>
-            </div>
-          </div>
-        </div>
-
         {/* 文字平台 */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">文字平台</h3>
@@ -70,6 +40,36 @@ export function TrustSection() {
                 <span className="text-gray-800 font-medium">知乎</span>
               </div>
               <span className="text-xs text-gray-500">问答社区平台</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 短视频平台 */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">短视频平台</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 justify-center items-center gap-4">
+            <div className="flex flex-col items-center justify-center transition py-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transform hover:-translate-y-1 duration-300 border border-blue-100">
+              <div className="flex items-center mb-2">
+                <Video className="h-7 w-7 text-black mr-2" />
+                <span className="text-gray-800 font-medium">抖音</span>
+              </div>
+              <span className="text-xs text-gray-500">短视频平台</span>
+            </div>
+            
+            <div className="flex flex-col items-center justify-center transition py-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transform hover:-translate-y-1 duration-300 border border-blue-100">
+              <div className="flex items-center mb-2">
+                <Video className="h-7 w-7 text-blue-400 mr-2" />
+                <span className="text-gray-800 font-medium">B站</span>
+              </div>
+              <span className="text-xs text-gray-500">视频社区平台</span>
+            </div>
+            
+            <div className="flex flex-col items-center justify-center transition py-3 bg-white rounded-lg p-4 shadow-sm hover:shadow-md transform hover:-translate-y-1 duration-300 border border-blue-100">
+              <div className="flex items-center mb-2">
+                <SquarePlay className="h-7 w-7 text-green-600 mr-2" />
+                <span className="text-gray-800 font-medium">视频号</span>
+              </div>
+              <span className="text-xs text-gray-500">短视频平台</span>
             </div>
           </div>
         </div>

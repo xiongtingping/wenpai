@@ -109,9 +109,14 @@ export function Header() {
             
             {/* Direct login/register button - no dropdown */}
             <Link to="/profile">
-              <Button variant="outline" className="flex items-center gap-1">
+              <Button variant="outline" className="flex items-center gap-1 mr-2">
                 <User className="h-4 w-4 mr-1" />
                 我的
+              </Button>
+            </Link>
+            <Link to="/register">
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                注册/登录
               </Button>
             </Link>
             
@@ -160,9 +165,14 @@ export function Header() {
                 
                 {/* Direct login/register for mobile */}
                 <Link to="/profile">
-                  <Button variant="outline" className="w-full flex items-center justify-center">
+                  <Button variant="outline" className="w-full flex items-center justify-center mb-2">
                     <User className="h-4 w-4 mr-1" />
                     我的
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    注册/登录
                   </Button>
                 </Link>
                 

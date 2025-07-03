@@ -42,7 +42,7 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
                 邀请奖励
               </Link>
             </Button>
-            <Button size="sm">升级专业版</Button>
+            <Button size="sm" onClick={() => window.location.href = "/payment"}>升级专业版</Button>
           </div>
         </div>
       </header>

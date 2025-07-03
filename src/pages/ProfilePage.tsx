@@ -362,12 +362,12 @@ export default function ProfilePage() {
                       <p>✓ 高级风格定制</p>
                       <p>✓ 品牌库功能</p>
                     </div>
-                    <Button 
-                      className="w-full bg-blue-600 hover:bg-blue-700"
-                      onClick={handleUpgrade}
-                    >
-                      立即升级
-                    </Button>
+                                         <Button 
+                       className="w-full bg-blue-600 hover:bg-blue-700"
+                       onClick={() => window.location.href = "/payment"}
+                     >
+                       立即升级
+                     </Button>
                   </div>
                 </CardContent>
               </Card>

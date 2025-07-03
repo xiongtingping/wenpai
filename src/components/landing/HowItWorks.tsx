@@ -79,7 +79,7 @@ export function HowItWorks() {
               </div>
               
               {/* Arrow for desktop */}
-              <div className="hidden md:block absolute top-1/2 left-[calc(33.33%-2.5rem)] transform -translate-y-1/2 translate-x-[170px]">
+              <div className="hidden md:block absolute top-1/2 left-[calc(33.33%+2rem)] transform -translate-y-1/2">
                 <div className="relative flex items-center justify-center">
                   <div className="absolute w-16 h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full opacity-30"></div>
                   <svg className="w-12 h-8 text-indigo-500 relative z-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -114,7 +114,7 @@ export function HowItWorks() {
               </div>
               
               {/* Arrow for desktop */}
-              <div className="hidden md:block absolute top-1/2 left-[calc(66.66%-2.5rem)] transform -translate-y-1/2 translate-x-[170px]">
+              <div className="hidden md:block absolute top-1/2 left-[calc(66.66%+2rem)] transform -translate-y-1/2">
                 <div className="relative flex items-center justify-center">
                   <div className="absolute w-16 h-16 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full opacity-30"></div>
                   <svg className="w-12 h-8 text-purple-500 relative z-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
