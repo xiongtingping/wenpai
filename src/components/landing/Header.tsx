@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, HelpCircle, UserPlus } from "lucide-react"
+import { Menu, HelpCircle, UserPlus, TestTube } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -80,6 +80,10 @@ export function Header() {
                 开发中
               </Badge>
             </Link>
+            <Link to="/api-test" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              <TestTube className="h-4 w-4 mr-1" />
+              API 测试
+            </Link>
             <Link to="/invite" className="text-gray-600 hover:text-blue-600 transition flex items-center">
               邀请奖励
               <Badge variant="outline" className="ml-1 bg-blue-50 text-blue-700 border-blue-200">
@@ -134,6 +138,10 @@ export function Header() {
                   <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
                     开发中
                   </Badge>
+                </Link>
+                <Link to="/api-test" className="text-lg font-medium py-2 flex items-center">
+                  <TestTube className="h-4 w-4 mr-2" />
+                  API 测试
                 </Link>
                 <Link to="/invite" className="text-lg font-medium py-2 flex items-center">
                   邀请奖励

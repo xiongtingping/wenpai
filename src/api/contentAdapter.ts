@@ -176,7 +176,7 @@ export async function checkApiAvailability(): Promise<boolean> {
       };
       return false;
     }
-  } else {
+  } else if (currentApiProvider === 'openai') {
     const startTime = Date.now();
     try {
       // Use our proxy service to check OpenAI API availability
@@ -189,6 +189,56 @@ export async function checkApiAvailability(): Promise<boolean> {
       if (!contentType || !contentType.includes('application/json')) {
         const textBody = await response.text();
         console.error('Non-JSON response from OpenAI status check:', textBody.substring(0, 500));
+        
+        currentApiStatus = {
+          available: false,
+          lastChecked: new Date(),
+          errorMessage: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`,
+          responseTime
+        };
+        return false;
+      }
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        currentApiStatus = {
+          available: data.available,
+          lastChecked: new Date(),
+          responseTime
+        };
+        return data.available;
+      } else {
+        currentApiStatus = {
+          available: false,
+          lastChecked: new Date(),
+          errorMessage: data.error || `API error: ${response.status}`,
+          responseTime
+        };
+        return false;
+      }
+    } catch (error) {
+      currentApiStatus = {
+        available: false,
+        lastChecked: new Date(),
+        errorMessage: (error instanceof Error) ? error.message : 'Unknown error checking API availability',
+        responseTime: Date.now() - startTime
+      };
+      return false;
+    }
+  } else if (currentApiProvider === 'siliconflow') {
+    const startTime = Date.now();
+    try {
+      // Use our proxy service to check SiliconFlow API availability
+      const response = await fetch('/api/status/siliconflow');
+      
+      const responseTime = Date.now() - startTime;
+      
+      // Check if we get a JSON response
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const textBody = await response.text();
+        console.error('Non-JSON response from SiliconFlow status check:', textBody.substring(0, 500));
         
         currentApiStatus = {
           available: false,

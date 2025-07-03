@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Database, Users } from 'lucide-react';
+import { ArrowLeft, Database, Users, TestTube } from 'lucide-react';
 
 interface ToolLayoutProps {
   children: ReactNode;
@@ -28,6 +28,12 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
               <Link to="/brand-library" className="flex items-center">
                 <Database className="h-4 w-4 mr-1" />
                 品牌库
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/api-test" className="flex items-center">
+                <TestTube className="h-4 w-4 mr-1" />
+                API 测试
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild>
