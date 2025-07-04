@@ -8,9 +8,6 @@ import { PricingSection } from "@/components/landing/PricingSection"
 import { CTASection } from "@/components/landing/CTASection"
 import { Footer } from "@/components/landing/Footer"
 import { useScrollAnimation } from "@/components/landing/ScrollAnimation"
-import PrivacyPage from "./PrivacyPage"
-import TermsPage from "./TermsPage"
-import ChangelogPage from "./ChangelogPage"
 
 function HomePage() {
   // Initialize scroll animation

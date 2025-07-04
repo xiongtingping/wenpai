@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, WalletCards, Clock, Calendar } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Clock, Calendar } from "lucide-react";
 
 export default function PaymentPage() {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [paymentAmount, setPaymentAmount] = useState<string>("");
-  const [originalPrice, setOriginalPrice] = useState<string>("");
-  const [discount, setDiscount] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
   const [showQRCode, setShowQRCode] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   // 暑假特惠截止日期：2025年9月30日24:00
   const summerSaleEndDate = new Date('2025-09-30T24:00:00');
@@ -36,18 +32,14 @@ export default function PaymentPage() {
           if (selectedPlan === "pro-monthly") {
             if (isSummerSaleActive) {
               setPaymentAmount("29.9");
-              setDiscount("10");
             } else {
               setPaymentAmount("39.9");
-              setDiscount("0");
             }
           } else if (selectedPlan === "pro-yearly") {
             if (isSummerSaleActive) {
               setPaymentAmount("358.8");
-              setDiscount("120");
             } else {
               setPaymentAmount("478.8");
-              setDiscount("0");
             }
           }
           clearInterval(timer);
@@ -68,13 +60,9 @@ export default function PaymentPage() {
     if (plan === "pro-monthly") {
       // 限时特惠价优先
       setPaymentAmount("23.9");
-      setOriginalPrice("39.9");
-      setDiscount("16");
     } else if (plan === "pro-yearly") {
       // 限时特惠价优先
       setPaymentAmount("288");
-      setOriginalPrice("478.8");
-      setDiscount("190.8");
     }
   };
 
@@ -124,7 +112,7 @@ export default function PaymentPage() {
         <Card className={`cursor-pointer transition-all ${selectedPlan === "pro-monthly" ? "border-blue-500 shadow-lg" : "hover:shadow-md"}`} onClick={() => handlePlanSelect("pro-monthly")}>
           <CardHeader>
             <CardTitle className="text-xl">按月支付</CardTitle>
-            <CardDescription>适合短期使用</CardDescription>
+            <p className="text-muted-foreground text-sm">适合短期使用</p>
           </CardHeader>
           <CardContent>
             <div className="text-center">
@@ -169,7 +157,7 @@ export default function PaymentPage() {
         <Card className={`cursor-pointer transition-all ${selectedPlan === "pro-yearly" ? "border-blue-500 shadow-lg" : "hover:shadow-md"}`} onClick={() => handlePlanSelect("pro-yearly")}>
           <CardHeader>
             <CardTitle className="text-xl">按年支付</CardTitle>
-            <CardDescription>适合长期使用，更优惠</CardDescription>
+            <p className="text-muted-foreground text-sm">适合长期使用，更优惠</p>
           </CardHeader>
           <CardContent>
             <div className="text-center">
@@ -216,7 +204,7 @@ export default function PaymentPage() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>订单信息</CardTitle>
-          <CardDescription>您选择的是文派专业版</CardDescription>
+          <p className="text-muted-foreground text-sm">您选择的是文派专业版</p>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center py-4 border-b">
@@ -280,7 +268,7 @@ export default function PaymentPage() {
       <Card>
         <CardHeader>
           <CardTitle>支付方式</CardTitle>
-          <CardDescription>选择您喜欢的支付方式</CardDescription>
+          <p className="text-muted-foreground text-sm">选择您喜欢的支付方式</p>
         </CardHeader>
         <CardContent>
             <div className="space-y-6">

@@ -13,7 +13,6 @@ import {
   setModel,
   getModel,
   getAvailableModels,
-  availableModels,
   modelDescriptions,
   AIApiResponse
 } from "@/api/contentAdapter";

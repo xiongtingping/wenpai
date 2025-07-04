@@ -11,7 +11,6 @@ import {
   Mail, 
   Shield, 
   Loader2, 
-  ArrowLeft, 
   Users, 
   Award,
   Settings,
@@ -36,7 +35,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<Array<{id: string; content: string}>>([]);
   
   const { toast } = useToast();
 
@@ -73,7 +72,7 @@ export default function ProfilePage() {
     if (savedFavorites) {
       try {
         const parsedFavorites = JSON.parse(savedFavorites);
-        setFavorites(parsedFavorites);
+        setFavorites(parsedFavorites as Array<{id: string; content: string}>);
       } catch (error) {
         console.error('Error loading favorites:', error);
       }
@@ -116,10 +115,6 @@ export default function ProfilePage() {
   const handleCancel = () => {
     setEditingField(null);
     setEditValue("");
-  };
-
-  const handleUpgrade = () => {
-    window.location.href = "/payment";
   };
 
   const handleLogout = () => {

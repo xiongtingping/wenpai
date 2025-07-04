@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 
 export function HowItWorks() {
   // Animate the progress line on scroll
-  const [lineProgress, setLineProgress] = useState(0)
+  // const [lineProgress, setLineProgress] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -12,8 +12,8 @@ export function HowItWorks() {
         const windowHeight = window.innerHeight
         
         if (rect.top < windowHeight * 0.7 && rect.bottom > 0) {
-          const progress = Math.min(1, (windowHeight * 0.7 - rect.top) / (windowHeight * 0.4))
-          setLineProgress(progress)
+          // const progress = Math.min(1, (windowHeight * 0.7 - rect.top) / (windowHeight * 0.4))
+          // setLineProgress(progress) // This line was removed as per the edit hint
         }
       }
     }

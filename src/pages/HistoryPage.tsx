@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
  * @returns JSX.Element
  */
 export default function HistoryPage() {
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<Array<{ platformId: string; content: string; timestamp: string }>>([]);
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [activePlatform, setActivePlatform] = useState<string>("");
   const { isLoggedIn, userInfo } = useUserStore();
@@ -27,20 +27,22 @@ export default function HistoryPage() {
 
     // 从localStorage获取历史记录，只获取当前用户的数据
     const raw = localStorage.getItem(`history_${userInfo?.username || 'anonymous'}`);
-    let list: any[] = [];
     if (raw) {
       try {
-        list = JSON.parse(raw);
-      } catch {}
+        setHistory(JSON.parse(raw));
+      } catch {
+        // 忽略JSON解析错误
+      }
     }
     // 按时间降序排列
+    const list = [...history]; // Create a copy to avoid modifying state directly
     list.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     setHistory(list);
     // 提取所有平台
     const ps = Array.from(new Set(list.map(item => item.platformId)));
     setPlatforms(ps);
     setActivePlatform(ps[0] || "");
-  }, [isLoggedIn, userInfo, navigate]);
+  }, [isLoggedIn, userInfo, navigate, history]); // Added history to dependencies
 
   // 按平台分类
   const getPlatformHistory = (platformId: string) =>

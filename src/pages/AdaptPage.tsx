@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { 
-  Book, Video, MessageSquare, Send, CheckIcon,
-  AlertCircle, RefreshCw, ArrowRight, ChevronDown, ChevronUp,
+  Book, Video, MessageSquare, Send,
+  RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, Share2, ExternalLink, Languages
+  Edit, Heart, Copy, ExternalLink, Languages
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -265,60 +265,18 @@ export default function AdaptPage() {
     decrementUsage 
   } = useUserStore();
 
-  // Platform selection with custom settings
-  const platforms = [
-    {
-      id: "xiaohongshu",
-      title: "小红书",
-      description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣",
-      icon: <Book className="h-4 w-4 text-rose-500" />
-    },
-    {
-      id: "zhihu",
-      title: "知乎",
-      description: "适合专业知识分享和理性讨论，强调逻辑和论证",
-      icon: <MessageSquare className="h-4 w-4 text-blue-500" />
-    },
-    {
-      id: "douyin",
-      title: "抖音脚本",
-      description: "适合短视频脚本，活泼有趣，强调视听效果",
-      icon: <Video className="h-4 w-4 text-black" />
-    },
-    {
-      id: "weibo",
-      title: "新浪微博",
-      description: "简短有力的观点表达，适合热点话题讨论",
-      icon: <Send className="h-4 w-4 text-orange-500" />
-    },
-    {
-      id: "wechat",
-      title: "公众号",
-      description: "深度内容，适合教程、观点和专业分析",
-      icon: <MessageSquare className="h-4 w-4 text-green-500" />
-    },
-    {
-      id: "bilibili",
-      title: "B站",
-      description: "适合视频脚本，兼具专业性和趣味性",
-      icon: <Video className="h-4 w-4 text-blue-400" />
-    },
-    {
-      id: "twitter",
-      title: "X（推特）",
-      description: "简短、直接的表达，支持多种语言和国际化视角",
-      icon: <Twitter className="h-4 w-4 text-black" />
-    },
-    {
-      id: "video",
-      title: "视频号",
-      description: "视频内容与互动引导并重，亲和力强",
-      icon: <SquarePlay className="h-4 w-4 text-green-600" />
-    }
-  ];
+  const platforms = useMemo(() => [
+    { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-rose-500" /> },
+    { id: "zhihu", name: "知乎", description: "适合专业知识分享和理性讨论，强调逻辑和论证", icon: <MessageSquare className="h-4 w-4 text-blue-500" /> },
+    { id: "douyin", name: "抖音脚本", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: <Video className="h-4 w-4 text-black" /> },
+    { id: "weibo", name: "新浪微博", description: "简短有力的观点表达，适合热点话题讨论", icon: <Send className="h-4 w-4 text-orange-500" /> },
+    { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: <MessageSquare className="h-4 w-4 text-green-500" /> },
+    { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: <Video className="h-4 w-4 text-blue-400" /> },
+    { id: "twitter", name: "X（推特）", description: "简短、直接的表达，支持多种语言和国际化视角", icon: <Twitter className="h-4 w-4 text-black" /> },
+    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: <SquarePlay className="h-4 w-4 text-green-600" /> }
+  ], []);
 
-  // Initialize default settings function
-  const initializeDefaultSettings = () => {
+  const initializeDefaultSettings = useCallback(() => {
     const initialSettings: Record<string, PlatformSettings> = {};
     platforms.forEach(platform => {
       initialSettings[platform.id] = {
@@ -329,7 +287,12 @@ export default function AdaptPage() {
       };
     });
     setPlatformSettings(initialSettings);
-  };
+    const initialShowSettings: Record<string, boolean> = {};
+    platforms.forEach(platform => {
+      initialShowSettings[platform.id] = false;
+    });
+    setShowSettings(initialShowSettings);
+  }, [platforms]);
 
   // Save settings to localStorage
   const saveSettings = () => {
@@ -413,6 +376,10 @@ export default function AdaptPage() {
     });
     setShowSettings(initialShowSettings);
   }, []);
+
+  useEffect(() => {
+    initializeDefaultSettings();
+  }, [platforms, initializeDefaultSettings]);
 
   // Character count display
   const contentCharCount = originalContent.length;
@@ -501,11 +468,13 @@ export default function AdaptPage() {
     const historyKey = `history_${username}`;
     
     const old = localStorage.getItem(historyKey);
-    let list: any[] = [];
+    let list: unknown[] = [];
     if (old) {
       try {
         list = JSON.parse(old);
-      } catch {}
+      } catch {
+        // 忽略JSON解析错误
+      }
     }
     const now = new Date().toISOString();
     results.forEach(r => {
@@ -770,7 +739,7 @@ export default function AdaptPage() {
         title: "翻译完成",
         description: "内容已翻译为英文",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "翻译失败",
         description: "翻译过程中出现错误，请稍后重试",
@@ -808,8 +777,8 @@ export default function AdaptPage() {
 
       const data = await response.json();
       return data.translatedText || content;
-    } catch (error) {
-      console.error('Translation API error:', error);
+    } catch {
+      console.error('Translation API error');
       // 如果API调用失败，回退到模拟翻译
       return simulateTranslation(content);
     }
@@ -994,8 +963,8 @@ export default function AdaptPage() {
         title: "重新生成成功",
         description: `已为${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}重新生成内容`,
       });
-    } catch (error) {
-      console.error(`Error regenerating content for ${platformId}:`, error);
+    } catch {
+      console.error(`Error regenerating content for ${platformId}:`);
       
       // Handle errors
       setResults(current => 
@@ -1317,7 +1286,7 @@ export default function AdaptPage() {
             <CheckboxCard
               key={platform.id}
               icon={platform.icon}
-              title={platform.title}
+              title={platform.name}
               description={platform.description}
               checked={selectedPlatforms.includes(platform.id)}
               onChange={(checked) => togglePlatform(platform.id, checked)}
@@ -1342,7 +1311,7 @@ export default function AdaptPage() {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         {platform.icon}
-                        <CardTitle className="text-sm">{platform.title}设置</CardTitle>
+                        <CardTitle className="text-sm">{platform.name}设置</CardTitle>
                       </div>
                       <Button 
                         variant="ghost" 

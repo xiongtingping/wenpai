@@ -50,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         available: false 
       });
     }
-  } catch (error) {
+  } catch {
     return res.status(200).json({ 
       status: 'error', 
       message: 'DeepSeek API connection failed',

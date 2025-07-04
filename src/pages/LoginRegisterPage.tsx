@@ -43,7 +43,7 @@ export default function LoginRegisterPage() {
   });
 
   const { toast } = useToast();
-  const { login, isLoggedIn } = useUserStore();
+  const { login } = useUserStore();
   // const navigate = useNavigate();
   
   // Check if we should show registration form based on URL params

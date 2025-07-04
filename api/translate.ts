@@ -89,34 +89,32 @@ async function translateWithOpenAI(text: string, targetLang: string, sourceLang:
   return translatedText;
 }
 
-/**
- * 备用翻译服务（Google Translate API）
- */
-async function translateWithGoogle(text: string, targetLang: string, sourceLang: string): Promise<string> {
-  const googleApiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
-  
-  if (!googleApiKey) {
-    throw new Error('Google Translate API key not configured');
-  }
+// 备用翻译服务（Google Translate API）- 暂时未使用
+// async function translateWithGoogle(text: string, targetLang: string, sourceLang: string): Promise<string> {
+//   const googleApiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
+//   
+//   if (!googleApiKey) {
+//     throw new Error('Google Translate API key not configured');
+//   }
 
-  const url = `https://translation.googleapis.com/language/translate/v2?key=${googleApiKey}`;
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      q: text,
-      target: targetLang,
-      source: sourceLang
-    })
-  });
+//   const url = `https://translation.googleapis.com/language/translate/v2?key=${googleApiKey}`;
+//   
+//   const response = await fetch(url, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({
+//       q: text,
+//       target: targetLang,
+//       source: sourceLang
+//     })
+//   });
 
-  if (!response.ok) {
-    throw new Error('Google Translate API failed');
-  }
+//   if (!response.ok) {
+//     throw new Error('Google Translate API failed');
+//   }
 
-  const data = await response.json();
-  return data.data?.translations?.[0]?.translatedText || text;
-} 
+//   const data = await response.json();
+//   return data.data?.translations?.[0]?.translatedText || text;
+// } 
