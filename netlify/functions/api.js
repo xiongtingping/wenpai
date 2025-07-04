@@ -106,15 +106,25 @@ exports.handler = async function(event, context) {
  * 处理OpenAI API请求
  */
 async function handleOpenAIRequest(body, headers) {
-  const { prompt, model = 'gpt-4o', temperature = 0.7, maxTokens = 2000 } = body;
+  const { prompt, messages, model = 'gpt-4o', temperature = 0.7, maxTokens = 2000 } = body;
 
-  if (!prompt) {
+  // 支持两种格式：prompt字符串或messages数组
+  let userPrompt = prompt;
+  if (!userPrompt && messages && Array.isArray(messages)) {
+    // 从messages数组中提取用户消息
+    const userMessage = messages.find(msg => msg.role === 'user');
+    if (userMessage) {
+      userPrompt = userMessage.content;
+    }
+  }
+
+  if (!userPrompt) {
     return {
       statusCode: 400,
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         success: false,
-        error: 'Prompt is required' 
+        error: 'Prompt is required or messages array must contain user message' 
       })
     };
   }
@@ -126,7 +136,7 @@ async function handleOpenAIRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${prompt}\n\n这是一个模拟的AI响应，因为未配置OPENAI_API_KEY。请在Netlify环境变量中配置OPENAI_API_KEY。`,
+        content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置OPENAI_API_KEY。请在Netlify环境变量中配置OPENAI_API_KEY。`,
         model: model,
         provider: 'openai',
         timestamp: new Date().toISOString(),
@@ -138,23 +148,32 @@ async function handleOpenAIRequest(body, headers) {
   try {
     console.log(`调用OpenAI API: ${model}`);
     
+    // 构建API请求体
+    const apiRequestBody = {
+      model: model,
+      max_tokens: maxTokens,
+      temperature: temperature
+    };
+
+    // 如果有完整的messages数组，直接使用；否则构建简单的消息
+    if (messages && Array.isArray(messages)) {
+      apiRequestBody.messages = messages;
+    } else {
+      apiRequestBody.messages = [
+        {
+          role: 'user',
+          content: userPrompt
+        }
+      ];
+    }
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: maxTokens,
-        temperature: temperature
-      })
+      body: JSON.stringify(apiRequestBody)
     });
 
     const data = await response.json();
@@ -188,7 +207,7 @@ async function handleOpenAIRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${prompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
+        content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
         model: model,
         provider: 'openai',
         timestamp: new Date().toISOString(),
@@ -203,15 +222,25 @@ async function handleOpenAIRequest(body, headers) {
  * 处理DeepSeek API请求
  */
 async function handleDeepSeekRequest(body, headers) {
-  const { prompt, model = 'deepseek-chat', temperature = 0.7, maxTokens = 2000 } = body;
+  const { prompt, messages, model = 'deepseek-chat', temperature = 0.7, maxTokens = 2000 } = body;
 
-  if (!prompt) {
+  // 支持两种格式：prompt字符串或messages数组
+  let userPrompt = prompt;
+  if (!userPrompt && messages && Array.isArray(messages)) {
+    // 从messages数组中提取用户消息
+    const userMessage = messages.find(msg => msg.role === 'user');
+    if (userMessage) {
+      userPrompt = userMessage.content;
+    }
+  }
+
+  if (!userPrompt) {
     return {
       statusCode: 400,
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         success: false,
-        error: 'Prompt is required' 
+        error: 'Prompt is required or messages array must contain user message' 
       })
     };
   }
@@ -223,7 +252,7 @@ async function handleDeepSeekRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${prompt}\n\n这是一个模拟的AI响应，因为未配置DEEPSEEK_API_KEY。请在Netlify环境变量中配置DEEPSEEK_API_KEY。`,
+        content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置DEEPSEEK_API_KEY。请在Netlify环境变量中配置DEEPSEEK_API_KEY。`,
         model: model,
         provider: 'deepseek',
         timestamp: new Date().toISOString(),
@@ -235,23 +264,32 @@ async function handleDeepSeekRequest(body, headers) {
   try {
     console.log(`调用DeepSeek API: ${model}`);
     
+    // 构建API请求体
+    const apiRequestBody = {
+      model: model,
+      max_tokens: maxTokens,
+      temperature: temperature
+    };
+
+    // 如果有完整的messages数组，直接使用；否则构建简单的消息
+    if (messages && Array.isArray(messages)) {
+      apiRequestBody.messages = messages;
+    } else {
+      apiRequestBody.messages = [
+        {
+          role: 'user',
+          content: userPrompt
+        }
+      ];
+    }
+    
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: maxTokens,
-        temperature: temperature
-      })
+      body: JSON.stringify(apiRequestBody)
     });
 
     const data = await response.json();
@@ -285,7 +323,7 @@ async function handleDeepSeekRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${prompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
+        content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
         model: model,
         provider: 'deepseek',
         timestamp: new Date().toISOString(),
@@ -300,15 +338,27 @@ async function handleDeepSeekRequest(body, headers) {
  * 处理Gemini API请求
  */
 async function handleGeminiRequest(body, headers) {
-  const { prompt, model = 'gemini-pro', temperature = 0.7, maxTokens = 2000 } = body;
+  const { prompt, messages, model = 'gemini-pro', temperature = 0.7, maxTokens = 2000 } = body;
 
-  if (!prompt) {
+  // 支持两种格式：prompt字符串或messages数组
+  let userPrompt = prompt;
+  if (!userPrompt && messages && Array.isArray(messages)) {
+    // 从messages数组中提取用户消息，或者组合所有消息
+    if (messages.length === 1) {
+      userPrompt = messages[0].content;
+    } else {
+      // 如果有多个消息，组合它们
+      userPrompt = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n');
+    }
+  }
+
+  if (!userPrompt) {
     return {
       statusCode: 400,
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         success: false,
-        error: 'Prompt is required' 
+        error: 'Prompt is required or messages array must contain user message' 
       })
     };
   }
@@ -320,7 +370,7 @@ async function handleGeminiRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自Gemini (${model}) 的模拟响应：\n\n${prompt}\n\n这是一个模拟的AI响应，因为未配置GEMINI_API_KEY。请在Netlify环境变量中配置GEMINI_API_KEY。`,
+        content: `这是来自Gemini (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置GEMINI_API_KEY。请在Netlify环境变量中配置GEMINI_API_KEY。`,
         model: model,
         provider: 'gemini',
         timestamp: new Date().toISOString(),
@@ -342,7 +392,7 @@ async function handleGeminiRequest(body, headers) {
           {
             parts: [
               {
-                text: prompt
+                text: userPrompt
               }
             ]
           }
@@ -385,7 +435,7 @@ async function handleGeminiRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自Gemini (${model}) 的模拟响应：\n\n${prompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
+        content: `这是来自Gemini (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
         model: model,
         provider: 'gemini',
         timestamp: new Date().toISOString(),
