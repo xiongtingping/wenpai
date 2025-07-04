@@ -1,10 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// 确保在 Vercel 环境中使用正确的 fetch
-declare global {
-  var fetch: typeof fetch;
-}
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log('=== OpenAI Proxy Debug Start ===');
   console.log('req.method:', req.method);
