@@ -1,7 +1,7 @@
 // api/proxy/listModels.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'Missing Gemini API key' });

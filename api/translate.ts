@@ -4,7 +4,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  * 翻译API端点
  * 支持多种翻译服务，优先使用OpenAI，备用其他服务
  */
-module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
