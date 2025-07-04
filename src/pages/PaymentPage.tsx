@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, WalletCards } from "lucide-react";
+import { CreditCard, WalletCards, Clock, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function PaymentPage() {
@@ -14,6 +14,10 @@ export default function PaymentPage() {
   const [showQRCode, setShowQRCode] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // 暑假特惠截止日期：2025年9月30日24:00
+  const summerSaleEndDate = new Date('2025-09-30T24:00:00');
+  const isSummerSaleActive = new Date() < summerSaleEndDate;
 
   // Get selected plan from localStorage if available
   useEffect(() => {
@@ -28,13 +32,23 @@ export default function PaymentPage() {
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
-          // Time's up, restore original price
+          // Time's up, restore to summer sale price or original price
           if (selectedPlan === "pro-monthly") {
-            setPaymentAmount("29.9");
-            setDiscount("0");
+            if (isSummerSaleActive) {
+              setPaymentAmount("29.9");
+              setDiscount("10");
+            } else {
+              setPaymentAmount("39.9");
+              setDiscount("0");
+            }
           } else if (selectedPlan === "pro-yearly") {
-            setPaymentAmount("299");
-            setDiscount("0");
+            if (isSummerSaleActive) {
+              setPaymentAmount("358.8");
+              setDiscount("120");
+            } else {
+              setPaymentAmount("478.8");
+              setDiscount("0");
+            }
           }
           clearInterval(timer);
           return 0;
@@ -44,7 +58,7 @@ export default function PaymentPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [selectedPlan]);
+  }, [selectedPlan, isSummerSaleActive]);
 
   // Handle plan selection
   const handlePlanSelect = (plan: string) => {
@@ -52,10 +66,12 @@ export default function PaymentPage() {
     setShowQRCode(false);
     
     if (plan === "pro-monthly") {
-      setPaymentAmount("29.9");
+      // 限时特惠价优先
+      setPaymentAmount("23.9");
       setOriginalPrice("39.9");
-      setDiscount("10");
+      setDiscount("16");
     } else if (plan === "pro-yearly") {
+      // 限时特惠价优先
       setPaymentAmount("288");
       setOriginalPrice("478.8");
       setDiscount("190.8");
@@ -67,6 +83,14 @@ export default function PaymentPage() {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Calculate days left for summer sale
+  const getSummerSaleDaysLeft = () => {
+    const now = new Date();
+    const diffTime = summerSaleEndDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
   };
 
   // Display QR code based on payment method
@@ -104,23 +128,39 @@ export default function PaymentPage() {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-3xl font-bold text-blue-600">¥{selectedPlan === "pro-monthly" ? "29.9" : "39.9"}</span>
-                <span className="text-gray-400 line-through text-lg">¥39.9</span>
-              </div>
-              <p className="text-gray-500">/月</p>
-              <div className="mt-2">
-                <span className="text-orange-600 font-semibold text-sm">7.5折</span>
-              </div>
-              {selectedPlan === "pro-monthly" && timeLeft > 0 && (
-                <div className="mt-2">
-                  <span className="text-red-500 font-semibold text-sm">限时优惠</span>
-                  <div className="text-red-600 font-mono font-bold text-lg">
-                    {formatTimeLeft()}
-                  </div>
-                  <span className="text-green-600 text-sm">省¥10</span>
+              {/* 限时特惠价 */}
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <span className="text-3xl font-bold text-red-600">¥23.9</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs text-red-500 font-semibold">限时特惠价</span>
+                  <span className="text-xs text-red-500">6折 省¥16</span>
                 </div>
-              )}
+              </div>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Clock className="w-3 h-3 text-red-500" />
+                <span className="text-xs text-red-500">倒计时{formatTimeLeft()}享受优惠</span>
+              </div>
+              
+              {/* 暑假特惠价 */}
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <span className="text-gray-400 line-through text-sm">¥29.9</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs text-gray-500">暑假特惠价</span>
+                  <span className="text-xs text-gray-500">7.5折 省¥10</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Calendar className="w-3 h-3 text-gray-500" />
+                <span className="text-xs text-gray-500">剩余{getSummerSaleDaysLeft()}天有效</span>
+              </div>
+              
+              {/* 原价 */}
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-gray-400 line-through text-sm">¥39.9</span>
+                <span className="text-xs text-gray-500">原价</span>
+              </div>
+              
+              <p className="text-gray-500">/月</p>
             </div>
           </CardContent>
         </Card>
@@ -133,23 +173,39 @@ export default function PaymentPage() {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-3xl font-bold text-blue-600">¥{selectedPlan === "pro-yearly" ? "288" : "478.8"}</span>
-                <span className="text-gray-400 line-through text-lg">¥478.8</span>
-              </div>
-              <p className="text-gray-500">/年</p>
-              <div className="mt-2">
-                <span className="text-orange-600 font-semibold text-sm">6折</span>
-              </div>
-              {selectedPlan === "pro-yearly" && timeLeft > 0 && (
-                <div className="mt-2">
-                  <span className="text-red-500 font-semibold text-sm">限时优惠</span>
-                  <div className="text-red-600 font-mono font-bold text-lg">
-                    {formatTimeLeft()}
-                  </div>
-                  <span className="text-green-600 text-sm">省¥159.8</span>
+              {/* 限时特惠价 */}
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <span className="text-3xl font-bold text-red-600">¥288</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs text-red-500 font-semibold">限时特惠价</span>
+                  <span className="text-xs text-red-500">6折 省¥190.8</span>
                 </div>
-              )}
+              </div>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Clock className="w-3 h-3 text-red-500" />
+                <span className="text-xs text-red-500">倒计时{formatTimeLeft()}享受优惠</span>
+              </div>
+              
+              {/* 暑假特惠价 */}
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <span className="text-gray-400 line-through text-sm">¥358.8</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs text-gray-500">暑假特惠价</span>
+                  <span className="text-xs text-gray-500">7.5折 省¥120</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Calendar className="w-3 h-3 text-gray-500" />
+                <span className="text-xs text-gray-500">剩余{getSummerSaleDaysLeft()}天有效</span>
+              </div>
+              
+              {/* 原价 */}
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-gray-400 line-through text-sm">¥478.8</span>
+                <span className="text-xs text-gray-500">原价</span>
+              </div>
+              
+              <p className="text-gray-500">/年</p>
             </div>
           </CardContent>
         </Card>
@@ -171,23 +227,35 @@ export default function PaymentPage() {
               </p>
             </div>
               <div className="text-right">
-                <div className="flex items-center justify-end gap-2">
-                  <span className="text-sm text-muted-foreground line-through">¥{originalPrice}</span>
-                  <div className="text-xl font-bold text-red-600">
-              ¥{paymentAmount}
-              <span className="text-sm font-normal text-muted-foreground">
-                {selectedPlan === "pro-monthly" ? "/月" : "/年"}
-              </span>
+                {selectedPlan === "pro-yearly" ? (
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="text-xl font-bold text-red-600">
+                      ¥{paymentAmount}
+                      <span className="text-sm font-normal text-muted-foreground">/年</span>
+                    </div>
+                    <div className="text-xs text-red-500">限时特惠价 6折 省¥190.8</div>
+                    <div className="text-xs text-gray-500 line-through">¥358.8 暑假特惠价 7.5折 省¥120</div>
+                    <div className="text-xs text-gray-500 line-through">¥478.8 原价</div>
+                    {timeLeft > 0 && (
+                      <div className="text-xs text-red-500 mt-1">
+                        倒计时：{formatTimeLeft()}
+                      </div>
+                    )}
                   </div>
-                </div>
-                {timeLeft > 0 && (
-                  <div className="text-xs text-red-500 mt-1">
-                    限时优惠：{formatTimeLeft()}
-                  </div>
-                )}
-                {discount !== "0" && (
-                  <div className="text-xs text-green-600 mt-1">
-                    省¥{discount}
+                ) : (
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="text-xl font-bold text-red-600">
+                      ¥{paymentAmount}
+                      <span className="text-sm font-normal text-muted-foreground">/月</span>
+                    </div>
+                    <div className="text-xs text-red-500">限时特惠价 6折 省¥16</div>
+                    <div className="text-xs text-gray-500 line-through">¥29.9 暑假特惠价 7.5折 省¥10</div>
+                    <div className="text-xs text-gray-500 line-through">¥39.9 原价</div>
+                    {timeLeft > 0 && (
+                      <div className="text-xs text-red-500 mt-1">
+                        倒计时：{formatTimeLeft()}
+                      </div>
+                    )}
                   </div>
                 )}
             </div>

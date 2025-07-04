@@ -46,17 +46,17 @@ let currentApiStatus: ApiStatus = {
 };
 
 // API provider selection - toggle between 'openai', 'gemini', and 'deepseek'
-// Set default to OpenAI since Gemini is temporarily hidden
-let currentApiProvider: 'openai' | 'gemini' | 'deepseek' = 'openai';
+// Set default to DeepSeek since OpenAI has network connectivity issues
+let currentApiProvider: 'openai' | 'gemini' | 'deepseek' = 'deepseek';
 
 // Model selection for each provider
-let currentModel: string = 'gpt-4o-mini'; // Default model
+let currentModel: string = 'deepseek-v2.5'; // Default model
 
 // Available models for each provider with detailed descriptions
 export const availableModels = {
   openai: {
     free: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
-    pro: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.5']
+    pro: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini']
   },
   gemini: {
     free: ['gemini-pro'],
@@ -93,7 +93,7 @@ export const modelDescriptions = {
     bestFor: '需要高质量创意内容或复杂逻辑分析的任务'
   },
   'gpt-4o': {
-    name: 'GPT-4o',
+    name: 'GPT-4o（建议此模型）',
     description: '最新最强大的多模态模型',
     useCases: ['多模态内容', '高级创意', '复杂任务', '专业内容'],
     strengths: ['多模态能力', '最新知识', '最强性能'],
@@ -113,13 +113,7 @@ export const modelDescriptions = {
     strengths: ['性能优秀', '成本适中', '响应快速'],
     bestFor: '平衡性能与成本的内容生成任务'
   },
-  'gpt-4.5': {
-    name: 'GPT-4.5',
-    description: '最新一代GPT模型，性能大幅提升',
-    useCases: ['高级创意', '复杂分析', '专业内容', '前沿技术'],
-    strengths: ['最新技术', '最强性能', '理解深度', '创意丰富'],
-    bestFor: '需要最高质量内容和前沿技术应用的专业任务'
-  },
+
   
   // Google Gemini Models
   'gemini-pro': {

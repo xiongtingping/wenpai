@@ -89,7 +89,6 @@ export function PricingSection() {
               <li className="flex items-center space-x-3"><span>✔️</span> <span>默认AI模型（不可选）</span></li>
               <li className="flex items-center space-x-3"><span>✔️</span> <span>仅支持小红书、抖音</span></li>
               <li className="flex items-center space-x-3"><span>❌</span> <span className="line-through">品牌库</span></li>
-              <li className="flex items-center space-x-3"><span>❌</span> <span className="line-through">团队协作</span></li>
             </ul>
             <Button variant="secondary" className="mt-8 w-full" asChild>
               <Link to="/adapt">开始使用</Link>
@@ -102,21 +101,56 @@ export function PricingSection() {
             <h3 className="text-2xl font-semibold">专业版</h3>
             <p className="mt-2 text-gray-500">适合个人创作者和小型团队</p>
             <div className="mt-6">
-              <div className="flex items-center gap-2">
-                <p className="text-5xl font-extrabold">
-                  {billing === "monthly" ? "¥29.9" : "¥288"}
-                </p>
-                <span className="text-gray-400 line-through font-medium text-xl">
-                  {billing === "monthly" ? "¥39.9" : "¥478.8"}
-                </span>
-              </div>
+              {billing === "monthly" ? (
+                <>
+                  {/* 限时特惠价 */}
+                  <div className="flex items-center gap-2">
+                    <p className="text-5xl font-extrabold text-red-600">¥23.9</p>
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs text-red-500 font-semibold">限时特惠价</span>
+                      <span className="text-xs text-red-500">6折 省¥16</span>
+                    </div>
+                  </div>
+                  {/* 暑假特惠价 */}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-gray-400 line-through font-medium text-lg">¥29.9</span>
+                    <span className="text-xs text-gray-500">暑假特惠价 7.5折 省¥10</span>
+                  </div>
+                  {/* 原价 */}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-gray-400 line-through font-medium text-lg">¥39.9</span>
+                    <span className="text-xs text-gray-500">原价</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* 限时特惠价 */}
+                  <div className="flex items-center gap-2">
+                    <p className="text-5xl font-extrabold text-red-600">¥288</p>
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs text-red-500 font-semibold">限时特惠价</span>
+                      <span className="text-xs text-red-500">6折 省¥190.8</span>
+                    </div>
+                  </div>
+                  {/* 暑假特惠价 */}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-gray-400 line-through font-medium text-lg">¥358.8</span>
+                    <span className="text-xs text-gray-500">暑假特惠价 7.5折 省¥120</span>
+                  </div>
+                  {/* 原价 */}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-gray-400 line-through font-medium text-lg">¥478.8</span>
+                    <span className="text-xs text-gray-500">原价</span>
+                  </div>
+                </>
+              )}
               <p className="text-gray-500">{billing === "monthly" ? "/月" : "/年"}</p>
               
-              {/* Countdown timer */}
+              {/* 优惠信息 */}
               <div className="mt-2 flex items-center">
-                <span className="text-red-500 font-semibold text-sm">限时促销优惠</span>
+                <span className="text-red-500 font-semibold text-sm">限时特惠</span>
                 <span className="ml-2 inline-block bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-mono font-bold">
-                  2025年9月30日24:00前
+                  30分钟倒计时
                 </span>
               </div>
             </div>
