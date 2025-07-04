@@ -12,27 +12,24 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // 检查环境变量
-    const envCheck = {
-      OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
-      DEEPSEEK_API_KEY: !!process.env.DEEPSEEK_API_KEY,
-      GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
-      NODE_ENV: process.env.NODE_ENV,
-      VERCEL_ENV: process.env.VERCEL_ENV
-    };
-
     return res.status(200).json({
       success: true,
-      message: 'API is working correctly',
+      message: 'Hello from Vercel Function!',
       timestamp: new Date().toISOString(),
-      environment: envCheck,
-      method: req.method
+      method: req.method,
+      url: req.url,
+      headers: Object.keys(req.headers),
+      env: {
+        NODE_ENV: process.env.NODE_ENV,
+        VERCEL_ENV: process.env.VERCEL_ENV,
+        VERCEL_REGION: process.env.VERCEL_REGION
+      }
     });
   } catch (error) {
-    console.error('Test API error:', error);
+    console.error('Hello API error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Test API failed',
+      error: 'Hello API failed',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

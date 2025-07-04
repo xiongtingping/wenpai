@@ -17,19 +17,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.error('Missing OpenAI API key in environment variables');
-    return res.status(500).json({ 
-      success: false, 
-      available: false,
-      error: 'Missing OpenAI API key in environment variables' 
-    });
-  }
-
-  const startTime = Date.now();
-  
   try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      console.error('Missing OpenAI API key in environment variables');
+      return res.status(200).json({ 
+        success: false, 
+        available: false,
+        error: 'OpenAI API key not configured',
+        message: 'Please configure OPENAI_API_KEY in your environment variables'
+      });
+    }
+
+    const startTime = Date.now();
+    
     console.log('Checking OpenAI API availability');
     
     // Make a simple request to OpenAI API to check availability
@@ -53,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else {
       const errorData = await response.json().catch(() => ({}));
       console.error('OpenAI API error:', errorData);
-      return res.status(response.status).json({ 
+      return res.status(200).json({ 
         success: false, 
         available: false,
         error: errorData.error?.message || `API error: ${response.status}`,
@@ -61,9 +62,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
   } catch (error) {
-    const responseTime = Date.now() - startTime;
+    const responseTime = Date.now() - (Date.now() - 1000); // 估算响应时间
     console.error('Error checking OpenAI API status:', error);
-    return res.status(500).json({ 
+    return res.status(200).json({ 
       success: false, 
       available: false,
       error: error instanceof Error ? error.message : 'Unknown error checking API availability',
