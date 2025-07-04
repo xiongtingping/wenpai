@@ -1,85 +1,102 @@
-# Content Adapter API Proxy Server
+# 文派AI内容适配器
 
-This project implements a secure backend proxy server for communicating with AI APIs (OpenAI and Google Gemini) to avoid CORS issues and securely manage API keys.
+一个智能的内容适配工具，帮助您将内容适配到不同的平台和格式。
 
-## Features
+## 功能特性
 
-- Backend proxy server to avoid CORS issues
-- Secure API key management through environment variables
-- Support for OpenAI and Google Gemini APIs
-- Error handling and retry logic
-- API status checking endpoints
-- Combined development server for frontend and backend
+- 🤖 支持多种AI模型（OpenAI、DeepSeek、Gemini）
+- 📝 智能内容适配和优化
+- 🎨 现代化UI设计
+- 📱 响应式设计
+- ⚡ 快速部署
 
-## Project Structure
+## 技术栈
 
-- `server.js` - Express.js backend server for proxying API requests
-- `src/api/apiProxy.ts` - Frontend interface for communicating with the proxy server
-- `src/api/contentAdapter.ts` - Content adaptation API implementation using the proxy
-- `.env` - Environment variables for API keys (not committed to version control)
+- **前端**: React + TypeScript + Vite
+- **UI**: Radix UI + Tailwind CSS
+- **状态管理**: Zustand
+- **路由**: React Router
+- **部署**: Netlify
 
-## Setup
+## 本地开发
 
-1. Clone the repository
-2. Install dependencies:
+### 安装依赖
+
 ```bash
 npm install
 ```
-3. Create a `.env` file with the following variables:
-```
-OPENAI_API_KEY=your_openai_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-PORT=3001
-NODE_ENV=development
-```
 
-## Running the Application
-
-The application now uses a combined development approach with both the frontend and backend running simultaneously:
+### 启动开发服务器
 
 ```bash
 npm run dev
 ```
 
-This will start:
-- The Express.js backend proxy server on port 3001
-- The Vite development server for the frontend
+### 构建生产版本
 
-## Testing the API
-
-You can test the API connectivity by visiting the API test page at `/api-test`.
-
-## Implementation Details
-
-### Backend Proxy Server
-
-The backend proxy server provides the following endpoints:
-
-- `/api/proxy/openai` - Proxy for OpenAI API calls
-- `/api/proxy/gemini` - Proxy for Google Gemini API calls
-- `/api/status/openai` - Check OpenAI API availability
-- `/api/status/gemini` - Check Google Gemini API availability
-
-### Security Considerations
-
-- API keys are stored in environment variables on the server
-- Keys are never exposed to the client
-- All API requests are made server-side to avoid CORS issues
-- Error handling is implemented to avoid leaking sensitive information
-
-## Production Deployment
-
-For production deployment:
-
-1. Build the frontend:
 ```bash
 npm run build
 ```
 
-2. Set the `NODE_ENV` environment variable to `production`
-3. Start the server:
+## 部署到Netlify
+
+### 自动部署
+
+1. 访问 [Netlify](https://app.netlify.com/signup/start/connect/repos/xiongtingping%2Fwenpaiai626)
+2. 点击 "Connect to Git"
+3. 选择 GitHub 仓库 `xiongtingping/wenpaiai626`
+4. 配置部署设置：
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+5. 点击 "Deploy site"
+
+### 环境变量配置
+
+在Netlify控制台中配置以下环境变量：
+
+- `OPENAI_API_KEY` - OpenAI API密钥
+- `DEEPSEEK_API_KEY` - DeepSeek API密钥
+- `GEMINI_API_KEY` - Gemini API密钥
+
+### 手动部署
+
+如果您想手动部署：
+
 ```bash
-npm run server
+# 安装Netlify CLI
+npm install -g netlify-cli
+
+# 登录Netlify
+netlify login
+
+# 部署
+netlify deploy --prod
 ```
 
-The Express server will serve the static frontend files and handle API requests.
+## 项目结构
+
+```
+wenpaiai626/
+├── src/                    # 源代码
+│   ├── components/         # React组件
+│   ├── pages/             # 页面组件
+│   ├── api/               # API服务
+│   ├── store/             # 状态管理
+│   └── lib/               # 工具函数
+├── netlify/               # Netlify配置
+│   └── functions/         # Netlify函数
+├── public/                # 静态资源
+├── dist/                  # 构建输出
+├── netlify.toml           # Netlify配置
+└── package.json           # 项目配置
+```
+
+## API端点
+
+- `/api/basic` - 基本测试API
+- `/api/proxy/openai` - OpenAI代理
+- `/api/status/openai` - OpenAI状态检查
+
+## 许可证
+
+MIT License
