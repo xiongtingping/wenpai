@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   // 设置 CORS 头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -19,56 +19,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      console.error('Missing OpenAI API key in environment variables');
-      return res.status(200).json({ 
-        success: false, 
-        available: false,
-        error: 'OpenAI API key not configured',
-        message: 'Please configure OPENAI_API_KEY in your environment variables'
-      });
-    }
-
-    const startTime = Date.now();
     
-    console.log('Checking OpenAI API availability');
-    
-    // Make a simple request to OpenAI API to check availability
-    const response = await fetch('https://api.openai.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      }
+    return res.status(200).json({ 
+      success: true, 
+      available: !!apiKey,
+      error: apiKey ? null : 'OpenAI API key not configured',
+      message: apiKey ? 'OpenAI API key is configured' : 'Please configure OPENAI_API_KEY in your environment variables',
+      timestamp: new Date().toISOString()
     });
-
-    const responseTime = Date.now() - startTime;
-    
-    if (response.ok) {
-      console.log('OpenAI API is available');
-      return res.status(200).json({ 
-        success: true, 
-        available: true,
-        responseTime
-      });
-    } else {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('OpenAI API error:', errorData);
-      return res.status(200).json({ 
-        success: false, 
-        available: false,
-        error: errorData.error?.message || `API error: ${response.status}`,
-        responseTime
-      });
-    }
   } catch (error) {
-    const responseTime = Date.now() - (Date.now() - 1000); // 估算响应时间
-    console.error('Error checking OpenAI API status:', error);
+    console.error('Error in OpenAI status check:', error);
     return res.status(200).json({ 
       success: false, 
       available: false,
-      error: error instanceof Error ? error.message : 'Unknown error checking API availability',
-      responseTime
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
     });
   }
 } 

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   // 设置 CORS 头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -17,57 +17,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) {
-    console.error('Missing DeepSeek API key in environment variables');
-    return res.status(500).json({ 
-      success: false, 
-      available: false,
-      error: 'Missing DeepSeek API key in environment variables' 
-    });
-  }
-
-  const startTime = Date.now();
-  
   try {
-    console.log('Checking DeepSeek API availability');
+    const apiKey = process.env.DEEPSEEK_API_KEY;
     
-    // Make a simple request to DeepSeek API to check availability
-    const response = await fetch('https://api.deepseek.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      }
+    return res.status(200).json({ 
+      success: true, 
+      available: !!apiKey,
+      error: apiKey ? null : 'DeepSeek API key not configured',
+      message: apiKey ? 'DeepSeek API key is configured' : 'Please configure DEEPSEEK_API_KEY in your environment variables',
+      timestamp: new Date().toISOString()
     });
-
-    const responseTime = Date.now() - startTime;
-    
-    if (response.ok) {
-      console.log('DeepSeek API is available');
-      return res.status(200).json({ 
-        success: true, 
-        available: true,
-        responseTime
-      });
-    } else {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('DeepSeek API error:', errorData);
-      return res.status(response.status).json({ 
-        success: false, 
-        available: false,
-        error: errorData.error?.message || `API error: ${response.status}`,
-        responseTime
-      });
-    }
-  } catch {
-    const responseTime = Date.now() - startTime;
-    console.error('Error checking DeepSeek API status');
+  } catch (error) {
+    console.error('Error in DeepSeek status check:', error);
     return res.status(200).json({ 
       success: false, 
       available: false,
-      error: 'DeepSeek API connection failed',
-      responseTime
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
     });
   }
 } 
