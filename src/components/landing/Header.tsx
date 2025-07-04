@@ -68,6 +68,7 @@ export function Header() {
         <Link to="/" className="flex items-center space-x-2">
           <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-8 w-8" />
           <span className="font-bold text-xl text-gray-800">文派</span>
+          <span className="text-sm text-gray-500">(www.aiwenpai.com)</span>
         </Link>
         
         {/* Desktop Menu - Reordered as requested */}

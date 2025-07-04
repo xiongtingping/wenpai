@@ -22,7 +22,7 @@ export function FeaturesSection() {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="adapt">智能平台适配</TabsTrigger>
               <TabsTrigger value="brand">品牌库</TabsTrigger>
-              <TabsTrigger value="collab">高效协作</TabsTrigger>
+              <TabsTrigger value="collab">高效工作流</TabsTrigger>
             </TabsList>
             
             <TabsContent value="adapt">
@@ -79,9 +79,9 @@ export function FeaturesSection() {
                   <div className="bg-red-50 h-[300px] rounded-lg flex items-center justify-center text-red-500 font-semibold relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 animate-pulse"></div>
                     <div className="relative z-10 text-center">
-                      <div className="text-6xl mb-4 animate-pulse">👥</div>
-                      <div className="text-lg font-bold">高效协作演示</div>
-                      <div className="text-sm text-red-600 mt-2">团队成员正在协作...</div>
+                      <div className="text-6xl mb-4 animate-pulse">🚀</div>
+                      <div className="text-lg font-bold">高效工作流演示</div>
+                      <div className="text-sm text-red-600 mt-2">正在优化工作流程...</div>
                     </div>
                   </div>
                 </div>

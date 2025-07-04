@@ -84,7 +84,7 @@ export default function PaymentPage() {
     toast({
       title: "支付二维码已显示",
       description: "请使用手机扫码完成支付",
-    });
+          });
   };
 
   return (
@@ -157,27 +157,27 @@ export default function PaymentPage() {
 
       {/* Selected Plan Details */}
       {selectedPlan && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>订单信息</CardTitle>
-            <CardDescription>您选择的是文派专业版</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center py-4 border-b">
-              <div>
-                <p className="font-medium">文派专业版</p>
-                <p className="text-muted-foreground text-sm">
-                  {selectedPlan === "pro-monthly" ? "按月订阅" : "按年订阅"}
-                </p>
-              </div>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>订单信息</CardTitle>
+          <CardDescription>您选择的是文派专业版</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-center py-4 border-b">
+            <div>
+              <p className="font-medium">文派专业版</p>
+              <p className="text-muted-foreground text-sm">
+                {selectedPlan === "pro-monthly" ? "按月订阅" : "按年订阅"}
+              </p>
+            </div>
               <div className="text-right">
                 <div className="flex items-center justify-end gap-2">
                   <span className="text-sm text-muted-foreground line-through">¥{originalPrice}</span>
                   <div className="text-xl font-bold text-red-600">
-                    ¥{paymentAmount}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      {selectedPlan === "pro-monthly" ? "/月" : "/年"}
-                    </span>
+              ¥{paymentAmount}
+              <span className="text-sm font-normal text-muted-foreground">
+                {selectedPlan === "pro-monthly" ? "/月" : "/年"}
+              </span>
                   </div>
                 </div>
                 {timeLeft > 0 && (
@@ -190,31 +190,31 @@ export default function PaymentPage() {
                     省¥{discount}
                   </div>
                 )}
-              </div>
             </div>
+          </div>
 
-            <div className="mt-4">
-              <h3 className="font-medium mb-2">您将获得：</h3>
-              <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
-                <li>无限次生成内容</li>
-                <li>全平台内容适配支持</li>
+          <div className="mt-4">
+            <h3 className="font-medium mb-2">您将获得：</h3>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
+              <li>无限次生成内容</li>
+              <li>全平台内容适配支持</li>
                 <li>可选择AI模型</li>
                 <li>使用主流AI平台最新模型（如GPT-4o、DeepSeek V3等）</li>
                 <li>基础品牌库（开发中）</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
       )}
 
       {/* Payment QR Codes */}
       {showQRCode && selectedPlan && (
-        <Card>
-          <CardHeader>
-            <CardTitle>支付方式</CardTitle>
-            <CardDescription>选择您喜欢的支付方式</CardDescription>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle>支付方式</CardTitle>
+          <CardDescription>选择您喜欢的支付方式</CardDescription>
+        </CardHeader>
+        <CardContent>
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* 支付宝二维码 */}
@@ -280,7 +280,7 @@ export default function PaymentPage() {
                 </div>
               </div>
             </div>
-          </CardContent>
+        </CardContent>
         </Card>
       )}
 

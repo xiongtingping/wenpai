@@ -45,12 +45,114 @@ let currentApiStatus: ApiStatus = {
   lastChecked: new Date()
 };
 
-// API provider selection - toggle between 'openai', 'gemini', 'siliconflow', and 'deepseek'
+// API provider selection - toggle between 'openai', 'gemini', and 'deepseek'
 // Set default to OpenAI since Gemini is temporarily hidden
-let currentApiProvider: 'openai' | 'gemini' | 'siliconflow' | 'deepseek' = 'openai';
+let currentApiProvider: 'openai' | 'gemini' | 'deepseek' = 'openai';
 
 // Model selection for each provider
 let currentModel: string = 'gpt-4o-mini'; // Default model
+
+// Available models for each provider with detailed descriptions
+export const availableModels = {
+  openai: {
+    free: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
+    pro: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.5']
+  },
+  gemini: {
+    free: ['gemini-pro'],
+    pro: ['gemini-pro', 'gemini-pro-vision']
+  },
+  deepseek: {
+    free: ['deepseek-v2.5'],
+    pro: ['deepseek-v2.5', 'deepseek-v3']
+  }
+};
+
+// Model descriptions and use cases
+export const modelDescriptions = {
+  // OpenAI Models
+  'gpt-3.5-turbo': {
+    name: 'GPT-3.5 Turbo',
+    description: '快速、经济实惠的通用模型',
+    useCases: ['日常对话', '内容创作', '文本总结', '代码生成'],
+    strengths: ['响应速度快', '成本低', '稳定性好'],
+    bestFor: '适合大多数日常内容生成任务，性价比最高'
+  },
+  'gpt-3.5-turbo-16k': {
+    name: 'GPT-3.5 Turbo 16K',
+    description: '支持更长上下文的GPT-3.5版本',
+    useCases: ['长文档处理', '复杂对话', '多轮交互', '详细分析'],
+    strengths: ['支持长文本', '上下文理解强', '适合复杂任务'],
+    bestFor: '需要处理长文档或复杂上下文的内容生成'
+  },
+  'gpt-4': {
+    name: 'GPT-4',
+    description: '强大的推理和创意能力',
+    useCases: ['创意写作', '复杂分析', '逻辑推理', '高质量内容'],
+    strengths: ['推理能力强', '创意丰富', '理解深度高'],
+    bestFor: '需要高质量创意内容或复杂逻辑分析的任务'
+  },
+  'gpt-4o': {
+    name: 'GPT-4o',
+    description: '最新最强大的多模态模型',
+    useCases: ['多模态内容', '高级创意', '复杂任务', '专业内容'],
+    strengths: ['多模态能力', '最新知识', '最强性能'],
+    bestFor: '需要最高质量内容或处理多模态信息的专业任务'
+  },
+  'gpt-4o-mini': {
+    name: 'GPT-4o Mini',
+    description: 'GPT-4o的轻量级版本',
+    useCases: ['日常创作', '内容优化', '快速生成', '平衡性能'],
+    strengths: ['性能优秀', '成本适中', '响应快速'],
+    bestFor: '平衡性能与成本的内容生成任务'
+  },
+  'gpt-4.1-mini': {
+    name: 'GPT-4.1 Mini',
+    description: 'GPT-4.1的轻量级版本，性能优秀',
+    useCases: ['日常创作', '内容优化', '快速生成', '平衡性能'],
+    strengths: ['性能优秀', '成本适中', '响应快速'],
+    bestFor: '平衡性能与成本的内容生成任务'
+  },
+  'gpt-4.5': {
+    name: 'GPT-4.5',
+    description: '最新一代GPT模型，性能大幅提升',
+    useCases: ['高级创意', '复杂分析', '专业内容', '前沿技术'],
+    strengths: ['最新技术', '最强性能', '理解深度', '创意丰富'],
+    bestFor: '需要最高质量内容和前沿技术应用的专业任务'
+  },
+  
+  // Google Gemini Models
+  'gemini-pro': {
+    name: 'Gemini Pro',
+    description: 'Google强大的对话模型',
+    useCases: ['多语言内容', '创意写作', '技术文档', '教育内容'],
+    strengths: ['多语言支持', '创意丰富', '知识广泛'],
+    bestFor: '需要多语言支持或Google生态系统的内容生成'
+  },
+  'gemini-pro-vision': {
+    name: 'Gemini Pro Vision',
+    description: '支持视觉理解的多模态模型',
+    useCases: ['图像描述', '视觉内容创作', '图文结合', '视觉分析'],
+    strengths: ['视觉理解', '多模态能力', '创意丰富'],
+    bestFor: '需要处理图像或视觉元素的内容生成'
+  },
+  
+  // DeepSeek Models
+  'deepseek-v2.5': {
+    name: 'DeepSeek V2.5',
+    description: 'DeepSeek V2.5，适合日常内容生成和对话',
+    useCases: ['对话生成', '内容创作', '文本优化', '创意写作'],
+    strengths: ['对话自然', '创意丰富', '理解准确'],
+    bestFor: '免费用户推荐，适合日常内容生成'
+  },
+  'deepseek-v3': {
+    name: 'DeepSeek V3',
+    description: 'DeepSeek V3，最新一代模型，性能更强',
+    useCases: ['高质量内容', '复杂分析', '专业内容'],
+    strengths: ['性能更强', '理解更深', '输出更优'],
+    bestFor: '专业用户推荐，适合高质量内容生成'
+  }
+};
 
 // Platform style definitions and prompts
 export const platformStyles = {
@@ -122,9 +224,9 @@ export function getApiStatus(): ApiStatus {
 
 /**
  * Set the current API provider
- * @param provider The API provider to use ('openai', 'gemini', 'siliconflow', or 'deepseek')
+ * @param provider The API provider to use ('openai', 'gemini', or 'deepseek')
  */
-export function setApiProvider(provider: 'openai' | 'gemini' | 'siliconflow' | 'deepseek'): void {
+export function setApiProvider(provider: 'openai' | 'gemini' | 'deepseek'): void {
   currentApiProvider = provider;
   console.log(`API provider set to: ${provider}`);
 }
@@ -133,7 +235,7 @@ export function setApiProvider(provider: 'openai' | 'gemini' | 'siliconflow' | '
  * Get the current API provider
  * @returns Current API provider
  */
-export function getApiProvider(): 'openai' | 'gemini' | 'siliconflow' | 'deepseek' {
+export function getApiProvider(): 'openai' | 'gemini' | 'deepseek' {
   return currentApiProvider;
 }
 
@@ -152,6 +254,30 @@ export function setModel(model: string): void {
  */
 export function getModel(): string {
   return currentModel;
+}
+
+/**
+ * Get available models for current provider and user plan
+ * @param userPlan User plan ('free' or 'pro')
+ * @returns Available models for current provider
+ */
+export function getAvailableModels(userPlan: 'free' | 'pro' = 'free'): string[] {
+  const providerModels = availableModels[currentApiProvider];
+  if (!providerModels) {
+    return [];
+  }
+  return providerModels[userPlan] || providerModels.free;
+}
+
+/**
+ * Check if model is available for user plan
+ * @param model Model name
+ * @param userPlan User plan ('free' or 'pro')
+ * @returns Whether model is available
+ */
+export function isModelAvailable(model: string, userPlan: 'free' | 'pro' = 'free'): boolean {
+  const available = getAvailableModels(userPlan);
+  return available.includes(model);
 }
 
 /**
@@ -246,11 +372,11 @@ export async function checkApiAvailability(): Promise<boolean> {
       };
       return false;
     }
-  } else if (currentApiProvider === 'siliconflow') {
+  } else if (currentApiProvider === 'deepseek') {
     const startTime = Date.now();
     try {
-      // Use our proxy service to check SiliconFlow API availability
-      const response = await fetch('/api/status/siliconflow');
+      // Use our proxy service to check DeepSeek API availability
+      const response = await fetch('/api/status/deepseek');
       
       const responseTime = Date.now() - startTime;
       
@@ -258,7 +384,7 @@ export async function checkApiAvailability(): Promise<boolean> {
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const textBody = await response.text();
-        console.error('Non-JSON response from SiliconFlow status check:', textBody.substring(0, 500));
+        console.error('Non-JSON response from DeepSeek status check:', textBody.substring(0, 500));
         
         currentApiStatus = {
           available: false,
@@ -448,8 +574,6 @@ export async function adaptContentForPlatform(
     
     if (currentApiProvider === 'gemini') {
       result = await callGeminiAPI(systemPrompt, userPrompt, platformId);
-    } else if (currentApiProvider === 'siliconflow') {
-      result = await callSiliconFlowAPI(systemPrompt, userPrompt, platformId);
     } else if (currentApiProvider === 'deepseek') {
       result = await callDeepSeekAPI(systemPrompt, userPrompt, platformId);
     } else {
@@ -511,6 +635,7 @@ async function callOpenAIAPI(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-user-plan': 'pro' // 暂时设置为专业版，后续可以从用户状态获取
           },
           body: JSON.stringify({
             messages,
@@ -797,168 +922,6 @@ async function callDeepSeekAPI(
     content: generateSimulatedAIResponse(userPrompt, platformId),
     source: "simulation",
     error: "所有 DeepSeek API 重试尝试失败，已使用模拟内容"
-  };
-}
-
-/**
- * Make an API call to SiliconFlow through the backend proxy
- * @param systemPrompt The system prompt
- * @param userPrompt The user prompt
- * @param platformId The platform ID for context (used for fallback)
- * @returns Generated content with source information
- */
-async function callSiliconFlowAPI(
-  systemPrompt: string, 
-  userPrompt: string, 
-  platformId: string
-): Promise<AIApiResponse> {
-  const messages = [
-    {
-      role: "system",
-      content: systemPrompt
-    },
-    {
-      role: "user",
-      content: userPrompt
-    }
-  ];
-  
-  // Retry loop implementation
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      console.log(`SiliconFlow API call attempt ${attempt + 1}/${MAX_RETRIES + 1} for ${platformId}`);
-      
-      try {
-        console.log('Sending request to SiliconFlow API via proxy...');
-        
-        const response = await fetch('/api/proxy/siliconflow', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messages,
-            model: "qwen2.5-32b-instruct", 
-            temperature: 0.7
-          })
-        });
-        
-        console.log(`SiliconFlow API response status: ${response.status}`);
-        
-        // Check if we have a JSON response
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          const textBody = await response.text();
-          console.error('Non-JSON response from SiliconFlow API:', textBody.substring(0, 500));
-          
-          // Update API status
-          currentApiStatus = {
-            available: false,
-            lastChecked: new Date(),
-            errorMessage: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-          };
-          
-          if (attempt < MAX_RETRIES) {
-            console.log(`Will retry after error: Non-JSON response`);
-            // Wait before retrying (with exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
-            continue; // Try again
-          }
-          
-          // Fall back to simulation when all retries fail
-          return {
-            content: generateSimulatedAIResponse(userPrompt, platformId),
-            source: "simulation",
-            error: `非JSON响应: ${textBody.substring(0, 100)}...`
-          };
-        }
-        
-        // Now safe to parse JSON
-        const data = await response.json();
-        
-        // Handle non-200 responses
-        if (!response.ok) {
-          // Get response body for more error details
-          console.error('Error response body:', JSON.stringify(data));
-          
-          const errorMessage = data.error || `API error: ${response.status}`;
-          
-          // Update API status
-          currentApiStatus = {
-            available: false,
-            lastChecked: new Date(),
-            errorMessage: errorMessage
-          };
-          
-          if (attempt < MAX_RETRIES) {
-            console.log(`Will retry after error: ${errorMessage}`);
-            // Wait before retrying (with exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
-            continue; // Try again
-          }
-          
-          console.error(`SiliconFlow API error after ${attempt + 1} attempts:`, errorMessage);
-          
-          // Fall back to simulation when all retries fail
-          return {
-            content: generateSimulatedAIResponse(userPrompt, platformId),
-            source: "simulation",
-            error: errorMessage
-          };
-        }
-        
-        // Update API status to available
-        currentApiStatus = {
-          available: true,
-          lastChecked: new Date()
-        };
-        
-        // Process successful response
-        console.log('Processing successful SiliconFlow API response');
-        
-        if (!data.success) {
-          throw new Error(data.error || 'API proxy returned an unsuccessful response');
-        }
-        
-        return {
-          content: data.data.choices[0].message.content,
-          source: "ai" // Indicate this content came from the AI
-        };
-      } catch (fetchError) {
-        console.error('Fetch error:', fetchError);
-        
-        // Re-throw other fetch errors
-        throw fetchError;
-      }
-    } catch (error) {
-      console.error(`SiliconFlow API call error on attempt ${attempt + 1}:`, error);
-      
-      // Update API status
-      currentApiStatus = {
-        available: false,
-        lastChecked: new Date(),
-        errorMessage: error instanceof Error ? error.message : 'Unknown error'
-      };
-      
-      // For the last attempt, fall back to simulation
-      if (attempt >= MAX_RETRIES) {
-        return {
-          content: generateSimulatedAIResponse(userPrompt, platformId),
-          source: "simulation",
-          error: error instanceof Error ? error.message : "API 调用失败"
-        };
-      }
-      
-      // Wait before next retry (with exponential backoff)
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
-    }
-  }
-  
-  // This should never be reached due to the return in the final attempt, but TypeScript requires it
-  return {
-    content: generateSimulatedAIResponse(userPrompt, platformId),
-    source: "simulation",
-    error: "所有 API 重试尝试失败，已使用模拟内容"
   };
 }
 

@@ -37,6 +37,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing or invalid messages in request body' });
     }
 
+    // 验证模型权限
+    const userPlan = req.headers['x-user-plan'] || 'free'; // 从请求头获取用户计划
+    const allowedModels = {
+      free: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
+      pro: ['gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.5']
+    };
+    
+    const userAllowedModels = allowedModels[userPlan as keyof typeof allowedModels] || allowedModels.free;
+    if (!userAllowedModels.includes(model)) {
+      return res.status(403).json({ 
+        error: 'Model not allowed for your plan', 
+        detail: `Free users can only use: ${allowedModels.free.join(', ')}. Pro users can use: ${allowedModels.pro.join(', ')}` 
+      });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
     console.log('OPENAI_API_KEY exists:', !!apiKey);
     if (!apiKey) {

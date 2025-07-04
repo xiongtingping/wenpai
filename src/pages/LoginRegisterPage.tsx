@@ -622,7 +622,7 @@ export default function LoginRegisterPage() {
                   <p className="text-muted-foreground">
                     已有账户?
                     <Link to="/login-register" className="text-blue-600 hover:text-blue-700 hover:underline ml-1">
-                      立即登录
+                        立即登录
                     </Link>
                   </p>
                 </div>

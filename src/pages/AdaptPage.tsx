@@ -35,7 +35,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { generateAdaptedContent, regeneratePlatformContent, platformStyles } from "@/api/contentAdapter";
+import { 
+  generateAdaptedContent, 
+  regeneratePlatformContent, 
+  platformStyles,
+  setApiProvider,
+  getApiProvider,
+  setModel,
+  getModel,
+  getAvailableModels,
+  modelDescriptions
+} from "@/api/contentAdapter";
 import { useUserStore } from "@/store/userStore";
 import { cn } from "@/lib/utils";
 
@@ -243,6 +253,11 @@ export default function AdaptPage() {
     globalEmoji: false,
     globalMd: false
   });
+  
+  // AI Model settings
+  const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>(getApiProvider());
+  const [selectedModel, setSelectedModel] = useState(getModel());
+  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
   
   // User store for usage tracking
   const { 
@@ -610,7 +625,7 @@ export default function AdaptPage() {
       saveToHistory(results);
       toast({
         title: "内容已生成",
-        description: `已成功为${selectedPlatforms.length}个平台适配内容`,
+                        description: `已成功为${selectedPlatforms.length}个平台生成内容`,
       });
     } catch (error) {
       console.error("Error generating content:", error);
@@ -1141,6 +1156,8 @@ export default function AdaptPage() {
                   </Label>
                 </div>
               </div>
+
+
               
               <div className="flex justify-end mt-4">
                 <Button 
@@ -1152,6 +1169,140 @@ export default function AdaptPage() {
                   <Save className="h-4 w-4 mr-1" />
                   保存设置
                 </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* AI Model Selection */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg">AI 模型选择</CardTitle>
+          <CardDescription>
+            选择适合您需求的AI模型，不同模型适合不同的内容类型
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label className="text-sm mb-2 block">API 提供商</Label>
+              <Select 
+                value={apiProvider}
+                onValueChange={(value: 'openai' | 'gemini' | 'deepseek') => {
+                  setCurrentApiProvider(value);
+                  setApiProvider(value);
+                  // 重置模型为第一个可用模型
+                  const available = getAvailableModels(userPlan);
+                  if (available.length > 0) {
+                    setSelectedModel(available[0]);
+                    setModel(available[0]);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="选择API提供商" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="openai">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-blue-600">OpenAI</span>
+                      <span className="text-xs text-gray-500">GPT-3.5/4系列</span>
+                    </div>
+                  </SelectItem>
+
+                  <SelectItem value="deepseek">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-orange-600">DeepSeek</span>
+                      <span className="text-xs text-gray-500">DeepSeek系列</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label className="text-sm mb-2 block">用户计划</Label>
+              <Select 
+                value={userPlan}
+                onValueChange={(value: 'free' | 'pro') => setUserPlan(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="选择用户计划" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free">免费版 (基础模型)</SelectItem>
+                  <SelectItem value="pro">专业版 (所有模型)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label className="text-sm mb-2 block">AI 模型</Label>
+              <Select 
+                value={selectedModel}
+                onValueChange={(value) => {
+                  setSelectedModel(value);
+                  setModel(value);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="选择AI模型" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getAvailableModels(userPlan).map((model) => {
+                    const modelInfo = modelDescriptions[model as keyof typeof modelDescriptions];
+                    return (
+                      <SelectItem key={model} value={model}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{modelInfo?.name || model}</span>
+                          <span className="text-xs text-gray-500">{modelInfo?.description}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              {userPlan === 'free' && (
+                <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-xs text-amber-800 font-medium">免费版限制</p>
+                      <p className="text-xs text-amber-700 mt-1">
+                        免费版只能使用基础模型，升级专业版可解锁所有高级模型
+                      </p>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="ml-2 bg-amber-600 hover:bg-amber-700 text-white text-xs"
+                      onClick={() => window.location.href = '/payment'}
+                    >
+                      立即开通
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {selectedModel && modelDescriptions[selectedModel as keyof typeof modelDescriptions] && (
+            <div className="mt-4 bg-blue-50 p-4 rounded-md">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h5 className="text-sm font-medium text-blue-900">
+                    {modelDescriptions[selectedModel as keyof typeof modelDescriptions].name}
+                  </h5>
+                  <p className="text-xs text-blue-700 mt-1">
+                    {modelDescriptions[selectedModel as keyof typeof modelDescriptions].bestFor}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {modelDescriptions[selectedModel as keyof typeof modelDescriptions].strengths.slice(0, 2).map((strength, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {strength}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -1378,7 +1529,7 @@ export default function AdaptPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Original/Edited Content */}
                       <div>
-                        <h4 className="text-lg font-semibold mb-3">适配内容</h4>
+                        <h4 className="text-lg font-semibold mb-3">生成内容</h4>
                         {result.content ? (
                           editingPlatform === result.platformId ? (
                             <div className="space-y-3">

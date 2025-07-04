@@ -29,10 +29,10 @@ export function PricingSection() {
       // User is not logged in, redirect to registration first
       localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly");
       window.location.href = "/register";
-      
-      toast({
-        title: "正在为您跳转到注册页面",
-        description: "完成注册后将为您导向支付页面",
+    
+    toast({
+      title: "正在为您跳转到注册页面",
+      description: "完成注册后将为您导向支付页面",
       });
     }
   }
@@ -130,9 +130,9 @@ export function PricingSection() {
               </li>
               <li className="flex items-center space-x-3"><span>✔️</span> <span>支持所有平台</span></li>
               <li className="flex items-center space-x-3"><span>✔️</span> <span>基础品牌库（开发中）</span></li>
-              <li className="flex items-center space-x-3"><span>✔️</span> <span>可选择AI模型</span></li>
-              <li className="flex items-center space-x-3"><span>✔️</span> <span>使用主流AI平台最新模型（如GPT-4o、DeepSeek V3等）</span></li>
-              <li className="flex items-center space-x-3"><span>❌</span> <span className="line-through">高级团队协作</span></li>
+              <li className="flex items-center space-x-3"><span>✔️</span> <span>可以选择更多AI模型（如GPT-4o、DeepSeek V3等）</span></li>
+              <li className="flex items-center space-x-3"><span>✔️</span> <span>可优先使用主流AI平台最新模型</span></li>
+              
             </ul>
             <Button 
               className="mt-8 w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90"
