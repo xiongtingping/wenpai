@@ -22,28 +22,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages, model = 'deepseek-chat', temperature = 0.7 } = req.body;
-  
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Missing or invalid messages in request body' });
-  }
-
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) {
-    console.error('Missing DeepSeek API key in environment variables');
-    return res.status(500).json({ error: 'Missing DeepSeek API key in environment variables' });
-  }
-
-  const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-  const requestBody = {
-    model,
-    messages,
-    temperature,
-    max_tokens: 2048,
-    stream: false
-  };
-
   try {
+    const { messages, model = 'deepseek-chat', temperature = 0.7 } = req.body || {};
+    
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Missing or invalid messages in request body' });
+    }
+
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      console.error('Missing DeepSeek API key in environment variables');
+      return res.status(500).json({ 
+        error: 'DeepSeek API key not configured', 
+        detail: 'Please configure DEEPSEEK_API_KEY in your environment variables' 
+      });
+    }
+
+    const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+    const requestBody = {
+      model,
+      messages,
+      temperature,
+      max_tokens: 2048,
+      stream: false
+    };
+
     console.log('Making request to DeepSeek API');
     
     const response = await fetch(DEEPSEEK_API_URL, {
@@ -72,6 +75,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error('Server error in DeepSeek proxy:', errorMessage);
-    return res.status(500).json({ error: 'Server error', detail: errorMessage });
+    return res.status(500).json({ 
+      error: 'Server error', 
+      detail: errorMessage,
+      message: 'A server error has occurred. Please try again later.'
+    });
   }
 } 

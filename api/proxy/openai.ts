@@ -56,7 +56,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('OPENAI_API_KEY exists:', !!apiKey);
     if (!apiKey) {
       console.error('Missing OpenAI API key in environment variables');
-      return res.status(500).json({ error: 'Missing OpenAI API key in environment variables' });
+      return res.status(500).json({ 
+        error: 'OpenAI API key not configured', 
+        detail: 'Please configure OPENAI_API_KEY in your environment variables' 
+      });
     }
 
     console.log('Making request to OpenAI API...');
@@ -105,6 +108,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error('Server error in OpenAI proxy:', errorMessage);
     console.error('Error stack:', err instanceof Error ? err.stack : 'No stack trace');
-    return res.status(500).json({ error: 'Server error', detail: errorMessage });
+    return res.status(500).json({ 
+      error: 'Server error', 
+      detail: errorMessage,
+      message: 'A server error has occurred. Please try again later.'
+    });
   }
 } 
