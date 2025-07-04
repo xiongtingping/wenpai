@@ -77,7 +77,7 @@ export default function ProfilePage() {
         console.error('Error loading favorites:', error);
       }
     }
-  }, [navigate, toast]);
+  }, [navigate, toast, isLoggedIn, userInfo]);
 
   const handleEdit = (field: string) => {
     setEditingField(field);

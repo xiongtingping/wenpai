@@ -5,15 +5,9 @@
   publish = "dist"
   # 函数目录
   functions = "netlify/functions"
-  # Node.js版本
-  [build.environment]
-    NODE_VERSION = "18"
 
-[build.processing]
-  # 启用CSS和JS的压缩
-  css = { bundle = true, minify = true }
-  js = { bundle = true, minify = true }
-  html = { pretty_urls = true }
+[build.environment]
+  NODE_VERSION = "18"
 
 # API重定向到Netlify函数
 [[redirects]]

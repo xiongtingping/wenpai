@@ -379,7 +379,7 @@ export default function AdaptPage() {
 
   useEffect(() => {
     initializeDefaultSettings();
-  }, [platforms, initializeDefaultSettings]);
+  }, [platforms]);
 
   // Character count display
   const contentCharCount = originalContent.length;
