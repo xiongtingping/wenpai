@@ -46,11 +46,11 @@ let currentApiStatus: ApiStatus = {
 };
 
 // API provider selection - toggle between 'openai', 'gemini', and 'deepseek'
-// Set default to DeepSeek since OpenAI has network connectivity issues
-let currentApiProvider: 'openai' | 'gemini' | 'deepseek' = 'deepseek';
+// Set default to OpenAI with gpt-4o model
+let currentApiProvider: 'openai' | 'gemini' | 'deepseek' = 'openai';
 
 // Model selection for each provider
-let currentModel: string = 'deepseek-v2.5'; // Default model
+let currentModel: string = 'gpt-4o'; // Default model
 
 // Available models for each provider with detailed descriptions
 export const availableModels = {
@@ -93,11 +93,11 @@ export const modelDescriptions = {
     bestFor: '需要高质量创意内容或复杂逻辑分析的任务'
   },
   'gpt-4o': {
-    name: 'GPT-4o（建议此模型）',
-    description: '最新最强大的多模态模型',
-    useCases: ['多模态内容', '高级创意', '复杂任务', '专业内容'],
-    strengths: ['多模态能力', '最新知识', '最强性能'],
-    bestFor: '需要最高质量内容或处理多模态信息的专业任务'
+    name: 'GPT-4o（推荐模型）',
+    description: '最新最强大的多模态模型，性能卓越',
+    useCases: ['多模态内容', '高级创意', '复杂任务', '专业内容', '高质量生成'],
+    strengths: ['多模态能力', '最新知识', '最强性能', '理解深度高', '创意丰富'],
+    bestFor: '需要最高质量内容或处理多模态信息的专业任务，推荐作为默认选择'
   },
   'gpt-4o-mini': {
     name: 'GPT-4o Mini',

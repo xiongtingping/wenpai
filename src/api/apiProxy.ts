@@ -26,12 +26,12 @@ export interface ProxyResponse<T = unknown> {
 /**
  * Make a call to the OpenAI API through our backend proxy
  * @param messages Array of messages to send to OpenAI
- * @param model The model to use (defaults to gpt-3.5-turbo-0125)
+ * @param model The model to use (defaults to gpt-4o)
  * @returns Promise with response data
  */
 export async function callOpenAIProxy(
   messages: unknown[],
-  model: string = 'gpt-3.5-turbo-0125'
+  model: string = 'gpt-4o'
 ): Promise<ProxyResponse> {
   try {
     console.log('Sending request to OpenAI proxy');
