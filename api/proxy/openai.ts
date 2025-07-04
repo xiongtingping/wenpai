@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
   console.log('=== OpenAI Proxy Debug Start ===');
   console.log('req.method:', req.method);
   console.log('req.headers:', JSON.stringify(req.headers, null, 2));
