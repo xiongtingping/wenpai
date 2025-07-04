@@ -1,4 +1,8 @@
 import { checkGeminiAvailability } from './apiProxy';
+import { devApiProxy } from './devApiProxy';
+
+// 检查是否为开发环境
+const isDevelopment = import.meta.env.DEV;
 
 interface ContentGenerationParams {
   originalContent: string;
@@ -625,6 +629,26 @@ async function callOpenAIAPI(
       try {
         console.log('Sending request to OpenAI API via proxy...');
         
+        // 在开发环境中使用模拟API
+        if (isDevelopment) {
+          console.log('使用开发环境模拟API');
+          const mockResponse = await devApiProxy('/api/proxy/openai', {
+            messages,
+            model: currentModel, 
+            temperature: 0.7
+          });
+          
+          if (!mockResponse.success) {
+            throw new Error(mockResponse.error || '模拟API调用失败');
+          }
+          
+          return {
+            content: mockResponse.data.choices[0].message.content,
+            source: "ai"
+          };
+        }
+        
+        // 生产环境使用真实API
         const response = await fetch('/api/proxy/openai', {
           method: 'POST',
           headers: {
@@ -788,6 +812,26 @@ async function callDeepSeekAPI(
       try {
         console.log('Sending request to DeepSeek API via proxy...');
         
+        // 在开发环境中使用模拟API
+        if (isDevelopment) {
+          console.log('使用开发环境模拟API');
+          const mockResponse = await devApiProxy('/api/proxy/deepseek', {
+            messages,
+            model: currentModel, 
+            temperature: 0.7
+          });
+          
+          if (!mockResponse.success) {
+            throw new Error(mockResponse.error || '模拟API调用失败');
+          }
+          
+          return {
+            content: mockResponse.data.choices[0].message.content,
+            source: "ai"
+          };
+        }
+        
+        // 生产环境使用真实API
         const response = await fetch('/api/proxy/deepseek', {
           method: 'POST',
           headers: {
@@ -942,6 +986,24 @@ async function callGeminiAPI(
       try {
         console.log('Sending request to Gemini API via proxy...');
         
+        // 在开发环境中使用模拟API
+        if (isDevelopment) {
+          console.log('使用开发环境模拟API');
+          const mockResponse = await devApiProxy('/api/proxy/gemini', {
+            prompt: fullPrompt
+          });
+          
+          if (!mockResponse.success) {
+            throw new Error(mockResponse.error || '模拟API调用失败');
+          }
+          
+          return {
+            content: mockResponse.data.choices[0].message.content,
+            source: "ai"
+          };
+        }
+        
+        // 生产环境使用真实API
         const response = await fetch('/api/proxy/gemini', {
           method: 'POST',
           headers: {
