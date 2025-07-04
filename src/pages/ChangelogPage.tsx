@@ -42,7 +42,7 @@ export default function ChangelogPage() {
       title: "文派正式发布",
       changes: [
         "支持8大主流平台内容适配",
-        "集成OpenAI、Gemini、SiliconFlow三大AI模型",
+        "集成OpenAI、Gemini、DeepSeek三大AI模型",
         "智能内容生成与平台优化",
         "响应式设计，支持移动端使用",
         "基础用户使用次数管理"
