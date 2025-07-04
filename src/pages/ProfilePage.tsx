@@ -35,7 +35,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [favorites, setFavorites] = useState<Array<{id: string; content: string}>>([]);
+  const [favorites, setFavorites] = useState<Array<{id: string; content: string; platformName: string; timestamp: string}>>([]);
   
   const { toast } = useToast();
 
@@ -72,7 +72,7 @@ export default function ProfilePage() {
     if (savedFavorites) {
       try {
         const parsedFavorites = JSON.parse(savedFavorites);
-        setFavorites(parsedFavorites as Array<{id: string; content: string}>);
+        setFavorites(parsedFavorites as Array<{id: string; content: string; platformName: string; timestamp: string}>);
       } catch (error) {
         console.error('Error loading favorites:', error);
       }
