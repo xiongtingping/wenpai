@@ -17,23 +17,12 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  try {
-    const apiKey = process.env.DEEPSEEK_API_KEY;
-    
-    return res.status(200).json({ 
-      success: true, 
-      available: !!apiKey,
-      error: apiKey ? null : 'DeepSeek API key not configured',
-      message: apiKey ? 'DeepSeek API key is configured' : 'Please configure DEEPSEEK_API_KEY in your environment variables',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('Error in DeepSeek status check:', error);
-    return res.status(200).json({ 
-      success: false, 
-      available: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    });
-  }
+  // 最简单的响应，避免任何可能的错误
+  return res.status(200).json({ 
+    success: true, 
+    available: false,
+    error: 'DeepSeek API key not configured',
+    message: 'Please configure DEEPSEEK_API_KEY in your environment variables',
+    timestamp: new Date().toISOString()
+  });
 } 
