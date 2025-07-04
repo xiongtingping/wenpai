@@ -41,6 +41,28 @@ exports.handler = async function(event, context) {
       };
     }
 
+    if (path.includes('/api/debug-env')) {
+      const openaiKey = process.env.OPENAI_API_KEY;
+      const deepseekKey = process.env.DEEPSEEK_API_KEY;
+      const geminiKey = process.env.GEMINI_API_KEY;
+      
+      return {
+        statusCode: 200,
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: true,
+          message: 'Environment variables check',
+          timestamp: new Date().toISOString(),
+          openai_key_configured: !!openaiKey,
+          openai_key_prefix: openaiKey ? openaiKey.substring(0, 7) + '...' : 'not set',
+          deepseek_key_configured: !!deepseekKey,
+          deepseek_key_prefix: deepseekKey ? deepseekKey.substring(0, 7) + '...' : 'not set',
+          gemini_key_configured: !!geminiKey,
+          gemini_key_prefix: geminiKey ? geminiKey.substring(0, 7) + '...' : 'not set'
+        })
+      };
+    }
+
     if (path.includes('/api/proxy/openai')) {
       return await handleOpenAIRequest(body, headers);
     }
