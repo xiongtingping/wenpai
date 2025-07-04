@@ -15,12 +15,17 @@ import {
   Users, 
   Award,
   Settings,
-  CreditCard
+  CreditCard,
+  Heart,
+  TestTube
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ToolLayout from "@/components/layout/ToolLayout";
+import { useUserStore } from "@/store/userStore";
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
+  const { isLoggedIn, userInfo, logout } = useUserStore();
   const [user, setUser] = useState({
     name: "",
     phone: "",
@@ -31,16 +36,30 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [favorites, setFavorites] = useState<any[]>([]);
   
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load user data from localStorage
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      setEditValue(parsedUser.name || "");
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      toast({
+        title: "需要登录",
+        description: "请先登录后再访问此页面",
+        variant: "destructive"
+      });
+      navigate('/login-register');
+      return;
+    }
+    
+    // Load user data from store
+    if (userInfo) {
+      setUser({
+        name: userInfo.username,
+        phone: userInfo.username,
+        email: userInfo.email
+      });
+      setEditValue(userInfo.username || "");
     }
     
     // Load usage data (mock)
@@ -48,7 +67,18 @@ export default function ProfilePage() {
     if (savedUsage) {
       setUsageRemaining(parseInt(savedUsage));
     }
-  }, []);
+
+    // Load favorites
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      try {
+        const parsedFavorites = JSON.parse(savedFavorites);
+        setFavorites(parsedFavorites);
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      }
+    }
+  }, [navigate, toast]);
 
   const handleEdit = (field: string) => {
     setEditingField(field);
@@ -90,6 +120,15 @@ export default function ProfilePage() {
 
   const handleUpgrade = () => {
     window.location.href = "/payment";
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "已登出",
+      description: "您已成功退出登录",
+    });
+    navigate('/');
   };
 
   return (
@@ -340,6 +379,17 @@ export default function ProfilePage() {
                       品牌库
                     </Link>
                   </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <Link to="/api-test">
+                      <TestTube className="h-4 w-4 mr-2" />
+                      API 测试
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -368,11 +418,84 @@ export default function ProfilePage() {
                      >
                        立即升级
                      </Button>
+                     <Button 
+                       variant="outline" 
+                       className="w-full text-red-600 hover:text-red-700"
+                       onClick={handleLogout}
+                     >
+                       退出登录
+                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </div>
+
+          {/* Favorites Section */}
+          {favorites.length > 0 && (
+            <div className="mt-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Heart className="h-5 w-5 mr-2" />
+                    我的收藏
+                  </CardTitle>
+                  <CardDescription>
+                    您收藏的内容适配结果
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {favorites.map((favorite, index) => (
+                      <div key={favorite.id || index} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">{favorite.platformName}</Badge>
+                            <span className="text-xs text-gray-500">
+                              {new Date(favorite.timestamp).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                navigator.clipboard.writeText(favorite.content);
+                                toast({
+                                  title: "已复制",
+                                  description: "内容已复制到剪贴板",
+                                });
+                              }}
+                            >
+                              一键复制
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                const newFavorites = favorites.filter((_, i) => i !== index);
+                                setFavorites(newFavorites);
+                                localStorage.setItem('favorites', JSON.stringify(newFavorites));
+                                toast({
+                                  title: "已删除",
+                                  description: "收藏内容已删除",
+                                });
+                              }}
+                            >
+                              删除
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded border max-h-32 overflow-y-auto">
+                          {favorite.content}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
     </ToolLayout>

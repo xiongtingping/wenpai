@@ -9,8 +9,9 @@ export function HeroSection() {
         <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
           文派：<span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">你的专属AI内容策略师</span>
         </h1>
-        <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-          一键智能改写任意内容，让内容精准适配每一个平台。精准适配小红书、公众号、抖音、B站、知乎、微博等平台风格，确保内容风格各异、表达一致，始终严守品牌口径。
+        <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          一键智能改写任意内容，让内容精准适配每一个平台。<br />
+          精准适配小红书、公众号、抖音、B站、知乎、微博等平台风格，确保内容风格各异、表达一致，始终严守品牌口径。
         </p>
         <div className="mt-10">
           <Link to="/register">

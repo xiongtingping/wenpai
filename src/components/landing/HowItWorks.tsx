@@ -37,21 +37,6 @@ export function HowItWorks() {
         </div>
         
         <div className="mt-16 relative">
-          {/* Connect line with animation for desktop */}
-          <div className="hidden md:block absolute top-1/2 left-0 right-0 z-0 overflow-hidden">
-            <div className="flex justify-between items-center h-2 w-[80%] mx-auto">
-              {/* Background line */}
-              <div className="h-1 bg-gray-200 w-full rounded-full"></div>
-              {/* Animated progress line */}
-              <div 
-                className="absolute h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full" 
-                style={{ 
-                  width: `${lineProgress * 100}%`,
-                  transition: "width 0.5s ease-out"
-                }}
-              ></div>
-            </div>
-          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center relative z-10">
             {/* Step 1: Input */}

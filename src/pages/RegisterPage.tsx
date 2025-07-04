@@ -190,22 +190,31 @@ export default function RegisterPage() {
         verificationId: verificationData.verificationId
       });
       
-      if (result.success) {
-        toast({
-          title: "注册成功",
-          description: "正在为您跳转到支付页面...",
-        });
-        
-        // Store user data in localStorage or state management system
-        if (result.token && result.user) {
-          localStorage.setItem('authToken', result.token);
-          localStorage.setItem('user', JSON.stringify(result.user));
-        }
-        
-        // Redirect to payment page
-        setTimeout(() => {
-          window.location.href = "/payment";
-        }, 1500);
+              if (result.success) {
+          // Check if user came from pricing page
+          const selectedPlan = localStorage.getItem("selectedPlan");
+          
+          toast({
+            title: "注册成功",
+            description: selectedPlan ? "正在为您跳转到支付页面..." : "正在为您跳转到内容适配页面...",
+          });
+          
+          // Store user data in localStorage or state management system
+          if (result.token && result.user) {
+            localStorage.setItem('authToken', result.token);
+            localStorage.setItem('user', JSON.stringify(result.user));
+          }
+          
+          // Redirect based on context
+          setTimeout(() => {
+            if (selectedPlan) {
+              // User came from pricing page, go to payment
+              window.location.href = "/payment";
+            } else {
+              // User came from other places, go to content adapter
+              window.location.href = "/adapt";
+            }
+          }, 1500);
       } else {
         toast({
           title: "注册失败",

@@ -19,6 +19,13 @@ export interface UserInviteStats {
 }
 
 interface UserState {
+  // User authentication
+  isLoggedIn: boolean;
+  userInfo: {
+    username: string;
+    email: string;
+  } | null;
+  
   // User usage counters and limits
   usageRemaining: number;
   lastReset: string | null;
@@ -32,6 +39,8 @@ interface UserState {
   weekStart: string | null;
   
   // Methods
+  login: (username: string, email: string) => void;
+  logout: () => void;
   decrementUsage: () => void;
   addUsageFromInvite: (amount: number) => void;
   addUsageFromClick: () => void;
@@ -81,7 +90,9 @@ export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       // Initial state
-      usageRemaining: 20, // Default initial usage amount
+      isLoggedIn: false,
+      userInfo: null,
+      usageRemaining: 10, // Default initial usage amount
       lastReset: null,
       userInviteCode: generateUniqueCode(),
       userInviteStats: {
@@ -92,6 +103,22 @@ export const useUserStore = create<UserState>()(
       },
       weeklyClickRewards: 0,
       weekStart: null,
+      
+      // Login method
+      login: (username: string, email: string) => {
+        set({
+          isLoggedIn: true,
+          userInfo: { username, email }
+        });
+      },
+      
+      // Logout method
+      logout: () => {
+        set({
+          isLoggedIn: false,
+          userInfo: null
+        });
+      },
       
       // Decrement usage when content is generated
       decrementUsage: () => {
@@ -129,7 +156,7 @@ export const useUserStore = create<UserState>()(
         // Reset if first time or if last reset was in a different month
         if (!lastReset || !isCurrentMonth(lastReset)) {
           set({ 
-            usageRemaining: 20, // Monthly free amount
+            usageRemaining: 10, // Monthly free amount
             lastReset: now.toISOString() 
           });
         }

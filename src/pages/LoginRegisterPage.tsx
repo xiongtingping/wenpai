@@ -4,10 +4,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, Phone, User, Shield, Loader2, ArrowLeft } from "lucide-react";
 // import { sendVerificationCode, verifyCode, registerUser } from "@/api/authService";
 import { useLocation } from "react-router-dom";
+import { useUserStore } from "@/store/userStore";
 
 export default function LoginRegisterPage() {
   // Login state
@@ -16,6 +18,7 @@ export default function LoginRegisterPage() {
     password: "",
   });
   
+  const [rememberPassword, setRememberPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   
   // Register state
@@ -40,11 +43,28 @@ export default function LoginRegisterPage() {
   });
 
   const { toast } = useToast();
+  const { login, isLoggedIn } = useUserStore();
   // const navigate = useNavigate();
   
   // Check if we should show registration form based on URL params
   const location = useLocation();
-  const showRegistration = location.pathname === "/register" || location.pathname === "/login-register";
+  const showRegistration = location.pathname === "/register";
+
+  // Load saved credentials on component mount
+  useEffect(() => {
+    if (!showRegistration) {
+      const savedCredentials = localStorage.getItem('savedCredentials');
+      if (savedCredentials) {
+        try {
+          const { username, password } = JSON.parse(savedCredentials);
+          setLoginData({ username, password });
+          setRememberPassword(true);
+        } catch (error) {
+          console.error('Failed to load saved credentials:', error);
+        }
+      }
+    }
+  }, [showRegistration]);
 
   // Countdown timer for SMS code resend
   useEffect(() => {
@@ -76,16 +96,22 @@ export default function LoginRegisterPage() {
     
     setLoginLoading(true);
     
+    // Save credentials if remember password is checked
+    if (rememberPassword) {
+      localStorage.setItem('savedCredentials', JSON.stringify(loginData));
+    } else {
+      localStorage.removeItem('savedCredentials');
+    }
+    
     // Simulate login process
     setTimeout(() => {
+      // Use the store's login method
+      login(loginData.username, loginData.username + '@example.com');
+      
       toast({
         title: "登录成功",
         description: "欢迎回到文派平台"
       });
-      
-      // For demo purposes, store a mock token
-      localStorage.setItem('authToken', 'mock-token-123456');
-      localStorage.setItem('user', JSON.stringify({ name: loginData.username }));
       
       // Redirect to adapt page
       setTimeout(() => {
@@ -235,17 +261,13 @@ export default function LoginRegisterPage() {
     
     // For demo purposes, simulate API call
     setTimeout(() => {
+      // Use the store's login method
+      login(formData.phone, formData.email);
+      
       toast({
         title: "注册成功",
         description: "正在为您跳转到内容适配页面...",
       });
-      
-      // Store mock data
-      localStorage.setItem('authToken', 'new-user-token-123456');
-      localStorage.setItem('user', JSON.stringify({ 
-        email: formData.email,
-        phone: formData.phone
-      }));
       
       // Redirect to adapt page instead of payment page
       setTimeout(() => {
@@ -323,6 +345,17 @@ export default function LoginRegisterPage() {
                         disabled={loginLoading}
                       />
                     </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="rememberPassword"
+                      checked={rememberPassword}
+                      onCheckedChange={(checked) => {
+                        setRememberPassword(checked as boolean);
+                      }}
+                    />
+                    <Label htmlFor="rememberPassword" className="text-sm">记住密码</Label>
                   </div>
                 </CardContent>
                 <CardFooter className="flex-col space-y-4">
@@ -588,13 +621,8 @@ export default function LoginRegisterPage() {
                 <div className="text-center mt-4">
                   <p className="text-muted-foreground">
                     已有账户?
-                    <Link to="/login-register">
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto ml-1 text-blue-600" 
-                      >
-                        立即登录
-                      </Button>
+                    <Link to="/login-register" className="text-blue-600 hover:text-blue-700 hover:underline ml-1">
+                      立即登录
                     </Link>
                   </p>
                 </div>

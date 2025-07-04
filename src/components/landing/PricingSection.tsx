@@ -9,39 +9,32 @@ import { useToast } from "@/hooks/use-toast"
 export function PricingSection() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly")
   const { toast } = useToast()
-  const [timeLeft, setTimeLeft] = useState<number>(30 * 60) // 30 minutes in seconds
-  
-  // Format time left as MM:SS
-  const formatTimeLeft = () => {
-    const minutes = Math.floor(timeLeft / 60)
-    const seconds = timeLeft % 60
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-  }
-  
-  // Countdown timer effect
-  useEffect(() => {
-    if (timeLeft <= 0) return
-    
-    const intervalId = setInterval(() => {
-      setTimeLeft(timeLeft => timeLeft - 1)
-    }, 1000)
-    
-    return () => clearInterval(intervalId)
-  }, [timeLeft])
+
 
   // Handle Pro plan selection
   const handleProPlanClick = () => {
-    // Redirect to registration first
-    window.location.href = "/register"
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem("userToken") || sessionStorage.getItem("userToken");
     
-    // In a real implementation, we would store the selected plan in localStorage or context
-    // so that after registration, the user can be directed to payment
-    localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly")
-    
-    toast({
-      title: "正在为您跳转到注册页面",
-      description: "完成注册后将为您导向支付页面",
-    })
+    if (isLoggedIn) {
+      // User is logged in, go directly to payment
+      localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly");
+      window.location.href = "/payment";
+      
+      toast({
+        title: "正在为您跳转到支付页面",
+        description: "请完成支付以开通专业版功能",
+      });
+    } else {
+      // User is not logged in, redirect to registration first
+      localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly");
+      window.location.href = "/register";
+      
+      toast({
+        title: "正在为您跳转到注册页面",
+        description: "完成注册后将为您导向支付页面",
+      });
+    }
   }
 
   return (
@@ -75,7 +68,7 @@ export function PricingSection() {
               <li className="flex items-center space-x-3">
                 <span>✔️</span> 
                 <div>
-                  <span>每月赠送 20 次生成</span>
+                  <span>每月赠送 10 次生成</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">月初自动发放</Badge>
                 </div>
               </li>
@@ -93,7 +86,8 @@ export function PricingSection() {
                   <Badge variant="outline" className="ml-2 text-xs bg-amber-50 text-amber-700 border-amber-200">上限100次/周</Badge>
                 </div>
               </li>
-              <li className="flex items-center space-x-3"><span>✔️</span> <span>支持3个主流平台</span></li>
+              <li className="flex items-center space-x-3"><span>✔️</span> <span>默认AI模型（不可选）</span></li>
+              <li className="flex items-center space-x-3"><span>✔️</span> <span>仅支持小红书、抖音</span></li>
               <li className="flex items-center space-x-3"><span>❌</span> <span className="line-through">品牌库</span></li>
               <li className="flex items-center space-x-3"><span>❌</span> <span className="line-through">团队协作</span></li>
             </ul>
@@ -110,19 +104,19 @@ export function PricingSection() {
             <div className="mt-6">
               <div className="flex items-center gap-2">
                 <p className="text-5xl font-extrabold">
-                  {billing === "monthly" ? "¥19.9" : "¥199"}
+                  {billing === "monthly" ? "¥29.9" : "¥288"}
                 </p>
                 <span className="text-gray-400 line-through font-medium text-xl">
-                  {billing === "monthly" ? "¥29.9" : "¥299"}
+                  {billing === "monthly" ? "¥39.9" : "¥478.8"}
                 </span>
               </div>
               <p className="text-gray-500">{billing === "monthly" ? "/月" : "/年"}</p>
               
               {/* Countdown timer */}
               <div className="mt-2 flex items-center">
-                <span className="text-red-500 font-semibold text-sm">限时优惠</span>
+                <span className="text-red-500 font-semibold text-sm">限时促销优惠</span>
                 <span className="ml-2 inline-block bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-mono font-bold">
-                  {formatTimeLeft()}
+                  2025年9月30日24:00前
                 </span>
               </div>
             </div>
@@ -135,9 +129,9 @@ export function PricingSection() {
                 </div>
               </li>
               <li className="flex items-center space-x-3"><span>✔️</span> <span>支持所有平台</span></li>
-              <li className="flex items-center space-x-3"><span>✔️</span> <span>基础品牌库</span></li>
-              <li className="flex items-center space-x-3"><span>✔️</span> <span>优先生成通道</span></li>
-              <li className="flex items-center space-x-3"><span>✔️</span> <span>高级风格定制</span></li>
+              <li className="flex items-center space-x-3"><span>✔️</span> <span>基础品牌库（开发中）</span></li>
+              <li className="flex items-center space-x-3"><span>✔️</span> <span>可选择AI模型</span></li>
+              <li className="flex items-center space-x-3"><span>✔️</span> <span>使用主流AI平台最新模型（如GPT-4o、DeepSeek V3等）</span></li>
               <li className="flex items-center space-x-3"><span>❌</span> <span className="line-through">高级团队协作</span></li>
             </ul>
             <Button 
@@ -158,11 +152,17 @@ export function PricingSection() {
               <li className="flex items-center space-x-3"><span>✔️</span> <span>专业版所有功能</span></li>
               <li className="flex items-center space-x-3"><span>✔️</span> <span>完整品牌库功能</span></li>
               <li className="flex items-center space-x-3"><span>✔️</span> <span>高级团队协作与权限管理</span></li>
-              <li className="flex items-center space-x-3"><span>✔️</span> <span>API接入服务</span></li>
+
               <li className="flex items-center space-x-3"><span>✔️</span> <span>专属客户支持</span></li>
               <li className="flex items-center space-x-3"><span>✔️</span> <span>定制化解决方案</span></li>
             </ul>
-            <Button variant="default" className="mt-8 w-full bg-gray-900 hover:bg-black">
+            <Button 
+              variant="default" 
+              className="mt-8 w-full bg-gray-900 hover:bg-black"
+              onClick={() => {
+                window.location.href = "mailto:contact@wenpaiai.com?subject=企业版咨询&body=您好，我想了解文派企业版的相关信息。";
+              }}
+            >
               联系我们
             </Button>
           </Card>

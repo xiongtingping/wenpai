@@ -159,7 +159,7 @@ function InvitePage() {
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
-                        <span>每次有效链接点击奖励 1 次生成次数（同一 IP 仅奖励一次）</span>
+                        <span>将您的专属邀请链接发布至其他平台，每次有效链接点击即奖励 1 次生成次数（同一IP地址仅奖励一次）</span>
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
@@ -171,7 +171,7 @@ function InvitePage() {
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
-                        <span>每月月初赠送 20 次免费使用次数</span>
+                        <span>每月月初赠送 10 次免费使用次数</span>
                       </li>
                     </ul>
                   </div>

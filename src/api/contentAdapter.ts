@@ -45,9 +45,12 @@ let currentApiStatus: ApiStatus = {
   lastChecked: new Date()
 };
 
-// API provider selection - toggle between 'openai', 'gemini', and 'siliconflow'
+// API provider selection - toggle between 'openai', 'gemini', 'siliconflow', and 'deepseek'
 // Set default to OpenAI since Gemini is temporarily hidden
-let currentApiProvider: 'openai' | 'gemini' | 'siliconflow' = 'openai';
+let currentApiProvider: 'openai' | 'gemini' | 'siliconflow' | 'deepseek' = 'openai';
+
+// Model selection for each provider
+let currentModel: string = 'gpt-4o-mini'; // Default model
 
 // Platform style definitions and prompts
 export const platformStyles = {
@@ -119,9 +122,9 @@ export function getApiStatus(): ApiStatus {
 
 /**
  * Set the current API provider
- * @param provider The API provider to use ('openai' or 'gemini' or 'siliconflow')
+ * @param provider The API provider to use ('openai', 'gemini', 'siliconflow', or 'deepseek')
  */
-export function setApiProvider(provider: 'openai' | 'gemini' | 'siliconflow'): void {
+export function setApiProvider(provider: 'openai' | 'gemini' | 'siliconflow' | 'deepseek'): void {
   currentApiProvider = provider;
   console.log(`API provider set to: ${provider}`);
 }
@@ -130,8 +133,25 @@ export function setApiProvider(provider: 'openai' | 'gemini' | 'siliconflow'): v
  * Get the current API provider
  * @returns Current API provider
  */
-export function getApiProvider(): 'openai' | 'gemini' | 'siliconflow' {
+export function getApiProvider(): 'openai' | 'gemini' | 'siliconflow' | 'deepseek' {
   return currentApiProvider;
+}
+
+/**
+ * Set the current model
+ * @param model The model to use
+ */
+export function setModel(model: string): void {
+  currentModel = model;
+  console.log(`Model set to: ${model}`);
+}
+
+/**
+ * Get the current model
+ * @returns Current model
+ */
+export function getModel(): string {
+  return currentModel;
 }
 
 /**
@@ -430,6 +450,8 @@ export async function adaptContentForPlatform(
       result = await callGeminiAPI(systemPrompt, userPrompt, platformId);
     } else if (currentApiProvider === 'siliconflow') {
       result = await callSiliconFlowAPI(systemPrompt, userPrompt, platformId);
+    } else if (currentApiProvider === 'deepseek') {
+      result = await callDeepSeekAPI(systemPrompt, userPrompt, platformId);
     } else {
       result = await callOpenAIAPI(systemPrompt, userPrompt, platformId);
     }
@@ -492,7 +514,7 @@ async function callOpenAIAPI(
           },
           body: JSON.stringify({
             messages,
-            model: "gpt-4o-mini", 
+            model: currentModel, 
             temperature: 0.7
           })
         });
@@ -613,6 +635,168 @@ async function callOpenAIAPI(
     content: generateSimulatedAIResponse(userPrompt, platformId),
     source: "simulation",
     error: "所有 API 重试尝试失败，已使用模拟内容"
+  };
+}
+
+/**
+ * Make an API call to DeepSeek through the backend proxy
+ * @param systemPrompt The system prompt
+ * @param userPrompt The user prompt
+ * @param platformId The platform ID for context (used for fallback)
+ * @returns Generated content with source information
+ */
+async function callDeepSeekAPI(
+  systemPrompt: string, 
+  userPrompt: string, 
+  platformId: string
+): Promise<AIApiResponse> {
+  const messages = [
+    {
+      role: "system",
+      content: systemPrompt
+    },
+    {
+      role: "user",
+      content: userPrompt
+    }
+  ];
+  
+  // Retry loop implementation
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`DeepSeek API call attempt ${attempt + 1}/${MAX_RETRIES + 1} for ${platformId}`);
+      
+      try {
+        console.log('Sending request to DeepSeek API via proxy...');
+        
+        const response = await fetch('/api/proxy/deepseek', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages,
+            model: currentModel, 
+            temperature: 0.7
+          })
+        });
+        
+        console.log(`DeepSeek API response status: ${response.status}`);
+        
+        // Check if we have a JSON response
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const textBody = await response.text();
+          console.error('Non-JSON response from DeepSeek API:', textBody.substring(0, 500));
+          
+          // Update API status
+          currentApiStatus = {
+            available: false,
+            lastChecked: new Date(),
+            errorMessage: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
+          };
+          
+          if (attempt < MAX_RETRIES) {
+            console.log(`Will retry after error: Non-JSON response`);
+            // Wait before retrying (with exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
+            continue; // Try again
+          }
+          
+          // Fall back to simulation when all retries fail
+          return {
+            content: generateSimulatedAIResponse(userPrompt, platformId),
+            source: "simulation",
+            error: `非JSON响应: ${textBody.substring(0, 100)}...`
+          };
+        }
+        
+        // Now safe to parse JSON
+        const data = await response.json();
+        
+        // Handle non-200 responses
+        if (!response.ok) {
+          // Get response body for more error details
+          console.error('Error response body:', JSON.stringify(data));
+          
+          const errorMessage = data.error || `API error: ${response.status}`;
+          
+          // Update API status
+          currentApiStatus = {
+            available: false,
+            lastChecked: new Date(),
+            errorMessage: errorMessage
+          };
+          
+          if (attempt < MAX_RETRIES) {
+            console.log(`Will retry after error: ${errorMessage}`);
+            // Wait before retrying (with exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
+            continue; // Try again
+          }
+          
+          console.error(`DeepSeek API error after ${attempt + 1} attempts:`, errorMessage);
+          
+          // Fall back to simulation when all retries fail
+          return {
+            content: generateSimulatedAIResponse(userPrompt, platformId),
+            source: "simulation",
+            error: errorMessage
+          };
+        }
+        
+        // Update API status to available
+        currentApiStatus = {
+          available: true,
+          lastChecked: new Date()
+        };
+        
+        // Process successful response
+        console.log('Processing successful DeepSeek API response');
+        
+        if (!data.success) {
+          throw new Error(data.error || 'DeepSeek API proxy returned an unsuccessful response');
+        }
+        
+        return {
+          content: data.data.choices[0].message.content,
+          source: "ai" // Indicate this content came from the AI
+        };
+      } catch (fetchError) {
+        console.error('DeepSeek fetch error:', fetchError);
+        
+        // Re-throw other fetch errors
+        throw fetchError;
+      }
+    } catch (error) {
+      console.error(`DeepSeek API call error on attempt ${attempt + 1}:`, error);
+      
+      // Update API status
+      currentApiStatus = {
+        available: false,
+        lastChecked: new Date(),
+        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      };
+      
+      // For the last attempt, fall back to simulation
+      if (attempt >= MAX_RETRIES) {
+        return {
+          content: generateSimulatedAIResponse(userPrompt, platformId),
+          source: "simulation",
+          error: error instanceof Error ? error.message : "DeepSeek API 调用失败"
+        };
+      }
+      
+      // Wait before next retry (with exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * Math.pow(2, attempt)));
+    }
+  }
+  
+  // This should never be reached due to the return in the final attempt, but TypeScript requires it
+  return {
+    content: generateSimulatedAIResponse(userPrompt, platformId),
+    source: "simulation",
+    error: "所有 DeepSeek API 重试尝试失败，已使用模拟内容"
   };
 }
 

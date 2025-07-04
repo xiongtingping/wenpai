@@ -8,6 +8,10 @@ import ApiTestPage from "@/pages/ApiTestPage";
 import PaymentPage from "@/pages/PaymentPage";
 import LoginRegisterPage from "@/pages/LoginRegisterPage";
 import ProfilePage from "@/pages/ProfilePage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
+import ChangelogPage from "./pages/ChangelogPage";
+import HistoryPage from "./pages/HistoryPage";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ToolLayout from "@/components/layout/ToolLayout";
@@ -28,6 +32,10 @@ function App() {
           <Route path="/register" element={<LoginRegisterPage />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/changelog" element={<ChangelogPage />} />
+          <Route path="/history" element={<HistoryPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

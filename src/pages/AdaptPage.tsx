@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { 
   Book, Video, MessageSquare, Send, CheckIcon,
   AlertCircle, RefreshCw, ArrowRight, ChevronDown, ChevronUp,
-  Smile, FileText, Hash, Save, Twitter, SquarePlay
+  Smile, FileText, Hash, Save, Twitter, SquarePlay,
+  Edit, Heart, Copy, Share2, ExternalLink, Languages
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -109,6 +110,18 @@ function getPlatformIcon(platformId: string): JSX.Element {
       );
   }
 }
+
+// Platform URL mapping for external links
+const platformUrls: Record<string, string> = {
+  'xiaohongshu': 'https://www.xiaohongshu.com',
+  'wechat': 'https://mp.weixin.qq.com',
+  'zhihu': 'https://www.zhihu.com',
+  'weibo': 'https://weibo.com',
+  'douyin': 'https://www.douyin.com',
+  'bilibili': 'https://www.bilibili.com',
+  'video': 'https://channels.weixin.qq.com',
+  'twitter': 'https://twitter.com'
+};
 
 // Helper functions for character count ranges based on platform requirements
 function getCharCountMin(platformId: string): number {
@@ -222,6 +235,9 @@ export default function AdaptPage() {
   const [platformSettings, setPlatformSettings] = useState<Record<string, PlatformSettings>>({});
   const [showSettings, setShowSettings] = useState<Record<string, boolean>>({});
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
+  const [translatedContent, setTranslatedContent] = useState<Record<string, string>>({});
+  const [translatingPlatforms, setTranslatingPlatforms] = useState<Set<string>>(new Set());
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     charCountPreset: 'auto',
     globalEmoji: false,
@@ -256,7 +272,7 @@ export default function AdaptPage() {
     },
     {
       id: "weibo",
-      title: "微博",
+      title: "新浪微博",
       description: "简短有力的观点表达，适合热点话题讨论",
       icon: <Send className="h-4 w-4 text-orange-500" />
     },
@@ -274,7 +290,7 @@ export default function AdaptPage() {
     },
     {
       id: "twitter",
-      title: "X",
+      title: "X（推特）",
       description: "简短、直接的表达，支持多种语言和国际化视角",
       icon: <Twitter className="h-4 w-4 text-black" />
     },
@@ -305,6 +321,7 @@ export default function AdaptPage() {
     try {
       localStorage.setItem('platformSettings', JSON.stringify(platformSettings));
       localStorage.setItem('globalSettings', JSON.stringify(globalSettings));
+      localStorage.setItem('selectedPlatforms', JSON.stringify(selectedPlatforms));
       toast({
         title: "设置已保存",
         description: "您的平台设置已成功保存",
@@ -318,11 +335,31 @@ export default function AdaptPage() {
     }
   };
 
+  // Auto-save settings when they change
+  useEffect(() => {
+    if (Object.keys(platformSettings).length > 0) {
+      localStorage.setItem('platformSettings', JSON.stringify(platformSettings));
+    }
+  }, [platformSettings]);
+
+  useEffect(() => {
+    if (Object.keys(globalSettings).length > 0) {
+      localStorage.setItem('globalSettings', JSON.stringify(globalSettings));
+    }
+  }, [globalSettings]);
+
+  useEffect(() => {
+    if (selectedPlatforms.length > 0) {
+      localStorage.setItem('selectedPlatforms', JSON.stringify(selectedPlatforms));
+    }
+  }, [selectedPlatforms]);
+
   // Initialize platform settings
   useEffect(() => {
     // Try to load saved settings from localStorage
     const savedSettings = localStorage.getItem('platformSettings');
     const savedGlobalSettings = localStorage.getItem('globalSettings');
+    const savedSelectedPlatforms = localStorage.getItem('selectedPlatforms');
     
     if (savedSettings) {
       try {
@@ -342,6 +379,15 @@ export default function AdaptPage() {
         setGlobalSettings(parsedGlobalSettings);
       } catch {
         console.error("Failed to parse saved global settings");
+      }
+    }
+
+    if (savedSelectedPlatforms) {
+      try {
+        const parsedSelectedPlatforms = JSON.parse(savedSelectedPlatforms);
+        setSelectedPlatforms(parsedSelectedPlatforms);
+      } catch {
+        console.error("Failed to parse saved selected platforms");
       }
     }
     
@@ -433,11 +479,35 @@ export default function AdaptPage() {
     setPlatformSettings(updatedSettings);
   };
 
-  // Generate content for selected platforms
+  // 生成内容后保存到历史记录
+  const saveToHistory = (results: PlatformResult[]) => {
+    const { userInfo } = useUserStore.getState();
+    const username = userInfo?.username || 'anonymous';
+    const historyKey = `history_${username}`;
+    
+    const old = localStorage.getItem(historyKey);
+    let list: any[] = [];
+    if (old) {
+      try {
+        list = JSON.parse(old);
+      } catch {}
+    }
+    const now = new Date().toISOString();
+    results.forEach(r => {
+      if (r.content) {
+        list.push({
+          platformId: r.platformId,
+          content: r.content,
+          timestamp: now
+        });
+      }
+    });
+    localStorage.setItem(historyKey, JSON.stringify(list));
+  };
+
+  // 修改generateContent，在内容生成成功后调用saveToHistory
   const generateContent = async () => {
     if (!canGenerate) return;
-    
-    // Check if user has enough usage credits
     if (usageRemaining <= 0) {
       toast({
         title: "使用次数已用完",
@@ -446,13 +516,8 @@ export default function AdaptPage() {
       });
       return;
     }
-
     setGenerating(true);
-    
-    // Apply global settings before generation
     applyGlobalSettings();
-    
-    // Initialize results with loading state
     const initialResults: PlatformResult[] = selectedPlatforms.map(platformId => ({
       platformId,
       content: "",
@@ -463,9 +528,7 @@ export default function AdaptPage() {
         { status: "waiting", message: "优化输出结果..." }
       ]
     }));
-    
     setResults(initialResults);
-    
     try {
       // Prepare the settings for each platform
       const platformSettingsForAPI: Record<string, unknown> = {};
@@ -543,6 +606,8 @@ export default function AdaptPage() {
       // Decrement usage after successful generation
       decrementUsage();
       
+      // 生成完成后保存历史
+      saveToHistory(results);
       toast({
         title: "内容已生成",
         description: `已成功为${selectedPlatforms.length}个平台适配内容`,
@@ -579,6 +644,248 @@ export default function AdaptPage() {
       title: "已复制到剪贴板",
       description: "内容已成功复制，可直接粘贴使用",
     });
+  };
+
+  // Edit content
+  const handleEdit = (platformId: string) => {
+    setEditingPlatform(editingPlatform === platformId ? null : platformId);
+  };
+
+  const handleSaveEdit = (platformId: string, newContent: string) => {
+    setResults(current => 
+      current.map(result => 
+        result.platformId === platformId 
+          ? { ...result, content: newContent }
+          : result
+      )
+    );
+    setEditingPlatform(null);
+    toast({
+      title: "保存成功",
+      description: "内容已更新",
+    });
+  };
+
+  // Favorite content
+  const handleFavorite = (platformId: string) => {
+    const result = results.find(r => r.platformId === platformId);
+    if (!result || !result.content) {
+      toast({
+        title: "无法收藏",
+        description: "没有可收藏的内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const favoriteItem = {
+      id: Date.now().toString(),
+      platformId,
+      content: result.content,
+      platformName: platformStyles[platformId as keyof typeof platformStyles]?.name || platformId,
+      timestamp: new Date().toISOString()
+    };
+    
+    favorites.push(favoriteItem);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    
+    toast({
+      title: "收藏成功",
+      description: "内容已添加到收藏，可在我的页面查看",
+    });
+  };
+
+  // Share content
+
+
+  // Publish to platform
+  const handlePublish = (platformId: string) => {
+    const result = results.find(r => r.platformId === platformId);
+    if (!result || !result.content) {
+      toast({
+        title: "无法发布",
+        description: "没有可发布的内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 先复制内容到剪贴板
+    navigator.clipboard.writeText(result.content);
+    
+    const url = platformUrls[platformId];
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      toast({
+        title: "内容已复制，正在跳转",
+        description: `内容已复制到剪贴板，正在打开${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}官网`,
+      });
+    } else {
+      toast({
+        title: "内容已复制",
+        description: "内容已复制到剪贴板，但该平台的发布链接暂未配置",
+      });
+    }
+  };
+
+  /**
+   * 处理一键翻译，防止3秒内重复点击
+   * @param platformId 平台ID
+   * @param content 待翻译内容
+   */
+  const handleTranslate = async (platformId: string, content: string) => {
+    if (translatingPlatforms.has(platformId)) {
+      toast({
+        title: "请勿频繁点击",
+        description: "翻译进行中，请稍候...",
+        variant: "destructive"
+      });
+      return;
+    }
+    setTranslatingPlatforms(prev => new Set(prev).add(platformId));
+    try {
+      // 优先调用翻译API
+      const translatedText = await callTranslationAPI(content);
+      setTranslatedContent(prev => ({
+        ...prev,
+        [platformId]: translatedText
+      }));
+      toast({
+        title: "翻译完成",
+        description: "内容已翻译为英文",
+      });
+    } catch (error) {
+      toast({
+        title: "翻译失败",
+        description: "翻译过程中出现错误，请稍后重试",
+        variant: "destructive"
+      });
+    } finally {
+      setTimeout(() => {
+        setTranslatingPlatforms(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(platformId);
+          return newSet;
+        });
+      }, 3000);
+    }
+  };
+
+  // 调用翻译API
+  const callTranslationAPI = async (content: string): Promise<string> => {
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: content,
+          targetLang: 'en',
+          sourceLang: 'zh'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Translation API failed');
+      }
+
+      const data = await response.json();
+      return data.translatedText || content;
+    } catch (error) {
+      console.error('Translation API error:', error);
+      // 如果API调用失败，回退到模拟翻译
+      return simulateTranslation(content);
+    }
+  };
+
+  // 模拟翻译（作为备用方案）
+  const simulateTranslation = async (content: string): Promise<string> => {
+    // 模拟API调用延迟
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 简单的翻译模拟
+    const translations: Record<string, string> = {
+      '小红书': 'Xiaohongshu',
+      '抖音': 'TikTok',
+      '微博': 'Weibo',
+      '知乎': 'Zhihu',
+      '公众号': 'WeChat Official Account',
+      'B站': 'Bilibili',
+      '视频号': 'Video Account',
+      '试了': 'tried',
+      '味道': 'taste',
+      '治愈': 'healing',
+      '小时候': 'childhood',
+      '牛奶糖': 'milk candy',
+      '甜而不腻': 'sweet but not cloying',
+      '质地': 'texture',
+      '冰淇淋': 'ice cream',
+      '慕斯': 'mousse',
+      '水润': 'moisturizing',
+      '吸收': 'absorption',
+      '粘腻': 'sticky',
+      '秋冬': 'autumn and winter',
+      '干皮': 'dry skin',
+      '姐妹们': 'sisters',
+      '闭眼冲': 'go for it blindly',
+      '身体乳': 'body lotion',
+      '护肤': 'skincare',
+      '救星': 'savior',
+      '推荐': 'recommend',
+      '真的': 'really',
+      '超级': 'super',
+      '好用': 'good to use',
+      '喜欢': 'like',
+      '分享': 'share',
+      '体验': 'experience',
+      '感觉': 'feel',
+      '效果': 'effect',
+      '产品': 'product',
+      '品牌': 'brand',
+      '购买': 'buy',
+      '价格': 'price',
+      '优惠': 'discount',
+      '活动': 'activity',
+      '限时': 'limited time',
+      '抢购': 'rush to buy',
+      '赶紧': 'hurry up',
+      '不要': "don't",
+      '错过': 'miss',
+      '机会': 'opportunity',
+      '最后': 'last',
+      '一次': 'once',
+      '时间': 'time',
+      '结束': 'end',
+      '开始': 'start',
+      '立刻': 'immediately',
+      '今天': 'today',
+      '明天': 'tomorrow',
+      '昨天': 'yesterday',
+      '这周': 'this week',
+      '下周': 'next week',
+      '本月': 'this month',
+      '下月': 'next month',
+      '今年': 'this year',
+      '明年': 'next year'
+    };
+    
+    let translatedContent = content;
+    Object.entries(translations).forEach(([chinese, english]) => {
+      translatedContent = translatedContent.replace(new RegExp(chinese, 'g'), english);
+    });
+    
+    // 添加一些英文连接词和语法
+    translatedContent = translatedContent
+      .replace(/。/g, '. ')
+      .replace(/，/g, ', ')
+      .replace(/！/g, '! ')
+      .replace(/？/g, '? ')
+      .replace(/：/g, ': ')
+      .replace(/；/g, '; ');
+    
+    return translatedContent;
   };
 
   // Regenerate content for a specific platform
@@ -708,10 +1015,20 @@ export default function AdaptPage() {
         </p>
       </div>
 
-      {/* Usage Counter */}
+      {/* Usage Counter and History */}
       <div className="mb-6 flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-4">
           <h2 className="text-lg font-medium mb-2">内容创作</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              window.location.href = "/history";
+            }}
+          >
+            <FileText className="h-4 w-4 mr-1" />
+            历史记录
+          </Button>
         </div>
         <TooltipProvider>
           <Tooltip>
@@ -858,108 +1175,110 @@ export default function AdaptPage() {
         </div>
         
         {/* Individual Platform Settings */}
-        <div className="mt-6 space-y-4">
-          {selectedPlatforms.map(platformId => {
-            const platform = platforms.find(p => p.id === platformId);
-            const settings = platformSettings[platformId] || {};
-            const isSettingsVisible = showSettings[platformId];
-            const isSpecialPlatform = ['zhihu', 'wechat', 'weibo', 'xiaohongshu'].includes(platformId);
-            
-            if (!platform) return null;
-            
-            return (
-              <Card key={platformId} className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      {platform.icon}
-                      <CardTitle className="text-sm">{platform.title}设置</CardTitle>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => toggleSettings(platformId)}
-                    >
-                      {isSettingsVisible ? '收起' : '展开'}
-                      {isSettingsVisible ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
-                    </Button>
-                  </div>
-                </CardHeader>
-                
-                {isSettingsVisible && (
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <Label className="text-xs">字符数限制: {settings.charCount}</Label>
-                          <span className="text-xs text-muted-foreground">
-                            推荐: {getCharCountMin(platformId)}-{getCharCountMax(platformId)}
-                          </span>
-                        </div>
-                        <Slider 
-                          value={[settings.charCount || getCharCountMax(platformId)]}
-                          min={getCharCountMin(platformId)}
-                          max={getCharCountMax(platformId)}
-                          step={10}
-                          onValueChange={(value) => updatePlatformSetting(platformId, 'charCount', value[0])}
-                        />
+        {selectedPlatforms.length > 0 && (
+          <div className="mt-6 space-y-4">
+            {selectedPlatforms.map(platformId => {
+              const platform = platforms.find(p => p.id === platformId);
+              const settings = platformSettings[platformId] || {};
+              const isSettingsVisible = showSettings[platformId];
+              const isSpecialPlatform = ['zhihu', 'wechat', 'weibo', 'xiaohongshu'].includes(platformId);
+              
+              if (!platform) return null;
+              
+              return (
+                <Card key={platformId} className="overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        {platform.icon}
+                        <CardTitle className="text-sm">{platform.title}设置</CardTitle>
                       </div>
-                      
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`${platformId}-emoji`}
-                            checked={settings.useEmoji}
-                            onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useEmoji', !!checked)}
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => toggleSettings(platformId)}
+                      >
+                        {isSettingsVisible ? '收起' : '展开'}
+                        {isSettingsVisible ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  
+                  {isSettingsVisible && (
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <Label className="text-xs">字符数限制: {settings.charCount}</Label>
+                            <span className="text-xs text-muted-foreground">
+                              推荐: {getCharCountMin(platformId)}-{getCharCountMax(platformId)}
+                            </span>
+                          </div>
+                          <Slider 
+                            value={[settings.charCount || getCharCountMax(platformId)]}
+                            min={getCharCountMin(platformId)}
+                            max={getCharCountMax(platformId)}
+                            step={10}
+                            onValueChange={(value) => updatePlatformSetting(platformId, 'charCount', value[0])}
                           />
-                          <Label htmlFor={`${platformId}-emoji`} className="text-xs cursor-pointer flex items-center">
-                            <Smile className="h-3 w-3 mr-1" />
-                            加入emoji表情
-                          </Label>
                         </div>
                         
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`${platformId}-md`}
-                            checked={settings.useMdFormat}
-                            onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useMdFormat', !!checked)}
-                          />
-                          <Label htmlFor={`${platformId}-md`} className="text-xs cursor-pointer flex items-center">
-                            <FileText className="h-3 w-3 mr-1" />
-                            MD格式
-                          </Label>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`${platformId}-emoji`}
+                              checked={settings.useEmoji}
+                              onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useEmoji', !!checked)}
+                            />
+                            <Label htmlFor={`${platformId}-emoji`} className="text-xs cursor-pointer flex items-center">
+                              <Smile className="h-3 w-3 mr-1" />
+                              加入emoji表情
+                            </Label>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`${platformId}-md`}
+                              checked={settings.useMdFormat}
+                              onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useMdFormat', !!checked)}
+                            />
+                            <Label htmlFor={`${platformId}-md`} className="text-xs cursor-pointer flex items-center">
+                              <FileText className="h-3 w-3 mr-1" />
+                              MD格式
+                            </Label>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`${platformId}-auto`}
+                              checked={settings.useAutoFormat}
+                              onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useAutoFormat', !!checked)}
+                            />
+                            <Label htmlFor={`${platformId}-auto`} className="text-xs cursor-pointer flex items-center">
+                              <Hash className="h-3 w-3 mr-1" />
+                              自动排版
+                            </Label>
+                          </div>
                         </div>
                         
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`${platformId}-auto`}
-                            checked={settings.useAutoFormat}
-                            onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useAutoFormat', !!checked)}
-                          />
-                          <Label htmlFor={`${platformId}-auto`} className="text-xs cursor-pointer flex items-center">
-                            <Hash className="h-3 w-3 mr-1" />
-                            自动排版
-                          </Label>
-                        </div>
+                        {isSpecialPlatform && (
+                          <div className="bg-blue-50 p-3 rounded-md mt-2">
+                            <p className="text-xs text-blue-600">
+                              {platformId === 'zhihu' && '知乎平台特有优化: "MD格式"将优化知乎专业文章排版，"自动排版"将添加分割线和标题格式'}
+                              {platformId === 'wechat' && '公众号平台特有优化: "MD格式"将为文章添加专业排版格式，适合深度阅读'}
+                              {platformId === 'weibo' && '微博平台特有优化: "加入emoji表情"将添加活泼表情符号，提升互动性，字数限制2000字'}
+                              {platformId === 'xiaohongshu' && '小红书平台特有优化: "加入emoji表情"增加亲和力，"自动排版"优化视觉效果'}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      
-                      {isSpecialPlatform && (
-                        <div className="bg-blue-50 p-3 rounded-md mt-2">
-                          <p className="text-xs text-blue-600">
-                            {platformId === 'zhihu' && '知乎平台特有优化: "MD格式"将优化知乎专业文章排版，"自动排版"将添加分割线和标题格式'}
-                            {platformId === 'wechat' && '公众号平台特有优化: "MD格式"将为文章添加专业排版格式，适合深度阅读'}
-                            {platformId === 'weibo' && '微博平台特有优化: "加入emoji表情"将添加活泼表情符号，提升互动性，字数限制2000字'}
-                            {platformId === 'xiaohongshu' && '小红书平台特有优化: "加入emoji表情"增加亲和力，"自动排版"优化视觉效果'}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                )}
-              </Card>
-            );
-          })}
-        </div>
+                    </CardContent>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Generate Button */}
@@ -987,12 +1306,12 @@ export default function AdaptPage() {
       {/* Results Section */}
       {results.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-6">平台适配结果</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">平台适配结果</h2>
           
-          <Tabs defaultValue={results[0]?.platformId}>
-            <TabsList className="mb-4">
+          <Tabs defaultValue={results[0]?.platformId} className="w-full">
+            <TabsList className="mb-6 grid w-full grid-cols-4 lg:grid-cols-8 h-12">
               {results.map(result => (
-                <TabsTrigger key={result.platformId} value={result.platformId}>
+                <TabsTrigger key={result.platformId} value={result.platformId} className="text-sm font-medium">
                   <div className="flex items-center">
                     {getPlatformIcon(result.platformId)}
                   </div>
@@ -1002,81 +1321,53 @@ export default function AdaptPage() {
             
             {results.map(result => (
               <TabsContent key={result.platformId} value={result.platformId}>
-                <Card>
-                  <CardHeader className="pb-2">
+                <Card className="p-8 shadow-lg border-2">
+                  <CardHeader className="pb-4">
                     <div className="flex justify-between items-center">
-                      <CardTitle className="text-lg flex items-center">
+                      <CardTitle className="text-2xl flex items-center">
                         {getPlatformIcon(result.platformId)}
+                        <span className="ml-3">{platformStyles[result.platformId as keyof typeof platformStyles]?.name || result.platformId}</span>
                       </CardTitle>
-                      
-                      <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={generating}
-                          onClick={() => handleRegeneratePlatformContent(result.platformId)}
-                        >
-                          <RefreshCw className="h-4 w-4 mr-1" />
-                          重新生成
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={!result.content}
-                          onClick={() => copyToClipboard(result.content)}
-                        >
-                          复制内容
-                        </Button>
-                      </div>
                     </div>
-                    <CardDescription>
-                      适合字数: {getCharCountMin(result.platformId)}-{getCharCountMax(result.platformId)}字符
-                    </CardDescription>
                   </CardHeader>
                   
-                  <CardContent>
-                    {/* Generation Steps */}
-                    <div className="mb-4">
+                  <CardContent className="space-y-6">
+                    {/* Progress Steps */}
+                    <div className="space-y-3">
                       {result.steps.map((step, index) => (
-                        <div key={index} className="flex items-center mb-2">
-                          {step.status === "waiting" && (
-                            <div className="h-5 w-5 rounded-full border mr-2 flex items-center justify-center">
-                              <span className="h-2 w-2 rounded-full bg-muted-foreground"></span>
-                            </div>
-                          )}
-                          {step.status === "loading" && (
-                            <RefreshCw className="h-5 w-5 mr-2 text-primary animate-spin" />
-                          )}
-                          {step.status === "completed" && (
-                            <div className="h-5 w-5 rounded-full bg-primary mr-2 flex items-center justify-center">
-                              <CheckIcon className="h-3 w-3 text-white" />
-                            </div>
-                          )}
-                          {step.status === "error" && (
-                            <AlertCircle className="h-5 w-5 mr-2 text-destructive" />
-                          )}
-                          <span className={
-                            step.status === "completed" ? "text-primary" : 
-                            step.status === "error" ? "text-destructive" : 
-                            step.status === "loading" ? "text-foreground" : 
-                            "text-muted-foreground"
-                          }>
+                        <div key={index} className="flex items-center space-x-3">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                            step.status === "completed" ? "bg-green-500 text-white" :
+                            step.status === "loading" ? "bg-blue-500 text-white animate-spin" :
+                            step.status === "error" ? "bg-red-500 text-white" :
+                            "bg-gray-200 text-gray-600"
+                          }`}>
+                            {step.status === "completed" ? "✓" :
+                             step.status === "loading" ? "⟳" :
+                             step.status === "error" ? "✗" :
+                             index + 1}
+                          </div>
+                          <span className={`text-sm ${
+                            step.status === "completed" ? "text-green-600" :
+                            step.status === "loading" ? "text-blue-600" :
+                            step.status === "error" ? "text-red-600" :
+                            "text-gray-500"
+                          }`}>
                             {step.message}
                           </span>
                         </div>
                       ))}
                     </div>
-                    
-                    {/* Source indicator */}
+
                     {result.source && (
-                      <div className={`mb-2 text-xs px-2 py-1 rounded-md inline-flex items-center ${
-                        result.source === "ai" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"
+                      <div className={`text-sm px-4 py-2 rounded-lg inline-flex items-center ${
+                        result.source === "ai" ? "bg-blue-100 text-blue-800" : "bg-amber-100 text-amber-800"
                       }`}>
-                        <span>
+                        <span className="font-medium">
                           {result.source === "ai" ? "AI生成内容" : "模拟内容"}
                         </span>
                         {result.error && (
-                          <span className="ml-2 text-destructive">
+                          <span className="ml-2 text-red-600">
                             (错误: {result.error})
                           </span>
                         )}
@@ -1084,13 +1375,133 @@ export default function AdaptPage() {
                     )}
                     
                     {/* Generated Content */}
-                    {result.content ? (
-                      <div className="whitespace-pre-wrap rounded-md border p-4 bg-muted/50 overflow-auto max-h-[500px]">
-                        {result.content}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Original/Edited Content */}
+                      <div>
+                        <h4 className="text-lg font-semibold mb-3">适配内容</h4>
+                        {result.content ? (
+                          editingPlatform === result.platformId ? (
+                            <div className="space-y-3">
+                              <Textarea
+                                value={result.content}
+                                onChange={(e) => {
+                                  setResults(current => 
+                                    current.map(r => 
+                                      r.platformId === result.platformId 
+                                        ? { ...r, content: e.target.value }
+                                        : r
+                                    )
+                                  );
+                                }}
+                                className="min-h-[300px] text-base"
+                              />
+                              <div className="flex gap-3">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSaveEdit(result.platformId, result.content)}
+                                >
+                                  保存
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setEditingPlatform(null)}
+                                >
+                                  取消
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed ${
+                              result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
+                              result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
+                              result.platformId === 'weibo' ? 'bg-orange-50 border-orange-200' :
+                              result.platformId === 'zhihu' ? 'bg-blue-50 border-blue-200' :
+                              result.platformId === 'wechat' ? 'bg-green-50 border-green-200' :
+                              result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
+                              result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
+                              result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
+                              'bg-gray-50 border-gray-200'
+                            }`}>
+                              {result.content}
+                            </div>
+                          )
+                        ) : (
+                          <div className="rounded-lg border-2 border-dashed p-12 flex items-center justify-center">
+                            <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <div className="rounded-md border border-dashed p-8 flex items-center justify-center">
-                        <p className="text-muted-foreground">生成的内容将显示在这里...</p>
+
+                      {/* Translated Content */}
+                      {translatedContent[result.platformId] && (
+                        <div>
+                          <h4 className="text-lg font-semibold mb-3">翻译内容</h4>
+                          <div className="whitespace-pre-wrap rounded-lg border-2 p-6 bg-blue-50 overflow-auto max-h-[600px] text-base leading-relaxed">
+                            {translatedContent[result.platformId]}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    {result.content && (
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={() => handleRegeneratePlatformContent(result.platformId)}
+                          disabled={generating}
+                        >
+                          <RefreshCw className="h-5 w-5 mr-2" />
+                          重新生成
+                        </Button>
+                        
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={() => handleEdit(result.platformId)}
+                        >
+                          <Edit className="h-5 w-5 mr-2" />
+                          {editingPlatform === result.platformId ? '取消编辑' : '编辑'}
+                        </Button>
+                        
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={() => handleFavorite(result.platformId)}
+                        >
+                          <Heart className="h-5 w-5 mr-2" />
+                          收藏
+                        </Button>
+                        
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={() => copyToClipboard(result.content)}
+                        >
+                          <Copy className="h-5 w-5 mr-2" />
+                          一键复制
+                        </Button>
+                        
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={() => handleTranslate(result.platformId, result.content)}
+                          disabled={translatingPlatforms.has(result.platformId)}
+                        >
+                          <Languages className="h-5 w-5 mr-2" />
+                          一键翻译
+                        </Button>
+                        
+                        <Button
+                          size="lg"
+                          variant="default"
+                          onClick={() => handlePublish(result.platformId)}
+                        >
+                          <ExternalLink className="h-5 w-5 mr-2" />
+                          立刻发布
+                        </Button>
                       </div>
                     )}
                   </CardContent>

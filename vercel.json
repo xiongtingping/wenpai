@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "name": "wenpai",
+  "alias": ["www.wenpaiai.com"],
   "routes": [
     {
       "src": "/api/(.*)",

@@ -80,16 +80,7 @@ export function Header() {
                 开发中
               </Badge>
             </Link>
-            <Link to="/api-test" className="text-gray-600 hover:text-blue-600 transition flex items-center">
-              <TestTube className="h-4 w-4 mr-1" />
-              API 测试
-            </Link>
-            <Link to="/invite" className="text-gray-600 hover:text-blue-600 transition flex items-center">
-              邀请奖励
-              <Badge variant="outline" className="ml-1 bg-blue-50 text-blue-700 border-blue-200">
-                登录可查
-              </Badge>
-            </Link>
+
             <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">定价方案</a>
           </div>
         )}
@@ -119,10 +110,6 @@ export function Header() {
                 注册/登录
               </Button>
             </Link>
-            
-            <Link to="/register">
-              <Button className="bg-blue-600 hover:bg-blue-700">免费开始</Button>
-            </Link>
           </div>
         )}
         
@@ -144,16 +131,7 @@ export function Header() {
                     开发中
                   </Badge>
                 </Link>
-                <Link to="/api-test" className="text-lg font-medium py-2 flex items-center">
-                  <TestTube className="h-4 w-4 mr-2" />
-                  API 测试
-                </Link>
-                <Link to="/invite" className="text-lg font-medium py-2 flex items-center">
-                  邀请奖励
-                  <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
-                    登录可查
-                  </Badge>
-                </Link>
+
                 <a href="#pricing" className="text-lg font-medium py-2">定价方案</a>
                 <a href="#testimonials" className="text-lg font-medium py-2">客户案例</a>
 
@@ -174,10 +152,6 @@ export function Header() {
                   <Button className="w-full bg-blue-600 hover:bg-blue-700">
                     注册/登录
                   </Button>
-                </Link>
-                
-                <Link to="/register">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">免费开始</Button>
                 </Link>
               </div>
             </SheetContent>
