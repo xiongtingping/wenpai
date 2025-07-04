@@ -1,8 +1,7 @@
 /**
- * 简单状态检查API
- * 返回所有AI提供商的状态
+ * OpenAI状态检查API - 纯JavaScript版本
  */
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   try {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -17,29 +16,15 @@ export default function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const status = {
+    const response = {
       success: true,
-      providers: {
-        openai: {
-          available: false,
-          error: 'API key not configured',
-          message: 'Please configure OPENAI_API_KEY'
-        },
-        deepseek: {
-          available: false,
-          error: 'API key not configured', 
-          message: 'Please configure DEEPSEEK_API_KEY'
-        },
-        gemini: {
-          available: false,
-          error: 'API key not configured',
-          message: 'Please configure GEMINI_API_KEY'
-        }
-      },
+      available: false,
+      error: 'OpenAI API key not configured',
+      message: 'Please configure OPENAI_API_KEY in your environment variables',
       timestamp: new Date().toISOString()
     };
 
-    res.status(200).json(status);
+    res.status(200).json(response);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -48,4 +33,4 @@ export default function handler(req, res) {
       timestamp: new Date().toISOString()
     });
   }
-} 
+}; 
