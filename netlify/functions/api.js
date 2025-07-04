@@ -136,7 +136,16 @@ async function handleOpenAIRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置OPENAI_API_KEY。请在Netlify环境变量中配置OPENAI_API_KEY。`,
+        data: {
+          choices: [
+            {
+              message: {
+                content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置OPENAI_API_KEY。请在Netlify环境变量中配置OPENAI_API_KEY。`
+              }
+            }
+          ],
+          model: model
+        },
         model: model,
         provider: 'openai',
         timestamp: new Date().toISOString(),
@@ -192,11 +201,20 @@ async function handleOpenAIRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: content,
+        data: {
+          choices: [
+            {
+              message: {
+                content: content
+              }
+            }
+          ],
+          usage: data.usage,
+          model: model
+        },
         model: model,
         provider: 'openai',
         timestamp: new Date().toISOString(),
-        usage: data.usage,
         isSimulated: false
       })
     };
@@ -207,7 +225,16 @@ async function handleOpenAIRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
+        data: {
+          choices: [
+            {
+              message: {
+                content: `这是来自OpenAI (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`
+              }
+            }
+          ],
+          model: model
+        },
         model: model,
         provider: 'openai',
         timestamp: new Date().toISOString(),
@@ -252,7 +279,16 @@ async function handleDeepSeekRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置DEEPSEEK_API_KEY。请在Netlify环境变量中配置DEEPSEEK_API_KEY。`,
+        data: {
+          choices: [
+            {
+              message: {
+                content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置DEEPSEEK_API_KEY。请在Netlify环境变量中配置DEEPSEEK_API_KEY。`
+              }
+            }
+          ],
+          model: model
+        },
         model: model,
         provider: 'deepseek',
         timestamp: new Date().toISOString(),
@@ -308,11 +344,20 @@ async function handleDeepSeekRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: content,
+        data: {
+          choices: [
+            {
+              message: {
+                content: content
+              }
+            }
+          ],
+          usage: data.usage,
+          model: model
+        },
         model: model,
         provider: 'deepseek',
         timestamp: new Date().toISOString(),
-        usage: data.usage,
         isSimulated: false
       })
     };
@@ -323,7 +368,16 @@ async function handleDeepSeekRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
+        data: {
+          choices: [
+            {
+              message: {
+                content: `这是来自DeepSeek (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`
+              }
+            }
+          ],
+          model: model
+        },
         model: model,
         provider: 'deepseek',
         timestamp: new Date().toISOString(),
@@ -370,7 +424,16 @@ async function handleGeminiRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自Gemini (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置GEMINI_API_KEY。请在Netlify环境变量中配置GEMINI_API_KEY。`,
+        data: {
+          choices: [
+            {
+              message: {
+                content: `这是来自Gemini (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为未配置GEMINI_API_KEY。请在Netlify环境变量中配置GEMINI_API_KEY。`
+              }
+            }
+          ],
+          model: model
+        },
         model: model,
         provider: 'gemini',
         timestamp: new Date().toISOString(),
@@ -420,11 +483,20 @@ async function handleGeminiRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: content,
+        data: {
+          choices: [
+            {
+              message: {
+                content: content
+              }
+            }
+          ],
+          usage: data.usageMetadata,
+          model: model
+        },
         model: model,
         provider: 'gemini',
         timestamp: new Date().toISOString(),
-        usage: data.usageMetadata,
         isSimulated: false
       })
     };
@@ -435,7 +507,16 @@ async function handleGeminiRequest(body, headers) {
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        content: `这是来自Gemini (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`,
+        data: {
+          choices: [
+            {
+              message: {
+                content: `这是来自Gemini (${model}) 的模拟响应：\n\n${userPrompt}\n\n这是一个模拟的AI响应，因为API调用失败：${error.message}`
+              }
+            }
+          ],
+          model: model
+        },
         model: model,
         provider: 'gemini',
         timestamp: new Date().toISOString(),
