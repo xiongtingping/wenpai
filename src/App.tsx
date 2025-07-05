@@ -64,7 +64,7 @@ const NavigationBar: React.FC = () => {
             </Link>
             
             <Link 
-              to="/brand-library"
+              to="/adapt"
               style={{ 
                 color: 'white', 
                 textDecoration: 'none',
@@ -75,50 +75,8 @@ const NavigationBar: React.FC = () => {
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              品牌库
+              内容适配
             </Link>
-            
-            <Link 
-              to="/hot-topics"
-              style={{ 
-                color: 'white', 
-                textDecoration: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                transition: 'background-color 0.3s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              全网热门话题
-              <span style={{ 
-                fontSize: '10px', 
-                background: '#ffa500', 
-                color: 'white', 
-                padding: '2px 4px', 
-                borderRadius: '2px' 
-              }}>
-                开发中
-              </span>
-            </Link>
-            
-            <a 
-              href="#pricing"
-              style={{ 
-                color: 'white', 
-                textDecoration: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                transition: 'background-color 0.3s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              定价方案
-            </a>
           </div>
         </div>
 

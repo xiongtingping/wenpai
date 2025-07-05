@@ -77,7 +77,6 @@ export function Header() {
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/adapt" className="text-gray-600 hover:text-blue-600 transition">内容适配</Link>
             <a href="#features" className="text-gray-600 hover:text-blue-600 transition">产品功能</a>
             <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition flex items-center">
               品牌库
@@ -133,7 +132,6 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                <Link to="/adapt" className="text-lg font-medium py-2">内容适配</Link>
                 <a href="#features" className="text-lg font-medium py-2">产品功能</a>
                 <Link to="/brand-library" className="text-lg font-medium py-2 flex items-center">
                   品牌库
