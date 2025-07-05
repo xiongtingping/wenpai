@@ -21,12 +21,12 @@
 ```
 VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
 VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
-VITE_AUTHING_REDIRECT_URI_PROD=https://你的-netlify子域名.netlify.app/callback
+VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```
 
 ### 3. 域名配置
-- [ ] 记录 Netlify 分配的域名（如：`https://your-app-name.netlify.app`）
-- [ ] 配置自定义域名（可选）
+- [x] 记录 Netlify 分配的域名：`https://www.wenpai.xyz`
+- [x] 配置自定义域名：`www.wenpai.xyz`
 
 ## 🔐 Authing 配置检查
 
@@ -35,12 +35,12 @@ VITE_AUTHING_REDIRECT_URI_PROD=https://你的-netlify子域名.netlify.app/callb
 
 **登录回调 URL：**
 ```
-https://你的-netlify子域名.netlify.app/callback
+https://www.wenpai.xyz/callback
 ```
 
 **登出回调 URL：**
 ```
-https://你的-netlify子域名.netlify.app
+https://www.wenpai.xyz
 ```
 
 ### 2. 应用配置
@@ -51,13 +51,13 @@ https://你的-netlify子域名.netlify.app
 ## 🧪 功能测试清单
 
 ### 1. 基础功能测试
-- [ ] 访问首页：`https://你的域名/`
+- [ ] 访问首页：`https://www.wenpai.xyz/`
 - [ ] 页面加载正常
 - [ ] 样式显示正确
 - [ ] 路由跳转正常
 
 ### 2. Authing 登录测试
-- [ ] 访问登录页：`https://你的域名/authing-login`
+- [ ] 访问登录页：`https://www.wenpai.xyz/authing-login`
 - [ ] Authing Guard 组件正常显示
 - [ ] 点击登录按钮
 - [ ] 跳转到 Authing 登录页面
@@ -75,7 +75,7 @@ https://你的-netlify子域名.netlify.app
 - [ ] 登出功能正常
 
 ### 4. 认证测试页面
-- [ ] 访问：`https://你的域名/auth-test`
+- [ ] 访问：`https://www.wenpai.xyz/auth-test`
 - [ ] 显示认证状态
 - [ ] 显示用户信息
 - [ ] 功能测试按钮正常

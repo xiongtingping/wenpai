@@ -36,7 +36,7 @@ const devConfig: AuthingConfig = {
 const prodConfig: AuthingConfig = {
   appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
   host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
-  redirectUri: 'https://你的-netlify地址.netlify.app/callback', // 生产环境回调地址
+  redirectUri: 'https://www.wenpai.xyz/callback', // 生产环境回调地址
   mode: 'modal',
   defaultScene: 'login',
 };
