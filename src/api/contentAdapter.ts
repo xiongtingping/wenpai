@@ -329,8 +329,7 @@ export async function generateAdaptedContent(params: ContentGenerationParams): P
     try {
       const result = await adaptContentForPlatform(
         params.originalContent,
-        platformId,
-        params.platformSettings[`${platformId}-brandLibrary`] as boolean || false
+        platformId
       );
       results[platformId] = result;
     } catch (error) {
@@ -352,8 +351,7 @@ export async function regeneratePlatformContent(
   try {
     const result = await adaptContentForPlatform(
       params.originalContent,
-      platformId,
-      params.platformSettings[`${platformId}-brandLibrary`] as boolean || false
+      platformId
     );
     return { [platformId]: result };
   } catch (error) {

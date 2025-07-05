@@ -101,8 +101,8 @@ const AuthingLoginPage: React.FC = () => {
         const currentGuard = initGuard();
         
         // 设置事件监听器
-        currentGuard.on('login', handleLogin);
-        currentGuard.on('register', handleRegister);
+        currentGuard.on('login' as any, handleLogin as any);
+        currentGuard.on('register' as any, handleRegister as any);
         
         // 检查是否已经登录
         const loginStatus = await currentGuard.checkLoginStatus();

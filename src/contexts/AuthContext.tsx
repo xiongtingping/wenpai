@@ -90,13 +90,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (userInfo) {
           // 转换 Authing SDK 的用户类型到我们的 User 类型
           const convertedUser: User = {
-            id: String((userInfo as Record<string, unknown>).id || (userInfo as Record<string, unknown>).userId || ''),
-            username: String((userInfo as Record<string, unknown>).username || (userInfo as Record<string, unknown>).nickname || ''),
-            email: String((userInfo as Record<string, unknown>).email || ''),
-            phone: String((userInfo as Record<string, unknown>).phone || ''),
-            nickname: String((userInfo as Record<string, unknown>).nickname || (userInfo as Record<string, unknown>).username || ''),
-            avatar: String((userInfo as Record<string, unknown>).photo || (userInfo as Record<string, unknown>).avatar || ''),
-            ...userInfo // 保留其他属性
+            id: String((userInfo as any).id || (userInfo as any).userId || ''),
+            username: String((userInfo as any).username || (userInfo as any).nickname || ''),
+            email: String((userInfo as any).email || ''),
+            phone: String((userInfo as any).phone || ''),
+            nickname: String((userInfo as any).nickname || (userInfo as any).username || ''),
+            avatar: String((userInfo as any).photo || (userInfo as any).avatar || ''),
+            ...((userInfo as unknown) as Record<string, unknown>) // 保留其他属性
           };
           
           setUser(convertedUser);
@@ -119,27 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * 登录处理
    */
-  const handleLoginSuccess = useCallback((userInfo: Record<string, unknown>) => {
-    const user: User = {
-      id: String(userInfo.id || userInfo.userId || ''),
-      username: String(userInfo.username || userInfo.name || ''),
-      email: String(userInfo.email || ''),
-      nickname: String(userInfo.nickname || userInfo.displayName || ''),
-      avatar: String(userInfo.avatar || userInfo.picture || ''),
-      phone: String(userInfo.phone || userInfo.phoneNumber || ''),
-      roles: Array.isArray(userInfo.roles) ? userInfo.roles : [],
-      permissions: Array.isArray(userInfo.permissions) ? userInfo.permissions : [],
-      metadata: userInfo.metadata || {}
-    };
-    
-    setUser(user);
-    setStatus('authenticated');
-  }, []);
-
-  /**
-   * 注册处理
-   */
-  const handleRegister = useCallback((userInfo: Record<string, unknown>) => {
+  const handleLoginSuccess = useCallback((userInfo: any) => {
     // 转换 Authing SDK 的用户类型到我们的 User 类型
     const convertedUser: User = {
       id: String(userInfo.id || userInfo.userId || ''),
@@ -148,7 +128,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       phone: String(userInfo.phone || ''),
       nickname: String(userInfo.nickname || userInfo.username || ''),
       avatar: String(userInfo.photo || userInfo.avatar || ''),
-      ...userInfo // 保留其他属性
+      ...((userInfo as unknown) as Record<string, unknown>) // 保留其他属性
+    };
+    
+    setUser(convertedUser);
+    setStatus('authenticated');
+  }, []);
+
+  /**
+   * 注册处理
+   */
+  const handleRegister = useCallback((userInfo: any) => {
+    // 转换 Authing SDK 的用户类型到我们的 User 类型
+    const convertedUser: User = {
+      id: String(userInfo.id || userInfo.userId || ''),
+      username: String(userInfo.username || userInfo.nickname || ''),
+      email: String(userInfo.email || ''),
+      phone: String(userInfo.phone || ''),
+      nickname: String(userInfo.nickname || userInfo.username || ''),
+      avatar: String(userInfo.photo || userInfo.avatar || ''),
+      ...((userInfo as unknown) as Record<string, unknown>) // 保留其他属性
     };
     
     setUser(convertedUser);
@@ -173,15 +172,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const newGuard = new Guard(config);
         
         // 设置事件监听器
-        newGuard.on('login', handleLoginSuccess);
-        newGuard.on('register', handleRegister);
+        newGuard.on('login', handleLoginSuccess as any);
+        newGuard.on('register', handleRegister as any);
         newGuard.on('login-error', () => {
           console.log('登录失败');
         });
         newGuard.on('close', () => {
           console.log('登录弹窗已关闭');
         });
-        newGuard.on('logout', handleLogoutSuccess);
+        newGuard.on('logout' as any, handleLogoutSuccess as any);
         
         setGuard(newGuard);
         
