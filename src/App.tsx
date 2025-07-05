@@ -63,21 +63,6 @@ const NavigationBar: React.FC = () => {
             </Link>
             
             <Link 
-              to="/adapt"
-              style={{ 
-                color: 'white', 
-                textDecoration: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                transition: 'background-color 0.3s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              内容适配
-            </Link>
-            
-            <Link 
               to="/brand-library"
               style={{ 
                 color: 'white', 
@@ -91,48 +76,17 @@ const NavigationBar: React.FC = () => {
             >
               品牌库
             </Link>
-            
-            <Link 
-              to="/history"
-              style={{ 
-                color: 'white', 
-                textDecoration: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                transition: 'background-color 0.3s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              历史记录
-            </Link>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           {isAuthenticated ? (
-            <>
-              <UserAvatar 
-                user={user}
-                showDropdown={true}
-                size="md"
-                showUsername={true}
-              />
-              <Link 
-                to="/profile"
-                style={{ 
-                  color: 'white', 
-                  textDecoration: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  transition: 'background-color 0.3s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                个人中心
-              </Link>
-            </>
+            <UserAvatar 
+              user={user}
+              showDropdown={true}
+              size="md"
+              showUsername={true}
+            />
           ) : (
             <>
               <button

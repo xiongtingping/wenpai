@@ -6,6 +6,8 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
+import { useAuth } from "@/contexts/AuthContext"
+import UserAvatar from "@/components/auth/UserAvatar"
 
 const HelpDocumentation = () => {
   const topics = [
@@ -23,7 +25,7 @@ const HelpDocumentation = () => {
     },
     {
       title: "使用次数与邀请",
-      content: "每月免费赠送20次内容适配机会。邀请朋友注册可获得额外使用次数：每成功邀请1人注册，双方各获20次；每次有效链接点击奖励1次（同IP仅奖励一次）。"
+      content: "每月免费赠送20次内容适配机会。邀请朋友注册可获得额外使用次数：每成功邀请1人注册，双方各获20次。"
     }
   ]
   
@@ -60,6 +62,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
+  const { user, isAuthenticated, showLogin } = useAuth()
   
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
@@ -71,9 +74,10 @@ export function Header() {
           <span className="text-sm text-gray-500">(www.aiwenpai.com)</span>
         </Link>
         
-        {/* Desktop Menu - Reordered as requested */}
+        {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
+            <Link to="/adapt" className="text-gray-600 hover:text-blue-600 transition">内容适配</Link>
             <a href="#features" className="text-gray-600 hover:text-blue-600 transition">产品功能</a>
             <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition flex items-center">
               品牌库
@@ -81,7 +85,6 @@ export function Header() {
                 开发中
               </Badge>
             </Link>
-
             <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">定价方案</a>
           </div>
         )}
@@ -99,18 +102,18 @@ export function Header() {
               <HelpDocumentation />
             </Popover>
             
-            {/* Direct login/register button - no dropdown */}
-            <Link to="/profile">
-              <Button variant="outline" className="flex items-center gap-1 mr-2">
-                <User className="h-4 w-4 mr-1" />
-                我的
+            {isAuthenticated ? (
+              <UserAvatar 
+                user={user}
+                showDropdown={true}
+                size="md"
+                showUsername={false}
+              />
+            ) : (
+              <Button onClick={showLogin} className="bg-blue-600 hover:bg-blue-700">
+                登录
               </Button>
-            </Link>
-            <Link to="/register">
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                注册/登录
-              </Button>
-            </Link>
+            )}
           </div>
         )}
         
@@ -124,7 +127,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                {/* Reordered mobile menu items */}
+                <Link to="/adapt" className="text-lg font-medium py-2">内容适配</Link>
                 <a href="#features" className="text-lg font-medium py-2">产品功能</a>
                 <Link to="/brand-library" className="text-lg font-medium py-2 flex items-center">
                   品牌库
@@ -132,7 +135,6 @@ export function Header() {
                     开发中
                   </Badge>
                 </Link>
-
                 <a href="#pricing" className="text-lg font-medium py-2">定价方案</a>
                 <a href="#testimonials" className="text-lg font-medium py-2">客户案例</a>
 
@@ -142,18 +144,18 @@ export function Header() {
                 </Button>
                 <hr className="my-4" />
                 
-                {/* Direct login/register for mobile */}
-                <Link to="/profile">
-                  <Button variant="outline" className="w-full flex items-center justify-center mb-2">
-                    <User className="h-4 w-4 mr-1" />
-                    我的
+                {isAuthenticated ? (
+                  <UserAvatar 
+                    user={user}
+                    showDropdown={true}
+                    size="md"
+                    showUsername={true}
+                  />
+                ) : (
+                  <Button onClick={showLogin} className="w-full bg-blue-600 hover:bg-blue-700">
+                    登录
                   </Button>
-                </Link>
-                <Link to="/register">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    注册/登录
-                  </Button>
-                </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>

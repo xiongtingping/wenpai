@@ -19,7 +19,6 @@ import {
   RefreshCw,
   Clock,
   Users,
-  MousePointer,
   TrendingUp,
   CheckCircle,
 } from "lucide-react";
@@ -36,7 +35,6 @@ function InvitePage() {
   const userInviteCode = useUserStore((state) => state.userInviteCode);
   const generateInviteCode = useUserStore((state) => state.generateInviteCode);
   const userInviteStats = useUserStore((state) => state.userInviteStats);
-  const weeklyClickRewards = useUserStore((state) => state.weeklyClickRewards);
   const usageRemaining = useUserStore((state) => state.usageRemaining);
   
   const [newInviteLink, setNewInviteLink] = useState<any>(null);
@@ -74,7 +72,7 @@ function InvitePage() {
 
   // Calculate total rewards from invites
   const calculateTotalRewards = (): number => {
-    return userInviteStats.totalRegistrations * 20 + userInviteStats.totalClicks;
+    return userInviteStats.totalRegistrations * 20;
   };
 
   return (
@@ -122,9 +120,9 @@ function InvitePage() {
 
                     <Card className="bg-purple-50 border border-purple-100">
                       <CardContent className="p-4 text-center">
-                        <p className="text-sm text-purple-600 font-medium">每链接有效点击</p>
-                        <p className="text-2xl font-bold text-purple-800 mt-1">+1 次</p>
-                        <p className="text-xs text-purple-600 mt-1">生成次数</p>
+                        <p className="text-sm text-purple-600 font-medium">邀请奖励</p>
+                        <p className="text-2xl font-bold text-purple-800 mt-1">+20 次</p>
+                        <p className="text-xs text-purple-600 mt-1">双方获得</p>
                       </CardContent>
                     </Card>
 
@@ -146,11 +144,7 @@ function InvitePage() {
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
-                        <span>将您的专属邀请链接发布至其他平台，每次有效链接点击即奖励 1 次生成次数（同一IP地址仅奖励一次）</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">✓</span> 
-                        <span>每周链接点击奖励上限为 100 次</span>
+                        <span>将您的专属邀请链接分享给好友，好友通过链接注册后双方各获得 20 次免费生成次数</span>
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
@@ -200,27 +194,9 @@ function InvitePage() {
                       <span className="font-medium">{userInviteStats.totalRegistrations * 20} 次</span>
                     </div>
                     <Separator className="my-2" />
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">链接点击次数：</span>
-                      <span className="font-medium">{userInviteStats.totalClicks} 次</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">获得点击奖励：</span>
-                      <span className="font-medium">{userInviteStats.totalClicks} 次</span>
-                    </div>
-                    <Separator className="my-2" />
                     <div className="flex justify-between font-medium">
                       <span>累计获得奖励：</span>
                       <span className="text-blue-600">{calculateTotalRewards()} 次</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium mb-2 text-sm">本周点击奖励进度</h3>
-                    <Progress value={(weeklyClickRewards / 100) * 100} className="h-2" />
-                    <div className="flex justify-between mt-1 text-xs text-gray-500">
-                      <span>已获得: {weeklyClickRewards} 次</span>
-                      <span>上限: 100 次/周</span>
                     </div>
                   </div>
                 </div>
@@ -277,15 +253,7 @@ function InvitePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card className="bg-blue-50 border border-blue-100">
-                  <CardContent className="p-4 flex flex-col items-center justify-center">
-                    <MousePointer className="h-8 w-8 text-blue-500 mb-2" />
-                    <p className="text-3xl font-bold">{userInviteStats.totalClicks}</p>
-                    <p className="text-sm text-gray-500">总点击次数</p>
-                  </CardContent>
-                </Card>
-                
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <Card className="bg-green-50 border border-green-100">
                   <CardContent className="p-4 flex flex-col items-center justify-center">
                     <Users className="h-8 w-8 text-green-500 mb-2" />
@@ -310,7 +278,6 @@ function InvitePage() {
                     <TableRow>
                       <TableHead>邀请码</TableHead>
                       <TableHead>创建日期</TableHead>
-                      <TableHead className="text-right">点击数</TableHead>
                       <TableHead className="text-right">注册数</TableHead>
                       <TableHead className="text-right">状态</TableHead>
                     </TableRow>
@@ -321,7 +288,6 @@ function InvitePage() {
                         <TableRow key={invite.code}>
                           <TableCell className="font-medium">{invite.code}</TableCell>
                           <TableCell>{new Date(invite.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">{invite.clicks}</TableCell>
                           <TableCell className="text-right">{invite.registrations}</TableCell>
                           <TableCell className="text-right">
                             <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-200">
@@ -332,7 +298,7 @@ function InvitePage() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-6 text-gray-500">
+                        <TableCell colSpan={4} className="text-center py-6 text-gray-500">
                           暂无邀请记录，创建一个新的邀请链接开始分享吧！
                         </TableCell>
                       </TableRow>
@@ -342,7 +308,6 @@ function InvitePage() {
                       <TableRow className="bg-green-50">
                         <TableCell className="font-medium">{newInviteLink.code}</TableCell>
                         <TableCell>{new Date(newInviteLink.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-right">0</TableCell>
                         <TableCell className="text-right">0</TableCell>
                         <TableCell className="text-right">
                           <Badge className="bg-green-100 text-green-800 hover:bg-green-200">新建</Badge>

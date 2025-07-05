@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, History, Share2, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
@@ -141,13 +142,29 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="mr-2 h-4 w-4" />
-          <span>个人资料</span>
+        <DropdownMenuItem asChild>
+          <Link to="/profile">
+            <User className="mr-2 h-4 w-4" />
+            <span>个人资料</span>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Settings className="mr-2 h-4 w-4" />
-          <span>设置</span>
+        <DropdownMenuItem asChild>
+          <Link to="/history">
+            <History className="mr-2 h-4 w-4" />
+            <span>历史记录</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/invite">
+            <Share2 className="mr-2 h-4 w-4" />
+            <span>邀请好友</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/payment">
+            <CreditCard className="mr-2 h-4 w-4" />
+            <span>订阅管理</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
