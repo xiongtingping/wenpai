@@ -42,7 +42,7 @@ const AuthingLoginPage = () => {
           });
 
           // 渲染到指定容器
-          guard.render(guardRef.current);
+          guard.render();
         }
       } catch (error) {
         console.error('初始化 Authing Guard 失败:', error);

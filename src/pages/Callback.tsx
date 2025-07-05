@@ -24,7 +24,10 @@ export default function Callback() {
     /**
      * 处理 Authing 重定向回调
      */
-    const guard = new Guard(appId, config);
+    const guard = new Guard({
+      appId,
+      ...config
+    });
     guard.handleRedirectCallback().then(userInfo => {
       console.log('登录成功:', userInfo);
       // 这里你可以存储 token 或用户信息
