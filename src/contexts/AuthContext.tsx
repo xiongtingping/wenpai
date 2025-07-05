@@ -68,24 +68,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [guard, setGuard] = useState<Guard | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   /**
    * 检查认证状态
    */
   const checkAuth = useCallback(async () => {
     try {
+      console.log('Checking auth status...');
       setStatus('loading');
       
       if (!guard) {
+        console.log('Guard not available, setting unauthenticated');
         setStatus('unauthenticated');
         return;
       }
 
       const loginStatus = await guard.checkLoginStatus();
+      console.log('Login status:', loginStatus);
       
       if (loginStatus) {
         // 获取用户信息
         const userInfo = await guard.trackSession();
+        console.log('User info:', userInfo);
         
         if (userInfo) {
           // 转换 Authing SDK 的用户类型到我们的 User 类型
@@ -101,13 +106,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           setUser(convertedUser);
           setStatus('authenticated');
+          console.log('User authenticated:', convertedUser);
         } else {
           setUser(null);
           setStatus('unauthenticated');
+          console.log('No user info found');
         }
       } else {
         setUser(null);
         setStatus('unauthenticated');
+        console.log('Not logged in');
       }
     } catch (error) {
       console.error('检查认证状态失败:', error);
@@ -120,6 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * 登录处理
    */
   const handleLoginSuccess = useCallback((userInfo: any) => {
+    console.log('Login success:', userInfo);
     // 转换 Authing SDK 的用户类型到我们的 User 类型
     const convertedUser: User = {
       id: String(userInfo.id || userInfo.userId || ''),
@@ -139,6 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * 注册处理
    */
   const handleRegister = useCallback((userInfo: any) => {
+    console.log('Register success:', userInfo);
     // 转换 Authing SDK 的用户类型到我们的 User 类型
     const convertedUser: User = {
       id: String(userInfo.id || userInfo.userId || ''),
@@ -158,6 +168,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * 登出处理
    */
   const handleLogoutSuccess = useCallback(() => {
+    console.log('Logout success');
     setUser(null);
     setStatus('unauthenticated');
   }, []);
@@ -168,48 +179,87 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initGuard = async () => {
       try {
+        console.log('Initializing Authing Guard...');
         const config = getAuthingConfig();
+        console.log('Authing config:', config);
+        
         const newGuard = new Guard(config);
+        console.log('Guard created:', newGuard);
         
         // 设置事件监听器
         newGuard.on('login', handleLoginSuccess as any);
         newGuard.on('register', handleRegister as any);
-        newGuard.on('login-error', () => {
-          console.log('登录失败');
+        newGuard.on('login-error', (error: any) => {
+          console.error('Login error:', error);
         });
         newGuard.on('close', () => {
-          console.log('登录弹窗已关闭');
+          console.log('Login modal closed');
         });
         newGuard.on('logout' as any, handleLogoutSuccess as any);
         
         setGuard(newGuard);
+        setIsInitialized(true);
+        console.log('Guard initialized successfully');
         
         // 检查初始认证状态
         await checkAuth();
       } catch (error) {
         console.error('初始化 Guard 失败:', error);
         setStatus('unauthenticated');
+        setIsInitialized(true);
       }
     };
 
-    initGuard();
-  }, [handleLoginSuccess, handleRegister, checkAuth, handleLogoutSuccess]);
+    if (!isInitialized) {
+      initGuard();
+    }
+  }, [handleLoginSuccess, handleRegister, checkAuth, handleLogoutSuccess, isInitialized]);
 
   /**
-   * 登录
+   * 登录 - 使用重定向方式
    */
   const login = useCallback(async () => {
+    console.log('Login called');
     if (guard) {
-      guard.show();
+      try {
+        console.log('Attempting login with redirect...');
+        await guard.startWithRedirect();
+      } catch (error) {
+        console.error('Login redirect failed:', error);
+        // 回退到弹窗方式
+        try {
+          console.log('Falling back to modal login...');
+          guard.show();
+        } catch (modalError) {
+          console.error('Modal login also failed:', modalError);
+        }
+      }
+    } else {
+      console.error('Guard not available for login');
     }
   }, [guard]);
 
   /**
-   * 注册
+   * 注册 - 使用重定向方式
    */
   const register = useCallback(async () => {
+    console.log('Register called');
     if (guard) {
-      guard.show();
+      try {
+        console.log('Attempting register with redirect...');
+        await guard.startWithRedirect({ scene: 'register' });
+      } catch (error) {
+        console.error('Register redirect failed:', error);
+        // 回退到弹窗方式
+        try {
+          console.log('Falling back to modal register...');
+          guard.show();
+        } catch (modalError) {
+          console.error('Modal register also failed:', modalError);
+        }
+      }
+    } else {
+      console.error('Guard not available for register');
     }
   }, [guard]);
 
@@ -217,41 +267,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * 登出
    */
   const logout = useCallback(async () => {
+    console.log('Logout called');
     if (guard) {
-      await guard.logout();
+      try {
+        await guard.logout();
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
     }
   }, [guard]);
 
   /**
-   * 显示登录界面
+   * 显示登录界面 - 优先使用重定向，失败时回退到弹窗
    */
   const showLogin = useCallback(() => {
-    console.log('showLogin called, guard:', guard);
-    if (guard) {
-      try {
-        guard.show();
-        console.log('Guard.show() called successfully');
-      } catch (error) {
-        console.error('Guard.show() failed:', error);
-        // 如果弹窗失败，尝试重定向登录
-        try {
-          (guard as any).loginWithRedirect();
-        } catch (redirectError) {
-          console.error('Login redirect also failed:', redirectError);
-        }
-      }
-    } else {
-      console.warn('Guard not initialized yet');
-      // 如果guard未初始化，尝试重新初始化
-      setTimeout(() => {
-        if (guard) {
-          guard.show();
-        } else {
-          console.error('Guard still not available after timeout');
-        }
-      }, 1000);
+    console.log('showLogin called, guard:', guard, 'isInitialized:', isInitialized);
+    
+    if (!isInitialized) {
+      console.log('Guard not initialized yet, please wait...');
+      return;
     }
-  }, [guard]);
+    
+    if (guard) {
+      // 优先使用重定向登录
+      login().catch(error => {
+        console.error('Login failed:', error);
+      });
+    } else {
+      console.error('Guard not available');
+    }
+  }, [guard, isInitialized, login]);
 
   /**
    * 隐藏登录界面

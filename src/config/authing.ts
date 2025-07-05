@@ -26,7 +26,7 @@ const devConfig: AuthingConfig = {
   appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
   host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
   redirectUri: 'http://localhost:5173/callback', // 开发环境回调地址
-  mode: 'modal',
+  mode: 'normal', // 改为normal模式支持重定向
   defaultScene: 'login',
 };
 
@@ -37,7 +37,7 @@ const prodConfig: AuthingConfig = {
   appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
   host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
   redirectUri: 'https://www.wenpai.xyz/callback', // 生产环境回调地址
-  mode: 'modal',
+  mode: 'normal', // 改为normal模式支持重定向
   defaultScene: 'login',
 };
 
@@ -65,6 +65,7 @@ export const getAuthingAppId = (): string => {
 export const getGuardConfig = () => {
   const config = getAuthingConfig();
   return {
+    appId: config.appId,
     host: config.host,
     redirectUri: config.redirectUri,
     mode: config.mode,
