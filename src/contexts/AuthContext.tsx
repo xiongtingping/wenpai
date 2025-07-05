@@ -6,7 +6,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { Guard } from '@authing/guard-react';
 import { getAuthingConfig, getGuardConfig } from '@/config/authing';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * 用户信息接口
@@ -70,7 +69,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [guard, setGuard] = useState<Guard | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const navigate = useNavigate();
 
   // Guard初始化只执行一次
   useEffect(() => {
@@ -80,7 +78,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ...config,
         history: {
           push: (path: string) => {
-            navigate(path);
+            // 使用 window.location 进行导航
+            window.location.href = path;
           }
         }
       } as any);
@@ -124,7 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setGuard(null);
       console.error('初始化 Guard 失败:', error);
     }
-  }, [navigate]);
+  }, []);
 
   const checkAuth = useCallback(async () => {
     if (!guard) {
