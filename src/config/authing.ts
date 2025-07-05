@@ -25,7 +25,7 @@ export interface AuthingConfig {
 const devConfig: AuthingConfig = {
   appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
   host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
-  redirectUri: 'http://localhost:5173/callback', // 开发环境回调地址
+  redirectUri: 'http://localhost:3002/callback', // 开发环境回调地址
   mode: 'normal', // 改为normal模式支持重定向
   defaultScene: 'login',
 };

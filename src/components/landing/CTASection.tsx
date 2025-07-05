@@ -10,7 +10,7 @@ export function CTASection() {
           立即加入，让AI成为你最得力的内容创作伙伴。
         </p>
         <div className="mt-10">
-          <Link to="/register">
+          <Link to="/adapt">
             <Button
               size="lg"
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-white font-bold py-6 px-8 rounded-lg shadow-lg text-lg"
