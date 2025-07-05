@@ -1,93 +1,195 @@
-import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAuthingAppId, getGuardConfig } from '@/config/authing';
-import { useAuth, type User } from '@/hooks/useAuth';
+/**
+ * Authing 登录页面
+ * 使用 Authing Guard UI 提供完整的登录体验
+ */
+
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import authingService from '@/services/authingService';
+import { useAuthing } from '@/hooks/useAuthing';
 
 /**
- * Authing Guard 登录页面组件
- * 使用 Authing 提供的 Guard 组件进行用户认证
+ * Authing 登录页面组件
+ * 直接弹出 Authing Guard UI，提供完整的登录体验
+ * @returns React 组件
  */
-const AuthingLoginPage = () => {
+const AuthingLoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const { login } = useAuth();
-  const guardRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const { isLoggedIn, loading, getCurrentUser, checkLoginStatus, setUserInfo } = useAuthing();
 
-  // 从配置文件获取 Authing 配置
-  const appId = getAuthingAppId();
-  const config = getGuardConfig();
+  // 获取重定向路径
+  const from = location.state?.from?.pathname || '/';
 
+  // 未登录时弹出 Guard
   useEffect(() => {
-    /**
-     * 初始化 Authing Guard
-     */
-    const initGuard = async () => {
-      try {
-        // 动态导入 Authing Guard
-        const { Guard } = await import('@authing/guard-react');
+    if (!isLoggedIn) {
+      const guard = authingService.initGuard();
+      guard.show();
+      
+      // 监听登录成功事件
+      const handleLogin = async (userInfo: any) => {
+        console.log('登录成功:', userInfo);
+        guard.hide();
         
-        if (guardRef.current) {
-          // 创建 Guard 实例
-          const guard = new Guard({
-            appId,
-            ...config,
-            onLogin: (user: unknown) => {
-              console.log('登录成功:', user);
-              login(user as User);
-              navigate('/');
-            },
-            onLoginError: (error: unknown) => {
-              console.error('登录失败:', error);
-            },
-          });
-
-          // 渲染到指定容器
-          guard.render();
+        // 直接使用登录事件返回的用户信息
+        console.log('开始同步登录状态...');
+        try {
+          // 直接设置用户信息，避免重复调用 API
+          console.log('使用登录事件返回的用户信息:', userInfo);
+          setUserInfo(userInfo);
+          console.log('登录状态同步完成，准备跳转...');
+          // 使用 setTimeout 确保状态更新完成后再跳转
+          setTimeout(() => {
+            navigate(from, { replace: true });
+          }, 100);
+        } catch (error) {
+          console.error('同步登录状态失败:', error);
         }
-      } catch (error) {
-        console.error('初始化 Authing Guard 失败:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      };
+      
+      const handleRegister = async (userInfo: any) => {
+        console.log('注册成功:', userInfo);
+        guard.hide();
+        
+        console.log('开始同步注册状态...');
+        try {
+          console.log('使用注册事件返回的用户信息:', userInfo);
+          setUserInfo(userInfo);
+          console.log('注册状态同步完成，准备跳转...');
+          setTimeout(() => {
+            navigate(from, { replace: true });
+          }, 100);
+        } catch (error) {
+          console.error('同步注册状态失败:', error);
+        }
+      };
+      
+      const handleLoginError = (error: any) => {
+        console.error('登录失败:', error);
+      };
+      
+      const handleClose = () => {
+        console.log('Guard UI 已关闭');
+      };
+      
+      guard.on('login', handleLogin);
+      guard.on('register', handleRegister);
+      guard.on('login-error', handleLoginError);
+      guard.on('close', handleClose);
+      
+      return () => {
+        guard.hide();
+      };
+    }
+  }, [isLoggedIn, getCurrentUser, checkLoginStatus, from, navigate]);
 
-    initGuard();
-  }, [appId, config, login, navigate]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">正在加载登录组件...</p>
-        </div>
-      </div>
-    );
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">加载中...</div>;
   }
+
+  // 已登录时不渲染任何内容
+  if (isLoggedIn) return null;
+
+  /**
+   * 手动触发显示 Guard UI
+   */
+  const handleShowLogin = () => {
+    const guard = authingService.initGuard();
+    guard.show();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">欢迎使用文派AI</h1>
-          <p className="text-gray-600">请登录您的账户以继续使用</p>
-        </div>
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-gray-900">
+            欢迎使用文派AI
+          </CardTitle>
+          <CardDescription className="text-gray-600">
+            请登录您的账户以继续使用
+          </CardDescription>
+        </CardHeader>
         
-        {/* Authing Guard 容器 */}
-        <div ref={guardRef} id="authing-guard"></div>
-        
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
-            还没有账户？{' '}
-            <button 
-              onClick={() => navigate('/register')}
-              className="text-blue-600 hover:text-blue-800 font-medium"
+        <CardContent className="space-y-6">
+          {/* 登录说明 */}
+          <div className="text-center space-y-4">
+            <div className="animate-pulse">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+            </div>
+            
+            <p className="text-gray-600">
+              Authing Guard UI 正在加载中...
+            </p>
+            
+            <p className="text-sm text-gray-500">
+              如果登录弹窗没有自动弹出，请点击下方按钮
+            </p>
+          </div>
+
+          {/* 手动触发按钮 */}
+          <div className="space-y-3">
+            <Button 
+              onClick={handleShowLogin} 
+              className="w-full"
+              size="lg"
             >
-              立即注册
-            </button>
-          </p>
-        </div>
-      </div>
+              打开登录界面
+            </Button>
+            
+            <Button 
+              onClick={() => navigate('/')} 
+              variant="outline" 
+              className="w-full"
+            >
+              返回首页
+            </Button>
+          </div>
+
+          {/* 功能特性 */}
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-700">文派AI 功能特性：</div>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">智能内容适配</span>
+              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">多平台支持</span>
+              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">实时预览</span>
+              <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">安全可靠</span>
+            </div>
+          </div>
+
+          {/* 登录方式说明 */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-800 mb-2">支持的登录方式</h4>
+            <div className="text-sm text-blue-700 space-y-1">
+              <p>• 用户名/邮箱 + 密码登录</p>
+              <p>• 手机号 + 验证码登录</p>
+              <p>• 邮箱 + 验证码登录</p>
+              <p>• 微信、GitHub 等社交登录</p>
+              <p>• 新用户注册</p>
+              <p>• 忘记密码找回</p>
+            </div>
+          </div>
+
+          {/* 调试信息 */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-medium text-gray-700 mb-2">调试信息</h4>
+              <div className="text-xs text-gray-600 space-y-1">
+                <p>当前时间: {new Date().toLocaleString()}</p>
+                <p>页面路径: {window.location.pathname}</p>
+                <p>重定向目标: {from}</p>
+                <p>Authing 配置: {JSON.stringify(authingService.getConfig(), null, 2)}</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@authing/guard-react": "^5.3.9",
+    "@authing/web": "^5.1.20",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-accordion": "^1.2.8",
     "@radix-ui/react-alert-dialog": "^1.1.11",
@@ -47,6 +48,7 @@
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.3.4",
+    "authing-js-sdk": "^4.23.50",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
