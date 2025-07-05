@@ -6,8 +6,8 @@
   # 函数目录
   functions = "netlify/functions"
 
-[build.environment]
-  NODE_VERSION = "18"
+  [build.environment]
+    NODE_VERSION = "18"
 
 # API重定向到Netlify函数
 [[redirects]]
