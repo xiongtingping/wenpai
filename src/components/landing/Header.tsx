@@ -85,6 +85,12 @@ export function Header() {
                 开发中
               </Badge>
             </Link>
+            <Link to="/hot-topics" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              全网热门话题
+              <Badge variant="outline" className="ml-1 bg-amber-50 text-amber-700 border-amber-200">
+                开发中
+              </Badge>
+            </Link>
             <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">定价方案</a>
           </div>
         )}
@@ -111,7 +117,7 @@ export function Header() {
               />
             ) : (
               <Button onClick={showLogin} className="bg-blue-600 hover:bg-blue-700">
-                登录
+                登录/注册
               </Button>
             )}
           </div>
@@ -135,6 +141,12 @@ export function Header() {
                     开发中
                   </Badge>
                 </Link>
+                <Link to="/hot-topics" className="text-lg font-medium py-2 flex items-center">
+                  全网热门话题
+                  <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
+                    开发中
+                  </Badge>
+                </Link>
                 <a href="#pricing" className="text-lg font-medium py-2">定价方案</a>
                 <a href="#testimonials" className="text-lg font-medium py-2">客户案例</a>
 
@@ -153,7 +165,7 @@ export function Header() {
                   />
                 ) : (
                   <Button onClick={showLogin} className="w-full bg-blue-600 hover:bg-blue-700">
-                    登录
+                    登录/注册
                   </Button>
                 )}
               </div>

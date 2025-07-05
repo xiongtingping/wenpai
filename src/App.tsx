@@ -13,6 +13,7 @@ import NotFoundPage from '@/pages/NotFoundPage';
 import AdaptPage from '@/pages/AdaptPage';
 import InvitePage from '@/pages/InvitePage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
+import HotTopicsPage from '@/pages/HotTopicsPage';
 import ApiTestPage from '@/pages/ApiTestPage';
 import PaymentPage from '@/pages/PaymentPage';
 import ProfilePage from '@/pages/ProfilePage';
@@ -76,6 +77,48 @@ const NavigationBar: React.FC = () => {
             >
               品牌库
             </Link>
+            
+            <Link 
+              to="/hot-topics"
+              style={{ 
+                color: 'white', 
+                textDecoration: 'none',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                transition: 'background-color 0.3s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              全网热门话题
+              <span style={{ 
+                fontSize: '10px', 
+                background: '#ffa500', 
+                color: 'white', 
+                padding: '2px 4px', 
+                borderRadius: '2px' 
+              }}>
+                开发中
+              </span>
+            </Link>
+            
+            <a 
+              href="#pricing"
+              style={{ 
+                color: 'white', 
+                textDecoration: 'none',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                transition: 'background-color 0.3s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              定价方案
+            </a>
           </div>
         </div>
 
@@ -104,7 +147,7 @@ const NavigationBar: React.FC = () => {
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                登录
+                登录/注册
               </button>
               <Link 
                 to="/api-test"
@@ -169,6 +212,14 @@ const AppContent: React.FC = () => {
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
               <BrandLibraryPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/hot-topics" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <HotTopicsPage />
             </ToolLayout>
           </ProtectedRoute>
         } />
