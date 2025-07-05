@@ -13,7 +13,6 @@ import TermsPage from "./pages/TermsPage";
 import ChangelogPage from "./pages/ChangelogPage";
 import HistoryPage from "./pages/HistoryPage";
 import AuthingLoginPage from "./pages/AuthingLoginPage";
-import AuthCallbackPage from "./pages/AuthCallbackPage";
 import AuthTestPage from "./pages/AuthTestPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { Toaster } from "@/components/ui/toaster";

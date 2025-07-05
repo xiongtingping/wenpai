@@ -375,11 +375,11 @@ export default function AdaptPage() {
       initialShowSettings[platform.id] = false;
     });
     setShowSettings(initialShowSettings);
-  }, []);
+  }, [initializeDefaultSettings, platforms]);
 
   useEffect(() => {
     initializeDefaultSettings();
-  }, [platforms]);
+  }, [initializeDefaultSettings]);
 
   // Character count display
   const contentCharCount = originalContent.length;

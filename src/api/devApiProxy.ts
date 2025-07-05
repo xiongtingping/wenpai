@@ -4,11 +4,21 @@
  */
 
 /**
+ * API请求数据接口
+ */
+interface ApiRequestData {
+  messages?: Array<{ content: string }>;
+  prompt?: string;
+  model?: string;
+  [key: string]: unknown;
+}
+
+/**
  * 模拟API响应接口
  */
 interface MockApiResponse {
   success: boolean;
-  data?: any;
+  data?: Record<string, unknown>;
   error?: string;
   isSimulated?: boolean;
 }
@@ -180,7 +190,7 @@ ${prompt}
 /**
  * 开发环境API代理
  */
-export async function devApiProxy(endpoint: string, data: any): Promise<MockApiResponse> {
+export async function devApiProxy(endpoint: string, data: ApiRequestData): Promise<MockApiResponse> {
   console.log(`开发环境API调用: ${endpoint}`, data);
 
   // 模拟网络延迟
