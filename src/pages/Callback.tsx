@@ -8,8 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { useAuthing } from '@/hooks/useAuthing';
-import authingService from '@/services/authingService';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Callback 页面组件
@@ -19,11 +18,10 @@ import authingService from '@/services/authingService';
 const Callback: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { getCurrentUser } = useAuthing();
+  const { checkAuth } = useAuth();
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string>('');
-  const [userInfo, setUserInfo] = useState<any>(null);
 
   useEffect(() => {
     /**
@@ -33,12 +31,8 @@ const Callback: React.FC = () => {
       try {
         setStatus('loading');
         
-        // 处理重定向回调
-        const user = await authingService.handleRedirectCallback();
-        setUserInfo(user);
-        
-        // 获取用户信息
-        await getCurrentUser();
+        // 重新检查认证状态
+        await checkAuth();
         
         setStatus('success');
         
@@ -57,121 +51,80 @@ const Callback: React.FC = () => {
     };
 
     handleCallback();
-  }, [navigate, location, getCurrentUser]);
+  }, [navigate, location, checkAuth]);
 
-  /**
-   * 重试登录
-   */
-  const handleRetry = () => {
-    setStatus('loading');
-    setError('');
-    window.location.href = '/authing-login';
-  };
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle>正在处理登录...</CardTitle>
+            <CardDescription>
+              请稍候，我们正在验证您的登录信息
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">验证中...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  /**
-   * 返回首页
-   */
-  const handleGoHome = () => {
-    navigate('/');
-  };
+  if (status === 'error') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-red-600">登录失败</CardTitle>
+            <CardDescription>
+              处理登录时发生错误
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert variant="destructive">
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => window.location.reload()}
+                className="flex-1"
+              >
+                重试
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/')}
+                className="flex-1"
+              >
+                返回首页
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            {status === 'loading' && '正在登录...'}
-            {status === 'success' && '登录成功'}
-            {status === 'error' && '登录失败'}
-          </CardTitle>
-          <CardDescription className="text-gray-600">
-            {status === 'loading' && '正在处理您的登录信息，请稍候...'}
-            {status === 'success' && '欢迎使用文派AI，正在跳转...'}
-            {status === 'error' && '登录过程中遇到问题，请重试'}
+          <CardTitle className="text-green-600">登录成功</CardTitle>
+          <CardDescription>
+            正在为您跳转...
           </CardDescription>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* 加载状态 */}
-          {status === 'loading' && (
-            <div className="text-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-sm text-gray-600">正在验证您的身份...</p>
-            </div>
-          )}
-
-          {/* 成功状态 */}
-          {status === 'success' && (
-            <div className="space-y-4">
-              <Alert>
-                <AlertDescription>
-                  ✅ 登录成功！正在为您跳转到应用首页...
-                </AlertDescription>
-              </Alert>
-              
-              {userInfo && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h4 className="font-medium text-green-800 mb-2">用户信息</h4>
-                  <div className="text-sm text-green-700 space-y-1">
-                    {userInfo.username && (
-                      <p>用户名: {userInfo.username}</p>
-                    )}
-                    {userInfo.email && (
-                      <p>邮箱: {userInfo.email}</p>
-                    )}
-                    {userInfo.nickname && (
-                      <p>昵称: {userInfo.nickname}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              <div className="text-center">
-                <Button onClick={handleGoHome} variant="outline">
-                  立即跳转
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* 错误状态 */}
-          {status === 'error' && (
-            <div className="space-y-4">
-              <Alert variant="destructive">
-                <AlertDescription>
-                  ❌ {error}
-                </AlertDescription>
-              </Alert>
-              
-              <div className="text-center space-y-3">
-                <Button onClick={handleRetry} className="w-full">
-                  重新登录
-                </Button>
-                <Button onClick={handleGoHome} variant="outline" className="w-full">
-                  返回首页
-                </Button>
-              </div>
-              
-              <div className="text-center text-sm text-gray-500">
-                <p>如果问题持续存在，请联系技术支持</p>
-              </div>
-            </div>
-          )}
-
-          {/* 调试信息 */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-700 mb-2">调试信息</h4>
-              <div className="text-xs text-gray-600 space-y-1">
-                <p>当前状态: {status}</p>
-                <p>URL: {window.location.href}</p>
-                <p>重定向来源: {location.state?.from?.pathname || '无'}</p>
-                {userInfo && (
-                  <p>用户ID: {userInfo.id}</p>
-                )}
-              </div>
-            </div>
-          )}
+        <CardContent className="text-center">
+          <div className="text-green-500 mb-4">
+            <svg className="w-12 h-12 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <p className="text-gray-600">登录验证成功，正在跳转...</p>
         </CardContent>
       </Card>
     </div>

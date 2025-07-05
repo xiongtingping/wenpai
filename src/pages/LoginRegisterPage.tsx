@@ -43,7 +43,7 @@ export default function LoginRegisterPage() {
   });
 
   const { toast } = useToast();
-  const { login } = useUserStore();
+  // 移除 userStore 的 login 方法，使用新的认证上下文
   // const navigate = useNavigate();
   
   // Check if we should show registration form based on URL params
@@ -105,8 +105,7 @@ export default function LoginRegisterPage() {
     
     // Simulate login process
     setTimeout(() => {
-      // Use the store's login method
-      login(loginData.username, loginData.username + '@example.com');
+      // 简化处理，直接跳转
       
       toast({
         title: "登录成功",
@@ -261,8 +260,7 @@ export default function LoginRegisterPage() {
     
     // For demo purposes, simulate API call
     setTimeout(() => {
-      // Use the store's login method
-      login(formData.phone, formData.email);
+      // 简化处理，直接跳转
       
       toast({
         title: "注册成功",

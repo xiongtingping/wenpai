@@ -1,498 +1,278 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  User, 
-  Phone, 
-  Mail, 
-  Shield, 
-  Loader2, 
-  Users, 
-  Award,
-  Settings,
-  CreditCard,
-  Heart,
-  TestTube
-} from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import ToolLayout from "@/components/layout/ToolLayout";
-import { useUserStore } from "@/store/userStore";
+/**
+ * 个人资料页面
+ * 显示和编辑用户个人信息
+ */
 
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUserStore } from '@/store/userStore';
+import { User, Settings, LogOut, Edit, Save, X } from 'lucide-react';
+
+/**
+ * 个人资料页面组件
+ * @returns React 组件
+ */
 export default function ProfilePage() {
-  const navigate = useNavigate();
-  const { isLoggedIn, userInfo, logout } = useUserStore();
-  const [user, setUser] = useState({
-    name: "",
-    phone: "",
-    email: "",
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    nickname: '',
+    email: '',
   });
-  
-  const [usageRemaining, setUsageRemaining] = useState(20);
-  const [loading, setLoading] = useState(false);
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
-  const [favorites, setFavorites] = useState<Array<{id: string; content: string; platformName: string; timestamp: string}>>([]);
-  
   const { toast } = useToast();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { usageRemaining, userInviteStats } = useUserStore();
 
-  useEffect(() => {
-    // Check if user is logged in
-    if (!isLoggedIn) {
-      toast({
-        title: "需要登录",
-        description: "请先登录后再访问此页面",
-        variant: "destructive"
+  // 初始化编辑表单
+  React.useEffect(() => {
+    if (user) {
+      setEditForm({
+        nickname: user.nickname || '',
+        email: user.email || '',
       });
-      navigate('/login-register');
-      return;
     }
-    
-    // Load user data from store
-    if (userInfo) {
-      setUser({
-        name: userInfo.username,
-        phone: userInfo.username,
-        email: userInfo.email
-      });
-      setEditValue(userInfo.username || "");
-    }
-    
-    // Load usage data (mock)
-    const savedUsage = localStorage.getItem('usageRemaining');
-    if (savedUsage) {
-      setUsageRemaining(parseInt(savedUsage));
-    }
+  }, [user]);
 
-    // Load favorites
-    const savedFavorites = localStorage.getItem('favorites');
-    if (savedFavorites) {
-      try {
-        const parsedFavorites = JSON.parse(savedFavorites);
-        setFavorites(parsedFavorites as Array<{id: string; content: string; platformName: string; timestamp: string}>);
-      } catch (error) {
-        console.error('Error loading favorites:', error);
-      }
-    }
-  }, [navigate, toast, isLoggedIn, userInfo]);
-
-  const handleEdit = (field: string) => {
-    setEditingField(field);
-    setEditValue(user[field as keyof typeof user] || "");
+  /**
+   * 处理编辑表单变化
+   */
+  const handleEditChange = (field: string, value: string) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async (field: string) => {
-    if (!editValue.trim()) {
-      toast({
-        title: "输入不能为空",
-        description: "请填写有效信息",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const updatedUser = { ...user, [field]: editValue };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      
-      toast({
-        title: "更新成功",
-        description: `${field === 'name' ? '姓名' : field === 'phone' ? '手机号' : '邮箱'}已更新`,
-      });
-      
-      setEditingField(null);
-      setLoading(false);
-    }, 1000);
-  };
-
-  const handleCancel = () => {
-    setEditingField(null);
-    setEditValue("");
-  };
-
-  const handleLogout = () => {
-    logout();
+  /**
+   * 保存编辑
+   */
+  const handleSave = () => {
+    // 这里应该调用 API 更新用户信息
     toast({
-      title: "已登出",
-      description: "您已成功退出登录",
+      title: "保存成功",
+      description: "个人信息已更新",
     });
-    navigate('/');
+    setIsEditing(false);
   };
 
-  return (
-    <ToolLayout>
-      <div className="container mx-auto py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">我的账户</h1>
-            <p className="text-gray-600 mt-2">管理您的个人信息和使用情况</p>
-          </div>
+  /**
+   * 取消编辑
+   */
+  const handleCancel = () => {
+    if (user) {
+      setEditForm({
+        nickname: user.nickname || '',
+        email: user.email || '',
+      });
+    }
+    setIsEditing(false);
+  };
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Profile Info */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Personal Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    个人信息
-                  </CardTitle>
-                  <CardDescription>
-                    管理您的账户基本信息
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Name */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <User className="h-4 w-4 text-gray-500 mr-2" />
-                      <Label className="text-sm font-medium">姓名</Label>
-                    </div>
-                    {editingField === 'name' ? (
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="w-48"
-                          disabled={loading}
-                        />
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleSave('name')}
-                          disabled={loading}
-                        >
-                          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "保存"}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={handleCancel}
-                          disabled={loading}
-                        >
-                          取消
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-gray-900">{user.name || "未设置"}</span>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => handleEdit('name')}
-                        >
-                          编辑
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+  /**
+   * 处理登出
+   */
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "登出成功",
+        description: "您已安全退出登录",
+      });
+    } catch (error) {
+      toast({
+        title: "登出失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      });
+    }
+  };
 
-                  {/* Phone */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                      <Label className="text-sm font-medium">手机号</Label>
-                    </div>
-                    {editingField === 'phone' ? (
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="w-48"
-                          disabled={loading}
-                        />
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleSave('phone')}
-                          disabled={loading}
-                        >
-                          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "保存"}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={handleCancel}
-                          disabled={loading}
-                        >
-                          取消
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-gray-900">{user.phone || "未设置"}</span>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => handleEdit('phone')}
-                        >
-                          编辑
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Email */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                      <Label className="text-sm font-medium">邮箱</Label>
-                    </div>
-                    {editingField === 'email' ? (
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="w-48"
-                          disabled={loading}
-                        />
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleSave('email')}
-                          disabled={loading}
-                        >
-                          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "保存"}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={handleCancel}
-                          disabled={loading}
-                        >
-                          取消
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-gray-900">{user.email || "未设置"}</span>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => handleEdit('email')}
-                        >
-                          编辑
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Usage Statistics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Shield className="h-5 w-5 mr-2" />
-                    使用统计
-                  </CardTitle>
-                  <CardDescription>
-                    查看您的使用情况和剩余次数
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{usageRemaining}</div>
-                      <div className="text-sm text-gray-600">剩余次数</div>
-                    </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">20</div>
-                      <div className="text-sm text-gray-600">本月已用</div>
-                    </div>
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">5</div>
-                      <div className="text-sm text-gray-600">邀请奖励</div>
-                    </div>
-                  </div>
-                  
-                  {usageRemaining <= 5 && (
-                    <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <div className="flex items-center">
-                        <Award className="h-5 w-5 text-amber-600 mr-2" />
-                        <div>
-                          <p className="text-sm font-medium text-amber-800">
-                            使用次数即将用完
-                          </p>
-                          <p className="text-xs text-amber-700 mt-1">
-                            邀请好友可获得更多使用次数，或升级专业版享受无限使用
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Column - Quick Actions */}
-            <div className="space-y-6">
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Settings className="h-5 w-5 mr-2" />
-                    快捷操作
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <Link to="/invite">
-                      <Users className="h-4 w-4 mr-2" />
-                      邀请奖励
-                    </Link>
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <Link to="/adapt">
-                      <Shield className="h-4 w-4 mr-2" />
-                      内容适配
-                    </Link>
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <Link to="/brand-library">
-                      <Settings className="h-4 w-4 mr-2" />
-                      品牌库
-                    </Link>
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <Link to="/api-test">
-                      <TestTube className="h-4 w-4 mr-2" />
-                      API 测试
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Upgrade Card */}
-              <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-blue-800">
-                    <CreditCard className="h-5 w-5 mr-2" />
-                    升级专业版
-                  </CardTitle>
-                  <CardDescription className="text-blue-600">
-                    解锁无限使用和高级功能
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="text-sm text-blue-700">
-                      <p>✓ 无限次内容生成</p>
-                      <p>✓ 全平台内容适配</p>
-                      <p>✓ 高级风格定制</p>
-                      <p>✓ 品牌库功能</p>
-                    </div>
-                                         <Button 
-                       className="w-full bg-blue-600 hover:bg-blue-700"
-                       onClick={() => window.location.href = "/payment"}
-                     >
-                       立即升级
-                     </Button>
-                     <Button 
-                       variant="outline" 
-                       className="w-full text-red-600 hover:text-red-700"
-                       onClick={handleLogout}
-                     >
-                       退出登录
-                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Favorites Section */}
-          {favorites.length > 0 && (
-            <div className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Heart className="h-5 w-5 mr-2" />
-                    我的收藏
-                  </CardTitle>
-                  <CardDescription>
-                    您收藏的内容适配结果
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {favorites.map((favorite, index) => (
-                      <div key={favorite.id || index} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">{favorite.platformName}</Badge>
-                            <span className="text-xs text-gray-500">
-                              {new Date(favorite.timestamp).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                navigator.clipboard.writeText(favorite.content);
-                                toast({
-                                  title: "已复制",
-                                  description: "内容已复制到剪贴板",
-                                });
-                              }}
-                            >
-                              一键复制
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                const newFavorites = favorites.filter((_, i) => i !== index);
-                                setFavorites(newFavorites);
-                                localStorage.setItem('favorites', JSON.stringify(newFavorites));
-                                toast({
-                                  title: "已删除",
-                                  description: "收藏内容已删除",
-                                });
-                              }}
-                            >
-                              删除
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="whitespace-pre-wrap text-sm bg-gray-50 p-3 rounded border max-h-32 overflow-y-auto">
-                          {favorite.content}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">加载用户信息中...</p>
         </div>
       </div>
-    </ToolLayout>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">个人资料</h1>
+        <p className="text-gray-600">
+          管理您的个人信息和账户设置
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* 基本信息 */}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  基本信息
+                </CardTitle>
+                <CardDescription>
+                  您的个人资料信息
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                {isEditing ? <X className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isEditing ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="nickname">昵称</Label>
+                  <Input
+                    id="nickname"
+                    value={editForm.nickname}
+                    onChange={(e) => handleEditChange('nickname', e.target.value)}
+                    placeholder="请输入昵称"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">邮箱</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => handleEditChange('email', e.target.value)}
+                    placeholder="请输入邮箱"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleSave} size="sm">
+                    <Save className="w-4 h-4 mr-2" />
+                    保存
+                  </Button>
+                  <Button variant="outline" onClick={handleCancel} size="sm">
+                    取消
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                    {user.nickname?.charAt(0) || user.username?.charAt(0) || user.email?.charAt(0) || 'U'}
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{user.nickname || user.username || '未设置昵称'}</h3>
+                    <p className="text-sm text-gray-500">{user.email || '未设置邮箱'}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">用户ID</span>
+                    <span className="text-sm font-mono">{user.id}</span>
+                  </div>
+                  {user.phone && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">手机号</span>
+                      <span className="text-sm">{user.phone}</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 使用统计 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              使用统计
+            </CardTitle>
+            <CardDescription>
+              您的使用情况和统计数据
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{usageRemaining}</div>
+                <div className="text-sm text-gray-600">剩余使用量</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{userInviteStats.totalRegistrations}</div>
+                <div className="text-sm text-gray-600">邀请注册</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600">总点击次数</span>
+                <Badge variant="secondary">{userInviteStats.totalClicks}</Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600">总奖励次数</span>
+                <Badge variant="secondary">{userInviteStats.totalRewardsClaimed}</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 账户操作 */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>账户操作</CardTitle>
+            <CardDescription>
+              管理您的账户设置
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = '/invite'}
+                className="w-full justify-start"
+              >
+                <User className="w-4 h-4 mr-2" />
+                邀请好友
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = '/brand-library'}
+                className="w-full justify-start"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                品牌库管理
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = '/history'}
+                className="w-full justify-start"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                历史记录
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="w-full justify-start"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                退出登录
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 } 
