@@ -20,7 +20,7 @@
 
 ```
 VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
-VITE_AUTHING_HOST=https://你的-authing-域名.authing.cn
+VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 VITE_AUTHING_REDIRECT_URI_PROD=https://你的-netlify子域名.netlify.app/callback
 ```
 

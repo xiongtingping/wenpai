@@ -10,7 +10,7 @@ const appId = '6867fdc88034eb95ae86167d';
  * Authing 配置
  */
 const config = {
-  host: 'https://你的-authing-域名.authing.cn', // TODO: 替换为你的 Authing 域名
+  host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的 Authing 域名
   redirectUri: window.location.origin + '/callback',
 };
 

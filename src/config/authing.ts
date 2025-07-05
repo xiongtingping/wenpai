@@ -23,8 +23,8 @@ export interface AuthingConfig {
  * 开发环境配置
  */
 const devConfig: AuthingConfig = {
-  appId: '你的AppID', // 请替换为您的实际 AppID
-  host: 'https://你的-authing-域名.authing.cn', // 请替换为您的实际域名
+  appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
+  host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
   redirectUri: 'http://localhost:5173/callback', // 开发环境回调地址
   mode: 'modal',
   defaultScene: 'login',
@@ -34,8 +34,8 @@ const devConfig: AuthingConfig = {
  * 生产环境配置
  */
 const prodConfig: AuthingConfig = {
-  appId: '你的AppID', // 请替换为您的实际 AppID
-  host: 'https://你的-authing-域名.authing.cn', // 请替换为您的实际域名
+  appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
+  host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
   redirectUri: 'https://你的-netlify地址.netlify.app/callback', // 生产环境回调地址
   mode: 'modal',
   defaultScene: 'login',
