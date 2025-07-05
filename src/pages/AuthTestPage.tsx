@@ -11,7 +11,7 @@ export default function AuthTestPage() {
     status, 
     showLogin, 
     logout, 
-    guard,
+    authing,
     isInitialized 
   } = useAuth();
 
@@ -42,10 +42,10 @@ export default function AuthTestPage() {
               <strong>是否加载中:</strong> {isLoading ? '是' : '否'}
             </div>
             <div>
-              <strong>Guard已初始化:</strong> {isInitialized ? '是' : '否'}
+              <strong>Authing已初始化:</strong> {isInitialized ? '是' : '否'}
             </div>
             <div>
-              <strong>Guard实例:</strong> {guard ? '存在' : '不存在'}
+              <strong>Authing实例:</strong> {authing ? '存在' : '不存在'}
             </div>
           </div>
 
@@ -73,6 +73,7 @@ export default function AuthTestPage() {
             <p>调试信息:</p>
             <p>- 如果点击"显示登录窗口"没有反应，请检查浏览器控制台的错误信息</p>
             <p>- 确保 Authing 配置正确，网络连接正常</p>
+            <p>- 使用 authing-js-sdk 的 AuthenticationClient</p>
           </div>
         </CardContent>
       </Card>

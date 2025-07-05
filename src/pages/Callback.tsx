@@ -6,6 +6,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { AuthenticationClient } from 'authing-js-sdk';
+import { getAuthingConfig } from '@/config/authing';
 
 /**
  * 认证回调页面组件
@@ -34,16 +36,44 @@ const Callback: React.FC = () => {
           return;
         }
 
-        // 重新检查认证状态
-        await checkAuth();
-        
-        setStatus('success');
-        setMessage('认证成功！正在跳转...');
+        // 获取授权码
+        const code = searchParams.get('code');
+        const state = searchParams.get('state');
 
-        // 延迟跳转，让用户看到成功消息
-        setTimeout(() => {
-          navigate('/', { replace: true });
-        }, 1500);
+        if (!code) {
+          setStatus('error');
+          setMessage('缺少授权码');
+          return;
+        }
+
+        // 创建临时的 AuthenticationClient 来处理回调
+        const config = getAuthingConfig();
+        const authingClient = new AuthenticationClient({
+          appId: config.appId,
+          appHost: config.host,
+        });
+
+        try {
+          // 使用授权码获取用户信息
+          const userInfo = await authingClient.getAccessTokenByCode(code, config.redirectUri);
+          console.log('获取到用户信息:', userInfo);
+
+          // 重新检查认证状态
+          await checkAuth();
+          
+          setStatus('success');
+          setMessage('认证成功！正在跳转...');
+
+          // 延迟跳转，让用户看到成功消息
+          setTimeout(() => {
+            navigate('/', { replace: true });
+          }, 1500);
+
+        } catch (tokenError) {
+          console.error('获取访问令牌失败:', tokenError);
+          setStatus('error');
+          setMessage(`获取访问令牌失败: ${tokenError instanceof Error ? tokenError.message : '未知错误'}`);
+        }
 
       } catch (error) {
         console.error('处理认证回调失败:', error);

@@ -4,8 +4,8 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { Guard } from '@authing/guard-react';
-import { getAuthingConfig, getGuardConfig } from '@/config/authing';
+import { AuthenticationClient } from 'authing-js-sdk';
+import { getAuthingConfig } from '@/config/authing';
 
 /**
  * 用户信息接口
@@ -44,7 +44,7 @@ interface AuthContextType {
   // Guard 相关
   showLogin: () => Promise<void>;
   hideLogin: () => void;
-  guard: Guard | null;
+  authing: AuthenticationClient | null;
 }
 
 /**
@@ -67,197 +67,148 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [status, setStatus] = useState<AuthStatus>('loading');
-  const [guard, setGuard] = useState<Guard | null>(null);
+  const [authing, setAuthing] = useState<AuthenticationClient | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Guard初始化只执行一次
+  // 初始化 AuthenticationClient
   useEffect(() => {
-    console.log('Initializing Guard...');
+    console.log('Initializing AuthenticationClient...');
     try {
-      const config = getGuardConfig();
-      console.log('Guard config:', config);
+      const config = getAuthingConfig();
+      console.log('Authing config:', config);
       
-      const guardInstance = new Guard({
-        ...config,
-        history: {
-          push: (path: string) => {
-            // 使用 window.location 进行导航
-            console.log('Guard navigation to:', path);
-            window.location.href = path;
-          }
+      const authingClient = new AuthenticationClient({
+        appId: config.appId,
+        appHost: config.host,
+        onError: (code, message, data) => {
+          console.error('Authing error:', { code, message, data });
         }
-      } as any);
-      
-      console.log('Guard instance created:', guardInstance);
-      
-      // 不再绑定 guard.on('push', ...)
-      guardInstance.on('login', (userInfo: any) => {
-        console.log('Login event triggered:', userInfo);
-        const convertedUser: User = {
-          id: String(userInfo.id || userInfo.userId || ''),
-          username: String(userInfo.username || userInfo.nickname || ''),
-          email: String(userInfo.email || ''),
-          phone: String(userInfo.phone || ''),
-          nickname: String(userInfo.nickname || userInfo.username || ''),
-          avatar: String(userInfo.photo || userInfo.avatar || ''),
-          ...((userInfo as unknown) as Record<string, unknown>)
-        };
-        setUser(convertedUser);
-        setStatus('authenticated');
-      });
-      guardInstance.on('register', (userInfo: any) => {
-        console.log('Register event triggered:', userInfo);
-        const convertedUser: User = {
-          id: String(userInfo.id || userInfo.userId || ''),
-          username: String(userInfo.username || userInfo.nickname || ''),
-          email: String(userInfo.email || ''),
-          phone: String(userInfo.phone || ''),
-          nickname: String(userInfo.nickname || userInfo.username || ''),
-          avatar: String(userInfo.photo || userInfo.avatar || ''),
-          ...((userInfo as unknown) as Record<string, unknown>)
-        };
-        setUser(convertedUser);
-        setStatus('authenticated');
-      });
-      // 修复类型错误：'logout'事件绑定加any断言
-      (guardInstance as any).on('logout', () => {
-        console.log('Logout event triggered');
-        setUser(null);
-        setStatus('unauthenticated');
       });
       
-      setGuard(guardInstance);
+      console.log('AuthenticationClient created:', authingClient);
+      setAuthing(authingClient);
       setIsInitialized(true);
-      console.log('Guard initialization completed');
+      console.log('AuthenticationClient initialization completed');
     } catch (error) {
-      console.error('初始化 Guard 失败:', error);
+      console.error('初始化 AuthenticationClient 失败:', error);
       setStatus('unauthenticated');
       setIsInitialized(false);
-      setGuard(null);
+      setAuthing(null);
     }
   }, []);
 
   const checkAuth = useCallback(async () => {
-    if (!guard) {
+    if (!authing) {
       setStatus('unauthenticated');
       return;
     }
     setStatus('loading');
     try {
-      const loginStatus = await guard.checkLoginStatus();
-      if (loginStatus) {
-        const userInfo = await guard.trackSession();
-        if (userInfo) {
-          const convertedUser: User = {
-            id: String((userInfo as any).id || (userInfo as any).userId || ''),
-            username: String((userInfo as any).username || (userInfo as any).nickname || ''),
-            email: String((userInfo as any).email || ''),
-            phone: String((userInfo as any).phone || ''),
-            nickname: String((userInfo as any).nickname || (userInfo as any).username || ''),
-            avatar: String((userInfo as any).photo || (userInfo as any).avatar || ''),
-            ...((userInfo as unknown) as Record<string, unknown>)
-          };
-          setUser(convertedUser);
-          setStatus('authenticated');
-        } else {
-          setUser(null);
-          setStatus('unauthenticated');
-        }
+      // 检查是否有缓存的用户信息
+      const currentUser = await authing.getCurrentUser();
+      if (currentUser) {
+        const convertedUser: User = {
+          id: String(currentUser.id || ''),
+          username: String(currentUser.username || currentUser.nickname || ''),
+          email: String(currentUser.email || ''),
+          phone: String(currentUser.phone || ''),
+          nickname: String(currentUser.nickname || currentUser.username || ''),
+          avatar: String(currentUser.photo || ''),
+          ...((currentUser as unknown) as Record<string, unknown>)
+        };
+        setUser(convertedUser);
+        setStatus('authenticated');
       } else {
         setUser(null);
         setStatus('unauthenticated');
       }
     } catch (error) {
+      console.log('No authenticated user found');
       setUser(null);
       setStatus('unauthenticated');
     }
-  }, [guard]);
+  }, [authing]);
 
   const login = useCallback(async () => {
-    if (!guard) return;
+    if (!authing) return;
     try {
-      await guard.startWithRedirect();
+      // 使用社会化登录或重定向登录
+      const url = await authing.buildAuthorizeUrl({
+        redirectUri: getAuthingConfig().redirectUri,
+        scope: 'openid profile email phone',
+        state: Math.random().toString(36).substring(7),
+      });
+      window.location.href = url;
     } catch (error) {
-      try {
-        guard.show();
-      } catch (modalError) {
-        console.error('Modal login also failed:', modalError);
-      }
+      console.error('Login failed:', error);
     }
-  }, [guard]);
+  }, [authing]);
 
   const register = useCallback(async () => {
-    if (!guard) return;
+    if (!authing) return;
     try {
-      await guard.startWithRedirect();
+      // 注册也使用相同的重定向方式
+      const url = await authing.buildAuthorizeUrl({
+        redirectUri: getAuthingConfig().redirectUri,
+        scope: 'openid profile email phone',
+        state: Math.random().toString(36).substring(7),
+      });
+      window.location.href = url;
     } catch (error) {
-      try {
-        guard.show();
-      } catch (modalError) {
-        console.error('Modal register also failed:', modalError);
-      }
+      console.error('Register failed:', error);
     }
-  }, [guard]);
+  }, [authing]);
 
   const logout = useCallback(async () => {
-    if (guard) {
+    if (authing) {
       try {
-        await guard.logout();
+        await authing.logout();
+        setUser(null);
+        setStatus('unauthenticated');
       } catch (error) {
         console.error('Logout failed:', error);
       }
     }
-  }, [guard]);
+  }, [authing]);
 
-  // showLogin 现在为 async，确保 guard 已初始化
   const showLogin = useCallback(async () => {
-    console.log('showLogin called, isInitialized:', isInitialized, 'guard:', guard);
+    console.log('showLogin called, isInitialized:', isInitialized, 'authing:', authing);
     
     if (!isInitialized) {
-      console.log('Guard not initialized yet, waiting...');
-      // 等待一段时间后重试
+      console.log('AuthenticationClient not initialized yet, waiting...');
       setTimeout(async () => {
-        if (guard) {
+        if (authing) {
           console.log('Retrying showLogin after delay...');
-          try {
-            await guard.show();
-          } catch (e) {
-            console.error('Retry Guard.show() failed:', e);
-            try {
-              await guard.startWithRedirect();
-            } catch (redirectError) {
-              console.error('Retry redirect fallback also failed:', redirectError);
-            }
-          }
+          await login();
         }
       }, 1000);
       return;
     }
     
-    if (!guard) {
-      console.error('Guard is null even though initialized');
+    if (!authing) {
+      console.error('AuthenticationClient is null even though initialized');
       return;
     }
     
     try {
-      console.log('Calling guard.show()...');
-      await guard.show();
+      console.log('Calling login...');
+      await login();
     } catch (e) {
-      console.error('Guard.show() failed, trying redirect fallback:', e);
-      try {
-        console.log('Calling guard.startWithRedirect()...');
-        await guard.startWithRedirect();
-      } catch (redirectError) {
-        console.error('Redirect fallback also failed:', redirectError);
-      }
+      console.error('Login failed:', e);
     }
-  }, [isInitialized, guard]);
+  }, [isInitialized, authing, login]);
 
   const hideLogin = useCallback(() => {
-    if (guard) {
-      guard.hide();
+    // AuthenticationClient 没有 hide 方法，这里可以忽略
+    console.log('hideLogin called (no-op for AuthenticationClient)');
+  }, []);
+
+  // 初始化时检查认证状态
+  useEffect(() => {
+    if (isInitialized && authing) {
+      checkAuth();
     }
-  }, [guard]);
+  }, [isInitialized, authing, checkAuth]);
 
   const value: AuthContextType = {
     user,
@@ -270,7 +221,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth,
     showLogin,
     hideLogin,
-    guard
+    authing
   };
 
   return (
