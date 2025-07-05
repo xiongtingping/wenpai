@@ -5,7 +5,8 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { Guard } from '@authing/guard-react';
-import { getAuthingConfig } from '@/config/authing';
+import { getAuthingConfig, getGuardConfig } from '@/config/authing';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 用户信息接口
@@ -69,56 +70,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [guard, setGuard] = useState<Guard | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const navigate = useNavigate();
 
   // Guard初始化只执行一次
   useEffect(() => {
-    const initGuard = async () => {
-      try {
-        const config = getAuthingConfig();
-        const guardInstance = new Guard(config);
-        // 事件绑定必须在实例化后
-        guardInstance.on('login', (userInfo: any) => {
-          const convertedUser: User = {
-            id: String(userInfo.id || userInfo.userId || ''),
-            username: String(userInfo.username || userInfo.nickname || ''),
-            email: String(userInfo.email || ''),
-            phone: String(userInfo.phone || ''),
-            nickname: String(userInfo.nickname || userInfo.username || ''),
-            avatar: String(userInfo.photo || userInfo.avatar || ''),
-            ...((userInfo as unknown) as Record<string, unknown>)
-          };
-          setUser(convertedUser);
-          setStatus('authenticated');
-        });
-        guardInstance.on('register', (userInfo: any) => {
-          const convertedUser: User = {
-            id: String(userInfo.id || userInfo.userId || ''),
-            username: String(userInfo.username || userInfo.nickname || ''),
-            email: String(userInfo.email || ''),
-            phone: String(userInfo.phone || ''),
-            nickname: String(userInfo.nickname || userInfo.username || ''),
-            avatar: String(userInfo.photo || userInfo.avatar || ''),
-            ...((userInfo as unknown) as Record<string, unknown>)
-          };
-          setUser(convertedUser);
-          setStatus('authenticated');
-        });
-        // 修复类型错误：'logout'事件绑定加any断言
-        (guardInstance as any).on('logout', () => {
-          setUser(null);
-          setStatus('unauthenticated');
-        });
-        setGuard(guardInstance);
-        setIsInitialized(true);
-      } catch (error) {
+    try {
+      const config = getGuardConfig();
+      const guardInstance = new Guard({
+        ...config,
+        history: {
+          push: (path: string) => {
+            navigate(path);
+          }
+        }
+      } as any);
+      // 不再绑定 guard.on('push', ...)
+      guardInstance.on('login', (userInfo: any) => {
+        const convertedUser: User = {
+          id: String(userInfo.id || userInfo.userId || ''),
+          username: String(userInfo.username || userInfo.nickname || ''),
+          email: String(userInfo.email || ''),
+          phone: String(userInfo.phone || ''),
+          nickname: String(userInfo.nickname || userInfo.username || ''),
+          avatar: String(userInfo.photo || userInfo.avatar || ''),
+          ...((userInfo as unknown) as Record<string, unknown>)
+        };
+        setUser(convertedUser);
+        setStatus('authenticated');
+      });
+      guardInstance.on('register', (userInfo: any) => {
+        const convertedUser: User = {
+          id: String(userInfo.id || userInfo.userId || ''),
+          username: String(userInfo.username || userInfo.nickname || ''),
+          email: String(userInfo.email || ''),
+          phone: String(userInfo.phone || ''),
+          nickname: String(userInfo.nickname || userInfo.username || ''),
+          avatar: String(userInfo.photo || userInfo.avatar || ''),
+          ...((userInfo as unknown) as Record<string, unknown>)
+        };
+        setUser(convertedUser);
+        setStatus('authenticated');
+      });
+      // 修复类型错误：'logout'事件绑定加any断言
+      (guardInstance as any).on('logout', () => {
+        setUser(null);
         setStatus('unauthenticated');
-        setIsInitialized(false);
-        setGuard(null);
-        console.error('初始化 Guard 失败:', error);
-      }
-    };
-    initGuard();
-  }, []);
+      });
+      setGuard(guardInstance);
+      setIsInitialized(true);
+    } catch (error) {
+      setStatus('unauthenticated');
+      setIsInitialized(false);
+      setGuard(null);
+      console.error('初始化 Guard 失败:', error);
+    }
+  }, [navigate]);
 
   const checkAuth = useCallback(async () => {
     if (!guard) {
