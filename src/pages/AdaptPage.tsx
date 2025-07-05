@@ -375,11 +375,11 @@ export default function AdaptPage() {
       initialShowSettings[platform.id] = false;
     });
     setShowSettings(initialShowSettings);
-  }, []);
+  }, [initializeDefaultSettings, platforms]);
 
   useEffect(() => {
     initializeDefaultSettings();
-  }, [platforms]);
+  }, [initializeDefaultSettings]);
 
   // Character count display
   const contentCharCount = originalContent.length;
@@ -463,8 +463,7 @@ export default function AdaptPage() {
 
   // 生成内容后保存到历史记录
   const saveToHistory = (results: PlatformResult[]) => {
-    const { userInfo } = useUserStore.getState();
-    const username = userInfo?.username || 'anonymous';
+    const username = 'anonymous'; // 简化处理，使用固定用户名
     const historyKey = `history_${username}`;
     
     const old = localStorage.getItem(historyKey);

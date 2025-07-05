@@ -26,7 +26,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useUserStore, Invitation } from "@/store/userStore";
+import { useUserStore } from "@/store/userStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -39,7 +39,7 @@ function InvitePage() {
   const weeklyClickRewards = useUserStore((state) => state.weeklyClickRewards);
   const usageRemaining = useUserStore((state) => state.usageRemaining);
   
-  const [newInviteLink, setNewInviteLink] = useState<Invitation | null>(null);
+  const [newInviteLink, setNewInviteLink] = useState<any>(null);
 
   // Base URL for invites
   const baseUrl = window.location.origin;
@@ -59,31 +59,18 @@ function InvitePage() {
     const expirationDate = new Date();
     expirationDate.setDate(now.getDate() + 7);
 
-    const newInvite: Invitation = {
-      id: Date.now().toString(),
+    const newInvite = {
       code: generateInviteCode(),
       createdAt: now.toISOString(),
-      expiresAt: expirationDate.toISOString(),
       clicks: 0,
       registrations: 0,
-      rewardsClaimed: 0,
     };
 
     // In a real app, we'd also save this to the backend
     setNewInviteLink(newInvite);
   };
 
-  // Calculate the remaining valid time for an invite link
-  const getRemainingTime = (expiresAt: string): string => {
-    const expiration = new Date(expiresAt);
-    const now = new Date();
-    const diffTime = expiration.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays <= 0) return "已过期";
-    if (diffDays === 1) return "剩余1天";
-    return `剩余${diffDays}天`;
-  };
+  // 简化处理，移除过期时间逻辑
 
   // Calculate total rewards from invites
   const calculateTotalRewards = (): number => {
@@ -167,7 +154,7 @@ function InvitePage() {
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
-                        <span>每个邀请链接有效期为 7 天</span>
+                        <span>邀请链接长期有效</span>
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
@@ -178,9 +165,9 @@ function InvitePage() {
                 </div>
               </CardContent>
               <CardFooter className="bg-gray-50 p-4 border-t flex justify-between">
-                <div className="flex items-center text-sm text-gray-500">
-                  <Clock className="h-4 w-4 mr-1" /> 邀请链接 7 天有效
-                </div>
+                                  <div className="flex items-center text-sm text-gray-500">
+                    <Clock className="h-4 w-4 mr-1" /> 邀请链接长期有效
+                  </div>
                 <div className="flex space-x-2">
                   <Button variant="outline" onClick={createNewInviteLink}>
                     <RefreshCw className="h-4 w-4 mr-1" /> 创建新链接
@@ -250,7 +237,7 @@ function InvitePage() {
                   新邀请链接已创建
                 </CardTitle>
                 <CardDescription>
-                  分享以下链接给您的好友，有效期 7 天
+                  分享以下链接给您的好友
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -272,7 +259,7 @@ function InvitePage() {
                 </div>
                 <p className="mt-3 text-sm text-gray-500 flex items-center">
                   <Clock className="h-4 w-4 mr-1" /> 
-                  {getRemainingTime(newInviteLink.expiresAt)} (有效期至 {new Date(newInviteLink.expiresAt).toLocaleDateString()})
+                  邀请链接已创建
                 </p>
               </CardContent>
             </Card>
@@ -323,7 +310,6 @@ function InvitePage() {
                     <TableRow>
                       <TableHead>邀请码</TableHead>
                       <TableHead>创建日期</TableHead>
-                      <TableHead>有效期至</TableHead>
                       <TableHead className="text-right">点击数</TableHead>
                       <TableHead className="text-right">注册数</TableHead>
                       <TableHead className="text-right">状态</TableHead>
@@ -332,36 +318,21 @@ function InvitePage() {
                   <TableBody>
                     {userInviteStats.invitationLinks.length > 0 ? (
                       userInviteStats.invitationLinks.map((invite) => (
-                        <TableRow key={invite.id}>
+                        <TableRow key={invite.code}>
                           <TableCell className="font-medium">{invite.code}</TableCell>
                           <TableCell>{new Date(invite.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell>{new Date(invite.expiresAt).toLocaleDateString()}</TableCell>
                           <TableCell className="text-right">{invite.clicks}</TableCell>
                           <TableCell className="text-right">{invite.registrations}</TableCell>
                           <TableCell className="text-right">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <Badge 
-                                    variant={new Date(invite.expiresAt) > new Date() ? "default" : "secondary"}
-                                    className={new Date(invite.expiresAt) > new Date() ? "bg-green-100 text-green-800 hover:bg-green-200" : ""}
-                                  >
-                                    {new Date(invite.expiresAt) > new Date() ? '有效' : '已过期'}
-                                  </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {new Date(invite.expiresAt) > new Date() 
-                                    ? getRemainingTime(invite.expiresAt) 
-                                    : `已于 ${new Date(invite.expiresAt).toLocaleDateString()} 过期`}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-200">
+                              有效
+                            </Badge>
                           </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-6 text-gray-500">
+                        <TableCell colSpan={5} className="text-center py-6 text-gray-500">
                           暂无邀请记录，创建一个新的邀请链接开始分享吧！
                         </TableCell>
                       </TableRow>
@@ -371,7 +342,6 @@ function InvitePage() {
                       <TableRow className="bg-green-50">
                         <TableCell className="font-medium">{newInviteLink.code}</TableCell>
                         <TableCell>{new Date(newInviteLink.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell>{new Date(newInviteLink.expiresAt).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">0</TableCell>
                         <TableCell className="text-right">0</TableCell>
                         <TableCell className="text-right">
