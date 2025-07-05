@@ -226,8 +226,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * 显示登录界面
    */
   const showLogin = useCallback(() => {
+    console.log('showLogin called, guard:', guard);
     if (guard) {
-      guard.show();
+      try {
+        guard.show();
+        console.log('Guard.show() called successfully');
+      } catch (error) {
+        console.error('Guard.show() failed:', error);
+        // 如果弹窗失败，尝试重定向登录
+        try {
+          (guard as any).loginWithRedirect();
+        } catch (redirectError) {
+          console.error('Login redirect also failed:', redirectError);
+        }
+      }
+    } else {
+      console.warn('Guard not initialized yet');
+      // 如果guard未初始化，尝试重新初始化
+      setTimeout(() => {
+        if (guard) {
+          guard.show();
+        } else {
+          console.error('Guard still not available after timeout');
+        }
+      }, 1000);
     }
   }, [guard]);
 

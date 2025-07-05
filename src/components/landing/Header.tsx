@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
 import UserAvatar from "@/components/auth/UserAvatar"
+import { useToast } from "@/hooks/use-toast"
 
 const HelpDocumentation = () => {
   const topics = [
@@ -63,6 +64,7 @@ const HelpDocumentation = () => {
 export function Header() {
   const isMobile = useIsMobile()
   const { user, isAuthenticated, showLogin } = useAuth()
+  const { toast } = useToast()
   
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
@@ -71,7 +73,6 @@ export function Header() {
         <Link to="/" className="flex items-center space-x-2">
           <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-8 w-8" />
           <span className="font-bold text-xl text-gray-800">文派</span>
-          <span className="text-sm text-gray-500">(www.aiwenpai.com)</span>
         </Link>
         
         {/* Desktop Menu */}
@@ -116,7 +117,18 @@ export function Header() {
                 showUsername={false}
               />
             ) : (
-              <Button onClick={showLogin} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => {
+                console.log('Login button clicked, showLogin:', showLogin);
+                if (typeof showLogin === 'function') {
+                  showLogin();
+                } else {
+                  toast({
+                    title: "登录服务未就绪",
+                    description: "请刷新页面后重试",
+                    variant: "destructive"
+                  });
+                }
+              }} className="bg-blue-600 hover:bg-blue-700">
                 登录/注册
               </Button>
             )}
@@ -164,7 +176,18 @@ export function Header() {
                     showUsername={true}
                   />
                 ) : (
-                  <Button onClick={showLogin} className="w-full bg-blue-600 hover:bg-blue-700">
+                  <Button onClick={() => {
+                    console.log('Mobile login button clicked, showLogin:', showLogin);
+                    if (typeof showLogin === 'function') {
+                      showLogin();
+                    } else {
+                      toast({
+                        title: "登录服务未就绪",
+                        description: "请刷新页面后重试",
+                        variant: "destructive"
+                      });
+                    }
+                  }} className="w-full bg-blue-600 hover:bg-blue-700">
                     登录/注册
                   </Button>
                 )}
