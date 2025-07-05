@@ -109,20 +109,12 @@ function InvitePage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
                     <Card className="bg-blue-50 border border-blue-100">
                       <CardContent className="p-4 text-center">
                         <p className="text-sm text-blue-600 font-medium">每邀请 1 人注册</p>
                         <p className="text-2xl font-bold text-blue-800 mt-1">+20 次</p>
-                        <p className="text-xs text-blue-600 mt-1">生成次数</p>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-purple-50 border border-purple-100">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-sm text-purple-600 font-medium">邀请奖励</p>
-                        <p className="text-2xl font-bold text-purple-800 mt-1">+20 次</p>
-                        <p className="text-xs text-purple-600 mt-1">双方获得</p>
+                        <p className="text-xs text-blue-600 mt-1">双方获得</p>
                       </CardContent>
                     </Card>
 
