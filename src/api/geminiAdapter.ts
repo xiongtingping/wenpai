@@ -9,13 +9,11 @@ import { AIApiResponse } from './contentAdapter';
  * 调用后端 Gemini 代理接口
  * @param systemPrompt 系统提示词
  * @param userPrompt 用户输入
- * @param platformId 平台标识（可用于日志或策略）
- * @returns AI 返回内容或模拟内容
+ * @returns AI 返回内容
  */
 export async function callGeminiAPI(
   systemPrompt: string,
-  userPrompt: string,
-  platformId: string
+  userPrompt: string
 ): Promise<AIApiResponse> {
   const prompt = `${systemPrompt}\n\n${userPrompt}`;
 
@@ -35,6 +33,10 @@ export async function callGeminiAPI(
     const content =
       data?.result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
+    if (!content) {
+      throw new Error('Gemini API 返回空内容');
+    }
+
     return {
       content,
       source: 'ai'
@@ -42,17 +44,6 @@ export async function callGeminiAPI(
   } catch (err: unknown) {
     console.error('Gemini Proxy API 出错:', err);
     const errorMessage = err instanceof Error ? err.message : '未知错误';
-    return {
-      content: generateSimulatedAIResponse(userPrompt, platformId),
-      source: 'simulation',
-      error: errorMessage
-    };
+    throw new Error(`Gemini API 调用失败: ${errorMessage}`);
   }
-}
-
-/**
- * 生成模拟 AI 返回内容（API 出错备用）
- */
-function generateSimulatedAIResponse(prompt: string, platformId: string): string {
-  return `[模拟 Gemini 响应] 平台 ${platformId} 的回答：\n\n${prompt}`;
 }

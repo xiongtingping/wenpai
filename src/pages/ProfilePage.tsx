@@ -76,15 +76,13 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast({
-        title: "登出成功",
-        description: "您已安全退出登录",
-      });
-    } catch (error) {
+      // 登出成功，页面会自动重定向
+    } catch (err) {
+      console.error('登出失败:', err);
       toast({
         title: "登出失败",
-        description: "请稍后重试",
-        variant: "destructive",
+        description: "请重试",
+        variant: "destructive"
       });
     }
   };

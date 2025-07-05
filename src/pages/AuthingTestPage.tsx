@@ -1,286 +1,162 @@
-import React, { useEffect, useRef } from 'react';
-import { useAuthing } from '@/hooks/useAuthing';
-
 /**
  * Authing 测试页面
- * 用于测试 Authing Guard 功能
+ * 用于测试 Authing 认证功能
+ */
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
+
+/**
+ * Authing 测试页面组件
+ * @returns React 组件
  */
 const AuthingTestPage: React.FC = () => {
-  const {
-    user,
-    loading,
-    isLoggedIn,
-    loginStatus,
-    login,
-    register,
-    logout,
-    showLogin,
-    hideLogin,
-    checkLoginStatus,
-    getCurrentUser,
-  } = useAuthing();
-
-  const guardContainerRef = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated, login, logout, checkAuth } = useAuth();
+  const [testResults, setTestResults] = useState<string[]>([]);
 
   /**
-   * 处理登录成功
+   * 添加测试结果
    */
-  const handleLoginSuccess = (user: any) => {
-    console.log('登录成功:', user);
-    alert(`登录成功！欢迎 ${user.nickname || user.username || user.email}`);
+  const addTestResult = (result: string) => {
+    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
   };
 
   /**
-   * 处理登录失败
+   * 测试登录功能
    */
-  const handleLoginError = (error: any) => {
-    console.error('登录失败:', error);
-    alert('登录失败，请重试');
-  };
-
-  /**
-   * 在容器中启动登录
-   */
-  const startLoginInContainer = async () => {
-    if (guardContainerRef.current) {
-      try {
-        const user = await login(guardContainerRef.current);
-        if (user) {
-          handleLoginSuccess(user);
-        }
-      } catch (error) {
-        handleLoginError(error);
-      }
+  const testLogin = async () => {
+    try {
+      addTestResult('开始测试登录功能...');
+      await login();
+      addTestResult('登录弹窗已打开');
+    } catch (error) {
+      addTestResult(`登录测试失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
   };
 
   /**
-   * 在容器中启动注册
+   * 测试登出功能
    */
-  const startRegisterInContainer = async () => {
-    if (guardContainerRef.current) {
-      try {
-        const user = await register(guardContainerRef.current);
-        if (user) {
-          handleLoginSuccess(user);
-        }
-      } catch (error) {
-        handleLoginError(error);
-      }
+  const testLogout = async () => {
+    try {
+      addTestResult('开始测试登出功能...');
+      await logout();
+      addTestResult('登出成功');
+    } catch (error) {
+      addTestResult(`登出测试失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
+  };
+
+  /**
+   * 测试认证状态检查
+   */
+  const testCheckAuth = async () => {
+    try {
+      addTestResult('开始测试认证状态检查...');
+      await checkAuth();
+      addTestResult('认证状态检查完成');
+    } catch (error) {
+      addTestResult(`认证状态检查失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
+  };
+
+  /**
+   * 清空测试结果
+   */
+  const clearTestResults = () => {
+    setTestResults([]);
   };
 
   return (
-    <div style={{ 
-      padding: '20px', 
-      fontFamily: 'Arial, sans-serif',
-      maxWidth: '1000px',
-      margin: '0 auto'
-    }}>
-      <h1 style={{ color: '#1890ff', textAlign: 'center', marginBottom: '30px' }}>
-        Authing 认证测试页面
-      </h1>
-
-      {/* 状态显示 */}
-      <div style={{ 
-        background: '#f5f5f5', 
-        padding: '20px', 
-        borderRadius: '10px',
-        marginBottom: '20px'
-      }}>
-        <h2>当前状态</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <strong>登录状态:</strong> {isLoggedIn ? '已登录' : '未登录'}
-          </div>
-          <div>
-            <strong>加载状态:</strong> {loading ? '加载中...' : '完成'}
-          </div>
-          <div>
-            <strong>登录状态码:</strong> {loginStatus || '未知'}
-          </div>
-          <div>
-            <strong>用户信息:</strong> {user ? '已获取' : '未获取'}
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Authing 功能测试</h1>
+          <p className="text-gray-600">测试 Authing 认证相关的各项功能</p>
         </div>
-        
-        {user && (
-          <div style={{ 
-            background: '#e8f5e8', 
-            padding: '15px', 
-            borderRadius: '5px',
-            marginTop: '15px',
-            border: '1px solid #4caf50'
-          }}>
-            <h3>用户信息</h3>
-            <pre style={{ fontSize: '12px', overflow: 'auto' }}>
-              {JSON.stringify(user, null, 2)}
-            </pre>
-          </div>
-        )}
-      </div>
 
-      {/* 操作按钮 */}
-      <div style={{ 
-        background: '#fff', 
-        padding: '20px', 
-        borderRadius: '10px',
-        marginBottom: '20px',
-        border: '1px solid #ddd'
-      }}>
-        <h2>操作测试</h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '20px' }}>
-          <button 
-            onClick={showLogin}
-            style={{ 
-              padding: '12px 20px', 
-              backgroundColor: '#1890ff', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            显示登录弹窗
-          </button>
-          
-          <button 
-            onClick={hideLogin}
-            style={{ 
-              padding: '12px 20px', 
-              backgroundColor: '#666', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            隐藏登录弹窗
-          </button>
-          
-          <button 
-            onClick={checkLoginStatus}
-            style={{ 
-              padding: '12px 20px', 
-              backgroundColor: '#52c41a', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            检查登录状态
-          </button>
-          
-          <button 
-            onClick={getCurrentUser}
-            style={{ 
-              padding: '12px 20px', 
-              backgroundColor: '#722ed1', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            获取用户信息
-          </button>
-          
-          {isLoggedIn && (
-            <button 
-              onClick={logout}
-              style={{ 
-                padding: '12px 20px', 
-                backgroundColor: '#ff4d4f', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              登出
-            </button>
-          )}
-        </div>
-      </div>
+        {/* 当前状态 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>当前认证状态</CardTitle>
+            <CardDescription>显示当前的用户认证状态</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">认证状态:</span>
+              {isAuthenticated ? (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  已认证
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                  未认证
+                </Badge>
+              )}
+            </div>
+            
+            {user && (
+              <div className="space-y-2">
+                <div className="font-medium">用户信息:</div>
+                <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                  <pre className="whitespace-pre-wrap">
+                    {JSON.stringify(user, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* 容器模式测试 */}
-      <div style={{ 
-        background: '#fff', 
-        padding: '20px', 
-        borderRadius: '10px',
-        marginBottom: '20px',
-        border: '1px solid #ddd'
-      }}>
-        <h2>容器模式测试</h2>
-        <p>在下方容器中嵌入 Authing Guard</p>
-        
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-          <button 
-            onClick={startLoginInContainer}
-            style={{ 
-              padding: '10px 15px', 
-              backgroundColor: '#1890ff', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            在容器中登录
-          </button>
-          
-          <button 
-            onClick={startRegisterInContainer}
-            style={{ 
-              padding: '10px 15px', 
-              backgroundColor: '#52c41a', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            在容器中注册
-          </button>
-        </div>
-        
-        <div 
-          ref={guardContainerRef}
-          style={{ 
-            minHeight: '400px', 
-            border: '2px dashed #ddd', 
-            borderRadius: '5px',
-            padding: '20px',
-            background: '#fafafa'
-          }}
-        >
-          <p style={{ textAlign: 'center', color: '#999', marginTop: '180px' }}>
-            Authing Guard 将在这里显示
-          </p>
-        </div>
-      </div>
+        {/* 功能测试 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>功能测试</CardTitle>
+            <CardDescription>测试各项认证功能</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={testLogin} variant="outline">
+                测试登录
+              </Button>
+              <Button onClick={testLogout} variant="outline">
+                测试登出
+              </Button>
+              <Button onClick={testCheckAuth} variant="outline">
+                测试状态检查
+              </Button>
+              <Button onClick={clearTestResults} variant="outline">
+                清空结果
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* 说明 */}
-      <div style={{ 
-        background: '#e6f7ff', 
-        padding: '15px', 
-        borderRadius: '5px',
-        border: '1px solid #91d5ff'
-      }}>
-        <h3>使用说明</h3>
-        <ul>
-          <li><strong>弹窗模式:</strong> 点击"显示登录弹窗"按钮，Authing Guard 将以弹窗形式显示</li>
-          <li><strong>容器模式:</strong> 点击"在容器中登录/注册"按钮，Authing Guard 将嵌入到下方容器中</li>
-          <li><strong>状态检查:</strong> 使用"检查登录状态"和"获取用户信息"按钮来验证认证状态</li>
-          <li><strong>登出:</strong> 登录后可以使用"登出"按钮退出登录</li>
-        </ul>
+        {/* 测试结果 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>测试结果</CardTitle>
+            <CardDescription>显示测试执行的结果</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gray-50 p-4 rounded-lg max-h-64 overflow-y-auto">
+              {testResults.length === 0 ? (
+                <p className="text-gray-500 text-center">暂无测试结果</p>
+              ) : (
+                <div className="space-y-1">
+                  {testResults.map((result, index) => (
+                    <div key={index} className="text-sm text-gray-700">
+                      {result}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

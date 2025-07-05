@@ -1,29 +1,18 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Copy,
-  Award,
-  Share2,
-  RefreshCw,
-  Clock,
-  Users,
-  TrendingUp,
-  CheckCircle,
-} from "lucide-react";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Share2, 
+  Copy, 
+  Users, 
+  Gift, 
+  CheckCircle, 
+  RefreshCw
+} from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useUserStore } from "@/store/userStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,12 +32,21 @@ function InvitePage() {
   const baseUrl = window.location.origin;
   const inviteUrl = `${baseUrl}/register?ref=${userInviteCode}`;
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(inviteUrl);
-    toast({
-      title: "链接已复制",
-      description: "邀请链接已复制到剪贴板",
-    });
+  const handleCopyInviteLink = async (inviteCode: string) => {
+    try {
+      const inviteLink = `${window.location.origin}/register?ref=${inviteCode}`;
+      await navigator.clipboard.writeText(inviteLink);
+      toast({
+        title: "邀请链接已复制",
+        description: "邀请链接已复制到剪贴板",
+      });
+    } catch (error) {
+      toast({
+        title: "复制失败",
+        description: "请手动复制邀请链接",
+        variant: "destructive",
+      });
+    }
   };
 
   const createNewInviteLink = () => {
@@ -90,7 +88,7 @@ function InvitePage() {
             <Card className="md:col-span-2 border-2 border-blue-100 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
                 <h2 className="text-xl font-bold flex items-center">
-                  <Award className="mr-2 h-5 w-5" /> 邀请好友，双方共同获益
+                  <Gift className="mr-2 h-5 w-5" /> 邀请好友，双方共同获益
                 </h2>
               </div>
               <CardContent className="p-6">
@@ -103,7 +101,7 @@ function InvitePage() {
                         readOnly 
                         className="bg-gray-50 font-medium text-blue-800" 
                       />
-                      <Button onClick={handleCopyLink} className="flex-shrink-0">
+                      <Button onClick={() => handleCopyInviteLink(userInviteCode)} className="flex-shrink-0">
                         <Copy className="h-4 w-4 mr-1" /> 复制
                       </Button>
                     </div>

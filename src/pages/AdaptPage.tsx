@@ -172,7 +172,7 @@ interface PlatformResult {
   platformId: string;
   content: string;
   steps: ProgressStep[];
-  source?: "ai" | "simulation";
+  source?: "ai";
   error?: string;
 }
 
@@ -525,7 +525,6 @@ export default function AdaptPage() {
       });
       
       // Call API to generate content for all selected platforms
-      // This will call OpenAI for each platform
       const generatedContent = await generateAdaptedContent({
         originalContent,
         targetPlatforms: selectedPlatforms,
@@ -593,7 +592,7 @@ export default function AdaptPage() {
       saveToHistory(results);
       toast({
         title: "内容已生成",
-                        description: `已成功为${selectedPlatforms.length}个平台生成内容`,
+        description: `已成功为${selectedPlatforms.length}个平台生成内容`,
       });
     } catch (error) {
       console.error("Error generating content:", error);
@@ -606,13 +605,14 @@ export default function AdaptPage() {
             step.status === "loading" 
               ? { ...step, status: "error" }
               : step
-          )
+          ),
+          error: error instanceof Error ? error.message : "生成失败"
         }))
       );
       
       toast({
         title: "生成失败",
-        description: "内容生成过程中发生错误，请稍后重试",
+        description: error instanceof Error ? error.message : "内容生成过程中发生错误，请稍后重试",
         variant: "destructive"
       });
     } finally {
@@ -902,7 +902,7 @@ export default function AdaptPage() {
       platformSettingsForAPI[`${platformId}-autoFormat`] = settings?.useAutoFormat || false;
       platformSettingsForAPI[`${platformId}-brandLibrary`] = useBrandLibrary;
       
-      // Call OpenAI API to regenerate content for this specific platform
+      // Call API to regenerate content for this specific platform
       const result = await regeneratePlatformContent({
         originalContent,
         targetPlatforms: [platformId],
@@ -962,8 +962,8 @@ export default function AdaptPage() {
         title: "重新生成成功",
         description: `已为${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}重新生成内容`,
       });
-    } catch {
-      console.error(`Error regenerating content for ${platformId}:`);
+    } catch (error) {
+      console.error(`Error regenerating content for ${platformId}:`, error);
       
       // Handle errors
       setResults(current => 
@@ -975,7 +975,8 @@ export default function AdaptPage() {
                   step.status === "loading" 
                     ? { ...step, status: "error" }
                     : step
-                )
+                ),
+                error: error instanceof Error ? error.message : "重新生成失败"
               }
             : result
         )
@@ -983,7 +984,7 @@ export default function AdaptPage() {
       
       toast({
         title: "重新生成失败",
-        description: `适配${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}内容时出错`,
+        description: error instanceof Error ? error.message : `适配${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}内容时出错`,
         variant: "destructive"
       });
     }
@@ -1478,18 +1479,45 @@ export default function AdaptPage() {
                       ))}
                     </div>
 
-                    {result.source && (
-                      <div className={`text-sm px-4 py-2 rounded-lg inline-flex items-center ${
-                        result.source === "ai" ? "bg-blue-100 text-blue-800" : "bg-amber-100 text-amber-800"
-                      }`}>
-                        <span className="font-medium">
-                          {result.source === "ai" ? "AI生成内容" : "模拟内容"}
-                        </span>
-                        {result.error && (
-                          <span className="ml-2 text-red-600">
-                            (错误: {result.error})
-                          </span>
-                        )}
+                    {/* Error Display */}
+                    {result.error && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs">✗</span>
+                            </div>
+                          </div>
+                          <div className="ml-3">
+                            <h3 className="text-sm font-medium text-red-800">
+                              生成失败
+                            </h3>
+                            <div className="mt-1 text-sm text-red-700">
+                              {result.error}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Success Indicator */}
+                    {result.content && !result.error && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs">✓</span>
+                            </div>
+                          </div>
+                          <div className="ml-3">
+                            <h3 className="text-sm font-medium text-green-800">
+                              AI生成内容
+                            </h3>
+                            <div className="mt-1 text-sm text-green-700">
+                              内容已成功生成，您可以编辑、复制或收藏
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                     
@@ -1545,6 +1573,13 @@ export default function AdaptPage() {
                               {result.content}
                             </div>
                           )
+                        ) : result.error ? (
+                          <div className="rounded-lg border-2 border-dashed border-red-200 p-12 flex items-center justify-center bg-red-50">
+                            <div className="text-center">
+                              <p className="text-red-600 text-lg font-medium">生成失败</p>
+                              <p className="text-red-500 text-sm mt-2">{result.error}</p>
+                            </div>
+                          </div>
                         ) : (
                           <div className="rounded-lg border-2 border-dashed p-12 flex items-center justify-center">
                             <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>

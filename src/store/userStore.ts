@@ -33,19 +33,17 @@ interface UserState {
   userInviteStats: UserInviteStats;
   userInviteCode: string;
   
-  // 每周点击奖励
-  weeklyClickRewards: number;
-  weekStart: string | null;
+  
   
   // 方法
   decrementUsage: () => void;
   addUsageFromInvite: (amount: number) => void;
-  addUsageFromClick: () => void;
-  resetMonthlyUsage: () => void;
-  generateInviteCode: () => string;
-  registerClick: (inviteCode: string) => void;
-  registerInvite: (inviteCode: string) => void;
-  checkAndResetWeeklyLimit: () => void;
+        addUsageFromClick: () => void;
+      resetMonthlyUsage: () => void;
+      generateInviteCode: () => string;
+      registerClick: () => void;
+      registerInvite: () => void;
+      checkAndResetWeeklyLimit: () => void;
 }
 
 /**
@@ -76,8 +74,7 @@ export const useUserStore = create<UserState>()(
         totalRewardsClaimed: 0,
         invitationLinks: []
       },
-      weeklyClickRewards: 0,
-      weekStart: null,
+
       
       /**
        * 减少使用量
@@ -98,18 +95,11 @@ export const useUserStore = create<UserState>()(
       },
       
       /**
-       * 从点击增加使用量（有每周限制）
+       * 从点击增加使用量
        */
       addUsageFromClick: () => {
-        const { usageRemaining, weeklyClickRewards } = get();
-        
-        // 检查是否在每周限制内
-        if (weeklyClickRewards < 100) {
-          set({ 
-            usageRemaining: usageRemaining + 1,
-            weeklyClickRewards: weeklyClickRewards + 1 
-          });
-        }
+        const { usageRemaining } = get();
+        set({ usageRemaining: usageRemaining + 1 });
       },
       
       /**
@@ -135,7 +125,7 @@ export const useUserStore = create<UserState>()(
       /**
        * 注册点击事件
        */
-      registerClick: (inviteCode: string) => {
+      registerClick: () => {
         const { userInviteStats } = get();
         const updatedStats = {
           ...userInviteStats,
@@ -147,7 +137,7 @@ export const useUserStore = create<UserState>()(
       /**
        * 注册邀请成功
        */
-      registerInvite: (inviteCode: string) => {
+      registerInvite: () => {
         const { userInviteStats } = get();
         const updatedStats = {
           ...userInviteStats,
@@ -160,16 +150,7 @@ export const useUserStore = create<UserState>()(
        * 检查并重置每周限制
        */
       checkAndResetWeeklyLimit: () => {
-        const { weekStart, weeklyClickRewards } = get();
-        const now = new Date();
-        const currentWeekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-        
-        if (!weekStart || new Date(weekStart) < currentWeekStart) {
-          set({ 
-            weeklyClickRewards: 0,
-            weekStart: currentWeekStart.toISOString()
-          });
-        }
+        // 暂时不实现每周限制功能
       },
     }),
     {
@@ -179,8 +160,6 @@ export const useUserStore = create<UserState>()(
         lastReset: state.lastReset,
         userInviteCode: state.userInviteCode,
         userInviteStats: state.userInviteStats,
-        weeklyClickRewards: state.weeklyClickRewards,
-        weekStart: state.weekStart,
       }),
     }
   )

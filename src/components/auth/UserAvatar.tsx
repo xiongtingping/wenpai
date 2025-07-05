@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, Settings, LogOut, History, Share2, CreditCard } from 'lucide-react';
+import { User, LogOut, History, Share2, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
@@ -23,7 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
  */
 interface UserAvatarProps {
   /** 用户信息 */
-  user: any;
+  user: unknown;
   /** 是否显示下拉菜单 */
   showDropdown?: boolean;
   /** 头像大小 */
@@ -67,8 +67,9 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
    * 获取用户名显示文本
    */
   const getDisplayName = () => {
-    if (!user) return '用户';
-    return user.nickname || user.username || user.email || '用户';
+    if (!user || typeof user !== 'object') return '用户';
+    const userObj = user as Record<string, unknown>;
+    return (userObj.nickname as string) || (userObj.username as string) || (userObj.email as string) || '用户';
   };
 
   /**
@@ -99,14 +100,17 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   /**
    * 渲染头像
    */
-  const renderAvatar = () => (
-    <Avatar className={getSizeClass()}>
-      <AvatarImage src={user?.avatar} alt={getDisplayName()} />
-      <AvatarFallback className="bg-blue-500 text-white">
-        {getInitials()}
-      </AvatarFallback>
-    </Avatar>
-  );
+  const renderAvatar = () => {
+    const userObj = user as Record<string, unknown> | null;
+    return (
+      <Avatar className={getSizeClass()}>
+        <AvatarImage src={userObj?.avatar as string} alt={getDisplayName()} />
+        <AvatarFallback className="bg-blue-500 text-white">
+          {getInitials()}
+        </AvatarFallback>
+      </Avatar>
+    );
+  };
 
   /**
    * 渲染简单头像（无下拉菜单）
@@ -137,7 +141,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{getDisplayName()}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
+              {(user as Record<string, unknown>)?.email as string}
             </p>
           </div>
         </DropdownMenuLabel>

@@ -5,6 +5,7 @@
 
 import { Guard } from '@authing/guard-react';
 import { getAuthingConfig } from '@/config/authing';
+import { User } from '@/types/user';
 
 /**
  * Authing 服务类
@@ -13,9 +14,13 @@ import { getAuthingConfig } from '@/config/authing';
 class AuthingService {
   private guard: Guard | null = null;
   private config: ReturnType<typeof getAuthingConfig>;
+  private setUser: (user: User) => void;
+  private setIsAuthenticated: (isAuthenticated: boolean) => void;
 
-  constructor() {
+  constructor(setUser: (user: User) => void, setIsAuthenticated: (isAuthenticated: boolean) => void) {
     this.config = getAuthingConfig();
+    this.setUser = setUser;
+    this.setIsAuthenticated = setIsAuthenticated;
   }
 
   /**
@@ -57,7 +62,7 @@ class AuthingService {
    * @param el 容器元素
    * @returns Promise<User> 用户信息
    */
-  async startLogin(el?: string | HTMLElement): Promise<any> {
+  async startLogin(el?: string | HTMLElement): Promise<Record<string, unknown>> {
     const guard = this.initGuard();
     return await guard.start(el);
   }
@@ -67,7 +72,7 @@ class AuthingService {
    * @param el 容器元素
    * @returns Promise<User> 用户信息
    */
-  async startRegister(el?: string | HTMLElement): Promise<any> {
+  async startRegister(el?: string | HTMLElement): Promise<Record<string, unknown>> {
     const guard = this.initGuard();
     guard.startRegister();
     return await guard.start(el);
@@ -107,9 +112,9 @@ class AuthingService {
 
   /**
    * 获取当前用户信息
-   * @returns Promise<any> 用户信息
+   * @returns Promise<Record<string, unknown> | null> 用户信息
    */
-  async getCurrentUser(): Promise<any> {
+  async getCurrentUser(): Promise<Record<string, unknown> | null> {
     try {
       const guard = this.initGuard();
       // 使用 trackSession 方法获取用户信息（这是正确的 API）
@@ -194,6 +199,6 @@ class AuthingService {
 }
 
 // 创建单例实例
-const authingService = new AuthingService();
+const authingService = new AuthingService(() => {}, () => {});
 
 export default authingService; 

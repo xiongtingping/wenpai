@@ -3,7 +3,7 @@
  * 整合 Authing 认证和用户状态管理
  */
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { Guard } from '@authing/guard-react';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -17,7 +17,7 @@ export interface User {
   phone?: string;
   nickname?: string;
   avatar?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -44,7 +44,7 @@ interface AuthContextType {
   // Guard 相关
   showLogin: () => void;
   hideLogin: () => void;
-  getGuard: () => Guard | null;
+  guard: Guard | null;
 }
 
 /**
@@ -53,7 +53,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
- * 认证提供者属性
+ * 认证提供者组件
  */
 interface AuthProviderProps {
   children: ReactNode;
@@ -70,54 +70,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [guard, setGuard] = useState<Guard | null>(null);
 
   /**
-   * 获取是否正在加载
-   */
-  const isLoading = status === 'loading';
-
-  /**
-   * 获取是否已认证
-   */
-  const isAuthenticated = status === 'authenticated';
-
-  /**
-   * 初始化 Authing Guard
-   */
-  const initGuard = (): Guard => {
-    if (!guard) {
-      const config = getAuthingConfig();
-      const newGuard = new Guard({
-        appId: config.appId,
-        host: config.host,
-        redirectUri: config.redirectUri,
-        mode: 'modal',
-        defaultScene: 'login',
-        lang: 'zh-CN',
-      });
-      setGuard(newGuard);
-      return newGuard;
-    }
-    return guard;
-  };
-
-  /**
    * 检查认证状态
    */
-  const checkAuth = async (): Promise<void> => {
+  const checkAuth = useCallback(async () => {
     try {
       setStatus('loading');
-      const currentGuard = initGuard();
       
-      // 检查登录状态
-      const loginStatus = await currentGuard.checkLoginStatus();
-      console.log('检查登录状态:', loginStatus);
+      if (!guard) {
+        setStatus('unauthenticated');
+        return;
+      }
+
+      const loginStatus = await guard.checkLoginStatus();
       
       if (loginStatus) {
         // 获取用户信息
-        const userInfo = await currentGuard.trackSession();
-        console.log('获取用户信息:', userInfo);
+        const userInfo = await guard.trackSession();
         
         if (userInfo) {
-          setUser(userInfo);
+          // 转换 Authing SDK 的用户类型到我们的 User 类型
+          const convertedUser: User = {
+            id: String((userInfo as Record<string, unknown>).id || (userInfo as Record<string, unknown>).userId || ''),
+            username: String((userInfo as Record<string, unknown>).username || (userInfo as Record<string, unknown>).nickname || ''),
+            email: String((userInfo as Record<string, unknown>).email || ''),
+            phone: String((userInfo as Record<string, unknown>).phone || ''),
+            nickname: String((userInfo as Record<string, unknown>).nickname || (userInfo as Record<string, unknown>).username || ''),
+            avatar: String((userInfo as Record<string, unknown>).photo || (userInfo as Record<string, unknown>).avatar || ''),
+            ...userInfo // 保留其他属性
+          };
+          
+          setUser(convertedUser);
           setStatus('authenticated');
         } else {
           setUser(null);
@@ -132,149 +114,162 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setStatus('unauthenticated');
     }
-  };
+  }, [guard]);
+
+  /**
+   * 登录处理
+   */
+  const handleLoginSuccess = useCallback((userInfo: Record<string, unknown>) => {
+    const user: User = {
+      id: String(userInfo.id || userInfo.userId || ''),
+      username: String(userInfo.username || userInfo.name || ''),
+      email: String(userInfo.email || ''),
+      nickname: String(userInfo.nickname || userInfo.displayName || ''),
+      avatar: String(userInfo.avatar || userInfo.picture || ''),
+      phone: String(userInfo.phone || userInfo.phoneNumber || ''),
+      roles: Array.isArray(userInfo.roles) ? userInfo.roles : [],
+      permissions: Array.isArray(userInfo.permissions) ? userInfo.permissions : [],
+      metadata: userInfo.metadata || {}
+    };
+    
+    setUser(user);
+    setStatus('authenticated');
+  }, []);
+
+  /**
+   * 注册处理
+   */
+  const handleRegister = useCallback((userInfo: Record<string, unknown>) => {
+    // 转换 Authing SDK 的用户类型到我们的 User 类型
+    const convertedUser: User = {
+      id: String(userInfo.id || userInfo.userId || ''),
+      username: String(userInfo.username || userInfo.nickname || ''),
+      email: String(userInfo.email || ''),
+      phone: String(userInfo.phone || ''),
+      nickname: String(userInfo.nickname || userInfo.username || ''),
+      avatar: String(userInfo.photo || userInfo.avatar || ''),
+      ...userInfo // 保留其他属性
+    };
+    
+    setUser(convertedUser);
+    setStatus('authenticated');
+  }, []);
+
+  /**
+   * 登出处理
+   */
+  const handleLogoutSuccess = useCallback(() => {
+    setUser(null);
+    setStatus('unauthenticated');
+  }, []);
+
+  /**
+   * 初始化 Guard
+   */
+  useEffect(() => {
+    const initGuard = async () => {
+      try {
+        const config = getAuthingConfig();
+        const newGuard = new Guard(config);
+        
+        // 设置事件监听器
+        newGuard.on('login', handleLoginSuccess);
+        newGuard.on('register', handleRegister);
+        newGuard.on('login-error', () => {
+          console.log('登录失败');
+        });
+        newGuard.on('close', () => {
+          console.log('登录弹窗已关闭');
+        });
+        newGuard.on('logout', handleLogoutSuccess);
+        
+        setGuard(newGuard);
+        
+        // 检查初始认证状态
+        await checkAuth();
+      } catch (error) {
+        console.error('初始化 Guard 失败:', error);
+        setStatus('unauthenticated');
+      }
+    };
+
+    initGuard();
+  }, [handleLoginSuccess, handleRegister, checkAuth, handleLogoutSuccess]);
 
   /**
    * 登录
    */
-  const login = async (): Promise<void> => {
-    try {
-      const currentGuard = initGuard();
-      currentGuard.show();
-    } catch (error) {
-      console.error('登录失败:', error);
-      throw error;
+  const login = useCallback(async () => {
+    if (guard) {
+      guard.show();
     }
-  };
+  }, [guard]);
 
   /**
    * 注册
    */
-  const register = async (): Promise<void> => {
-    try {
-      const currentGuard = initGuard();
-      currentGuard.startRegister();
-      currentGuard.show();
-    } catch (error) {
-      console.error('注册失败:', error);
-      throw error;
+  const register = useCallback(async () => {
+    if (guard) {
+      guard.show();
     }
-  };
+  }, [guard]);
 
   /**
    * 登出
    */
-  const logout = async (): Promise<void> => {
-    try {
-      const currentGuard = initGuard();
-      await currentGuard.logout();
-      setUser(null);
-      setStatus('unauthenticated');
-    } catch (error) {
-      console.error('登出失败:', error);
-      throw error;
-    }
-  };
-
-  /**
-   * 显示登录弹窗
-   */
-  const showLogin = (): void => {
-    const currentGuard = initGuard();
-    currentGuard.show();
-  };
-
-  /**
-   * 隐藏登录弹窗
-   */
-  const hideLogin = (): void => {
+  const logout = useCallback(async () => {
     if (guard) {
-      guard.hide();
-    }
-  };
-
-  /**
-   * 获取 Guard 实例
-   */
-  const getGuard = (): Guard | null => {
-    return guard;
-  };
-
-  // 初始化认证状态
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  // 设置 Guard 事件监听
-  useEffect(() => {
-    if (guard) {
-      // 登录成功事件
-      const handleLogin = (userInfo: User) => {
-        console.log('登录成功:', userInfo);
-        setUser(userInfo);
-        setStatus('authenticated');
-        guard.hide();
-      };
-
-      // 注册成功事件
-      const handleRegister = (userInfo: User) => {
-        console.log('注册成功:', userInfo);
-        setUser(userInfo);
-        setStatus('authenticated');
-        guard.hide();
-      };
-
-      // 登录失败事件
-      const handleLoginError = (error: any) => {
-        console.error('登录失败:', error);
-      };
-
-      // 关闭事件
-      const handleClose = () => {
-        console.log('登录弹窗已关闭');
-      };
-
-      guard.on('login', handleLogin);
-      guard.on('register', handleRegister);
-      guard.on('login-error', handleLoginError);
-      guard.on('close', handleClose);
-
-      // 清理事件监听 - 使用 unmount 方法
-      return () => {
-        guard.unmount();
-      };
+      await guard.logout();
     }
   }, [guard]);
 
-  const contextValue: AuthContextType = {
+  /**
+   * 显示登录界面
+   */
+  const showLogin = useCallback(() => {
+    if (guard) {
+      guard.show();
+    }
+  }, [guard]);
+
+  /**
+   * 隐藏登录界面
+   */
+  const hideLogin = useCallback(() => {
+    if (guard) {
+      guard.hide();
+    }
+  }, [guard]);
+
+  const value: AuthContextType = {
     user,
     status,
-    isLoading,
-    isAuthenticated,
+    isLoading: status === 'loading',
+    isAuthenticated: status === 'authenticated',
     login,
     register,
     logout,
     checkAuth,
     showLogin,
     hideLogin,
-    getGuard,
+    guard
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 /**
- * 使用认证上下文 Hook
+ * 使用认证上下文
  * @returns 认证上下文
  */
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth 必须在 AuthProvider 内部使用');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }; 

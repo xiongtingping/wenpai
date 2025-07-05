@@ -1,329 +1,269 @@
-import React from 'react';
-import { usePermissions } from '@/hooks/usePermissions';
-import { useAuthing } from '@/hooks/useAuthing';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthGuard from '@/components/auth/AuthGuard';
 import PermissionGuard from '@/components/auth/PermissionGuard';
 
 /**
- * 权限测试页面
- * 用于演示权限控制功能
+ * 权限测试页面组件
+ * @returns React 组件
  */
 const PermissionTestPage: React.FC = () => {
-  const { user, isLoggedIn } = useAuthing();
-  const {
-    roles,
-    permissions,
-    loading,
-    error,
-    hasPermission,
-    hasRole,
-    hasAnyPermission,
-    hasAllPermissions,
-    hasAnyRole,
-    hasAllRoles,
-    checkPermissions,
-    refreshPermissions,
-  } = usePermissions();
+  const { user, isAuthenticated, status } = useAuth();
+  const [testResults, setTestResults] = useState<string[]>([]);
 
   /**
-   * 处理无权限回调
+   * 添加测试结果
    */
-  const handleNoPermission = (missingPermissions: any[], missingRoles: string[]) => {
-    console.log('权限不足:', { missingPermissions, missingRoles });
-    alert(`权限不足！\n缺少权限: ${missingPermissions.map(p => `${p.resource}:${p.action}`).join(', ')}\n缺少角色: ${missingRoles.join(', ')}`);
+  const addTestResult = (result: string) => {
+    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
+  };
+
+
+
+  /**
+   * 测试基本认证
+   */
+  const testBasicAuth = () => {
+    addTestResult(`认证状态: ${status} | 已认证: ${isAuthenticated}`);
+    if (user) {
+      addTestResult(`用户信息: ${user.username || user.email || user.id}`);
+    }
+  };
+
+  /**
+   * 测试权限守卫
+   */
+  const testPermissionGuard = () => {
+    addTestResult('测试权限守卫 - 需要 content:read 权限');
+  };
+
+  /**
+   * 测试角色守卫
+   */
+  const testRoleGuard = () => {
+    addTestResult('测试角色守卫 - 需要 admin 角色');
+  };
+
+  /**
+   * 测试复杂权限
+   */
+  const testComplexPermission = () => {
+    addTestResult('测试复杂权限 - 需要 content:create 权限');
   };
 
   return (
-    <div style={{ 
-      padding: '20px', 
-      fontFamily: 'Arial, sans-serif',
-      maxWidth: '1200px',
-      margin: '0 auto'
-    }}>
-      <h1 style={{ color: '#1890ff', textAlign: 'center', marginBottom: '30px' }}>
-        权限控制测试页面
-      </h1>
-
-      {/* 用户状态 */}
-      <div style={{ 
-        background: '#f5f5f5', 
-        padding: '20px', 
-        borderRadius: '10px',
-        marginBottom: '20px'
-      }}>
-        <h2>用户状态</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div><strong>登录状态:</strong> {isLoggedIn ? '已登录' : '未登录'}</div>
-          <div><strong>权限加载:</strong> {loading ? '加载中...' : '完成'}</div>
-          <div><strong>用户信息:</strong> {user ? '已获取' : '未获取'}</div>
-          <div><strong>错误信息:</strong> {error || '无'}</div>
-        </div>
-        
-        {user && (
-          <div style={{ 
-            background: '#e8f5e8', 
-            padding: '15px', 
-            borderRadius: '5px',
-            marginTop: '15px',
-            border: '1px solid #4caf50'
-          }}>
-            <h3>用户信息</h3>
-            <pre style={{ fontSize: '12px', overflow: 'auto' }}>
-              {JSON.stringify(user, null, 2)}
-            </pre>
-          </div>
-        )}
+    <div className="container mx-auto py-8 px-4">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">权限测试页面</h1>
+        <p className="text-muted-foreground">
+          测试认证和权限守卫功能
+        </p>
       </div>
 
-      {/* 权限信息 */}
-      <div style={{ 
-        background: '#fff', 
-        padding: '20px', 
-        borderRadius: '10px',
-        marginBottom: '20px',
-        border: '1px solid #ddd'
-      }}>
-        <h2>权限信息</h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          {/* 角色信息 */}
-          <div>
-            <h3>用户角色 ({roles.length})</h3>
-            {roles.length > 0 ? (
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                {roles.map((role, index) => (
-                  <li key={index} style={{ 
-                    padding: '8px 12px', 
-                    background: '#f0f0f0', 
-                    margin: '5px 0', 
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}>
-                    <strong>{role.name}</strong> ({role.code})
-                    {role.description && <div style={{ fontSize: '12px', color: '#666' }}>{role.description}</div>}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p style={{ color: '#666' }}>暂无角色</p>
+      {/* 当前状态 */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>当前认证状态</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">状态:</span>
+              <Badge variant={isAuthenticated ? "default" : "secondary"}>
+                {status}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">已认证:</span>
+              <Badge variant={isAuthenticated ? "default" : "destructive"}>
+                {isAuthenticated ? "是" : "否"}
+              </Badge>
+            </div>
+            {user && (
+              <div className="flex items-center gap-2">
+                <span className="font-medium">用户:</span>
+                <span>{user.username || user.email || user.id}</span>
+              </div>
             )}
           </div>
+        </CardContent>
+      </Card>
 
-          {/* 权限信息 */}
-          <div>
-            <h3>用户权限 ({permissions.length})</h3>
-            {permissions.length > 0 ? (
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                {permissions.map((permission, index) => (
-                  <li key={index} style={{ 
-                    padding: '8px 12px', 
-                    background: '#e6f7ff', 
-                    margin: '5px 0', 
-                    borderRadius: '4px',
-                    border: '1px solid #91d5ff'
-                  }}>
-                    <strong>{permission.resource}</strong>:{permission.action}
-                  </li>
-                ))}
-              </ul>
+      {/* 测试按钮 */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>测试功能</CardTitle>
+          <CardDescription>
+            点击按钮测试不同的认证和权限功能
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={testBasicAuth} variant="outline">
+              测试基本认证
+            </Button>
+            <Button onClick={testPermissionGuard} variant="outline">
+              测试权限守卫
+            </Button>
+            <Button onClick={testRoleGuard} variant="outline">
+              测试角色守卫
+            </Button>
+            <Button onClick={testComplexPermission} variant="outline">
+              测试复杂权限
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 权限守卫测试区域 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* 基本认证守卫 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>基本认证守卫</CardTitle>
+            <CardDescription>
+              测试需要登录才能访问的内容
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AuthGuard>
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium">✅ 认证成功</p>
+                <p className="text-green-600 text-sm mt-1">
+                  您已通过认证，可以访问此内容
+                </p>
+              </div>
+            </AuthGuard>
+          </CardContent>
+        </Card>
+
+        {/* 权限守卫 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>权限守卫</CardTitle>
+            <CardDescription>
+              测试需要特定权限才能访问的内容
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PermissionGuard
+              requiredPermissions={['content:read']}
+              noPermissionComponent={
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 font-medium">❌ 权限不足</p>
+                  <p className="text-red-600 text-sm mt-1">
+                    您没有 content:read 权限
+                  </p>
+                </div>
+              }
+            >
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium">✅ 权限验证通过</p>
+                <p className="text-green-600 text-sm mt-1">
+                  您有 content:read 权限，可以访问此内容
+                </p>
+              </div>
+            </PermissionGuard>
+          </CardContent>
+        </Card>
+
+        {/* 角色守卫 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>角色守卫</CardTitle>
+            <CardDescription>
+              测试需要特定角色才能访问的内容
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PermissionGuard
+              requiredRoles={['admin']}
+              noPermissionComponent={
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 font-medium">❌ 角色不足</p>
+                  <p className="text-red-600 text-sm mt-1">
+                    您没有 admin 角色
+                  </p>
+                </div>
+              }
+            >
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium">✅ 角色验证通过</p>
+                <p className="text-green-600 text-sm mt-1">
+                  您有 admin 角色，可以访问此内容
+                </p>
+              </div>
+            </PermissionGuard>
+          </CardContent>
+        </Card>
+
+        {/* 复杂权限守卫 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>复杂权限守卫</CardTitle>
+            <CardDescription>
+              测试需要多个权限才能访问的内容
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PermissionGuard
+              requiredPermissions={['content:create']}
+              noPermissionComponent={
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 font-medium">❌ 权限不足</p>
+                  <p className="text-red-600 text-sm mt-1">
+                    您没有 content:create 权限
+                  </p>
+                </div>
+              }
+            >
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium">✅ 权限验证通过</p>
+                <p className="text-green-600 text-sm mt-1">
+                  您有 content:create 权限，可以访问此内容
+                </p>
+              </div>
+            </PermissionGuard>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 测试结果 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>测试结果</CardTitle>
+          <CardDescription>
+            测试操作的日志记录
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="max-h-64 overflow-y-auto space-y-1">
+            {testResults.length === 0 ? (
+              <p className="text-muted-foreground">暂无测试结果</p>
             ) : (
-              <p style={{ color: '#666' }}>暂无权限</p>
+              testResults.map((result, index) => (
+                <div key={index} className="text-sm font-mono bg-gray-50 p-2 rounded">
+                  {result}
+                </div>
+              ))
             )}
           </div>
-        </div>
-
-        <button 
-          onClick={refreshPermissions}
-          style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#1890ff', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '5px',
-            cursor: 'pointer',
-            marginTop: '15px'
-          }}
-        >
-          刷新权限信息
-        </button>
-      </div>
-
-      {/* 权限测试 */}
-      <div style={{ 
-        background: '#fff', 
-        padding: '20px', 
-        borderRadius: '10px',
-        marginBottom: '20px',
-        border: '1px solid #ddd'
-      }}>
-        <h2>权限测试</h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-          {/* 基础权限测试 */}
-          <div style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '5px' }}>
-            <h3>基础权限测试</h3>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>content:read:</strong> {hasPermission('content', 'read') ? '✅' : '❌'}
+          {testResults.length > 0 && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setTestResults([])}
+              >
+                清空结果
+              </Button>
             </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>content:create:</strong> {hasPermission('content', 'create') ? '✅' : '❌'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>payment:create:</strong> {hasPermission('payment', 'create') ? '✅' : '❌'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>admin:all:</strong> {hasPermission('admin', 'all') ? '✅' : '❌'}
-            </div>
-          </div>
-
-          {/* 角色测试 */}
-          <div style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '5px' }}>
-            <h3>角色测试</h3>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>普通用户:</strong> {hasRole('普通用户') ? '✅' : '❌'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>高级用户:</strong> {hasRole('高级用户') ? '✅' : '❌'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>管理员:</strong> {hasRole('管理员') ? '✅' : '❌'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>任意高级角色:</strong> {hasAnyRole(['高级用户', '管理员']) ? '✅' : '❌'}
-            </div>
-          </div>
-
-          {/* 组合权限测试 */}
-          <div style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '5px' }}>
-            <h3>组合权限测试</h3>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>任意内容权限:</strong> {hasAnyPermission([
-                { resource: 'content', action: 'read' },
-                { resource: 'content', action: 'create' }
-              ]) ? '✅' : '❌'}
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>所有内容权限:</strong> {hasAllPermissions([
-                { resource: 'content', action: 'read' },
-                { resource: 'content', action: 'create' }
-              ]) ? '✅' : '❌'}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 权限保护组件测试 */}
-      <div style={{ 
-        background: '#fff', 
-        padding: '20px', 
-        borderRadius: '10px',
-        marginBottom: '20px',
-        border: '1px solid #ddd'
-      }}>
-        <h2>权限保护组件测试</h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-          {/* 有权限的内容 */}
-          <div style={{ border: '1px solid #4caf50', padding: '15px', borderRadius: '5px', background: '#f1f8e9' }}>
-            <h3>有权限的内容</h3>
-            <PermissionGuard
-              requiredPermissions={[{ resource: 'content', action: 'read' }]}
-              onNoPermission={handleNoPermission}
-            >
-              <div style={{ padding: '10px', background: '#e8f5e8', borderRadius: '4px' }}>
-                <p>✅ 这个内容需要 content:read 权限，您有权限查看！</p>
-                <button style={{ 
-                  padding: '5px 10px', 
-                  backgroundColor: '#4caf50', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}>
-                  查看内容
-                </button>
-              </div>
-            </PermissionGuard>
-          </div>
-
-          {/* 无权限的内容 */}
-          <div style={{ border: '1px solid #f44336', padding: '15px', borderRadius: '5px', background: '#ffebee' }}>
-            <h3>无权限的内容</h3>
-            <PermissionGuard
-              requiredPermissions={[{ resource: 'admin', action: 'all' }]}
-              onNoPermission={handleNoPermission}
-            >
-              <div style={{ padding: '10px', background: '#e8f5e8', borderRadius: '4px' }}>
-                <p>这个内容需要 admin:all 权限</p>
-              </div>
-            </PermissionGuard>
-          </div>
-
-          {/* 角色权限测试 */}
-          <div style={{ border: '1px solid #ff9800', padding: '15px', borderRadius: '5px', background: '#fff3e0' }}>
-            <h3>角色权限测试</h3>
-            <PermissionGuard
-              requiredRoles={['管理员']}
-              onNoPermission={handleNoPermission}
-            >
-              <div style={{ padding: '10px', background: '#e8f5e8', borderRadius: '4px' }}>
-                <p>✅ 这个内容需要管理员角色，您有权限查看！</p>
-                <button style={{ 
-                  padding: '5px 10px', 
-                  backgroundColor: '#ff9800', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}>
-                  管理员功能
-                </button>
-              </div>
-            </PermissionGuard>
-          </div>
-
-          {/* 组合权限测试 */}
-          <div style={{ border: '1px solid #9c27b0', padding: '15px', borderRadius: '5px', background: '#f3e5f5' }}>
-            <h3>组合权限测试</h3>
-            <PermissionGuard
-              requiredPermissions={[{ resource: 'content', action: 'create' }]}
-              requiredRoles={['高级用户']}
-              mode="any"
-              onNoPermission={handleNoPermission}
-            >
-              <div style={{ padding: '10px', background: '#e8f5e8', borderRadius: '4px' }}>
-                <p>✅ 这个内容需要 content:create 权限或高级用户角色，您有权限查看！</p>
-                <button style={{ 
-                  padding: '5px 10px', 
-                  backgroundColor: '#9c27b0', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '3px',
-                  cursor: 'pointer'
-                }}>
-                  高级功能
-                </button>
-              </div>
-            </PermissionGuard>
-          </div>
-        </div>
-      </div>
-
-      {/* 使用说明 */}
-      <div style={{ 
-        background: '#e6f7ff', 
-        padding: '15px', 
-        borderRadius: '5px',
-        border: '1px solid #91d5ff'
-      }}>
-        <h3>使用说明</h3>
-        <ul>
-          <li><strong>基础权限测试:</strong> 测试单个权限和角色的检查功能</li>
-          <li><strong>组合权限测试:</strong> 测试多个权限和角色的组合检查</li>
-          <li><strong>权限保护组件:</strong> 演示如何使用 PermissionGuard 组件保护内容</li>
-          <li><strong>权限模式:</strong> 'all' 模式需要所有权限，'any' 模式需要任意权限</li>
-          <li><strong>自定义回调:</strong> 可以通过 onNoPermission 回调处理无权限情况</li>
-        </ul>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

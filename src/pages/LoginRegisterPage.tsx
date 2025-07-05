@@ -1,15 +1,11 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, Phone, User, Shield, Loader2, ArrowLeft } from "lucide-react";
-// import { sendVerificationCode, verifyCode, registerUser } from "@/api/authService";
 import { useLocation } from "react-router-dom";
-import { useUserStore } from "@/store/userStore";
 
 export default function LoginRegisterPage() {
   // Login state
