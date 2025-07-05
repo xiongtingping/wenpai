@@ -144,10 +144,6 @@ function InvitePage() {
                       </li>
                       <li className="flex items-start">
                         <span className="text-green-500 mr-2">✓</span> 
-                        <span>将您的专属邀请链接分享给好友，好友通过链接注册后双方各获得 20 次免费生成次数</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">✓</span> 
                         <span>邀请链接长期有效</span>
                       </li>
                       <li className="flex items-start">

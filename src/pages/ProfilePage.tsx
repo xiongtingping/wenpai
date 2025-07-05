@@ -103,7 +103,7 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">个人资料</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">个人中心</h1>
         <p className="text-gray-600">
           管理您的个人信息和账户设置
         </p>
@@ -216,12 +216,8 @@ export default function ProfilePage() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">总点击次数</span>
-                <Badge variant="secondary">{userInviteStats.totalClicks}</Badge>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-sm text-gray-600">总奖励次数</span>
-                <Badge variant="secondary">{userInviteStats.totalRewardsClaimed}</Badge>
+                <Badge variant="secondary">{userInviteStats.totalRegistrations * 20}</Badge>
               </div>
             </div>
           </CardContent>
