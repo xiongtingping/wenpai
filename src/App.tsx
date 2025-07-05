@@ -21,6 +21,7 @@ import ChangelogPage from '@/pages/ChangelogPage';
 import HistoryPage from '@/pages/HistoryPage';
 import LoginPage from '@/pages/LoginPage';
 import Callback from '@/pages/Callback';
+import AuthTestPage from '@/pages/AuthTestPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 
 /**
@@ -39,6 +40,7 @@ const AppContent: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/callback" element={<Callback />} />
         <Route path="/api-test" element={<ApiTestPage />} />
+        <Route path="/auth-test" element={<AuthTestPage />} />
 
         {/* 需要登录的受保护页面 */}
         <Route path="/adapt" element={

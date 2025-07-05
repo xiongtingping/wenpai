@@ -1,112 +1,78 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { getAuthingConfig } from '@/config/authing';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-/**
- * Authing登录测试页面
- * 用于调试登录相关问题
- */
 export default function AuthTestPage() {
-  const { user, isAuthenticated, showLogin, login, guard, status } = useAuth();
-  
-  const handleDirectLogin = async () => {
-    console.log('Direct login button clicked');
-    console.log('Guard:', guard);
-    console.log('Authing config:', getAuthingConfig());
-    
-    if (guard) {
-      try {
-        console.log('Attempting direct login...');
-        await guard.startWithRedirect();
-      } catch (error) {
-        console.error('Direct login failed:', error);
-        alert('登录失败: ' + error);
-      }
-    } else {
-      console.error('Guard not available');
-      alert('Guard未初始化');
+  const { 
+    user, 
+    isAuthenticated, 
+    isLoading, 
+    status, 
+    showLogin, 
+    logout, 
+    guard,
+    isInitialized 
+  } = useAuth();
+
+  const handleShowLogin = async () => {
+    console.log('AuthTestPage: showLogin called');
+    try {
+      await showLogin();
+    } catch (error) {
+      console.error('AuthTestPage: showLogin failed:', error);
     }
   };
 
-  const handleShowLogin = () => {
-    console.log('Show login button clicked');
-    showLogin();
-  };
-
   return (
-    <div className="container mx-auto py-8 px-4">
-      <Card className="max-w-2xl mx-auto">
+    <div className="container mx-auto px-4 py-8">
+      <Card>
         <CardHeader>
-          <CardTitle>Authing 登录测试</CardTitle>
-          <CardDescription>
-            用于调试Authing登录相关问题
-          </CardDescription>
+          <CardTitle>认证状态测试</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* 状态信息 */}
-          <div className="space-y-2">
-            <h3 className="font-semibold">当前状态:</h3>
-            <div className="text-sm space-y-1">
-              <p>认证状态: {status}</p>
-              <p>是否已登录: {isAuthenticated ? '是' : '否'}</p>
-              <p>Guard可用: {guard ? '是' : '否'}</p>
-              {user && (
-                <div>
-                  <p>用户信息:</p>
-                  <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
-                    {JSON.stringify(user, null, 2)}
-                  </pre>
-                </div>
-              )}
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <strong>认证状态:</strong> {status}
+            </div>
+            <div>
+              <strong>是否已认证:</strong> {isAuthenticated ? '是' : '否'}
+            </div>
+            <div>
+              <strong>是否加载中:</strong> {isLoading ? '是' : '否'}
+            </div>
+            <div>
+              <strong>Guard已初始化:</strong> {isInitialized ? '是' : '否'}
+            </div>
+            <div>
+              <strong>Guard实例:</strong> {guard ? '存在' : '不存在'}
             </div>
           </div>
 
-          {/* 配置信息 */}
-          <div className="space-y-2">
-            <h3 className="font-semibold">Authing配置:</h3>
-            <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
-              {JSON.stringify(getAuthingConfig(), null, 2)}
-            </pre>
-          </div>
-
-          {/* 测试按钮 */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">测试操作:</h3>
-            <div className="flex flex-wrap gap-4">
-              <Button 
-                onClick={handleShowLogin}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                使用 showLogin() 登录
-              </Button>
-              
-              <Button 
-                onClick={handleDirectLogin}
-                variant="outline"
-              >
-                直接调用 loginWithRedirect()
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  console.log('Guard object:', guard);
-                  console.log('Guard methods:', Object.getOwnPropertyNames(guard || {}));
-                }}
-                variant="outline"
-              >
-                打印Guard信息
-              </Button>
+          {user && (
+            <div className="border rounded p-4">
+              <h3 className="font-semibold mb-2">用户信息:</h3>
+              <pre className="text-xs bg-gray-100 p-2 rounded">
+                {JSON.stringify(user, null, 2)}
+              </pre>
             </div>
+          )}
+
+          <div className="flex space-x-4">
+            <Button onClick={handleShowLogin} disabled={!isInitialized}>
+              显示登录窗口
+            </Button>
+            {isAuthenticated && (
+              <Button onClick={logout} variant="outline">
+                退出登录
+              </Button>
+            )}
           </div>
 
-          {/* 调试信息 */}
-          <div className="space-y-2">
-            <h3 className="font-semibold">调试信息:</h3>
-            <p className="text-sm text-gray-600">
-              请打开浏览器控制台查看详细的调试信息
-            </p>
+          <div className="text-xs text-gray-500">
+            <p>调试信息:</p>
+            <p>- 如果点击"显示登录窗口"没有反应，请检查浏览器控制台的错误信息</p>
+            <p>- 确保 Authing 配置正确，网络连接正常</p>
           </div>
         </CardContent>
       </Card>
