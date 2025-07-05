@@ -247,7 +247,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (guard) {
       try {
         console.log('Attempting register with redirect...');
-        await guard.startWithRedirect({ scene: 'register' });
+        // 修正：移除 scene 参数，保证类型安全
+        await guard.startWithRedirect();
       } catch (error) {
         console.error('Register redirect failed:', error);
         // 回退到弹窗方式
