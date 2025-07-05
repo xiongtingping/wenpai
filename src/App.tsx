@@ -1,11 +1,9 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import UserAvatar from '@/components/auth/UserAvatar';
-import { useAuth } from '@/contexts/AuthContext';
 
 // 页面导入
 import HomePage from '@/pages/HomePage';
@@ -26,118 +24,11 @@ import Callback from '@/pages/Callback';
 import ToolLayout from '@/components/layout/ToolLayout';
 
 /**
- * 导航栏组件
- */
-const NavigationBar: React.FC = () => {
-  const { user, isAuthenticated, showLogin } = useAuth();
-
-  return (
-    <nav style={{ 
-      background: '#001529', 
-      padding: '15px 20px',
-      color: 'white'
-    }}>
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <h1 style={{ margin: 0, fontSize: '20px' }}>文派 - AI 内容适配工具</h1>
-          
-          <div style={{ display: 'flex', gap: '15px' }}>
-            <Link 
-              to="/"
-              style={{ 
-                color: 'white', 
-                textDecoration: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                transition: 'background-color 0.3s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              首页
-            </Link>
-            
-            <Link 
-              to="/adapt"
-              style={{ 
-                color: 'white', 
-                textDecoration: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                transition: 'background-color 0.3s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              内容适配
-            </Link>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          {isAuthenticated ? (
-            <UserAvatar 
-              user={user}
-              showDropdown={true}
-              size="md"
-              showUsername={true}
-            />
-          ) : (
-            <>
-              <button
-                onClick={showLogin}
-                style={{ 
-                  color: 'white', 
-                  textDecoration: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.3s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1890ff'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                登录/注册
-              </button>
-              <Link 
-                to="/api-test"
-                style={{ 
-                  color: '#ffd700', 
-                  textDecoration: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  border: '1px solid #ffd700',
-                  transition: 'background-color 0.3s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#ffd700'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                API测试
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
-    </nav>
-  );
-};
-
-/**
  * 应用内容组件
  */
 const AppContent: React.FC = () => {
   return (
     <div>
-      <NavigationBar />
-
       {/* 路由内容 */}
       <Routes>
         {/* 公开页面 */}
