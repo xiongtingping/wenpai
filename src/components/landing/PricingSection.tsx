@@ -3,36 +3,36 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function PricingSection() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly")
   const { toast } = useToast()
+  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
 
 
   // Handle Pro plan selection
   const handleProPlanClick = () => {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem("userToken") || sessionStorage.getItem("userToken");
-    
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       // User is logged in, go directly to payment
       localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly");
-      window.location.href = "/payment";
+      navigate("/payment");
       
       toast({
         title: "正在为您跳转到支付页面",
         description: "请完成支付以开通专业版功能",
       });
     } else {
-      // User is not logged in, redirect to registration first
+      // User is not logged in, redirect to login/register choice page
       localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly");
-      window.location.href = "/register";
+      navigate("/register");
     
-    toast({
-      title: "正在为您跳转到注册页面",
-      description: "完成注册后将为您导向支付页面",
+      toast({
+        title: "正在为您跳转到登录页面",
+        description: "完成登录后将为您导向支付页面",
       });
     }
   }

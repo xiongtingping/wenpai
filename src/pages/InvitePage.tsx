@@ -29,6 +29,8 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function InvitePage() {
   const { toast } = useToast();
@@ -37,6 +39,7 @@ function InvitePage() {
   const generateInviteCode = useUserStore((state) => state.generateInviteCode);
   const userInviteStats = useUserStore((state) => state.userInviteStats);
   const usageRemaining = useUserStore((state) => state.usageRemaining);
+  const navigate = useNavigate();
   
   const [newInviteLink, setNewInviteLink] = useState<any>(null);
 
@@ -87,16 +90,21 @@ function InvitePage() {
 
   return (
     <div className="container mx-auto py-12 max-w-6xl">
+      <div className="mb-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回首页
+        </Button>
+      </div>
       <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-8">邀请好友 · 获得奖励</h1>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto">
-          <TabsTrigger value="invite">邀请奖励</TabsTrigger>
-          <TabsTrigger value="stats">数据统计</TabsTrigger>
-        </TabsList>
+      <div className="space-y-6">
 
-        <TabsContent value="invite">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="md:col-span-2 border-2 border-blue-100 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
                 <h2 className="text-xl font-bold flex items-center">
@@ -238,87 +246,7 @@ function InvitePage() {
               </CardContent>
             </Card>
           )}
-        </TabsContent>
-
-        <TabsContent value="stats">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="h-5 w-5 mr-2" /> 邀请数据统计
-              </CardTitle>
-              <CardDescription>
-                查看您的邀请链接表现和奖励获取情况
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Card className="bg-green-50 border border-green-100">
-                  <CardContent className="p-4 flex flex-col items-center justify-center">
-                    <Users className="h-8 w-8 text-green-500 mb-2" />
-                    <p className="text-3xl font-bold">{userInviteStats.totalRegistrations}</p>
-                    <p className="text-sm text-gray-500">成功注册人数</p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-purple-50 border border-purple-100">
-                  <CardContent className="p-4 flex flex-col items-center justify-center">
-                    <Award className="h-8 w-8 text-purple-500 mb-2" />
-                    <p className="text-3xl font-bold">{calculateTotalRewards()}</p>
-                    <p className="text-sm text-gray-500">累计奖励次数</p>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <div className="rounded-md border">
-                <Table>
-                  <TableCaption>邀请链接效果统计表格</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>邀请码</TableHead>
-                      <TableHead>创建日期</TableHead>
-                      <TableHead className="text-right">注册数</TableHead>
-                      <TableHead className="text-right">状态</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {userInviteStats.invitationLinks.length > 0 ? (
-                      userInviteStats.invitationLinks.map((invite) => (
-                        <TableRow key={invite.code}>
-                          <TableCell className="font-medium">{invite.code}</TableCell>
-                          <TableCell>{new Date(invite.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">{invite.registrations}</TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-200">
-                              有效
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-6 text-gray-500">
-                          暂无邀请记录，创建一个新的邀请链接开始分享吧！
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {/* Show the newly created invite if it exists */}
-                    {newInviteLink && (
-                      <TableRow className="bg-green-50">
-                        <TableCell className="font-medium">{newInviteLink.code}</TableCell>
-                        <TableCell>{new Date(newInviteLink.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-right">0</TableCell>
-                        <TableCell className="text-right">
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-200">新建</Badge>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
     </div>
   );
 }

@@ -67,9 +67,9 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
    * 获取用户名显示文本
    */
   const getDisplayName = () => {
-    if (!user || typeof user !== 'object') return '用户';
+    if (!user || typeof user !== 'object') return '我的';
     const userObj = user as Record<string, unknown>;
-    return (userObj.nickname as string) || (userObj.username as string) || (userObj.email as string) || '用户';
+    return (userObj.nickname as string) || (userObj.username as string) || (userObj.email as string) || '我的';
   };
 
   /**
@@ -77,7 +77,28 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
    */
   const getInitials = () => {
     const name = getDisplayName();
-    return name.charAt(0).toUpperCase();
+    // 如果是中文，返回第一个字符；如果是英文，返回第一个字母
+    if (/[\u4e00-\u9fa5]/.test(name)) {
+      return name.charAt(0);
+    } else {
+      return name.charAt(0).toUpperCase();
+    }
+  };
+
+  /**
+   * 获取显示文本（用于下拉菜单标签）
+   */
+  const getDisplayText = () => {
+    if (!user || typeof user !== 'object') return '我的';
+    const userObj = user as Record<string, unknown>;
+    const nickname = userObj.nickname as string;
+    const username = userObj.username as string;
+    const email = userObj.email as string;
+    
+    if (nickname) return nickname;
+    if (username) return username;
+    if (email) return email.split('@')[0]; // 只显示邮箱前缀
+    return '我的';
   };
 
   /**
@@ -139,7 +160,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{getDisplayName()}</p>
+            <p className="text-sm font-medium leading-none">{getDisplayText()}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {(user as Record<string, unknown>)?.email as string}
             </p>

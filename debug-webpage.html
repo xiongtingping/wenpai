@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页诊断工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .diagnostic-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .test-link {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .test-link:hover {
+            background-color: #0056b3;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 网页诊断工具</h1>
+    
+    <div class="diagnostic-section">
+        <h2>📋 诊断说明</h2>
+        <p>本工具用于诊断网页空白或无法访问的问题。</p>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>🌐 服务器状态检查</h2>
+        <div id="server-status">
+            <p>正在检查服务器状态...</p>
+        </div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>🔗 测试链接</h2>
+        <p>点击以下链接测试不同的访问方式：</p>
+        
+        <div>
+            <a href="http://localhost:3000" class="test-link" target="_blank">
+                🌐 端口 3000 (http://localhost:3000)
+            </a>
+            <a href="http://localhost:3001" class="test-link" target="_blank">
+                🌐 端口 3001 (http://localhost:3001)
+            </a>
+            <a href="http://127.0.0.1:3000" class="test-link" target="_blank">
+                🌐 端口 3000 (http://127.0.0.1:3000)
+            </a>
+            <a href="http://127.0.0.1:3001" class="test-link" target="_blank">
+                🌐 端口 3001 (http://127.0.0.1:3001)
+            </a>
+        </div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>🔧 常见解决方案</h2>
+        
+        <h3>1. 网页完全空白</h3>
+        <div class="code-block">可能原因：
+- JavaScript 错误导致页面无法渲染
+- 依赖包缺失或版本冲突
+- 构建错误
+- 浏览器缓存问题
+
+解决方案：
+1. 打开浏览器开发者工具 (F12)
+2. 查看 Console 标签页的错误信息
+3. 清除浏览器缓存 (Ctrl+Shift+R)
+4. 重启开发服务器</div>
+
+        <h3>2. 页面加载缓慢</h3>
+        <div class="code-block">可能原因：
+- 网络连接问题
+- 服务器资源不足
+- 大量依赖包加载
+
+解决方案：
+1. 检查网络连接
+2. 等待页面完全加载
+3. 检查服务器资源使用情况</div>
+
+        <h3>3. 端口无法访问</h3>
+        <div class="code-block">可能原因：
+- 开发服务器未启动
+- 端口被占用
+- 防火墙阻止
+
+解决方案：
+1. 运行 npm run dev 启动服务器
+2. 检查端口占用情况
+3. 尝试使用不同端口</div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>📞 快速修复命令</h2>
+        <div class="code-block"># 停止所有开发服务器
+pkill -f "vite\|npm run dev"
+
+# 清除缓存
+npm cache clean --force
+
+# 重新安装依赖
+rm -rf node_modules package-lock.json
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 检查端口占用
+lsof -i :3000 -i :3001 -i :3002</div>
+    </div>
+
+    <div class="diagnostic-section">
+        <h2>🐛 浏览器调试步骤</h2>
+        <ol>
+            <li>打开浏览器开发者工具 (F12)</li>
+            <li>查看 Console 标签页的错误信息</li>
+            <li>查看 Network 标签页的网络请求</li>
+            <li>查看 Elements 标签页的DOM结构</li>
+            <li>尝试禁用浏览器扩展</li>
+            <li>使用无痕模式测试</li>
+        </ol>
+    </div>
+
+    <script>
+        // 检查服务器状态
+        async function checkServerStatus() {
+            const ports = [3000, 3001, 3002];
+            const statusDiv = document.getElementById('server-status');
+            let statusHTML = '';
+            
+            for (const port of ports) {
+                try {
+                    const response = await fetch(`http://localhost:${port}`, { 
+                        mode: 'no-cors',
+                        method: 'HEAD'
+                    });
+                    statusHTML += `<div class="status success">✅ 端口 ${port}: 服务器运行中</div>`;
+                } catch (error) {
+                    statusHTML += `<div class="status error">❌ 端口 ${port}: 服务器未运行</div>`;
+                }
+            }
+            
+            statusDiv.innerHTML = statusHTML;
+        }
+        
+        // 页面加载时检查服务器状态
+        window.addEventListener('load', checkServerStatus);
+        
+        // 添加错误处理
+        window.addEventListener('error', function(e) {
+            console.error('页面错误:', e.error);
+        });
+        
+        // 添加未处理的Promise拒绝处理
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('未处理的Promise拒绝:', e.reason);
+        });
+    </script>
+</body>
+</html> 

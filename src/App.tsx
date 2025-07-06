@@ -20,8 +20,12 @@ import TermsPage from '@/pages/TermsPage';
 import ChangelogPage from '@/pages/ChangelogPage';
 import HistoryPage from '@/pages/HistoryPage';
 import LoginPage from '@/pages/LoginPage';
+import LoginRegisterPage from '@/pages/LoginRegisterPage';
+import RegisterPage from '@/pages/RegisterPage';
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import Callback from '@/pages/Callback';
 import AuthTestPage from '@/pages/AuthTestPage';
+import UserStatusPage from '@/pages/UserStatusPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 
 /**
@@ -38,9 +42,13 @@ const AppContent: React.FC = () => {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/login-register" element={<LoginRegisterPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/callback" element={<Callback />} />
         <Route path="/api-test" element={<ApiTestPage />} />
         <Route path="/auth-test" element={<AuthTestPage />} />
+        <Route path="/user-status" element={<UserStatusPage />} />
 
         {/* 需要登录的受保护页面 */}
         <Route path="/adapt" element={

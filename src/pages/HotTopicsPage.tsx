@@ -6,15 +6,29 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Clock, Users, Hash } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, Clock, Users, Hash, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 全网热门话题页面组件
  * @returns React 组件
  */
 export default function HotTopicsPage() {
+  const navigate = useNavigate();
+  
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回首页
+        </Button>
+      </div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">全网热门话题</h1>
         <p className="text-gray-600">

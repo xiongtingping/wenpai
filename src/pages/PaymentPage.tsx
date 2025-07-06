@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, Calendar } from "lucide-react";
+import { Clock, Calendar, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function PaymentPage() {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
@@ -10,6 +11,7 @@ export default function PaymentPage() {
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
   const [showQRCode, setShowQRCode] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // 暑假特惠截止日期：2025年9月30日24:00
   const summerSaleEndDate = new Date('2025-09-30T24:00:00');
@@ -101,6 +103,16 @@ export default function PaymentPage() {
 
   return (
     <div className="container mx-auto py-16 px-4 max-w-4xl">
+      <div className="mb-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回首页
+        </Button>
+      </div>
       <div className="mb-12 text-center">
         <h1 className="text-3xl font-bold mb-2">支付中心</h1>
         <p className="text-muted-foreground">完成支付即可开通文派专业版</p>

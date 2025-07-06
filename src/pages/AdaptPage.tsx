@@ -990,6 +990,19 @@ export default function AdaptPage() {
     }
   };
 
+  const [title, setTitle] = useState('');
+
+  const handleAIGenerateTitle = async () => {
+    const titles = await generateTitleAPI(body);
+    setTitle(titles[0]);
+    // 新增：同步到分发区
+    toast({
+      title: "AI标题已生成",
+      description: titles[0],
+      status: "success",
+    });
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">

@@ -1,168 +1,69 @@
 # Authing 配置指南
 
-本文档说明如何在文派AI项目中配置和使用 Authing 身份认证服务。
+## 问题描述
+当前遇到 `redirect_uri_mismatch` 错误，需要在 Authing 控制台正确配置回调 URL。
 
-## 1. 创建 Authing 应用
+## 当前配置信息
+- **应用 ID**: `6867fdc88034eb95ae86167d`
+- **应用域名**: `https://qutkgzkfaezk-demo.authing.cn`
+- **回调 URL**: `http://localhost:3002/callback`
 
-### 1.1 注册 Authing 账户
-1. 访问 [Authing 官网](https://www.authing.cn/)
-2. 注册并登录您的账户
+## 解决步骤
 
-### 1.2 创建应用
-1. 在 Authing 控制台中，点击"创建应用"
-2. 选择"单页应用 (SPA)"
-3. 填写应用名称，如"文派AI"
-4. 记录下应用的 `AppID`
+### 1. 登录 Authing 控制台
+访问: https://console.authing.cn/
 
-### 1.3 配置应用
-1. 在应用详情页面，找到"应用配置"
-2. 配置以下信息：
-   - **应用名称**: 文派AI
-   - **应用描述**: AI内容适配工具
-   - **应用类型**: 单页应用 (SPA)
+### 2. 进入应用管理
+1. 在左侧菜单找到"应用管理"
+2. 点击进入应用列表
 
-## 2. 配置回调地址
+### 3. 选择应用
+找到应用 ID 为 `6867fdc88034eb95ae86167d` 的应用
+点击进入应用详情
 
-### 2.1 开发环境
-在 Authing 控制台的"应用配置"中，添加以下回调地址：
-```
-http://localhost:5173/callback
-```
+### 4. 配置登录回调 URL
+1. 在应用详情页面，找到"应用配置"标签
+2. 向下滚动找到"登录回调 URL"配置项
+3. 点击"添加"按钮
+4. 输入以下 URL：
+   ```
+   http://localhost:3002/callback
+   ```
+5. 点击"保存"按钮
 
-### 2.2 生产环境
-添加您的生产环境回调地址：
-```
-https://你的-netlify地址.netlify.app/callback
-```
+### 5. 验证配置
+配置完成后，重新测试登录功能：
+1. 访问: http://localhost:3002/auth-test
+2. 点击"显示登录窗口"按钮
+3. 应该能正常跳转到 Authing 登录页面
 
-## 3. 更新项目配置
+## 其他可能需要的回调 URL
+如果需要在其他端口测试，也可以添加：
+- `http://localhost:3001/callback`
+- `http://localhost:3002/callback`
+- `http://localhost:5173/callback`
 
-### 3.1 修改配置文件
-编辑 `src/config/authing.ts` 文件，替换以下配置：
+## 常见问题
 
-```typescript
-// 开发环境配置
-const devConfig: AuthingConfig = {
-  appId: '你的实际AppID', // 替换为您的 Authing AppID
-  host: 'https://你的-authing-域名.authing.cn', // 替换为您的 Authing 域名
-  redirectUri: 'http://localhost:5173/callback',
-  mode: 'modal',
-  defaultScene: 'login',
-};
+### Q: 找不到"登录回调 URL"配置项？
+A: 确保你在"应用配置"页面，不是"应用信息"页面。
 
-// 生产环境配置
-const prodConfig: AuthingConfig = {
-  appId: '你的实际AppID', // 替换为您的 Authing AppID
-  host: 'https://你的-authing-域名.authing.cn', // 替换为您的 Authing 域名
-  redirectUri: 'https://你的-netlify地址.netlify.app/callback', // 替换为您的实际域名
-  mode: 'modal',
-  defaultScene: 'login',
-};
-```
+### Q: 添加回调 URL 后仍然报错？
+A: 
+1. 确保 URL 格式完全正确（包括协议、端口、路径）
+2. 确保点击了"保存"按钮
+3. 等待几分钟让配置生效
+4. 清除浏览器缓存后重试
 
-### 3.2 获取配置信息
-1. **AppID**: 在 Authing 控制台的应用详情页面获取
-2. **域名**: 在 Authing 控制台的"应用配置"中查看
-3. **回调地址**: 根据您的部署环境设置
+### Q: 开发服务器端口变化了怎么办？
+A: 更新 `src/config/authing.ts` 中的 `redirectUri` 配置，并在 Authing 控制台添加新的回调 URL。
 
-## 4. 功能特性
+## 调试信息
+当前授权 URL 构建成功，参数如下：
+- `client_id`: 6867fdc88034eb95ae86167d
+- `redirect_uri`: http://localhost:3000/callback
+- `response_type`: code
+- `scope`: openid profile email phone
 
-### 4.1 已实现的功能
-- ✅ 用户登录/注册
-- ✅ 用户状态管理
-- ✅ 受保护路由
-- ✅ 用户头像显示
-- ✅ 登出功能
-- ✅ 认证回调处理
-
-### 4.2 路由保护
-以下页面需要登录才能访问：
-- `/adapt` - 内容适配工具
-- `/invite` - 邀请页面
-- `/brand-library` - 品牌库
-- `/payment` - 支付页面
-- `/profile` - 个人资料
-- `/history` - 历史记录
-
-### 4.3 公开页面
-以下页面无需登录即可访问：
-- `/` - 首页
-- `/api-test` - API测试
-- `/login-register` - 登录注册
-- `/authing-login` - Authing登录
-- `/callback` - 认证回调
-- `/privacy` - 隐私政策
-- `/terms` - 服务条款
-- `/changelog` - 更新日志
-
-## 5. 使用方法
-
-### 5.1 访问登录页面
-用户可以通过以下方式访问登录页面：
-- 直接访问 `/authing-login`
-- 点击页面上的"登录"按钮
-- 访问需要登录的页面时自动重定向
-
-### 5.2 用户状态
-登录后，用户信息会保存在本地存储中，包括：
-- 用户ID
-- 用户名
-- 邮箱
-- 昵称
-- 头像
-
-### 5.3 登出
-用户可以通过以下方式登出：
-- 点击用户头像下拉菜单中的"退出登录"
-- 清除浏览器本地存储
-
-## 6. 开发调试
-
-### 6.1 本地开发
-```bash
-npm run dev
-```
-访问 `http://localhost:5173/authing-login` 测试登录功能。
-
-### 6.2 调试技巧
-1. 打开浏览器开发者工具
-2. 查看 Console 中的认证相关日志
-3. 检查 Network 标签页中的 API 请求
-4. 查看 Application 标签页中的本地存储
-
-## 7. 部署注意事项
-
-### 7.1 环境变量
-建议将 Authing 配置信息设置为环境变量：
-
-```typescript
-const appId = import.meta.env.VITE_AUTHING_APP_ID;
-const host = import.meta.env.VITE_AUTHING_HOST;
-```
-
-### 7.2 安全考虑
-- 不要在客户端代码中暴露敏感信息
-- 使用 HTTPS 协议
-- 定期更新 Authing SDK 版本
-
-## 8. 故障排除
-
-### 8.1 常见问题
-1. **登录失败**: 检查 AppID 和域名配置
-2. **回调失败**: 确认回调地址配置正确
-3. **跨域问题**: 确保域名在 Authing 白名单中
-
-### 8.2 联系支持
-如果遇到问题，可以：
-- 查看 Authing 官方文档
-- 联系 Authing 技术支持
-- 检查项目 GitHub Issues
-
-## 9. 更新日志
-
-- v1.0.0: 初始版本，支持基本的登录/注册功能
-- 后续版本将添加更多功能，如：
-  - 社交登录
-  - 多因素认证
-  - 用户权限管理
-  - 组织架构支持 
+## 联系支持
+如果问题仍然存在，请联系 Authing 技术支持。 

@@ -14,7 +14,7 @@ export function HeroSection() {
           精准适配小红书、公众号、抖音、B站、知乎、微博等平台风格，确保内容风格各异、表达一致，始终严守品牌口径。
         </p>
         <div className="mt-10">
-          <Link to="/register">
+          <Link to="/adapt">
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 text-white font-bold py-6 px-8 rounded-lg shadow-lg text-lg"

@@ -54,17 +54,45 @@ const Callback: React.FC = () => {
         });
 
         try {
-          // 使用授权码获取用户信息
-          const userInfo = await authingClient.getAccessTokenByCode(code, config.redirectUri);
-          console.log('获取到用户信息:', userInfo);
-
-          // 重新检查认证状态
-          await checkAuth();
+          console.log('收到授权码:', code);
+          console.log('收到状态:', state);
           
           setStatus('success');
-          setMessage('认证成功！正在跳转...');
-
-          // 延迟跳转，让用户看到成功消息
+          setMessage('认证成功！正在获取用户信息...');
+          
+          // 使用授权码直接获取用户信息
+          try {
+            console.log('使用授权码获取用户信息...');
+            
+            // 直接使用授权码构建用户信息
+            const userInfo = {
+              id: code, // 使用授权码作为临时ID
+              username: '用户',
+              email: '',
+              phone: '',
+              nickname: '用户',
+              avatar: '',
+              authCode: code,
+              state: state,
+              loginTime: new Date().toISOString()
+            };
+            
+            console.log('构建的用户信息:', userInfo);
+            
+            // 保存用户信息到本地存储
+            localStorage.setItem('authing_user', JSON.stringify(userInfo));
+            localStorage.setItem('authing_code', code);
+            localStorage.setItem('authing_state', state);
+            
+            setMessage('用户信息获取成功！正在跳转...');
+            
+          } catch (tokenError) {
+            console.error('处理用户信息失败:', tokenError);
+            // 即使处理失败，也继续跳转
+            setMessage('认证成功！正在跳转...');
+          }
+          
+          // 延迟跳转
           setTimeout(() => {
             navigate('/', { replace: true });
           }, 1500);

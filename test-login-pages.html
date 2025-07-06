@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录注册页面测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-link {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .test-link:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 登录注册页面验证码按钮测试</h1>
+    
+    <div class="test-section">
+        <h2>📋 测试说明</h2>
+        <p>本页面用于测试各个登录注册页面的验证码按钮是否正常显示和工作。</p>
+        
+        <div class="status warning">
+            <strong>⚠️ 注意事项：</strong>
+            <ul>
+                <li>请确保开发服务器正在运行</li>
+                <li>测试前请检查浏览器控制台是否有错误</li>
+                <li>如果按钮不显示，可能是样式或JavaScript问题</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔗 页面链接测试</h2>
+        <p>点击以下链接测试不同的登录注册页面：</p>
+        
+        <div>
+            <a href="http://localhost:3000/register" class="test-link" target="_blank">
+                📝 注册页面 (/register)
+            </a>
+            <a href="http://localhost:3000/login" class="test-link" target="_blank">
+                🔐 登录页面 (/login)
+            </a>
+            <a href="http://localhost:3000/login-register" class="test-link" target="_blank">
+                🔄 登录注册选择页面 (/login-register)
+            </a>
+            <a href="http://localhost:3000/forgot-password" class="test-link" target="_blank">
+                🔑 找回密码页面 (/forgot-password)
+            </a>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 验证码按钮检查清单</h2>
+        
+        <h3>注册页面 (/register)</h3>
+        <ul>
+            <li>✅ 手机号注册标签页中的验证码输入框</li>
+            <li>✅ 手机号注册标签页中的"发送验证码"按钮</li>
+            <li>✅ 邮箱注册标签页中的验证码输入框</li>
+            <li>✅ 邮箱注册标签页中的"发送验证码"按钮</li>
+        </ul>
+
+        <h3>登录页面 (/login)</h3>
+        <ul>
+            <li>✅ 密码登录标签页（无验证码按钮）</li>
+            <li>✅ 验证码登录标签页中的验证码输入框</li>
+            <li>✅ 验证码登录标签页中的"发送验证码"按钮</li>
+        </ul>
+
+        <h3>找回密码页面 (/forgot-password)</h3>
+        <ul>
+            <li>✅ 手机号找回密码中的验证码输入框</li>
+            <li>✅ 手机号找回密码中的"发送验证码"按钮</li>
+            <li>✅ 邮箱找回密码中的验证码输入框</li>
+            <li>✅ 邮箱找回密码中的"发送验证码"按钮</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🐛 常见问题排查</h2>
+        
+        <h3>1. 验证码按钮不显示</h3>
+        <div class="code-block">可能原因：
+- CSS样式问题
+- JavaScript错误
+- 组件渲染失败
+- 路由配置错误
+
+检查方法：
+1. 打开浏览器开发者工具
+2. 查看Console标签页是否有错误
+3. 查看Elements标签页检查按钮元素是否存在
+4. 检查Network标签页是否有资源加载失败</div>
+
+        <h3>2. 点击发送按钮无反应</h3>
+        <div class="code-block">可能原因：
+- JavaScript函数未绑定
+- 事件处理函数错误
+- API调用失败
+- 网络连接问题
+
+检查方法：
+1. 查看Console标签页的错误信息
+2. 检查Network标签页的API请求
+3. 确认手机号/邮箱格式是否正确
+4. 检查倒计时功能是否正常</div>
+
+        <h3>3. redirect_uri_mismatch 错误</h3>
+        <div class="code-block">解决方案：
+1. 运行 ./fix-authing-config.sh 脚本
+2. 在Authing控制台添加正确的回调URL
+3. 确保端口号匹配
+4. 检查redirectUri配置</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 快速修复脚本</h2>
+        <p>如果遇到问题，可以运行以下脚本：</p>
+        
+        <div class="code-block"># 检查Authing配置
+./fix-authing-config.sh
+
+# 重启开发服务器
+npm run dev
+
+# 检查端口占用
+lsof -i :3000 -i :3001 -i :3002</div>
+    </div>
+
+    <div class="test-section">
+        <h2>📞 测试步骤</h2>
+        <ol>
+            <li>确保开发服务器在端口3000或3001运行</li>
+            <li>点击上面的页面链接</li>
+            <li>检查验证码按钮是否显示</li>
+            <li>输入手机号/邮箱，点击发送按钮</li>
+            <li>检查倒计时是否正常</li>
+            <li>查看浏览器控制台是否有错误</li>
+        </ol>
+    </div>
+
+    <script>
+        // 检查开发服务器状态
+        async function checkServerStatus() {
+            const ports = [3000, 3001, 3002];
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'test-section';
+            statusDiv.innerHTML = '<h2>🌐 服务器状态检查</h2>';
+            
+            for (const port of ports) {
+                try {
+                    const response = await fetch(`http://localhost:${port}`, { 
+                        mode: 'no-cors',
+                        method: 'HEAD'
+                    });
+                    statusDiv.innerHTML += `<div class="status success">✅ 端口 ${port}: 服务器运行中</div>`;
+                } catch (error) {
+                    statusDiv.innerHTML += `<div class="status error">❌ 端口 ${port}: 服务器未运行</div>`;
+                }
+            }
+            
+            document.body.insertBefore(statusDiv, document.body.firstChild);
+        }
+        
+        // 页面加载时检查服务器状态
+        window.addEventListener('load', checkServerStatus);
+    </script>
+</body>
+</html> 

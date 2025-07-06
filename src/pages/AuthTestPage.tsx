@@ -17,6 +17,8 @@ export default function AuthTestPage() {
 
   const handleShowLogin = async () => {
     console.log('AuthTestPage: showLogin called');
+    console.log('AuthTestPage: isInitialized =', isInitialized);
+    console.log('AuthTestPage: authing =', authing);
     try {
       await showLogin();
     } catch (error) {
@@ -47,6 +49,9 @@ export default function AuthTestPage() {
             <div>
               <strong>Authing实例:</strong> {authing ? '存在' : '不存在'}
             </div>
+            <div>
+              <strong>按钮是否禁用:</strong> {!isInitialized ? '是' : '否'}
+            </div>
           </div>
 
           {user && (
@@ -59,8 +64,12 @@ export default function AuthTestPage() {
           )}
 
           <div className="flex space-x-4">
-            <Button onClick={handleShowLogin} disabled={!isInitialized}>
-              显示登录窗口
+            <Button 
+              onClick={handleShowLogin} 
+              disabled={!isInitialized}
+              className={!isInitialized ? 'opacity-50 cursor-not-allowed' : ''}
+            >
+              显示登录窗口 {!isInitialized && '(初始化中...)'}
             </Button>
             {isAuthenticated && (
               <Button onClick={logout} variant="outline">
@@ -74,6 +83,7 @@ export default function AuthTestPage() {
             <p>- 如果点击"显示登录窗口"没有反应，请检查浏览器控制台的错误信息</p>
             <p>- 确保 Authing 配置正确，网络连接正常</p>
             <p>- 使用 authing-js-sdk 的 AuthenticationClient</p>
+            <p>- 按钮状态: {isInitialized ? '已启用' : '已禁用 (等待初始化)'}</p>
           </div>
         </CardContent>
       </Card>

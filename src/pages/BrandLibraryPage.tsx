@@ -10,8 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Database, Upload, FileText, File, FileImage, 
   AlertCircle, Info, Search,
-  SortAsc, Filter, Check, Clock
+  SortAsc, Filter, Check, Clock, ArrowLeft
 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -39,6 +40,7 @@ export default function BrandLibraryPage() {
   const [sortOption, setSortOption] = useState<SortOption>('date-new');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Available categories for filtering
   const categories = ["品牌手册", "文案指南", "产品介绍", "营销素材", "新闻稿", "企业介绍"];
@@ -145,6 +147,16 @@ export default function BrandLibraryPage() {
   
   return (
     <div className="container py-8">
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回首页
+        </Button>
+      </div>
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent flex items-center">

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, HelpCircle } from "lucide-react"
@@ -65,6 +65,7 @@ export function Header() {
   const isMobile = useIsMobile()
   const { user, isAuthenticated, showLogin } = useAuth()
   const { toast } = useToast()
+  const navigate = useNavigate()
   
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
@@ -78,10 +79,9 @@ export function Header() {
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
-            <a href="#features" className="text-gray-600 hover:text-blue-600 transition">产品功能</a>
-            <Link to="/adapt" className="text-gray-600 hover:text-blue-600 transition">内容适配</Link>
+            <Link to="/adapt" className="text-gray-600 hover:text-blue-600 transition">AI内容适配</Link>
             <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition flex items-center">
-              品牌库
+              品牌资料库
               <Badge variant="outline" className="ml-1 bg-amber-50 text-amber-700 border-amber-200">
                 开发中
               </Badge>
@@ -118,16 +118,7 @@ export function Header() {
               />
             ) : (
               <Button onClick={() => {
-                console.log('Login button clicked, showLogin:', showLogin);
-                if (typeof showLogin === 'function') {
-                  showLogin();
-                } else {
-                  toast({
-                    title: "登录服务未就绪",
-                    description: "请刷新页面后重试",
-                    variant: "destructive"
-                  });
-                }
+                navigate('/register');
               }} className="bg-blue-600 hover:bg-blue-700">
                 登录/注册
               </Button>
@@ -145,10 +136,9 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                <a href="#features" className="text-lg font-medium py-2">产品功能</a>
-                <Link to="/adapt" className="text-lg font-medium py-2">内容适配</Link>
+                <Link to="/adapt" className="text-lg font-medium py-2">AI内容适配</Link>
                 <Link to="/brand-library" className="text-lg font-medium py-2 flex items-center">
-                  品牌库
+                  品牌资料库
                   <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
                     开发中
                   </Badge>
@@ -177,16 +167,7 @@ export function Header() {
                   />
                 ) : (
                   <Button onClick={() => {
-                    console.log('Mobile login button clicked, showLogin:', showLogin);
-                    if (typeof showLogin === 'function') {
-                      showLogin();
-                    } else {
-                      toast({
-                        title: "登录服务未就绪",
-                        description: "请刷新页面后重试",
-                        variant: "destructive"
-                      });
-                    }
+                    navigate('/register');
                   }} className="w-full bg-blue-600 hover:bg-blue-700">
                     登录/注册
                   </Button>

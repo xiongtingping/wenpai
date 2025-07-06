@@ -22,7 +22,7 @@ export function FeaturesSection() {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="adapt">智能平台适配</TabsTrigger>
               <TabsTrigger value="brand">品牌库</TabsTrigger>
-              <TabsTrigger value="collab">高效工作流</TabsTrigger>
+              <TabsTrigger value="collab">全网热门话题</TabsTrigger>
             </TabsList>
             
             <TabsContent value="adapt">
@@ -71,17 +71,17 @@ export function FeaturesSection() {
               <Card className="mt-6 border-0 shadow-none">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center p-6">
                   <div className="text-left">
-                    <h3 className="text-2xl font-bold text-gray-900">内容工作流，从未如此顺畅</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">实时掌握全网热点，内容创作更有方向</h3>
                     <p className="mt-4 text-lg text-gray-600">
-                      生成内容后，一键分享链接给团队审核。支持导出多种格式，无缝对接到您现有的协同工具中，告别繁琐的复制粘贴。
+                      实时监控各大平台热门话题，智能分析热点趋势，为您的创作提供灵感。结合热点话题，让您的内容更具时效性和传播力。
                     </p>
                   </div>
                   <div className="bg-red-50 h-[300px] rounded-lg flex items-center justify-center text-red-500 font-semibold relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-red-100 to-red-200 animate-pulse"></div>
                     <div className="relative z-10 text-center">
-                      <div className="text-6xl mb-4 animate-pulse">🚀</div>
-                      <div className="text-lg font-bold">高效工作流演示</div>
-                      <div className="text-sm text-red-600 mt-2">正在优化工作流程...</div>
+                      <div className="text-6xl mb-4 animate-pulse">🔥</div>
+                      <div className="text-lg font-bold">热门话题演示</div>
+                      <div className="text-sm text-red-600 mt-2">正在获取最新热点...</div>
                     </div>
                   </div>
                 </div>
