@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Database, Users, TestTube } from 'lucide-react';
+import { ArrowLeft, Database, Users, TestTube, Bookmark, Smile, MessageCircle } from 'lucide-react';
 
 interface ToolLayoutProps {
   children: ReactNode;
@@ -40,6 +40,24 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
               <Link to="/invite" className="flex items-center">
                 <Users className="h-4 w-4 mr-1" />
                 邀请奖励
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/bookmarks" className="flex items-center">
+                <Bookmark className="h-4 w-4 mr-1" />
+                收藏夹
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/emojis" className="flex items-center">
+                <Smile className="h-4 w-4 mr-1" />
+                Emoji
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/wechat-templates" className="flex items-center">
+                <MessageCircle className="h-4 w-4 mr-1" />
+                朋友圈模板
               </Link>
             </Button>
             <Button size="sm" onClick={() => window.location.href = "/payment"}>升级专业版</Button>

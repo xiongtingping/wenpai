@@ -3,17 +3,19 @@
  * 用于测试 Authing 的各种认证功能
  */
 
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Mail, Lock, User, Phone, Key } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { User as AuthUser } from '@/contexts/AuthContext';
 import { AuthenticationClient } from "authing-js-sdk";
 import { getAuthingConfig } from "@/config/authing";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 /**
  * Authing 功能测试页面
@@ -53,12 +55,24 @@ export default function AuthingTestPage() {
   const testEmailLogin = async () => {
     setIsLoading(true);
     try {
-      const user = await authing.loginByEmail(testForm.email, testForm.password);
-      localStorage.setItem('authing_user', JSON.stringify(user));
-      setUser(user);
+      const authingUser = await authing.loginByEmail(testForm.email, testForm.password);
+      localStorage.setItem('authing_user', JSON.stringify(authingUser));
+      
+      // 转换为内部User类型
+      const convertedUser: AuthUser = {
+        id: String(authingUser.id || ''),
+        username: String(authingUser.username || authingUser.nickname || ''),
+        email: String(authingUser.email || ''),
+        phone: String(authingUser.phone || ''),
+        nickname: String(authingUser.nickname || authingUser.username || ''),
+        avatar: String(authingUser.photo || ''),
+        ...((authingUser as unknown) as Record<string, unknown>)
+      };
+      
+      setUser(convertedUser);
       toast({
         title: "登录成功",
-        description: `用户: ${user.nickname || user.username || user.email}`,
+        description: `用户: ${convertedUser.nickname || convertedUser.username || convertedUser.email}`,
       });
     } catch (error: any) {
       toast({
@@ -77,12 +91,24 @@ export default function AuthingTestPage() {
   const testPhoneLogin = async () => {
     setIsLoading(true);
     try {
-      const user = await authing.loginByPhonePassword(testForm.phone, testForm.password);
-      localStorage.setItem('authing_user', JSON.stringify(user));
-      setUser(user);
+      const authingUser = await authing.loginByPhonePassword(testForm.phone, testForm.password);
+      localStorage.setItem('authing_user', JSON.stringify(authingUser));
+      
+      // 转换为内部User类型
+      const convertedUser: AuthUser = {
+        id: String(authingUser.id || ''),
+        username: String(authingUser.username || authingUser.nickname || ''),
+        email: String(authingUser.email || ''),
+        phone: String(authingUser.phone || ''),
+        nickname: String(authingUser.nickname || authingUser.username || ''),
+        avatar: String(authingUser.photo || ''),
+        ...((authingUser as unknown) as Record<string, unknown>)
+      };
+      
+      setUser(convertedUser);
       toast({
         title: "登录成功",
-        description: `用户: ${user.nickname || user.username || user.phone}`,
+        description: `用户: ${convertedUser.nickname || convertedUser.username || convertedUser.phone}`,
       });
     } catch (error: any) {
       toast({
@@ -101,7 +127,7 @@ export default function AuthingTestPage() {
   const testEmailRegister = async () => {
     setIsLoading(true);
     try {
-      const user = await authing.registerByEmail(
+      const authingUser = await authing.registerByEmail(
         testForm.email,
         testForm.password,
         {
@@ -109,11 +135,23 @@ export default function AuthingTestPage() {
           phone: testForm.phone
         }
       );
-      localStorage.setItem('authing_user', JSON.stringify(user));
-      setUser(user);
+      localStorage.setItem('authing_user', JSON.stringify(authingUser));
+      
+      // 转换为内部User类型
+      const convertedUser: AuthUser = {
+        id: String(authingUser.id || ''),
+        username: String(authingUser.username || authingUser.nickname || ''),
+        email: String(authingUser.email || ''),
+        phone: String(authingUser.phone || ''),
+        nickname: String(authingUser.nickname || authingUser.username || ''),
+        avatar: String(authingUser.photo || ''),
+        ...((authingUser as unknown) as Record<string, unknown>)
+      };
+      
+      setUser(convertedUser);
       toast({
         title: "注册成功",
-        description: `用户: ${user.nickname || user.username || user.email}`,
+        description: `用户: ${convertedUser.nickname || convertedUser.username || convertedUser.email}`,
       });
     } catch (error: any) {
       toast({

@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, Lock, Phone, User } from "lucide-react";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Mail, Lock, User } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { User as AuthUser } from '@/contexts/AuthContext';
 import { AuthenticationClient } from "authing-js-sdk";
 import { getAuthingConfig } from "@/config/authing";
 
@@ -61,14 +62,13 @@ export default function LoginRegisterPage() {
     if (!registerForm.email) {
       toast({
         title: "请输入邮箱",
-        description: "请先输入邮箱地址",
         variant: "destructive"
       });
       return;
     }
     setIsSendingCode(true);
     try {
-      await authing.sendEmailCode(registerForm.email);
+      await authing.sendEmail(registerForm.email, 'REGISTER' as any);
       setCountdown(60);
       toast({
         title: "验证码已发送",
@@ -102,9 +102,21 @@ export default function LoginRegisterPage() {
     }
     setIsLoading(true);
     try {
-      const user = await authing.loginByEmail(loginForm.email, loginForm.password);
-      localStorage.setItem('authing_user', JSON.stringify(user));
-      setUser(user);
+      const authingUser = await authing.loginByEmail(loginForm.email, loginForm.password);
+      localStorage.setItem('authing_user', JSON.stringify(authingUser));
+      
+      // 转换为内部User类型
+      const convertedUser: AuthUser = {
+        id: String(authingUser.id || ''),
+        username: String(authingUser.username || authingUser.nickname || ''),
+        email: String(authingUser.email || ''),
+        phone: String(authingUser.phone || ''),
+        nickname: String(authingUser.nickname || authingUser.username || ''),
+        avatar: String(authingUser.photo || ''),
+        ...((authingUser as unknown) as Record<string, unknown>)
+      };
+      
+      setUser(convertedUser);
       toast({ title: "登录成功", description: "欢迎回来！" });
       setTimeout(() => navigate('/'), 800);
     } catch (error: any) {
@@ -127,16 +139,25 @@ export default function LoginRegisterPage() {
     }
     setIsLoading(true);
     try {
-      const user = await authing.registerByEmailCode(
-        registerForm.email, 
-        registerForm.code, 
-        registerForm.password, 
+      const authingUser = await authing.registerByEmailCode(
+        registerForm.email,
+        registerForm.code,
         { nickname: registerForm.nickname }
       );
-      localStorage.setItem('authing_user', JSON.stringify(user));
-      setUser(user);
-      toast({ title: "注册成功", description: "欢迎加入文派！" });
-      setTimeout(() => navigate('/'), 800);
+      localStorage.setItem('authing_user', JSON.stringify(authingUser));
+      // 转换为内部User类型
+      const convertedUser: AuthUser = {
+        id: String(authingUser.id || ''),
+        username: String(authingUser.username || authingUser.nickname || ''),
+        email: String(authingUser.email || ''),
+        phone: String(authingUser.phone || ''),
+        nickname: String(authingUser.nickname || authingUser.username || ''),
+        avatar: String(authingUser.photo || ''),
+        ...((authingUser as unknown) as Record<string, unknown>)
+      };
+      setUser(convertedUser);
+      toast({ title: "注册成功", description: "请前往邮箱设置初始密码或通过找回密码功能设置密码。" });
+      setTimeout(() => navigate('/'), 1200);
     } catch (error: any) {
       toast({ title: "注册失败", description: error.message || '请检查输入信息', variant: "destructive" });
     } finally {

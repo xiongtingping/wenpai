@@ -26,6 +26,10 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import Callback from '@/pages/Callback';
 import AuthTestPage from '@/pages/AuthTestPage';
 import UserStatusPage from '@/pages/UserStatusPage';
+import BookmarkPage from '@/pages/BookmarkPage';
+import EmojiPage from '@/pages/EmojiPage';
+import WechatTemplatePage from '@/pages/WechatTemplatePage';
+import TestNewFeaturesPage from '@/pages/TestNewFeaturesPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 
 /**
@@ -100,6 +104,38 @@ const AppContent: React.FC = () => {
         <Route path="/profile" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ProfilePage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/bookmarks" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <BookmarkPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/emojis" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <EmojiPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/wechat-templates" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <WechatTemplatePage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/test-new-features" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <TestNewFeaturesPage />
+            </ToolLayout>
           </ProtectedRoute>
         } />
 
