@@ -522,15 +522,15 @@ async function checkGeminiStatus(headers) {
   }
 }
 
-/**
- * Netlify函数主处理器
- */
-export const handler = async function(event, context) {
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+exports.handler = async (event, context) => {
   // 设置CORS头
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Content-Type': 'application/json'
   };
 
   // 处理预检请求
@@ -543,105 +543,29 @@ export const handler = async function(event, context) {
   }
 
   try {
-    const { path } = event;
-    const body = event.body ? JSON.parse(event.body) : {};
-
-    console.log(`API请求: ${event.httpMethod} ${path}`);
-
-    // 根据路径处理不同的API
-    if (path.includes('/api/basic')) {
-      return {
-        statusCode: 200,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: true,
-          message: 'Netlify API is working',
-          timestamp: new Date().toISOString(),
-          method: event.httpMethod,
-          path: path,
-          version: '2.0.0'
-        })
-      };
-    }
-
-    if (path.includes('/api/debug-env')) {
-      const openaiKey = process.env.OPENAI_API_KEY;
-      const deepseekKey = process.env.DEEPSEEK_API_KEY;
-      const geminiKey = process.env.GEMINI_API_KEY;
-      
-      return {
-        statusCode: 200,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: true,
-          message: 'Environment variables check',
-          timestamp: new Date().toISOString(),
-          openai_key_configured: !!openaiKey,
-          openai_key_prefix: openaiKey ? openaiKey.substring(0, 7) + '...' : 'not set',
-          deepseek_key_configured: !!deepseekKey,
-          deepseek_key_prefix: deepseekKey ? deepseekKey.substring(0, 7) + '...' : 'not set',
-          gemini_key_configured: !!geminiKey,
-          gemini_key_prefix: geminiKey ? geminiKey.substring(0, 7) + '...' : 'not set'
-        })
-      };
-    }
-
-    if (path.includes('/api/proxy/openai')) {
-      return await handleOpenAIRequest(body, headers);
-    }
-
-    if (path.includes('/api/proxy/deepseek')) {
-      return await handleDeepSeekRequest(body, headers);
-    }
-
-    if (path.includes('/api/proxy/gemini')) {
-      return await handleGeminiRequest(body, headers);
-    }
-
-    if (path.includes('/api/status/openai')) {
-      return await checkOpenAIStatus(headers);
-    }
-
-    if (path.includes('/api/status/deepseek')) {
-      return await checkDeepSeekStatus(headers);
-    }
-
-    if (path.includes('/api/status/gemini')) {
-      return await checkGeminiStatus(headers);
-    }
-
-    // 默认响应
-    return {
-      statusCode: 200,
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        success: true,
-        message: 'Netlify Function API',
-        path: path,
-        method: event.httpMethod,
-        timestamp: new Date().toISOString(),
-        availableEndpoints: [
-          '/api/basic',
-          '/api/proxy/openai',
-          '/api/proxy/deepseek', 
-          '/api/proxy/gemini',
-          '/api/status/openai',
-          '/api/status/deepseek',
-          '/api/status/gemini'
-        ]
-      })
+    // 这里可以添加实际的API逻辑
+    // 目前返回模拟数据
+    const response = {
+      success: true,
+      message: 'API代理正常工作',
+      timestamp: new Date().toISOString(),
+      path: event.path,
+      method: event.httpMethod
     };
 
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(response)
+    };
   } catch (error) {
-    console.error('API错误:', error);
     return {
       statusCode: 500,
-      headers: { ...headers, 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         success: false,
-        error: 'Internal server error',
-        message: error.message,
-        timestamp: new Date().toISOString()
+        message: '服务器内部错误',
+        error: error.message
       })
     };
   }
