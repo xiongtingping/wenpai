@@ -970,7 +970,8 @@ ${generateStandardCallToAction()}
       const prompt = buildPrompt();
       
       // 确定内容类型
-      const isVideo = content_format.includes('视频') || content_format.includes('短视频');
+      const format = content_format || '图文';
+      const isVideo = format.includes('视频') || format.includes('短视频');
       const contentType = isVideo ? 'video' : 'text';
       
       // 调用AI服务生成内容
