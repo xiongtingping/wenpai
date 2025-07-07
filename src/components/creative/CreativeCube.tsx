@@ -1069,6 +1069,7 @@ ${generateStandardCallToAction()}
         console.error('response.data:', response.data);
         console.error('response.data的类型:', typeof response.data);
         console.error('response.data的键:', response.data ? Object.keys(response.data) : 'data为null/undefined');
+        console.error('response.data的完整内容:', JSON.stringify(response.data, null, 2));
         console.error('response.data?.choices:', response.data?.choices);
         console.error('response.data?.choices?.[0]:', response.data?.choices?.[0]);
         console.error('response.data?.choices?.[0]?.message:', response.data?.choices?.[0]?.message);
