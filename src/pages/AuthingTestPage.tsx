@@ -23,7 +23,7 @@ import { getAuthingConfig } from "@/config/authing";
  */
 export default function AuthingTestPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, setUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 

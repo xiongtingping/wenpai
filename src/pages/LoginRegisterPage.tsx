@@ -19,7 +19,9 @@ import { getAuthingConfig } from "@/config/authing";
 export default function LoginRegisterPage() {
   const [activeTab, setActiveTab] = useState("login");
   const [isLoading, setIsLoading] = useState(false);
-  const { } = useAuth();
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const { setUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -52,10 +54,6 @@ export default function LoginRegisterPage() {
     confirmPassword: '',
     code: ''
   });
-
-  // 验证码状态
-  const [isSendingCode, setIsSendingCode] = useState(false);
-  const [countdown, setCountdown] = useState(0);
 
   // 发送验证码
   const handleSendCode = async () => {

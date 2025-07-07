@@ -153,7 +153,16 @@ const ApiTestPage = () => {
 
       // Get the response for 知乎
       const adaptedContent = result.results?.[0] || { content: '生成失败', error: '未知错误' };
-      setTestResponse(adaptedContent);
+      const hasError = 'error' in adaptedContent && adaptedContent.error;
+      setTestResponse({
+        success: !hasError,
+        content: adaptedContent.content,
+        error: hasError ? adaptedContent.error : undefined,
+        platform: 'platform' in adaptedContent ? adaptedContent.platform : undefined,
+        title: 'title' in adaptedContent ? adaptedContent.title : undefined,
+        hashtags: 'hashtags' in adaptedContent ? adaptedContent.hashtags : undefined,
+        suggestions: 'suggestions' in adaptedContent ? adaptedContent.suggestions : undefined
+      });
 
       const providerNames = {
         'openai': 'OpenAI',
@@ -162,11 +171,11 @@ const ApiTestPage = () => {
       };
       
       toast({
-        title: !adaptedContent.error ? "内容生成成功" : "使用模拟内容",
-        description: !adaptedContent.error 
+        title: !hasError ? "内容生成成功" : "使用模拟内容",
+        description: !hasError 
           ? `${providerNames[apiProvider]} API成功生成内容` 
-          : `使用了模拟内容: ${adaptedContent.error || "API可能不可用"}`,
-        variant: !adaptedContent.error ? "default" : "destructive",
+          : `使用了模拟内容: ${hasError || "API可能不可用"}`,
+        variant: !hasError ? "default" : "destructive",
       });
     } catch (error) {
       console.error("Test generation error:", error);
@@ -318,8 +327,8 @@ const ApiTestPage = () => {
                       return (
                         <SelectItem key={model} value={model}>
                           <div className="flex flex-col">
-                            <span className="font-medium">{modelInfo || model}</span>
-                            <span className="text-xs text-gray-500">{modelInfo || '模型描述'}</span>
+                            <span className="font-medium">{modelInfo?.name || model}</span>
+                            <span className="text-xs text-gray-500">{modelInfo?.name || '模型描述'}</span>
                           </div>
                         </SelectItem>
                       );
@@ -330,7 +339,7 @@ const ApiTestPage = () => {
                 {selectedModel && modelDescriptions[selectedModel] && (
                   <div className="bg-gray-50 p-4 rounded-md">
                     <h4 className="font-medium text-gray-900 mb-2">
-                      {modelDescriptions[selectedModel]}
+                      {modelDescriptions[selectedModel].name}
                     </h4>
                     <p className="text-sm text-gray-600 mb-3">
                       模型描述
@@ -339,27 +348,35 @@ const ApiTestPage = () => {
                       <div>
                         <span className="text-xs font-medium text-gray-500">适用场景:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {modelDescriptions[selectedModel as keyof typeof modelDescriptions].useCases.map((useCase, index) => (
+                          {modelDescriptions[selectedModel]?.useCases?.map((useCase, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
                               {useCase}
                             </Badge>
-                          ))}
+                          )) || (
+                            <Badge variant="outline" className="text-xs">
+                              通用场景
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div>
                         <span className="text-xs font-medium text-gray-500">优势:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {modelDescriptions[selectedModel as keyof typeof modelDescriptions].strengths.map((strength, index) => (
+                          {modelDescriptions[selectedModel]?.strengths?.map((strength, index) => (
                             <Badge key={index} variant="secondary" className="text-xs">
                               {strength}
                             </Badge>
-                          ))}
+                          )) || (
+                            <Badge variant="secondary" className="text-xs">
+                              性能优秀
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div>
                         <span className="text-xs font-medium text-gray-500">最适合:</span>
                         <p className="text-xs text-gray-600 mt-1">
-                          {modelDescriptions[selectedModel as keyof typeof modelDescriptions].bestFor}
+                          {modelDescriptions[selectedModel]?.bestFor || '通用内容生成'}
                         </p>
                       </div>
                     </div>

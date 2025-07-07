@@ -32,6 +32,8 @@ interface AuthContextType extends AuthState {
   register: (email: string, password: string, nickname: string) => Promise<void>;
   /** 登出方法 */
   logout: () => Promise<void>;
+  /** 设置用户信息 */
+  setUser: (user: User | null) => void;
   /** 显示登录界面 */
   showLogin: () => Promise<void>;
   /** 隐藏登录界面 */
@@ -280,6 +282,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
+   * 设置用户信息
+   */
+  const setUser = useCallback((user: User | null) => {
+    setState(prev => ({
+      ...prev,
+      user,
+    }));
+  }, []);
+
+  /**
    * 初始化完成后检查认证状态
    */
   useEffect(() => {
@@ -293,6 +305,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    setUser,
     showLogin,
     hideLogin,
     checkAuth,

@@ -14,6 +14,12 @@ export interface AIApiResponse {
   error?: string;
   detail?: string;
   message?: string;
+  content?: string;
+  source?: string;
+  platform?: string;
+  title?: string;
+  hashtags?: string[];
+  suggestions?: string[];
 }
 
 /**
@@ -139,16 +145,61 @@ export function getAvailableModels(): Record<string, string[]> {
 }
 
 /**
+ * 模型描述接口
+ */
+interface ModelDescription {
+  name: string;
+  useCases: string[];
+  strengths: string[];
+  bestFor: string;
+}
+
+/**
  * 模型描述
  */
-export const modelDescriptions: Record<string, string> = {
-  'gpt-3.5-turbo': '快速、经济的选择，适合一般内容生成',
-  'gpt-4': '更智能的模型，适合复杂任务',
-  'gpt-4-turbo': '最新版本，性能最佳',
-  'deepseek-chat': '中文优化，适合中文内容生成',
-  'deepseek-coder': '代码生成优化',
-  'gemini-pro': 'Google的AI模型，多语言支持',
-  'gemini-pro-vision': '支持图像理解的模型'
+export const modelDescriptions: Record<string, ModelDescription> = {
+  'gpt-3.5-turbo': {
+    name: '快速、经济的选择，适合一般内容生成',
+    useCases: ['一般内容生成', '简单问答', '文本总结'],
+    strengths: ['响应快速', '成本较低', '稳定性好'],
+    bestFor: '日常内容创作和简单任务'
+  },
+  'gpt-4': {
+    name: '更智能的模型，适合复杂任务',
+    useCases: ['复杂分析', '创意写作', '技术文档'],
+    strengths: ['理解能力强', '逻辑清晰', '创意丰富'],
+    bestFor: '需要深度思考的复杂任务'
+  },
+  'gpt-4-turbo': {
+    name: '最新版本，性能最佳',
+    useCases: ['高级分析', '创意设计', '专业写作'],
+    strengths: ['性能最佳', '知识最新', '功能全面'],
+    bestFor: '对质量要求极高的专业任务'
+  },
+  'deepseek-chat': {
+    name: '中文优化，适合中文内容生成',
+    useCases: ['中文写作', '本地化内容', '中文分析'],
+    strengths: ['中文理解优秀', '文化适应性强', '表达自然'],
+    bestFor: '中文内容创作和本地化任务'
+  },
+  'deepseek-coder': {
+    name: '代码生成优化',
+    useCases: ['代码生成', '代码审查', '技术文档'],
+    strengths: ['代码质量高', '技术理解深', '注释完整'],
+    bestFor: '编程和技术相关任务'
+  },
+  'gemini-pro': {
+    name: 'Google的AI模型，多语言支持',
+    useCases: ['多语言内容', '跨文化分析', '国际化任务'],
+    strengths: ['多语言支持', '文化敏感', '全球化视角'],
+    bestFor: '多语言和国际化内容创作'
+  },
+  'gemini-pro-vision': {
+    name: '支持图像理解的模型',
+    useCases: ['图像分析', '视觉内容创作', '图文结合'],
+    strengths: ['视觉理解强', '图文结合', '创意丰富'],
+    bestFor: '需要图像理解的任务'
+  }
 };
 
 /**

@@ -1237,8 +1237,8 @@ export default function AdaptPage() {
                     return (
                       <SelectItem key={model} value={model}>
                         <div className="flex flex-col">
-                          <span className="font-medium">{modelInfo || model}</span>
-                          <span className="text-xs text-gray-500">{modelInfo || '模型描述'}</span>
+                          <span className="font-medium">{modelInfo?.name || model}</span>
+                          <span className="text-xs text-gray-500">{modelInfo?.name || '模型描述'}</span>
                         </div>
                       </SelectItem>
                     );
@@ -1272,7 +1272,7 @@ export default function AdaptPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <h5 className="text-sm font-medium text-blue-900">
-                    {modelDescriptions[selectedModel]}
+                    {modelDescriptions[selectedModel]?.name || selectedModel}
                   </h5>
                   <p className="text-xs text-blue-700 mt-1">
                     模型描述
