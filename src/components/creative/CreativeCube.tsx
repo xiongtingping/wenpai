@@ -118,11 +118,13 @@ export function CreativeCube() {
       defaultItems: ['省时省力', '提升效率', '降低成本', '改善质量', '简化选择', '专业指导', '优质体验', '建立信任', '创造价值']
     },
     {
-      id: 'channels',
-      name: '传播渠道',
-      description: '内容传播或营销渠道',
+      id: 'industry',
+      name: '行业',
+      description: '内容所属行业领域',
       icon: <Zap className="w-4 h-4" />,
-      defaultItems: ['社交媒体', '短视频平台', '搜索引擎', '电商平台', '线下门店', 'KOL合作', '内容营销', '口碑传播', '广告投放']
+      defaultItems: [
+        '旅游', '教培', '食品饮料', '母婴', '互联网', '金融', '医疗健康', '服饰美妆', '家居家电', '汽车', '宠物', '运动健身', '文化娱乐', '房地产', '政务', '农业'
+      ]
     },
     {
       id: 'formats',
@@ -344,7 +346,7 @@ ${generateCallToAction()}
    * 生成轻松幽默正文
    */
   const generateHumorousBody = () => {
-    const { target_audience, scenarios, pain_points, benefits, emotions } = selectedItems;
+    const { target_audience, scenarios, pain_points, benefits, emotions, industry } = selectedItems;
     
     // 根据目标人群和场景生成具体的生活场景
     const getSpecificScenario = () => {
@@ -395,9 +397,64 @@ ${generateCallToAction()}
 
     const solution = `好在我发现了${benefits}神器，省时又不掉链子。\n不用当超人，也能搞定${scenarios}的突发事件。\n\n谁说${target_audience}不能松口气？我偏要让${benefits}带我飞～`;
 
+    // 行业术语与风格增强
+    const industryTips: Record<string, string[]> = {
+      '旅游': [
+        '打卡新地标', '旅拍大片', '网红景点', '攻略必备', '体验感爆棚'
+      ],
+      '教培': [
+        '提分秘籍', '名师带飞', '课程体验', '家长口碑', '高效学习'
+      ],
+      '食品饮料': [
+        '爆款新品', '口感绝绝子', '健康轻食', '网红美食', '吃货必备'
+      ],
+      '母婴': [
+        '科学育儿', '宝妈神器', '安全放心', '成长记录', '亲子互动'
+      ],
+      '互联网': [
+        '黑科技', '效率神器', '新玩法', '数字生活', '智能推荐'
+      ],
+      '金融': [
+        '财富自由', '理财规划', '低风险高收益', '投资新风口', '资产配置'
+      ],
+      '医疗健康': [
+        '健康守护', '专业医疗', '科学养生', '权威认证', '健康生活'
+      ],
+      '服饰美妆': [
+        '穿搭灵感', '爆款单品', '变美秘籍', '时尚种草', '美妆测评'
+      ],
+      '家居家电': [
+        '品质生活', '智能家居', '收纳神器', '家装灵感', '舒适体验'
+      ],
+      '汽车': [
+        '智能驾驶', '省油省心', '新车上市', '试驾体验', '性能测评'
+      ],
+      '宠物': [
+        '萌宠日常', '铲屎官必看', '健康喂养', '宠物互动', '爆笑瞬间'
+      ],
+      '运动健身': [
+        '燃脂打卡', '健身计划', '运动装备', '健康塑形', '活力满满'
+      ],
+      '文化娱乐': [
+        '追剧安利', '演出现场', '娱乐八卦', '明星同款', '粉丝互动'
+      ],
+      '房地产': [
+        '置业首选', '楼盘推荐', '装修灵感', '投资回报', '生活配套'
+      ],
+      '政务': [
+        '便民服务', '政策解读', '政务公开', '民生关注', '权威发布'
+      ],
+      '农业': [
+        '绿色种植', '农技科普', '丰收喜悦', '乡村振兴', '生态农业'
+      ]
+    };
+    const industryArr = industryTips[industry || ''] || [];
+    const industryPhrase = industryArr.length > 0 ? `#${industryArr[Math.floor(Math.random() * industryArr.length)]}#` : '';
+
     return `${humorousResponses[Math.floor(Math.random() * humorousResponses.length)]}
 
-${solution}`;
+${solution}
+${industryPhrase}`;
   };
 
   /**
