@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -25,15 +25,10 @@ import {
   Plus,
   Edit,
   Trash2,
-  Calendar,
   Clock,
-  Star,
   AlertCircle,
   CheckCircle,
   Circle,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
   Search
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -67,7 +62,7 @@ export function TodoList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending'>('all');
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   
@@ -75,7 +70,7 @@ export function TodoList() {
   const [newTodo, setNewTodo] = useState({
     title: '',
     description: '',
-    priority: 'medium' as const,
+    priority: 'medium' as 'low' | 'medium' | 'high',
     dueDate: '',
     category: '',
     tags: ''
@@ -489,7 +484,7 @@ export function TodoList() {
                       <Label>优先级</Label>
                       <select
                         value={newTodo.priority}
-                        onChange={(e) => setNewTodo(prev => ({ ...prev, priority: e.target.value as any }))}
+                        onChange={(e) => setNewTodo(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' }))}
                         className="w-full p-2 border rounded-md"
                       >
                         <option value="low">低</option>
@@ -675,7 +670,7 @@ export function TodoList() {
                   <Label>优先级</Label>
                   <select
                     value={editingTodo.priority}
-                    onChange={(e) => setEditingTodo(prev => prev ? { ...prev, priority: e.target.value as any } : null)}
+                    onChange={(e) => setEditingTodo(prev => prev ? { ...prev, priority: e.target.value as 'low' | 'medium' | 'high' } : null)}
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="low">低</option>

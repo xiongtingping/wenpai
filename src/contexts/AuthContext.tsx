@@ -1,74 +1,43 @@
 /**
- * 统一认证上下文
- * 整合 Authing 认证和用户状态管理
+ * 认证上下文
+ * 提供全局认证状态管理
  */
 
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { AuthenticationClient } from 'authing-js-sdk';
-import { getAuthingConfig } from '@/config/authing';
+import { authingConfig } from '@/config/authing';
+import { User } from '@/types/user';
 
 /**
- * 用户信息接口
+ * 认证状态接口
  */
-export interface User {
-  id: string;
-  username?: string;
-  email?: string;
-  phone?: string;
-  nickname?: string;
-  avatar?: string;
-  [key: string]: unknown;
-}
-
-/**
- * 认证状态类型
- */
-export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
-
-/**
- * 登录参数接口
- */
-interface LoginParams {
-  phone?: string;
-  email?: string;
-  password?: string;
-  code?: string;
-  remember?: boolean;
-}
-
-/**
- * 注册参数接口
- */
-interface RegisterParams {
-  phone?: string;
-  email?: string;
-  password?: string;
-  code?: string;
-  nickname?: string;
+interface AuthState {
+  /** 用户信息 */
+  user: User | null;
+  /** 是否已认证 */
+  isAuthenticated: boolean;
+  /** 是否正在加载 */
+  isLoading: boolean;
+  /** 错误信息 */
+  error: string | null;
 }
 
 /**
  * 认证上下文接口
  */
-interface AuthContextType {
-  // 状态
-  user: User | null;
-  status: AuthStatus;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  isInitialized: boolean;
-  
-  // 方法
-  login: (params?: LoginParams) => Promise<void>;
-  register: (params?: RegisterParams) => Promise<void>;
+interface AuthContextType extends AuthState {
+  /** 登录方法 */
+  login: (email: string, password: string) => Promise<void>;
+  /** 注册方法 */
+  register: (email: string, password: string, nickname: string) => Promise<void>;
+  /** 登出方法 */
   logout: () => Promise<void>;
-  checkAuth: () => Promise<void>;
-  setUser: (user: User | null) => void;
-  
-  // Guard 相关
+  /** 显示登录界面 */
   showLogin: () => Promise<void>;
+  /** 隐藏登录界面 */
   hideLogin: () => void;
-  authing: AuthenticationClient | null;
+  /** 检查认证状态 */
+  checkAuth: () => Promise<void>;
 }
 
 /**
@@ -77,9 +46,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
- * 认证提供者组件
+ * 认证提供者属性
  */
 interface AuthProviderProps {
+  /** 子组件 */
   children: ReactNode;
 }
 
@@ -89,241 +59,254 @@ interface AuthProviderProps {
  * @returns React 组件
  */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [status, setStatus] = useState<AuthStatus>('loading');
   const [authing, setAuthing] = useState<AuthenticationClient | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isAuthenticated: false,
+    isLoading: true,
+    error: null,
+  });
 
-  // 初始化 AuthenticationClient
+  /**
+   * 初始化Authing客户端
+   */
   useEffect(() => {
-    console.log('Initializing AuthenticationClient...');
-    try {
-      const config = getAuthingConfig();
-      console.log('Authing config:', config);
-      
-      const authingClient = new AuthenticationClient({
-        appId: config.appId,
-        appHost: config.host,
-        onError: (code, message, data) => {
-          console.error('Authing error:', { code, message, data });
-          // 即使有错误，也继续初始化
-        }
-      });
-      
-      console.log('AuthenticationClient created:', authingClient);
-      setAuthing(authingClient);
-      setIsInitialized(true);
-      console.log('AuthenticationClient initialization completed');
-    } catch (error) {
-      console.error('初始化 AuthenticationClient 失败:', error);
-      setStatus('unauthenticated');
-      setIsInitialized(false);
-      setAuthing(null);
-    }
+    const initAuthing = async () => {
+      try {
+        const config = authingConfig();
+        const authingClient = new AuthenticationClient({
+          appId: config.appId,
+          appHost: config.host,
+          onError: (code, message, data) => {
+            setState(prev => ({
+              ...prev,
+              error: `Authing error: ${message}`,
+            }));
+          },
+        });
+
+        setAuthing(authingClient);
+        setIsInitialized(true);
+      } catch (error) {
+        setState(prev => ({
+          ...prev,
+          error: '初始化认证客户端失败',
+          isLoading: false,
+        }));
+      }
+    };
+
+    initAuthing();
   }, []);
 
+  /**
+   * 检查认证状态
+   */
   const checkAuth = useCallback(async () => {
-    console.log('checkAuth called, authing:', authing);
-    setStatus('loading');
-    
+    if (!authing) {
+      setState(prev => ({
+        ...prev,
+        isAuthenticated: false,
+        isLoading: false,
+      }));
+      return;
+    }
+
     try {
-      // 首先检查本地存储中是否有用户信息
+      // 检查本地存储的用户信息
       const storedUser = localStorage.getItem('authing_user');
       const storedCode = localStorage.getItem('authing_code');
       const storedState = localStorage.getItem('authing_state');
-      
-      console.log('Stored user:', storedUser);
-      console.log('Stored code:', storedCode);
-      console.log('Stored state:', storedState);
-      
-      if (storedUser && storedCode) {
-        console.log('Found stored user info');
-        const userData = JSON.parse(storedUser);
+
+      if (storedUser && storedCode && storedState) {
+        const userInfo = JSON.parse(storedUser);
         const convertedUser: User = {
-          id: String(userData.id || userData.sub || ''),
-          username: String(userData.username || userData.nickname || userData.name || ''),
-          email: String(userData.email || ''),
-          phone: String(userData.phone || ''),
-          nickname: String(userData.nickname || userData.name || userData.username || ''),
-          avatar: String(userData.picture || userData.avatar || ''),
-          ...userData
+          id: userInfo.id || userInfo.userId || '',
+          username: userInfo.username || userInfo.nickname || '',
+          email: userInfo.email || '',
+          phone: userInfo.phone || '',
+          nickname: userInfo.nickname || userInfo.username || '',
+          avatar: userInfo.photo || userInfo.avatar || '',
+          createdAt: userInfo.createdAt || new Date().toISOString(),
+          updatedAt: userInfo.updatedAt || new Date().toISOString(),
         };
-        console.log('Converted user from storage:', convertedUser);
-        setUser(convertedUser);
-        setStatus('authenticated');
-        console.log('User authenticated from storage');
+
+        setState({
+          user: convertedUser,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
         return;
       }
-      
-      // 如果没有本地存储的用户信息，尝试从 Authing 获取
-      if (!authing) {
-        console.log('No authing client, setting unauthenticated');
-        setStatus('unauthenticated');
-        return;
-      }
-      
-      console.log('Checking current user from Authing...');
+
+      // 从Authing获取当前用户
       const currentUser = await authing.getCurrentUser();
-      console.log('getCurrentUser result:', currentUser);
       
       if (currentUser) {
-        console.log('User found from Authing, converting...');
         const convertedUser: User = {
-          id: String(currentUser.id || ''),
-          username: String(currentUser.username || currentUser.nickname || ''),
-          email: String(currentUser.email || ''),
-          phone: String(currentUser.phone || ''),
-          nickname: String(currentUser.nickname || currentUser.username || ''),
-          avatar: String(currentUser.photo || ''),
-          ...((currentUser as unknown) as Record<string, unknown>)
+          id: currentUser.id || currentUser.userId || '',
+          username: currentUser.username || currentUser.nickname || '',
+          email: currentUser.email || '',
+          phone: currentUser.phone || '',
+          nickname: currentUser.nickname || currentUser.username || '',
+          avatar: currentUser.photo || currentUser.avatar || '',
+          createdAt: currentUser.createdAt || new Date().toISOString(),
+          updatedAt: currentUser.updatedAt || new Date().toISOString(),
         };
-        console.log('Converted user from Authing:', convertedUser);
-        setUser(convertedUser);
-        setStatus('authenticated');
-        console.log('User authenticated from Authing');
+
+        setState({
+          user: convertedUser,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
       } else {
-        console.log('No user found, setting unauthenticated');
-        setUser(null);
-        setStatus('unauthenticated');
+        setState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null,
+        });
       }
     } catch (error) {
-      console.error('Error checking auth:', error);
-      setUser(null);
-      setStatus('unauthenticated');
+      setState(prev => ({
+        ...prev,
+        error: '检查认证状态失败',
+        isLoading: false,
+      }));
     }
   }, [authing]);
 
-  const login = useCallback(async (params?: LoginParams) => {
-    if (!authing) {
-      throw new Error('认证客户端未初始化');
-    }
-    
+  /**
+   * 登录方法
+   */
+  const login = useCallback(async (email: string, password: string) => {
+    if (!authing) throw new Error('认证客户端未初始化');
+
     try {
-      // 暂时使用重定向登录，后续可以扩展为直接登录
-      const url = await authing.buildAuthorizeUrl({
-        redirectUri: getAuthingConfig().redirectUri,
-        scope: 'openid profile email phone',
-        state: Math.random().toString(36).substring(7),
-      });
-      window.location.href = url;
+      const result = await authing.loginByEmail(email, password);
+      if (result.statusCode === 200) {
+        await checkAuth();
+      } else {
+        throw new Error(result.message || '登录失败');
+      }
     } catch (error) {
-      console.error('Login failed:', error);
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : '登录失败',
+      }));
       throw error;
     }
-  }, [authing]);
+  }, [authing, checkAuth]);
 
-  const register = useCallback(async (params?: RegisterParams) => {
-    if (!authing) {
-      throw new Error('认证客户端未初始化');
-    }
-    
+  /**
+   * 注册方法
+   */
+  const register = useCallback(async (email: string, password: string, nickname: string) => {
+    if (!authing) throw new Error('认证客户端未初始化');
+
     try {
-      // 暂时使用重定向注册，后续可以扩展为直接注册
-      const url = await authing.buildAuthorizeUrl({
-        redirectUri: getAuthingConfig().redirectUri,
-        scope: 'openid profile email phone',
-        state: Math.random().toString(36).substring(7),
+      const result = await authing.registerByEmail(email, password, {
+        nickname,
       });
-      window.location.href = url;
+      if (result.statusCode === 200) {
+        await checkAuth();
+      } else {
+        throw new Error(result.message || '注册失败');
+      }
     } catch (error) {
-      console.error('Register failed:', error);
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : '注册失败',
+      }));
       throw error;
     }
-  }, [authing]);
+  }, [authing, checkAuth]);
 
+  /**
+   * 登出方法
+   */
   const logout = useCallback(async () => {
+    if (!authing) return;
+
     try {
-      // 清除本地存储
+      await authing.logout();
       localStorage.removeItem('authing_user');
       localStorage.removeItem('authing_code');
       localStorage.removeItem('authing_state');
-      localStorage.removeItem('savedCredentials');
       
-      // 尝试从 Authing 登出
-      if (authing) {
-        await authing.logout();
-      }
-      
-      setUser(null);
-      setStatus('unauthenticated');
-      console.log('User logged out successfully');
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
     } catch (error) {
-      console.error('Logout failed:', error);
-      // 即使 Authing 登出失败，也要清除本地存储
-      localStorage.removeItem('authing_user');
-      localStorage.removeItem('authing_code');
-      localStorage.removeItem('authing_state');
-      localStorage.removeItem('savedCredentials');
-      setUser(null);
-      setStatus('unauthenticated');
+      setState(prev => ({
+        ...prev,
+        error: '登出失败',
+      }));
     }
   }, [authing]);
 
+  /**
+   * 显示登录界面
+   */
   const showLogin = useCallback(async () => {
-    console.log('showLogin called, isInitialized:', isInitialized, 'authing:', authing);
-    
-    if (!isInitialized) {
-      console.log('AuthenticationClient not initialized yet, waiting...');
-      setTimeout(async () => {
-        if (authing) {
-          console.log('Retrying showLogin after delay...');
-          await login();
-        }
-      }, 1000);
+    if (!isInitialized || !authing) {
+      // 等待初始化完成
+      setTimeout(() => showLogin(), 100);
       return;
     }
-    
-    if (!authing) {
-      console.error('AuthenticationClient is null even though initialized');
-      return;
-    }
-    
-    try {
-      console.log('Calling login...');
-      await login();
-    } catch (e) {
-      console.error('Login failed:', e);
-    }
-  }, [isInitialized, authing, login]);
 
+    try {
+      await authing.login();
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : '显示登录界面失败',
+      }));
+    }
+  }, [isInitialized, authing]);
+
+  /**
+   * 隐藏登录界面
+   */
   const hideLogin = useCallback(() => {
-    // AuthenticationClient 没有 hide 方法，这里可以忽略
-    console.log('hideLogin called (no-op for AuthenticationClient)');
+    // AuthenticationClient不需要手动隐藏
   }, []);
 
-  // 初始化时检查认证状态
+  /**
+   * 初始化完成后检查认证状态
+   */
   useEffect(() => {
-    if (isInitialized && authing) {
+    if (isInitialized) {
       checkAuth();
     }
-  }, [isInitialized, authing, checkAuth]);
+  }, [isInitialized, checkAuth]);
 
-  const value: AuthContextType = {
-    user,
-    status,
-    isLoading: status === 'loading',
-    isAuthenticated: status === 'authenticated',
-    isInitialized,
+  const contextValue: AuthContextType = {
+    ...state,
     login,
     register,
     logout,
-    checkAuth,
-    setUser,
     showLogin,
     hideLogin,
-    authing
+    checkAuth,
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 /**
- * 使用认证上下文
- * @returns 认证上下文
+ * 使用认证上下文Hook
+ * @returns AuthContextType
  */
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);

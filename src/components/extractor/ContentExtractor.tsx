@@ -24,10 +24,7 @@ import {
   Download,
   Upload,
   Copy,
-  RefreshCw,
   Search,
-  Filter,
-  Link,
   File,
   Code,
   BookOpen,
@@ -149,7 +146,7 @@ export function ContentExtractor() {
         title: "内容提取成功",
         description: "已成功提取网页内容",
       });
-    } catch (error) {
+    } catch {
       const errorResult: ExtractResult = {
         id: resultId,
         source: url,
@@ -217,7 +214,7 @@ export function ContentExtractor() {
         title: "文件提取成功",
         description: `已成功提取 ${selectedFile.name} 的内容`,
       });
-    } catch (error) {
+    } catch {
       const errorResult: ExtractResult = {
         id: resultId,
         source: selectedFile.name,
@@ -283,7 +280,7 @@ export function ContentExtractor() {
         title: "文本处理成功",
         description: "已成功处理文本内容",
       });
-    } catch (error) {
+    } catch {
       const errorResult: ExtractResult = {
         id: resultId,
         source: '手动输入',
@@ -444,7 +441,7 @@ export function ContentExtractor() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label>提取方式</Label>
-              <Select value={extractMethod} onValueChange={(value: any) => setExtractMethod(value)}>
+              <Select value={extractMethod} onValueChange={(value: 'url' | 'file' | 'text') => setExtractMethod(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -473,7 +470,7 @@ export function ContentExtractor() {
 
             <div>
               <Label>内容类型</Label>
-              <Select value={contentType} onValueChange={(value: any) => setContentType(value)}>
+              <Select value={contentType} onValueChange={(value: 'markdown' | 'json' | 'html' | 'image' | 'webpage') => setContentType(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

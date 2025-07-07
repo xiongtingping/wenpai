@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, HelpCircle } from "lucide-react"
+import { Menu, HelpCircle, Crown, Sparkles } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -14,19 +14,31 @@ const HelpDocumentation = () => {
   const topics = [
     {
       title: "内容适配",
-      content: "文派AI可根据平台特性智能转换您的内容，调整文风、排版和互动元素，无需手动修改即可适配各平台。选择目标平台，调整参数，一键生成符合平台特性的高质量内容。"
+      content: "文派AI可根据平台特性智能转换您的内容，调整文风、排版和互动元素，无需手动修改即可适配各平台。免费版每月10次，专业版无限制使用。"
     },
     {
-      title: "品牌一致性",
-      content: "上传品牌资料库中的品牌手册、文案指南等资料，AI将自动学习并保持您的品牌语调、核心信息和表达方式，确保跨平台传播时品牌声音始终一致。"
+      title: "创意工具",
+      content: "九宫格创意魔方、营销日历、文案管理等创意工具，帮助您快速生成创意内容，提升创作效率。所有用户免费使用。"
     },
     {
-      title: "平台特性优化",
-      content: "文派深度分析各平台算法偏好和用户行为，为内容添加平台特有元素：如小红书的emoji表情、公众号的排版格式、视频平台的互动设计等，提升内容表现。"
+      title: "全网热点话题",
+      content: "实时获取各平台热门话题和趋势，为您的创作提供灵感和方向。所有用户免费使用。"
     },
     {
-      title: "使用次数与邀请",
-      content: "每月免费赠送20次内容适配机会。邀请朋友注册可获得额外使用次数：每成功邀请1人注册，双方各获20次。"
+      title: "Emoji表情库",
+      content: "丰富的emoji表情库，一键生成符合平台调性的表情组合，提升内容互动性。专业版功能。"
+    },
+    {
+      title: "内容提取",
+      content: "智能提取网页、文档内容，支持多种格式转换，快速获取创作素材。专业版功能。"
+    },
+    {
+      title: "品牌资料库",
+      content: "上传品牌资料，AI自动学习品牌调性，确保跨平台传播时品牌声音一致。专业版功能。"
+    },
+    {
+      title: "一键转发",
+      content: "支持一键将内容转发到多个平台，自动适配各平台格式要求。专业版功能。"
     }
   ]
   
@@ -36,7 +48,21 @@ const HelpDocumentation = () => {
         <h3 className="text-lg font-semibold mb-4">文派使用指南</h3>
         {topics.map((topic, index) => (
           <div key={index} className="mb-6">
-            <h4 className="text-blue-600 font-medium mb-2">{topic.title}</h4>
+            <div className="flex items-center gap-2 mb-2">
+              <h4 className="text-blue-600 font-medium">{topic.title}</h4>
+              {topic.content.includes('专业版') && (
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                  <Crown className="w-3 h-3 mr-1" />
+                  专业版
+                </Badge>
+              )}
+              {topic.content.includes('免费') && !topic.content.includes('专业版') && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  免费
+                </Badge>
+              )}
+            </div>
             <p className="text-gray-700 text-sm leading-relaxed">{topic.content}</p>
           </div>
         ))}
@@ -63,8 +89,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, showLogin } = useAuth()
-  const { toast } = useToast()
+  const { user, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   
   return (
@@ -79,17 +104,43 @@ export function Header() {
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/adapt" className="text-gray-600 hover:text-blue-600 transition">AI内容适配</Link>
-            <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition flex items-center">
-              品牌资料库
-              <Badge variant="outline" className="ml-1 bg-amber-50 text-amber-700 border-amber-200">
-                开发中
+            <Link to="/adapt" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              AI内容适配
+              <Badge variant="outline" className="ml-1 bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                免费10次/月
+              </Badge>
+            </Link>
+            <Link to="/creative-studio" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              创意工具
+              <Badge variant="outline" className="ml-1 bg-green-50 text-green-700 border-green-200 text-xs">
+                免费
               </Badge>
             </Link>
             <Link to="/hot-topics" className="text-gray-600 hover:text-blue-600 transition flex items-center">
-              全网热门话题
-              <Badge variant="outline" className="ml-1 bg-amber-50 text-amber-700 border-amber-200">
-                开发中
+              热点话题
+              <Badge variant="outline" className="ml-1 bg-green-50 text-green-700 border-green-200 text-xs">
+                免费
+              </Badge>
+            </Link>
+            <Link to="/emoji" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              Emoji表情库
+              <Badge variant="outline" className="ml-1 bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                <Crown className="w-3 h-3 mr-1" />
+                专业版
+              </Badge>
+            </Link>
+            <Link to="/content-extractor" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              内容提取
+              <Badge variant="outline" className="ml-1 bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                <Crown className="w-3 h-3 mr-1" />
+                专业版
+              </Badge>
+            </Link>
+            <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+              品牌资料库
+              <Badge variant="outline" className="ml-1 bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                <Crown className="w-3 h-3 mr-1" />
+                专业版
               </Badge>
             </Link>
             <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">定价方案</a>
@@ -117,11 +168,14 @@ export function Header() {
                 showUsername={false}
               />
             ) : (
-              <Button onClick={() => {
-                navigate('/register');
-              }} className="bg-blue-600 hover:bg-blue-700">
-                登录/注册
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" onClick={() => navigate('/login')}>
+                  登录
+                </Button>
+                <Button onClick={() => navigate('/register')} className="bg-blue-600 hover:bg-blue-700">
+                  免费注册
+                </Button>
+              </div>
             )}
           </div>
         )}
@@ -136,21 +190,46 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                <Link to="/adapt" className="text-lg font-medium py-2">AI内容适配</Link>
-                <Link to="/brand-library" className="text-lg font-medium py-2 flex items-center">
-                  品牌资料库
-                  <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
-                    开发中
+                <Link to="/adapt" className="text-lg font-medium py-2 flex items-center justify-between">
+                  AI内容适配
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                    免费10次/月
                   </Badge>
                 </Link>
-                <Link to="/hot-topics" className="text-lg font-medium py-2 flex items-center">
-                  全网热门话题
-                  <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
-                    开发中
+                <Link to="/creative-studio" className="text-lg font-medium py-2 flex items-center justify-between">
+                  创意工具
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                    免费
+                  </Badge>
+                </Link>
+                <Link to="/hot-topics" className="text-lg font-medium py-2 flex items-center justify-between">
+                  热点话题
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                    免费
+                  </Badge>
+                </Link>
+                <Link to="/emoji" className="text-lg font-medium py-2 flex items-center justify-between">
+                  Emoji表情库
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                    <Crown className="w-3 h-3 mr-1" />
+                    专业版
+                  </Badge>
+                </Link>
+                <Link to="/content-extractor" className="text-lg font-medium py-2 flex items-center justify-between">
+                  内容提取
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                    <Crown className="w-3 h-3 mr-1" />
+                    专业版
+                  </Badge>
+                </Link>
+                <Link to="/brand-library" className="text-lg font-medium py-2 flex items-center justify-between">
+                  品牌资料库
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                    <Crown className="w-3 h-3 mr-1" />
+                    专业版
                   </Badge>
                 </Link>
                 <a href="#pricing" className="text-lg font-medium py-2">定价方案</a>
-                <a href="#testimonials" className="text-lg font-medium py-2">客户案例</a>
 
                 <Button variant="ghost" className="flex items-center justify-start px-2 gap-1">
                   <HelpCircle className="h-4 w-4 mr-1" />
@@ -166,11 +245,14 @@ export function Header() {
                     showUsername={true}
                   />
                 ) : (
-                  <Button onClick={() => {
-                    navigate('/register');
-                  }} className="w-full bg-blue-600 hover:bg-blue-700">
-                    登录/注册
-                  </Button>
+                  <div className="flex flex-col space-y-2">
+                    <Button variant="outline" onClick={() => navigate('/login')}>
+                      登录
+                    </Button>
+                    <Button onClick={() => navigate('/register')} className="bg-blue-600 hover:bg-blue-700">
+                      免费注册
+                    </Button>
+                  </div>
                 )}
               </div>
             </SheetContent>

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Upload, Copy, Download } from 'lucide-react';
+import { Eye, Copy, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 /**
@@ -22,7 +21,7 @@ export const ContentPreview: React.FC = () => {
         title: "复制成功",
         description: "内容已复制到剪贴板",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "复制失败",
         description: "请手动复制",

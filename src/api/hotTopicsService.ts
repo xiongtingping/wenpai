@@ -390,7 +390,7 @@ export async function exportHotTopics(
     switch (format) {
       case 'json':
         return JSON.stringify(topics, null, 2);
-      case 'csv':
+      case 'csv': {
         const headers = ['ID', '标题', '描述', '分类', '平台', '热度', '趋势', '浏览量', '讨论数', '标签', '时间'];
         const rows = topics.map(topic => [
           topic.id,
@@ -406,6 +406,7 @@ export async function exportHotTopics(
           topic.timestamp
         ]);
         return [headers, ...rows].map(row => row.join(',')).join('\n');
+      }
       case 'excel':
         // 这里可以集成实际的Excel生成库
         return JSON.stringify(topics, null, 2);

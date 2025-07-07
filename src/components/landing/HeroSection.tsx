@@ -1,18 +1,41 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Link } from "react-router-dom"
+import { Badge } from "@/components/ui/badge"
+import { Crown, Sparkles, Zap, Clock } from "lucide-react"
 
 export function HeroSection() {
   return (
     <section className="py-20 md:py-32 bg-white">
       <div className="container mx-auto px-6 text-center">
         <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
-          文派：<span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">你的专属AI内容策略师</span>
+          文派：<span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">新媒体创意工作者的AI助手</span>
         </h1>
-        <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          一键智能改写任意内容，让内容精准适配每一个平台。<br />
-          精准适配小红书、公众号、抖音、B站、知乎、微博等平台风格，确保内容风格各异、表达一致，始终严守品牌口径。
+        <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          从内容适配到创意生成，从热点追踪到品牌管理，<br />
+          文派全方位赋能新媒体工作者，让您专注于创意，释放生产力。
         </p>
+        
+        {/* 功能权限展示 */}
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">
+            <Zap className="w-3 h-3 mr-1" />
+            AI内容适配 - 免费10次/月
+          </Badge>
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
+            <Sparkles className="w-3 h-3 mr-1" />
+            创意工具 - 完全免费
+          </Badge>
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
+            <Sparkles className="w-3 h-3 mr-1" />
+            热点话题 - 完全免费
+          </Badge>
+          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 px-3 py-1">
+            <Crown className="w-3 h-3 mr-1" />
+            专业版功能 - 升级解锁
+          </Badge>
+        </div>
+        
         <div className="mt-10">
           <Link to="/adapt">
             <Button 
@@ -22,11 +45,10 @@ export function HeroSection() {
               立即免费试用 →
             </Button>
           </Link>
-          {/* Removed "无需信用卡，10秒完成注册" text */}
           <p className="mt-6 text-sm text-green-600 font-medium">
             <span className="inline-flex items-center bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
-              <span className="mr-1">⏱️</span>
-              每天帮您节省45分钟内容适配时间
+              <Clock className="w-3 h-3 mr-1" />
+              每天帮您节省2小时内容创作时间
             </span>
           </p>
         </div>

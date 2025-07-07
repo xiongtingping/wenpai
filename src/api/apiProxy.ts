@@ -1,21 +1,23 @@
-// API Proxy to handle secure communication with OpenAI and Google Gemini APIs
-// This prevents CORS issues and secures API keys
+/**
+ * API代理服务
+ * 提供统一的API调用接口，支持多种AI提供商
+ */
 
-// Define API endpoints for the proxy
-export const API_ENDPOINTS = {
-  OPENAI: '/api/proxy/openai',
-  GEMINI: '/api/proxy/gemini',
-  DEEPSEEK: '/api/proxy/deepseek',
-  CHECK_OPENAI: '/api/status/openai',
-  CHECK_GEMINI: '/api/status/gemini',
-  CHECK_DEEPSEEK: '/api/status/deepseek',
-  TEST: '/api/test'
+// API端点配置
+const API_ENDPOINTS = {
+  OPENAI: '/.netlify/functions/api/openai',
+  DEEPSEEK: '/.netlify/functions/api/deepseek',
+  GEMINI: '/.netlify/functions/api/gemini',
+  TEST: '/.netlify/functions/api/test',
+  CHECK_OPENAI: '/.netlify/functions/api/check-openai',
+  CHECK_GEMINI: '/.netlify/functions/api/check-gemini',
+  CHECK_DEEPSEEK: '/.netlify/functions/api/check-deepseek'
 };
 
 /**
- * Interface for proxy response
+ * 代理响应接口
  */
-export interface ProxyResponse<T = unknown> {
+export interface ProxyResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
@@ -24,18 +26,16 @@ export interface ProxyResponse<T = unknown> {
 }
 
 /**
- * Make a call to the OpenAI API through our backend proxy
- * @param messages Array of messages to send to OpenAI
- * @param model The model to use (defaults to gpt-4o)
+ * 调用OpenAI API代理
+ * @param messages 消息数组
+ * @param model 模型名称
  * @returns Promise with response data
  */
 export async function callOpenAIProxy(
-  messages: unknown[],
+  messages: any[],
   model: string = 'gpt-4o'
 ): Promise<ProxyResponse> {
   try {
-    console.log('Sending request to OpenAI proxy');
-    
     const response = await fetch(API_ENDPOINTS.OPENAI, {
       method: 'POST',
       headers: {
@@ -48,13 +48,10 @@ export async function callOpenAIProxy(
       })
     });
 
-    console.log(`OpenAI proxy response status: ${response.status}`);
-
-    // Check if we have a JSON response before trying to parse it
+    // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
-      console.error('Non-JSON response from OpenAI proxy:', textBody.substring(0, 500));
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -64,7 +61,6 @@ export async function callOpenAIProxy(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('OpenAI proxy error:', data);
       return {
         success: false,
         error: data.error || data.message || `API error: ${response.status}`,
@@ -77,7 +73,6 @@ export async function callOpenAIProxy(
       data
     };
   } catch (error) {
-    console.error('Error calling OpenAI proxy:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error calling OpenAI API proxy'
@@ -86,18 +81,16 @@ export async function callOpenAIProxy(
 }
 
 /**
- * Make a call to the DeepSeek API through our backend proxy
- * @param messages Array of messages to send to DeepSeek
- * @param model The model to use (defaults to deepseek-chat)
+ * 调用DeepSeek API代理
+ * @param messages 消息数组
+ * @param model 模型名称
  * @returns Promise with response data
  */
 export async function callDeepSeekProxy(
-  messages: unknown[],
+  messages: any[],
   model: string = 'deepseek-chat'
 ): Promise<ProxyResponse> {
   try {
-    console.log('Sending request to DeepSeek proxy');
-    
     const response = await fetch(API_ENDPOINTS.DEEPSEEK, {
       method: 'POST',
       headers: {
@@ -110,13 +103,10 @@ export async function callDeepSeekProxy(
       })
     });
 
-    console.log(`DeepSeek proxy response status: ${response.status}`);
-
-    // Check if we have a JSON response before trying to parse it
+    // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
-      console.error('Non-JSON response from DeepSeek proxy:', textBody.substring(0, 500));
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -126,7 +116,6 @@ export async function callDeepSeekProxy(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('DeepSeek proxy error:', data);
       return {
         success: false,
         error: data.error || data.message || `API error: ${response.status}`,
@@ -139,7 +128,6 @@ export async function callDeepSeekProxy(
       data
     };
   } catch (error) {
-    console.error('Error calling DeepSeek proxy:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error calling DeepSeek API proxy'
@@ -148,14 +136,12 @@ export async function callDeepSeekProxy(
 }
 
 /**
- * Make a call to the Google Gemini API through our backend proxy
- * @param prompt The prompt to send to Gemini
+ * 调用Google Gemini API代理
+ * @param prompt 提示文本
  * @returns Promise with response data
  */
 export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
   try {
-    console.log('Sending request to Gemini proxy');
-    
     const response = await fetch(API_ENDPOINTS.GEMINI, {
       method: 'POST',
       headers: {
@@ -166,13 +152,10 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
       })
     });
 
-    console.log(`Gemini proxy response status: ${response.status}`);
-
-    // Check if we have a JSON response before trying to parse it
+    // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
-      console.error('Non-JSON response from Gemini proxy:', textBody.substring(0, 500));
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -182,7 +165,6 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini proxy error:', data);
       return {
         success: false,
         error: data.error || data.message || `API error: ${response.status}`,
@@ -195,7 +177,6 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
       data
     };
   } catch (error) {
-    console.error('Error calling Gemini proxy:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error calling Gemini API proxy'
@@ -204,22 +185,17 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
 }
 
 /**
- * Test API connectivity
+ * 测试API连接性
  * @returns Promise with API status
  */
 export async function testApiConnectivity(): Promise<ProxyResponse> {
   try {
-    console.log('Testing API connectivity');
-    
     const response = await fetch(API_ENDPOINTS.TEST);
 
-    console.log(`Test API response status: ${response.status}`);
-
-    // Check if we have a JSON response before trying to parse it
+    // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
-      console.error('Non-JSON response from test API:', textBody.substring(0, 500));
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -229,7 +205,6 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Test API error:', data);
       return {
         success: false,
         error: data.error || data.message || `API error: ${response.status}`,
@@ -242,7 +217,6 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
       data
     };
   } catch (error) {
-    console.error('Error testing API connectivity:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error testing API connectivity'
@@ -251,22 +225,17 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
 }
 
 /**
- * Check if OpenAI API is available through our backend proxy
- * @returns Promise with API status
+ * 检查OpenAI API可用性
+ * @returns Promise with availability status
  */
 export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
   try {
-    console.log('Checking OpenAI API availability');
-    
     const response = await fetch(API_ENDPOINTS.CHECK_OPENAI);
 
-    console.log(`OpenAI check response status: ${response.status}`);
-
-    // Check if we have a JSON response before trying to parse it
+    // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
-      console.error('Non-JSON response from OpenAI check:', textBody.substring(0, 500));
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -276,10 +245,9 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('OpenAI check error:', data);
       return {
         success: false,
-        error: data.error || data.message || `API status check error: ${response.status}`,
+        error: data.error || data.message || `API error: ${response.status}`,
         detail: data.detail
       };
     }
@@ -289,7 +257,6 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
       data
     };
   } catch (error) {
-    console.error('Error checking OpenAI API:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error checking OpenAI API availability'
@@ -298,22 +265,17 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
 }
 
 /**
- * Check if Google Gemini API is available through our backend proxy
- * @returns Promise with API status
+ * 检查Gemini API可用性
+ * @returns Promise with availability status
  */
 export async function checkGeminiAvailability(): Promise<ProxyResponse> {
   try {
-    console.log('Checking Gemini API availability');
-    
     const response = await fetch(API_ENDPOINTS.CHECK_GEMINI);
 
-    console.log(`Gemini check response status: ${response.status}`);
-
-    // Check if we have a JSON response before trying to parse it
+    // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
-      console.error('Non-JSON response from Gemini check:', textBody.substring(0, 500));
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -323,10 +285,9 @@ export async function checkGeminiAvailability(): Promise<ProxyResponse> {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini check error:', data);
       return {
         success: false,
-        error: data.error || data.message || `API status check error: ${response.status}`,
+        error: data.error || data.message || `API error: ${response.status}`,
         detail: data.detail
       };
     }
@@ -336,7 +297,6 @@ export async function checkGeminiAvailability(): Promise<ProxyResponse> {
       data
     };
   } catch (error) {
-    console.error('Error checking Gemini API:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error checking Gemini API availability'
@@ -345,22 +305,17 @@ export async function checkGeminiAvailability(): Promise<ProxyResponse> {
 }
 
 /**
- * Check if DeepSeek API is available through our backend proxy
- * @returns Promise with API status
+ * 检查DeepSeek API可用性
+ * @returns Promise with availability status
  */
 export async function checkDeepSeekAvailability(): Promise<ProxyResponse> {
   try {
-    console.log('Checking DeepSeek API availability');
-    
     const response = await fetch(API_ENDPOINTS.CHECK_DEEPSEEK);
 
-    console.log(`DeepSeek check response status: ${response.status}`);
-
-    // Check if we have a JSON response before trying to parse it
+    // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
-      console.error('Non-JSON response from DeepSeek check:', textBody.substring(0, 500));
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -370,10 +325,9 @@ export async function checkDeepSeekAvailability(): Promise<ProxyResponse> {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('DeepSeek check error:', data);
       return {
         success: false,
-        error: data.error || data.message || `API status check error: ${response.status}`,
+        error: data.error || data.message || `API error: ${response.status}`,
         detail: data.detail
       };
     }
@@ -383,7 +337,6 @@ export async function checkDeepSeekAvailability(): Promise<ProxyResponse> {
       data
     };
   } catch (error) {
-    console.error('Error checking DeepSeek API:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error checking DeepSeek API availability'

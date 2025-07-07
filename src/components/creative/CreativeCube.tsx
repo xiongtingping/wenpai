@@ -3,13 +3,12 @@
  * 支持多维度创意生成和AI辅助
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { 
   Sparkles,
   RefreshCw,
@@ -24,7 +23,6 @@ import {
   Star,
   Zap,
   Plus,
-  Edit,
   Trash2,
   Shuffle
 } from 'lucide-react';
@@ -60,7 +58,7 @@ export function CreativeCube() {
   const { toast } = useToast();
   
   // 九宫格维度定义
-  const dimensions: CubeDimension[] = [
+  const dimensions: CubeDimension[] = useMemo(() => [
     {
       id: 'target_audience',
       name: '目标客群',
@@ -124,7 +122,7 @@ export function CreativeCube() {
       icon: <Sparkles className="w-4 h-4" />,
       defaultItems: ['AI技术', '健康生活', '环保理念', '数字化转型', '个性化定制', '社交电商', '知识付费', '国潮文化', '元宇宙']
     }
-  ];
+  ], []);
 
   // 状态管理
   const [cubeData, setCubeData] = useState<Record<string, string[]>>({});
@@ -142,7 +140,7 @@ export function CreativeCube() {
       initialData[dim.id] = [...dim.defaultItems];
     });
     setCubeData(initialData);
-  }, []);
+  }, [dimensions]);
 
   /**
    * 添加新项目到九宫格
@@ -196,27 +194,6 @@ export function CreativeCube() {
 
     setIsGenerating(true);
     try {
-      // 构建提示词
-      const selectedText = Object.entries(selectedItems)
-        .map(([dimId, item]) => {
-          const dim = dimensions.find(d => d.id === dimId);
-          return `${dim?.name}: ${item}`;
-        })
-        .join('\n');
-
-      const prompt = `基于以下九宫格元素，生成一个创意营销方案：
-
-${selectedText}
-
-请生成：
-1. 创意主题和核心概念
-2. 目标受众分析
-3. 传播策略和渠道
-4. 内容形式和调性
-5. 预期效果和KPI
-
-要求：创意新颖、可执行性强、符合当前趋势。`;
-
       // 模拟AI生成
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -260,7 +237,7 @@ ${selectedText}
         title: "创意生成成功",
         description: "已生成新的创意方案",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "生成失败",
         description: "请稍后重试",
@@ -285,7 +262,7 @@ ${selectedText}
   /**
    * 保存创意
    */
-  const saveIdea = (idea: CreativeResult) => {
+  const saveIdea = () => {
     // 这里可以集成到文案管理系统
     toast({
       title: "已保存到文案库",
@@ -419,13 +396,7 @@ ${selectedText}
                   <Copy className="w-4 h-4 mr-2" />
                   复制内容
                 </Button>
-                <Button onClick={() => saveIdea({
-                  id: Date.now().toString(),
-                  combination: selectedItems,
-                  generatedIdea: currentIdea,
-                  timestamp: new Date().toISOString(),
-                  tags: Object.values(selectedItems).slice(0, 3)
-                })}>
+                <Button onClick={saveIdea}>
                   <Save className="w-4 h-4 mr-2" />
                   保存到文案库
                 </Button>
@@ -466,7 +437,7 @@ ${selectedText}
                         <Button size="sm" variant="outline" onClick={() => copyIdea(idea.generatedIdea)}>
                           <Copy className="w-3 h-3" />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => saveIdea(idea)}>
+                        <Button size="sm" variant="outline" onClick={saveIdea}>
                           <Save className="w-3 h-3" />
                         </Button>
                       </div>

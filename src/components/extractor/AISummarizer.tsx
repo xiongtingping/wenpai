@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+
 import { Sparkles, Copy, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -49,7 +49,7 @@ export const AISummarizer: React.FC = () => {
         title: "总结完成",
         description: "AI已为您生成内容总结",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "总结失败",
         description: "请稍后重试",
@@ -67,7 +67,7 @@ export const AISummarizer: React.FC = () => {
         title: "复制成功",
         description: "总结已复制到剪贴板",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "复制失败",
         description: "请手动复制",

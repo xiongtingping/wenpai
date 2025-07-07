@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -32,10 +32,7 @@ import {
   Clock,
   Check,
   X,
-  MoreHorizontal,
-  Save,
-  Eye,
-  EyeOff
+  Save
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -69,8 +66,8 @@ export function MemoManager() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [filterUsed, setFilterUsed] = useState<'all' | 'used' | 'unused'>('all');
   const [filterFavorite, setFilterFavorite] = useState<boolean | null>(null);
-  const [sortBy, setSortBy] = useState<'time' | 'title' | 'tags'>('time');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortBy] = useState<'time' | 'title' | 'tags'>('time');
+  const [sortOrder] = useState<'asc' | 'desc'>('desc');
   
   // 编辑状态
   const [editingMemo, setEditingMemo] = useState<MemoItem | null>(null);

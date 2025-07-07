@@ -23,10 +23,10 @@ export interface AuthingConfig {
  * 开发环境配置
  */
 const devConfig: AuthingConfig = {
-  appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
-  host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
-  redirectUri: 'http://localhost:3002/callback', // 开发环境回调地址
-  mode: 'normal', // 改为normal模式支持重定向
+  appId: import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d',
+  host: import.meta.env.VITE_AUTHING_HOST || 'https://qutkgzkfaezk-demo.authing.cn',
+  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI || `${window.location.origin}/callback`,
+  mode: 'normal',
   defaultScene: 'login',
 };
 
@@ -34,10 +34,10 @@ const devConfig: AuthingConfig = {
  * 生产环境配置
  */
 const prodConfig: AuthingConfig = {
-  appId: '6867fdc88034eb95ae86167d', // 你的实际 AppID
-  host: 'https://qutkgzkfaezk-demo.authing.cn', // 你的实际域名
-  redirectUri: 'https://www.wenpai.xyz/callback', // 生产环境回调地址
-  mode: 'normal', // 改为normal模式支持重定向
+  appId: import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d',
+  host: import.meta.env.VITE_AUTHING_HOST || 'https://qutkgzkfaezk-demo.authing.cn',
+  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI || `${window.location.origin}/callback`,
+  mode: 'normal',
   defaultScene: 'login',
 };
 
