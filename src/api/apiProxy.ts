@@ -30,6 +30,10 @@ export async function callOpenAIProxy(
   model: string = 'gpt-4o'
 ): Promise<ProxyResponse> {
   try {
+    console.log('callOpenAIProxy 开始调用...');
+    console.log('API端点:', API_ENDPOINTS.API);
+    console.log('请求参数:', { provider: 'openai', action: 'generate', messages, model });
+    
     const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
@@ -44,10 +48,14 @@ export async function callOpenAIProxy(
       })
     });
 
+    console.log('API响应状态:', response.status);
+    console.log('API响应头:', Object.fromEntries(response.headers.entries()));
+
     // 检查响应类型
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const textBody = await response.text();
+      console.error('非JSON响应:', textBody);
       return {
         success: false,
         error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
@@ -55,8 +63,10 @@ export async function callOpenAIProxy(
     }
 
     const data = await response.json();
+    console.log('API响应数据:', data);
 
     if (!response.ok) {
+      console.error('API错误响应:', data);
       return {
         success: false,
         error: data.error || data.message || `API error: ${response.status}`,
@@ -64,11 +74,13 @@ export async function callOpenAIProxy(
       };
     }
 
+    console.log('API调用成功');
     return {
       success: true,
       data
     };
   } catch (error) {
+    console.error('callOpenAIProxy 异常:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error calling OpenAI API proxy'

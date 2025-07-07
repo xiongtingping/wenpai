@@ -1024,6 +1024,8 @@ ${generateStandardCallToAction()}
    */
   const callAIForCreativeContent = async (prompt: string, contentType: 'text' | 'video'): Promise<{ success: boolean; content?: string; error?: string }> => {
     try {
+      console.log('开始调用AI服务...');
+      
       // 导入AI服务
       const { callOpenAIProxy } = await import('@/api/apiProxy');
       
@@ -1048,14 +1050,21 @@ ${generateStandardCallToAction()}
         { role: 'user', content: prompt }
       ];
 
+      console.log('调用OpenAI API，消息数量:', messages.length);
+      console.log('用户提示词长度:', prompt.length);
+
       const response = await callOpenAIProxy(messages, 'gpt-3.5-turbo');
 
+      console.log('AI服务响应:', response);
+
       if (response.success && response.data?.choices?.[0]?.message?.content) {
+        console.log('AI生成成功，内容长度:', response.data.choices[0].message.content.length);
         return {
           success: true,
           content: response.data.choices[0].message.content
         };
       } else {
+        console.error('AI服务响应异常:', response);
         return {
           success: false,
           error: response.error || 'AI服务响应异常'
