@@ -365,7 +365,7 @@ export async function checkApiAvailability(): Promise<AIApiResponse> {
 export function getApiStatus(): { provider: string; model: string; available: boolean } {
   return {
     provider: currentApiProvider,
-    model: currentModel,
+            model: currentModel, 
     available: true // 简化实现
   };
 }
@@ -380,14 +380,14 @@ export async function adaptContent(request: ContentAdaptRequest): Promise<Conten
     const { originalContent, targetPlatforms, platformSettings, globalSettings } = request;
     
     if (!originalContent.trim()) {
-      return {
+          return {
         success: false,
         error: '原始内容不能为空'
       };
     }
 
     if (targetPlatforms.length === 0) {
-      return {
+        return {
         success: false,
         error: '请选择至少一个目标平台'
       };
@@ -448,14 +448,14 @@ export async function adaptContent(request: ContentAdaptRequest): Promise<Conten
           error: error instanceof Error ? error.message : '未知错误'
         });
       }
-    }
-
-    return {
+        }
+        
+        return {
       success: results.some(r => !r.error),
       results,
       error: results.every(r => r.error) ? '所有平台处理失败' : undefined
     };
-  } catch (error) {
+    } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : '内容适配失败'

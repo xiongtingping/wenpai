@@ -144,11 +144,11 @@ export default function ProfilePage() {
         <div className="flex items-center gap-4 mb-4">
           <Button
             variant="ghost"
-            onClick={() => navigate('/')}
+            onClick={() => window.location.href = '/adapt'}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="h-4 w-4" />
-            返回首页
+            返回内容适配器
           </Button>
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">个人中心</h1>

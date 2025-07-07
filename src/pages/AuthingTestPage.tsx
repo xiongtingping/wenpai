@@ -242,7 +242,7 @@ export default function AuthingTestPage() {
    * 返回首页
    */
   const handleBack = () => {
-    navigate('/');
+    window.location.href = '/adapt';
   };
 
   return (

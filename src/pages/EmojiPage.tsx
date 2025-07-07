@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Download, Copy, Heart, Search, Filter, Palette, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Download, Copy, Heart, Search, Filter, Palette, Sparkles, Image as ImageIcon, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 /**
@@ -295,9 +295,19 @@ const EmojiPage: React.FC = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Emoji图片库</h1>
-          <p className="text-muted-foreground">AI生成的精美Emoji图片，支持下载和复制</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => window.location.href = '/adapt'}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            返回内容适配器
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Emoji图片库</h1>
+            <p className="text-muted-foreground">AI生成的精美Emoji图片，支持下载和复制</p>
+          </div>
         </div>
         <Dialog>
           <DialogTrigger asChild>

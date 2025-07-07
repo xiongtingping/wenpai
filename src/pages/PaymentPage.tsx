@@ -106,11 +106,11 @@ export default function PaymentPage() {
       <div className="mb-8">
         <Button
           variant="ghost"
-          onClick={() => navigate('/')}
+          onClick={() => window.location.href = '/adapt'}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回首页
+          返回内容适配器
         </Button>
       </div>
       <div className="mb-12 text-center">

@@ -985,16 +985,24 @@ ${generateStandardCallToAction()}
         setCurrentContent(aiResponse.content);
         setCurrentContentType(contentType);
       } else {
+        let errorMsg = aiResponse.error || 'AI生成内容失败';
+        if (errorMsg.includes('timeout') || errorMsg.includes('超时')) {
+          errorMsg = 'AI生成超时，请重试';
+        }
         toast({
           title: "生成失败",
-          description: aiResponse.error || 'AI生成内容失败',
+          description: errorMsg,
           variant: "destructive"
         });
       }
     } catch (error) {
+      let errorMsg = error instanceof Error ? error.message : 'AI生成内容失败';
+      if (typeof errorMsg === 'string' && (errorMsg.includes('timeout') || errorMsg.includes('超时'))) {
+        errorMsg = 'AI生成超时，请重试';
+      }
       toast({
         title: "生成失败",
-        description: error instanceof Error ? error.message : 'AI生成内容失败',
+        description: errorMsg,
         variant: "destructive"
       });
     } finally {
@@ -1270,10 +1278,10 @@ Your output must feel like it was written by a real KOC or content strategist �
                     </div>
                   )}
                   
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      {dimension.icon}
-                      {dimension.name}
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    {dimension.icon}
+                    {dimension.name}
                       {/* 固定按钮 */}
                       {dimension.isPinnable && (
                         <Button
@@ -1286,68 +1294,68 @@ Your output must feel like it was written by a real KOC or content strategist �
                           <Pin className={`w-3 h-3 ${pinnedDimensions.has(dimension.id) ? 'text-white' : ''}`} />
                         </Button>
                       )}
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      {dimension.description}
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {dimension.description}
                       {pinnedDimensions.has(dimension.id) && (
                         <span className="text-blue-600 font-medium"> (已固定)</span>
                       )}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {/* 已选择的项目 */}
-                    {selectedItems[dimension.id] && (
-                      <div className="p-2 bg-primary/10 rounded-md">
-                        <Badge variant="secondary" className="text-xs">
-                          {selectedItems[dimension.id]}
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    {/* 可选项目列表 */}
-                    <div className="space-y-1 max-h-32 overflow-y-auto">
-                      {cubeData[dimension.id]?.map((item, index) => (
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {/* 已选择的项目 */}
+                  {selectedItems[dimension.id] && (
+                    <div className="p-2 bg-primary/10 rounded-md">
+                      <Badge variant="secondary" className="text-xs">
+                        {selectedItems[dimension.id]}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  {/* 可选项目列表 */}
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {cubeData[dimension.id]?.map((item, index) => (
                         <div key={index} className="flex items-center p-1 hover:bg-gray-50 rounded">
-                          <span 
+                        <span 
                             className="text-xs cursor-pointer hover:text-primary flex-1"
-                            onClick={() => setSelectedItems(prev => ({
-                              ...prev,
-                              [dimension.id]: item
-                            }))}
-                          >
-                            {item}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* 添加新项目 */}
-                    <div className="flex gap-1">
-                      <Input
-                        placeholder="添加新项目"
-                        className="text-xs h-6"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            addItemToCube(dimension.id, e.currentTarget.value);
-                            e.currentTarget.value = '';
-                          }
-                        }}
-                      />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-6 w-6 p-0"
-                        onClick={(e) => {
-                          const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                          addItemToCube(dimension.id, input.value);
-                          input.value = '';
-                        }}
-                      >
-                        <Plus className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                          onClick={() => setSelectedItems(prev => ({
+                            ...prev,
+                            [dimension.id]: item
+                          }))}
+                        >
+                          {item}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* 添加新项目 */}
+                  <div className="flex gap-1">
+                    <Input
+                      placeholder="添加新项目"
+                      className="text-xs h-6"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          addItemToCube(dimension.id, e.currentTarget.value);
+                          e.currentTarget.value = '';
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 w-6 p-0"
+                      onClick={(e) => {
+                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                        addItemToCube(dimension.id, input.value);
+                        input.value = '';
+                      }}
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
               );
             })}
           </div>
@@ -1401,21 +1409,21 @@ Your output must feel like it was written by a real KOC or content strategist �
           </Card>
         )}
 
-        {/* 操作按钮 */}
-        <div className="flex gap-2">
+      {/* 操作按钮 */}
+      <div className="flex gap-2">
           <Button onClick={smartRandomGenerate} variant="outline">
-            <Shuffle className="w-4 h-4 mr-2" />
+          <Shuffle className="w-4 h-4 mr-2" />
             智能随机生成
             {pinnedDimensions.size > 0 && (
               <Badge variant="outline" className="ml-2 text-xs">
                 跳过{pinnedDimensions.size}个固定维度
               </Badge>
             )}
-          </Button>
+        </Button>
           <Button onClick={() => generateIdea()} disabled={isGenerating}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-            {isGenerating ? '生成中...' : '生成创意'}
-          </Button>
+          <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+          {isGenerating ? '生成中...' : '生成创意'}
+        </Button>
         </div>
       </div>
 
@@ -1438,20 +1446,20 @@ Your output must feel like it was written by a real KOC or content strategist �
               </TabsList>
 
               <TabsContent value="content" className="space-y-4">
-                <Textarea
+              <Textarea
                   value={currentContent}
-                  readOnly
+                readOnly
                   className="min-h-[300px] font-mono text-sm"
-                />
-                <div className="flex gap-2">
+              />
+              <div className="flex gap-2">
                   <Button onClick={() => copyIdea(currentContent)} variant="outline">
-                    <Copy className="w-4 h-4 mr-2" />
-                    复制内容
-                  </Button>
+                  <Copy className="w-4 h-4 mr-2" />
+                  复制内容
+                </Button>
                   <Button onClick={saveIdea}>
-                    <Save className="w-4 h-4 mr-2" />
-                    保存到文案库
-                  </Button>
+                  <Save className="w-4 h-4 mr-2" />
+                  保存到文案库
+                </Button>
                   {currentContentType === 'video' && (
                     <Button onClick={exportToExcel} variant="outline">
                       <Download className="w-4 h-4 mr-2" />
@@ -1497,8 +1505,8 @@ Your output must feel like it was written by a real KOC or content strategist �
                             </div>
                             <div>
                               <strong>时长：</strong> {scene.duration}秒
-                            </div>
-                          </div>
+              </div>
+            </div>
                         </CardContent>
                       </Card>
                     ))}

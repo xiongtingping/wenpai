@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Copy, Edit, Heart, Search, Filter, MessageCircle, Calendar, Sparkles, Plus } from 'lucide-react';
+import { Copy, Edit, Heart, Search, Filter, MessageCircle, Calendar, Sparkles, Plus, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 /**
@@ -293,9 +293,19 @@ const WechatTemplatePage: React.FC = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">微信朋友圈文案模板</h1>
-          <p className="text-muted-foreground">精心设计的文案模板，让你的朋友圈更有魅力</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => window.location.href = '/adapt'}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            返回内容适配器
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">微信朋友圈文案模板</h1>
+            <p className="text-muted-foreground">精心设计的文案模板，让你的朋友圈更有魅力</p>
+          </div>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>

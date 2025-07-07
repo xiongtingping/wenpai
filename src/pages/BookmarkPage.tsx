@@ -8,9 +8,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, ExternalLink, Bookmark, Edit, Trash2, Plus, Search, Filter, Tag } from 'lucide-react';
+import { Calendar, ExternalLink, Bookmark, Edit, Trash2, Plus, Search, Filter, Tag, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 书签项接口定义
@@ -200,9 +201,19 @@ const BookmarkPage: React.FC = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">网络信息收藏</h1>
-          <p className="text-muted-foreground">收藏和管理有用的网络资源</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => window.location.href = '/adapt'}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            返回内容适配器
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">网络信息收藏</h1>
+            <p className="text-muted-foreground">收藏和管理有用的网络资源</p>
+          </div>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>

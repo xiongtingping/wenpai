@@ -7,6 +7,8 @@ import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export default function UserStatusPage() {
   const { 
@@ -42,6 +44,25 @@ export default function UserStatusPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => window.location.href = '/adapt'}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            返回内容适配器
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold mb-2">用户状态调试</h1>
+            <p className="text-muted-foreground">
+              用于调试用户认证状态
+            </p>
+          </div>
+        </div>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>用户状态调试</CardTitle>

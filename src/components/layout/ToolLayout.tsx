@@ -13,7 +13,7 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
       <header className="border-b bg-white/95 backdrop-blur-md sticky top-0 z-50">
         <div className="container flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <Link to="/">
+            <Link to="/adapt">
               <Button variant="ghost" size="icon">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
