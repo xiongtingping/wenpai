@@ -280,26 +280,29 @@ async function handleGeminiRequest(body, headers) {
   try {
     console.log(`调用Gemini API: ${model}`);
     
+    // 构建API请求体
+    const apiRequestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: userPrompt
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: temperature,
+        maxOutputTokens: maxTokens
+      }
+    };
+    
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: userPrompt
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          maxOutputTokens: maxTokens,
-          temperature: temperature
-        }
-      })
+      body: JSON.stringify(apiRequestBody)
     });
 
     const data = await response.json();
@@ -522,8 +525,6 @@ async function checkGeminiStatus(headers) {
   }
 }
 
-const { createProxyMiddleware } = require('http-proxy-middleware');
-
 exports.handler = async (event, context) => {
   // 设置CORS头
   const headers = {
@@ -543,22 +544,62 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // 这里可以添加实际的API逻辑
-    // 目前返回模拟数据
-    const response = {
-      success: true,
-      message: 'API代理正常工作',
-      timestamp: new Date().toISOString(),
-      path: event.path,
-      method: event.httpMethod
-    };
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { provider, action, ...requestBody } = body;
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(response)
-    };
+    // 根据provider和action路由到不同的处理函数
+    if (action === 'status') {
+      switch (provider) {
+        case 'openai':
+          return await checkOpenAIStatus(headers);
+        case 'deepseek':
+          return await checkDeepSeekStatus(headers);
+        case 'gemini':
+          return await checkGeminiStatus(headers);
+        default:
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({
+              success: false,
+              error: '不支持的provider'
+            })
+          };
+      }
+    } else if (action === 'generate') {
+      switch (provider) {
+        case 'openai':
+          return await handleOpenAIRequest(requestBody, headers);
+        case 'deepseek':
+          return await handleDeepSeekRequest(requestBody, headers);
+        case 'gemini':
+          return await handleGeminiRequest(requestBody, headers);
+        default:
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({
+              success: false,
+              error: '不支持的provider'
+            })
+          };
+      }
+    } else {
+      // 默认返回API信息
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          message: 'AI API代理服务',
+          availableProviders: ['openai', 'deepseek', 'gemini'],
+          availableActions: ['status', 'generate'],
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
   } catch (error) {
+    console.error('API处理错误:', error);
     return {
       statusCode: 500,
       headers,
