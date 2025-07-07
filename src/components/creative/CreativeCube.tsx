@@ -257,6 +257,8 @@ export function CreativeCube() {
       title: "智能随机生成完成",
       description: `已为${dimensions.length - pinnedDimensions.size}个维度生成随机组合`,
     });
+    // 立即用最新的newSelection生成创意，避免异步setSelectedItems导致校验失效
+    generateIdea(newSelection);
   };
 
   /**
@@ -943,13 +945,20 @@ ${generateStandardCallToAction()}
   };
 
   /**
-   * 生成创意内容
+   * 生成创意内容（支持传入自定义selectedItems）
    */
-  const generateIdea = async () => {
-    const { target_audience, use_case, pain_point, content_format, tone_style, core_value, emotional_need, industry, platform_or_trend } = selectedItems;
-    
+  const generateIdea = async (customSelectedItems?: Record<string, string>) => {
+    const useItems = customSelectedItems || selectedItems;
+    const { target_audience, use_case, pain_point, content_format, tone_style, core_value, emotional_need, industry, platform_or_trend } = useItems;
     // 只检查必选维度
-    const requiredCheck = checkRequiredDimensions();
+    const requiredCheck = (() => {
+      const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
+      const missingDimensions = requiredDimensions.filter(dim => !useItems[dim]);
+      return {
+        isValid: missingDimensions.length === 0,
+        missing: missingDimensions
+      };
+    })();
     if (!requiredCheck.isValid) {
       const missingNames = requiredCheck.missing.map(dim => {
         const dimension = dimensions.find(d => d.id === dim);
@@ -962,56 +971,30 @@ ${generateStandardCallToAction()}
       });
       return;
     }
-
     setIsGenerating(true);
-    
     try {
       // 构建AI提示词
       const prompt = buildPrompt();
-      
       // 确定内容类型
       const format = content_format || '图文';
       const isVideo = format.includes('视频') || format.includes('短视频');
       const contentType = isVideo ? 'video' : 'text';
-      
       // 调用AI服务生成内容
       const aiResponse = await callAIForCreativeContent(prompt, contentType);
-      
       if (aiResponse.success && aiResponse.content) {
-        const generatedContent = aiResponse.content;
-        setCurrentContent(generatedContent);
+        setCurrentContent(aiResponse.content);
         setCurrentContentType(contentType);
-        
-        // 如果是视频内容，解析分镜脚本
-        if (contentType === 'video') {
-          const videoScript = parseVideoScript(generatedContent);
-          setVideoScript(videoScript);
-        }
-        
-        // 保存到历史记录
-        const newResult: CreativeResult = {
-          id: Date.now().toString(),
-          combination: { ...selectedItems },
-          generatedContent,
-          contentType,
-          timestamp: new Date().toISOString(),
-          tags: Object.values(selectedItems).slice(0, 3)
-        };
-
-        setGeneratedIdeas(prev => [newResult, ...prev]);
-
-        toast({
-          title: "创意生成成功",
-          description: `已生成${isVideo ? '短视频脚本' : '图文内容'}`,
-        });
       } else {
-        throw new Error(aiResponse.error || 'AI生成失败');
+        toast({
+          title: "生成失败",
+          description: aiResponse.error || 'AI生成内容失败',
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      console.error('生成创意失败:', error);
       toast({
         title: "生成失败",
-        description: error instanceof Error ? error.message : "请稍后重试",
+        description: error instanceof Error ? error.message : 'AI生成内容失败',
         variant: "destructive"
       });
     } finally {
@@ -1429,7 +1412,7 @@ Your output must feel like it was written by a real KOC or content strategist �
               </Badge>
             )}
           </Button>
-          <Button onClick={generateIdea} disabled={isGenerating}>
+          <Button onClick={() => generateIdea()} disabled={isGenerating}>
             <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
             {isGenerating ? '生成中...' : '生成创意'}
           </Button>
