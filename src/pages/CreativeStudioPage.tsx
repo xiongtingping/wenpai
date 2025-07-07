@@ -48,6 +48,7 @@ import { CreativeCube } from '@/components/creative/CreativeCube';
 import { MemoManager } from '@/components/creative/MemoManager';
 import { MarketingCalendar } from '@/components/creative/MarketingCalendar';
 import { TodoList } from '@/components/creative/TodoList';
+import { EnhancedCalendar } from '@/components/creative/EnhancedCalendar';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 
 /**
@@ -82,7 +83,7 @@ export default function CreativeStudioPage() {
 
       {/* 功能标签页 */}
       <Tabs defaultValue="cube" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="cube" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             创意魔方
@@ -94,6 +95,10 @@ export default function CreativeStudioPage() {
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             营销日历
+          </TabsTrigger>
+          <TabsTrigger value="enhanced-calendar" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            增强日历
           </TabsTrigger>
           <TabsTrigger value="todo" className="flex items-center gap-2">
             <CheckSquare className="w-4 h-4" />
@@ -118,6 +123,11 @@ export default function CreativeStudioPage() {
         {/* 营销日历 */}
         <TabsContent value="calendar" className="mt-6">
           <MarketingCalendar />
+        </TabsContent>
+
+        {/* 增强日历 */}
+        <TabsContent value="enhanced-calendar" className="mt-6">
+          <EnhancedCalendar />
         </TabsContent>
 
         {/* 代办事项 */}

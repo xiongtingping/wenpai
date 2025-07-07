@@ -32,6 +32,7 @@ import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import TestNewFeaturesPage from '@/pages/TestNewFeaturesPage';
 import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import CreativeStudioPage from '@/pages/CreativeStudioPage';
+import EnhancedCalendarPage from '@/pages/EnhancedCalendarPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 
 /**
@@ -153,6 +154,14 @@ const AppContent: React.FC = () => {
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
               <CreativeStudioPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/enhanced-calendar" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <EnhancedCalendarPage />
             </ToolLayout>
           </ProtectedRoute>
         } />

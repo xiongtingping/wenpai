@@ -1,6 +1,6 @@
 /**
- * 九宫格创意魔方组件
- * 支持多维度创意生成和AI辅助
+ * 九宫格创意魔方组件 - 优化版
+ * 支持多维度深度融合，生成可用创意内容
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Sparkles,
   RefreshCw,
@@ -24,7 +25,13 @@ import {
   Zap,
   Plus,
   Trash2,
-  Shuffle
+  Shuffle,
+  Download,
+  FileText,
+  Video,
+  Music,
+  Camera,
+  Clock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -45,9 +52,25 @@ interface CubeDimension {
 interface CreativeResult {
   id: string;
   combination: Record<string, string>;
-  generatedIdea: string;
+  generatedContent: string;
+  contentType: 'text' | 'video';
   timestamp: string;
   tags: string[];
+}
+
+/**
+ * 短视频分镜脚本
+ */
+interface VideoScript {
+  sceneNumber: string;
+  sceneDescription: string;
+  dialogue: string;
+  tone: string;
+  emotion: string;
+  bgm: string;
+  soundEffect: string;
+  shotType: string;
+  duration: number;
 }
 
 /**
@@ -106,7 +129,7 @@ export function CreativeCube() {
       name: '内容形式',
       description: '内容呈现的形式',
       icon: <Target className="w-4 h-4" />,
-      defaultItems: ['图文', '视频', '直播', '音频', 'H5', '小程序', '海报', '长图文', '互动游戏']
+      defaultItems: ['图文', '短视频', '直播', '音频', 'H5', '小程序', '海报', '长图文', '互动游戏']
     },
     {
       id: 'tones',
@@ -129,7 +152,9 @@ export function CreativeCube() {
   const [selectedItems, setSelectedItems] = useState<Record<string, string>>({});
   const [generatedIdeas, setGeneratedIdeas] = useState<CreativeResult[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [currentIdea, setCurrentIdea] = useState<string>('');
+  const [currentContent, setCurrentContent] = useState<string>('');
+  const [currentContentType, setCurrentContentType] = useState<'text' | 'video'>('text');
+  const [videoScript, setVideoScript] = useState<VideoScript[]>([]);
 
   /**
    * 初始化九宫格数据
@@ -155,31 +180,6 @@ export function CreativeCube() {
   };
 
   /**
-   * 删除九宫格项目
-   */
-  const removeItemFromCube = (dimensionId: string, itemIndex: number) => {
-    setCubeData(prev => ({
-      ...prev,
-      [dimensionId]: prev[dimensionId].filter((_, index) => index !== itemIndex)
-    }));
-  };
-
-  /**
-   * 随机选择项目
-   */
-  const randomSelect = () => {
-    const newSelection: Record<string, string> = {};
-    dimensions.forEach(dim => {
-      const items = cubeData[dim.id] || [];
-      if (items.length > 0) {
-        const randomIndex = Math.floor(Math.random() * items.length);
-        newSelection[dim.id] = items[randomIndex];
-      }
-    });
-    setSelectedItems(newSelection);
-  };
-
-  /**
    * 智能随机生成 - 保持用户选择，随机其他维度
    */
   const smartRandomGenerate = () => {
@@ -198,7 +198,227 @@ export function CreativeCube() {
   };
 
   /**
-   * 生成创意想法
+   * 构建AI Prompt
+   */
+  const buildPrompt = () => {
+    const {
+      target_audience = '目标用户',
+      scenarios = '使用场景',
+      pain_points = '痛点需求',
+      emotions = '情感诉求',
+      benefits = '核心价值',
+      channels = '传播渠道',
+      formats = '内容形式',
+      tones = '表达调性',
+      trends = '热点趋势'
+    } = selectedItems;
+
+    return `请生成一段适用于${formats}的创意内容，目标用户是「${target_audience}」，使用场景为「${scenarios}」，面临的核心痛点是「${pain_points}」，希望传达的核心价值为「${benefits}」，激发的情绪为「${emotions}」，风格调性为「${tones}」，发布渠道为「${channels}」，结合当前热点话题「${trends}」。
+
+请直接输出创意内容，而非策略说明。`;
+  };
+
+  /**
+   * 生成图文内容
+   */
+  const generateTextContent = (prompt: string) => {
+    const { target_audience, scenarios, pain_points, tones, benefits, emotions } = selectedItems;
+    
+    // 根据调性生成不同风格的内容
+    let contentStyle = '';
+    switch (tones) {
+      case '轻松幽默':
+        contentStyle = '用轻松幽默的语气，加入一些俏皮话和网络热梗';
+        break;
+      case '温暖治愈':
+        contentStyle = '用温暖治愈的语调，营造温馨感人的氛围';
+        break;
+      case '专业权威':
+        contentStyle = '用专业权威的语气，突出专业性和可信度';
+        break;
+      case '激情澎湃':
+        contentStyle = '用激情澎湃的语气，充满感染力和号召力';
+        break;
+      default:
+        contentStyle = '用自然流畅的语气';
+    }
+
+    return `📱 ${target_audience}专属文案
+
+${contentStyle}，为${target_audience}在${scenarios}中遇到的${pain_points}提供解决方案。
+
+💡 核心价值：${benefits}
+❤️ 情感共鸣：${emotions}
+
+【标题】
+${generateTitle()}
+
+【正文】
+${generateBody()}
+
+【互动引导】
+${generateCallToAction()}
+
+#${target_audience} #${scenarios} #${benefits} #${tones}`;
+  };
+
+  /**
+   * 生成标题
+   */
+  const generateTitle = () => {
+    const { target_audience, pain_points, benefits, tones } = selectedItems;
+    
+    const titles = {
+      '轻松幽默': [
+        `当${target_audience}遇到${pain_points}，这个办法绝了！`,
+        `${target_audience}必看：${pain_points}的终极解决方案`,
+        `震惊！${target_audience}竟然这样解决${pain_points}`
+      ],
+      '温暖治愈': [
+        `给${target_audience}的一封信：关于${pain_points}的温暖答案`,
+        `${target_audience}，你值得拥有更好的${benefits}`,
+        `陪伴${target_audience}，让${pain_points}不再是困扰`
+      ],
+      '专业权威': [
+        `${target_audience}${pain_points}专业解决方案`,
+        `权威解析：${target_audience}如何实现${benefits}`,
+        `${target_audience}必读：${pain_points}的科学应对方法`
+      ],
+      '激情澎湃': [
+        `${target_audience}们！是时候告别${pain_points}了！`,
+        `突破极限！${target_audience}的${benefits}革命`,
+        `改变从现在开始！${target_audience}的${pain_points}解决方案`
+      ]
+    };
+
+    const titleList = titles[tones as keyof typeof titles] || titles['轻松幽默'];
+    return titleList[Math.floor(Math.random() * titleList.length)];
+  };
+
+  /**
+   * 生成正文
+   */
+  const generateBody = () => {
+    const { target_audience, scenarios, pain_points, benefits, emotions, tones } = selectedItems;
+    
+    const scenarioTexts = [
+      `作为${target_audience}，你一定经历过在${scenarios}时的${pain_points}。`,
+      `每当${scenarios}的时候，${target_audience}最担心的就是${pain_points}。`,
+      `${target_audience}在${scenarios}中，${pain_points}总是让人头疼不已。`
+    ];
+
+    const solutions = [
+      `但现在，有了${benefits}的解决方案，一切都变得不一样了！`,
+      `通过${benefits}，我们可以轻松应对这些挑战。`,
+      `这就是为什么我们需要${benefits}来改变现状。`
+    ];
+
+    const emotionTexts = [
+      `这不仅能解决${pain_points}，更能带来${emotions}的满足。`,
+      `让${target_audience}在${scenarios}中感受到真正的${emotions}。`,
+      `这就是我们追求的${emotions}，也是${benefits}的核心价值。`
+    ];
+
+    return `${scenarioTexts[Math.floor(Math.random() * scenarioTexts.length)]}
+
+${solutions[Math.floor(Math.random() * solutions.length)]}
+
+${emotionTexts[Math.floor(Math.random() * emotionTexts.length)]}
+
+让我们一起，为${target_audience}创造更好的${scenarios}体验！`;
+  };
+
+  /**
+   * 生成互动引导
+   */
+  const generateCallToAction = () => {
+    const { target_audience, benefits, tones } = selectedItems;
+    
+    const ctas = {
+      '轻松幽默': [
+        `👉 ${target_audience}们，快来试试这个${benefits}的神奇效果吧！`,
+        `💪 还在等什么？${target_audience}的${benefits}神器等你来体验！`,
+        `🎉 ${target_audience}专属福利，${benefits}等你来拿！`
+      ],
+      '温暖治愈': [
+        `💝 为${target_audience}准备的${benefits}，温暖你的每一天`,
+        `🌟 让${target_audience}感受到${benefits}带来的温暖`,
+        `💕 ${target_audience}，你值得拥有这份${benefits}的关怀`
+      ],
+      '专业权威': [
+        `📊 专业数据证明：${target_audience}的${benefits}效果显著`,
+        `🔬 权威认证：${target_audience}的${benefits}解决方案`,
+        `📈 科学验证：${target_audience}的${benefits}提升方案`
+      ],
+      '激情澎湃': [
+        `🔥 ${target_audience}们！立即行动，体验${benefits}的震撼效果！`,
+        `⚡ 突破自我！${target_audience}的${benefits}革命现在开始！`,
+        `🚀 改变命运！${target_audience}的${benefits}之旅等你加入！`
+      ]
+    };
+
+    const ctaList = ctas[tones as keyof typeof ctas] || ctas['轻松幽默'];
+    return ctaList[Math.floor(Math.random() * ctaList.length)];
+  };
+
+  /**
+   * 生成短视频脚本
+   */
+  const generateVideoScript = () => {
+    const { target_audience, scenarios, pain_points, benefits, emotions, tones } = selectedItems;
+    
+    const scripts: VideoScript[] = [
+      {
+        sceneNumber: 'Scene1',
+        sceneDescription: `${target_audience}在${scenarios}中遇到${pain_points}的困扰`,
+        dialogue: `"又是这样...${pain_points}真是让人头疼"`,
+        tone: tones,
+        emotion: '困扰、无奈',
+        bgm: '轻快背景音乐',
+        soundEffect: '环境音',
+        shotType: '中景',
+        duration: 3
+      },
+      {
+        sceneNumber: 'Scene2',
+        sceneDescription: '展示解决方案和${benefits}的效果',
+        dialogue: `"原来可以这样！${benefits}真的太棒了"`,
+        tone: tones,
+        emotion: '惊喜、满意',
+        bgm: '积极向上的音乐',
+        soundEffect: '成功音效',
+        shotType: '特写',
+        duration: 4
+      },
+      {
+        sceneNumber: 'Scene3',
+        sceneDescription: '展示使用后的${emotions}体验',
+        dialogue: `"现在终于感受到${emotions}了！"`,
+        tone: tones,
+        emotion: emotions,
+        bgm: '温暖治愈音乐',
+        soundEffect: '温馨音效',
+        shotType: '全景',
+        duration: 3
+      },
+      {
+        sceneNumber: 'End',
+        sceneDescription: '产品展示和行动号召',
+        dialogue: `"${target_audience}们，快来体验${benefits}吧！"`,
+        tone: tones,
+        emotion: '热情、邀请',
+        bgm: '高潮音乐',
+        soundEffect: '号召音效',
+        shotType: '中景',
+        duration: 2
+      }
+    ];
+
+    return scripts;
+  };
+
+  /**
+   * 生成创意内容
    */
   const generateIdea = async () => {
     if (Object.keys(selectedItems).length < 3) {
@@ -215,37 +435,52 @@ export function CreativeCube() {
       // 模拟AI生成
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const generatedIdea = `🎯 内容营销创意：「${Object.values(selectedItems).slice(0, 3).join(' × ')}」新媒体方案
+      const format = selectedItems.formats || '图文';
+      const isVideo = format.includes('视频') || format.includes('短视频');
+      
+      let generatedContent = '';
+      let contentType: 'text' | 'video' = 'text';
+      
+      if (isVideo) {
+        contentType = 'video';
+        const script = generateVideoScript();
+        setVideoScript(script);
+        
+        generatedContent = `📹 短视频创意脚本
 
-📊 核心概念：
-针对${selectedItems.target_audience || '目标用户'}在${selectedItems.scenarios || '特定场景'}中的${selectedItems.pain_points || '痛点需求'}，创作${selectedItems.tones || '独特调性'}的${selectedItems.formats || '内容形式'}，通过${selectedItems.channels || '传播渠道'}传递${selectedItems.benefits || '核心价值'}。
+🎯 目标：${selectedItems.target_audience} × ${selectedItems.scenarios} × ${selectedItems.pain_points}
+💡 核心价值：${selectedItems.benefits}
+❤️ 情感诉求：${selectedItems.emotions}
+🎨 调性风格：${selectedItems.tones}
 
-🎯 目标受众分析：
-- 主要人群：${selectedItems.target_audience || '目标用户'}
-- 情感诉求：${selectedItems.emotions || '情感需求'}
-- 使用场景：${selectedItems.scenarios || '使用场景'}
+📝 分镜脚本：
+${script.map(scene => `
+【${scene.sceneNumber}】${scene.sceneDescription}
+台词：${scene.dialogue}
+情绪：${scene.emotion}
+镜头：${scene.shotType}
+时长：${scene.duration}秒
+BGM：${scene.bgm}
+音效：${scene.soundEffect}
+`).join('')}
 
-📱 新媒体传播策略：
-1. 内容策略：结合${selectedItems.trends || '热点趋势'}，制作${selectedItems.formats || '内容形式'}
-2. 渠道策略：重点布局${selectedItems.channels || '传播渠道'}
-3. 调性策略：采用${selectedItems.tones || '表达调性'}的沟通方式
+🎵 音乐建议：根据${selectedItems.tones}调性选择合适BGM
+🎬 拍摄建议：注重${selectedItems.emotions}的视觉表达
+📱 发布平台：${selectedItems.channels}`;
+      } else {
+        contentType = 'text';
+        generatedContent = generateTextContent(buildPrompt());
+      }
 
-💡 创意亮点：
-将${Object.values(selectedItems).slice(0, 3).join('、')}进行跨界融合，创造独特的新媒体内容体验。
-
-📝 内容建议：
-- 标题：突出${selectedItems.benefits || '核心价值'}和${selectedItems.emotions || '情感诉求'}
-- 开头：用${selectedItems.tones || '表达调性'}吸引${selectedItems.target_audience || '目标用户'}注意
-- 正文：结合${selectedItems.scenarios || '使用场景'}和${selectedItems.pain_points || '痛点需求'}
-- 结尾：引导用户参与互动，建立${selectedItems.channels || '传播渠道'}连接`;
-
-      setCurrentIdea(generatedIdea);
+      setCurrentContent(generatedContent);
+      setCurrentContentType(contentType);
 
       // 保存到历史记录
       const newResult: CreativeResult = {
         id: Date.now().toString(),
         combination: { ...selectedItems },
-        generatedIdea,
+        generatedContent,
+        contentType,
         timestamp: new Date().toISOString(),
         tags: Object.values(selectedItems).slice(0, 3)
       };
@@ -254,7 +489,7 @@ export function CreativeCube() {
 
       toast({
         title: "创意生成成功",
-        description: "已生成新的创意方案",
+        description: `已生成${isVideo ? '短视频脚本' : '图文内容'}`,
       });
     } catch {
       toast({
@@ -265,6 +500,53 @@ export function CreativeCube() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  /**
+   * 导出Excel
+   */
+  const exportToExcel = () => {
+    if (currentContentType !== 'video' || videoScript.length === 0) {
+      toast({
+        title: "无法导出",
+        description: "只有短视频脚本才能导出Excel",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 创建CSV内容
+    const headers = ['镜头编号', '画面说明', '台词文案', '调性', '表达情绪', '背景音乐', '音效', '镜头类型', '时长（s）'];
+    const csvContent = [
+      headers.join(','),
+      ...videoScript.map(scene => [
+        scene.sceneNumber,
+        scene.sceneDescription,
+        scene.dialogue,
+        scene.tone,
+        scene.emotion,
+        scene.bgm,
+        scene.soundEffect,
+        scene.shotType,
+        scene.duration
+      ].join(','))
+    ].join('\n');
+
+    // 创建下载链接
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `短视频脚本_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "导出成功",
+      description: "短视频脚本已导出为CSV文件",
+    });
   };
 
   /**
@@ -299,7 +581,7 @@ export function CreativeCube() {
             九宫格创意魔方
           </CardTitle>
           <CardDescription>
-            选择不同维度的元素，AI将为你生成创意营销方案
+            选择不同维度的元素，AI将为你生成可直接使用的创意内容
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -386,33 +668,93 @@ export function CreativeCube() {
         </Button>
       </div>
 
-      {/* 当前生成的创意 */}
-      {currentIdea && (
+      {/* 当前生成的内容 */}
+      {currentContent && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5" />
-              生成的创意方案
+              {currentContentType === 'video' ? <Video className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+              {currentContentType === 'video' ? '短视频脚本' : '图文内容'}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <Textarea
-                value={currentIdea}
-                readOnly
-                className="min-h-[200px] font-mono text-sm"
-              />
-              <div className="flex gap-2">
-                <Button onClick={() => copyIdea(currentIdea)} variant="outline">
-                  <Copy className="w-4 h-4 mr-2" />
-                  复制内容
-                </Button>
-                <Button onClick={saveIdea}>
-                  <Save className="w-4 h-4 mr-2" />
-                  保存到文案库
-                </Button>
-              </div>
-            </div>
+            <Tabs defaultValue="content" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="content">内容预览</TabsTrigger>
+                {currentContentType === 'video' && (
+                  <TabsTrigger value="script">分镜脚本</TabsTrigger>
+                )}
+              </TabsList>
+
+              <TabsContent value="content" className="space-y-4">
+                <Textarea
+                  value={currentContent}
+                  readOnly
+                  className="min-h-[300px] font-mono text-sm"
+                />
+                <div className="flex gap-2">
+                  <Button onClick={() => copyIdea(currentContent)} variant="outline">
+                    <Copy className="w-4 h-4 mr-2" />
+                    复制内容
+                  </Button>
+                  <Button onClick={saveIdea}>
+                    <Save className="w-4 h-4 mr-2" />
+                    保存到文案库
+                  </Button>
+                  {currentContentType === 'video' && (
+                    <Button onClick={exportToExcel} variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      导出Excel
+                    </Button>
+                  )}
+                </div>
+              </TabsContent>
+
+              {currentContentType === 'video' && (
+                <TabsContent value="script" className="space-y-4">
+                  <div className="space-y-4">
+                    {videoScript.map((scene, index) => (
+                      <Card key={index} className="border">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Camera className="w-4 h-4" />
+                            {scene.sceneNumber}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <strong>画面说明：</strong> {scene.sceneDescription}
+                            </div>
+                            <div>
+                              <strong>台词文案：</strong> {scene.dialogue}
+                            </div>
+                            <div>
+                              <strong>调性：</strong> {scene.tone}
+                            </div>
+                            <div>
+                              <strong>表达情绪：</strong> {scene.emotion}
+                            </div>
+                            <div>
+                              <strong>背景音乐：</strong> {scene.bgm}
+                            </div>
+                            <div>
+                              <strong>音效：</strong> {scene.soundEffect}
+                            </div>
+                            <div>
+                              <strong>镜头类型：</strong> {scene.shotType}
+                            </div>
+                            <div>
+                              <strong>时长：</strong> {scene.duration}秒
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              )}
+            </Tabs>
           </CardContent>
         </Card>
       )}
@@ -431,6 +773,9 @@ export function CreativeCube() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className="text-xs">
+                            {idea.contentType === 'video' ? '短视频' : '图文'}
+                          </Badge>
                           {idea.tags.map((tag, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
                               {tag}
@@ -438,19 +783,24 @@ export function CreativeCube() {
                           ))}
                         </div>
                         <p className="text-sm text-gray-600 mb-2">
-                          {idea.generatedIdea.substring(0, 200)}...
+                          {idea.generatedContent.substring(0, 200)}...
                         </p>
                         <p className="text-xs text-gray-500">
                           {new Date(idea.timestamp).toLocaleString()}
                         </p>
                       </div>
                       <div className="flex gap-1">
-                        <Button size="sm" variant="outline" onClick={() => copyIdea(idea.generatedIdea)}>
+                        <Button size="sm" variant="outline" onClick={() => copyIdea(idea.generatedContent)}>
                           <Copy className="w-3 h-3" />
                         </Button>
                         <Button size="sm" variant="outline" onClick={saveIdea}>
                           <Save className="w-3 h-3" />
                         </Button>
+                        {idea.contentType === 'video' && (
+                          <Button size="sm" variant="outline" onClick={exportToExcel}>
+                            <Download className="w-3 h-3" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
