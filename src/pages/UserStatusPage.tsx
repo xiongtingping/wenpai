@@ -8,7 +8,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
 
 export default function UserStatusPage() {
   const { 

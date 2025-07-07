@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import AuthGuard from '@/components/auth/AuthGuard';
 import PermissionGuard from '@/components/auth/PermissionGuard';
 import { ArrowLeft } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
 
 /**
  * 权限测试页面组件
