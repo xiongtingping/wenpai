@@ -1065,6 +1065,12 @@ ${generateStandardCallToAction()}
         };
       } else {
         console.error('AI服务响应异常:', response);
+        console.error('response.success:', response.success);
+        console.error('response.data:', response.data);
+        console.error('response.data?.choices:', response.data?.choices);
+        console.error('response.data?.choices?.[0]:', response.data?.choices?.[0]);
+        console.error('response.data?.choices?.[0]?.message:', response.data?.choices?.[0]?.message);
+        console.error('response.data?.choices?.[0]?.message?.content:', response.data?.choices?.[0]?.message?.content);
         return {
           success: false,
           error: response.error || 'AI服务响应异常'
