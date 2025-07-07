@@ -67,7 +67,7 @@ log_step "步骤 2: 检查远程仓库"
 if ! git remote get-url origin > /dev/null 2>&1; then
     log_error "未找到远程仓库"
     echo "请先添加远程仓库："
-    echo "  git remote add origin https://github.com/yourusername/wenpaiai626.git"
+    echo "  git remote add origin https://github.com/yourusername/wenpai.git"
     exit 1
 fi
 
@@ -97,7 +97,7 @@ echo "2. 🔗 连接 GitHub 仓库"
 echo "   - 点击 'New site from Git'"
 echo "   - 选择 'GitHub'"
 echo "   - 授权访问你的 GitHub 账户"
-echo "   - 选择仓库: wenpaiai626"
+echo "   - 选择仓库: wenpai"
 echo ""
 echo "3. ⚙️ 配置构建设置"
 echo "   - Build command: npm run build"

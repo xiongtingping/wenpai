@@ -10,7 +10,7 @@
 ## 🔧 Netlify 部署配置
 
 ### 1. 基本配置
-- [ ] 连接 GitHub 仓库：`xiongtingping/wenpaiai626`
+- [ ] 连接 GitHub 仓库：`xiongtingping/wenpai`
 - [ ] 选择分支：`restore-caa083d` 或 `main`
 - [ ] 构建命令：`npm run build`
 - [ ] 发布目录：`dist`

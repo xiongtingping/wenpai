@@ -1,5 +1,5 @@
 // 测试API是否正常工作
-const baseUrl = 'https://wenpaiai626-kto0p4x4n-xiongtingping-9125s-projects.vercel.app';
+const baseUrl = 'https://wenpai-kto0p4x4n-xiongtingping-9125s-projects.vercel.app';
 
 async function testAPI(endpoint) {
   try {

@@ -139,7 +139,7 @@ show_deployment_info() {
     echo "1. 🌐 Netlify 部署："
     echo "   - 访问: https://app.netlify.com/"
     echo "   - 点击 'Add new site' → 'Import an existing project'"
-    echo "   - 选择 GitHub 仓库: xiongtingping/wenpaiai626"
+    echo "   - 选择 GitHub 仓库: xiongtingping/wenpai"
     echo "   - 分支: main"
     echo "   - 构建命令: npm run build"
     echo "   - 发布目录: dist"
@@ -171,7 +171,7 @@ main() {
     if [ ! -f "package.json" ]; then
         log_error "请在项目根目录运行此脚本"
         log_info "当前目录: $(pwd)"
-        log_info "请切换到: /Users/xiong/AI Content Adapter/wenpaiai626"
+        log_info "请切换到: /Users/xiong/AI Content Adapter/wenpai"
         exit 1
     fi
     

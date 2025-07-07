@@ -21,7 +21,7 @@
 
 ### 项目信息
 - **项目名称**: 文派AI内容适配器
-- **GitHub 仓库**: https://github.com/xiongtingping/wenpaiai626
+- **GitHub 仓库**: https://github.com/xiongtingping/wenpai
 - **分支**: restore-caa083d
 - **构建命令**: `npm run build`
 - **发布目录**: `dist`
@@ -42,7 +42,7 @@
 1. 访问 [Netlify](https://app.netlify.com/)
 2. 点击 "Add new site" → "Import an existing project"
 3. 选择 GitHub，授权访问
-4. 选择仓库：`xiongtingping/wenpaiai626`
+4. 选择仓库：`xiongtingping/wenpai`
 5. 选择分支：`restore-caa083d`
 6. 配置构建参数：
    - Build command: `npm run build`
@@ -135,7 +135,7 @@ https://www.wenpai.xyz
 ## 📁 项目文件结构
 
 ```
-wenpaiai626/
+wenpai/
 ├── src/
 │   ├── pages/
 │   │   ├── AuthingLoginPage.tsx    # Authing 登录页面

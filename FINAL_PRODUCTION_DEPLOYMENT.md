@@ -56,7 +56,7 @@ netlify deploy --prod --dir=dist
 ## 🌐 部署信息
 
 ### 网站地址
-- **生产环境**: https://wenpaiai626.netlify.app
+- **生产环境**: https://wenpai.netlify.app
 - **开发环境**: http://localhost:5173
 
 ### 功能模块

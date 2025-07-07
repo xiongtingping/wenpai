@@ -175,7 +175,7 @@ verify_deployment() {
     sleep 10
     
     # 检查网站是否可访问
-    local site_url="https://wenpaiai626.netlify.app"
+    local site_url="https://wenpai.netlify.app"
     
     if curl -s -o /dev/null -w "%{http_code}" "$site_url" | grep -q "200"; then
         log_success "网站部署成功: $site_url"
@@ -249,7 +249,7 @@ netlify deploy --prod --dir=dist
 ## 🌐 部署信息
 
 ### 网站地址
-- **生产环境**: https://wenpaiai626.netlify.app
+- **生产环境**: https://wenpai.netlify.app
 - **开发环境**: http://localhost:5173
 
 ### 功能模块
@@ -405,7 +405,7 @@ main() {
     create_deployment_report
     
     log_success "=== 部署完成 ==="
-    log_info "网站地址: https://wenpaiai626.netlify.app"
+    log_info "网站地址: https://wenpai.netlify.app"
     log_info "请检查部署报告了解详细信息"
 }
 

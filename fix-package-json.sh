@@ -38,7 +38,7 @@ create_correct_package_json() {
     
     cat > package.json << 'EOF'
 {
-  "name": "wenpaiai626",
+  "name": "wenpai",
   "private": true,
   "version": "0.0.0",
   "type": "module",

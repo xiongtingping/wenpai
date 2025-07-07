@@ -16,7 +16,7 @@
 1. 登录 [Netlify](https://app.netlify.com/)
 2. 点击 "Add new site" → "Import an existing project"
 3. 选择 GitHub，授权访问
-4. 选择仓库：`xiongtingping/wenpaiai626`
+4. 选择仓库：`xiongtingping/wenpai`
 5. 选择分支：`restore-caa083d`
 
 ### 2. 配置构建参数
