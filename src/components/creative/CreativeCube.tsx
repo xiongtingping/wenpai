@@ -1067,6 +1067,8 @@ ${generateStandardCallToAction()}
         console.error('AI服务响应异常:', response);
         console.error('response.success:', response.success);
         console.error('response.data:', response.data);
+        console.error('response.data的类型:', typeof response.data);
+        console.error('response.data的键:', response.data ? Object.keys(response.data) : 'data为null/undefined');
         console.error('response.data?.choices:', response.data?.choices);
         console.error('response.data?.choices?.[0]:', response.data?.choices?.[0]);
         console.error('response.data?.choices?.[0]?.message:', response.data?.choices?.[0]?.message);
