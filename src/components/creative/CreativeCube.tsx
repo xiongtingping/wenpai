@@ -35,7 +35,9 @@ import {
   Building2,
   AlertCircle,
   Palette,
-  TrendingUp
+  TrendingUp,
+  Pin,
+  X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -48,6 +50,7 @@ interface CubeDimension {
   description: string;
   icon: React.ReactNode;
   defaultItems: string[];
+  isPinnable: boolean; // 是否可固定
 }
 
 /**
@@ -91,74 +94,86 @@ export function CreativeCube() {
       name: '目标客群',
       description: '选择目标用户群体（必选）',
       icon: <Users className="w-4 h-4" />,
-      defaultItems: ['宝妈', '大学生', '银发族', '职场人', '中产女性', 'Z世代', '宠物主', '健身人群', 'K12家长', '二次元', '科技控', '新手创业者']
+      defaultItems: ['宝妈', '大学生', '银发族', '职场人', '中产女性', 'Z世代', '宠物主', '健身人群', 'K12家长', '二次元', '科技控', '新手创业者'],
+      isPinnable: true // 可固定
     },
     {
       id: 'use_case',
       name: '使用场景',
       description: '选择内容应用的具体场景（必选）',
       icon: <MapPin className="w-4 h-4" />,
-      defaultItems: ['通勤', '健身', '夜宵', '家庭聚会', '旅游途中', '碎片时间', '出差', '露营', '独处时刻', '早晚高峰', '带娃时', '睡前']
+      defaultItems: ['通勤', '健身', '夜宵', '家庭聚会', '旅游途中', '碎片时间', '出差', '露营', '独处时刻', '早晚高峰', '带娃时', '睡前'],
+      isPinnable: true // 可固定
     },
     {
       id: 'pain_point',
       name: '用户痛点',
       description: '选择用户面临的核心痛点（必选）',
       icon: <AlertCircle className="w-4 h-4" />,
-      defaultItems: ['时间不够', '预算不足', '操作复杂', '选择困难', '效果不稳', '信息过载', '服务差', '信任缺失', '缺乏动力', '内容同质化']
+      defaultItems: ['时间不够', '预算不足', '操作复杂', '选择困难', '效果不稳', '信息过载', '服务差', '信任缺失', '缺乏动力', '内容同质化'],
+      isPinnable: true // 可固定
     },
     {
       id: 'industry',
       name: '行业',
       description: '选择内容所属的行业领域（必选）',
       icon: <Building2 className="w-4 h-4" />,
-      defaultItems: ['母婴', '美妆', '旅游', '健康', '教育', '职场', '电商', '本地生活', '宠物', '数码', '食品饮料', '健身', '金融理财']
+      defaultItems: ['母婴', '美妆', '旅游', '健康', '教育', '职场', '电商', '本地生活', '宠物', '数码', '食品饮料', '健身', '金融理财'],
+      isPinnable: true // 可固定
     },
     {
       id: 'core_value',
       name: '核心价值',
       description: '选择解决方案的核心价值（推荐）',
       icon: <Star className="w-4 h-4" />,
-      defaultItems: ['提升效率', '改善体验', '节约成本', '增强信任', '拓宽视野', '激发灵感', '个性表达', '提高品质', '促进成长']
+      defaultItems: ['提升效率', '改善体验', '节约成本', '增强信任', '拓宽视野', '激发灵感', '个性表达', '提高品质', '促进成长'],
+      isPinnable: true // 可固定
     },
     {
       id: 'tone_style',
       name: '表达风格',
       description: '选择内容的表达风格（推荐）',
       icon: <Palette className="w-4 h-4" />,
-      defaultItems: ['轻松幽默', '极简干练', '专业可信', '情感共鸣', '反差反转', '热梗混剪', '小剧场', '第一人称', '旁白式', '访谈感']
+      defaultItems: ['轻松幽默', '极简干练', '专业可信', '情感共鸣', '反差反转', '热梗混剪', '小剧场', '第一人称', '旁白式', '访谈感'],
+      isPinnable: true // 可固定
     },
     {
       id: 'content_format',
       name: '内容形式',
       description: '选择内容的表现形式（推荐）',
       icon: <FileText className="w-4 h-4" />,
-      defaultItems: ['图文', '短视频', '直播', 'H5', '长图', '故事接龙', '清单类', '榜单类', '分镜脚本']
+      defaultItems: ['图文', '短视频', '直播', 'H5', '长图', '故事接龙', '清单类', '榜单类', '分镜脚本'],
+      isPinnable: true // 可固定
     },
     {
       id: 'emotional_need',
       name: '情感诉求',
       description: '选择要激发的情感共鸣（可选）',
       icon: <Heart className="w-4 h-4" />,
-      defaultItems: ['安全感', '归属感', '成就感', '愉悦感', '陪伴感', '放松感', '被理解', '被尊重', '掌控感', '仪式感']
+      defaultItems: ['安全感', '归属感', '成就感', '愉悦感', '陪伴感', '放松感', '被理解', '被尊重', '掌控感', '仪式感'],
+      isPinnable: false // 不可固定
     },
     {
       id: 'platform_or_trend',
       name: '平台/趋势',
       description: '选择要结合的平台或趋势（可选）',
       icon: <TrendingUp className="w-4 h-4" />,
-      defaultItems: ['小红书', '抖音', '知乎', '公众号', '搭子经济', '反向旅游', '高质量独居', '无糖生活', 'AI助理', '低欲望生活']
+      defaultItems: ['小红书', '抖音', '知乎', '公众号', '搭子经济', '反向旅游', '高质量独居', '无糖生活', 'AI助理', '低欲望生活'],
+      isPinnable: false // 不可固定
     }
   ];
 
   // 状态管理
   const [cubeData, setCubeData] = useState<Record<string, string[]>>({});
   const [selectedItems, setSelectedItems] = useState<Record<string, string>>({});
-  const [generatedIdeas, setGeneratedIdeas] = useState<CreativeResult[]>([]);
+  const [pinnedDimensions, setPinnedDimensions] = useState<Set<string>>(new Set()); // 固定维度
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('');
   const [currentContentType, setCurrentContentType] = useState<'text' | 'video'>('text');
   const [videoScript, setVideoScript] = useState<VideoScript[]>([]);
+  const [generatedIdeas, setGeneratedIdeas] = useState<CreativeResult[]>([]); // 历史创意记录
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportData, setExportData] = useState<any[]>([]);
 
   // 必选维度检查
   const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
@@ -218,21 +233,56 @@ export function CreativeCube() {
   };
 
   /**
-   * 智能随机生成 - 保持用户选择，随机其他维度
+   * 智能随机生成
    */
   const smartRandomGenerate = () => {
-    const newSelection: Record<string, string> = { ...selectedItems };
-    dimensions.forEach(dim => {
-      // 如果用户没有选择这个维度，则随机选择
-      if (!selectedItems[dim.id]) {
-        const items = cubeData[dim.id] || [];
-        if (items.length > 0) {
-          const randomIndex = Math.floor(Math.random() * items.length);
-          newSelection[dim.id] = items[randomIndex];
-        }
+    const newSelection = { ...selectedItems };
+    
+    dimensions.forEach(dimension => {
+      // 如果维度已固定，跳过随机生成
+      if (pinnedDimensions.has(dimension.id)) {
+        return;
+      }
+      
+      const items = cubeData[dimension.id] || dimension.defaultItems;
+      if (items.length > 0) {
+        const randomIndex = Math.floor(Math.random() * items.length);
+        newSelection[dimension.id] = items[randomIndex];
       }
     });
+    
     setSelectedItems(newSelection);
+    
+    toast({
+      title: "智能随机生成完成",
+      description: `已为${dimensions.length - pinnedDimensions.size}个维度生成随机组合`,
+    });
+  };
+
+  /**
+   * 固定维度
+   */
+  const pinDimension = (dimensionId: string) => {
+    setPinnedDimensions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dimensionId)) {
+        newSet.delete(dimensionId);
+      } else {
+        newSet.add(dimensionId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * 取消固定维度
+   */
+  const unpinDimension = (dimensionId: string) => {
+    setPinnedDimensions(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(dimensionId);
+      return newSet;
+    });
   };
 
   /**
@@ -251,7 +301,17 @@ export function CreativeCube() {
       platform_or_trend = '平台/趋势'
     } = selectedItems;
 
-    return `请根据以下多维度配置生成一段用于【朋友圈】或【小红书】的图文内容，风格为【${tone_style}】，内容形式为【${content_format}】。必须严格使用以下所有维度信息，并避免使用"提升效率""提供安全感"等模板式话术，要求生活化、真实感强、带网络热梗、情境代入强。
+    // 获取固定维度信息
+    const pinnedInfo = Array.from(pinnedDimensions).map(dimId => {
+      const dimension = dimensions.find(d => d.id === dimId);
+      return dimension?.name || dimId;
+    });
+
+    const pinnedText = pinnedInfo.length > 0 
+      ? `\n\n⚠️ 重要约束：以下维度已被用户固定，必须严格遵循，不得偏离：\n${pinnedInfo.map(name => `- ${name}`).join('\n')}\n`
+      : '';
+
+    return `请根据以下多维度配置生成一段用于【朋友圈】或【小红书】的图文内容，风格为【${tone_style}】，内容形式为【${content_format}】。必须严格使用以下所有维度信息，并避免使用"提升效率""提供安全感"等模板式话术，要求生活化、真实感强、带网络热梗、情境代入强。${pinnedText}
 
 维度：
 - 目标客群：${target_audience}
@@ -992,9 +1052,24 @@ ${generateStandardCallToAction()}
                     <CardTitle className="text-sm flex items-center gap-2">
                       {dimension.icon}
                       {dimension.name}
+                      {/* 固定按钮 */}
+                      {dimension.isPinnable && (
+                        <Button
+                          size="sm"
+                          variant={pinnedDimensions.has(dimension.id) ? "default" : "ghost"}
+                          className="h-6 w-6 p-0 ml-auto"
+                          onClick={() => pinDimension(dimension.id)}
+                          title={pinnedDimensions.has(dimension.id) ? "取消固定" : "固定维度"}
+                        >
+                          <Pin className={`w-3 h-3 ${pinnedDimensions.has(dimension.id) ? 'text-white' : ''}`} />
+                        </Button>
+                      )}
                     </CardTitle>
                     <CardDescription className="text-xs">
                       {dimension.description}
+                      {pinnedDimensions.has(dimension.id) && (
+                        <span className="text-blue-600 font-medium"> (已固定)</span>
+                      )}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -1058,15 +1133,68 @@ ${generateStandardCallToAction()}
       </Card>
 
       {/* 操作按钮 */}
-      <div className="flex gap-2">
-        <Button onClick={smartRandomGenerate} variant="outline">
-          <Shuffle className="w-4 h-4 mr-2" />
-          智能随机生成
-        </Button>
-        <Button onClick={generateIdea} disabled={isGenerating}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-          {isGenerating ? '生成中...' : '生成创意'}
-        </Button>
+      <div className="space-y-4">
+        {/* 固定维度管理 */}
+        {pinnedDimensions.size > 0 && (
+          <Card className="border-blue-200 bg-blue-50/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Pin className="w-4 h-4 text-blue-600" />
+                固定维度管理
+                <Badge variant="outline" className="text-xs">
+                  {pinnedDimensions.size}个已固定
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {Array.from(pinnedDimensions).map(dimId => {
+                  const dimension = dimensions.find(d => d.id === dimId);
+                  const selectedValue = selectedItems[dimId];
+                  return (
+                    <div key={dimId} className="flex items-center gap-2 p-2 bg-white rounded-md border border-blue-200">
+                      <span className="text-xs font-medium text-blue-700">
+                        {dimension?.name}：
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {selectedValue || '未选择'}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-4 w-4 p-0"
+                        onClick={() => unpinDimension(dimId)}
+                        title="取消固定"
+                      >
+                        <X className="w-3 h-3 text-red-500" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-2 text-xs text-blue-600">
+                固定维度将在智能随机生成时保持不变，确保内容方向的一致性
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 操作按钮 */}
+        <div className="flex gap-2">
+          <Button onClick={smartRandomGenerate} variant="outline">
+            <Shuffle className="w-4 h-4 mr-2" />
+            智能随机生成
+            {pinnedDimensions.size > 0 && (
+              <Badge variant="outline" className="ml-2 text-xs">
+                跳过{pinnedDimensions.size}个固定维度
+              </Badge>
+            )}
+          </Button>
+          <Button onClick={generateIdea} disabled={isGenerating}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+            {isGenerating ? '生成中...' : '生成创意'}
+          </Button>
+        </div>
       </div>
 
       {/* 当前生成的内容 */}
