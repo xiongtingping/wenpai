@@ -1,12 +1,15 @@
 /**
  * 营销日历组件
  * 支持国历、农历、节假日、24节气、历史上的今天等
+ * 融合待办事项功能
  */
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { 
   Calendar,
   ChevronLeft,
@@ -16,7 +19,14 @@ import {
   Gift,
   Leaf,
   BookOpen,
-  TrendingUp
+  TrendingUp,
+  Plus,
+  CheckSquare,
+  Square,
+  Trash2,
+  Tag,
+  Filter,
+  Search
 } from 'lucide-react';
 
 /**
@@ -32,6 +42,21 @@ interface CalendarEvent {
 }
 
 /**
+ * 待办事项接口
+ */
+interface TodoItem {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  completed: boolean;
+  tags: string[];
+  priority: 'low' | 'medium' | 'high';
+  group?: string;
+  links?: string[]; // 双链功能
+}
+
+/**
  * 营销日历组件
  * @returns React 组件
  */
@@ -39,6 +64,23 @@ export function MarketingCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [filteredTodos, setFilteredTodos] = useState<TodoItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'priority' | 'title'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  // 新待办事项表单
+  const [newTodo, setNewTodo] = useState({
+    title: '',
+    description: '',
+    date: '',
+    tags: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    group: ''
+  });
 
   /**
    * 获取当前月份的天数
@@ -132,7 +174,7 @@ export function MarketingCalendar() {
   };
 
   /**
-   * 初始化示例事件
+   * 初始化示例数据
    */
   useEffect(() => {
     const sampleEvents: CalendarEvent[] = [
@@ -159,50 +201,177 @@ export function MarketingCalendar() {
         type: 'holiday',
         description: '西方情人节，浪漫营销好时机',
         color: 'pink'
-      },
-      {
-        id: '4',
-        title: '元宵节',
-        date: '2024-02-24',
-        type: 'holiday',
-        description: '正月十五，传统节日',
-        color: 'orange'
-      },
-      {
-        id: '5',
-        title: '雨水',
-        date: '2024-02-19',
-        type: 'solar_term',
-        description: '二十四节气，雨水增多',
-        color: 'blue'
-      },
-      {
-        id: '6',
-        title: '妇女节',
-        date: '2024-03-08',
-        type: 'holiday',
-        description: '国际妇女节，女性营销',
-        color: 'purple'
-      },
-      {
-        id: '7',
-        title: '惊蛰',
-        date: '2024-03-05',
-        type: 'solar_term',
-        description: '二十四节气，春雷始鸣',
-        color: 'green'
-      },
-      {
-        id: '8',
-        title: '植树节',
-        date: '2024-03-12',
-        type: 'holiday',
-        description: '环保主题营销',
-        color: 'green'
       }
     ];
+
+    const sampleTodos: TodoItem[] = [
+      {
+        id: '1',
+        title: '准备春节营销方案',
+        description: '制定春节期间的营销策略和内容计划',
+        date: '2024-02-01',
+        completed: false,
+        tags: ['营销', '节日', '策划'],
+        priority: 'high',
+        group: '营销策划'
+      },
+      {
+        id: '2',
+        title: '设计情人节海报',
+        description: '制作情人节主题的营销海报',
+        date: '2024-02-10',
+        completed: true,
+        tags: ['设计', '节日', '海报'],
+        priority: 'medium',
+        group: '设计制作'
+      },
+      {
+        id: '3',
+        title: '撰写产品介绍文案',
+        description: '为新功能撰写介绍文案',
+        date: '2024-02-15',
+        completed: false,
+        tags: ['文案', '产品', '介绍'],
+        priority: 'low',
+        group: '内容创作'
+      }
+    ];
+
     setEvents(sampleEvents);
+    setTodos(sampleTodos);
   }, []);
+
+  /**
+   * 筛选和排序待办事项
+   */
+  useEffect(() => {
+    let filtered = [...todos];
+
+    // 搜索筛选
+    if (searchQuery) {
+      filtered = filtered.filter(todo => 
+        todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        todo.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        todo.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // 标签筛选
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(todo => 
+        selectedTags.some(tag => todo.tags.includes(tag))
+      );
+    }
+
+    // 组筛选
+    if (selectedGroup !== 'all') {
+      filtered = filtered.filter(todo => todo.group === selectedGroup);
+    }
+
+    // 排序
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'date':
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
+        case 'priority':
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+          break;
+        case 'title':
+          comparison = a.title.localeCompare(b.title);
+          break;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    setFilteredTodos(filtered);
+  }, [todos, searchQuery, selectedTags, selectedGroup, sortBy, sortOrder]);
+
+  /**
+   * 获取所有标签
+   */
+  const getAllTags = () => {
+    const tagSet = new Set<string>();
+    todos.forEach(todo => {
+      todo.tags.forEach(tag => tagSet.add(tag));
+    });
+    return Array.from(tagSet).sort();
+  };
+
+  /**
+   * 获取所有组
+   */
+  const getAllGroups = () => {
+    const groupSet = new Set<string>();
+    todos.forEach(todo => {
+      if (todo.group) groupSet.add(todo.group);
+    });
+    return Array.from(groupSet).sort();
+  };
+
+  /**
+   * 添加待办事项
+   */
+  const addTodo = () => {
+    if (!newTodo.title.trim() || !newTodo.date) return;
+
+    const todo: TodoItem = {
+      id: Date.now().toString(),
+      title: newTodo.title,
+      description: newTodo.description,
+      date: newTodo.date,
+      completed: false,
+      tags: newTodo.tags ? newTodo.tags.split(',').map(t => t.trim()) : [],
+      priority: newTodo.priority,
+      group: newTodo.group || undefined
+    };
+
+    setTodos(prev => [todo, ...prev]);
+    setNewTodo({
+      title: '',
+      description: '',
+      date: '',
+      tags: '',
+      priority: 'medium',
+      group: ''
+    });
+  };
+
+  /**
+   * 切换待办事项状态
+   */
+  const toggleTodo = (id: string) => {
+    setTodos(prev => prev.map(todo => 
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
+  };
+
+  /**
+   * 删除待办事项
+   */
+  const deleteTodo = (id: string) => {
+    setTodos(prev => prev.filter(todo => todo.id !== id));
+  };
+
+  /**
+   * 获取优先级颜色
+   */
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
   /**
    * 格式化日期
@@ -427,6 +596,196 @@ export function MarketingCalendar() {
           </CardContent>
         </Card>
       )}
+
+      {/* 待办事项 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckSquare className="w-5 h-5" />
+            待办事项
+          </CardTitle>
+          <CardDescription>
+            管理您的营销任务和待办事项
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* 筛选和排序 */}
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            {/* 搜索 */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="搜索待办事项..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-48"
+              />
+            </div>
+
+            {/* 标签筛选 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">标签：</span>
+              <div className="flex flex-wrap gap-1">
+                {getAllTags().map(tag => (
+                  <Badge
+                    key={tag}
+                    variant={selectedTags.includes(tag) ? "default" : "outline"}
+                    className="cursor-pointer text-xs"
+                    onClick={() => setSelectedTags(prev => 
+                      prev.includes(tag) 
+                        ? prev.filter(t => t !== tag)
+                        : [...prev, tag]
+                    )}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* 组筛选 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">组：</span>
+              <select
+                value={selectedGroup}
+                onChange={(e) => setSelectedGroup(e.target.value)}
+                className="p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="all">全部</option>
+                {getAllGroups().map(group => (
+                  <option key={group} value={group}>{group}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 排序 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">排序：</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'date' | 'priority' | 'title')}
+                className="p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="date">日期</option>
+                <option value="priority">优先级</option>
+                <option value="title">标题</option>
+              </select>
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                className="p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="asc">升序</option>
+                <option value="desc">降序</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 添加新待办事项 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+            <Input
+              placeholder="待办事项标题"
+              value={newTodo.title}
+              onChange={(e) => setNewTodo(prev => ({ ...prev, title: e.target.value }))}
+            />
+            <Input
+              type="date"
+              value={newTodo.date}
+              onChange={(e) => setNewTodo(prev => ({ ...prev, date: e.target.value }))}
+            />
+            <select
+              value={newTodo.priority}
+              onChange={(e) => setNewTodo(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' }))}
+              className="p-2 border border-gray-300 rounded-md"
+            >
+              <option value="low">低优先级</option>
+              <option value="medium">中优先级</option>
+              <option value="high">高优先级</option>
+            </select>
+            <Input
+              placeholder="标签（用逗号分隔）"
+              value={newTodo.tags}
+              onChange={(e) => setNewTodo(prev => ({ ...prev, tags: e.target.value }))}
+            />
+            <Input
+              placeholder="组名"
+              value={newTodo.group}
+              onChange={(e) => setNewTodo(prev => ({ ...prev, group: e.target.value }))}
+            />
+            <Button onClick={addTodo} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              添加待办
+            </Button>
+          </div>
+
+          {/* 待办事项列表 */}
+          <div className="space-y-3">
+            {filteredTodos.map(todo => (
+              <div
+                key={todo.id}
+                className={`flex items-start gap-3 p-3 border rounded-lg ${
+                  todo.completed ? 'bg-gray-50 opacity-75' : 'bg-white'
+                }`}
+              >
+                <button
+                  onClick={() => toggleTodo(todo.id)}
+                  className="mt-1"
+                >
+                  {todo.completed ? (
+                    <CheckSquare className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <Square className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+                
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className={`font-medium ${todo.completed ? 'line-through' : ''}`}>
+                        {todo.title}
+                      </h4>
+                      {todo.description && (
+                        <p className="text-sm text-gray-600 mt-1">{todo.description}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="outline" className={`text-xs ${getPriorityColor(todo.priority)}`}>
+                          {todo.priority === 'high' ? '高' : todo.priority === 'medium' ? '中' : '低'}
+                        </Badge>
+                        {todo.group && (
+                          <Badge variant="outline" className="text-xs">
+                            {todo.group}
+                          </Badge>
+                        )}
+                        {todo.tags.map(tag => (
+                          <Badge key={tag} variant="outline" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">{todo.date}</span>
+                      <button
+                        onClick={() => deleteTodo(todo.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {filteredTodos.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                暂无待办事项
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 图例说明 */}
       <Card>

@@ -180,6 +180,24 @@ export function CreativeCube() {
   };
 
   /**
+   * 智能随机生成 - 保持用户选择，随机其他维度
+   */
+  const smartRandomGenerate = () => {
+    const newSelection: Record<string, string> = { ...selectedItems };
+    dimensions.forEach(dim => {
+      // 如果用户没有选择这个维度，则随机选择
+      if (!selectedItems[dim.id]) {
+        const items = cubeData[dim.id] || [];
+        if (items.length > 0) {
+          const randomIndex = Math.floor(Math.random() * items.length);
+          newSelection[dim.id] = items[randomIndex];
+        }
+      }
+    });
+    setSelectedItems(newSelection);
+  };
+
+  /**
    * 生成创意想法
    */
   const generateIdea = async () => {
@@ -197,28 +215,29 @@ export function CreativeCube() {
       // 模拟AI生成
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const generatedIdea = `🎯 创意主题：「${Object.values(selectedItems).slice(0, 3).join(' × ')}」跨界营销方案
+      const generatedIdea = `🎯 内容营销创意：「${Object.values(selectedItems).slice(0, 3).join(' × ')}」新媒体方案
 
 📊 核心概念：
-基于${selectedItems.target_audience || '目标用户'}在${selectedItems.scenarios || '特定场景'}中的${selectedItems.pain_points || '痛点需求'}，打造一个${selectedItems.tones || '独特调性'}的${selectedItems.formats || '内容形式'}，通过${selectedItems.channels || '传播渠道'}实现${selectedItems.benefits || '核心价值'}。
+针对${selectedItems.target_audience || '目标用户'}在${selectedItems.scenarios || '特定场景'}中的${selectedItems.pain_points || '痛点需求'}，创作${selectedItems.tones || '独特调性'}的${selectedItems.formats || '内容形式'}，通过${selectedItems.channels || '传播渠道'}传递${selectedItems.benefits || '核心价值'}。
 
-🎯 目标受众：
+🎯 目标受众分析：
 - 主要人群：${selectedItems.target_audience || '目标用户'}
 - 情感诉求：${selectedItems.emotions || '情感需求'}
 - 使用场景：${selectedItems.scenarios || '使用场景'}
 
-📱 传播策略：
+📱 新媒体传播策略：
 1. 内容策略：结合${selectedItems.trends || '热点趋势'}，制作${selectedItems.formats || '内容形式'}
 2. 渠道策略：重点布局${selectedItems.channels || '传播渠道'}
 3. 调性策略：采用${selectedItems.tones || '表达调性'}的沟通方式
 
-📈 预期效果：
-- 品牌认知度提升30%
-- 用户参与度增长50%
-- 转化率提升25%
+💡 创意亮点：
+将${Object.values(selectedItems).slice(0, 3).join('、')}进行跨界融合，创造独特的新媒体内容体验。
 
-💡 创新亮点：
-将${Object.values(selectedItems).slice(0, 3).join('、')}进行跨界融合，创造独特的品牌体验。`;
+📝 内容建议：
+- 标题：突出${selectedItems.benefits || '核心价值'}和${selectedItems.emotions || '情感诉求'}
+- 开头：用${selectedItems.tones || '表达调性'}吸引${selectedItems.target_audience || '目标用户'}注意
+- 正文：结合${selectedItems.scenarios || '使用场景'}和${selectedItems.pain_points || '痛点需求'}
+- 结尾：引导用户参与互动，建立${selectedItems.channels || '传播渠道'}连接`;
 
       setCurrentIdea(generatedIdea);
 
@@ -309,9 +328,9 @@ export function CreativeCube() {
                   {/* 可选项目列表 */}
                   <div className="space-y-1 max-h-32 overflow-y-auto">
                     {cubeData[dimension.id]?.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-1 hover:bg-gray-50 rounded">
+                      <div key={index} className="flex items-center p-1 hover:bg-gray-50 rounded">
                         <span 
-                          className="text-xs cursor-pointer hover:text-primary"
+                          className="text-xs cursor-pointer hover:text-primary flex-1"
                           onClick={() => setSelectedItems(prev => ({
                             ...prev,
                             [dimension.id]: item
@@ -319,14 +338,6 @@ export function CreativeCube() {
                         >
                           {item}
                         </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => removeItemFromCube(dimension.id, index)}
-                          className="h-4 w-4 p-0"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
                       </div>
                     ))}
                   </div>
@@ -365,9 +376,9 @@ export function CreativeCube() {
 
       {/* 操作按钮 */}
       <div className="flex gap-2">
-        <Button onClick={randomSelect} variant="outline">
+        <Button onClick={smartRandomGenerate} variant="outline">
           <Shuffle className="w-4 h-4 mr-2" />
-          随机选择
+          智能随机生成
         </Button>
         <Button onClick={generateIdea} disabled={isGenerating}>
           <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />

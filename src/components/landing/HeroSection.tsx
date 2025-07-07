@@ -24,7 +24,7 @@ export function HeroSection() {
           </Badge>
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
             <Sparkles className="w-3 h-3 mr-1" />
-            创意工具 - 免费
+            创意工作室 - 免费
           </Badge>
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
             <Sparkles className="w-3 h-3 mr-1" />

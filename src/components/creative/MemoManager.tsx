@@ -50,6 +50,7 @@ interface MemoItem {
   updatedAt: string;
   category?: string;
   platform?: string;
+  source?: string;
 }
 
 /**
@@ -66,8 +67,9 @@ export function MemoManager() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [filterUsed, setFilterUsed] = useState<'all' | 'used' | 'unused'>('all');
   const [filterFavorite, setFilterFavorite] = useState<boolean | null>(null);
-  const [sortBy] = useState<'time' | 'title' | 'tags'>('time');
-  const [sortOrder] = useState<'asc' | 'desc'>('desc');
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'time' | 'title' | 'tags'>('time');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
   // 编辑状态
   const [editingMemo, setEditingMemo] = useState<MemoItem | null>(null);
@@ -80,7 +82,8 @@ export function MemoManager() {
     content: '',
     tags: '',
     category: '',
-    platform: ''
+    platform: '',
+    source: ''
   });
 
   /**
@@ -98,7 +101,8 @@ export function MemoManager() {
         createdAt: '2024-01-15T10:30:00Z',
         updatedAt: '2024-01-15T10:30:00Z',
         category: '产品营销',
-        platform: '微信公众号'
+        platform: '微信公众号',
+        source: '官网'
       },
       {
         id: '2',
@@ -110,7 +114,8 @@ export function MemoManager() {
         createdAt: '2024-01-10T14:20:00Z',
         updatedAt: '2024-01-10T14:20:00Z',
         category: '节日营销',
-        platform: '微博'
+        platform: '微博',
+        source: '公众号'
       },
       {
         id: '3',
@@ -122,7 +127,8 @@ export function MemoManager() {
         createdAt: '2024-01-05T09:15:00Z',
         updatedAt: '2024-01-05T09:15:00Z',
         category: '品牌建设',
-        platform: '官网'
+        platform: '官网',
+        source: '官网'
       }
     ];
     
@@ -164,6 +170,11 @@ export function MemoManager() {
       filtered = filtered.filter(memo => memo.isFavorite === filterFavorite);
     }
 
+    // 平台筛选
+    if (selectedPlatform !== 'all') {
+      filtered = filtered.filter(memo => memo.platform === selectedPlatform);
+    }
+
     // 排序
     filtered.sort((a, b) => {
       let comparison = 0;
@@ -184,7 +195,7 @@ export function MemoManager() {
     });
 
     setFilteredMemos(filtered);
-  }, [memos, searchQuery, selectedTags, filterUsed, filterFavorite, sortBy, sortOrder]);
+  }, [memos, searchQuery, selectedTags, filterUsed, filterFavorite, selectedPlatform, sortBy, sortOrder]);
 
   /**
    * 获取所有标签
@@ -222,11 +233,12 @@ export function MemoManager() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       category: newMemo.category || undefined,
-      platform: newMemo.platform || undefined
+      platform: newMemo.platform || undefined,
+      source: newMemo.source || undefined
     };
 
     setMemos(prev => [memo, ...prev]);
-    setNewMemo({ title: '', content: '', tags: '', category: '', platform: '' });
+    setNewMemo({ title: '', content: '', tags: '', category: '', platform: '', source: '' });
     setIsCreateDialogOpen(false);
     
     toast({
@@ -393,6 +405,14 @@ export function MemoManager() {
                       placeholder="微信公众号"
                     />
                   </div>
+                  <div>
+                    <Label>来源</Label>
+                    <Input
+                      value={newMemo.source}
+                      onChange={(e) => setNewMemo(prev => ({ ...prev, source: e.target.value }))}
+                      placeholder="官网"
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
@@ -473,6 +493,44 @@ export function MemoManager() {
                 已收藏
               </Button>
             </div>
+
+            {/* 平台筛选 */}
+            <div className="flex items-center gap-2 ml-4">
+              <span className="text-sm text-gray-600">平台：</span>
+              <select
+                value={selectedPlatform}
+                onChange={(e) => setSelectedPlatform(e.target.value)}
+                className="p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="all">全部</option>
+                <option value="微信公众号">微信公众号</option>
+                <option value="微博">微博</option>
+                <option value="官网">官网</option>
+                <option value="公众号">公众号</option>
+              </select>
+            </div>
+
+            {/* 排序 */}
+            <div className="flex items-center gap-2 ml-4">
+              <span className="text-sm text-gray-600">排序：</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'time' | 'title' | 'tags')}
+                className="p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="time">时间</option>
+                <option value="title">标题</option>
+                <option value="tags">标签数</option>
+              </select>
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                className="p-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="desc">降序</option>
+                <option value="asc">升序</option>
+              </select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -518,6 +576,9 @@ export function MemoManager() {
                     )}
                     {memo.platform && (
                       <span>{memo.platform}</span>
+                    )}
+                    {memo.source && (
+                      <span>来源: {memo.source}</span>
                     )}
                   </div>
                 </div>
@@ -615,6 +676,13 @@ export function MemoManager() {
                 <Input
                   value={editingMemo.platform || ''}
                   onChange={(e) => setEditingMemo(prev => prev ? { ...prev, platform: e.target.value } : null)}
+                />
+              </div>
+              <div>
+                <Label>来源</Label>
+                <Input
+                  value={editingMemo.source || ''}
+                  onChange={(e) => setEditingMemo(prev => prev ? { ...prev, source: e.target.value } : null)}
                 />
               </div>
             </div>

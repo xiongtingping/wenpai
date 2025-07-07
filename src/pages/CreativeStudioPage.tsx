@@ -39,7 +39,8 @@ import {
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  MessageCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -47,6 +48,7 @@ import { CreativeCube } from '@/components/creative/CreativeCube';
 import { MemoManager } from '@/components/creative/MemoManager';
 import { MarketingCalendar } from '@/components/creative/MarketingCalendar';
 import { TodoList } from '@/components/creative/TodoList';
+import WechatTemplatePage from '@/pages/WechatTemplatePage';
 
 /**
  * 创意工作室页面组件
@@ -80,7 +82,7 @@ export default function CreativeStudioPage() {
 
       {/* 功能标签页 */}
       <Tabs defaultValue="cube" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="cube" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             创意魔方
@@ -95,7 +97,11 @@ export default function CreativeStudioPage() {
           </TabsTrigger>
           <TabsTrigger value="todo" className="flex items-center gap-2">
             <CheckSquare className="w-4 h-4" />
-            代办事项
+            待办事项
+          </TabsTrigger>
+          <TabsTrigger value="wechat" className="flex items-center gap-2">
+            <MessageCircle className="w-4 h-4" />
+            朋友圈模板
           </TabsTrigger>
         </TabsList>
 
@@ -117,6 +123,11 @@ export default function CreativeStudioPage() {
         {/* 代办事项 */}
         <TabsContent value="todo" className="mt-6">
           <TodoList />
+        </TabsContent>
+
+        {/* 朋友圈模板 */}
+        <TabsContent value="wechat" className="mt-6">
+          <WechatTemplatePage />
         </TabsContent>
       </Tabs>
     </div>

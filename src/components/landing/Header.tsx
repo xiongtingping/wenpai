@@ -111,8 +111,9 @@ export function Header() {
               </Badge>
             </Link>
             <Link to="/creative-studio" className="text-gray-600 hover:text-blue-600 transition flex items-center">
-              创意工具
+              创意工作室
               <Badge variant="outline" className="ml-1 bg-green-50 text-green-700 border-green-200 text-xs">
+                <Sparkles className="w-3 h-3 mr-1" />
                 免费
               </Badge>
             </Link>
@@ -197,8 +198,9 @@ export function Header() {
                   </Badge>
                 </Link>
                 <Link to="/creative-studio" className="text-lg font-medium py-2 flex items-center justify-between">
-                  创意工具
+                  创意工作室
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                    <Sparkles className="w-3 h-3 mr-1" />
                     免费
                   </Badge>
                 </Link>

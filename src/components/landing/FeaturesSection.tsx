@@ -23,7 +23,8 @@ export function FeaturesSection() {
             <div className="flex items-center justify-between mb-4">
               <Zap className="w-8 h-8 text-blue-600" />
               <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
-                免费10次/月
+                <Zap className="w-3 h-3 mr-1" />
+                10次/月
               </Badge>
             </div>
             <h3 className="font-bold text-lg mb-2">AI内容适配</h3>
@@ -34,10 +35,11 @@ export function FeaturesSection() {
             <div className="flex items-center justify-between mb-4">
               <Sparkles className="w-8 h-8 text-green-600" />
               <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+                <Sparkles className="w-3 h-3 mr-1" />
                 免费
               </Badge>
             </div>
-            <h3 className="font-bold text-lg mb-2">创意工具</h3>
+            <h3 className="font-bold text-lg mb-2">创意工作室</h3>
             <p className="text-gray-600 text-sm">九宫格创意魔方、营销日历、文案管理，快速生成创意内容</p>
           </Card>
           
@@ -45,6 +47,7 @@ export function FeaturesSection() {
             <div className="flex items-center justify-between mb-4">
               <TrendingUp className="w-8 h-8 text-green-600" />
               <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+                <TrendingUp className="w-3 h-3 mr-1" />
                 免费
               </Badge>
             </div>
@@ -78,7 +81,7 @@ export function FeaturesSection() {
               </TabsTrigger>
               <TabsTrigger value="creative" className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                创意工具
+                创意工作室
               </TabsTrigger>
               <TabsTrigger value="hot" className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
@@ -128,8 +131,9 @@ export function FeaturesSection() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center p-6">
                   <div className="text-left">
                     <div className="flex items-center gap-2 mb-4">
-                      <h3 className="text-2xl font-bold text-gray-900">创意工具套件</h3>
+                      <h3 className="text-2xl font-bold text-gray-900">创意工作室</h3>
                       <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                        <Sparkles className="w-3 h-3 mr-1" />
                         免费
                       </Badge>
                     </div>
@@ -139,7 +143,7 @@ export function FeaturesSection() {
                     <div className="mt-6">
                       <Link to="/creative-studio">
                         <Button className="bg-green-600 hover:bg-green-700">
-                          开始创作
+                          进入工作室
                         </Button>
                       </Link>
                     </div>

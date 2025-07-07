@@ -82,8 +82,9 @@ export function PricingSection() {
               <li className="flex items-start space-x-3">
                 <Check className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
-                  <span className="font-medium">创意工具套件</span>
+                  <span className="font-medium">创意工作室</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
+                    <Sparkles className="w-3 h-3 mr-1" />
                     免费
                   </Badge>
                   <p className="text-sm text-gray-500 mt-1">九宫格创意魔方、营销日历、文案管理、任务清单</p>
@@ -201,8 +202,9 @@ export function PricingSection() {
               <li className="flex items-start space-x-3">
                 <Check className="w-5 h-5 text-purple-500 mt-0.5" />
                 <div>
-                  <span className="font-medium">创意工具套件</span>
+                  <span className="font-medium">创意工作室</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
+                    <Sparkles className="w-3 h-3 mr-1" />
                     免费
                   </Badge>
                 </div>
@@ -304,7 +306,7 @@ export function PricingSection() {
                   <td className="border border-gray-200 p-4 text-center bg-purple-50">无限制</td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-200 p-4 font-medium">创意工具套件</td>
+                  <td className="border border-gray-200 p-4 font-medium">创意工作室</td>
                   <td className="border border-gray-200 p-4 text-center">✅ 免费</td>
                   <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 免费</td>
                 </tr>

@@ -566,23 +566,40 @@ export default function AdaptPage() {
         updateStep(3, "loading");
         await new Promise(r => setTimeout(r, 300));
         
-        // Add the generated content to the results
-        const adaptedContent = generatedContent[platformId];
-        updateStep(3, "completed");
-        
-        // Update content in results
-        setResults(current => 
-          current.map(result => 
-            result.platformId === platformId 
-              ? { 
-                  ...result, 
-                  content: adaptedContent.content,
-                  source: adaptedContent.source,
-                  error: adaptedContent.error 
-                }
-              : result
-          )
-        );
+        // Update content for each platform
+        for (const platformId of selectedPlatforms) {
+          const adaptedContent = generatedContent[platformId];
+          if (adaptedContent && adaptedContent.content) {
+            updateStep(3, "completed");
+            
+            // Update content in results
+            setResults(current => 
+              current.map(result => 
+                result.platformId === platformId 
+                  ? { 
+                      ...result, 
+                      content: adaptedContent.content,
+                      source: adaptedContent.source,
+                      error: adaptedContent.error 
+                    }
+                  : result
+              )
+            );
+          } else {
+            // Handle case where adaptedContent is undefined or has no content
+            updateStep(3, "error");
+            setResults(current => 
+              current.map(result => 
+                result.platformId === platformId 
+                  ? { 
+                      ...result, 
+                      error: "生成失败：无法获取适配内容"
+                    }
+                  : result
+              )
+            );
+          }
+        }
       }
       
       // Decrement usage after successful generation
