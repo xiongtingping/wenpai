@@ -5,13 +5,7 @@
 
 // API端点配置
 const API_ENDPOINTS = {
-  OPENAI: '/.netlify/functions/api/openai',
-  DEEPSEEK: '/.netlify/functions/api/deepseek',
-  GEMINI: '/.netlify/functions/api/gemini',
-  TEST: '/.netlify/functions/api/test',
-  CHECK_OPENAI: '/.netlify/functions/api/check-openai',
-  CHECK_GEMINI: '/.netlify/functions/api/check-gemini',
-  CHECK_DEEPSEEK: '/.netlify/functions/api/check-deepseek'
+  API: '/.netlify/functions/api'
 };
 
 /**
@@ -36,12 +30,14 @@ export async function callOpenAIProxy(
   model: string = 'gpt-4o'
 ): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.OPENAI, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        provider: 'openai',
+        action: 'generate',
         messages,
         model,
         temperature: 0.7
@@ -91,12 +87,14 @@ export async function callDeepSeekProxy(
   model: string = 'deepseek-chat'
 ): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.DEEPSEEK, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        provider: 'deepseek',
+        action: 'generate',
         messages,
         model,
         temperature: 0.7
@@ -142,12 +140,14 @@ export async function callDeepSeekProxy(
  */
 export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.GEMINI, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        provider: 'gemini',
+        action: 'generate',
         prompt
       })
     });
@@ -190,7 +190,13 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
  */
 export async function testApiConnectivity(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.TEST);
+    const response = await fetch(API_ENDPOINTS.API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    });
 
     // 检查响应类型
     const contentType = response.headers.get('content-type');
@@ -230,7 +236,16 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
  */
 export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.CHECK_OPENAI);
+    const response = await fetch(API_ENDPOINTS.API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        provider: 'openai',
+        action: 'status'
+      })
+    });
 
     // 检查响应类型
     const contentType = response.headers.get('content-type');
@@ -270,7 +285,16 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
  */
 export async function checkGeminiAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.CHECK_GEMINI);
+    const response = await fetch(API_ENDPOINTS.API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        provider: 'gemini',
+        action: 'status'
+      })
+    });
 
     // 检查响应类型
     const contentType = response.headers.get('content-type');
@@ -310,7 +334,16 @@ export async function checkGeminiAvailability(): Promise<ProxyResponse> {
  */
 export async function checkDeepSeekAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.CHECK_DEEPSEEK);
+    const response = await fetch(API_ENDPOINTS.API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        provider: 'deepseek',
+        action: 'status'
+      })
+    });
 
     // 检查响应类型
     const contentType = response.headers.get('content-type');
