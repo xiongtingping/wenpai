@@ -23,11 +23,15 @@ export interface ProxyResponse<T = any> {
  * 调用OpenAI API代理
  * @param messages 消息数组
  * @param model 模型名称
+ * @param temperature 温度参数
+ * @param maxTokens 最大token数
  * @returns Promise with response data
  */
 export async function callOpenAIProxy(
   messages: any[],
-  model: string = 'gpt-4o'
+  model: string = 'gpt-3.5-turbo',
+  temperature: number = 0.7,
+  maxTokens: number = 1000
 ): Promise<ProxyResponse> {
   try {
     console.log('callOpenAIProxy 开始调用...');
@@ -44,7 +48,8 @@ export async function callOpenAIProxy(
         action: 'generate',
         messages,
         model,
-        temperature: 0.7
+        temperature,
+        maxTokens
       })
     });
 
