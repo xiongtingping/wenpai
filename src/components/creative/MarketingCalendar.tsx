@@ -1,7 +1,7 @@
 /**
  * 营销日历组件
  * 支持国历、农历、节假日、24节气、历史上的今天等
- * 融合待办事项功能
+ * 融合待办事项功能，参考macOS日历样式
  */
 
 import React, { useState, useEffect } from 'react';
@@ -26,8 +26,11 @@ import {
   Trash2,
   Tag,
   Filter,
-  Search
+  Search,
+  MoreHorizontal,
+  X
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * 日历事件接口
@@ -61,6 +64,8 @@ interface TodoItem {
  * @returns React 组件
  */
 export function MarketingCalendar() {
+  const { toast } = useToast();
+  
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -81,6 +86,9 @@ export function MarketingCalendar() {
     priority: 'medium' as 'low' | 'medium' | 'high',
     group: ''
   });
+
+  // 显示/隐藏侧边栏
+  const [showSidebar, setShowSidebar] = useState(true);
 
   /**
    * 获取当前月份的天数
@@ -142,6 +150,14 @@ export function MarketingCalendar() {
   };
 
   /**
+   * 获取日期的待办事项
+   */
+  const getTodosForDate = (date: Date) => {
+    const dateString = date.toISOString().split('T')[0];
+    return todos.filter(todo => todo.date === dateString);
+  };
+
+  /**
    * 获取事件图标
    */
   const getEventIcon = (type: string) => {
@@ -174,6 +190,22 @@ export function MarketingCalendar() {
   };
 
   /**
+   * 获取优先级颜色
+   */
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  /**
    * 初始化示例数据
    */
   useEffect(() => {
@@ -198,8 +230,8 @@ export function MarketingCalendar() {
         id: '3',
         title: '情人节',
         date: '2024-02-14',
-        type: 'holiday',
-        description: '西方情人节，浪漫营销好时机',
+        type: 'custom',
+        description: '西方情人节',
         color: 'pink'
       }
     ];
@@ -207,38 +239,39 @@ export function MarketingCalendar() {
     const sampleTodos: TodoItem[] = [
       {
         id: '1',
-        title: '准备春节营销方案',
-        description: '制定春节期间的营销策略和内容计划',
-        date: '2024-02-01',
+        title: '完成产品推广文案',
+        description: '为新产品撰写推广文案，包括微信公众号、微博等多个平台',
+        date: '2024-02-15',
         completed: false,
-        tags: ['营销', '节日', '策划'],
+        tags: ['文案', '推广', '产品'],
+        priority: 'high',
+        group: '内容创作'
+      },
+      {
+        id: '2',
+        title: '策划情人节营销活动',
+        description: '设计情人节主题营销活动，包括活动方案、预算规划等',
+        date: '2024-02-14',
+        completed: true,
+        tags: ['情人节', '营销', '活动'],
         priority: 'high',
         group: '营销策划'
       },
       {
-        id: '2',
-        title: '设计情人节海报',
-        description: '制作情人节主题的营销海报',
-        date: '2024-02-10',
-        completed: true,
-        tags: ['设计', '节日', '海报'],
-        priority: 'medium',
-        group: '设计制作'
-      },
-      {
         id: '3',
-        title: '撰写产品介绍文案',
-        description: '为新功能撰写介绍文案',
-        date: '2024-02-15',
+        title: '更新品牌素材库',
+        description: '整理和更新品牌相关的图片、视频等素材',
+        date: '2024-02-20',
         completed: false,
-        tags: ['文案', '产品', '介绍'],
-        priority: 'low',
-        group: '内容创作'
+        tags: ['品牌', '素材', '整理'],
+        priority: 'medium',
+        group: '品牌管理'
       }
     ];
-
+    
     setEvents(sampleEvents);
     setTodos(sampleTodos);
+    setFilteredTodos(sampleTodos);
   }, []);
 
   /**
@@ -263,7 +296,7 @@ export function MarketingCalendar() {
       );
     }
 
-    // 组筛选
+    // 分组筛选
     if (selectedGroup !== 'all') {
       filtered = filtered.filter(todo => todo.group === selectedGroup);
     }
@@ -295,42 +328,53 @@ export function MarketingCalendar() {
    * 获取所有标签
    */
   const getAllTags = () => {
-    const tagSet = new Set<string>();
+    const allTags = new Set<string>();
     todos.forEach(todo => {
-      todo.tags.forEach(tag => tagSet.add(tag));
+      todo.tags.forEach(tag => allTags.add(tag));
     });
-    return Array.from(tagSet).sort();
+    return Array.from(allTags);
   };
 
   /**
-   * 获取所有组
+   * 获取所有分组
    */
   const getAllGroups = () => {
-    const groupSet = new Set<string>();
+    const allGroups = new Set<string>();
     todos.forEach(todo => {
-      if (todo.group) groupSet.add(todo.group);
+      if (todo.group) allGroups.add(todo.group);
     });
-    return Array.from(groupSet).sort();
+    return Array.from(allGroups);
   };
 
   /**
    * 添加待办事项
    */
   const addTodo = () => {
-    if (!newTodo.title.trim() || !newTodo.date) return;
+    if (!newTodo.title.trim() || !newTodo.date) {
+      toast({
+        title: "请填写必要信息",
+        description: "标题和日期不能为空",
+        variant: "destructive"
+      });
+      return;
+    }
 
+    const tags = newTodo.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    
     const todo: TodoItem = {
       id: Date.now().toString(),
-      title: newTodo.title,
-      description: newTodo.description,
+      title: newTodo.title.trim(),
+      description: newTodo.description.trim(),
       date: newTodo.date,
       completed: false,
-      tags: newTodo.tags ? newTodo.tags.split(',').map(t => t.trim()) : [],
+      tags,
       priority: newTodo.priority,
       group: newTodo.group || undefined
     };
 
-    setTodos(prev => [todo, ...prev]);
+    setTodos(prev => [...prev, todo]);
+    
+    // 重置表单
     setNewTodo({
       title: '',
       description: '',
@@ -339,10 +383,15 @@ export function MarketingCalendar() {
       priority: 'medium',
       group: ''
     });
+
+    toast({
+      title: "添加成功",
+      description: "待办事项已添加到日历",
+    });
   };
 
   /**
-   * 切换待办事项状态
+   * 切换待办事项完成状态
    */
   const toggleTodo = (id: string) => {
     setTodos(prev => prev.map(todo => 
@@ -355,22 +404,10 @@ export function MarketingCalendar() {
    */
   const deleteTodo = (id: string) => {
     setTodos(prev => prev.filter(todo => todo.id !== id));
-  };
-
-  /**
-   * 获取优先级颜色
-   */
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
+    toast({
+      title: "删除成功",
+      description: "待办事项已删除",
+    });
   };
 
   /**
@@ -385,41 +422,30 @@ export function MarketingCalendar() {
   };
 
   /**
-   * 获取农历日期（简化版）
+   * 获取农历日期（模拟）
    */
   const getLunarDate = (date: Date) => {
-    // 这里可以集成农历转换库
-    // 简化实现，返回示例数据
-    const lunarMonths = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
-    const lunarDays = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
-                       '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
-                       '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
-    
-    const month = lunarMonths[date.getMonth()];
-    const day = lunarDays[date.getDate() - 1] || '初一';
-    
-    return `${month}月${day}`;
+    // 这里应该调用真实的农历API
+    const lunarDates = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十'];
+    const day = date.getDate();
+    return lunarDates[day % 10] || '十五';
   };
 
   /**
-   * 获取历史上的今天
+   * 获取历史上的今天（模拟）
    */
   const getHistoryToday = (date: Date) => {
     const month = date.getMonth() + 1;
     const day = date.getDate();
     
-    // 示例历史事件
     const historyEvents = {
-      '2-4': '1906年2月4日，中国近代著名教育家蔡元培出生',
-      '2-10': '1937年2月10日，中共中央致电国民党五届三中全会',
-      '2-14': '1946年2月14日，世界上第一台电子计算机ENIAC诞生',
-      '2-24': '1920年2月24日，德国工人党改名为纳粹党',
-      '3-8': '1909年3月8日，美国芝加哥女工举行罢工游行',
-      '3-12': '1925年3月12日，孙中山在北京逝世'
+      '2-14': '情人节',
+      '2-15': '世界无线电日',
+      '2-20': '世界社会公正日'
     };
     
     const key = `${month}-${day}`;
-    return historyEvents[key as keyof typeof historyEvents];
+    return historyEvents[key] || null;
   };
 
   const calendarDays = generateCalendarDays();
@@ -430,15 +456,28 @@ export function MarketingCalendar() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                营销日历
-              </CardTitle>
-              <CardDescription>
-                {formatDate(currentDate)} - 节假日、节气、历史事件一览
-              </CardDescription>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <h2 className="text-xl font-semibold">
+                {currentDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })}
+              </h2>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
+            
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -450,74 +489,99 @@ export function MarketingCalendar() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
+                onClick={() => setShowSidebar(!showSidebar)}
               >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-              >
-                <ChevronRight className="w-4 h-4" />
+                {showSidebar ? '隐藏侧边栏' : '显示侧边栏'}
               </Button>
             </div>
           </div>
         </CardHeader>
+        
         <CardContent>
-          {/* 星期标题 */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
+          <div className="grid grid-cols-7 gap-1">
+            {/* 星期标题 */}
             {['日', '一', '二', '三', '四', '五', '六'].map(day => (
-              <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+              <div key={day} className="h-10 flex items-center justify-center text-sm font-medium text-gray-500">
                 {day}
               </div>
             ))}
-          </div>
-
-          {/* 日历网格 */}
-          <div className="grid grid-cols-7 gap-1">
+            
+            {/* 日历网格 */}
             {calendarDays.map((day, index) => {
               const dayEvents = getEventsForDate(day.date);
+              const dayTodos = getTodosForDate(day.date);
               const isToday = day.date.toDateString() === new Date().toDateString();
               const isSelected = selectedDate && day.date.toDateString() === selectedDate.toDateString();
-
+              const historyEvent = getHistoryToday(day.date);
+              
               return (
                 <div
                   key={index}
                   className={`
-                    min-h-[80px] p-1 border rounded cursor-pointer hover:bg-gray-50 transition-colors
-                    ${!day.isCurrentMonth ? 'text-gray-300' : ''}
-                    ${isToday ? 'bg-blue-50 border-blue-200' : ''}
-                    ${isSelected ? 'bg-primary/10 border-primary' : ''}
+                    min-h-[120px] p-2 border border-gray-200 cursor-pointer transition-colors
+                    ${!day.isCurrentMonth ? 'bg-gray-50 text-gray-400' : 'bg-white hover:bg-gray-50'}
+                    ${isToday ? 'ring-2 ring-blue-500' : ''}
+                    ${isSelected ? 'bg-blue-50 border-blue-300' : ''}
                   `}
                   onClick={() => setSelectedDate(day.date)}
                 >
-                  <div className="text-xs mb-1">
-                    <div className="font-medium">
-                      {day.date.getDate()}
-                    </div>
-                    <div className="text-gray-400">
-                      {getLunarDate(day.date)}
-                    </div>
+                  {/* 日期数字 */}
+                  <div className="text-sm font-medium mb-1">
+                    {day.date.getDate()}
                   </div>
                   
-                  {/* 事件标记 */}
+                  {/* 农历日期 */}
+                  {day.isCurrentMonth && (
+                    <div className="text-xs text-gray-500 mb-1">
+                      {getLunarDate(day.date)}
+                    </div>
+                  )}
+                  
+                  {/* 事件和待办事项 */}
                   <div className="space-y-1">
-                    {dayEvents.slice(0, 2).map(event => (
+                    {/* 节假日和事件 */}
+                    {dayEvents.map(event => (
                       <div
                         key={event.id}
-                        className={`text-xs px-1 py-0.5 rounded border ${getEventColor(event.type)}`}
-                        title={event.description}
+                        className={`text-xs px-1 py-0.5 rounded ${getEventColor(event.type)}`}
                       >
-                        <div className="flex items-center gap-1">
-                          {getEventIcon(event.type)}
-                          <span className="truncate">{event.title}</span>
-                        </div>
+                        {event.title}
                       </div>
                     ))}
-                    {dayEvents.length > 2 && (
-                      <div className="text-xs text-gray-500 text-center">
-                        +{dayEvents.length - 2}
+                    
+                    {/* 历史上的今天 */}
+                    {historyEvent && (
+                      <div className="text-xs px-1 py-0.5 rounded bg-purple-100 text-purple-800">
+                        {historyEvent}
+                      </div>
+                    )}
+                    
+                    {/* 待办事项 */}
+                    {dayTodos.slice(0, 2).map(todo => (
+                      <div
+                        key={todo.id}
+                        className={`
+                          text-xs px-1 py-0.5 rounded flex items-center gap-1 cursor-pointer
+                          ${todo.completed ? 'bg-gray-100 text-gray-500 line-through' : getPriorityColor(todo.priority)}
+                        `}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleTodo(todo.id);
+                        }}
+                      >
+                        {todo.completed ? (
+                          <CheckSquare className="w-2 h-2" />
+                        ) : (
+                          <Square className="w-2 h-2" />
+                        )}
+                        {todo.title}
+                      </div>
+                    ))}
+                    
+                    {/* 更多待办事项提示 */}
+                    {dayTodos.length > 2 && (
+                      <div className="text-xs text-gray-500">
+                        +{dayTodos.length - 2} 更多
                       </div>
                     )}
                   </div>
@@ -528,291 +592,209 @@ export function MarketingCalendar() {
         </CardContent>
       </Card>
 
-      {/* 选中日期的详细信息 */}
-      {selectedDate && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              {formatDate(selectedDate)}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* 农历信息 */}
-              <div>
-                <h4 className="font-medium mb-2">农历</h4>
-                <p className="text-gray-600">{getLunarDate(selectedDate)}</p>
-              </div>
-
-              {/* 当日事件 */}
-              {getEventsForDate(selectedDate).length > 0 && (
-                <div>
-                  <h4 className="font-medium mb-2">当日事件</h4>
-                  <div className="space-y-2">
-                    {getEventsForDate(selectedDate).map(event => (
-                      <div key={event.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded">
-                        <div className={`p-1 rounded ${getEventColor(event.type)}`}>
-                          {getEventIcon(event.type)}
-                        </div>
-                        <div>
-                          <div className="font-medium">{event.title}</div>
-                          {event.description && (
-                            <div className="text-sm text-gray-600">{event.description}</div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 历史上的今天 */}
-              {getHistoryToday(selectedDate) && (
-                <div>
-                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                    <BookOpen className="w-4 h-4" />
-                    历史上的今天
-                  </h4>
-                  <p className="text-gray-600">{getHistoryToday(selectedDate)}</p>
-                </div>
-              )}
-
-              {/* 营销建议 */}
-              <div>
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  营销建议
-                </h4>
-                <div className="text-sm text-gray-600 space-y-1">
-                  {getEventsForDate(selectedDate).length > 0 ? (
-                    <p>当日有重要节日/节气，建议结合相关主题进行营销活动策划。</p>
-                  ) : (
-                    <p>当日无特殊节日，可考虑常规营销活动或内容发布。</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 待办事项 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckSquare className="w-5 h-5" />
-            待办事项
-          </CardTitle>
-          <CardDescription>
-            管理您的营销任务和待办事项
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* 筛选和排序 */}
-          <div className="flex flex-wrap items-center gap-4 mb-4">
-            {/* 搜索 */}
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="搜索待办事项..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-48"
-              />
-            </div>
-
-            {/* 标签筛选 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">标签：</span>
-              <div className="flex flex-wrap gap-1">
-                {getAllTags().map(tag => (
-                  <Badge
-                    key={tag}
-                    variant={selectedTags.includes(tag) ? "default" : "outline"}
-                    className="cursor-pointer text-xs"
-                    onClick={() => setSelectedTags(prev => 
-                      prev.includes(tag) 
-                        ? prev.filter(t => t !== tag)
-                        : [...prev, tag]
-                    )}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* 组筛选 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">组：</span>
-              <select
-                value={selectedGroup}
-                onChange={(e) => setSelectedGroup(e.target.value)}
-                className="p-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="all">全部</option>
-                {getAllGroups().map(group => (
-                  <option key={group} value={group}>{group}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* 排序 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">排序：</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'date' | 'priority' | 'title')}
-                className="p-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="date">日期</option>
-                <option value="priority">优先级</option>
-                <option value="title">标题</option>
-              </select>
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                className="p-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="asc">升序</option>
-                <option value="desc">降序</option>
-              </select>
-            </div>
-          </div>
-
+      {/* 侧边栏 - 待办事项管理 */}
+      {showSidebar && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 添加新待办事项 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-            <Input
-              placeholder="待办事项标题"
-              value={newTodo.title}
-              onChange={(e) => setNewTodo(prev => ({ ...prev, title: e.target.value }))}
-            />
-            <Input
-              type="date"
-              value={newTodo.date}
-              onChange={(e) => setNewTodo(prev => ({ ...prev, date: e.target.value }))}
-            />
-            <select
-              value={newTodo.priority}
-              onChange={(e) => setNewTodo(prev => ({ ...prev, priority: e.target.value as 'low' | 'medium' | 'high' }))}
-              className="p-2 border border-gray-300 rounded-md"
-            >
-              <option value="low">低优先级</option>
-              <option value="medium">中优先级</option>
-              <option value="high">高优先级</option>
-            </select>
-            <Input
-              placeholder="标签（用逗号分隔）"
-              value={newTodo.tags}
-              onChange={(e) => setNewTodo(prev => ({ ...prev, tags: e.target.value }))}
-            />
-            <Input
-              placeholder="组名"
-              value={newTodo.group}
-              onChange={(e) => setNewTodo(prev => ({ ...prev, group: e.target.value }))}
-            />
-            <Button onClick={addTodo} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              添加待办
-            </Button>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                添加待办事项
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">标题 *</label>
+                <Input
+                  value={newTodo.title}
+                  onChange={(e) => setNewTodo(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="输入待办事项标题"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">描述</label>
+                <Textarea
+                  value={newTodo.description}
+                  onChange={(e) => setNewTodo(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="输入详细描述"
+                  rows={3}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">日期 *</label>
+                <Input
+                  type="date"
+                  value={newTodo.date}
+                  onChange={(e) => setNewTodo(prev => ({ ...prev, date: e.target.value }))}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">标签</label>
+                <Input
+                  value={newTodo.tags}
+                  onChange={(e) => setNewTodo(prev => ({ ...prev, tags: e.target.value }))}
+                  placeholder="用逗号分隔多个标签"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">优先级</label>
+                <select
+                  value={newTodo.priority}
+                  onChange={(e) => setNewTodo(prev => ({ ...prev, priority: e.target.value as any }))}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="low">低</option>
+                  <option value="medium">中</option>
+                  <option value="high">高</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">分组</label>
+                <Input
+                  value={newTodo.group}
+                  onChange={(e) => setNewTodo(prev => ({ ...prev, group: e.target.value }))}
+                  placeholder="输入分组名称"
+                />
+              </div>
+              
+              <Button onClick={addTodo} className="w-full">
+                添加待办事项
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* 待办事项列表 */}
-          <div className="space-y-3">
-            {filteredTodos.map(todo => (
-              <div
-                key={todo.id}
-                className={`flex items-start gap-3 p-3 border rounded-lg ${
-                  todo.completed ? 'bg-gray-50 opacity-75' : 'bg-white'
-                }`}
-              >
-                <button
-                  onClick={() => toggleTodo(todo.id)}
-                  className="mt-1"
-                >
-                  {todo.completed ? (
-                    <CheckSquare className="w-5 h-5 text-green-600" />
-                  ) : (
-                    <Square className="w-5 h-5 text-gray-400" />
-                  )}
-                </button>
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckSquare className="w-4 h-4" />
+                待办事项管理
+              </CardTitle>
+              
+              {/* 筛选和搜索 */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <div className="flex items-center gap-2">
+                  <Search className="w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="搜索待办事项..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-48"
+                  />
+                </div>
                 
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className={`font-medium ${todo.completed ? 'line-through' : ''}`}>
-                        {todo.title}
-                      </h4>
-                      {todo.description && (
-                        <p className="text-sm text-gray-600 mt-1">{todo.description}</p>
+                <select
+                  value={selectedGroup}
+                  onChange={(e) => setSelectedGroup(e.target.value)}
+                  className="p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="all">所有分组</option>
+                  {getAllGroups().map(group => (
+                    <option key={group} value={group}>{group}</option>
+                  ))}
+                </select>
+                
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="date">按日期</option>
+                  <option value="priority">按优先级</option>
+                  <option value="title">按标题</option>
+                </select>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                >
+                  {sortOrder === 'asc' ? '升序' : '降序'}
+                </Button>
+              </div>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {filteredTodos.map(todo => (
+                  <div
+                    key={todo.id}
+                    className={`
+                      p-3 border rounded-lg flex items-start gap-3
+                      ${todo.completed ? 'bg-gray-50' : 'bg-white'}
+                    `}
+                  >
+                    <button
+                      onClick={() => toggleTodo(todo.id)}
+                      className="mt-1"
+                    >
+                      {todo.completed ? (
+                        <CheckSquare className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <Square className="w-4 h-4 text-gray-400" />
                       )}
+                    </button>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className={`font-medium ${todo.completed ? 'line-through text-gray-500' : ''}`}>
+                          {todo.title}
+                        </h4>
+                        <button
+                          onClick={() => deleteTodo(todo.id)}
+                          className="text-gray-400 hover:text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      {todo.description && (
+                        <p className={`text-sm mt-1 ${todo.completed ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {todo.description}
+                        </p>
+                      )}
+                      
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline" className={`text-xs ${getPriorityColor(todo.priority)}`}>
+                        <Badge variant="outline" className="text-xs">
+                          {todo.date}
+                        </Badge>
+                        
+                        <Badge className={`text-xs ${getPriorityColor(todo.priority)}`}>
                           {todo.priority === 'high' ? '高' : todo.priority === 'medium' ? '中' : '低'}
                         </Badge>
+                        
                         {todo.group && (
                           <Badge variant="outline" className="text-xs">
                             {todo.group}
                           </Badge>
                         )}
+                        
                         {todo.tags.map(tag => (
-                          <Badge key={tag} variant="outline" className="text-xs">
+                          <Badge key={tag} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>
                         ))}
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">{todo.date}</span>
-                      <button
-                        onClick={() => deleteTodo(todo.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
                   </div>
-                </div>
+                ))}
+                
+                {filteredTodos.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    暂无待办事项
+                  </div>
+                )}
               </div>
-            ))}
-            
-            {filteredTodos.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                暂无待办事项
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 图例说明 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">图例说明</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Gift className="w-4 h-4 text-red-500" />
-              <span>节假日</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Leaf className="w-4 h-4 text-green-500" />
-              <span>二十四节气</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-blue-500" />
-              <span>历史事件</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-gray-500" />
-              <span>自定义事件</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 } 

@@ -1,6 +1,6 @@
 /**
  * 创意工作室页面
- * 包含九宫格创意魔方、文案保存区、营销日历和代办事项
+ * 包含九宫格创意魔方、文案保存区、营销日历和朋友圈模板
  */
 
 import React, { useState, useEffect } from 'react';
@@ -47,8 +47,6 @@ import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import { MemoManager } from '@/components/creative/MemoManager';
 import { MarketingCalendar } from '@/components/creative/MarketingCalendar';
-import { TodoList } from '@/components/creative/TodoList';
-import { EnhancedCalendar } from '@/components/creative/EnhancedCalendar';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 
 /**
@@ -77,13 +75,13 @@ export default function CreativeStudioPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">创意工作室</h1>
         <p className="text-gray-600">
-          九宫格创意魔方、文案管理、营销日历、代办事项一体化创意工具
+          九宫格创意魔方、文案管理、营销日历一体化创意工具
         </p>
       </div>
 
       {/* 功能标签页 */}
       <Tabs defaultValue="cube" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="cube" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             创意魔方
@@ -95,14 +93,6 @@ export default function CreativeStudioPage() {
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             营销日历
-          </TabsTrigger>
-          <TabsTrigger value="enhanced-calendar" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            增强日历
-          </TabsTrigger>
-          <TabsTrigger value="todo" className="flex items-center gap-2">
-            <CheckSquare className="w-4 h-4" />
-            待办事项
           </TabsTrigger>
           <TabsTrigger value="wechat" className="flex items-center gap-2">
             <MessageCircle className="w-4 h-4" />
@@ -123,16 +113,6 @@ export default function CreativeStudioPage() {
         {/* 营销日历 */}
         <TabsContent value="calendar" className="mt-6">
           <MarketingCalendar />
-        </TabsContent>
-
-        {/* 增强日历 */}
-        <TabsContent value="enhanced-calendar" className="mt-6">
-          <EnhancedCalendar />
-        </TabsContent>
-
-        {/* 代办事项 */}
-        <TabsContent value="todo" className="mt-6">
-          <TodoList />
         </TabsContent>
 
         {/* 朋友圈模板 */}
