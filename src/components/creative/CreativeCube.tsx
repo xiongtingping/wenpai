@@ -1057,11 +1057,11 @@ ${generateStandardCallToAction()}
 
       console.log('AI服务响应:', response);
 
-      if (response.success && response.data?.choices?.[0]?.message?.content) {
-        console.log('AI生成成功，内容长度:', response.data.choices[0].message.content.length);
+      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
+        console.log('AI生成成功，内容长度:', response.data.data.choices[0].message.content.length);
         return {
           success: true,
-          content: response.data.choices[0].message.content
+          content: response.data.data.choices[0].message.content
         };
       } else {
         console.error('AI服务响应异常:', response);
