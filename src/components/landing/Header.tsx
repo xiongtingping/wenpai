@@ -122,7 +122,7 @@ export function Header() {
                 免费
               </Badge>
             </Link>
-            <Link to="/emoji" className="text-gray-600 hover:text-blue-600 transition flex items-center">
+            <Link to="/emojis" className="text-gray-600 hover:text-blue-600 transition flex items-center">
               Emoji表情库
               <Badge variant="outline" className="ml-1 bg-purple-50 text-purple-700 border-purple-200 text-xs">
                 <Crown className="w-3 h-3 mr-1" />
@@ -208,7 +208,7 @@ export function Header() {
                     免费
                   </Badge>
                 </Link>
-                <Link to="/emoji" className="text-lg font-medium py-2 flex items-center justify-between">
+                <Link to="/emojis" className="text-lg font-medium py-2 flex items-center justify-between">
                   Emoji表情库
                   <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
                     <Crown className="w-3 h-3 mr-1" />

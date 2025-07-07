@@ -30,6 +30,8 @@ import BookmarkPage from '@/pages/BookmarkPage';
 import EmojiPage from '@/pages/EmojiPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import TestNewFeaturesPage from '@/pages/TestNewFeaturesPage';
+import ContentExtractorPage from '@/pages/ContentExtractorPage';
+import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 
 /**
@@ -135,6 +137,22 @@ const AppContent: React.FC = () => {
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
               <TestNewFeaturesPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/content-extractor" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <ContentExtractorPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/creative-studio" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <CreativeStudioPage />
             </ToolLayout>
           </ProtectedRoute>
         } />

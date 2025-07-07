@@ -84,7 +84,7 @@ export function PricingSection() {
                 <div>
                   <span className="font-medium">创意工具套件</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    完全免费
+                    免费
                   </Badge>
                   <p className="text-sm text-gray-500 mt-1">九宫格创意魔方、营销日历、文案管理、任务清单</p>
                 </div>
@@ -94,7 +94,7 @@ export function PricingSection() {
                 <div>
                   <span className="font-medium">全网热点话题</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    完全免费
+                    免费
                   </Badge>
                   <p className="text-sm text-gray-500 mt-1">实时获取各平台热门话题和趋势</p>
                 </div>
@@ -203,7 +203,7 @@ export function PricingSection() {
                 <div>
                   <span className="font-medium">创意工具套件</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    完全免费
+                    免费
                   </Badge>
                 </div>
               </li>
@@ -212,7 +212,7 @@ export function PricingSection() {
                 <div>
                   <span className="font-medium">全网热点话题</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    完全免费
+                    免费
                   </Badge>
                 </div>
               </li>
@@ -305,13 +305,13 @@ export function PricingSection() {
                 </tr>
                 <tr>
                   <td className="border border-gray-200 p-4 font-medium">创意工具套件</td>
-                  <td className="border border-gray-200 p-4 text-center">✅ 完全免费</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 完全免费</td>
+                  <td className="border border-gray-200 p-4 text-center">✅ 免费</td>
+                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 免费</td>
                 </tr>
                 <tr>
                   <td className="border border-gray-200 p-4 font-medium">全网热点话题</td>
-                  <td className="border border-gray-200 p-4 text-center">✅ 完全免费</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 完全免费</td>
+                  <td className="border border-gray-200 p-4 text-center">✅ 免费</td>
+                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 免费</td>
                 </tr>
                 <tr>
                   <td className="border border-gray-200 p-4 font-medium">Emoji表情库</td>

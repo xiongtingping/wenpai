@@ -22,7 +22,7 @@ export function FeaturesSection() {
           <Card className="p-6 border-2 border-blue-200 bg-blue-50">
             <div className="flex items-center justify-between mb-4">
               <Zap className="w-8 h-8 text-blue-600" />
-              <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
+              <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
                 免费10次/月
               </Badge>
             </div>
@@ -33,8 +33,8 @@ export function FeaturesSection() {
           <Card className="p-6 border-2 border-green-200 bg-green-50">
             <div className="flex items-center justify-between mb-4">
               <Sparkles className="w-8 h-8 text-green-600" />
-              <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
-                完全免费
+              <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+                免费
               </Badge>
             </div>
             <h3 className="font-bold text-lg mb-2">创意工具</h3>
@@ -44,8 +44,8 @@ export function FeaturesSection() {
           <Card className="p-6 border-2 border-green-200 bg-green-50">
             <div className="flex items-center justify-between mb-4">
               <TrendingUp className="w-8 h-8 text-green-600" />
-              <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
-                完全免费
+              <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 text-xs">
+                免费
               </Badge>
             </div>
             <h3 className="font-bold text-lg mb-2">热点话题</h3>
@@ -55,7 +55,7 @@ export function FeaturesSection() {
           <Card className="p-6 border-2 border-purple-200 bg-purple-50">
             <div className="flex items-center justify-between mb-4">
               <Crown className="w-8 h-8 text-purple-600" />
-              <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">
+              <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300 text-xs">
                 <Crown className="w-3 h-3 mr-1" />
                 专业版
               </Badge>
@@ -130,7 +130,7 @@ export function FeaturesSection() {
                     <div className="flex items-center gap-2 mb-4">
                       <h3 className="text-2xl font-bold text-gray-900">创意工具套件</h3>
                       <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
-                        完全免费
+                        免费
                       </Badge>
                     </div>
                     <p className="mt-4 text-lg text-gray-600">
@@ -163,7 +163,7 @@ export function FeaturesSection() {
                     <div className="flex items-center gap-2 mb-4">
                       <h3 className="text-2xl font-bold text-gray-900">全网热点话题</h3>
                       <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
-                        完全免费
+                        免费
                       </Badge>
                     </div>
                     <p className="mt-4 text-lg text-gray-600">
