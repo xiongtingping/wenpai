@@ -946,6 +946,9 @@ ${generateStandardCallToAction()}
    * 生成创意内容
    */
   const generateIdea = async () => {
+    const { target_audience, use_case, pain_point, content_format, tone_style, core_value, emotional_need, industry, platform_or_trend } = selectedItems;
+    
+    // 只检查必选维度
     const requiredCheck = checkRequiredDimensions();
     if (!requiredCheck.isValid) {
       const missingNames = requiredCheck.missing.map(dim => {
@@ -953,62 +956,171 @@ ${generateStandardCallToAction()}
         return dimension?.name || dim;
       });
       toast({
-        title: "请选择必要维度",
-        description: `缺少必要维度：${missingNames.join('、')}`,
+        title: "维度不完整",
+        description: `请确保选择了所有必要维度：${missingNames.join('、')}`,
         variant: "destructive"
       });
       return;
     }
 
     setIsGenerating(true);
+    
     try {
-      // 模拟AI生成
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 构建AI提示词
+      const prompt = buildPrompt();
       
-      const format = selectedItems.content_format || '图文';
-      const isVideo = format.includes('视频') || format.includes('短视频');
+      // 确定内容类型
+      const isVideo = content_format.includes('视频') || content_format.includes('短视频');
+      const contentType = isVideo ? 'video' : 'text';
       
-      let generatedContent = '';
-      let contentType: 'text' | 'video' = 'text';
+      // 调用AI服务生成内容
+      const aiResponse = await callAIForCreativeContent(prompt, contentType);
       
-      if (isVideo) {
-        contentType = 'video';
-        const script = generateVideoScript(buildPrompt());
-        setVideoScript([]); // 重置视频脚本数组，因为现在返回的是字符串
+      if (aiResponse.success && aiResponse.content) {
+        const generatedContent = aiResponse.content;
+        setCurrentContent(generatedContent);
+        setCurrentContentType(contentType);
         
-        generatedContent = script; // 直接使用生成的脚本字符串
+        // 如果是视频内容，解析分镜脚本
+        if (contentType === 'video') {
+          const videoScript = parseVideoScript(generatedContent);
+          setVideoScript(videoScript);
+        }
+        
+        // 保存到历史记录
+        const newResult: CreativeResult = {
+          id: Date.now().toString(),
+          combination: { ...selectedItems },
+          generatedContent,
+          contentType,
+          timestamp: new Date().toISOString(),
+          tags: Object.values(selectedItems).slice(0, 3)
+        };
+
+        setGeneratedIdeas(prev => [newResult, ...prev]);
+
+        toast({
+          title: "创意生成成功",
+          description: `已生成${isVideo ? '短视频脚本' : '图文内容'}`,
+        });
       } else {
-        contentType = 'text';
-        generatedContent = generateTextContent(buildPrompt());
+        throw new Error(aiResponse.error || 'AI生成失败');
       }
-
-      setCurrentContent(generatedContent);
-      setCurrentContentType(contentType);
-
-      // 保存到历史记录
-      const newResult: CreativeResult = {
-        id: Date.now().toString(),
-        combination: { ...selectedItems },
-        generatedContent,
-        contentType,
-        timestamp: new Date().toISOString(),
-        tags: Object.values(selectedItems).slice(0, 3)
-      };
-
-      setGeneratedIdeas(prev => [newResult, ...prev]);
-
-      toast({
-        title: "创意生成成功",
-        description: `已生成${isVideo ? '短视频脚本' : '图文内容'}`,
-      });
-    } catch {
+    } catch (error) {
+      console.error('生成创意失败:', error);
       toast({
         title: "生成失败",
-        description: "请稍后重试",
+        description: error instanceof Error ? error.message : "请稍后重试",
         variant: "destructive"
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  /**
+   * 调用AI服务生成创意内容
+   */
+  const callAIForCreativeContent = async (prompt: string, contentType: 'text' | 'video'): Promise<{ success: boolean; content?: string; error?: string }> => {
+    try {
+      // 导入AI服务
+      const { callOpenAIProxy } = await import('@/api/apiProxy');
+      
+      const systemPrompt = `你是一个专业的内容营销专家，擅长为不同行业和目标用户生成高质量的内容营销文案。
+
+你的任务是：
+1. 根据用户提供的多维度信息，生成结构化的内容营销文案
+2. 确保内容真实、有代入感、符合目标用户的语言习惯
+3. 避免模板化、空洞的表达，要具体、实用、有趣
+4. 严格按照要求的格式输出内容
+
+输出格式要求：
+- 标题：突出情境与人设冲突，吸引注意
+- 正文：真实生活情境 + 人物吐槽 + 转折解决方案
+- 互动引导：鼓励用户分享经验和秘籍
+- 短视频建议：4个镜头的拍摄建议（如果是视频内容）
+
+请直接输出创意内容，不要添加任何解释或说明。`;
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ];
+
+      const response = await callOpenAIProxy(messages, 'gpt-3.5-turbo');
+
+      if (response.success && response.data?.choices?.[0]?.message?.content) {
+        return {
+          success: true,
+          content: response.data.choices[0].message.content
+        };
+      } else {
+        return {
+          success: false,
+          error: response.error || 'AI服务响应异常'
+        };
+      }
+    } catch (error) {
+      console.error('AI服务调用失败:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '网络请求失败'
+      };
+    }
+  };
+
+  /**
+   * 解析视频脚本
+   */
+  const parseVideoScript = (content: string): VideoScript[] => {
+    try {
+      // 尝试从内容中提取分镜脚本
+      const scriptMatch = content.match(/【分镜脚本】([\s\S]*?)(?=\n\n|$)/);
+      if (scriptMatch) {
+        const scriptText = scriptMatch[1];
+        const scenes = scriptText.split('\n').filter(line => line.trim().startsWith('•'));
+        
+        return scenes.map((scene, index) => ({
+          sceneNumber: `镜头${index + 1}`,
+          sceneDescription: scene.replace('•', '').trim(),
+          dialogue: '',
+          tone: '自然',
+          emotion: '真实',
+          bgm: '轻快背景音乐',
+          soundEffect: '',
+          shotType: '中景',
+          duration: 3
+        }));
+      }
+      
+      // 如果没有找到分镜脚本，返回默认结构
+      return [
+        {
+          sceneNumber: '镜头1',
+          sceneDescription: '问题场景展示',
+          dialogue: '',
+          tone: '自然',
+          emotion: '困扰',
+          bgm: '轻快背景音乐',
+          soundEffect: '',
+          shotType: '中景',
+          duration: 3
+        },
+        {
+          sceneNumber: '镜头2',
+          sceneDescription: '解决方案展示',
+          dialogue: '',
+          tone: '积极',
+          emotion: '满意',
+          bgm: '轻快背景音乐',
+          soundEffect: '',
+          shotType: '特写',
+          duration: 3
+        }
+      ];
+    } catch (error) {
+      console.error('解析视频脚本失败:', error);
+      return [];
     }
   };
 
