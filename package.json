@@ -10,8 +10,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
-    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist"
+    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
+    "test:build": "npm run build && npm run preview",
+    "clean": "rm -rf dist node_modules/.vite",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@authing/guard": "^5.3.9",
@@ -86,13 +90,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "typescript-eslint": "^8.26.1"
-  }
-}
-
-    "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^16.0.0",
-    "prettier": "^3.2.5",
     "typescript-eslint": "^8.26.1"
   }
 }
