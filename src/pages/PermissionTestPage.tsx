@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthGuard from '@/components/auth/AuthGuard';
 import PermissionGuard from '@/components/auth/PermissionGuard';
-import { ArrowLeft } from 'lucide-react';
 
 /**
  * 权限测试页面组件
@@ -58,22 +57,10 @@ const PermissionTestPage: React.FC = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => window.location.href = '/adapt'}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回内容适配器
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold mb-2">权限测试页面</h1>
-            <p className="text-muted-foreground">
-              测试认证和权限守卫功能
-            </p>
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold mb-2">权限测试页面</h1>
+        <p className="text-muted-foreground">
+          测试认证和权限守卫功能
+        </p>
       </div>
 
       {/* 当前状态 */}

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
@@ -32,7 +32,7 @@ export default function ProfilePage() {
     avatar: '',
   });
   const { toast } = useToast();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, setUser } = useAuth();
   const { usageRemaining, userInviteStats } = useUserStore();
   const navigate = useNavigate();
 
@@ -84,15 +84,46 @@ export default function ProfilePage() {
   };
 
   /**
-   * 保存编辑
+   * 保存所有编辑
    */
-  const handleSave = () => {
-    // 这里应该调用 API 更新用户信息
-    toast({
-      title: "保存成功",
-      description: "个人信息已更新",
-    });
-    setIsEditing(false);
+  const handleSaveAll = async () => {
+    if (!user) return;
+
+    try {
+      // 更新用户信息
+      const updatedUser = {
+        ...user,
+        nickname: editForm.nickname || user.nickname,
+        email: editForm.email || user.email,
+        phone: editForm.phone || user.phone,
+        avatar: editForm.avatar || user.avatar,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // 更新AuthContext中的用户信息
+      setUser(updatedUser);
+
+      // 更新localStorage中的用户信息
+      localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+
+      toast({
+        title: "保存成功",
+        description: "个人信息已更新",
+      });
+      setIsEditing(false);
+
+      // 返回首页以查看更新后的用户信息
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    } catch (error) {
+      console.error('保存用户信息失败:', error);
+      toast({
+        title: "保存失败",
+        description: "请重试",
+        variant: "destructive"
+      });
+    }
   };
 
   /**
@@ -116,7 +147,7 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try {
       await logout();
-      // 登出成功，页面会自动重定向
+      navigate('/');
     } catch (err) {
       console.error('登出失败:', err);
       toast({
@@ -139,246 +170,226 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <Button
             variant="ghost"
-            onClick={() => window.location.href = '/adapt'}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="h-4 w-4" />
-            返回内容适配器
+            返回首页
           </Button>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">个人中心</h1>
-        <p className="text-gray-600">
-          管理您的个人信息和账户设置
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">个人中心</h1>
+            <p className="text-gray-600">
+              管理您的个人信息和账户设置
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {isEditing ? (
+              <>
+                <Button variant="outline" onClick={handleCancel}>
+                  <X className="h-4 w-4 mr-2" />
+                  取消
+                </Button>
+                <Button onClick={handleSaveAll}>
+                  <Save className="h-4 w-4 mr-2" />
+                  保存所有修改
+                </Button>
+              </>
+            ) : (
+              <Button onClick={() => setIsEditing(true)}>
+                <Edit className="h-4 w-4 mr-2" />
+                编辑信息
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="profile">基本信息</TabsTrigger>
-          <TabsTrigger value="avatar">头像设置</TabsTrigger>
-          <TabsTrigger value="nickname">昵称设置</TabsTrigger>
-          <TabsTrigger value="contact">联系方式</TabsTrigger>
-        </TabsList>
+      <div className="space-y-6">
 
-        {/* 基本信息 */}
-        <TabsContent value="profile" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  基本信息
-                </CardTitle>
-                <CardDescription>
-                  您的个人资料信息
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                    {user.nickname?.charAt(0) || user.username?.charAt(0) || user.email?.charAt(0) || 'U'}
-                  </div>
-                  <div>
-                    <h3 className="font-medium">{user.nickname || user.username || '未设置昵称'}</h3>
-                    <p className="text-sm text-gray-500">{user.email || '未设置邮箱'}</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">用户ID</span>
-                    <span className="text-sm font-mono">{user.id}</span>
-                  </div>
-                  {user.phone && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">手机号</span>
-                      <span className="text-sm">{user.phone}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+        {/* 个人信息卡片 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              个人信息
+            </CardTitle>
+            <CardDescription>
+              您的基本资料和头像设置
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* 头像设置 */}
+            <div className="space-y-4">
+              <Label className="text-sm font-medium">头像</Label>
+              <div className="flex flex-col items-start">
+                <AvatarUpload
+                  currentAvatar={editForm.avatar}
+                  nickname={editForm.nickname || user?.nickname || '用户'}
+                  size="lg"
+                  onAvatarChange={handleAvatarChange}
+                  disabled={!isEditing}
+                />
+                {isEditing && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    上传自定义头像或点击"随机头像"生成个性化头像
+                  </p>
+                )}
+              </div>
+            </div>
 
-            {/* 使用统计 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  使用统计
-                </CardTitle>
-                <CardDescription>
-                  您的使用情况和统计数据
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{usageRemaining}</div>
-                    <div className="text-sm text-gray-600">剩余使用量</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{userInviteStats.totalRegistrations}</div>
-                    <div className="text-sm text-gray-600">邀请注册</div>
-                  </div>
+            {/* 昵称设置 */}
+            <div className="space-y-4">
+              <Label className="text-sm font-medium">昵称</Label>
+              {isEditing ? (
+                <NicknameSelector
+                  currentNickname={editForm.nickname}
+                  onNicknameChange={handleNicknameChange}
+                  disabled={false}
+                />
+              ) : (
+                <div className="p-3 bg-gray-50 rounded-md">
+                  <span className="text-sm">{editForm.nickname || '未设置昵称'}</span>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">总奖励次数</span>
-                    <Badge variant="secondary">{userInviteStats.totalRegistrations * 20}</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              )}
+            </div>
 
-          {/* 账户操作 */}
-          <Card>
+            {/* 基本信息 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">用户ID</Label>
+                <div className="p-3 bg-gray-50 rounded-md">
+                  <span className="text-sm font-mono">{user.id}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">注册时间</Label>
+                <div className="p-3 bg-gray-50 rounded-md">
+                  <span className="text-sm">
+                    {user.createdAt ? new Date(user.createdAt as string).toLocaleDateString('zh-CN') : '未知'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+
+
+        {/* 联系方式验证 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              联系方式验证
+            </CardTitle>
+            <CardDescription>
+              验证您的手机号和邮箱地址，补充邮箱可获得10次使用次数奖励
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ContactVerification
+              currentPhone={editForm.phone}
+              currentEmail={editForm.email}
+              onPhoneChange={handlePhoneChange}
+              onEmailChange={handleEmailChange}
+              disabled={!isEditing}
+            />
+          </CardContent>
+        </Card>
+
+        {/* 邮箱补充奖励提示 */}
+        {!user.email && (
+          <Card className="border-amber-200 bg-amber-50">
             <CardHeader>
-              <CardTitle>账户操作</CardTitle>
-              <CardDescription>
-                管理您的账户设置
+              <CardTitle className="flex items-center gap-2 text-amber-800">
+                <Gift className="w-5 h-5" />
+                补充邮箱奖励
+              </CardTitle>
+              <CardDescription className="text-amber-700">
+                首次补充邮箱地址，可获得10次免费使用次数
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.href = '/invite'}
-                  className="justify-start"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  邀请好友
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.href = '/brand-library'}
-                  className="justify-start"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  品牌库管理
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.href = '/history'}
-                  className="justify-start"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  历史记录
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="justify-start"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  退出登录
-                </Button>
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-amber-700">
+                  <p>• 验证邮箱地址的真实性</p>
+                  <p>• 获得10次免费内容生成次数</p>
+                  <p>• 提升账户安全性</p>
+                </div>
+                <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
+                  +10次
+                </Badge>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
-        {/* 头像设置 */}
-        <TabsContent value="avatar" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Camera className="w-5 h-5" />
-                头像设置
-              </CardTitle>
-              <CardDescription>
-                上传自定义头像或生成随机头像
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AvatarUpload
-                currentAvatar={editForm.avatar}
-                nickname={editForm.nickname || user?.nickname || '用户'}
-                size="lg"
-                onAvatarChange={handleAvatarChange}
-                disabled={false}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* 使用统计 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              使用统计
+            </CardTitle>
+            <CardDescription>
+              您的使用情况和统计数据
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{usageRemaining}</div>
+                <div className="text-sm text-gray-600">剩余使用量</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{userInviteStats.totalRegistrations}</div>
+                <div className="text-sm text-gray-600">邀请注册</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{userInviteStats.totalRegistrations * 20}</div>
+                <div className="text-sm text-gray-600">总奖励次数</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* 昵称设置 */}
-        <TabsContent value="nickname" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
-                昵称设置
-              </CardTitle>
-              <CardDescription>
-                自定义昵称或选择推荐的昵称
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <NicknameSelector
-                currentNickname={editForm.nickname}
-                onNicknameChange={handleNicknameChange}
-                disabled={false}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* 联系方式 */}
-        <TabsContent value="contact" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                联系方式验证
-              </CardTitle>
-              <CardDescription>
-                验证您的手机号和邮箱地址，补充邮箱可获得10次使用次数奖励
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContactVerification
-                currentPhone={editForm.phone}
-                currentEmail={editForm.email}
-                onPhoneChange={handlePhoneChange}
-                onEmailChange={handleEmailChange}
-                disabled={false}
-              />
-            </CardContent>
-          </Card>
-          
-          {/* 邮箱补充奖励提示 */}
-          {!user.email && (
-            <Card className="border-amber-200 bg-amber-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-800">
-                  <Gift className="w-5 h-5" />
-                  补充邮箱奖励
-                </CardTitle>
-                <CardDescription className="text-amber-700">
-                  首次补充邮箱地址，可获得10次免费使用次数
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-amber-700">
-                    <p>• 验证邮箱地址的真实性</p>
-                    <p>• 获得10次免费内容生成次数</p>
-                    <p>• 提升账户安全性</p>
-                  </div>
-                  <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
-                    +10次
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+        {/* 账户操作 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>账户操作</CardTitle>
+            <CardDescription>
+              管理您的账户设置
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/invite')}
+                className="justify-start"
+              >
+                <User className="w-4 h-4 mr-2" />
+                邀请好友
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="justify-start"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                退出登录
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 } 

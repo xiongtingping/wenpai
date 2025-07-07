@@ -93,11 +93,11 @@ function InvitePage() {
       <div className="mb-8">
         <Button
           variant="ghost"
-          onClick={() => window.location.href = '/adapt'}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回内容适配器
+          返回首页
         </Button>
       </div>
       <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-8">邀请好友 · 获得奖励</h1>

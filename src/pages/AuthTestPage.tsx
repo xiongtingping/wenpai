@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
 
 export default function AuthTestPage() {
   const { 
@@ -25,25 +24,6 @@ export default function AuthTestPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => window.location.href = '/adapt'}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回内容适配器
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold mb-2">认证状态测试</h1>
-            <p className="text-muted-foreground">
-              测试认证功能是否正常工作
-            </p>
-          </div>
-        </div>
-      </div>
-
       <Card>
         <CardHeader>
           <CardTitle>认证状态测试</CardTitle>

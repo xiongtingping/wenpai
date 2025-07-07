@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Clock, Copy, Trash2, ArrowLeft } from 'lucide-react';
+import { Clock, Copy, Trash2 } from 'lucide-react';
 
 /**
  * 历史记录项接口
@@ -141,22 +141,10 @@ export default function HistoryPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => window.location.href = '/adapt'}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回内容适配器
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">历史记录</h1>
-            <p className="text-gray-600">
-              查看您之前生成的内容适配记录
-            </p>
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">历史记录</h1>
+        <p className="text-gray-600">
+          查看您之前生成的内容适配记录
+        </p>
       </div>
 
       {history.length === 0 ? (

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Smile, MessageCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Bookmark, Smile, MessageCircle, ArrowRight } from 'lucide-react';
 
 /**
  * 新功能测试页面
@@ -34,21 +34,9 @@ const TestNewFeaturesPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => window.location.href = '/adapt'}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回内容适配器
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold mb-4">新功能展示</h1>
-            <p className="text-muted-foreground">以下是刚刚实现的三个新功能模块</p>
-          </div>
-        </div>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold mb-4">新功能展示</h1>
+        <p className="text-muted-foreground">以下是刚刚实现的三个新功能模块</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

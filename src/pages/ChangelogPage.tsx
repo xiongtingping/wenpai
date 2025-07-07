@@ -81,16 +81,10 @@ export default function ChangelogPage() {
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              返回首页
-            </Link>
-            <Link to="/adapt" className="inline-flex items-center text-gray-600 hover:text-gray-900">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              返回内容适配器
-            </Link>
-          </div>
+          <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            返回首页
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">更新日志</h1>
           <p className="text-gray-600">了解文派的最新功能和改进</p>
         </div>
