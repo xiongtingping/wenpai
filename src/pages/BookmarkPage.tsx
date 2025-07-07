@@ -55,6 +55,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
  * 资料项接口
@@ -516,511 +517,513 @@ export default function BookmarkPage() {
   const filteredItems = getFilteredItems();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* 返回按钮 */}
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          返回首页
-        </Button>
-      </div>
-
-      {/* 页面标题 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">我的资料库</h1>
-        <p className="text-gray-600">
-          统一管理您的网络收藏、内容提取和文案创作
-        </p>
-      </div>
-
-      {/* 分类标签页 */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex items-center justify-between mb-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-md">
-            <TabsTrigger value="all" className="flex items-center gap-2">
-              <FolderOpen className="w-4 h-4" />
-              全部
-            </TabsTrigger>
-            <TabsTrigger value="bookmark" className="flex items-center gap-2">
-              <Bookmark className="w-4 h-4" />
-              书签
-            </TabsTrigger>
-            <TabsTrigger value="extract" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              提取
-            </TabsTrigger>
-            <TabsTrigger value="memo" className="flex items-center gap-2">
-              <Edit className="w-4 h-4" />
-              文案
-            </TabsTrigger>
-          </TabsList>
-
-          {/* 快捷操作按钮 */}
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面导航 */}
+      <PageNavigation
+        title="我的资料库"
+        description="统一管理您的网络收藏、内容提取和文案创作"
+        actions={
           <div className="flex gap-2">
-            <Dialog open={isBookmarkDialogOpen} onOpenChange={setIsBookmarkDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Bookmark className="w-4 h-4 mr-2" />
-                  添加书签
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>添加网络书签</DialogTitle>
-                  <DialogDescription>
-                    保存有价值的网页链接到资料库
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label>标题</Label>
-                    <Input
-                      value={newBookmark.title}
-                      onChange={(e) => setNewBookmark(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="输入网页标题"
-                    />
-                  </div>
-                  <div>
-                    <Label>URL</Label>
-                    <Input
-                      value={newBookmark.url}
-                      onChange={(e) => setNewBookmark(prev => ({ ...prev, url: e.target.value }))}
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                  <div>
-                    <Label>描述</Label>
-                    <Textarea
-                      value={newBookmark.description}
-                      onChange={(e) => setNewBookmark(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="简短描述这个网页的内容"
-                      rows={3}
-                    />
-                  </div>
-                  <div>
-                    <Label>标签（用逗号分隔）</Label>
-                    <Input
-                      value={newBookmark.tags}
-                      onChange={(e) => setNewBookmark(prev => ({ ...prev, tags: e.target.value }))}
-                      placeholder="营销,策略,分析"
-                    />
-                  </div>
-                  <div>
-                    <Label>分类</Label>
-                    <Input
-                      value={newBookmark.category}
-                      onChange={(e) => setNewBookmark(prev => ({ ...prev, category: e.target.value }))}
-                      placeholder="营销资料"
-                    />
-                  </div>
+            <Button variant="outline" size="sm" onClick={() => setIsBookmarkDialogOpen(true)}>
+              <Bookmark className="w-4 h-4 mr-2" />
+              添加书签
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setIsExtractDialogOpen(true)}>
+              <FileText className="w-4 h-4 mr-2" />
+              内容提取
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setIsMemoDialogOpen(true)}>
+              <Edit className="w-4 h-4 mr-2" />
+              创建文案
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="container mx-auto px-4 py-8">
+        {/* 分类标签页 */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="flex items-center justify-between mb-6">
+            <TabsList className="grid w-full grid-cols-4 max-w-md">
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                <FolderOpen className="w-4 h-4" />
+                全部
+              </TabsTrigger>
+              <TabsTrigger value="bookmark" className="flex items-center gap-2">
+                <Bookmark className="w-4 h-4" />
+                书签
+              </TabsTrigger>
+              <TabsTrigger value="extract" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                提取
+              </TabsTrigger>
+              <TabsTrigger value="memo" className="flex items-center gap-2">
+                <Edit className="w-4 h-4" />
+                文案
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* 搜索和筛选工具栏 */}
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="flex flex-wrap gap-4 items-center">
+                {/* 搜索框 */}
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="搜索标题、内容或标签..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsBookmarkDialogOpen(false)}>
-                    取消
+
+                {/* 筛选选项 */}
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-600">筛选：</span>
+                  <Button
+                    size="sm"
+                    variant={filterFavorite === null ? 'default' : 'outline'}
+                    onClick={() => setFilterFavorite(null)}
+                  >
+                    全部
                   </Button>
-                  <Button onClick={createBookmark}>
-                    <Save className="w-4 h-4 mr-2" />
-                    保存
+                  <Button
+                    size="sm"
+                    variant={filterFavorite === true ? 'default' : 'outline'}
+                    onClick={() => setFilterFavorite(true)}
+                  >
+                    已收藏
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </div>
 
-            <Dialog open={isExtractDialogOpen} onOpenChange={setIsExtractDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <FileText className="w-4 h-4 mr-2" />
-                  内容提取
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>内容提取</DialogTitle>
-                  <DialogDescription>
-                    从网页或文件中提取内容到资料库
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label>提取方式</Label>
-                    <Select value={extractMethod} onValueChange={(value: 'url' | 'file') => setExtractMethod(value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="url">
-                          <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4" />
-                            网页URL
+                {/* 排序选项 */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">排序：</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as 'time' | 'title' | 'type')}
+                    className="p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="time">时间</option>
+                    <option value="title">标题</option>
+                    <option value="type">类型</option>
+                  </select>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                    className="p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="desc">降序</option>
+                    <option value="asc">升序</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 标签筛选 */}
+              {getAllTags().length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2 items-center">
+                  <Tag className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-600">标签：</span>
+                  {getAllTags().map(tag => (
+                    <Badge
+                      key={tag}
+                      variant={selectedTags.includes(tag) ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => setSelectedTags(prev => 
+                        prev.includes(tag) 
+                          ? prev.filter(t => t !== tag)
+                          : [...prev, tag]
+                      )}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 内容列表 */}
+          <TabsContent value={activeTab} className="mt-0">
+            <div className="grid gap-4">
+              {filteredItems.map((item) => {
+                const typeInfo = getTypeInfo(item.type);
+                
+                return (
+                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs">
+                              {typeInfo.icon}
+                              <span className="ml-1">{typeInfo.name}</span>
+                            </Badge>
+                            <h3 className="font-semibold">{item.title}</h3>
+                            {item.isFavorite && (
+                              <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                            )}
+                            {item.isUsed && (
+                              <Badge variant="secondary" className="text-xs">
+                                已使用
+                              </Badge>
+                            )}
                           </div>
-                        </SelectItem>
-                        <SelectItem value="file">
-                          <div className="flex items-center gap-2">
-                            <Upload className="w-4 h-4" />
-                            文件上传
+                          
+                          <div className="text-sm text-gray-600 mb-3 line-clamp-2">
+                            {item.content}
                           </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
 
-                  {extractMethod === 'url' && (
-                    <div>
-                      <Label>网页URL</Label>
-                      <Input
-                        placeholder="https://example.com"
-                        value={extractUrl}
-                        onChange={(e) => setExtractUrl(e.target.value)}
-                      />
-                    </div>
-                  )}
+                          {item.source && (
+                            <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                              <Link2 className="w-3 h-3" />
+                              <span className="truncate">{item.source}</span>
+                            </div>
+                          )}
 
-                  {extractMethod === 'file' && (
-                    <div>
-                      <Label>文件上传</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          ref={fileInputRef}
-                          type="file"
-                          onChange={handleFileSelect}
-                          accept=".md,.json,.html,.htm,.txt,image/*"
-                          className="flex-1"
-                        />
-                        <Button 
-                          variant="outline" 
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          选择文件
-                        </Button>
-                      </div>
-                      {selectedFile && (
-                        <div className="mt-2 p-2 bg-gray-50 rounded">
-                          <div className="flex items-center gap-2">
-                            <File className="w-4 h-4" />
-                            <span className="text-sm">{selectedFile.name}</span>
-                            <span className="text-xs text-gray-500">
-                              ({(selectedFile.size / 1024).toFixed(1)} KB)
+                          {item.summary && (
+                            <div className="mb-3 p-2 bg-purple-50 rounded text-xs">
+                              <div className="flex items-center gap-1 mb-1">
+                                <Sparkles className="w-3 h-3 text-purple-500" />
+                                <span className="font-medium text-purple-700">AI总结</span>
+                              </div>
+                              <p className="text-purple-600">{item.summary}</p>
+                            </div>
+                          )}
+                          
+                          <div className="flex items-center gap-2 mb-2">
+                            {item.tags.map((tag, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTime(item.updatedAt)}
                             </span>
+                            {item.category && (
+                              <span>{item.category}</span>
+                            )}
+                            {item.platform && (
+                              <span>{item.platform}</span>
+                            )}
+                            {item.metadata?.wordCount && (
+                              <span>{item.metadata.wordCount} 字</span>
+                            )}
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsExtractDialogOpen(false)}>
-                    取消
-                  </Button>
-                  <Button onClick={extractContent} disabled={isExtracting}>
-                    {isExtracting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        提取中...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="w-4 h-4 mr-2" />
-                        开始提取
-                      </>
-                    )}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={isMemoDialogOpen} onOpenChange={setIsMemoDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Edit className="w-4 h-4 mr-2" />
-                  创建文案
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>创建文案</DialogTitle>
-                  <DialogDescription>
-                    添加新的文案内容到资料库
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label>标题</Label>
-                    <Input
-                      value={newMemo.title}
-                      onChange={(e) => setNewMemo(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="输入文案标题"
-                    />
-                  </div>
-                  <div>
-                    <Label>内容</Label>
-                    <Textarea
-                      value={newMemo.content}
-                      onChange={(e) => setNewMemo(prev => ({ ...prev, content: e.target.value }))}
-                      placeholder="输入文案内容，支持Markdown格式"
-                      rows={8}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>标签（用逗号分隔）</Label>
-                      <Input
-                        value={newMemo.tags}
-                        onChange={(e) => setNewMemo(prev => ({ ...prev, tags: e.target.value }))}
-                        placeholder="营销,文案,推广"
-                      />
-                    </div>
-                    <div>
-                      <Label>分类</Label>
-                      <Input
-                        value={newMemo.category}
-                        onChange={(e) => setNewMemo(prev => ({ ...prev, category: e.target.value }))}
-                        placeholder="营销文案"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label>平台</Label>
-                    <Input
-                      value={newMemo.platform}
-                      onChange={(e) => setNewMemo(prev => ({ ...prev, platform: e.target.value }))}
-                      placeholder="微信公众号"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsMemoDialogOpen(false)}>
-                    取消
-                  </Button>
-                  <Button onClick={createMemo}>
-                    <Save className="w-4 h-4 mr-2" />
-                    保存
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-
-        {/* 搜索和筛选工具栏 */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap gap-4 items-center">
-              {/* 搜索框 */}
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="搜索标题、内容或标签..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* 筛选选项 */}
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
-                <span className="text-sm text-gray-600">筛选：</span>
-                <Button
-                  size="sm"
-                  variant={filterFavorite === null ? 'default' : 'outline'}
-                  onClick={() => setFilterFavorite(null)}
-                >
-                  全部
-                </Button>
-                <Button
-                  size="sm"
-                  variant={filterFavorite === true ? 'default' : 'outline'}
-                  onClick={() => setFilterFavorite(true)}
-                >
-                  已收藏
-                </Button>
-              </div>
-
-              {/* 排序选项 */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">排序：</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'time' | 'title' | 'type')}
-                  className="p-2 border border-gray-300 rounded-md text-sm"
-                >
-                  <option value="time">时间</option>
-                  <option value="title">标题</option>
-                  <option value="type">类型</option>
-                </select>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                  className="p-2 border border-gray-300 rounded-md text-sm"
-                >
-                  <option value="desc">降序</option>
-                  <option value="asc">升序</option>
-                </select>
-              </div>
+                        
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => toggleFavorite(item.id)}
+                          >
+                            <Star className={`w-4 h-4 ${item.isFavorite ? 'text-yellow-500 fill-current' : ''}`} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => copyContent(item.content)}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteItem(item.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
-            {/* 标签筛选 */}
-            {getAllTags().length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2 items-center">
-                <Tag className="w-4 h-4 text-gray-500" />
-                <span className="text-sm text-gray-600">标签：</span>
-                {getAllTags().map(tag => (
-                  <Badge
-                    key={tag}
-                    variant={selectedTags.includes(tag) ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedTags(prev => 
-                      prev.includes(tag) 
-                        ? prev.filter(t => t !== tag)
-                        : [...prev, tag]
-                    )}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* 内容列表 */}
-        <TabsContent value={activeTab} className="mt-0">
-          <div className="grid gap-4">
-            {filteredItems.map((item) => {
-              const typeInfo = getTypeInfo(item.type);
-              
-              return (
-                <Card key={item.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-xs">
-                            {typeInfo.icon}
-                            <span className="ml-1">{typeInfo.name}</span>
-                          </Badge>
-                          <h3 className="font-semibold">{item.title}</h3>
-                          {item.isFavorite && (
-                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          )}
-                          {item.isUsed && (
-                            <Badge variant="secondary" className="text-xs">
-                              已使用
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <div className="text-sm text-gray-600 mb-3 line-clamp-2">
-                          {item.content}
-                        </div>
-
-                        {item.source && (
-                          <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
-                            <Link2 className="w-3 h-3" />
-                            <span className="truncate">{item.source}</span>
-                          </div>
-                        )}
-
-                        {item.summary && (
-                          <div className="mb-3 p-2 bg-purple-50 rounded text-xs">
-                            <div className="flex items-center gap-1 mb-1">
-                              <Sparkles className="w-3 h-3 text-purple-500" />
-                              <span className="font-medium text-purple-700">AI总结</span>
-                            </div>
-                            <p className="text-purple-600">{item.summary}</p>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 mb-2">
-                          {item.tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {formatTime(item.updatedAt)}
-                          </span>
-                          {item.category && (
-                            <span>{item.category}</span>
-                          )}
-                          {item.platform && (
-                            <span>{item.platform}</span>
-                          )}
-                          {item.metadata?.wordCount && (
-                            <span>{item.metadata.wordCount} 字</span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => toggleFavorite(item.id)}
-                        >
-                          <Star className={`w-4 h-4 ${item.isFavorite ? 'text-yellow-500 fill-current' : ''}`} />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => copyContent(item.content)}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => deleteItem(item.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+            {/* 空状态 */}
+            {filteredItems.length === 0 && (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">暂无资料</h3>
+                  <p className="text-gray-600 mb-4">
+                    {searchQuery || selectedTags.length > 0 ? '没有找到匹配的资料' : '开始添加您的第一个资料'}
+                  </p>
+                  {!searchQuery && selectedTags.length === 0 && (
+                    <div className="flex gap-2 justify-center">
+                      <Button variant="outline" onClick={() => setIsBookmarkDialogOpen(true)}>
+                        <Bookmark className="w-4 h-4 mr-2" />
+                        添加书签
+                      </Button>
+                      <Button variant="outline" onClick={() => setIsExtractDialogOpen(true)}>
+                        <FileText className="w-4 h-4 mr-2" />
+                        内容提取
+                      </Button>
+                      <Button onClick={() => setIsMemoDialogOpen(true)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        创建文案
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
 
-          {/* 空状态 */}
-          {filteredItems.length === 0 && (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">暂无资料</h3>
-                <p className="text-gray-600 mb-4">
-                  {searchQuery || selectedTags.length > 0 ? '没有找到匹配的资料' : '开始添加您的第一个资料'}
-                </p>
-                {!searchQuery && selectedTags.length === 0 && (
-                  <div className="flex gap-2 justify-center">
-                    <Button variant="outline" onClick={() => setIsBookmarkDialogOpen(true)}>
-                      <Bookmark className="w-4 h-4 mr-2" />
-                      添加书签
-                    </Button>
-                    <Button variant="outline" onClick={() => setIsExtractDialogOpen(true)}>
-                      <FileText className="w-4 h-4 mr-2" />
-                      内容提取
-                    </Button>
-                    <Button onClick={() => setIsMemoDialogOpen(true)}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      创建文案
+        {/* 对话框组件 */}
+        <Dialog open={isBookmarkDialogOpen} onOpenChange={setIsBookmarkDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Bookmark className="w-4 h-4 mr-2" />
+              添加书签
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>添加网络书签</DialogTitle>
+              <DialogDescription>
+                保存有价值的网页链接到资料库
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>标题</Label>
+                <Input
+                  value={newBookmark.title}
+                  onChange={(e) => setNewBookmark(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="输入网页标题"
+                />
+              </div>
+              <div>
+                <Label>URL</Label>
+                <Input
+                  value={newBookmark.url}
+                  onChange={(e) => setNewBookmark(prev => ({ ...prev, url: e.target.value }))}
+                  placeholder="https://example.com"
+                />
+              </div>
+              <div>
+                <Label>描述</Label>
+                <Textarea
+                  value={newBookmark.description}
+                  onChange={(e) => setNewBookmark(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="简短描述这个网页的内容"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>标签（用逗号分隔）</Label>
+                <Input
+                  value={newBookmark.tags}
+                  onChange={(e) => setNewBookmark(prev => ({ ...prev, tags: e.target.value }))}
+                  placeholder="营销,策略,分析"
+                />
+              </div>
+              <div>
+                <Label>分类</Label>
+                <Input
+                  value={newBookmark.category}
+                  onChange={(e) => setNewBookmark(prev => ({ ...prev, category: e.target.value }))}
+                  placeholder="营销资料"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsBookmarkDialogOpen(false)}>
+                取消
+              </Button>
+              <Button onClick={createBookmark}>
+                <Save className="w-4 h-4 mr-2" />
+                保存
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isExtractDialogOpen} onOpenChange={setIsExtractDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm">
+              <FileText className="w-4 h-4 mr-2" />
+              内容提取
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>内容提取</DialogTitle>
+              <DialogDescription>
+                从网页或文件中提取内容到资料库
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>提取方式</Label>
+                <Select value={extractMethod} onValueChange={(value: 'url' | 'file') => setExtractMethod(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="url">
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        网页URL
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="file">
+                      <div className="flex items-center gap-2">
+                        <Upload className="w-4 h-4" />
+                        文件上传
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {extractMethod === 'url' && (
+                <div>
+                  <Label>网页URL</Label>
+                  <Input
+                    placeholder="https://example.com"
+                    value={extractUrl}
+                    onChange={(e) => setExtractUrl(e.target.value)}
+                  />
+                </div>
+              )}
+
+              {extractMethod === 'file' && (
+                <div>
+                  <Label>文件上传</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileSelect}
+                      accept=".md,.json,.html,.htm,.txt,image/*"
+                      className="flex-1"
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      选择文件
                     </Button>
                   </div>
+                  {selectedFile && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded">
+                      <div className="flex items-center gap-2">
+                        <File className="w-4 h-4" />
+                        <span className="text-sm">{selectedFile.name}</span>
+                        <span className="text-xs text-gray-500">
+                          ({(selectedFile.size / 1024).toFixed(1)} KB)
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsExtractDialogOpen(false)}>
+                取消
+              </Button>
+              <Button onClick={extractContent} disabled={isExtracting}>
+                {isExtracting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    提取中...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4 mr-2" />
+                    开始提取
+                  </>
                 )}
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isMemoDialogOpen} onOpenChange={setIsMemoDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Edit className="w-4 h-4 mr-2" />
+              创建文案
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>创建文案</DialogTitle>
+              <DialogDescription>
+                添加新的文案内容到资料库
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>标题</Label>
+                <Input
+                  value={newMemo.title}
+                  onChange={(e) => setNewMemo(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="输入文案标题"
+                />
+              </div>
+              <div>
+                <Label>内容</Label>
+                <Textarea
+                  value={newMemo.content}
+                  onChange={(e) => setNewMemo(prev => ({ ...prev, content: e.target.value }))}
+                  placeholder="输入文案内容，支持Markdown格式"
+                  rows={8}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>标签（用逗号分隔）</Label>
+                  <Input
+                    value={newMemo.tags}
+                    onChange={(e) => setNewMemo(prev => ({ ...prev, tags: e.target.value }))}
+                    placeholder="营销,文案,推广"
+                  />
+                </div>
+                <div>
+                  <Label>分类</Label>
+                  <Input
+                    value={newMemo.category}
+                    onChange={(e) => setNewMemo(prev => ({ ...prev, category: e.target.value }))}
+                    placeholder="营销文案"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>平台</Label>
+                <Input
+                  value={newMemo.platform}
+                  onChange={(e) => setNewMemo(prev => ({ ...prev, platform: e.target.value }))}
+                  placeholder="微信公众号"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsMemoDialogOpen(false)}>
+                取消
+              </Button>
+              <Button onClick={createMemo}>
+                <Save className="w-4 h-4 mr-2" />
+                保存
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 } 

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Download, Copy, Heart, Search, Filter, Palette, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
  * Emoji图片项接口定义
@@ -293,154 +294,157 @@ const EmojiPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Emoji图片库</h1>
-          <p className="text-muted-foreground">AI生成的精美Emoji图片，支持下载和复制</p>
-        </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI生成
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>AI生成Emoji图片</DialogTitle>
-            </DialogHeader>
-            <GenerateEmojiForm onSubmit={generateNewEmoji} isGenerating={isGenerating} />
-          </DialogContent>
-        </Dialog>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面导航 */}
+      <PageNavigation
+        title="Emoji生成器"
+        description="AI生成精美Emoji图片，支持多种风格和样式"
+        actions={
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI生成
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>AI生成Emoji图片</DialogTitle>
+              </DialogHeader>
+              <GenerateEmojiForm onSubmit={generateNewEmoji} isGenerating={isGenerating} />
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
-      {/* 搜索和过滤 */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="搜索Emoji..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="选择分类" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部分类</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button variant="outline" onClick={() => setSelectedTags([])}>
-              <Filter className="w-4 h-4 mr-2" />
-              清除标签过滤
-            </Button>
-          </div>
-          
-          {/* 标签过滤 */}
-          <div className="mt-4">
-            <div className="flex flex-wrap gap-2">
-              {allTags.map(tag => (
-                <Badge
-                  key={tag}
-                  variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedTags(prev => 
-                    prev.includes(tag) 
-                      ? prev.filter(t => t !== tag)
-                      : [...prev, tag]
-                  )}
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Emoji网格 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-        {filteredEmojis.map(emoji => (
-          <EmojiCard
-            key={emoji.id}
-            emoji={emoji}
-            onCopy={copyEmoji}
-            onDownload={downloadEmoji}
-            onToggleFavorite={toggleFavorite}
-            onSelect={setSelectedEmoji}
-          />
-        ))}
-      </div>
-
-      {/* 详情对话框 */}
-      {selectedEmoji && (
-        <Dialog open={!!selectedEmoji} onOpenChange={() => setSelectedEmoji(null)}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <span className="text-2xl">{selectedEmoji.emoji}</span>
-                <span>{selectedEmoji.name}</span>
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                <img
-                  src={selectedEmoji.imageUrl}
-                  alt={selectedEmoji.name}
-                  className="w-full h-full object-cover"
+      <div className="container mx-auto px-4 py-8 space-y-6">
+        {/* 搜索和过滤 */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="搜索Emoji..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
                 />
               </div>
-              <div className="flex flex-wrap gap-1">
-                {selectedEmoji.tags.map(tag => (
-                  <Badge key={tag} variant="outline">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择分类" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部分类</SelectItem>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button variant="outline" onClick={() => setSelectedTags([])}>
+                <Filter className="w-4 h-4 mr-2" />
+                清除标签过滤
+              </Button>
+            </div>
+            
+            {/* 标签过滤 */}
+            <div className="mt-4">
+              <div className="flex flex-wrap gap-2">
+                {allTags.map(tag => (
+                  <Badge
+                    key={tag}
+                    variant={selectedTags.includes(tag) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setSelectedTags(prev => 
+                      prev.includes(tag) 
+                        ? prev.filter(t => t !== tag)
+                        : [...prev, tag]
+                    )}
+                  >
                     {tag}
                   </Badge>
                 ))}
               </div>
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>下载次数: {selectedEmoji.downloadCount}</span>
-                <span>分类: {selectedEmoji.category}</span>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => copyEmoji(selectedEmoji.emoji)}
-                  className="flex-1"
-                >
-                  <Copy className="w-4 h-4 mr-2" />
-                  复制Emoji
-                </Button>
-                <Button
-                  onClick={() => downloadEmoji(selectedEmoji)}
-                  className="flex-1"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  下载图片
-                </Button>
-              </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {filteredEmojis.length === 0 && (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">暂无Emoji</h3>
-            <p className="text-muted-foreground">尝试调整搜索条件或生成新的Emoji</p>
           </CardContent>
         </Card>
-      )}
+
+        {/* Emoji网格 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+          {filteredEmojis.map(emoji => (
+            <EmojiCard
+              key={emoji.id}
+              emoji={emoji}
+              onCopy={copyEmoji}
+              onDownload={downloadEmoji}
+              onToggleFavorite={toggleFavorite}
+              onSelect={setSelectedEmoji}
+            />
+          ))}
+        </div>
+
+        {/* 详情对话框 */}
+        {selectedEmoji && (
+          <Dialog open={!!selectedEmoji} onOpenChange={() => setSelectedEmoji(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <span className="text-2xl">{selectedEmoji.emoji}</span>
+                  <span>{selectedEmoji.name}</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={selectedEmoji.imageUrl}
+                    alt={selectedEmoji.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {selectedEmoji.tags.map(tag => (
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>下载次数: {selectedEmoji.downloadCount}</span>
+                  <span>分类: {selectedEmoji.category}</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => copyEmoji(selectedEmoji.emoji)}
+                    className="flex-1"
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    复制Emoji
+                  </Button>
+                  <Button
+                    onClick={() => downloadEmoji(selectedEmoji)}
+                    className="flex-1"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    下载图片
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {filteredEmojis.length === 0 && (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">暂无Emoji</h3>
+              <p className="text-muted-foreground">尝试调整搜索条件或生成新的Emoji</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };

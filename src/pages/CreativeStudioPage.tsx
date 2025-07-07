@@ -48,6 +48,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import { MarketingCalendar } from '@/components/creative/MarketingCalendar';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
+import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
  * 创意工作室页面组件
@@ -56,68 +57,58 @@ import WechatTemplatePage from '@/pages/WechatTemplatePage';
 export default function CreativeStudioPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('cube');
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* 返回按钮 */}
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          返回首页
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面导航 */}
+      <PageNavigation
+        title="创意工作室"
+        description="激发创意灵感，快速生成高质量内容"
+        actions={
+          <Button variant="outline" onClick={() => navigate('/library')}>
+            <FolderOpen className="w-4 h-4 mr-2" />
+            我的资料库
+          </Button>
+        }
+      />
 
-      {/* 页面标题 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">创意工作室</h1>
-        <div className="flex items-center justify-between">
-          <p className="text-gray-600">
-            激发创意灵感，快速生成高质量内容
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/library')}>
-              <FolderOpen className="w-4 h-4 mr-2" />
-              我的资料库
-            </Button>
+      <div className="container mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {/* 子模块切换 */}
+          <div className="flex items-center justify-between mb-6">
+            <TabsList className="grid w-full grid-cols-3 max-w-md">
+              <TabsTrigger value="cube" className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                创意魔方
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                营销日历
+              </TabsTrigger>
+              <TabsTrigger value="wechat" className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" />
+                朋友圈模板
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </div>
+
+          {/* 九宫格创意魔方 */}
+          <TabsContent value="cube" className="mt-6">
+            <CreativeCube />
+          </TabsContent>
+
+          {/* 营销日历 */}
+          <TabsContent value="calendar" className="mt-6">
+            <MarketingCalendar />
+          </TabsContent>
+
+          {/* 朋友圈模板 */}
+          <TabsContent value="wechat" className="mt-6">
+            <WechatTemplatePage />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="cube" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="cube" className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            创意魔方
-          </TabsTrigger>
-          <TabsTrigger value="calendar" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            营销日历
-          </TabsTrigger>
-          <TabsTrigger value="wechat" className="flex items-center gap-2">
-            <MessageCircle className="w-4 h-4" />
-            朋友圈模板
-          </TabsTrigger>
-        </TabsList>
-
-        {/* 九宫格创意魔方 */}
-        <TabsContent value="cube" className="mt-6">
-          <CreativeCube />
-        </TabsContent>
-
-        {/* 营销日历 */}
-        <TabsContent value="calendar" className="mt-6">
-          <MarketingCalendar />
-        </TabsContent>
-
-        {/* 朋友圈模板 */}
-        <TabsContent value="wechat" className="mt-6">
-          <WechatTemplatePage />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 } 

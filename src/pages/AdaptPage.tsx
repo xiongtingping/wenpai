@@ -5,6 +5,7 @@ import {
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
   Edit, Heart, Copy, ExternalLink, Languages
 } from "lucide-react";
+import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { 
@@ -1021,29 +1022,28 @@ export default function AdaptPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">内容适配器</h1>
-        <p className="text-muted-foreground">
-          一次创作，多平台适配，让您的内容在每个平台都能发挥最大效果
-        </p>
-      </div>
-
-      {/* Usage Counter and History */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-medium mb-2">内容创作</h2>
-          <Button
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面导航 */}
+      <PageNavigation
+        title="AI内容适配器"
+        description="一次创作，多平台适配，让您的内容在每个平台都能发挥最大效果"
+        showAdaptButton={false}
+        actions={
+          <Button 
             variant="outline"
-            size="sm"
-            onClick={() => {
-              window.location.href = "/history";
-            }}
+            onClick={() => window.location.href = "/history"}
           >
             <FileText className="h-4 w-4 mr-1" />
             历史记录
           </Button>
-        </div>
+        }
+      />
+
+      <div className="container mx-auto py-8 px-4">
+
+      {/* Usage Counter */}
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-lg font-medium mb-2">内容创作</h2>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1696,6 +1696,7 @@ export default function AdaptPage() {
           </Tabs>
         </div>
       )}
+    </div>
     </div>
   );
 }

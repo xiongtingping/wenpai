@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
  * 提取结果接口
@@ -421,256 +422,255 @@ ${fileContent}
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* 返回按钮 */}
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          返回首页
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面导航 */}
+      <PageNavigation
+        title="内容提取工具"
+        description="从网页或文件中提取内容，并生成AI智能总结"
+        actions={
+          extractResult && extractResult.status === 'success' && (
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/library')}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              保存到资料库
+            </Button>
+          )
+        }
+      />
 
-      {/* 页面标题 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">内容提取工具</h1>
-        <p className="text-gray-600">
-          从网页或文件中提取内容，并生成AI智能总结
-        </p>
-      </div>
-
-      {/* 左右布局 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 左侧：输入区域 */}
-        <div className="space-y-6">
-          {/* 提取配置 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="w-5 h-5" />
-                内容来源
-              </CardTitle>
-              <CardDescription>
-                选择提取方式并设置来源
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* 提取方式选择 */}
-              <div>
-                <Label>提取方式</Label>
-                <Select value={extractMethod} onValueChange={(value: 'url' | 'file') => setExtractMethod(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="url">
-                      <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4" />
-                        网页URL
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="file">
-                      <div className="flex items-center gap-2">
-                        <Upload className="w-4 h-4" />
-                        文件上传
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* URL输入 */}
-              {extractMethod === 'url' && (
+      <div className="container mx-auto px-4 py-8">
+        {/* 左右布局 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 左侧：输入区域 */}
+          <div className="space-y-6">
+            {/* 提取配置 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Search className="w-5 h-5" />
+                  内容来源
+                </CardTitle>
+                <CardDescription>
+                  选择提取方式并设置来源
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* 提取方式选择 */}
                 <div>
-                  <Label>网页URL</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="https://example.com"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button variant="outline" onClick={() => setUrl('')}>
-                      清空
-                    </Button>
-                  </div>
+                  <Label>提取方式</Label>
+                  <Select value={extractMethod} onValueChange={(value: 'url' | 'file') => setExtractMethod(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="url">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4" />
+                          网页URL
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="file">
+                        <div className="flex items-center gap-2">
+                          <Upload className="w-4 h-4" />
+                          文件上传
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
 
-              {/* 文件上传 */}
-              {extractMethod === 'file' && (
-                <div>
-                  <Label>文件上传</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={handleFileSelect}
-                      accept=".md,.json,.html,.htm,.txt,image/*"
-                      className="flex-1"
-                    />
-                    <Button 
-                      variant="outline" 
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      选择文件
-                    </Button>
-                  </div>
-                  {selectedFile && (
-                    <div className="mt-2 p-3 bg-gray-50 rounded">
-                      <div className="flex items-center gap-2">
-                        <File className="w-4 h-4" />
-                        <span className="text-sm">{selectedFile.name}</span>
-                        <span className="text-xs text-gray-500">
-                          ({(selectedFile.size / 1024).toFixed(1)} KB)
-                        </span>
-                      </div>
+                {/* URL输入 */}
+                {extractMethod === 'url' && (
+                  <div>
+                    <Label>网页URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://example.com"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button variant="outline" onClick={() => setUrl('')}>
+                        清空
+                      </Button>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* 操作按钮 */}
-              <div className="flex gap-2">
-                <Button 
-                  onClick={extractMethod === 'url' ? extractFromUrl : extractFromFile}
-                  disabled={isExtracting}
-                  className="flex-1"
-                >
-                  {isExtracting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      提取中...
-                    </>
-                  ) : (
-                    <>
-                      <Search className="w-4 h-4 mr-2" />
-                      开始提取
-                    </>
-                  )}
-                </Button>
-                
-                {extractResult && extractResult.status === 'success' && (
+                {/* 文件上传 */}
+                {extractMethod === 'file' && (
+                  <div>
+                    <Label>文件上传</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={handleFileSelect}
+                        accept=".md,.json,.html,.htm,.txt,image/*"
+                        className="flex-1"
+                      />
+                      <Button 
+                        variant="outline" 
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        选择文件
+                      </Button>
+                    </div>
+                    {selectedFile && (
+                      <div className="mt-2 p-3 bg-gray-50 rounded">
+                        <div className="flex items-center gap-2">
+                          <File className="w-4 h-4" />
+                          <span className="text-sm">{selectedFile.name}</span>
+                          <span className="text-xs text-gray-500">
+                            ({(selectedFile.size / 1024).toFixed(1)} KB)
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 操作按钮 */}
+                <div className="flex gap-2">
                   <Button 
-                    variant="outline"
-                    onClick={generateSummary}
-                    disabled={isGeneratingSummary}
+                    onClick={extractMethod === 'url' ? extractFromUrl : extractFromFile}
+                    disabled={isExtracting}
+                    className="flex-1"
                   >
-                    {isGeneratingSummary ? (
+                    {isExtracting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        生成中...
+                        提取中...
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        AI总结
+                        <Search className="w-4 h-4 mr-2" />
+                        开始提取
                       </>
                     )}
                   </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 右侧：结果区域 */}
-        <div className="space-y-6">
-          {extractResult && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    {extractResult.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
-                    {extractResult.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
-                    提取结果
-                  </CardTitle>
-                  <div className="flex gap-2">
-                    {extractResult.status === 'error' && (
-                      <Button variant="outline" size="sm" onClick={handleRetry}>
-                        <RotateCcw className="w-4 h-4 mr-1" />
-                        重试
-                      </Button>
-                    )}
-                    {extractResult.status === 'success' && (
-                      <>
-                        <Button variant="outline" size="sm" onClick={() => copyContent(extractResult.content)}>
-                          <Copy className="w-4 h-4 mr-1" />
-                          复制
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => downloadContent(extractResult.content, 'extracted-content.md')}>
-                          <Download className="w-4 h-4 mr-1" />
-                          下载
-                        </Button>
-                      </>
-                    )}
-                  </div>
+                  
+                  {extractResult && extractResult.status === 'success' && (
+                    <Button 
+                      variant="outline"
+                      onClick={generateSummary}
+                      disabled={isGeneratingSummary}
+                    >
+                      {isGeneratingSummary ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          生成中...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          AI总结
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
-                {extractResult.metadata && (
-                  <div className="flex gap-4 text-sm text-gray-500">
-                    {extractResult.metadata.wordCount && (
-                      <span>字数: {extractResult.metadata.wordCount}</span>
-                    )}
-                    {extractResult.metadata.charCount && (
-                      <span>字符: {extractResult.metadata.charCount}</span>
-                    )}
-                  </div>
-                )}
-              </CardHeader>
-              <CardContent>
-                {extractResult.status === 'success' ? (
-                  <div className="space-y-4">
-                    {/* 提取内容 */}
-                    <div>
-                      <div className="bg-gray-50 rounded-lg p-4 max-h-80 overflow-y-auto">
-                        <pre className="text-sm whitespace-pre-wrap">{extractResult.content}</pre>
-                      </div>
-                    </div>
+              </CardContent>
+            </Card>
+          </div>
 
-                    {/* AI总结 */}
-                    {extractResult.summary && (
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Sparkles className="w-4 h-4 text-purple-500" />
-                          <span className="font-medium">AI智能总结</span>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => copyContent(extractResult.summary!)}
-                          >
+          {/* 右侧：结果区域 */}
+          <div className="space-y-6">
+            {extractResult && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      {extractResult.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
+                      {extractResult.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
+                      提取结果
+                    </CardTitle>
+                    <div className="flex gap-2">
+                      {extractResult.status === 'error' && (
+                        <Button variant="outline" size="sm" onClick={handleRetry}>
+                          <RotateCcw className="w-4 h-4 mr-1" />
+                          重试
+                        </Button>
+                      )}
+                      {extractResult.status === 'success' && (
+                        <>
+                          <Button variant="outline" size="sm" onClick={() => copyContent(extractResult.content)}>
                             <Copy className="w-4 h-4 mr-1" />
-                            复制总结
+                            复制
                           </Button>
-                        </div>
-                        <div className="bg-purple-50 rounded-lg p-4 max-h-60 overflow-y-auto">
-                          <pre className="text-sm whitespace-pre-wrap">{extractResult.summary}</pre>
+                          <Button variant="outline" size="sm" onClick={() => downloadContent(extractResult.content, 'extracted-content.md')}>
+                            <Download className="w-4 h-4 mr-1" />
+                            下载
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {extractResult.metadata && (
+                    <div className="flex gap-4 text-sm text-gray-500">
+                      {extractResult.metadata.wordCount && (
+                        <span>字数: {extractResult.metadata.wordCount}</span>
+                      )}
+                      {extractResult.metadata.charCount && (
+                        <span>字符: {extractResult.metadata.charCount}</span>
+                      )}
+                    </div>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  {extractResult.status === 'success' ? (
+                    <div className="space-y-4">
+                      {/* 提取内容 */}
+                      <div>
+                        <div className="bg-gray-50 rounded-lg p-4 max-h-80 overflow-y-auto">
+                          <pre className="text-sm whitespace-pre-wrap">{extractResult.content}</pre>
                         </div>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-red-500 p-4 bg-red-50 rounded">
-                    {extractResult.error || '提取失败'}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
-          {/* 空状态提示 */}
-          {!extractResult && (
-            <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-12 text-gray-500">
-                <FileText className="w-12 h-12 mb-4" />
-                <p className="text-lg font-medium mb-2">等待内容提取</p>
-                <p className="text-sm">请在左侧选择内容来源并开始提取</p>
-              </CardContent>
-            </Card>
-          )}
+                      {/* AI总结 */}
+                      {extractResult.summary && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="w-4 h-4 text-purple-500" />
+                            <span className="font-medium">AI智能总结</span>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => copyContent(extractResult.summary!)}
+                            >
+                              <Copy className="w-4 h-4 mr-1" />
+                              复制总结
+                            </Button>
+                          </div>
+                          <div className="bg-purple-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                            <pre className="text-sm whitespace-pre-wrap">{extractResult.summary}</pre>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-red-500 p-4 bg-red-50 rounded">
+                      {extractResult.error || '提取失败'}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* 空状态提示 */}
+            {!extractResult && (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 text-gray-500">
+                  <FileText className="w-12 h-12 mb-4" />
+                  <p className="text-lg font-medium mb-2">等待内容提取</p>
+                  <p className="text-sm">请在左侧选择内容来源并开始提取</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>
