@@ -225,11 +225,41 @@ export function CreativeCube() {
     const { target_audience, scenarios, pain_points, tones, benefits, emotions } = selectedItems;
     
     // 根据调性生成不同风格的内容
+    if (tones === '轻松幽默') {
+      return generateHumorousContent();
+    } else {
+      return generateStandardContent();
+    }
+  };
+
+  /**
+   * 生成轻松幽默风格内容
+   */
+  const generateHumorousContent = () => {
+    const { target_audience, scenarios, pain_points, benefits, emotions } = selectedItems;
+    
+    return `📱 ${target_audience}专属爆梗文案
+
+【标题】
+${generateHumorousTitle()}
+
+【正文】
+${generateHumorousBody()}
+
+【互动引导】
+${generateHumorousCallToAction()}
+
+#${target_audience}日常 #${scenarios} #${benefits} #搞笑真实日记`;
+  };
+
+  /**
+   * 生成标准风格内容
+   */
+  const generateStandardContent = () => {
+    const { target_audience, scenarios, pain_points, tones, benefits, emotions } = selectedItems;
+    
     let contentStyle = '';
     switch (tones) {
-      case '轻松幽默':
-        contentStyle = '用轻松幽默的语气，加入一些俏皮话和网络热梗';
-        break;
       case '温暖治愈':
         contentStyle = '用温暖治愈的语调，营造温馨感人的氛围';
         break;
@@ -263,17 +293,32 @@ ${generateCallToAction()}
   };
 
   /**
+   * 生成轻松幽默标题
+   */
+  const generateHumorousTitle = () => {
+    const { target_audience, scenarios, pain_points } = selectedItems;
+    
+    const humorousTitles = [
+      `${target_audience}的${scenarios}日常：${pain_points}？不存在的！`,
+      `当${target_audience}遇到${pain_points}，我笑出了声😅`,
+      `${target_audience}的${scenarios}生存指南：${pain_points}克星`,
+      `${target_audience}必看：${pain_points}的搞笑解决方案`,
+      `${target_audience}的${scenarios}日常：${pain_points}？我选择躺平！`,
+      `${target_audience}的${pain_points}自救手册，太真实了叭！`,
+      `${target_audience}的${scenarios}日常：${pain_points}？我有妙招！`,
+      `${target_audience}的${pain_points}克星，别说我没告诉你！`
+    ];
+    
+    return humorousTitles[Math.floor(Math.random() * humorousTitles.length)];
+  };
+
+  /**
    * 生成标题
    */
   const generateTitle = () => {
     const { target_audience, pain_points, benefits, tones } = selectedItems;
     
     const titles = {
-      '轻松幽默': [
-        `当${target_audience}遇到${pain_points}，这个办法绝了！`,
-        `${target_audience}必看：${pain_points}的终极解决方案`,
-        `震惊！${target_audience}竟然这样解决${pain_points}`
-      ],
       '温暖治愈': [
         `给${target_audience}的一封信：关于${pain_points}的温暖答案`,
         `${target_audience}，你值得拥有更好的${benefits}`,
@@ -291,8 +336,68 @@ ${generateCallToAction()}
       ]
     };
 
-    const titleList = titles[tones as keyof typeof titles] || titles['轻松幽默'];
+    const titleList = titles[tones as keyof typeof titles] || titles['温暖治愈'];
     return titleList[Math.floor(Math.random() * titleList.length)];
+  };
+
+  /**
+   * 生成轻松幽默正文
+   */
+  const generateHumorousBody = () => {
+    const { target_audience, scenarios, pain_points, benefits, emotions } = selectedItems;
+    
+    // 根据目标人群和场景生成具体的生活场景
+    const getSpecificScenario = () => {
+      if (target_audience === '宝妈' && scenarios === '居家生活') {
+        return [
+          '👶 孩子在背后扯衣角',
+          '🍳 锅里在咕嘟咕嘟冒泡', 
+          '📱 群消息还在催你交作业表格',
+          '🧺 洗衣机里的衣服在等主人',
+          '🐕 狗子也在催你带它出门'
+        ];
+      } else if (target_audience === '上班族' && scenarios === '工作办公') {
+        return [
+          '💻 电脑死机了',
+          '📧 邮件堆成山',
+          '☕ 咖啡凉了还没喝',
+          '📅 会议一个接一个',
+          '🚇 地铁挤得像沙丁鱼'
+        ];
+      } else if (target_audience === '学生党' && scenarios === '学习充电') {
+        return [
+          '📚 书还没看完',
+          '📝 作业还没写完',
+          '⏰ 闹钟响了又响',
+          '🍕 外卖还没到',
+          '🎮 游戏在召唤'
+        ];
+      } else {
+        return [
+          `在${scenarios}中手忙脚乱`,
+          `被${pain_points}搞得焦头烂额`,
+          `感觉时间不够用`,
+          `想要更好的解决方案`
+        ];
+      }
+    };
+
+    const scenarioList = getSpecificScenario();
+    const randomScenarios = scenarioList.slice(0, 3).join('\n');
+    
+    const humorousResponses = [
+      `有没有人懂那种——\n${randomScenarios}\n\n${pain_points}？别说你，我都快碎片成数据包了！`,
+      `太真实了叭！\n${randomScenarios}\n\n${pain_points}？我选择躺平！😅`,
+      `笑死，${target_audience}的日常：\n${randomScenarios}\n\n${pain_points}？不存在的！`,
+      `真实写照：\n${randomScenarios}\n\n${pain_points}？我有妙招！`,
+      `别说${target_audience}了，连狗都看不过去了😤\n${randomScenarios}\n\n${pain_points}？我选择开挂！`
+    ];
+
+    const solution = `好在我发现了${benefits}神器，省时又不掉链子。\n不用当超人，也能搞定${scenarios}的突发事件。\n\n谁说${target_audience}不能松口气？我偏要让${benefits}带我飞～`;
+
+    return `${humorousResponses[Math.floor(Math.random() * humorousResponses.length)]}
+
+${solution}`;
   };
 
   /**
@@ -329,17 +434,29 @@ ${emotionTexts[Math.floor(Math.random() * emotionTexts.length)]}
   };
 
   /**
+   * 生成轻松幽默互动引导
+   */
+  const generateHumorousCallToAction = () => {
+    const { target_audience, scenarios, pain_points } = selectedItems;
+    
+    const humorousCTAs = [
+      `如果你也曾在${scenarios}里原地转圈，快来试试👇\n👇留言说说你的一天能有几次想"开挂"！`,
+      `有没有同款${target_audience}？快来评论区集合！\n👇分享你的${pain_points}搞笑经历～`,
+      `${target_audience}们，你们也是这样吗？\n👇快来吐槽你的${scenarios}日常！`,
+      `太真实了叭！${target_audience}的日常写照\n👇留言说说你的${pain_points}自救妙招！`,
+      `笑死，${target_audience}的日常太真实了\n👇快来分享你的${scenarios}搞笑瞬间！`
+    ];
+    
+    return humorousCTAs[Math.floor(Math.random() * humorousCTAs.length)];
+  };
+
+  /**
    * 生成互动引导
    */
   const generateCallToAction = () => {
     const { target_audience, benefits, tones } = selectedItems;
     
     const ctas = {
-      '轻松幽默': [
-        `👉 ${target_audience}们，快来试试这个${benefits}的神奇效果吧！`,
-        `💪 还在等什么？${target_audience}的${benefits}神器等你来体验！`,
-        `🎉 ${target_audience}专属福利，${benefits}等你来拿！`
-      ],
       '温暖治愈': [
         `💝 为${target_audience}准备的${benefits}，温暖你的每一天`,
         `🌟 让${target_audience}感受到${benefits}带来的温暖`,
@@ -357,7 +474,7 @@ ${emotionTexts[Math.floor(Math.random() * emotionTexts.length)]}
       ]
     };
 
-    const ctaList = ctas[tones as keyof typeof ctas] || ctas['轻松幽默'];
+    const ctaList = ctas[tones as keyof typeof ctas] || ctas['温暖治愈'];
     return ctaList[Math.floor(Math.random() * ctaList.length)];
   };
 
