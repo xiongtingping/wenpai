@@ -360,6 +360,217 @@ export function CreativeCube() {
   };
 
   /**
+   * 生成轻松幽默风格内容
+   */
+  const generateHumorousContent = () => {
+    const { target_audience, use_case, pain_point, core_value, emotional_need, industry } = selectedItems;
+    
+    // 生成标题
+    const title = generateHumorousTitle();
+    
+    // 生成正文
+    const body = generateHumorousBody();
+    
+    // 生成互动引导
+    const callToAction = generateHumorousCallToAction();
+    
+    // 生成短视频建议
+    const videoSuggestions = generateVideoSuggestions();
+    
+    // 生成延展建议
+    const extensions = generateExtensionSuggestions();
+
+    return `🎯 内容营销文案（图文/短视频均适用）
+
+【标题】
+${title}
+
+【正文文案】
+${body}
+
+【结尾互动】
+${callToAction}
+
+⸻
+
+🧠 延展建议（短视频内容结构）
+${videoSuggestions}
+
+${extensions}`;
+  };
+
+  /**
+   * 生成轻松幽默标题
+   */
+  const generateHumorousTitle = () => {
+    const { target_audience, use_case, pain_point, core_value, industry } = selectedItems;
+    
+    const titleTemplates = {
+      '美妆': {
+        '健身': `🏃‍♀️健身没时间？这款美妆神器让${target_audience}也能一秒出门自带光！`,
+        '通勤': `🚇通勤路上补妆难？${target_audience}专属美妆神器，地铁上也能精致在线！`,
+        '夜宵': `🌙夜宵后卸妆累？这款神器让${target_audience}告别"卸妆恐惧症"！`,
+        '独处时刻': `💄独处也要精致！${target_audience}的美妆仪式感，从这款神器开始！`
+      },
+      '母婴': {
+        '带娃时': `👶带娃没时间护肤？这款神器让${target_audience}也能"偷懒"变美！`,
+        '家庭聚会': `🎉聚会装备太多？${target_audience}的便携神器，一包搞定所有！`,
+        '睡前': `😴睡前哄娃累？这款神器让${target_audience}也能精致入睡！`
+      },
+      '旅游': {
+        '通勤': `🚇通勤路上想旅游？${target_audience}的省钱神器，让梦想不再遥远！`,
+        '旅游途中': `✈️旅游途中预算超？${target_audience}的省钱攻略，让旅行更轻松！`,
+        '出差': `💼出差回来钱包瘦？${target_audience}的出差神器，让商务旅行更省心！`
+      },
+      '健康': {
+        '健身': `💪健身没时间？${target_audience}的健康神器，让运动更高效！`,
+        '碎片时间': `⏰碎片时间养生难？${target_audience}的便携神器，让健康无处不在！`,
+        '睡前': `😴睡前养生太复杂？${target_audience}的简单神器，让养生更轻松！`
+      }
+    };
+    
+    return titleTemplates[industry]?.[use_case] || 
+      `💡${pain_point}太崩溃？这款${core_value}神器让${target_audience}告别烦恼！`;
+  };
+
+  /**
+   * 生成轻松幽默正文
+   */
+  const generateHumorousBody = () => {
+    const { target_audience, use_case, pain_point, core_value, industry } = selectedItems;
+    
+    // 开场痛点
+    const openingPain = generateOpeningPain();
+    
+    // 解决方案
+    const solution = generateSolution();
+    
+    // 产品亮点
+    const highlights = generateProductHighlights();
+    
+    return `${openingPain}
+
+别急，这款${core_value}神器，专为${target_audience}准备：
+${highlights}`;
+  };
+
+  /**
+   * 生成开场痛点
+   */
+  const generateOpeningPain = () => {
+    const { target_audience, use_case, pain_point, industry } = selectedItems;
+    
+    const painTemplates = {
+      '美妆': {
+        '健身': `作为${target_audience}，每天上课、打工、健身三点一线，哪还有时间化妆？\n尤其健完身还要赶图书馆、见朋友，时间根本不够用！`,
+        '通勤': `作为${target_audience}，每天地铁公交来回奔波，哪有时间精致化妆？\n尤其早晚高峰，连补妆的时间都没有！`,
+        '夜宵': `作为${target_audience}，夜宵后还要卸妆，简直比上班还累！\n时间不够用，皮肤还要遭罪！`
+      },
+      '母婴': {
+        '带娃时': `作为${target_audience}，带娃就是24小时待机，哪有时间护肤？\n尤其宝宝哭闹时，连洗脸的时间都没有！`,
+        '家庭聚会': `作为${target_audience}，家庭聚会就是大型装备现场，哪有时间精致？\n尤其带娃出门，装备比搬家还多！`
+      },
+      '旅游': {
+        '通勤': `作为${target_audience}，每天通勤路上都在想旅游，但预算根本不够！\n时间不够用，钱包也不够用！`,
+        '旅游途中': `作为${target_audience}，旅游途中预算总是超支，选择困难症发作！\n时间不够用，钱也不够用！`
+      },
+      '健康': {
+        '健身': `作为${target_audience}，每天健身打卡，但时间总是不够用！\n尤其工作学习忙，连运动的时间都要挤！`,
+        '碎片时间': `作为${target_audience}，碎片时间很多，但养生太难坚持！\n时间不够用，健康也要打折！`
+      }
+    };
+    
+    return painTemplates[industry]?.[use_case] || 
+      `作为${target_audience}，在${use_case}中遇到${pain_point}，简直让人崩溃！`;
+  };
+
+  /**
+   * 生成解决方案
+   */
+  const generateSolution = () => {
+    const { core_value, target_audience } = selectedItems;
+    return `这款${core_value}神器，专为${target_audience}准备：`;
+  };
+
+  /**
+   * 生成产品亮点
+   */
+  const generateProductHighlights = () => {
+    const { industry, use_case, core_value } = selectedItems;
+    
+    const highlightTemplates = {
+      '美妆': {
+        '健身': `💨 5秒上妆，零卡粉、不脱妆，健身完照样在线状态！\n🌿 养肤级底妆，汗后肌肤也不崩，提升气色不假面。\n🎒 迷你便携，一支搞定出门妆 + 补妆 + 气场加持！`,
+        '通勤': `⚡ 3秒补妆，地铁上也能精致在线！\n🌿 持久不脱妆，早晚高峰也不怕！\n🎒 口袋大小，通勤路上随时补妆！`,
+        '夜宵': `🌙 一键卸妆，夜宵后也能轻松入睡！\n🌿 温和不刺激，敏感肌也能安心用！\n⏰ 省时省力，告别"卸妆恐惧症"！`
+      },
+      '母婴': {
+        '带娃时': `👶 带娃也能护肤，5分钟搞定基础护理！\n🌿 温和配方，哺乳期也能安心用！\n🎒 便携设计，带娃出门也能精致！`,
+        '家庭聚会': `🎉 聚会装备精简，一包搞定所有需求！\n🌿 多功能设计，带娃聚会也能轻松！\n⏰ 省时省力，聚会准备不再手忙脚乱！`
+      },
+      '旅游': {
+        '通勤': `✈️ 通勤路上也能规划旅行，省钱攻略一键获取！\n🌍 全球目的地推荐，让梦想不再遥远！\n💰 预算管理，让旅行更轻松！`,
+        '旅游途中': `🎯 旅游途中省钱攻略，预算超支不再怕！\n🌍 本地推荐，让旅行更深度！\n💰 实时预算提醒，让旅行更省心！`
+      },
+      '健康': {
+        '健身': `💪 健身效率提升，时间不够也能练出好身材！\n🏃‍♀️ 科学训练计划，让运动更高效！\n⏰ 时间管理，让健身更轻松！`,
+        '碎片时间': `⏰ 碎片时间养生，随时随地都能健康！\n🌿 简单易坚持，让养生更轻松！\n💪 科学指导，让健康更有效！`
+      }
+    };
+    
+    return highlightTemplates[industry]?.[use_case] || 
+      `✨ ${core_value}功能，让问题迎刃而解！\n🌿 专业品质，让体验更升级！\n⏰ 省时省力，让生活更轻松！`;
+  };
+
+  /**
+   * 生成短视频建议
+   */
+  const generateVideoSuggestions = () => {
+    const { target_audience, use_case, industry } = selectedItems;
+    
+    const videoTemplates = {
+      '美妆': {
+        '健身': `• 镜头1：${target_audience}宿舍，闹钟响起，时间紧张\n• 镜头2：健身房镜头，快速出汗、看表\n• 镜头3：快速上妆镜头（BGM轻快节奏感）\n• 镜头4：见朋友状态在线，画面定格品牌产品`,
+        '通勤': `• 镜头1：${target_audience}匆忙起床，时间不够\n• 镜头2：地铁站镜头，人潮拥挤\n• 镜头3：快速补妆镜头（BGM都市节奏）\n• 镜头4：精致妆容，自信走出地铁`,
+        '夜宵': `• 镜头1：${target_audience}吃夜宵，妆容开始脱妆\n• 镜头2：回家路上，疲惫不堪\n• 镜头3：快速卸妆镜头（BGM轻松舒缓）\n• 镜头4：清爽入睡，皮肤状态好`
+      },
+      '母婴': {
+        '带娃时': `• 镜头1：${target_audience}带娃日常，手忙脚乱\n• 镜头2：宝宝哭闹，没时间护肤\n• 镜头3：快速护肤镜头（BGM温馨轻快）\n• 镜头4：带娃出门，依然精致`,
+        '家庭聚会': `• 镜头1：${target_audience}准备聚会，装备太多\n• 镜头2：带娃出门，手忙脚乱\n• 镜头3：精简装备镜头（BGM欢快节奏）\n• 镜头4：聚会现场，轻松自在`
+      },
+      '旅游': {
+        '通勤': `• 镜头1：${target_audience}通勤路上，看着旅游广告\n• 镜头2：查看旅游攻略，预算不够\n• 镜头3：省钱规划镜头（BGM旅行音乐）\n• 镜头4：梦想成真，开始旅行`,
+        '旅游途中': `• 镜头1：${target_audience}旅游途中，预算超支\n• 镜头2：选择困难，不知道去哪\n• 镜头3：省钱攻略镜头（BGM轻松愉快）\n• 镜头4：享受旅行，预算充足`
+      },
+      '健康': {
+        '健身': `• 镜头1：${target_audience}忙碌工作，没时间健身\n• 镜头2：健身房，时间不够用\n• 镜头3：高效训练镜头（BGM动感节奏）\n• 镜头4：身材变好，自信满满`,
+        '碎片时间': `• 镜头1：${target_audience}碎片时间，不知道做什么\n• 镜头2：工作间隙，想要养生\n• 镜头3：简单养生镜头（BGM舒缓音乐）\n• 镜头4：健康状态，精神饱满`
+      }
+    };
+    
+    return videoTemplates[industry]?.[use_case] || 
+      `• 镜头1：${target_audience}遇到问题，表情困扰\n• 镜头2：使用产品，问题解决\n• 镜头3：效果展示，满意表情\n• 镜头4：推荐产品，画面定格`;
+  };
+
+  /**
+   * 生成延展建议
+   */
+  const generateExtensionSuggestions = () => {
+    const { target_audience, use_case, industry } = selectedItems;
+    
+    return `📝 文案/配音：同步上面内容，调性自然、真实、有代入感
+
+🎬 拍摄建议：
+• 画面风格：生活化、真实感强
+• 色调：明亮温暖，符合${target_audience}审美
+• 节奏：轻快有节奏感，符合${use_case}场景
+• 互动：鼓励用户分享自己的${use_case}经验
+
+🏷️ 标签建议：
+${getIndustryTags().join(' ')} #${target_audience} #${use_case} #${industry}`;
+  };
+
+  /**
    * 生成行业特色标签
    */
   const getIndustryTags = () => {
@@ -384,182 +595,37 @@ export function CreativeCube() {
   };
 
   /**
-   * 生成轻松幽默风格内容
-   */
-  const generateHumorousContent = () => {
-    const { target_audience, use_case, pain_point, core_value, emotional_need, industry } = selectedItems;
-    
-    // 背景设定：基于行业+场景的真实情境
-    const getBackgroundSetting = () => {
-      const backgrounds = {
-        '旅游': {
-          '通勤': `${target_audience}通勤路上，地铁挤得像沙丁鱼罐头😵‍💫`,
-          '旅游途中': `${target_audience}旅游途中，钱包瘦了一圈💸`,
-          '出差': `${target_audience}出差回来，行李箱比心情还重😅`
-        },
-        '母婴': {
-          '带娃时': `${target_audience}带娃日常，奶粉尿布比黄金还贵💰`,
-          '家庭聚会': `${target_audience}家庭聚会，装备比搬家还多🎒`,
-          '睡前': `${target_audience}睡前哄娃，比加班还累😴`
-        },
-        '美妆': {
-          '通勤': `${target_audience}通勤化妆，地铁上补妆像杂技表演🎭`,
-          '夜宵': `${target_audience}夜宵后卸妆，比上班还认真🧴`,
-          '独处时刻': `${target_audience}独处时刻，护肤比约会还精致💄`
-        },
-        '健康': {
-          '健身': `${target_audience}健身打卡，肌肉比钱包还瘦💪`,
-          '碎片时间': `${target_audience}碎片时间养生，比工作还忙🏃‍♀️`,
-          '睡前': `${target_audience}睡前养生，比考试还紧张😰`
-        }
-      };
-      
-      return backgrounds[industry]?.[use_case] || 
-        `${target_audience}在${use_case}中遇到${pain_point}，简直让人崩溃😫`;
-    };
-
-    // 人设代入：融入目标用户特征
-    const getCharacterSetting = () => {
-      const characters = {
-        '宝妈': '带娃出门就是大型物流现场，装备比搬家还多🎒',
-        '大学生': '学习压力大到想躺平，但钱包不允许😅',
-        '银发族': '退休生活本应轻松，但物价上涨让人焦虑😰',
-        '职场人': '工作忙到连喝水的时间都没有，咖啡当饭吃☕',
-        '中产女性': '精致生活不易，钱包在哭泣💸',
-        'Z世代': '年轻人压力山大，但依然要精致生活✨',
-        '宠物主': '铲屎官日常，比上班还累🐱',
-        '健身人群': '健身路上坑太多，钱包比肌肉还瘦💪',
-        'K12家长': '辅导作业血压飙升，比工作还累📚',
-        '二次元': '二次元世界太美好，现实太残酷😭',
-        '科技控': '科技产品更新太快，钱包跟不上节奏💻',
-        '新手创业者': '创业路上坑太多，钱包比脸还干净💸'
-      };
-      
-      return characters[target_audience] || `${target_audience}的日常就是各种挑战`;
-    };
-
-    // 冲突点设定：具体化痛点
-    const getConflictPoint = () => {
-      const conflicts = {
-        '时间不够': '时间去哪了我不知道，但洗衣机确实等不了我！⏰',
-        '预算不足': '预算不足？钱包在哭泣，心在滴血💸',
-        '操作复杂': '操作复杂到连说明书都看不懂😤',
-        '选择困难': '选择困难症发作，纠结到天荒地老🤔',
-        '效果不稳': '效果不稳，比天气预报还不可靠🌦️',
-        '信息过载': '信息多到脑子要爆炸💥',
-        '服务差': '服务差到想投诉，但又懒得动😪',
-        '信任缺失': '信任度低到连自己都不信自己😰',
-        '缺乏动力': '缺乏动力，比咸鱼还咸🐟',
-        '内容同质化': '内容同质化，比复制粘贴还无聊📋'
-      };
-      
-      return conflicts[pain_point] || `${pain_point}？简直让人崩溃！`;
-    };
-
-    // 解决方案设定：具体化价值
-    const getSolution = () => {
-      const solutions = {
-        '提升效率': `好在我发现了${core_value}神器，效率直接起飞🚀`,
-        '改善体验': `有了${core_value}，体验直接升级，太香了！🌟`,
-        '节约成本': `通过${core_value}，钱包终于不用哭泣了💰`,
-        '增强信任': `${core_value}建立信任，安全感满满🛡️`,
-        '拓宽视野': `${core_value}拓宽视野，眼界大开👀`,
-        '激发灵感': `${core_value}激发灵感，创意爆棚💡`,
-        '个性表达': `${core_value}个性表达，独一无二✨`,
-        '提高品质': `${core_value}提高品质，生活更美好🎉`,
-        '促进成长': `${core_value}促进成长，进步神速📈`
-      };
-      
-      return solutions[core_value] || `通过${core_value}，问题迎刃而解！`;
-    };
-
-    const background = getBackgroundSetting();
-    const character = getCharacterSetting();
-    const conflict = getConflictPoint();
-    const solution = getSolution();
-    const tags = getIndustryTags().join(' ');
-
-    return `📱 ${target_audience}专属爆梗文案
-
-【标题】
-${generateHumorousTitle()}
-
-【正文】
-${background}
-
-${character}
-
-${conflict}
-
-${solution}
-
-不用当超人，也能搞定${use_case}的突发事件。
-
-谁说${target_audience}不能松口气？我偏要让${core_value}带我飞～
-
-【互动引导】
-${generateHumorousCallToAction()}
-
-${tags}`;
-  };
-
-  /**
-   * 生成轻松幽默标题
-   */
-  const generateHumorousTitle = () => {
-    const { target_audience, use_case, pain_point, core_value, industry } = selectedItems;
-    
-    const titleTemplates = {
-      '旅游': {
-        '通勤': `"通勤路上钱包瘦了"——${target_audience}的省钱秘籍💰`,
-        '旅游途中': `"旅游途中钱包瘦了"——${target_audience}的旅行攻略🌟`,
-        '出差': `"出差回来行李箱重了"——${target_audience}的出差日记📝`
-      },
-      '母婴': {
-        '带娃时': `"带娃日常奶粉尿布贵"——${target_audience}的育儿日记👶`,
-        '家庭聚会': `"家庭聚会装备多"——${target_audience}的聚会攻略🎉`,
-        '睡前': `"睡前哄娃比加班累"——${target_audience}的带娃日记😴`
-      },
-      '美妆': {
-        '通勤': `"通勤化妆地铁补妆"——${target_audience}的通勤日记🎭`,
-        '夜宵': `"夜宵后卸妆比上班认真"——${target_audience}的护肤日记🧴`,
-        '独处时刻': `"独处时刻护肤比约会精致"——${target_audience}的护肤日记💄`
-      },
-      '健康': {
-        '健身': `"健身打卡肌肉比钱包瘦"——${target_audience}的健身日记💪`,
-        '碎片时间': `"碎片时间养生比工作忙"——${target_audience}的养生日记🏃‍♀️`,
-        '睡前': `"睡前养生比考试紧张"——${target_audience}的养生日记😰`
-      }
-    };
-    
-    return titleTemplates[industry]?.[use_case] || 
-      `"${pain_point}太崩溃"——${target_audience}的${core_value}秘籍✨`;
-  };
-
-  /**
    * 生成轻松幽默互动引导
    */
   const generateHumorousCallToAction = () => {
     const { target_audience, use_case, pain_point, industry } = selectedItems;
     
     const callToActions = {
-      '旅游': `你有过被旅游价格劝退的瞬间吗？留言告诉我你的省钱妙招！✈️`,
-      '母婴': `带娃路上有什么省钱妙招？宝妈们快来分享！👶`,
-      '美妆': `你最近发现什么平价好物？快来种草！💄`,
-      '健康': `你有什么养生小妙招？求分享！🏥`,
-      '教育': `你辅导作业时血压最高到多少？来评论区吐槽一下！📚`,
-      '职场': `你工作中有哪些效率神器？求推荐！💼`,
-      '电商': `你最近买过什么好物？快来安利！🛒`,
-      '本地生活': `你发现什么本地好去处？求推荐！🏠`,
-      '宠物': `铲屎官们有什么省钱妙招？求推荐！🐱`,
-      '数码': `你用过最省心的数码产品是什么？求推荐！💻`,
-      '食品饮料': `你最近发现什么省钱美食？快来安利给我！🍜`,
-      '健身': `你有什么健身省钱攻略？来分享一下！💪`,
-      '金融理财': `你最近有什么理财心得？来分享一下！💰`
+      '美妆': {
+        '健身': `⌛ 谁说健身和精致不能兼得？快评论区告诉我你的 #健身速妆秘籍 吧！`,
+        '通勤': `🚇 通勤路上有什么补妆妙招？快来分享你的 #通勤美妆秘籍 ！`,
+        '夜宵': `🌙 夜宵后有什么卸妆神器？快来安利你的 #夜宵卸妆秘籍 ！`,
+        '独处时刻': `💄 独处时有什么护肤仪式？快来分享你的 #独处美妆秘籍 ！`
+      },
+      '母婴': {
+        '带娃时': `👶 带娃时有什么护肤妙招？宝妈们快来分享你的 #带娃护肤秘籍 ！`,
+        '家庭聚会': `🎉 家庭聚会有什么装备妙招？快来分享你的 #聚会装备秘籍 ！`,
+        '睡前': `😴 睡前有什么护肤仪式？快来分享你的 #睡前护肤秘籍 ！`
+      },
+      '旅游': {
+        '通勤': `✈️ 通勤路上有什么省钱妙招？快来分享你的 #通勤省钱秘籍 ！`,
+        '旅游途中': `🎯 旅游途中有什么省钱攻略？快来分享你的 #旅游省钱秘籍 ！`,
+        '出差': `💼 出差有什么省钱妙招？快来分享你的 #出差省钱秘籍 ！`
+      },
+      '健康': {
+        '健身': `💪 健身有什么时间管理妙招？快来分享你的 #健身时间秘籍 ！`,
+        '碎片时间': `⏰ 碎片时间有什么养生妙招？快来分享你的 #碎片养生秘籍 ！`,
+        '睡前': `😴 睡前有什么养生仪式？快来分享你的 #睡前养生秘籍 ！`
+      }
     };
     
-    return callToActions[industry] || 
-      `你在${use_case}中遇到过${pain_point}吗？来评论区吐槽一下！😄`;
+    return callToActions[industry]?.[use_case] || 
+      `💡 你在${use_case}中遇到过${pain_point}吗？快来分享你的 #${use_case}秘籍 吧！`;
   };
 
   /**
