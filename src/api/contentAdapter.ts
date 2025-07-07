@@ -295,7 +295,7 @@ export async function checkApiAvailability(): Promise<AIApiResponse> {
       case 'deepseek':
         return await callDeepSeekProxy(testMessage, currentModel);
       case 'gemini':
-        return await callGeminiProxy(testMessage, currentModel);
+        return await callGeminiProxy('Hello');
       default:
         return { success: false, error: '不支持的API提供商' };
     }
@@ -369,7 +369,7 @@ export async function adaptContent(request: ContentAdaptRequest): Promise<Conten
             response = await callDeepSeekProxy(messages, currentModel);
             break;
           case 'gemini':
-            response = await callGeminiProxy(messages, currentModel);
+            response = await callGeminiProxy(prompt);
             break;
           default:
             response = { success: false, error: '不支持的API提供商' };

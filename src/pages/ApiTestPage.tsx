@@ -28,7 +28,7 @@ const ApiTestPage = () => {
   const [testResponse, setTestResponse] = useState<AIApiResponse | null>(null);
   const [apiStatus, setApiStatus] = useState(getApiStatus());
   const [apiCheckLoading, setApiCheckLoading] = useState(false);
-  const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>(getApiProvider());
+  const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>('openai');
   const [selectedModel, setSelectedModel] = useState(getModel());
   const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
   const { toast } = useToast();
@@ -36,10 +36,10 @@ const ApiTestPage = () => {
   // Update API provider when selection changes
   const handleApiProviderChange = (value: 'openai' | 'gemini' | 'deepseek') => {
     setCurrentApiProvider(value);
-    setApiProvider(value);
+    setApiProvider(value as 'openai' | 'deepseek' | 'gemini');
     
     // Reset model to first available model for new provider
-    const available = getAvailableModels(userPlan);
+    const available = getAvailableModels()[value] || [];
     if (available.length > 0) {
       setSelectedModel(available[0]);
       setModel(available[0]);
@@ -59,10 +59,9 @@ const ApiTestPage = () => {
     
     // Reset status after changing provider
     setApiStatus({
-      available: true,
-      lastChecked: new Date(),
-      errorMessage: undefined,
-      responseTime: undefined
+      provider: value,
+      model: selectedModel,
+      available: true
     });
   };
 
@@ -83,7 +82,7 @@ const ApiTestPage = () => {
     setUserPlan(value);
     
     // Check if current model is still available for new plan
-    const available = getAvailableModels(value);
+    const available = getAvailableModels()[apiProvider] || [];
     if (!available.includes(selectedModel) && available.length > 0) {
       setSelectedModel(available[0]);
       setModel(available[0]);
@@ -113,7 +112,7 @@ const ApiTestPage = () => {
         title: isAvailable ? "API连接正常" : "API连接失败",
         description: isAvailable 
           ? `成功连接到${providerNames[apiProvider]} API` 
-          : `连接失败: ${getApiStatus().errorMessage || "未知错误"}`,
+          : `连接失败: 未知错误`,
         variant: isAvailable ? "default" : "destructive",
       });
     } catch (error) {
@@ -144,16 +143,16 @@ const ApiTestPage = () => {
 
     try {
       // Generate content for a single platform (知乎) as a test
-      const result = await generateAdaptedContent({
-        originalContent: testContent,
-        targetPlatforms: ['zhihu'],
-        platformSettings: {
+      const result = await generateAdaptedContent(
+        testContent,
+        ['zhihu'],
+        {
           'zhihu-brandLibrary': false
         }
-      });
+      );
 
       // Get the response for 知乎
-      const adaptedContent = result['zhihu'];
+      const adaptedContent = result.results?.[0] || { content: '生成失败', error: '未知错误' };
       setTestResponse(adaptedContent);
 
       const providerNames = {
@@ -163,11 +162,11 @@ const ApiTestPage = () => {
       };
       
       toast({
-        title: adaptedContent.source === "ai" ? "内容生成成功" : "使用模拟内容",
-        description: adaptedContent.source === "ai" 
+        title: !adaptedContent.error ? "内容生成成功" : "使用模拟内容",
+        description: !adaptedContent.error 
           ? `${providerNames[apiProvider]} API成功生成内容` 
           : `使用了模拟内容: ${adaptedContent.error || "API可能不可用"}`,
-        variant: adaptedContent.source === "ai" ? "default" : "destructive",
+        variant: !adaptedContent.error ? "default" : "destructive",
       });
     } catch (error) {
       console.error("Test generation error:", error);
@@ -253,18 +252,11 @@ const ApiTestPage = () => {
                   </Badge>
                 )}
               </div>
-              {apiStatus.errorMessage && (
-                <div className="text-sm text-red-500 mb-4">
-                  错误信息: {apiStatus.errorMessage}
-                </div>
-              )}
-              {apiStatus.responseTime && (
-                <div className="text-sm text-gray-500 mb-4">
-                  响应时间: {apiStatus.responseTime}ms
-                </div>
-              )}
               <div className="text-sm text-gray-500">
-                上次检查: {apiStatus.lastChecked.toLocaleString()}
+                提供商: {apiStatus.provider}
+              </div>
+              <div className="text-sm text-gray-500">
+                模型: {apiStatus.model}
               </div>
             </CardContent>
             <CardFooter>
@@ -321,13 +313,13 @@ const ApiTestPage = () => {
                     <SelectValue placeholder="选择模型" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getAvailableModels(userPlan).map((model) => {
-                      const modelInfo = modelDescriptions[model as keyof typeof modelDescriptions];
+                    {getAvailableModels()[apiProvider]?.map((model) => {
+                      const modelInfo = modelDescriptions[model];
                       return (
                         <SelectItem key={model} value={model}>
                           <div className="flex flex-col">
-                            <span className="font-medium">{modelInfo?.name || model}</span>
-                            <span className="text-xs text-gray-500">{modelInfo?.description}</span>
+                            <span className="font-medium">{modelInfo || model}</span>
+                            <span className="text-xs text-gray-500">{modelInfo || '模型描述'}</span>
                           </div>
                         </SelectItem>
                       );
@@ -335,13 +327,13 @@ const ApiTestPage = () => {
                   </SelectContent>
                 </Select>
                 
-                {selectedModel && modelDescriptions[selectedModel as keyof typeof modelDescriptions] && (
+                {selectedModel && modelDescriptions[selectedModel] && (
                   <div className="bg-gray-50 p-4 rounded-md">
                     <h4 className="font-medium text-gray-900 mb-2">
-                      {modelDescriptions[selectedModel as keyof typeof modelDescriptions].name}
+                      {modelDescriptions[selectedModel]}
                     </h4>
                     <p className="text-sm text-gray-600 mb-3">
-                      {modelDescriptions[selectedModel as keyof typeof modelDescriptions].description}
+                      模型描述
                     </p>
                     <div className="space-y-2">
                       <div>

@@ -187,10 +187,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const result = await authing.loginByEmail(email, password);
-      if (result && result.statusCode === 200) {
+      if (result) {
         await checkAuth();
       } else {
-        throw new Error(result?.message || '登录失败');
+        throw new Error('登录失败');
       }
     } catch (error) {
       setState(prev => ({
@@ -211,10 +211,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const result = await authing.registerByEmail(email, password, {
         nickname,
       });
-      if (result && result.statusCode === 200) {
+      if (result) {
         await checkAuth();
       } else {
-        throw new Error(result?.message || '注册失败');
+        throw new Error('注册失败');
       }
     } catch (error) {
       setState(prev => ({

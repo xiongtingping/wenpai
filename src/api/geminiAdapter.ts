@@ -38,8 +38,8 @@ export async function callGeminiAPI(
     }
 
     return {
-      content,
-      source: 'ai'
+      success: true,
+      data: content
     };
   } catch (err: unknown) {
     console.error('Gemini Proxy API 出错:', err);

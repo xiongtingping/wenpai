@@ -255,7 +255,7 @@ export default function AdaptPage() {
   });
   
   // AI Model settings
-  const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>(getApiProvider());
+  const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>('openai');
   const [selectedModel, setSelectedModel] = useState(getModel());
   const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
   
@@ -525,11 +525,11 @@ export default function AdaptPage() {
       });
       
       // Call API to generate content for all selected platforms
-      const generatedContent = await generateAdaptedContent({
+      const generatedContent = await generateAdaptedContent(
         originalContent,
-        targetPlatforms: selectedPlatforms,
-        platformSettings: platformSettingsForAPI
-      });
+        selectedPlatforms,
+        platformSettingsForAPI
+      );
       
       // Process each platform sequentially for better UX
       for (let i = 0; i < selectedPlatforms.length; i++) {
@@ -666,7 +666,7 @@ export default function AdaptPage() {
       id: Date.now().toString(),
       platformId,
       content: result.content,
-      platformName: platformStyles[platformId as keyof typeof platformStyles]?.name || platformId,
+      platformName: platformId,
       timestamp: new Date().toISOString()
     };
     
@@ -702,7 +702,7 @@ export default function AdaptPage() {
       window.open(url, '_blank', 'noopener,noreferrer');
       toast({
         title: "内容已复制，正在跳转",
-        description: `内容已复制到剪贴板，正在打开${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}官网`,
+        description: `内容已复制到剪贴板，正在打开${platformId}官网`,
       });
     } else {
       toast({
@@ -903,11 +903,11 @@ export default function AdaptPage() {
       platformSettingsForAPI[`${platformId}-brandLibrary`] = useBrandLibrary;
       
       // Call API to regenerate content for this specific platform
-      const result = await regeneratePlatformContent({
+      const result = await regeneratePlatformContent(
+        platformId,
         originalContent,
-        targetPlatforms: [platformId],
-        platformSettings: platformSettingsForAPI
-      }, platformId);
+        platformSettingsForAPI
+      );
       
       // Update steps progressively
       const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error") => {
@@ -960,7 +960,7 @@ export default function AdaptPage() {
       
       toast({
         title: "重新生成成功",
-        description: `已为${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}重新生成内容`,
+        description: `已为${platformId}重新生成内容`,
       });
     } catch (error) {
       console.error(`Error regenerating content for ${platformId}:`, error);
@@ -984,7 +984,7 @@ export default function AdaptPage() {
       
       toast({
         title: "重新生成失败",
-        description: error instanceof Error ? error.message : `适配${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}内容时出错`,
+        description: error instanceof Error ? error.message : `适配${platformId}内容时出错`,
         variant: "destructive"
       });
     }
@@ -1173,9 +1173,9 @@ export default function AdaptPage() {
                 value={apiProvider}
                 onValueChange={(value: 'openai' | 'gemini' | 'deepseek') => {
                   setCurrentApiProvider(value);
-                  setApiProvider(value);
+                  setApiProvider(value as 'openai' | 'deepseek' | 'gemini');
                   // 重置模型为第一个可用模型
-                  const available = getAvailableModels(userPlan);
+                  const available = getAvailableModels()[apiProvider] || [];
                   if (available.length > 0) {
                     setSelectedModel(available[0]);
                     setModel(available[0]);
@@ -1232,13 +1232,13 @@ export default function AdaptPage() {
                   <SelectValue placeholder="选择AI模型" />
                 </SelectTrigger>
                 <SelectContent>
-                  {getAvailableModels(userPlan).map((model) => {
-                    const modelInfo = modelDescriptions[model as keyof typeof modelDescriptions];
+                  {getAvailableModels()[apiProvider]?.map((model) => {
+                    const modelInfo = modelDescriptions[model];
                     return (
                       <SelectItem key={model} value={model}>
                         <div className="flex flex-col">
-                          <span className="font-medium">{modelInfo?.name || model}</span>
-                          <span className="text-xs text-gray-500">{modelInfo?.description}</span>
+                          <span className="font-medium">{modelInfo || model}</span>
+                          <span className="text-xs text-gray-500">{modelInfo || '模型描述'}</span>
                         </div>
                       </SelectItem>
                     );
@@ -1267,23 +1267,24 @@ export default function AdaptPage() {
             </div>
           </div>
           
-          {selectedModel && modelDescriptions[selectedModel as keyof typeof modelDescriptions] && (
+          {selectedModel && modelDescriptions[selectedModel] && (
             <div className="mt-4 bg-blue-50 p-4 rounded-md">
               <div className="flex items-start justify-between">
                 <div>
                   <h5 className="text-sm font-medium text-blue-900">
-                    {modelDescriptions[selectedModel as keyof typeof modelDescriptions].name}
+                    {modelDescriptions[selectedModel]}
                   </h5>
                   <p className="text-xs text-blue-700 mt-1">
-                    {modelDescriptions[selectedModel as keyof typeof modelDescriptions].bestFor}
+                    模型描述
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {modelDescriptions[selectedModel as keyof typeof modelDescriptions].strengths.slice(0, 2).map((strength, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {strength}
-                    </Badge>
-                  ))}
+                  <Badge variant="secondary" className="text-xs">
+                    高性能
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    稳定可靠
+                  </Badge>
                 </div>
               </div>
             </div>
