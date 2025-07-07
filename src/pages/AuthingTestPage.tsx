@@ -239,7 +239,7 @@ export default function AuthingTestPage() {
   };
 
   /**
-   * 返回首页
+   * 返回内容适配器
    */
   const handleBack = () => {
     window.location.href = '/adapt';
@@ -255,7 +255,7 @@ export default function AuthingTestPage() {
           className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回首页
+          返回内容适配器
         </Button>
 
         {/* 标题 */}

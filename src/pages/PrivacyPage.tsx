@@ -12,10 +12,16 @@ export default function PrivacyPage() {
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回首页
-          </Link>
+          <div className="flex items-center gap-4 mb-4">
+            <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              返回首页
+            </Link>
+            <Link to="/adapt" className="inline-flex items-center text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              返回内容适配器
+            </Link>
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">隐私政策</h1>
           <p className="text-gray-600">最后更新：2024年12月19日</p>
         </div>
