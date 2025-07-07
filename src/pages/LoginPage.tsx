@@ -119,11 +119,7 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      await login({
-        phone: passwordForm.phone,
-        password: passwordForm.password,
-        remember: rememberPassword
-      });
+      await login(passwordForm.phone, passwordForm.password);
       
       toast({
         title: "登录成功",
@@ -162,10 +158,7 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      await login({
-        phone: codeForm.phone,
-        code: codeForm.code
-      });
+      await login(codeForm.phone, codeForm.code);
       
       toast({
         title: "登录成功",

@@ -11,20 +11,18 @@ import { Button } from '@/components/ui/button';
 export default function UserStatusPage() {
   const { 
     user, 
-    status, 
+    error, 
     isLoading, 
     isAuthenticated, 
-    isInitialized,
-    checkAuth,
-    authing 
+    checkAuth
   } = useAuth();
 
   useEffect(() => {
     console.log('UserStatusPage mounted');
-    console.log('Current status:', status);
+    console.log('Current error:', error);
     console.log('Is authenticated:', isAuthenticated);
     console.log('User:', user);
-  }, [status, isAuthenticated, user]);
+  }, [error, isAuthenticated, user]);
 
   const handleRefreshAuth = async () => {
     console.log('Manual refresh auth called');
@@ -32,19 +30,13 @@ export default function UserStatusPage() {
   };
 
   const handleGetCurrentUser = async () => {
-    if (!authing) {
-      console.log('No authing client available');
-      return;
-    }
-    
     try {
-      console.log('Calling getCurrentUser...');
-      const currentUser = await authing.getCurrentUser();
-      console.log('getCurrentUser result:', currentUser);
-      alert(`getCurrentUser result: ${JSON.stringify(currentUser, null, 2)}`);
+      console.log('Calling checkAuth...');
+      await checkAuth();
+      console.log('checkAuth completed');
     } catch (error) {
-      console.error('getCurrentUser error:', error);
-      alert(`getCurrentUser error: ${error}`);
+      console.error('checkAuth error:', error);
+      alert(`checkAuth error: ${error}`);
     }
   };
 
@@ -57,7 +49,7 @@ export default function UserStatusPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <strong>认证状态:</strong> {status}
+              <strong>错误信息:</strong> {error || '无'}
             </div>
             <div>
               <strong>是否已认证:</strong> {isAuthenticated ? '是' : '否'}
@@ -65,12 +57,7 @@ export default function UserStatusPage() {
             <div>
               <strong>是否加载中:</strong> {isLoading ? '是' : '否'}
             </div>
-            <div>
-              <strong>Authing已初始化:</strong> {isInitialized ? '是' : '否'}
-            </div>
-            <div>
-              <strong>Authing实例:</strong> {authing ? '存在' : '不存在'}
-            </div>
+
           </div>
 
           {user && (
@@ -87,7 +74,7 @@ export default function UserStatusPage() {
               刷新认证状态
             </Button>
             <Button onClick={handleGetCurrentUser} variant="outline">
-              测试 getCurrentUser
+              测试 checkAuth
             </Button>
             <Button 
               onClick={() => {

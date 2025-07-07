@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Mail, Lock, User, Phone, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { User as AuthUser } from '@/contexts/AuthContext';
+import { User as AuthUser } from '@/types/user';
 import { AuthenticationClient } from "authing-js-sdk";
 import { getAuthingConfig } from "@/config/authing";
 
@@ -23,7 +23,7 @@ import { getAuthingConfig } from "@/config/authing";
  */
 export default function AuthingTestPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isAuthenticated, logout, setUser } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 

@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { AuthenticationClient } from 'authing-js-sdk';
-import { authingConfig } from '@/config/authing';
+import { getAuthingConfig } from '@/config/authing';
 import { User } from '@/types/user';
 
 /**
@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuthing = async () => {
       try {
-        const config = authingConfig();
+        const config = getAuthingConfig();
         const authingClient = new AuthenticationClient({
           appId: config.appId,
           appHost: config.host,
@@ -146,12 +146,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (currentUser) {
         const convertedUser: User = {
-          id: currentUser.id || currentUser.userId || '',
+          id: currentUser.id || '',
           username: currentUser.username || currentUser.nickname || '',
           email: currentUser.email || '',
           phone: currentUser.phone || '',
           nickname: currentUser.nickname || currentUser.username || '',
-          avatar: currentUser.photo || currentUser.avatar || '',
+          avatar: currentUser.photo || '',
           createdAt: currentUser.createdAt || new Date().toISOString(),
           updatedAt: currentUser.updatedAt || new Date().toISOString(),
         };
@@ -187,10 +187,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const result = await authing.loginByEmail(email, password);
-      if (result.statusCode === 200) {
+      if (result && result.statusCode === 200) {
         await checkAuth();
       } else {
-        throw new Error(result.message || '登录失败');
+        throw new Error(result?.message || '登录失败');
       }
     } catch (error) {
       setState(prev => ({
@@ -211,10 +211,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const result = await authing.registerByEmail(email, password, {
         nickname,
       });
-      if (result.statusCode === 200) {
+      if (result && result.statusCode === 200) {
         await checkAuth();
       } else {
-        throw new Error(result.message || '注册失败');
+        throw new Error(result?.message || '注册失败');
       }
     } catch (error) {
       setState(prev => ({
@@ -262,7 +262,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      await authing.login();
+      // 使用Guard组件显示登录界面
+      console.log('显示登录界面');
     } catch (error) {
       setState(prev => ({
         ...prev,

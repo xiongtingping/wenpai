@@ -6,6 +6,17 @@
 import { callOpenAIProxy, callDeepSeekProxy, callGeminiProxy } from './apiProxy';
 
 /**
+ * AI API响应接口
+ */
+export interface AIApiResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+  detail?: string;
+  message?: string;
+}
+
+/**
  * 平台设置接口
  */
 export interface PlatformSettings {
@@ -79,6 +90,67 @@ export interface ContentAdaptResponse {
   detail?: string;
 }
 
+// API提供商配置
+let currentApiProvider = 'openai';
+let currentModel = 'gpt-3.5-turbo';
+
+/**
+ * 设置API提供商
+ * @param provider 提供商名称
+ */
+export function setApiProvider(provider: string): void {
+  currentApiProvider = provider;
+}
+
+/**
+ * 获取当前API提供商
+ * @returns 提供商名称
+ */
+export function getApiProvider(): string {
+  return currentApiProvider;
+}
+
+/**
+ * 设置模型
+ * @param model 模型名称
+ */
+export function setModel(model: string): void {
+  currentModel = model;
+}
+
+/**
+ * 获取当前模型
+ * @returns 模型名称
+ */
+export function getModel(): string {
+  return currentModel;
+}
+
+/**
+ * 获取可用模型列表
+ * @returns 模型列表
+ */
+export function getAvailableModels(): Record<string, string[]> {
+  return {
+    openai: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo'],
+    deepseek: ['deepseek-chat', 'deepseek-coder'],
+    gemini: ['gemini-pro', 'gemini-pro-vision']
+  };
+}
+
+/**
+ * 模型描述
+ */
+export const modelDescriptions: Record<string, string> = {
+  'gpt-3.5-turbo': '快速、经济的选择，适合一般内容生成',
+  'gpt-4': '更智能的模型，适合复杂任务',
+  'gpt-4-turbo': '最新版本，性能最佳',
+  'deepseek-chat': '中文优化，适合中文内容生成',
+  'deepseek-coder': '代码生成优化',
+  'gemini-pro': 'Google的AI模型，多语言支持',
+  'gemini-pro-vision': '支持图像理解的模型'
+};
+
 /**
  * 平台配置
  */
@@ -134,6 +206,11 @@ const PLATFORM_CONFIGS: Record<string, PlatformSettings> = {
 };
 
 /**
+ * 平台样式配置
+ */
+export const platformStyles = PLATFORM_CONFIGS;
+
+/**
  * 生成平台特定的提示词
  * @param platform 平台名称
  * @param originalContent 原始内容
@@ -159,6 +236,87 @@ ${originalContent}
 ${config.specialRequirements ? `- 特殊要求：${config.specialRequirements.join('、')}` : ''}
 
 请生成符合${config.name}平台特点的内容，保持原意的同时，让内容更适合该平台的用户群体和传播特点。`;
+}
+
+/**
+ * 生成适配内容
+ * @param originalContent 原始内容
+ * @param platforms 目标平台
+ * @param settings 设置
+ * @returns Promise with 适配结果
+ */
+export async function generateAdaptedContent(
+  originalContent: string,
+  platforms: string[],
+  settings?: any
+): Promise<ContentAdaptResponse> {
+  const request: ContentAdaptRequest = {
+    originalContent,
+    targetPlatforms: platforms,
+    platformSettings: settings || PLATFORM_CONFIGS,
+    globalSettings: {
+      preserveOriginalMeaning: true,
+      addHashtags: true,
+      optimizeTitle: true,
+      generateMultipleVersions: false,
+      versionCount: 1
+    }
+  };
+  
+  return adaptContent(request);
+}
+
+/**
+ * 重新生成平台内容
+ * @param platform 平台名称
+ * @param originalContent 原始内容
+ * @param settings 设置
+ * @returns Promise with 适配结果
+ */
+export async function regeneratePlatformContent(
+  platform: string,
+  originalContent: string,
+  settings?: any
+): Promise<ContentAdaptResponse> {
+  return generateAdaptedContent(originalContent, [platform], settings);
+}
+
+/**
+ * 检查API可用性
+ * @returns Promise with API状态
+ */
+export async function checkApiAvailability(): Promise<AIApiResponse> {
+  try {
+    const testMessage = [{ role: 'user', content: 'Hello' }];
+    
+    switch (currentApiProvider) {
+      case 'openai':
+        return await callOpenAIProxy(testMessage, currentModel);
+      case 'deepseek':
+        return await callDeepSeekProxy(testMessage, currentModel);
+      case 'gemini':
+        return await callGeminiProxy(testMessage, currentModel);
+      default:
+        return { success: false, error: '不支持的API提供商' };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'API检查失败'
+    };
+  }
+}
+
+/**
+ * 获取API状态
+ * @returns API状态信息
+ */
+export function getApiStatus(): { provider: string; model: string; available: boolean } {
+  return {
+    provider: currentApiProvider,
+    model: currentModel,
+    available: true // 简化实现
+  };
 }
 
 /**
@@ -199,79 +357,71 @@ export async function adaptContent(request: ContentAdaptRequest): Promise<Conten
         }
 
         const prompt = generatePlatformPrompt(platform, originalContent, settings);
+        const messages = [{ role: 'user', content: prompt }];
         
-        // 根据用户选择调用不同的API
-        let response;
-        if (globalSettings.preserveOriginalMeaning) {
-          // 使用OpenAI保持原意
-          response = await callOpenAIProxy([
-            { role: 'user', content: prompt }
-          ]);
-        } else {
-          // 使用DeepSeek进行创意改编
-          response = await callDeepSeekProxy([
-            { role: 'user', content: prompt }
-          ]);
+        let response: AIApiResponse;
+        
+        switch (currentApiProvider) {
+          case 'openai':
+            response = await callOpenAIProxy(messages, currentModel);
+            break;
+          case 'deepseek':
+            response = await callDeepSeekProxy(messages, currentModel);
+            break;
+          case 'gemini':
+            response = await callGeminiProxy(messages, currentModel);
+            break;
+          default:
+            response = { success: false, error: '不支持的API提供商' };
         }
 
         if (response.success && response.data) {
-          const content = response.data.choices?.[0]?.message?.content || '生成失败';
-          
           results.push({
             platform,
-            content,
-            title: globalSettings.optimizeTitle ? `优化后的${settings.name}标题` : undefined,
-            hashtags: globalSettings.addHashtags ? ['#相关标签1', '#相关标签2'] : undefined,
-            suggestions: ['建议1', '建议2']
+            content: response.data,
+            title: settings.name,
+            hashtags: [],
+            suggestions: []
           });
         } else {
           results.push({
             platform,
-            content: '生成失败',
-            error: response.error || '未知错误'
+            content: `生成失败：${response.error || '未知错误'}`,
+            error: response.error
           });
         }
       } catch (error) {
         results.push({
           platform,
-          content: '生成失败',
-          error: error instanceof Error ? error.message : 'Unknown error'
+          content: `处理失败：${error instanceof Error ? error.message : '未知错误'}`,
+          error: error instanceof Error ? error.message : '未知错误'
         });
       }
     }
 
     return {
-      success: true,
-      results
+      success: results.some(r => !r.error),
+      results,
+      error: results.every(r => r.error) ? '所有平台处理失败' : undefined
     };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : '内容适配失败'
     };
   }
 }
 
 /**
  * 批量内容适配
- * @param requests 多个适配请求
- * @returns Promise with 批量结果
+ * @param requests 适配请求数组
+ * @returns Promise with 适配结果数组
  */
 export async function batchAdaptContent(requests: ContentAdaptRequest[]): Promise<ContentAdaptResponse[]> {
   const results = [];
-  
   for (const request of requests) {
-    try {
-      const result = await adaptContent(request);
-      results.push(result);
-    } catch (error) {
-      results.push({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+    results.push(await adaptContent(request));
   }
-  
   return results;
 }
 
@@ -286,20 +436,8 @@ export function getPlatformConfigs(): Record<string, PlatformSettings> {
 /**
  * 验证平台设置
  * @param settings 平台设置
- * @returns 验证结果
+ * @returns 是否有效
  */
 export function validatePlatformSettings(settings: PlatformSettings): boolean {
-  if (!settings.name || !settings.style) {
-    return false;
-  }
-  if (settings.maxLength !== undefined && settings.maxLength < 0) {
-    return false;
-  }
-  if (settings.hashtagStyle && settings.hashtagStyle.length === 0) {
-    return false;
-  }
-  if (settings.specialRequirements && settings.specialRequirements.length === 0) {
-    return false;
-  }
-  return true;
+  return !!(settings.name && settings.description && settings.style);
 }

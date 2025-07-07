@@ -11,7 +11,7 @@ import PermissionGuard from '@/components/auth/PermissionGuard';
  * @returns React 组件
  */
 const PermissionTestPage: React.FC = () => {
-  const { user, isAuthenticated, status } = useAuth();
+  const { user, isAuthenticated, error } = useAuth();
   const [testResults, setTestResults] = useState<string[]>([]);
 
   /**
@@ -27,7 +27,7 @@ const PermissionTestPage: React.FC = () => {
    * 测试基本认证
    */
   const testBasicAuth = () => {
-    addTestResult(`认证状态: ${status} | 已认证: ${isAuthenticated}`);
+    addTestResult(`错误信息: ${error || '无'} | 已认证: ${isAuthenticated}`);
     if (user) {
       addTestResult(`用户信息: ${user.username || user.email || user.id}`);
     }
@@ -73,7 +73,7 @@ const PermissionTestPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="font-medium">状态:</span>
               <Badge variant={isAuthenticated ? "default" : "secondary"}>
-                {status}
+                {error || '正常'}
               </Badge>
             </div>
             <div className="flex items-center gap-2">

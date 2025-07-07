@@ -8,17 +8,13 @@ export default function AuthTestPage() {
     user, 
     isAuthenticated, 
     isLoading, 
-    status, 
+    error, 
     showLogin, 
-    logout, 
-    authing,
-    isInitialized 
+    logout
   } = useAuth();
 
   const handleShowLogin = async () => {
     console.log('AuthTestPage: showLogin called');
-    console.log('AuthTestPage: isInitialized =', isInitialized);
-    console.log('AuthTestPage: authing =', authing);
     try {
       await showLogin();
     } catch (error) {
@@ -35,7 +31,7 @@ export default function AuthTestPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <strong>认证状态:</strong> {status}
+              <strong>错误信息:</strong> {error || '无'}
             </div>
             <div>
               <strong>是否已认证:</strong> {isAuthenticated ? '是' : '否'}
@@ -44,13 +40,7 @@ export default function AuthTestPage() {
               <strong>是否加载中:</strong> {isLoading ? '是' : '否'}
             </div>
             <div>
-              <strong>Authing已初始化:</strong> {isInitialized ? '是' : '否'}
-            </div>
-            <div>
-              <strong>Authing实例:</strong> {authing ? '存在' : '不存在'}
-            </div>
-            <div>
-              <strong>按钮是否禁用:</strong> {!isInitialized ? '是' : '否'}
+              <strong>按钮状态:</strong> 已启用
             </div>
           </div>
 
@@ -66,10 +56,8 @@ export default function AuthTestPage() {
           <div className="flex space-x-4">
             <Button 
               onClick={handleShowLogin} 
-              disabled={!isInitialized}
-              className={!isInitialized ? 'opacity-50 cursor-not-allowed' : ''}
             >
-              显示登录窗口 {!isInitialized && '(初始化中...)'}
+              显示登录窗口
             </Button>
             {isAuthenticated && (
               <Button onClick={logout} variant="outline">
@@ -83,7 +71,7 @@ export default function AuthTestPage() {
             <p>- 如果点击"显示登录窗口"没有反应，请检查浏览器控制台的错误信息</p>
             <p>- 确保 Authing 配置正确，网络连接正常</p>
             <p>- 使用 authing-js-sdk 的 AuthenticationClient</p>
-            <p>- 按钮状态: {isInitialized ? '已启用' : '已禁用 (等待初始化)'}</p>
+            <p>- 按钮状态: 已启用</p>
           </div>
         </CardContent>
       </Card>

@@ -152,12 +152,7 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      await register({
-        phone: phoneForm.phone,
-        code: phoneForm.code,
-        password: phoneForm.password,
-        nickname: phoneForm.nickname
-      });
+      await register(phoneForm.phone, phoneForm.password, phoneForm.nickname);
       
       toast({
         title: "注册成功",
@@ -206,12 +201,7 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      await register({
-        email: emailForm.email,
-        code: emailForm.code,
-        password: emailForm.password,
-        nickname: emailForm.nickname
-      });
+      await register(emailForm.email, emailForm.password, emailForm.nickname);
       
       toast({
         title: "注册成功",
