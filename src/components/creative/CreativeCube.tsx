@@ -31,7 +31,11 @@ import {
   Video,
   Music,
   Camera,
-  Clock
+  Clock,
+  Building2,
+  AlertCircle,
+  Palette,
+  TrendingUp
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -81,73 +85,71 @@ export function CreativeCube() {
   const { toast } = useToast();
   
   // 九宫格维度定义
-  const dimensions: CubeDimension[] = useMemo(() => [
+  const dimensions: CubeDimension[] = [
+    {
+      id: 'industry',
+      name: '行业领域',
+      description: '选择内容所属的行业领域（必选）',
+      icon: <Building2 className="w-4 h-4" />,
+      defaultItems: ['旅游', '教培', '食品饮料', '母婴', '互联网', '金融', '医疗健康', '服饰美妆', '家居家电', '汽车', '宠物', '运动健身', '文化娱乐', '房地产', '政务', '农业']
+    },
     {
       id: 'target_audience',
-      name: '目标客群',
-      description: '目标客户人群标签',
+      name: '目标人群',
+      description: '选择目标用户群体（必选）',
       icon: <Users className="w-4 h-4" />,
-      defaultItems: ['宝妈', '学生党', '上班族', '创业者', '老年人', '年轻人', '专业人士', '自由职业者', '家庭主妇']
+      defaultItems: ['宝妈', '上班族', '学生党', '创业者', '老年人', '年轻人', '情侣', '家庭', '企业', '机构']
     },
     {
       id: 'scenarios',
       name: '使用场景',
-      description: '产品使用或内容传播场景',
+      description: '选择内容应用的具体场景（必选）',
       icon: <MapPin className="w-4 h-4" />,
-      defaultItems: ['居家生活', '工作办公', '户外运动', '社交聚会', '学习充电', '休闲娱乐', '购物消费', '旅行度假', '健康养生']
+      defaultItems: ['居家生活', '工作办公', '社交聚会', '学习充电', '购物消费', '出行旅游', '健康管理', '娱乐休闲']
     },
     {
       id: 'pain_points',
       name: '痛点需求',
-      description: '用户痛点或核心需求',
-      icon: <AlertTriangle className="w-4 h-4" />,
-      defaultItems: ['时间不够', '效率低下', '成本过高', '质量不好', '选择困难', '信息过载', '缺乏专业', '体验不佳', '信任缺失']
-    },
-    {
-      id: 'emotions',
-      name: '情感诉求',
-      description: '激发的情感或心理需求',
-      icon: <Heart className="w-4 h-4" />,
-      defaultItems: ['安全感', '成就感', '归属感', '新鲜感', '优越感', '幸福感', '满足感', '刺激感', '放松感']
+      description: '选择用户面临的核心痛点（必选）',
+      icon: <AlertCircle className="w-4 h-4" />,
+      defaultItems: ['时间不够', '效率低下', '成本过高', '质量不好', '选择困难', '信息过载', '缺乏专业', '体验不佳', '信任缺失', '安全担忧']
     },
     {
       id: 'benefits',
       name: '核心价值',
-      description: '产品或服务的核心价值',
+      description: '选择解决方案的核心价值（推荐）',
       icon: <Star className="w-4 h-4" />,
-      defaultItems: ['省时省力', '提升效率', '降低成本', '改善质量', '简化选择', '专业指导', '优质体验', '建立信任', '创造价值']
-    },
-    {
-      id: 'industry',
-      name: '行业',
-      description: '内容所属行业领域',
-      icon: <Zap className="w-4 h-4" />,
-      defaultItems: [
-        '旅游', '教培', '食品饮料', '母婴', '互联网', '金融', '医疗健康', '服饰美妆', '家居家电', '汽车', '宠物', '运动健身', '文化娱乐', '房地产', '政务', '农业'
-      ]
-    },
-    {
-      id: 'formats',
-      name: '内容形式',
-      description: '内容呈现的形式',
-      icon: <Target className="w-4 h-4" />,
-      defaultItems: ['图文', '短视频', '直播', '音频', 'H5', '小程序', '海报', '长图文', '互动游戏']
+      defaultItems: ['省时省力', '提升效率', '降低成本', '改善质量', '简化选择', '专业指导', '优质体验', '建立信任', '创造价值', '安全保障']
     },
     {
       id: 'tones',
       name: '表达调性',
-      description: '内容的表达风格和调性',
-      icon: <Lightbulb className="w-4 h-4" />,
-      defaultItems: ['专业权威', '轻松幽默', '温暖治愈', '激情澎湃', '理性分析', '感性共鸣', '实用干货', '创意有趣', '高端奢华']
+      description: '选择内容的表达风格（推荐）',
+      icon: <Palette className="w-4 h-4" />,
+      defaultItems: ['轻松幽默', '温暖治愈', '专业权威', '激情澎湃', '简洁明了', '亲切自然']
+    },
+    {
+      id: 'formats',
+      name: '内容形式',
+      description: '选择内容的表现形式（推荐）',
+      icon: <FileText className="w-4 h-4" />,
+      defaultItems: ['图文', '短视频脚本', '长图文', '海报文案', '直播话术', '评论回复']
+    },
+    {
+      id: 'emotions',
+      name: '情感诉求',
+      description: '选择要激发的情感共鸣（可选）',
+      icon: <Heart className="w-4 h-4" />,
+      defaultItems: ['安全感', '成就感', '归属感', '新鲜感', '优越感', '幸福感', '紧迫感', '好奇心']
     },
     {
       id: 'trends',
       name: '热点趋势',
-      description: '当前热点或趋势话题',
-      icon: <Sparkles className="w-4 h-4" />,
-      defaultItems: ['AI技术', '健康生活', '环保理念', '数字化转型', '个性化定制', '社交电商', '知识付费', '国潮文化', '元宇宙']
+      description: '选择要结合的热点话题（可选）',
+      icon: <TrendingUp className="w-4 h-4" />,
+      defaultItems: ['节日营销', '社会热点', '行业动态', '季节变化', '生活话题', '科技趋势', '健康养生', '时尚潮流']
     }
-  ], []);
+  ];
 
   // 状态管理
   const [cubeData, setCubeData] = useState<Record<string, string[]>>({});
@@ -157,6 +159,40 @@ export function CreativeCube() {
   const [currentContent, setCurrentContent] = useState<string>('');
   const [currentContentType, setCurrentContentType] = useState<'text' | 'video'>('text');
   const [videoScript, setVideoScript] = useState<VideoScript[]>([]);
+
+  // 必选维度检查
+  const requiredDimensions = ['industry', 'target_audience', 'scenarios', 'pain_points'];
+  
+  /**
+   * 检查必选维度是否已选择
+   */
+  const checkRequiredDimensions = () => {
+    const missingDimensions = requiredDimensions.filter(dim => !selectedItems[dim]);
+    return {
+      isValid: missingDimensions.length === 0,
+      missing: missingDimensions
+    };
+  };
+
+  /**
+   * 获取维度选择状态
+   */
+  const getDimensionStatus = (dimensionId: string) => {
+    const isRequired = requiredDimensions.includes(dimensionId);
+    const isSelected = !!selectedItems[dimensionId];
+    const isRecommended = ['benefits', 'tones', 'formats'].includes(dimensionId);
+    const isOptional = ['emotions', 'trends'].includes(dimensionId);
+    
+    return {
+      isRequired,
+      isSelected,
+      isRecommended,
+      isOptional,
+      status: isRequired ? (isSelected ? 'required-selected' : 'required-missing') : 
+              isRecommended ? (isSelected ? 'recommended-selected' : 'recommended') :
+              isOptional ? (isSelected ? 'optional-selected' : 'optional') : 'optional'
+    };
+  };
 
   /**
    * 初始化九宫格数据
@@ -243,9 +279,14 @@ export function CreativeCube() {
   const generateTextContent = (prompt: string) => {
     const { target_audience, scenarios, pain_points, tones, benefits, emotions, industry } = selectedItems;
     
-    // 确保所有维度都有值，避免undefined
-    if (!target_audience || !scenarios || !pain_points || !benefits || !emotions || !industry) {
-      return `❌ 请确保选择了所有必要维度：目标人群、使用场景、痛点需求、核心价值、情感诉求、行业`;
+    // 只检查必选维度
+    const requiredCheck = checkRequiredDimensions();
+    if (!requiredCheck.isValid) {
+      const missingNames = requiredCheck.missing.map(dim => {
+        const dimension = dimensions.find(d => d.id === dim);
+        return dimension?.name || dim;
+      });
+      return `❌ 请确保选择了所有必要维度：${missingNames.join('、')}`;
     }
     
     // 根据调性生成不同风格的内容
@@ -463,9 +504,14 @@ ${tags}`;
   const generateStandardContent = () => {
     const { target_audience, scenarios, pain_points, benefits, emotions, industry } = selectedItems;
     
-    // 确保所有维度都有值
-    if (!target_audience || !scenarios || !pain_points || !benefits || !emotions || !industry) {
-      return `❌ 请确保选择了所有必要维度：目标人群、使用场景、痛点需求、核心价值、情感诉求、行业`;
+    // 只检查必选维度
+    const requiredCheck = checkRequiredDimensions();
+    if (!requiredCheck.isValid) {
+      const missingNames = requiredCheck.missing.map(dim => {
+        const dimension = dimensions.find(d => d.id === dim);
+        return dimension?.name || dim;
+      });
+      return `❌ 请确保选择了所有必要维度：${missingNames.join('、')}`;
     }
     
     return `📱 ${target_audience}专属文案
@@ -476,16 +522,16 @@ ${generateStandardTitle()}
 【正文】
 在${scenarios}中，${target_audience}常常面临${pain_points}的困扰。
 
-这种挑战不仅影响日常体验，更让人感到${emotions}。
+${emotions ? `这种挑战不仅影响日常体验，更让人感到${emotions}。` : ''}
 
-然而，通过${benefits}，我们可以有效解决这些问题。
+${benefits ? `然而，通过${benefits}，我们可以有效解决这些问题。` : '我们可以提供有效的解决方案。'}
 
 ${generateIndustrySpecificContent()}
 
 【互动引导】
 ${generateStandardCallToAction()}
 
-#${target_audience} #${scenarios} #${benefits} #${industry}`;
+#${target_audience} #${scenarios} #${industry}`;
   };
 
   /**
@@ -539,9 +585,14 @@ ${generateStandardCallToAction()}
   const generateVideoScript = (prompt: string) => {
     const { target_audience, scenarios, pain_points, tones, benefits, emotions, industry } = selectedItems;
     
-    // 确保所有维度都有值，避免undefined
-    if (!target_audience || !scenarios || !pain_points || !benefits || !emotions || !industry) {
-      return `❌ 请确保选择了所有必要维度：目标人群、使用场景、痛点需求、核心价值、情感诉求、行业`;
+    // 只检查必选维度
+    const requiredCheck = checkRequiredDimensions();
+    if (!requiredCheck.isValid) {
+      const missingNames = requiredCheck.missing.map(dim => {
+        const dimension = dimensions.find(d => d.id === dim);
+        return dimension?.name || dim;
+      });
+      return `❌ 请确保选择了所有必要维度：${missingNames.join('、')}`;
     }
     
     // 根据调性生成不同风格的脚本
@@ -724,9 +775,14 @@ ${getIndustryTags().join(' ')}`;
   const generateStandardVideoScript = () => {
     const { target_audience, scenarios, pain_points, benefits, emotions, industry } = selectedItems;
     
-    // 确保所有维度都有值
-    if (!target_audience || !scenarios || !pain_points || !benefits || !emotions || !industry) {
-      return `❌ 请确保选择了所有必要维度：目标人群、使用场景、痛点需求、核心价值、情感诉求、行业`;
+    // 只检查必选维度
+    const requiredCheck = checkRequiredDimensions();
+    if (!requiredCheck.isValid) {
+      const missingNames = requiredCheck.missing.map(dim => {
+        const dimension = dimensions.find(d => d.id === dim);
+        return dimension?.name || dim;
+      });
+      return `❌ 请确保选择了所有必要维度：${missingNames.join('、')}`;
     }
     
     return `📹 ${target_audience}专属短视频脚本
@@ -737,15 +793,15 @@ ${scenarios}场景，${target_audience}在面临${pain_points}的困扰
 【镜头脚本】
 镜头1：特写问题场景，表现痛点
 镜头2：中景，${target_audience}表情困扰
-镜头3：特写解决方案，手机屏幕显示${benefits}
+镜头3：特写解决方案，手机屏幕显示${benefits || '解决方案'}
 镜头4：中景，${target_audience}表情转变
 镜头5：特写效果展示
 镜头6：全景，问题解决后的满足感
 
 【台词脚本】
 旁白：在${scenarios}中，${target_audience}常常面临${pain_points}的困扰
-${target_audience}：这种挑战不仅影响日常体验，更让人感到${emotions}
-旁白：然而，通过${benefits}，我们可以有效解决这些问题
+${target_audience}：这种挑战不仅影响日常体验${emotions ? `，更让人感到${emotions}` : ''}
+旁白：然而，${benefits ? `通过${benefits}，我们可以有效解决这些问题` : '我们可以提供有效的解决方案'}
 ${target_audience}：${generateIndustrySpecificContent()}
 旁白：让我们一起，为${target_audience}创造更好的${scenarios}体验
 
@@ -756,17 +812,22 @@ ${target_audience}：${generateIndustrySpecificContent()}
 ${generateStandardCallToAction()}
 
 【标签】
-#${target_audience} #${scenarios} #${benefits} #${industry}`;
+#${target_audience} #${scenarios} #${industry}`;
   };
 
   /**
    * 生成创意内容
    */
   const generateIdea = async () => {
-    if (Object.keys(selectedItems).length < 3) {
+    const requiredCheck = checkRequiredDimensions();
+    if (!requiredCheck.isValid) {
+      const missingNames = requiredCheck.missing.map(dim => {
+        const dimension = dimensions.find(d => d.id === dim);
+        return dimension?.name || dim;
+      });
       toast({
-        title: "请至少选择3个维度",
-        description: "选择更多维度可以生成更丰富的创意",
+        title: "请选择必要维度",
+        description: `缺少必要维度：${missingNames.join('、')}`,
         variant: "destructive"
       });
       return;
@@ -898,72 +959,99 @@ ${generateStandardCallToAction()}
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
-            {dimensions.map((dimension) => (
-              <Card key={dimension.id} className="border-2 border-dashed border-gray-200">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    {dimension.icon}
-                    {dimension.name}
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    {dimension.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {/* 已选择的项目 */}
-                  {selectedItems[dimension.id] && (
-                    <div className="p-2 bg-primary/10 rounded-md">
-                      <Badge variant="secondary" className="text-xs">
-                        {selectedItems[dimension.id]}
+            {dimensions.map((dimension) => {
+              const status = getDimensionStatus(dimension.id);
+              const borderColor = status.isRequired 
+                ? (status.isSelected ? 'border-green-500' : 'border-red-500') 
+                : status.isRecommended 
+                ? (status.isSelected ? 'border-blue-500' : 'border-blue-300')
+                : (status.isSelected ? 'border-gray-500' : 'border-gray-200');
+              
+              return (
+                <Card key={dimension.id} className={`border-2 border-dashed ${borderColor} relative`}>
+                  {/* 必选标识 */}
+                  {status.isRequired && (
+                    <div className="absolute -top-2 -right-2 z-10">
+                      <Badge variant={status.isSelected ? "default" : "destructive"} className="text-xs">
+                        {status.isSelected ? "✓" : "必选"}
                       </Badge>
                     </div>
                   )}
                   
-                  {/* 可选项目列表 */}
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {cubeData[dimension.id]?.map((item, index) => (
-                      <div key={index} className="flex items-center p-1 hover:bg-gray-50 rounded">
-                        <span 
-                          className="text-xs cursor-pointer hover:text-primary flex-1"
-                          onClick={() => setSelectedItems(prev => ({
-                            ...prev,
-                            [dimension.id]: item
-                          }))}
-                        >
-                          {item}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  {/* 推荐标识 */}
+                  {status.isRecommended && !status.isRequired && (
+                    <div className="absolute -top-2 -right-2 z-10">
+                      <Badge variant={status.isSelected ? "default" : "secondary"} className="text-xs">
+                        {status.isSelected ? "✓" : "推荐"}
+                      </Badge>
+                    </div>
+                  )}
                   
-                  {/* 添加新项目 */}
-                  <div className="flex gap-1">
-                    <Input
-                      placeholder="添加新项目"
-                      className="text-xs h-6"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          addItemToCube(dimension.id, e.currentTarget.value);
-                          e.currentTarget.value = '';
-                        }
-                      }}
-                    />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-6 w-6 p-0"
-                      onClick={(e) => {
-                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                        addItemToCube(dimension.id, input.value);
-                        input.value = '';
-                      }}
-                    >
-                      <Plus className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      {dimension.icon}
+                      {dimension.name}
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {dimension.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {/* 已选择的项目 */}
+                    {selectedItems[dimension.id] && (
+                      <div className="p-2 bg-primary/10 rounded-md">
+                        <Badge variant="secondary" className="text-xs">
+                          {selectedItems[dimension.id]}
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    {/* 可选项目列表 */}
+                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                      {cubeData[dimension.id]?.map((item, index) => (
+                        <div key={index} className="flex items-center p-1 hover:bg-gray-50 rounded">
+                          <span 
+                            className="text-xs cursor-pointer hover:text-primary flex-1"
+                            onClick={() => setSelectedItems(prev => ({
+                              ...prev,
+                              [dimension.id]: item
+                            }))}
+                          >
+                            {item}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* 添加新项目 */}
+                    <div className="flex gap-1">
+                      <Input
+                        placeholder="添加新项目"
+                        className="text-xs h-6"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            addItemToCube(dimension.id, e.currentTarget.value);
+                            e.currentTarget.value = '';
+                          }
+                        }}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 w-6 p-0"
+                        onClick={(e) => {
+                          const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                          addItemToCube(dimension.id, input.value);
+                          input.value = '';
+                        }}
+                      >
+                        <Plus className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
