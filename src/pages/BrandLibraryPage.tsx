@@ -10,12 +10,13 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Database, Upload, FileText, File, FileImage, 
   AlertCircle, Info, Search,
-  SortAsc, Filter, Check, Clock, ArrowLeft
+  SortAsc, Filter, Check, Clock
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PageNavigation from '@/components/layout/PageNavigation';
 
 // Interface for brand assets
 interface BrandAsset {
@@ -143,41 +144,29 @@ export default function BrandLibraryPage() {
   //   }
   // };
   
-
-  
   return (
-    <div className="container py-8">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          返回首页
-        </Button>
-      </div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent flex items-center">
-            品牌资料库
-            <Badge variant="outline" className="ml-3 bg-amber-50 text-amber-700 border-amber-200">
-              <Clock className="h-3 w-3 mr-1" />
-              功能开发中
-            </Badge>
-          </h1>
-          <p className="text-gray-500 mt-1">上传、管理和应用您的品牌资料，提升内容生成质量</p>
-        </div>
-      </div>
-      
-      {/* Development In Progress Notification */}
-      <Alert className="mb-6 bg-amber-50 border-amber-200">
-        <AlertCircle className="h-5 w-5 text-amber-600" />
-        <AlertDescription className="text-amber-700 flex-1">
-          <p className="font-medium">品牌库功能正在开发中</p>
-          <p className="text-sm mt-1">我们正在努力开发这项高级功能，预计将于近期上线。品牌库将帮助您维护品牌一致性，确保所有生成内容符合您的品牌调性。</p>
-        </AlertDescription>
-      </Alert>
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面导航 */}
+      <PageNavigation
+        title="品牌资料库"
+        description="上传、管理和应用您的品牌资料，提升内容生成质量"
+        actions={
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+            <Clock className="h-3 w-3 mr-1" />
+            开发中
+          </Badge>
+        }
+      />
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Development In Progress Notification */}
+        <Alert className="mb-6 bg-amber-50 border-amber-200">
+          <AlertCircle className="h-5 w-5 text-amber-600" />
+          <AlertDescription className="text-amber-700 flex-1">
+            <p className="font-medium">品牌库功能正在开发中</p>
+            <p className="text-sm mt-1">我们正在努力开发这项高级功能，预计将于近期上线。品牌库将帮助您维护品牌一致性，确保所有生成内容符合您的品牌调性。</p>
+          </AlertDescription>
+        </Alert>
       
       <div className="grid grid-cols-1 gap-6">
         {/* Upload Section */}
@@ -420,6 +409,7 @@ export default function BrandLibraryPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   );
 }

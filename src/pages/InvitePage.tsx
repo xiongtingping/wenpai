@@ -29,8 +29,8 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import PageNavigation from '@/components/layout/PageNavigation';
 
 function InvitePage() {
   const { toast } = useToast();
@@ -89,22 +89,23 @@ function InvitePage() {
   };
 
   return (
-    <div className="container mx-auto py-12 max-w-6xl">
-      <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          返回首页
-        </Button>
-      </div>
-      <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-8">邀请好友 · 获得奖励</h1>
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面导航 */}
+      <PageNavigation
+        title="邀请好友"
+        description="邀请朋友注册，双方都能获得免费使用次数奖励"
+        actions={
+          <Button>
+            <Share2 className="h-4 w-4 mr-1" />
+            立即分享
+          </Button>
+        }
+      />
 
-      <div className="space-y-6">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="space-y-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="md:col-span-2 border-2 border-blue-100 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
                 <h2 className="text-xl font-bold flex items-center">
@@ -247,6 +248,7 @@ function InvitePage() {
             </Card>
           )}
         </div>
+      </div>
     </div>
   );
 }
