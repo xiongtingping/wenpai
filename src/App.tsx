@@ -117,6 +117,14 @@ const AppContent: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        <Route path="/library" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <BookmarkPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
         <Route path="/emojis" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>

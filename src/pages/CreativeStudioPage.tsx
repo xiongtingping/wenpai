@@ -1,6 +1,6 @@
 /**
  * 创意工作室页面
- * 包含九宫格创意魔方、文案保存区、营销日历和朋友圈模板
+ * 包含九宫格创意魔方、营销日历和朋友圈模板
  */
 
 import React, { useState, useEffect } from 'react';
@@ -40,12 +40,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
-  MessageCircle
+  MessageCircle,
+  FolderOpen
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
-import { MemoManager } from '@/components/creative/MemoManager';
 import { MarketingCalendar } from '@/components/creative/MarketingCalendar';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 
@@ -56,7 +56,7 @@ import WechatTemplatePage from '@/pages/WechatTemplatePage';
 export default function CreativeStudioPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* 返回按钮 */}
@@ -74,21 +74,24 @@ export default function CreativeStudioPage() {
       {/* 页面标题 */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">创意工作室</h1>
-        <p className="text-gray-600">
-          九宫格创意魔方、文案管理、营销日历一体化创意工具
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-gray-600">
+            激发创意灵感，快速生成高质量内容
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/library')}>
+              <FolderOpen className="w-4 h-4 mr-2" />
+              我的资料库
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* 功能标签页 */}
       <Tabs defaultValue="cube" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="cube" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             创意魔方
-          </TabsTrigger>
-          <TabsTrigger value="memo" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            文案管理
           </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
@@ -103,11 +106,6 @@ export default function CreativeStudioPage() {
         {/* 九宫格创意魔方 */}
         <TabsContent value="cube" className="mt-6">
           <CreativeCube />
-        </TabsContent>
-
-        {/* 文案管理 */}
-        <TabsContent value="memo" className="mt-6">
-          <MemoManager />
         </TabsContent>
 
         {/* 营销日历 */}
