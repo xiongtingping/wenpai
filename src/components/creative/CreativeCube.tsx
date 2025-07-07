@@ -87,67 +87,67 @@ export function CreativeCube() {
   // 九宫格维度定义
   const dimensions: CubeDimension[] = [
     {
-      id: 'industry',
-      name: '行业领域',
-      description: '选择内容所属的行业领域（必选）',
-      icon: <Building2 className="w-4 h-4" />,
-      defaultItems: ['旅游', '教培', '食品饮料', '母婴', '互联网', '金融', '医疗健康', '服饰美妆', '家居家电', '汽车', '宠物', '运动健身', '文化娱乐', '房地产', '政务', '农业']
-    },
-    {
       id: 'target_audience',
-      name: '目标人群',
+      name: '目标客群',
       description: '选择目标用户群体（必选）',
       icon: <Users className="w-4 h-4" />,
-      defaultItems: ['宝妈', '上班族', '学生党', '创业者', '老年人', '年轻人', '情侣', '家庭', '企业', '机构']
+      defaultItems: ['宝妈', '大学生', '银发族', '职场人', '中产女性', 'Z世代', '宠物主', '健身人群', 'K12家长', '二次元', '科技控', '新手创业者']
     },
     {
-      id: 'scenarios',
+      id: 'use_case',
       name: '使用场景',
       description: '选择内容应用的具体场景（必选）',
       icon: <MapPin className="w-4 h-4" />,
-      defaultItems: ['居家生活', '工作办公', '社交聚会', '学习充电', '购物消费', '出行旅游', '健康管理', '娱乐休闲']
+      defaultItems: ['通勤', '健身', '夜宵', '家庭聚会', '旅游途中', '碎片时间', '出差', '露营', '独处时刻', '早晚高峰', '带娃时', '睡前']
     },
     {
-      id: 'pain_points',
-      name: '痛点需求',
+      id: 'pain_point',
+      name: '用户痛点',
       description: '选择用户面临的核心痛点（必选）',
       icon: <AlertCircle className="w-4 h-4" />,
-      defaultItems: ['时间不够', '效率低下', '成本过高', '质量不好', '选择困难', '信息过载', '缺乏专业', '体验不佳', '信任缺失', '安全担忧']
+      defaultItems: ['时间不够', '预算不足', '操作复杂', '选择困难', '效果不稳', '信息过载', '服务差', '信任缺失', '缺乏动力', '内容同质化']
     },
     {
-      id: 'benefits',
+      id: 'industry',
+      name: '行业',
+      description: '选择内容所属的行业领域（必选）',
+      icon: <Building2 className="w-4 h-4" />,
+      defaultItems: ['母婴', '美妆', '旅游', '健康', '教育', '职场', '电商', '本地生活', '宠物', '数码', '食品饮料', '健身', '金融理财']
+    },
+    {
+      id: 'core_value',
       name: '核心价值',
       description: '选择解决方案的核心价值（推荐）',
       icon: <Star className="w-4 h-4" />,
-      defaultItems: ['省时省力', '提升效率', '降低成本', '改善质量', '简化选择', '专业指导', '优质体验', '建立信任', '创造价值', '安全保障']
+      defaultItems: ['提升效率', '改善体验', '节约成本', '增强信任', '拓宽视野', '激发灵感', '个性表达', '提高品质', '促进成长']
     },
     {
-      id: 'tones',
-      name: '表达调性',
+      id: 'tone_style',
+      name: '表达风格',
       description: '选择内容的表达风格（推荐）',
       icon: <Palette className="w-4 h-4" />,
-      defaultItems: ['轻松幽默', '温暖治愈', '专业权威', '激情澎湃', '简洁明了', '亲切自然']
+      defaultItems: ['轻松幽默', '极简干练', '专业可信', '情感共鸣', '反差反转', '热梗混剪', '小剧场', '第一人称', '旁白式', '访谈感']
     },
     {
-      id: 'formats',
+      id: 'content_format',
       name: '内容形式',
       description: '选择内容的表现形式（推荐）',
       icon: <FileText className="w-4 h-4" />,
-      defaultItems: ['图文', '短视频脚本', '长图文', '海报文案', '直播话术', '评论回复']
+      defaultItems: ['图文', '短视频', '直播', 'H5', '长图', '故事接龙', '清单类', '榜单类', '分镜脚本']
     },
     {
-      id: 'emotions',
+      id: 'emotional_need',
       name: '情感诉求',
       description: '选择要激发的情感共鸣（可选）',
       icon: <Heart className="w-4 h-4" />,
-      defaultItems: ['安全感', '成就感', '归属感', '新鲜感', '优越感', '幸福感', '紧迫感', '好奇心']
+      defaultItems: ['安全感', '归属感', '成就感', '愉悦感', '陪伴感', '放松感', '被理解', '被尊重', '掌控感', '仪式感']
     },
     {
-      id: 'trends',
-      name: '热点趋势',
-      description: '选择要结合的热点话题（可选）',
+      id: 'platform_or_trend',
+      name: '平台/趋势',
+      description: '选择要结合的平台或趋势（可选）',
       icon: <TrendingUp className="w-4 h-4" />,
-      defaultItems: ['节日营销', '社会热点', '行业动态', '季节变化', '生活话题', '科技趋势', '健康养生', '时尚潮流']
+      defaultItems: ['小红书', '抖音', '知乎', '公众号', '搭子经济', '反向旅游', '高质量独居', '无糖生活', 'AI助理', '低欲望生活']
     }
   ];
 
@@ -161,7 +161,7 @@ export function CreativeCube() {
   const [videoScript, setVideoScript] = useState<VideoScript[]>([]);
 
   // 必选维度检查
-  const requiredDimensions = ['industry', 'target_audience', 'scenarios', 'pain_points'];
+  const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
   
   /**
    * 检查必选维度是否已选择
@@ -180,8 +180,8 @@ export function CreativeCube() {
   const getDimensionStatus = (dimensionId: string) => {
     const isRequired = requiredDimensions.includes(dimensionId);
     const isSelected = !!selectedItems[dimensionId];
-    const isRecommended = ['benefits', 'tones', 'formats'].includes(dimensionId);
-    const isOptional = ['emotions', 'trends'].includes(dimensionId);
+    const isRecommended = ['core_value', 'tone_style', 'content_format'].includes(dimensionId);
+    const isOptional = ['emotional_need', 'platform_or_trend'].includes(dimensionId);
     
     return {
       isRequired,
@@ -240,27 +240,29 @@ export function CreativeCube() {
    */
   const buildPrompt = () => {
     const {
-      target_audience = '目标用户',
-      scenarios = '使用场景',
-      pain_points = '痛点需求',
-      emotions = '情感诉求',
-      benefits = '核心价值',
+      target_audience = '目标客群',
+      use_case = '使用场景',
+      pain_point = '用户痛点',
+      emotional_need = '情感诉求',
+      core_value = '核心价值',
       industry = '行业',
-      formats = '内容形式',
-      tones = '表达调性',
-      trends = '热点趋势'
+      content_format = '内容形式',
+      tone_style = '表达风格',
+      platform_or_trend = '平台/趋势'
     } = selectedItems;
 
-    return `请根据以下多维度配置生成一段用于【朋友圈】或【小红书】的图文内容，风格为【${tones}】，内容形式为【${formats}】。必须严格使用以下所有维度信息，并避免使用"提升效率""提供安全感"等模板式话术，要求生活化、真实感强、带网络热梗、情境代入强。
+    return `请根据以下多维度配置生成一段用于【朋友圈】或【小红书】的图文内容，风格为【${tone_style}】，内容形式为【${content_format}】。必须严格使用以下所有维度信息，并避免使用"提升效率""提供安全感"等模板式话术，要求生活化、真实感强、带网络热梗、情境代入强。
 
 维度：
+- 目标客群：${target_audience}
+- 使用场景：${use_case}
+- 用户痛点：${pain_point}
 - 行业：${industry}
-- 目标用户：${target_audience}
-- 使用场景：${scenarios}
-- 用户痛点：${pain_points}
-- 情感诉求：${emotions}
-- 核心价值：${benefits}
-- 热点趋势：${trends}
+- 核心价值：${core_value}
+- 表达风格：${tone_style}
+- 内容形式：${content_format}
+- 情感诉求：${emotional_need}
+- 平台/趋势：${platform_or_trend}
 
 输出要求：
 1. 标题：突出情境与人设冲突
@@ -277,7 +279,7 @@ export function CreativeCube() {
    * 生成图文内容
    */
   const generateTextContent = (prompt: string) => {
-    const { target_audience, scenarios, pain_points, tones, benefits, emotions, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, tone_style, core_value, emotional_need, industry } = selectedItems;
     
     // 只检查必选维度
     const requiredCheck = checkRequiredDimensions();
@@ -290,7 +292,7 @@ export function CreativeCube() {
     }
     
     // 根据调性生成不同风格的内容
-    if (tones === '轻松幽默') {
+    if (tone_style === '轻松幽默') {
       return generateHumorousContent();
     } else {
       return generateStandardContent();
@@ -303,22 +305,19 @@ export function CreativeCube() {
   const getIndustryTags = () => {
     const { industry } = selectedItems;
     const industryTags = {
-      '旅游': ['#居家生活', '#降低成本', '#宝妈日记', '#穷游风也能很美'],
-      '教培': ['#学习充电', '#提分秘籍', '#家长必看', '#教育投资'],
-      '食品饮料': ['#美食分享', '#省钱攻略', '#吃货日常', '#健康生活'],
       '母婴': ['#宝妈日常', '#育儿经验', '#省钱妙招', '#亲子时光'],
-      '互联网': ['#效率神器', '#黑科技', '#数字生活', '#智能推荐'],
-      '金融': ['#理财规划', '#财富自由', '#投资理财', '#资产配置'],
-      '医疗健康': ['#健康生活', '#科学养生', '#医疗科普', '#健康管理'],
-      '服饰美妆': ['#穿搭灵感', '#变美秘籍', '#时尚种草', '#美妆测评'],
-      '家居家电': ['#品质生活', '#智能家居', '#收纳神器', '#家装灵感'],
-      '汽车': ['#智能驾驶', '#省油省心', '#新车测评', '#驾驶体验'],
+      '美妆': ['#美妆分享', '#护肤心得', '#变美秘籍', '#美妆测评'],
+      '旅游': ['#旅行攻略', '#省钱旅游', '#旅行日记', '#穷游风也能很美'],
+      '健康': ['#健康生活', '#养生心得', '#健康管理', '#科学养生'],
+      '教育': ['#学习充电', '#提分秘籍', '#家长必看', '#教育投资'],
+      '职场': ['#职场心得', '#工作效率', '#职场技能', '#职业发展'],
+      '电商': ['#购物分享', '#省钱攻略', '#好物推荐', '#购物清单'],
+      '本地生活': ['#本地美食', '#生活服务', '#城市探索', '#生活便利'],
       '宠物': ['#萌宠日常', '#铲屎官必看', '#宠物健康', '#宠物互动'],
-      '运动健身': ['#燃脂打卡', '#健身计划', '#运动装备', '#健康塑形'],
-      '文化娱乐': ['#追剧安利', '#演出现场', '#娱乐八卦', '#粉丝互动'],
-      '房地产': ['#置业首选', '#楼盘推荐', '#装修灵感', '#投资回报'],
-      '政务': ['#便民服务', '#政策解读', '#政务公开', '#民生关注'],
-      '农业': ['#绿色种植', '#农技科普', '#丰收喜悦', '#乡村振兴']
+      '数码': ['#数码测评', '#科技分享', '#数码生活', '#智能设备'],
+      '食品饮料': ['#美食分享', '#吃货日常', '#健康饮食', '#美食测评'],
+      '健身': ['#健身打卡', '#运动装备', '#健康塑形', '#燃脂计划'],
+      '金融理财': ['#理财规划', '#投资理财', '#财富管理', '#理财心得']
     };
     
     return industryTags[industry] || ['#生活分享', '#实用技巧', '#经验分享'];
@@ -328,45 +327,52 @@ export function CreativeCube() {
    * 生成轻松幽默风格内容
    */
   const generateHumorousContent = () => {
-    const { target_audience, scenarios, pain_points, benefits, emotions, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, core_value, emotional_need, industry } = selectedItems;
     
     // 背景设定：基于行业+场景的真实情境
     const getBackgroundSetting = () => {
       const backgrounds = {
         '旅游': {
-          '居家生活': `${target_audience}想带娃出去浪？机票价格劝退一整年😵‍💫`,
-          '工作办公': `${target_audience}出差回来，钱包瘦了一圈💸`,
-          '社交聚会': `${target_audience}聚会选餐厅，人均200+劝退一半人😅`
-        },
-        '教培': {
-          '居家生活': `${target_audience}在家辅导作业，血压飙升到180😤`,
-          '学习充电': `${target_audience}报班费用比房贷还贵，心在滴血💔`,
-          '工作办公': `${target_audience}工作忙到没时间学习，焦虑到秃头😱`
-        },
-        '食品饮料': {
-          '居家生活': `${target_audience}在家做饭，食材比外卖还贵😭`,
-          '社交聚会': `${target_audience}聚会点餐，人均消费让人想逃😰`,
-          '购物消费': `${target_audience}超市购物，账单比工资还长📄`
+          '通勤': `${target_audience}通勤路上，地铁挤得像沙丁鱼罐头😵‍💫`,
+          '旅游途中': `${target_audience}旅游途中，钱包瘦了一圈💸`,
+          '出差': `${target_audience}出差回来，行李箱比心情还重😅`
         },
         '母婴': {
-          '居家生活': `${target_audience}带娃日常，奶粉尿布比黄金还贵💰`,
-          '购物消费': `${target_audience}母婴店购物，钱包瞬间被掏空💸`,
-          '社交聚会': `${target_audience}带娃聚会，装备比搬家还多🎒`
+          '带娃时': `${target_audience}带娃日常，奶粉尿布比黄金还贵💰`,
+          '家庭聚会': `${target_audience}家庭聚会，装备比搬家还多🎒`,
+          '睡前': `${target_audience}睡前哄娃，比加班还累😴`
+        },
+        '美妆': {
+          '通勤': `${target_audience}通勤化妆，地铁上补妆像杂技表演🎭`,
+          '夜宵': `${target_audience}夜宵后卸妆，比上班还认真🧴`,
+          '独处时刻': `${target_audience}独处时刻，护肤比约会还精致💄`
+        },
+        '健康': {
+          '健身': `${target_audience}健身打卡，肌肉比钱包还瘦💪`,
+          '碎片时间': `${target_audience}碎片时间养生，比工作还忙🏃‍♀️`,
+          '睡前': `${target_audience}睡前养生，比考试还紧张😰`
         }
       };
       
-      return backgrounds[industry]?.[scenarios] || 
-        `${target_audience}在${scenarios}中遇到${pain_points}，简直让人崩溃😫`;
+      return backgrounds[industry]?.[use_case] || 
+        `${target_audience}在${use_case}中遇到${pain_point}，简直让人崩溃😫`;
     };
 
     // 人设代入：融入目标用户特征
     const getCharacterSetting = () => {
       const characters = {
         '宝妈': '带娃出门就是大型物流现场，装备比搬家还多🎒',
-        '上班族': '工作忙到连喝水的时间都没有，咖啡当饭吃☕',
-        '学生党': '学习压力大到想躺平，但钱包不允许😅',
-        '创业者': '创业路上坑太多，钱包比脸还干净💸',
-        '老年人': '退休生活本应轻松，但物价上涨让人焦虑😰'
+        '大学生': '学习压力大到想躺平，但钱包不允许😅',
+        '银发族': '退休生活本应轻松，但物价上涨让人焦虑😰',
+        '职场人': '工作忙到连喝水的时间都没有，咖啡当饭吃☕',
+        '中产女性': '精致生活不易，钱包在哭泣💸',
+        'Z世代': '年轻人压力山大，但依然要精致生活✨',
+        '宠物主': '铲屎官日常，比上班还累🐱',
+        '健身人群': '健身路上坑太多，钱包比肌肉还瘦💪',
+        'K12家长': '辅导作业血压飙升，比工作还累📚',
+        '二次元': '二次元世界太美好，现实太残酷😭',
+        '科技控': '科技产品更新太快，钱包跟不上节奏💻',
+        '新手创业者': '创业路上坑太多，钱包比脸还干净💸'
       };
       
       return characters[target_audience] || `${target_audience}的日常就是各种挑战`;
@@ -376,34 +382,35 @@ export function CreativeCube() {
     const getConflictPoint = () => {
       const conflicts = {
         '时间不够': '时间去哪了我不知道，但洗衣机确实等不了我！⏰',
-        '效率低下': '效率低到连蜗牛都看不下去了🐌',
-        '成本过高': `${pain_points}？钱包在哭泣，心在滴血💸`,
-        '质量不好': '质量差到连自己都嫌弃😤',
+        '预算不足': '预算不足？钱包在哭泣，心在滴血💸',
+        '操作复杂': '操作复杂到连说明书都看不懂😤',
         '选择困难': '选择困难症发作，纠结到天荒地老🤔',
+        '效果不稳': '效果不稳，比天气预报还不可靠🌦️',
         '信息过载': '信息多到脑子要爆炸💥',
-        '缺乏专业': '专业度不够，感觉自己像个小白😅',
-        '体验不佳': '体验差到想投诉，但又懒得动😪',
-        '信任缺失': '信任度低到连自己都不信自己😰'
+        '服务差': '服务差到想投诉，但又懒得动😪',
+        '信任缺失': '信任度低到连自己都不信自己😰',
+        '缺乏动力': '缺乏动力，比咸鱼还咸🐟',
+        '内容同质化': '内容同质化，比复制粘贴还无聊📋'
       };
       
-      return conflicts[pain_points] || `${pain_points}？简直让人崩溃！`;
+      return conflicts[pain_point] || `${pain_point}？简直让人崩溃！`;
     };
 
     // 解决方案设定：具体化价值
     const getSolution = () => {
       const solutions = {
-        '省时省力': `好在我发现了${benefits}神器，省时又不掉链子✨`,
-        '提升效率': `有了${benefits}，效率直接起飞🚀`,
-        '降低成本': `通过${benefits}，钱包终于不用哭泣了💰`,
-        '改善质量': `${benefits}让质量直接升级，太香了！🌟`,
-        '简化选择': `${benefits}帮我做选择，纠结症有救了🎯`,
-        '专业指导': `${benefits}提供专业指导，小白也能变大神👑`,
-        '优质体验': `${benefits}带来优质体验，幸福感爆棚💖`,
-        '建立信任': `${benefits}建立信任，安全感满满🛡️`,
-        '创造价值': `${benefits}创造价值，生活更有意义🎉`
+        '提升效率': `好在我发现了${core_value}神器，效率直接起飞🚀`,
+        '改善体验': `有了${core_value}，体验直接升级，太香了！🌟`,
+        '节约成本': `通过${core_value}，钱包终于不用哭泣了💰`,
+        '增强信任': `${core_value}建立信任，安全感满满🛡️`,
+        '拓宽视野': `${core_value}拓宽视野，眼界大开👀`,
+        '激发灵感': `${core_value}激发灵感，创意爆棚💡`,
+        '个性表达': `${core_value}个性表达，独一无二✨`,
+        '提高品质': `${core_value}提高品质，生活更美好🎉`,
+        '促进成长': `${core_value}促进成长，进步神速📈`
       };
       
-      return solutions[benefits] || `通过${benefits}，问题迎刃而解！`;
+      return solutions[core_value] || `通过${core_value}，问题迎刃而解！`;
     };
 
     const background = getBackgroundSetting();
@@ -426,9 +433,9 @@ ${conflict}
 
 ${solution}
 
-不用当超人，也能搞定${scenarios}的突发事件。
+不用当超人，也能搞定${use_case}的突发事件。
 
-谁说${target_audience}不能松口气？我偏要让${benefits}带我飞～
+谁说${target_audience}不能松口气？我偏要让${core_value}带我飞～
 
 【互动引导】
 ${generateHumorousCallToAction()}
@@ -440,69 +447,66 @@ ${tags}`;
    * 生成轻松幽默标题
    */
   const generateHumorousTitle = () => {
-    const { target_audience, scenarios, pain_points, benefits, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, core_value, industry } = selectedItems;
     
     const titleTemplates = {
       '旅游': {
-        '居家生活': `"旅游不如在家省一笔"——${target_audience}的居家反击战⚔️`,
-        '工作办公': `"出差回来钱包瘦了"——${target_audience}的省钱秘籍💰`,
-        '社交聚会': `"聚会选餐厅太难了"——${target_audience}的省钱攻略🎯`
-      },
-      '教培': {
-        '居家生活': `"辅导作业血压飙升"——${target_audience}的救赎之路😤`,
-        '学习充电': `"报班费用比房贷贵"——${target_audience}的省钱大法💸`,
-        '工作办公': `"工作忙到没时间学习"——${target_audience}的时间管理⏰`
-      },
-      '食品饮料': {
-        '居家生活': `"在家做饭比外卖贵"——${target_audience}的省钱妙招🍳`,
-        '社交聚会': `"聚会点餐人均200+"——${target_audience}的省钱攻略🍽️`,
-        '购物消费': `"超市账单比工资长"——${target_audience}的购物清单📄`
+        '通勤': `"通勤路上钱包瘦了"——${target_audience}的省钱秘籍💰`,
+        '旅游途中': `"旅游途中钱包瘦了"——${target_audience}的旅行攻略🌟`,
+        '出差': `"出差回来行李箱重了"——${target_audience}的出差日记📝`
       },
       '母婴': {
-        '居家生活': `"奶粉尿布比黄金贵"——${target_audience}的省钱日记💰`,
-        '购物消费': `"母婴店购物钱包空"——${target_audience}的省钱秘籍🛒`,
-        '社交聚会': `"带娃聚会装备多"——${target_audience}的出行攻略🎒`
+        '带娃时': `"带娃日常奶粉尿布贵"——${target_audience}的育儿日记👶`,
+        '家庭聚会': `"家庭聚会装备多"——${target_audience}的聚会攻略🎉`,
+        '睡前': `"睡前哄娃比加班累"——${target_audience}的带娃日记😴`
+      },
+      '美妆': {
+        '通勤': `"通勤化妆地铁补妆"——${target_audience}的通勤日记🎭`,
+        '夜宵': `"夜宵后卸妆比上班认真"——${target_audience}的护肤日记🧴`,
+        '独处时刻': `"独处时刻护肤比约会精致"——${target_audience}的护肤日记💄`
+      },
+      '健康': {
+        '健身': `"健身打卡肌肉比钱包瘦"——${target_audience}的健身日记💪`,
+        '碎片时间': `"碎片时间养生比工作忙"——${target_audience}的养生日记🏃‍♀️`,
+        '睡前': `"睡前养生比考试紧张"——${target_audience}的养生日记😰`
       }
     };
     
-    return titleTemplates[industry]?.[scenarios] || 
-      `"${pain_points}太崩溃"——${target_audience}的${benefits}秘籍✨`;
+    return titleTemplates[industry]?.[use_case] || 
+      `"${pain_point}太崩溃"——${target_audience}的${core_value}秘籍✨`;
   };
 
   /**
    * 生成轻松幽默互动引导
    */
   const generateHumorousCallToAction = () => {
-    const { target_audience, scenarios, pain_points, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, industry } = selectedItems;
     
     const callToActions = {
       '旅游': `你有过被旅游价格劝退的瞬间吗？留言告诉我你的省钱妙招！✈️`,
-      '教培': `你辅导作业时血压最高到多少？来评论区吐槽一下！📚`,
-      '食品饮料': `你最近发现什么省钱美食？快来安利给我！🍜`,
       '母婴': `带娃路上有什么省钱妙招？宝妈们快来分享！👶`,
-      '互联网': `你用过最省心的效率神器是什么？求推荐！💻`,
-      '金融': `你最近有什么理财心得？来分享一下！💰`,
-      '医疗健康': `你有什么养生小妙招？求分享！🏥`,
-      '服饰美妆': `你最近发现什么平价好物？快来种草！💄`,
-      '家居家电': `你有什么收纳神器推荐？求安利！🏠`,
-      '汽车': `你开车有什么省油妙招？来分享一下！🚗`,
+      '美妆': `你最近发现什么平价好物？快来种草！💄`,
+      '健康': `你有什么养生小妙招？求分享！🏥`,
+      '教育': `你辅导作业时血压最高到多少？来评论区吐槽一下！📚`,
+      '职场': `你工作中有哪些效率神器？求推荐！💼`,
+      '电商': `你最近买过什么好物？快来安利！🛒`,
+      '本地生活': `你发现什么本地好去处？求推荐！🏠`,
       '宠物': `铲屎官们有什么省钱妙招？求推荐！🐱`,
-      '运动健身': `你有什么健身省钱攻略？来分享一下！💪`,
-      '文化娱乐': `你最近看什么好剧？求推荐！📺`,
-      '房地产': `你买房有什么省钱攻略？来分享一下！🏢`,
-      '政务': `你用过什么便民服务？求推荐！📋`,
-      '农业': `你有什么种植心得？来分享一下！🌱`
+      '数码': `你用过最省心的数码产品是什么？求推荐！💻`,
+      '食品饮料': `你最近发现什么省钱美食？快来安利给我！🍜`,
+      '健身': `你有什么健身省钱攻略？来分享一下！💪`,
+      '金融理财': `你最近有什么理财心得？来分享一下！💰`
     };
     
     return callToActions[industry] || 
-      `你在${scenarios}中遇到过${pain_points}吗？来评论区吐槽一下！😄`;
+      `你在${use_case}中遇到过${pain_point}吗？来评论区吐槽一下！😄`;
   };
 
   /**
    * 生成标准风格内容
    */
   const generateStandardContent = () => {
-    const { target_audience, scenarios, pain_points, benefits, emotions, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, core_value, emotional_need, industry } = selectedItems;
     
     // 只检查必选维度
     const requiredCheck = checkRequiredDimensions();
@@ -520,70 +524,67 @@ ${tags}`;
 ${generateStandardTitle()}
 
 【正文】
-在${scenarios}中，${target_audience}常常面临${pain_points}的困扰。
+在${use_case}中，${target_audience}常常面临${pain_point}的困扰。
 
-${emotions ? `这种挑战不仅影响日常体验，更让人感到${emotions}。` : ''}
+${emotional_need ? `这种挑战不仅影响日常体验，更让人感到${emotional_need}。` : ''}
 
-${benefits ? `然而，通过${benefits}，我们可以有效解决这些问题。` : '我们可以提供有效的解决方案。'}
+${core_value ? `然而，通过${core_value}，我们可以有效解决这些问题。` : '我们可以提供有效的解决方案。'}
 
 ${generateIndustrySpecificContent()}
 
 【互动引导】
 ${generateStandardCallToAction()}
 
-#${target_audience} #${scenarios} #${industry}`;
+#${target_audience} #${use_case} #${industry}`;
   };
 
   /**
    * 生成标准标题
    */
   const generateStandardTitle = () => {
-    const { target_audience, scenarios, pain_points, benefits } = selectedItems;
-    return `${target_audience}的${scenarios}新选择：用${benefits}解决${pain_points}`;
+    const { target_audience, use_case, pain_point, core_value } = selectedItems;
+    return `${target_audience}的${use_case}新选择：用${core_value}解决${pain_point}`;
   };
 
   /**
    * 生成行业特定内容
    */
   const generateIndustrySpecificContent = () => {
-    const { industry, target_audience, benefits } = selectedItems;
+    const { industry, target_audience, core_value } = selectedItems;
     
     const industryContent = {
-      '旅游': `无论是家庭出游还是商务出行，${benefits}都能为${target_audience}提供更优质的旅行体验。`,
-      '教培': `在学习和成长的道路上，${benefits}为${target_audience}提供专业支持和指导。`,
-      '食品饮料': `从日常饮食到社交聚会，${benefits}让${target_audience}享受更美好的用餐体验。`,
-      '母婴': `在育儿过程中，${benefits}为${target_audience}提供贴心的服务和解决方案。`,
-      '互联网': `在数字化时代，${benefits}帮助${target_audience}提升效率和生活品质。`,
-      '金融': `在理财规划中，${benefits}为${target_audience}提供专业的金融服务。`,
-      '医疗健康': `在健康管理中，${benefits}为${target_audience}提供科学的健康指导。`,
-      '服饰美妆': `在个人形象塑造中，${benefits}帮助${target_audience}展现最佳状态。`,
-      '家居家电': `在居家生活中，${benefits}为${target_audience}创造舒适的生活环境。`,
-      '汽车': `在出行体验中，${benefits}为${target_audience}提供便捷的驾驶服务。`,
-      '宠物': `在宠物护理中，${benefits}为${target_audience}提供贴心的宠物服务。`,
-      '运动健身': `在健康塑形中，${benefits}帮助${target_audience}实现健身目标。`,
-      '文化娱乐': `在休闲娱乐中，${benefits}为${target_audience}提供丰富的文化体验。`,
-      '房地产': `在置业选择中，${benefits}为${target_audience}提供专业的房产服务。`,
-      '政务': `在便民服务中，${benefits}为${target_audience}提供便捷的政务服务。`,
-      '农业': `在农业生产中，${benefits}为${target_audience}提供科学的种植指导。`
+      '母婴': `在育儿过程中，${core_value}为${target_audience}提供贴心的服务和解决方案。`,
+      '美妆': `在个人形象塑造中，${core_value}帮助${target_audience}展现最佳状态。`,
+      '旅游': `无论是家庭出游还是商务出行，${core_value}都能为${target_audience}提供更优质的旅行体验。`,
+      '健康': `在健康管理中，${core_value}为${target_audience}提供科学的健康指导。`,
+      '教育': `在学习和成长的道路上，${core_value}为${target_audience}提供专业支持和指导。`,
+      '职场': `在职业发展中，${core_value}帮助${target_audience}提升工作效率和职业竞争力。`,
+      '电商': `在购物体验中，${core_value}为${target_audience}提供便捷的购物服务。`,
+      '本地生活': `在日常生活中，${core_value}为${target_audience}提供便利的生活服务。`,
+      '宠物': `在宠物护理中，${core_value}为${target_audience}提供贴心的宠物服务。`,
+      '数码': `在数字化时代，${core_value}帮助${target_audience}提升科技生活品质。`,
+      '食品饮料': `从日常饮食到社交聚会，${core_value}让${target_audience}享受更美好的用餐体验。`,
+      '健身': `在健康塑形中，${core_value}帮助${target_audience}实现健身目标。`,
+      '金融理财': `在理财规划中，${core_value}为${target_audience}提供专业的金融服务。`
     };
     
     return industryContent[industry] || 
-      `通过${benefits}，${target_audience}能够获得更好的体验和服务。`;
+      `通过${core_value}，${target_audience}能够获得更好的体验和服务。`;
   };
 
   /**
    * 生成标准互动引导
    */
   const generateStandardCallToAction = () => {
-    const { target_audience, scenarios, benefits } = selectedItems;
-    return `你是否也在${scenarios}中遇到过类似问题？欢迎分享你的经验和想法，让我们一起探讨如何通过${benefits}改善生活品质。`;
+    const { target_audience, use_case, core_value } = selectedItems;
+    return `你是否也在${use_case}中遇到过类似问题？欢迎分享你的经验和想法，让我们一起探讨如何通过${core_value}改善生活品质。`;
   };
 
   /**
    * 生成短视频脚本
    */
   const generateVideoScript = (prompt: string) => {
-    const { target_audience, scenarios, pain_points, tones, benefits, emotions, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, tone_style, core_value, emotional_need, industry } = selectedItems;
     
     // 只检查必选维度
     const requiredCheck = checkRequiredDimensions();
@@ -596,7 +597,7 @@ ${generateStandardCallToAction()}
     }
     
     // 根据调性生成不同风格的脚本
-    if (tones === '轻松幽默') {
+    if (tone_style === '轻松幽默') {
       return generateHumorousVideoScript();
     } else {
       return generateStandardVideoScript();
@@ -607,34 +608,34 @@ ${generateStandardCallToAction()}
    * 生成轻松幽默短视频脚本
    */
   const generateHumorousVideoScript = () => {
-    const { target_audience, scenarios, pain_points, benefits, emotions, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, core_value, emotional_need, industry } = selectedItems;
     
     // 场景设定
     const getVideoSetting = () => {
       const settings = {
         '旅游': {
-          '居家生活': '客厅沙发，宝妈抱着手机看旅游攻略',
-          '工作办公': '办公室，上班族对着电脑屏幕叹气',
-          '社交聚会': '餐厅，朋友们围坐讨论旅行计划'
-        },
-        '教培': {
-          '居家生活': '书房，家长辅导孩子写作业',
-          '学习充电': '咖啡厅，年轻人看学习资料',
-          '工作办公': '会议室，员工参加培训'
-        },
-        '食品饮料': {
-          '居家生活': '厨房，主妇准备食材',
-          '社交聚会': '餐厅，朋友们点餐',
-          '购物消费': '超市，顾客推购物车'
+          '通勤': '地铁车厢，上班族对着手机屏幕叹气',
+          '旅游途中': '旅游景点，游客们排队等待拍照',
+          '出差': '机场，出差人士拖着行李箱赶飞机'
         },
         '母婴': {
-          '居家生活': '婴儿房，宝妈照顾宝宝',
-          '购物消费': '母婴店，宝妈挑选商品',
-          '社交聚会': '公园，宝妈们聚会'
+          '带娃时': '婴儿房，宝妈抱着宝宝哄睡',
+          '家庭聚会': '客厅，家庭成员围坐聊天',
+          '睡前': '卧室，宝妈和宝宝一起躺在床上'
+        },
+        '美妆': {
+          '通勤': '地铁站，白领们匆忙补妆',
+          '夜宵': '夜市，年轻人吃夜宵卸妆',
+          '独处时刻': '卧室，女生对着镜子护肤'
+        },
+        '健康': {
+          '健身': '健身房，健身人士在跑步机上挥汗如雨',
+          '碎片时间': '公交车上，乘客们低头看手机',
+          '睡前': '卧室，学生或职场人士在床上看书'
         }
       };
       
-      return settings[industry]?.[scenarios] || `${scenarios}场景，${target_audience}在忙碌`;
+      return settings[industry]?.[use_case] || `${use_case}场景，${target_audience}在忙碌`;
     };
 
     // 镜头脚本
@@ -642,35 +643,35 @@ ${generateStandardCallToAction()}
       const shots = {
         '旅游': [
           '镜头1：特写手机屏幕，显示机票价格，表情震惊',
-          '镜头2：全景客厅，宝妈瘫在沙发上叹气',
+          '镜头2：全景地铁车厢，上班族瘫在座位上叹气',
           '镜头3：特写钱包，里面只有几张零钱',
-          '镜头4：中景，宝妈拿起手机，表情从沮丧到惊喜',
+          '镜头4：中景，上班族拿起手机，表情从沮丧到惊喜',
           '镜头5：特写手机屏幕，显示省钱攻略',
-          '镜头6：全景，宝妈开心地规划居家旅行'
-        ],
-        '教培': [
-          '镜头1：特写作业本，密密麻麻的题目',
-          '镜头2：中景，家长辅导孩子，表情焦虑',
-          '镜头3：特写时钟，时间飞逝',
-          '镜头4：特写手机，显示学习APP',
-          '镜头5：中景，家长和孩子一起学习，表情轻松',
-          '镜头6：全景，学习氛围温馨'
-        ],
-        '食品饮料': [
-          '镜头1：特写超市账单，金额惊人',
-          '镜头2：中景，顾客推购物车，表情无奈',
-          '镜头3：特写手机，显示省钱美食APP',
-          '镜头4：中景，顾客开心地挑选食材',
-          '镜头5：特写厨房，制作美食过程',
-          '镜头6：全景，享受美食的满足感'
+          '镜头6：全景，上班族开心地规划旅行'
         ],
         '母婴': [
-          '镜头1：特写母婴店价格标签，价格昂贵',
-          '镜头2：中景，宝妈推婴儿车，表情疲惫',
+          '镜头1：特写婴儿用品，价格标签昂贵',
+          '镜头2：中景，宝妈抱着宝宝，表情疲惫',
           '镜头3：特写手机，显示育儿省钱攻略',
           '镜头4：中景，宝妈开心地购物',
           '镜头5：特写宝宝，表情可爱',
           '镜头6：全景，温馨的亲子时光'
+        ],
+        '美妆': [
+          '镜头1：特写化妆品价格标签，价格昂贵',
+          '镜头2：中景，女生对着镜子化妆，表情无奈',
+          '镜头3：特写手机，显示美妆省钱APP',
+          '镜头4：中景，女生开心地挑选化妆品',
+          '镜头5：特写化妆过程，效果展示',
+          '镜头6：全景，女生自信地展示妆容'
+        ],
+        '健康': [
+          '镜头1：特写健身房价格表，费用昂贵',
+          '镜头2：中景，健身人士在跑步机上，表情疲惫',
+          '镜头3：特写手机，显示健康管理APP',
+          '镜头4：中景，健身人士开心地运动',
+          '镜头5：特写运动效果，身材变化',
+          '镜头6：全景，健康活力的生活状态'
         ]
       };
       
@@ -688,44 +689,44 @@ ${generateStandardCallToAction()}
     const getDialogueScript = () => {
       const dialogues = {
         '旅游': [
-          '旁白：想带娃出去浪？机票价格劝退一整年😵‍💫',
-          '宝妈：酒店比拼命打扫的客厅还贵？简直心在滴血💸',
-          '旁白：好在——居家也能假装在旅行✨',
-          '宝妈：把阳台打造成日式温泉区，地垫铺上就是东南亚小栈🌴',
-          '旁白：省下的钱，拿来囤玩具、囤奶粉，不香吗？！',
-          '宝妈：省钱小妙招，告别"开销恐惧症"，旅游梦我们慢慢来🌟'
-        ],
-        '教培': [
-          '旁白：辅导作业血压飙升到180😤',
-          '家长：报班费用比房贷还贵，心在滴血💔',
-          '旁白：好在——有了学习神器，效率直接起飞🚀',
-          '家长：不用当超人，也能搞定学习难题',
-          '旁白：谁说家长不能松口气？',
-          '家长：我偏要让学习变得轻松有趣～'
-        ],
-        '食品饮料': [
-          '旁白：在家做饭，食材比外卖还贵😭',
-          '主妇：聚会点餐，人均消费让人想逃😰',
-          '旁白：好在——发现了省钱美食神器✨',
-          '主妇：超市购物也能省下一大笔💰',
-          '旁白：省下的钱，拿来买更多美食，不香吗？！',
-          '主妇：省钱小妙招，告别"吃货破产"，美食梦我们慢慢来🌟'
+          '旁白：通勤路上，钱包瘦了一圈💸',
+          '上班族：旅游途中，消费比工资还高😵‍💫',
+          '旁白：好在——发现了省钱旅游神器✨',
+          '上班族：出差也能省下一大笔💰',
+          '旁白：省下的钱，拿来享受生活，不香吗？！',
+          '上班族：省钱小妙招，告别"旅游破产"，旅行梦我们慢慢来🌟'
         ],
         '母婴': [
           '旁白：带娃日常，奶粉尿布比黄金还贵💰',
-          '宝妈：母婴店购物，钱包瞬间被掏空💸',
+          '宝妈：家庭聚会，装备比搬家还多🎒',
           '旁白：好在——发现了育儿省钱神器✨',
-          '宝妈：带娃聚会，装备比搬家还多🎒',
+          '宝妈：睡前哄娃，比加班还累😴',
           '旁白：省下的钱，拿来买更多玩具，不香吗？！',
           '宝妈：省钱小妙招，告别"育儿破产"，带娃梦我们慢慢来🌟'
+        ],
+        '美妆': [
+          '旁白：通勤化妆，地铁上补妆像杂技表演🎭',
+          '女生：夜宵后卸妆，比上班还认真🧴',
+          '旁白：好在——发现了美妆省钱神器✨',
+          '女生：独处时刻护肤，比约会还精致💄',
+          '旁白：省下的钱，拿来买更多化妆品，不香吗？！',
+          '女生：省钱小妙招，告别"美妆破产"，变美梦我们慢慢来🌟'
+        ],
+        '健康': [
+          '旁白：健身打卡，肌肉比钱包还瘦💪',
+          '健身人士：碎片时间养生，比工作还忙🏃‍♀️',
+          '旁白：好在——发现了健康管理神器✨',
+          '健身人士：睡前养生，比考试还紧张😰',
+          '旁白：省下的钱，拿来买更多健康产品，不香吗？！',
+          '健身人士：省钱小妙招，告别"健康破产"，养生梦我们慢慢来🌟'
         ]
       };
       
       return dialogues[industry] || [
-        '旁白：在' + scenarios + '中遇到' + pain_points + '，简直让人崩溃😫',
-        target_audience + '：' + pain_points + '？钱包在哭泣，心在滴血💸',
-        '旁白：好在——发现了' + benefits + '神器✨',
-        target_audience + '：通过' + benefits + '，钱包终于不用哭泣了💰',
+        '旁白：在' + use_case + '中遇到' + pain_point + '，简直让人崩溃😫',
+        target_audience + '：' + pain_point + '？钱包在哭泣，心在滴血💸',
+        '旁白：好在——发现了' + core_value + '神器✨',
+        target_audience + '：通过' + core_value + '，钱包终于不用哭泣了💰',
         '旁白：省下的钱，拿来享受生活，不香吗？！',
         target_audience + '：省钱小妙招，告别"开销恐惧症"，生活梦我们慢慢来🌟'
       ];
@@ -735,9 +736,9 @@ ${generateStandardCallToAction()}
     const getBGM = () => {
       const bgm = {
         '旅游': '轻快旅行音乐，营造轻松愉快的氛围',
-        '教培': '温馨学习音乐，营造专注学习的氛围',
-        '食品饮料': '欢快美食音乐，营造享受美食的氛围',
-        '母婴': '温馨亲子音乐，营造温馨有爱的氛围'
+        '母婴': '温馨亲子音乐，营造温馨有爱的氛围',
+        '美妆': '时尚美妆音乐，营造精致优雅的氛围',
+        '健康': '活力健身音乐，营造积极向上的氛围'
       };
       
       return bgm[industry] || '轻快背景音乐，营造积极向上的氛围';
@@ -773,7 +774,7 @@ ${getIndustryTags().join(' ')}`;
    * 生成标准短视频脚本
    */
   const generateStandardVideoScript = () => {
-    const { target_audience, scenarios, pain_points, benefits, emotions, industry } = selectedItems;
+    const { target_audience, use_case, pain_point, core_value, emotional_need, industry } = selectedItems;
     
     // 只检查必选维度
     const requiredCheck = checkRequiredDimensions();
@@ -788,22 +789,22 @@ ${getIndustryTags().join(' ')}`;
     return `📹 ${target_audience}专属短视频脚本
 
 【场景设定】
-${scenarios}场景，${target_audience}在面临${pain_points}的困扰
+${use_case}场景，${target_audience}在面临${pain_point}的困扰
 
 【镜头脚本】
 镜头1：特写问题场景，表现痛点
 镜头2：中景，${target_audience}表情困扰
-镜头3：特写解决方案，手机屏幕显示${benefits || '解决方案'}
+镜头3：特写解决方案，手机屏幕显示${core_value || '解决方案'}
 镜头4：中景，${target_audience}表情转变
 镜头5：特写效果展示
 镜头6：全景，问题解决后的满足感
 
 【台词脚本】
-旁白：在${scenarios}中，${target_audience}常常面临${pain_points}的困扰
-${target_audience}：这种挑战不仅影响日常体验${emotions ? `，更让人感到${emotions}` : ''}
-旁白：然而，${benefits ? `通过${benefits}，我们可以有效解决这些问题` : '我们可以提供有效的解决方案'}
+旁白：在${use_case}中，${target_audience}常常面临${pain_point}的困扰
+${target_audience}：这种挑战不仅影响日常体验${emotional_need ? `，更让人感到${emotional_need}` : ''}
+旁白：然而，${core_value ? `通过${core_value}，我们可以有效解决这些问题` : '我们可以提供有效的解决方案'}
 ${target_audience}：${generateIndustrySpecificContent()}
-旁白：让我们一起，为${target_audience}创造更好的${scenarios}体验
+旁白：让我们一起，为${target_audience}创造更好的${use_case}体验
 
 【BGM建议】
 温馨背景音乐，营造积极向上的氛围
@@ -812,7 +813,7 @@ ${target_audience}：${generateIndustrySpecificContent()}
 ${generateStandardCallToAction()}
 
 【标签】
-#${target_audience} #${scenarios} #${industry}`;
+#${target_audience} #${use_case} #${industry}`;
   };
 
   /**
@@ -838,7 +839,7 @@ ${generateStandardCallToAction()}
       // 模拟AI生成
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const format = selectedItems.formats || '图文';
+      const format = selectedItems.content_format || '图文';
       const isVideo = format.includes('视频') || format.includes('短视频');
       
       let generatedContent = '';
