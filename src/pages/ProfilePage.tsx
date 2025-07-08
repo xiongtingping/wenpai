@@ -69,6 +69,20 @@ export default function ProfilePage() {
     }
   }, [user]);
 
+  // 确保头像和昵称更改后立即同步到用户数据
+  React.useEffect(() => {
+    if (user && (editForm.nickname !== user.nickname || editForm.avatar !== user.avatar)) {
+      const updatedUser = {
+        ...user,
+        nickname: editForm.nickname,
+        avatar: editForm.avatar,
+        updatedAt: new Date().toISOString(),
+      };
+      setUser(updatedUser);
+      localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+    }
+  }, [editForm.nickname, editForm.avatar, user, setUser]);
+
   /**
    * 处理头像更改
    */
@@ -321,12 +335,6 @@ export default function ProfilePage() {
         title="个人中心"
         description="管理您的个人信息和账户设置"
         showAdaptButton={false}
-        actions={
-          <Button variant="outline" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回首页
-          </Button>
-        }
       />
 
       <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -376,16 +384,19 @@ export default function ProfilePage() {
                       onNicknameChange={handleNicknameChange}
                       disabled={false}
                     />
-                    <p className="text-sm text-gray-500">ID: {user.id}</p>
                   </div>
                 </div>
 
                 <Separator />
 
-                {/* 账户状态 */}
+                {/* 账号信息 */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-sm text-gray-700">账户状态</h4>
+                  <h4 className="font-medium text-sm text-gray-700">账号信息</h4>
                   <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">用户ID</span>
+                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{user.id}</span>
+                    </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">账户类型</span>
                       <div className="flex items-center gap-2">
@@ -415,7 +426,7 @@ export default function ProfilePage() {
                     </div>
                     {userType === 'pro' && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">有效期至</span>
+                        <span className="text-gray-600">专业版有效期至</span>
                         <span className="text-amber-600 font-medium">{proExpiryDate}</span>
                       </div>
                     )}
@@ -628,10 +639,6 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                     <span>每邀请1人注册</span>
                     <Badge className="bg-blue-100 text-blue-700">双方各获得20次</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
-                    <span>首次验证邮箱</span>
-                    <Badge className="bg-amber-100 text-amber-700">额外获得10次</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                     <span>使用次数永久有效</span>

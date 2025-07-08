@@ -284,41 +284,55 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
       <div className="container mx-auto px-4 py-4">
         {/* 面包屑导航 */}
         <div className="flex items-center justify-between mb-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              {breadcrumbs.map((crumb, index) => {
-                const Icon = crumb.icon;
-                const isLast = index === breadcrumbs.length - 1;
-                
-                return (
-                  <React.Fragment key={crumb.path}>
-                    <BreadcrumbItem>
-                      {isLast ? (
-                        <BreadcrumbPage className="flex items-center gap-2">
-                          <Icon className="h-4 w-4" />
-                          {crumb.title}
-                          {crumb.badge && (
-                            <Badge variant="outline" className="text-xs">
-                              {crumb.badge}
-                            </Badge>
-                          )}
-                        </BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink 
-                          className="cursor-pointer hover:text-blue-600"
-                          onClick={() => navigate(crumb.path)}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {crumb.title}
-                        </BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
-                    {!isLast && <BreadcrumbSeparator />}
-                  </React.Fragment>
-                );
-              })}
-            </BreadcrumbList>
-          </Breadcrumb>
+          <div className="flex items-center gap-4">
+            {/* 返回按钮 - 根据页面层级显示 */}
+            {currentConfig.level > 1 && currentConfig.parent && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(currentConfig.parent!)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                返回
+              </Button>
+            )}
+            
+            <Breadcrumb>
+              <BreadcrumbList>
+                {breadcrumbs.map((crumb, index) => {
+                  const Icon = crumb.icon;
+                  const isLast = index === breadcrumbs.length - 1;
+                  
+                  return (
+                    <React.Fragment key={crumb.path}>
+                      <BreadcrumbItem>
+                        {isLast ? (
+                          <BreadcrumbPage className="flex items-center gap-2">
+                            <Icon className="h-4 w-4" />
+                            {crumb.title}
+                            {crumb.badge && (
+                              <Badge variant="outline" className="text-xs">
+                                {crumb.badge}
+                              </Badge>
+                            )}
+                          </BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink 
+                            className="cursor-pointer hover:text-blue-600"
+                            onClick={() => navigate(crumb.path)}
+                          >
+                            <Icon className="h-4 w-4" />
+                            {crumb.title}
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
+                      {!isLast && <BreadcrumbSeparator />}
+                    </React.Fragment>
+                  );
+                })}
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
 
           {/* 右侧操作区 */}
           <div className="flex items-center gap-3">
@@ -337,7 +351,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
               </Button>
             )}
             
-            {/* 额外操作按钮 */}
+            {/* 额外操作按钮 - 过滤掉返回按钮 */}
             {actions}
           </div>
         </div>
