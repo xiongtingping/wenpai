@@ -192,7 +192,14 @@ interface GlobalSettings {
   globalMd: boolean;
 }
 
-// Checkbox Card Component
+/**
+ * 平台选择卡片组件 - 优化后的版本
+ * @param icon 平台图标
+ * @param title 平台名称
+ * @param description 平台描述
+ * @param checked 是否选中
+ * @param onChange 选中状态变化回调
+ */
 function CheckboxCard({
   icon,
   title,
@@ -209,28 +216,37 @@ function CheckboxCard({
   return (
     <Card 
       className={cn(
-        "relative border cursor-pointer transition-all duration-200", 
+        "relative border cursor-pointer transition-all duration-200 h-32 flex flex-col", 
         checked 
-          ? "border-primary bg-primary/5 shadow-sm" 
-          : "bg-background"
+          ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/20" 
+          : "bg-background hover:shadow-sm hover:border-gray-300"
       )}
       onClick={() => onChange(!checked)}
     >
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            {icon}
-            <CardTitle className="text-sm">{title}</CardTitle>
+      <CardHeader className="pb-2 flex-shrink-0">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center space-x-2 min-w-0">
+            <div className="flex-shrink-0">
+              {icon}
+            </div>
+            <CardTitle className="text-sm font-semibold truncate leading-tight">{title}</CardTitle>
           </div>
-          <Checkbox 
-            checked={checked}
-            onCheckedChange={onChange}
-            className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-          />
+          <div className="flex-shrink-0">
+            <Checkbox 
+              checked={checked}
+              onCheckedChange={onChange}
+              className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+            />
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <CardDescription className="text-xs">{description}</CardDescription>
+      <CardContent className="pt-0 flex-grow flex items-start">
+        <CardDescription className="text-xs leading-relaxed overflow-hidden" style={{
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical' as const,
+          maxHeight: '3.6rem'
+        }}>{description}</CardDescription>
       </CardContent>
     </Card>
   );
@@ -1312,7 +1328,7 @@ export default function AdaptPage() {
       {/* Platform Selection */}
       <div className="mb-8">
         <h2 className="text-lg font-medium mb-4">选择目标平台</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-fr">
           {platforms.map(platform => (
             <CheckboxCard
               key={platform.id}
@@ -1553,80 +1569,123 @@ export default function AdaptPage() {
                     )}
                     
                     {/* Generated Content */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Original/Edited Content */}
-                      <div>
-                        <h4 className="text-lg font-semibold mb-3">生成内容</h4>
-                        {result.content ? (
-                          editingPlatform === result.platformId ? (
-                            <div className="space-y-3">
-                              <Textarea
-                                value={result.content}
-                                onChange={(e) => {
-                                  setResults(current => 
-                                    current.map(r => 
-                                      r.platformId === result.platformId 
-                                        ? { ...r, content: e.target.value }
-                                        : r
-                                    )
-                                  );
-                                }}
-                                className="min-h-[300px] text-base"
-                              />
-                              <div className="flex gap-3">
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleSaveEdit(result.platformId, result.content)}
-                                >
-                                  保存
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setEditingPlatform(null)}
-                                >
-                                  取消
-                                </Button>
+                    <div className="space-y-6">
+                      {/* 内容展示区域标题 */}
+                      <div className="text-center">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">生成结果</h3>
+                        <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
+                      </div>
+                      
+                      {/* 主要内容区域 */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        {/* 原始/编辑内容 - 左侧 */}
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <h4 className="text-lg font-semibold text-gray-900">生成内容</h4>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          </div>
+                          {result.content ? (
+                            editingPlatform === result.platformId ? (
+                              <div className="space-y-3">
+                                <Textarea
+                                  value={result.content}
+                                  onChange={(e) => {
+                                    setResults(current => 
+                                      current.map(r => 
+                                        r.platformId === result.platformId 
+                                          ? { ...r, content: e.target.value }
+                                          : r
+                                      )
+                                    );
+                                  }}
+                                  className="min-h-[300px] text-base resize-none"
+                                />
+                                <div className="flex gap-3 justify-center lg:justify-start">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleSaveEdit(result.platformId, result.content)}
+                                    className="bg-green-600 hover:bg-green-700"
+                                  >
+                                    保存
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setEditingPlatform(null)}
+                                  >
+                                    取消
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="relative">
+                                <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm ${
+                                  result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
+                                  result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
+                                  result.platformId === 'weibo' ? 'bg-orange-50 border-orange-200' :
+                                  result.platformId === 'zhihu' ? 'bg-blue-50 border-blue-200' :
+                                  result.platformId === 'wechat' ? 'bg-green-50 border-green-200' :
+                                  result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
+                                  result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
+                                  result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
+                                  'bg-gray-50 border-gray-200'
+                                }`}>
+                                  {result.content}
+                                </div>
+                                {/* 平台标识 */}
+                                <div className="absolute top-4 right-4">
+                                  <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
+                                    {platformStyles[result.platformId as keyof typeof platformStyles]?.name || result.platformId}
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          ) : result.error ? (
+                            <div className="rounded-lg border-2 border-dashed border-red-200 p-12 flex items-center justify-center bg-red-50">
+                              <div className="text-center">
+                                <p className="text-red-600 text-lg font-medium">生成失败</p>
+                                <p className="text-red-500 text-sm mt-2">{result.error}</p>
                               </div>
                             </div>
                           ) : (
-                            <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed ${
-                              result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
-                              result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
-                              result.platformId === 'weibo' ? 'bg-orange-50 border-orange-200' :
-                              result.platformId === 'zhihu' ? 'bg-blue-50 border-blue-200' :
-                              result.platformId === 'wechat' ? 'bg-green-50 border-green-200' :
-                              result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
-                              result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
-                              result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
-                              'bg-gray-50 border-gray-200'
-                            }`}>
-                              {result.content}
+                            <div className="rounded-lg border-2 border-dashed border-gray-200 p-12 flex items-center justify-center bg-gray-50">
+                              <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>
                             </div>
-                          )
-                        ) : result.error ? (
-                          <div className="rounded-lg border-2 border-dashed border-red-200 p-12 flex items-center justify-center bg-red-50">
-                            <div className="text-center">
-                              <p className="text-red-600 text-lg font-medium">生成失败</p>
-                              <p className="text-red-500 text-sm mt-2">{result.error}</p>
+                          )}
+                        </div>
+
+                        {/* 视觉连接线 */}
+                        {translatedContent[result.platformId] && (
+                          <div className="hidden lg:flex items-center justify-center absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                              <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-white"></div>
                             </div>
                           </div>
-                        ) : (
-                          <div className="rounded-lg border-2 border-dashed p-12 flex items-center justify-center">
-                            <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>
+                        )}
+
+                        {/* 翻译内容 - 右侧 */}
+                        {translatedContent[result.platformId] && (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
+                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                              <h4 className="text-lg font-semibold text-gray-900">翻译内容</h4>
+                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                            </div>
+                            <div className="relative">
+                              <div className="whitespace-pre-wrap rounded-lg border-2 border-blue-200 p-6 bg-blue-50 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm">
+                                {translatedContent[result.platformId]}
+                              </div>
+                              {/* 翻译标识 */}
+                              <div className="absolute top-4 right-4">
+                                <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-blue-700 shadow-sm">
+                                  翻译版本
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>
-
-                      {/* Translated Content */}
-                      {translatedContent[result.platformId] && (
-                        <div>
-                          <h4 className="text-lg font-semibold mb-3">翻译内容</h4>
-                          <div className="whitespace-pre-wrap rounded-lg border-2 p-6 bg-blue-50 overflow-auto max-h-[600px] text-base leading-relaxed">
-                            {translatedContent[result.platformId]}
-                          </div>
-                        </div>
-                      )}
                     </div>
 
                     {/* Action Buttons */}

@@ -291,62 +291,100 @@ export function PricingSection() {
         <div className="mt-16">
           <h3 className="text-2xl font-bold text-center mb-8">功能详细对比</h3>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="border border-gray-200 p-4 text-left font-semibold">功能</th>
-                  <th className="border border-gray-200 p-4 text-center font-semibold">免费版</th>
-                  <th className="border border-gray-200 p-4 text-center font-semibold bg-purple-50">专业版</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">AI内容适配</td>
-                  <td className="border border-gray-200 p-4 text-center">每月10次</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">无限制</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">创意工作室</td>
-                  <td className="border border-gray-200 p-4 text-center">✅ 免费</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 免费</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">全网热点话题</td>
-                  <td className="border border-gray-200 p-4 text-center">✅ 免费</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 免费</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">Emoji表情库</td>
-                  <td className="border border-gray-200 p-4 text-center">❌</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 专业版</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">内容提取功能</td>
-                  <td className="border border-gray-200 p-4 text-center">❌</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 专业版</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">品牌资料库</td>
-                  <td className="border border-gray-200 p-4 text-center">❌</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 专业版</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">一键转发</td>
-                  <td className="border border-gray-200 p-4 text-center">❌</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">✅ 专业版</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">AI模型选择</td>
-                  <td className="border border-gray-200 p-4 text-center">基础模型</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">高级模型</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-200 p-4 font-medium">技术支持</td>
-                  <td className="border border-gray-200 p-4 text-center">社区支持</td>
-                  <td className="border border-gray-200 p-4 text-center bg-purple-50">优先支持</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="max-w-4xl mx-auto">
+              <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="border border-gray-200 px-6 py-3 text-left font-semibold text-gray-900">功能</th>
+                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-900 w-32">免费版</th>
+                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-purple-900 bg-purple-50 w-32">专业版</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI内容适配</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">每月10次</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">无限制</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">创意工作室</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-green-600 font-medium">✅ 免费</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-green-600 font-medium">✅ 免费</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网热点话题</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-green-600 font-medium">✅ 免费</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-green-600 font-medium">✅ 免费</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">Emoji表情库</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-red-500 font-medium">❌</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600 font-medium">✅ 专业版</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">内容提取功能</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-red-500 font-medium">❌</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600 font-medium">✅ 专业版</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">品牌资料库</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-red-500 font-medium">❌</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600 font-medium">✅ 专业版</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">一键转发</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-red-500 font-medium">❌</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600 font-medium">✅ 专业版</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI模型选择</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-gray-600">基础模型</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600 font-medium">高级模型</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">技术支持</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-gray-600">社区支持</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600 font-medium">优先支持</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

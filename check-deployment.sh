@@ -1,50 +1,64 @@
 #!/bin/bash
 
-echo "🚀 部署前检查脚本"
-echo "================"
+echo "🚀 文派AI项目部署状态检查"
+echo "================================"
 
-# 检查构建
-echo "📦 检查构建..."
-if npm run build; then
-    echo "✅ 构建成功"
+# 检查最新提交
+echo "📋 最新Git提交:"
+git log --oneline -1
+
+echo ""
+echo "🌐 检查网站可访问性:"
+
+# 检查主域名
+MAIN_URL="https://www.wenpai.xyz"
+echo "检查主域名: $MAIN_URL"
+if curl -s --head "$MAIN_URL" | head -n 1 | grep -q "200 OK"; then
+    echo "✅ 主域名可访问"
 else
-    echo "❌ 构建失败"
-    exit 1
+    echo "❌ 主域名不可访问"
 fi
 
-# 检查 dist 目录
-echo "📁 检查构建文件..."
-if [ -d "dist" ]; then
-    echo "✅ dist 目录存在"
-    ls -la dist/
+# 检查Netlify域名（如果有的话）
+NETLIFY_URL="https://wenpai.netlify.app"
+echo "检查Netlify域名: $NETLIFY_URL"
+if curl -s --head "$NETLIFY_URL" | head -n 1 | grep -q "200 OK"; then
+    echo "✅ Netlify域名可访问"
 else
-    echo "❌ dist 目录不存在"
-    exit 1
-fi
-
-# 检查环境变量
-echo "🔧 检查环境变量..."
-if [ -f ".env.local" ]; then
-    echo "✅ .env.local 文件存在"
-    grep -E "VITE_AUTHING" .env.local
-else
-    echo "❌ .env.local 文件不存在"
-fi
-
-# 检查 Authing 配置
-echo "🔐 检查 Authing 配置..."
-if grep -q "6867fdc88034eb95ae86167d" src/config/authing.ts; then
-    echo "✅ Authing App ID 配置正确"
-else
-    echo "❌ Authing App ID 配置错误"
+    echo "❌ Netlify域名不可访问"
 fi
 
 echo ""
-echo "✅ 部署检查完成"
+echo "📊 构建信息:"
+echo "- Node版本要求: $(grep -o '"node": "[^"]*"' package.json)"
+echo "- 构建命令: $(grep -o '"build": "[^"]*"' package.json)"
+echo "- 发布目录: dist"
+
 echo ""
-echo "📋 部署步骤："
-echo "1. 推送代码到 GitHub"
-echo "2. 在 Netlify 中导入项目"
-echo "3. 配置环境变量"
-echo "4. 配置 DNS 记录"
-echo "5. 测试登录功能"
+echo "🔧 部署建议:"
+echo "1. 确保在Netlify中连接了GitHub仓库"
+echo "2. 设置构建命令为: npm run build"
+echo "3. 设置发布目录为: dist"
+echo "4. 设置Node版本为: 18"
+echo "5. 配置环境变量（如需要）"
+
+echo ""
+echo "📱 功能验证清单:"
+echo "- [ ] 首页加载正常"
+echo "- [ ] 用户登录功能"
+echo "- [ ] 内容适配工具"
+echo "- [ ] 内容提取功能"
+echo "- [ ] 我的资料库"
+echo "- [ ] Emoji生成器"
+echo "- [ ] 创意工作室"
+echo "- [ ] 一键转发管理"
+
+echo ""
+echo "✨ 新功能验证:"
+echo "- [ ] /content-extractor - 内容提取与AI总结"
+echo "- [ ] /emoji-generator - Emoji生成器"
+echo "- [ ] /library - 我的资料库"
+echo "- [ ] /share-manager - 一键转发管理"
+
+echo ""
+echo "🎯 部署完成后请访问以上URL进行功能测试"
