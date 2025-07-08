@@ -284,15 +284,16 @@ export default function BookmarkPage() {
       
       const newItem: LibraryItem = {
         id: Date.now().toString(),
-        title: extractMethod === 'url' ? `智能采集：${extractUrl}` : `智能采集：${selectedFile?.name}`,
+        title: extractMethod === 'url' ? `智采器：${extractUrl}` : `智采器：${selectedFile?.name}`,
         content: generateMockExtractedContent(extractMethod === 'url' ? extractUrl : selectedFile?.name || ''),
         type: 'extraction',
         source: extractMethod === 'url' ? extractUrl : selectedFile?.name,
         sourceType: extractMethod,
-        tags: ['智能采集', extractMethod === 'url' ? '网页' : '文档'],
+        tags: ['智采器', extractMethod === 'url' ? '网页提取' : selectedFile?.type.includes('image') ? 'OCR识别' : selectedFile?.type.includes('pdf') ? 'PDF提取' : '文档提取'],
         isFavorite: false,
         isUsed: false,
-        category: '采集内容',
+        category: '智能提取',
+        summary: extractMethod === 'url' ? '从网页中智能提取的结构化内容，包含核心信息和关键观点...' : selectedFile?.type.includes('image') ? '通过OCR技术从图片中识别提取的文字内容...' : selectedFile?.type.includes('pdf') ? '从PDF文档中提取的文字和结构化信息...' : '从文档中智能提取的核心内容...',
         metadata: {
           wordCount: 350,
           charCount: 1200,
@@ -308,13 +309,13 @@ export default function BookmarkPage() {
       setSelectedFile(null);
       
       toast({
-        title: "智能采集成功",
-        description: "内容已添加到资料库",
+        title: "智采器提取成功",
+        description: "内容已智能提取并添加到资料库",
       });
     } catch {
       toast({
-        title: "采集失败",
-        description: "请稍后重试",
+        title: "智采器提取失败",
+        description: "请检查网络连接或文件格式后重试",
         variant: "destructive"
       });
     } finally {
@@ -326,32 +327,41 @@ export default function BookmarkPage() {
    * 生成模拟提取内容
    */
   const generateMockExtractedContent = (source: string) => {
-    return `# 智能采集：${source}
+    const isImage = source.includes('.jpg') || source.includes('.png') || source.includes('.jpeg');
+    const isPDF = source.includes('.pdf');
+    
+    return `# 智采器提取：${source}
 
-## 主要内容
+## 📄 智能提取结果
 
-这是从 ${source} 智能采集的内容。
+${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内容' : 
+  isPDF ? '📄 **PDF解析**：已提取PDF文档的文字和结构化内容' : 
+  '🌐 **网页抓取**：已获取网页的核心文字内容'}
 
-### 核心要点
-- **关键信息1**：详细阐述了重要概念和基本原理
-- **关键信息2**：提供了实用的方法和建议
-- **关键信息3**：分析了当前趋势和发展方向
+### 🔍 提取的主要内容
+- **关键信息1**：${isImage ? '图片中包含的重要文字信息' : isPDF ? 'PDF文档的核心观点和数据' : '网页的主要观点和核心信息'}
+- **关键信息2**：详细的分析和实用建议
+- **关键信息3**：相关的趋势分析和发展方向
 
-### 深入分析
+### 📊 结构化信息
 
-#### 实用价值
-- 内容贴近实际需求，具有很强的实用价值
-- 提供的方法简单易行，便于实际操作
-- 分析深入透彻，有助于理解核心问题
+#### 💡 核心价值
+- 内容具有很强的实用性和参考价值
+- 信息结构清晰，便于理解和应用
+- 涵盖了重要的概念和实践方法
 
-#### 应用建议
-- 建议结合实际情况灵活运用
+#### 🎯 应用场景
 - 可作为决策参考和行动指南
-- 注意关注后续发展和更新
+- 适合用于学习和研究
+- 有助于深入理解相关领域
+
+### 🏷️ 智能标签建议
+\`${isImage ? 'OCR识别, 图片处理' : isPDF ? 'PDF文档, 文档分析' : '网页内容, 在线资源'}\`
 
 ---
 
-*采集时间：${new Date().toLocaleString('zh-CN')}*`;
+*🤖 AI智能提取时间：${new Date().toLocaleString('zh-CN')}*  
+*📈 内容质量评分：85分*`;
   };
 
   /**
@@ -505,14 +515,45 @@ export default function BookmarkPage() {
   const getTypeInfo = (type: string) => {
     switch (type) {
       case 'collection':
-        return { icon: <Bookmark className="w-4 h-4" />, name: '收藏' };
+        return { icon: <Bookmark className="w-4 h-4" />, name: '网络收藏' };
       case 'extraction':
-        return { icon: <Zap className="w-4 h-4" />, name: '采集' };
+        return { icon: <Zap className="w-4 h-4" />, name: '智采器' };
       case 'copywriting':
-        return { icon: <Brain className="w-4 h-4" />, name: '文案' };
+        return { icon: <Brain className="w-4 h-4" />, name: '文案管理' };
       default:
         return { icon: <FileText className="w-4 h-4" />, name: '其他' };
     }
+  };
+
+  /**
+   * 编辑项目
+   */
+  const startEdit = (item: LibraryItem) => {
+    setEditingItem(item);
+  };
+
+  /**
+   * 保存编辑
+   */
+  const saveEdit = () => {
+    if (!editingItem) return;
+    
+    setLibraryItems(prev => prev.map(item => 
+      item.id === editingItem.id ? editingItem : item
+    ));
+    setEditingItem(null);
+    
+    toast({
+      title: "保存成功",
+      description: "内容已更新",
+    });
+  };
+
+  /**
+   * 取消编辑
+   */
+  const cancelEdit = () => {
+    setEditingItem(null);
   };
 
   const filteredItems = getFilteredItems();
@@ -522,12 +563,22 @@ export default function BookmarkPage() {
       {/* 页面导航 */}
       <PageNavigation
         title="我的资料库"
-        description="统一管理网络收藏夹、智能采集和文案管理"
+        description="统一管理网络收藏、智采器和文案管理"
         actions={
-          <Button variant="outline" size="sm" onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            添加内容
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
+              <Bookmark className="w-4 h-4 mr-2" />
+              添加收藏
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setAddContentType('extraction'); setIsAddDialogOpen(true); }}>
+              <Zap className="w-4 h-4 mr-2" />
+              内容提取
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setAddContentType('copywriting'); setIsAddDialogOpen(true); }}>
+              <Brain className="w-4 h-4 mr-2" />
+              添加文案
+            </Button>
+          </div>
         }
       />
 
@@ -542,15 +593,15 @@ export default function BookmarkPage() {
               </TabsTrigger>
               <TabsTrigger value="collection" className="flex items-center gap-2">
                 <Bookmark className="w-4 h-4" />
-                收藏
+                网络收藏
               </TabsTrigger>
               <TabsTrigger value="extraction" className="flex items-center gap-2">
                 <Zap className="w-4 h-4" />
-                采集
+                智采器
               </TabsTrigger>
               <TabsTrigger value="copywriting" className="flex items-center gap-2">
                 <Brain className="w-4 h-4" />
-                文案
+                文案管理
               </TabsTrigger>
             </TabsList>
           </div>
@@ -721,6 +772,13 @@ export default function BookmarkPage() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => startEdit(item)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => copyContent(item.content)}
                           >
                             <Copy className="w-4 h-4" />
@@ -746,25 +804,9 @@ export default function BookmarkPage() {
                 <CardContent className="p-12 text-center">
                   <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">暂无资料</h3>
-                  <p className="text-gray-600 mb-4">
-                    {searchQuery || selectedTags.length > 0 ? '没有找到匹配的资料' : '开始添加您的第一个资料'}
+                  <p className="text-gray-600">
+                    {searchQuery || selectedTags.length > 0 ? '没有找到匹配的资料' : '请使用右上角的按钮开始添加您的第一个资料'}
                   </p>
-                  {!searchQuery && selectedTags.length === 0 && (
-                    <div className="flex gap-2 justify-center">
-                      <Button variant="outline" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
-                        <Bookmark className="w-4 h-4 mr-2" />
-                        添加收藏
-                      </Button>
-                      <Button variant="outline" onClick={() => { setAddContentType('extraction'); setIsAddDialogOpen(true); }}>
-                        <Zap className="w-4 h-4 mr-2" />
-                        内容采集
-                      </Button>
-                      <Button onClick={() => { setAddContentType('copywriting'); setIsAddDialogOpen(true); }}>
-                        <Brain className="w-4 h-4 mr-2" />
-                        创建文案
-                      </Button>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             )}
@@ -845,19 +887,19 @@ export default function BookmarkPage() {
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Zap className="w-4 h-4 mr-2" />
-              内容采集
+              内容提取
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>内容采集</DialogTitle>
+              <DialogTitle>智采器 - 内容提取</DialogTitle>
               <DialogDescription>
-                从网页或文件中提取内容到资料库
+                从网页、PDF、图片中智能提取文字内容并生成AI总结
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>采集方式</Label>
+                <Label>提取方式</Label>
                 <Select value={extractMethod} onValueChange={(value: 'url' | 'file') => setExtractMethod(value)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -866,13 +908,13 @@ export default function BookmarkPage() {
                     <SelectItem value="url">
                       <div className="flex items-center gap-2">
                         <Globe className="w-4 h-4" />
-                        网页URL
+                        网页链接
                       </div>
                     </SelectItem>
                     <SelectItem value="file">
                       <div className="flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        文件上传
+                        文件上传 (PDF/图片)
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -881,12 +923,15 @@ export default function BookmarkPage() {
 
               {extractMethod === 'url' && (
                 <div>
-                  <Label>网页URL</Label>
+                  <Label>网页链接</Label>
                   <Input
-                    placeholder="https://example.com"
+                    placeholder="粘贴网页URL地址，支持自动提取页面文字内容"
                     value={extractUrl}
                     onChange={(e) => setExtractUrl(e.target.value)}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    支持提取网页正文、标题、段落等结构化内容
+                  </p>
                 </div>
               )}
 
@@ -898,7 +943,7 @@ export default function BookmarkPage() {
                       ref={fileInputRef}
                       type="file"
                       onChange={handleFileSelect}
-                      accept=".md,.json,.html,.htm,.txt,image/*"
+                      accept=".pdf,.doc,.docx,.txt,.md,.json,.html,.htm,image/*"
                       className="flex-1"
                     />
                     <Button 
@@ -909,19 +954,41 @@ export default function BookmarkPage() {
                       选择文件
                     </Button>
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    支持 PDF文档、Word文档、图片(PNG/JPG/JPEG)、文本文件等格式
+                  </p>
                   {selectedFile && (
-                    <div className="mt-2 p-2 bg-gray-50 rounded">
-                      <div className="flex items-center gap-2">
-                        <File className="w-4 h-4" />
-                        <span className="text-sm">{selectedFile.name}</span>
+                    <div className="mt-2 p-3 bg-blue-50 rounded border">
+                      <div className="flex items-center gap-2 mb-2">
+                        <File className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium">{selectedFile.name}</span>
                         <span className="text-xs text-gray-500">
                           ({(selectedFile.size / 1024).toFixed(1)} KB)
                         </span>
+                      </div>
+                      <div className="text-xs text-blue-600">
+                        {selectedFile.type.includes('image') && '🖼️ 图片OCR文字识别'}
+                        {selectedFile.type.includes('pdf') && '📄 PDF文档内容提取'}
+                        {selectedFile.type.includes('text') && '📝 文本内容解析'}
+                        {selectedFile.type.includes('doc') && '📄 Word文档内容提取'}
                       </div>
                     </div>
                   )}
                 </div>
               )}
+
+              <div className="bg-purple-50 p-3 rounded border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-medium text-purple-800">AI智能处理</span>
+                </div>
+                <ul className="text-xs text-purple-700 space-y-1">
+                  <li>• 自动提取和整理文字内容</li>
+                  <li>• 生成内容摘要和关键信息</li>
+                  <li>• 智能分类和标签建议</li>
+                  <li>• 结构化内容展示</li>
+                </ul>
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
@@ -931,12 +998,12 @@ export default function BookmarkPage() {
                 {isExtracting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    采集中...
+                    智能提取中...
                   </>
                 ) : (
                   <>
-                    <Search className="w-4 h-4 mr-2" />
-                    开始采集
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    开始智能提取
                   </>
                 )}
               </Button>
@@ -1010,6 +1077,90 @@ export default function BookmarkPage() {
               <Button onClick={createCopywriting}>
                 <Save className="w-4 h-4 mr-2" />
                 保存
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* 编辑对话框 */}
+        <Dialog open={!!editingItem} onOpenChange={(open) => !open && cancelEdit()}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>编辑内容</DialogTitle>
+              <DialogDescription>
+                修改{editingItem?.type === 'collection' ? '网络收藏' : 
+                     editingItem?.type === 'extraction' ? '智采器' : '文案管理'}内容
+              </DialogDescription>
+            </DialogHeader>
+            {editingItem && (
+              <div className="space-y-4">
+                <div>
+                  <Label>标题</Label>
+                  <Input
+                    value={editingItem.title}
+                    onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                    placeholder="输入标题"
+                  />
+                </div>
+                <div>
+                  <Label>内容</Label>
+                  <Textarea
+                    value={editingItem.content}
+                    onChange={(e) => setEditingItem({ ...editingItem, content: e.target.value })}
+                    placeholder="输入内容"
+                    rows={8}
+                  />
+                </div>
+                {editingItem.type === 'collection' && (
+                  <div>
+                    <Label>链接</Label>
+                    <Input
+                      value={editingItem.source || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, source: e.target.value })}
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>标签（用逗号分隔）</Label>
+                    <Input
+                      value={editingItem.tags.join(', ')}
+                      onChange={(e) => setEditingItem({ 
+                        ...editingItem, 
+                        tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                      })}
+                      placeholder="标签1, 标签2"
+                    />
+                  </div>
+                  <div>
+                    <Label>分类</Label>
+                    <Input
+                      value={editingItem.category || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
+                      placeholder="分类名称"
+                    />
+                  </div>
+                </div>
+                {editingItem.type === 'copywriting' && (
+                  <div>
+                    <Label>平台</Label>
+                    <Input
+                      value={editingItem.platform || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, platform: e.target.value })}
+                      placeholder="发布平台"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={cancelEdit}>
+                取消
+              </Button>
+              <Button onClick={saveEdit}>
+                <Save className="w-4 h-4 mr-2" />
+                保存修改
               </Button>
             </DialogFooter>
           </DialogContent>
