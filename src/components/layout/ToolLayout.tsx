@@ -197,12 +197,12 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-white/95 backdrop-blur-md sticky top-0 z-50">
-        <div className="container flex justify-between items-center h-16 px-6">
+        <div className="container flex justify-between items-baseline h-16 px-6">
           {/* 左侧：Logo + 返回箭头 + 面包屑导航 */}
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-8 w-8" />
-              <span className="font-bold text-lg">文派</span>
+          <div className="flex items-baseline gap-3 py-4">
+            <Link to="/" className="flex items-baseline gap-2">
+              <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-7 w-7 mt-0.5" />
+              <span className="font-bold text-lg leading-none">文派</span>
             </Link>
             
             {/* 返回箭头 - 仅在二级页面及以下显示 */}
@@ -211,7 +211,7 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate(currentConfig.parent!)}
-                className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                className="h-7 w-7 p-0 hover:bg-gray-100 rounded-full transition-colors duration-200 flex items-center justify-center"
               >
                 <ArrowLeft className="h-4 w-4 text-gray-600 hover:text-gray-900" />
               </Button>
@@ -219,38 +219,38 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
             
             {/* 面包屑导航 - 仅在二级页面及以下显示 */}
             {currentConfig.level > 1 && (
-              <Breadcrumb className="flex items-center">
-                <BreadcrumbList className="flex items-center">
+              <Breadcrumb>
+                <BreadcrumbList className="flex items-baseline">
                   {breadcrumbs.map((crumb, index) => {
                     const Icon = crumb.icon;
                     const isLast = index === breadcrumbs.length - 1;
                     
                     return (
                       <React.Fragment key={crumb.path}>
-                        <BreadcrumbItem className="flex items-center">
+                        <BreadcrumbItem>
                           {isLast ? (
-                            <span className="text-gray-900 text-sm font-medium flex items-center gap-1.5">
-                              <Icon className="h-4 w-4" />
-                              {crumb.title}
+                            <span className="text-gray-900 text-sm font-medium flex items-baseline gap-1">
+                              <Icon className="h-4 w-4 mt-0.5" />
+                              <span className="leading-none">{crumb.title}</span>
                             </span>
                           ) : (
                             <BreadcrumbLink 
                               className="
                                 cursor-pointer text-gray-500 hover:text-blue-600 
-                                flex items-center gap-1.5 
+                                flex items-baseline gap-1
                                 transition-colors duration-200
                                 hover:underline underline-offset-2
                                 text-sm font-medium
                               "
                               onClick={() => navigate(crumb.path)}
                             >
-                              <Icon className="h-4 w-4" />
-                              {crumb.title}
+                              <Icon className="h-4 w-4 mt-0.5" />
+                              <span className="leading-none">{crumb.title}</span>
                             </BreadcrumbLink>
                           )}
                         </BreadcrumbItem>
                         {!isLast && (
-                          <BreadcrumbSeparator className="mx-2 text-gray-400 text-sm">
+                          <BreadcrumbSeparator className="mx-2 text-gray-400 text-sm leading-none self-baseline">
                             /
                           </BreadcrumbSeparator>
                         )}
