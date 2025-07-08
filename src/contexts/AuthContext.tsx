@@ -26,12 +26,18 @@ interface AuthState {
  * 认证上下文接口
  */
 interface AuthContextType extends AuthState {
+  /** 用户信息 */
+  user: User | null;
+  /** 是否已认证 */
+  isAuthenticated: boolean;
   /** 登录方法 */
   login: (identifier: string, password: string) => Promise<void>;
   /** 注册方法 */
   register: (email: string, password: string, nickname: string) => Promise<void>;
   /** 登出方法 */
-  logout: () => Promise<void>;
+  logout: () => void;
+  /** 更新用户信息 */
+  updateUser: (userData: Partial<User>) => void;
   /** 设置用户信息 */
   setUser: (user: User | null) => void;
   /** 显示登录界面 */
@@ -297,6 +303,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
+   * 更新用户信息
+   */
+  const updateUser = useCallback((userData: Partial<User>) => {
+    setState(prev => ({
+      ...prev,
+      user: prev.user ? { ...prev.user, ...userData } : null,
+    }));
+  }, []);
+
+  /**
    * 设置用户信息
    */
   const setUser = useCallback((user: User | null) => {
@@ -320,6 +336,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    updateUser,
     setUser,
     showLogin,
     hideLogin,

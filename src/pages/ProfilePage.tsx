@@ -6,17 +6,17 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { User, Settings, LogOut, Save, Camera, Shield, ArrowLeft, Gift, Phone, Mail, Crown, Calendar } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
+import { Edit3, Save, LogOut, Shield, User, Crown, Settings, Phone, Mail, Gift } from 'lucide-react';
 import { NicknameSelector } from '@/components/ui/nickname-selector';
-import { ContactVerification } from '@/components/ui/contact-verification';
 import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
@@ -48,14 +48,8 @@ export default function ProfilePage() {
   const [pendingValue, setPendingValue] = useState('');
 
   // 模拟用户类型和过期时间
-  const [userType, setUserType] = useState<'free' | 'pro'>('free'); // 可以是 'free' 或 'pro'
+  const [userType] = useState<'free' | 'pro'>('free'); // 可以是 'free' 或 'pro'
   const proExpiryDate = '2024-12-31'; // 专业版到期时间
-
-  // 如果用户未登录，跳转到登录页
-  if (!isAuthenticated || !user) {
-    navigate('/login');
-    return null;
-  }
 
   // 同步用户数据到编辑表单
   React.useEffect(() => {
@@ -82,6 +76,12 @@ export default function ProfilePage() {
       localStorage.setItem('authing_user', JSON.stringify(updatedUser));
     }
   }, [editForm.nickname, editForm.avatar, user, setUser]);
+
+  // 如果用户未登录，跳转到登录页
+  if (!isAuthenticated || !user) {
+    navigate('/login');
+    return null;
+  }
 
   /**
    * 处理头像更改

@@ -290,6 +290,34 @@ ${config.specialRequirements ? `- 特殊要求：${config.specialRequirements.jo
 }
 
 /**
+ * 生成模拟内容
+ * @param platform 平台名称
+ * @param originalContent 原始内容
+ * @param settings 平台设置
+ * @returns 模拟内容
+ */
+function generateMockContent(
+  platform: string,
+  originalContent: string,
+  settings: PlatformSettings
+): string {
+  const config = PLATFORM_CONFIGS[platform] || settings;
+  const mockContent = `这是一个模拟内容，用于平台：${config.name}。
+
+原始内容：
+${originalContent}
+
+平台要求：
+- 风格：${config.style}
+- 字数限制：${config.maxLength || '无限制'}
+- 标签风格：${config.hashtagStyle || '不需要标签'}
+${config.specialRequirements ? `- 特殊要求：${config.specialRequirements.join('、')}` : ''}
+
+请生成符合${config.name}平台特点的内容，保持原意的同时，让内容更适合该平台的用户群体和传播特点。`;
+  return mockContent;
+}
+
+/**
  * 生成适配内容
  * @param originalContent 原始内容
  * @param platforms 目标平台
@@ -427,18 +455,65 @@ export async function adaptContent(request: ContentAdaptRequest): Promise<Conten
         }
 
         if (response.success && response.data) {
+          // 提取实际的AI响应内容
+          let actualContent = response.data;
+          
+          // 处理不同API响应格式
+          if (typeof response.data === 'object') {
+            // OpenAI格式：data.choices[0].message.content
+            if (response.data.choices && response.data.choices[0] && response.data.choices[0].message) {
+              actualContent = response.data.choices[0].message.content;
+            }
+            // Gemini格式：data.candidates[0].content.parts[0].text
+            else if (response.data.candidates && response.data.candidates[0] && response.data.candidates[0].content) {
+              actualContent = response.data.candidates[0].content.parts[0].text;
+            }
+            // DeepSeek格式：data.choices[0].message.content
+            else if (response.data.message) {
+              actualContent = response.data.message.content || response.data.message;
+            }
+            // 如果有content字段直接使用
+            else if (response.data.content) {
+              actualContent = response.data.content;
+            }
+            // 如果data是对象但没有预期字段，转为字符串
+            else {
+              actualContent = JSON.stringify(response.data);
+            }
+          }
+          
+          // 确保内容不为空
+          if (!actualContent || actualContent.trim() === '') {
+            console.error(`Platform ${platform} - API返回空内容`, response);
+            results.push({
+              platform,
+              content: `生成失败：API返回空内容`,
+              error: 'API返回的内容为空'
+            });
+          } else {
+            console.log(`Platform ${platform} - 生成成功:`, actualContent.substring(0, 100) + '...');
+            results.push({
+              platform,
+              content: actualContent.trim(),
+              title: settings.name,
+              hashtags: [],
+              suggestions: [],
+              source: 'ai'
+            });
+          }
+        } else {
+          console.error(`Platform ${platform} - API调用失败:`, response);
+          
+          // 如果API调用失败，提供模拟内容作为回退
+          const mockContent = generateMockContent(platform, originalContent, settings);
           results.push({
             platform,
-            content: response.data,
+            content: mockContent,
             title: settings.name,
             hashtags: [],
-            suggestions: []
-          });
-        } else {
-          results.push({
-            platform,
-            content: `生成失败：${response.error || '未知错误'}`,
-            error: response.error
+            suggestions: [],
+            source: 'mock',
+            error: response.error || 'API调用失败，使用模拟内容'
           });
         }
       } catch (error) {

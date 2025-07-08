@@ -3,7 +3,7 @@
  * 支持多维度深度融合，生成可用创意内容
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,11 +39,20 @@ import {
   Pin,
   X,
   Eye,
-  RotateCcw
+  RotateCcw,
+  ArrowRight,
+  BookOpen,
+  MoreHorizontal
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MarketingCalendar } from './MarketingCalendar';
 import { MomentsTextGenerator } from './MomentsTextGenerator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useUserStore } from '@/store/userStore';
+import { callOpenAIProxy } from '@/api/apiProxy';
+import { Label as UILabel } from '@/components/ui/label';
 
 /**
  * 九宫格维度定义
@@ -213,6 +222,7 @@ function DimensionCard({
  */
 export function CreativeCube() {
   const { toast } = useToast();
+  const { usageRemaining, decrementUsage } = useUserStore();
   
   // 九宫格维度定义
   const dimensions: CubeDimension[] = [
@@ -290,15 +300,15 @@ export function CreativeCube() {
     }
   ];
 
-  // 状态管理
+  // 九宫格状态
   const [cubeData, setCubeData] = useState<Record<string, string[]>>({});
   const [selectedItems, setSelectedItems] = useState<Record<string, string>>({});
   const [pinnedDimensions, setPinnedDimensions] = useState<Set<string>>(new Set()); // 固定维度
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('');
   const [currentContentType, setCurrentContentType] = useState<'text' | 'video'>('text');
-  const [videoScript, setVideoScript] = useState<VideoScript[]>([]);
   const [generatedIdeas, setGeneratedIdeas] = useState<CreativeResult[]>([]); // 历史创意记录
+  const [randomDimensionCount, setRandomDimensionCount] = useState<number>(3); // 随机维度数量
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportData, setExportData] = useState<any[]>([]);
 
@@ -308,7 +318,7 @@ export function CreativeCube() {
   // 验证生成条件
   const isValidGeneration = useMemo(() => {
     return requiredDimensions.every(dim => selectedItems[dim] && selectedItems[dim].trim() !== '');
-  }, [selectedItems]);
+  }, [selectedItems, requiredDimensions]);
   
   /**
    * 检查必选维度是否已选择
@@ -471,9 +481,9 @@ export function CreativeCube() {
   /**
    * 智能随机生成
    * 必选维度（目标客群、使用场景、用户痛点、行业）必须选择
-   * 其他维度随机选择
+   * 其他维度可选择性随机选择
    */
-  const smartRandomGenerate = () => {
+  const smartRandomGenerate = (randomDimensionCount?: number) => {
     const newSelection = { ...selectedItems };
     
     // 确保4个必选维度必须有值
@@ -491,26 +501,49 @@ export function CreativeCube() {
       }
     });
     
-    // 其他维度（推荐和可选）随机选择
+    // 其他维度（推荐和可选）可选择性随机选择
     const otherDimensions = dimensions.filter(d => !requiredDimensions.includes(d.id));
-    otherDimensions.forEach(dimension => {
-      // 如果维度已固定，跳过随机生成
-      if (pinnedDimensions.has(dimension.id)) {
-        return;
-      }
+    const availableOtherDimensions = otherDimensions.filter(d => !pinnedDimensions.has(d.id));
+    
+    // 如果指定了随机维度数量，则随机选择指定数量的其他维度
+    if (randomDimensionCount !== undefined && randomDimensionCount >= 0) {
+      // 先清空所有非必选和非固定的维度
+      otherDimensions.forEach(dimension => {
+        if (!pinnedDimensions.has(dimension.id)) {
+          delete newSelection[dimension.id];
+        }
+      });
       
-      const items = cubeData[dimension.id] || dimension.defaultItems;
-      if (items.length > 0) {
-        const randomIndex = Math.floor(Math.random() * items.length);
-        newSelection[dimension.id] = items[randomIndex];
-      }
-    });
+      // 随机选择指定数量的其他维度
+      const shuffledOtherDimensions = [...availableOtherDimensions].sort(() => Math.random() - 0.5);
+      const selectedOtherDimensions = shuffledOtherDimensions.slice(0, randomDimensionCount);
+      
+      selectedOtherDimensions.forEach(dimension => {
+        const items = cubeData[dimension.id] || dimension.defaultItems;
+        if (items.length > 0) {
+          const randomIndex = Math.floor(Math.random() * items.length);
+          newSelection[dimension.id] = items[randomIndex];
+        }
+      });
+    } else {
+      // 如果没有指定数量，则为所有其他维度随机选择（原有逻辑）
+      availableOtherDimensions.forEach(dimension => {
+        const items = cubeData[dimension.id] || dimension.defaultItems;
+        if (items.length > 0) {
+          const randomIndex = Math.floor(Math.random() * items.length);
+          newSelection[dimension.id] = items[randomIndex];
+        }
+      });
+    }
     
     setSelectedItems(newSelection);
     
+    const selectedCount = Object.keys(newSelection).length;
+    const fixedCount = pinnedDimensions.size;
+    
     toast({
       title: "智能随机生成完成",
-      description: `已为${dimensions.length - pinnedDimensions.size}个维度生成随机组合`,
+      description: `已选择${selectedCount}个维度（${fixedCount}个固定，${selectedCount - fixedCount}个随机）`,
     });
     
     // 使用 setTimeout 确保状态更新后再生成，避免检查失效
@@ -1534,6 +1567,38 @@ Your output must feel like it was written by a real KOC or content strategist �
                 <Shuffle className="w-4 h-4 mr-2" />
                 随机选择
               </Button>
+              
+              {/* 智能随机生成 */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => smartRandomGenerate(randomDimensionCount)}
+                  disabled={isGenerating}
+                  className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  智能随机
+                </Button>
+                <Select 
+                  value={randomDimensionCount.toString()} 
+                  onValueChange={(value) => setRandomDimensionCount(parseInt(value))}
+                >
+                  <SelectTrigger className="w-20 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">0个</SelectItem>
+                    <SelectItem value="1">1个</SelectItem>
+                    <SelectItem value="2">2个</SelectItem>
+                    <SelectItem value="3">3个</SelectItem>
+                    <SelectItem value="4">4个</SelectItem>
+                    <SelectItem value="5">5个</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-xs text-gray-500">可选维度</span>
+              </div>
+              
               <Button
                 variant="outline"
                 size="sm"

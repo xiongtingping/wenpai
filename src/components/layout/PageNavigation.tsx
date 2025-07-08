@@ -286,24 +286,25 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => navigate(currentConfig.parent!)}
+                className="h-9 flex items-center"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 返回
               </Button>
             )}
             
-            <Breadcrumb>
-              <BreadcrumbList>
+            <Breadcrumb className="flex items-center">
+              <BreadcrumbList className="flex items-center">
                 {breadcrumbs.map((crumb, index) => {
                   const Icon = crumb.icon;
                   const isLast = index === breadcrumbs.length - 1;
                   
                   return (
                     <React.Fragment key={crumb.path}>
-                      <BreadcrumbItem>
+                      <BreadcrumbItem className="flex items-center">
                         {isLast ? (
-                          <BreadcrumbPage className="flex items-center gap-2">
-                            <Icon className="h-4 w-4" />
+                          <BreadcrumbPage className="flex items-center gap-2 text-lg font-medium">
+                            <Icon className="h-5 w-5" />
                             {crumb.title}
                             {crumb.badge && (
                               <Badge variant="outline" className="text-xs">
@@ -313,7 +314,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                           </BreadcrumbPage>
                         ) : (
                           <BreadcrumbLink 
-                            className="cursor-pointer hover:text-blue-600"
+                            className="cursor-pointer hover:text-blue-600 flex items-center gap-2"
                             onClick={() => navigate(crumb.path)}
                           >
                             <Icon className="h-4 w-4" />
@@ -321,7 +322,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                           </BreadcrumbLink>
                         )}
                       </BreadcrumbItem>
-                      {!isLast && <BreadcrumbSeparator />}
+                      {!isLast && <BreadcrumbSeparator className="mx-2" />}
                     </React.Fragment>
                   );
                 })}
