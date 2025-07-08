@@ -1531,7 +1531,7 @@ Your output must feel like it was written by a real KOC or content strategist â€
                                 {scene.sceneNumber}
                               </Badge>
                               <div className="flex-1">
-                                <div className="font-medium text-sm mb-1">{scene.description}</div>
+                                <div className="font-medium text-sm mb-1">{scene.sceneDescription}</div>
                                 <div className="text-xs text-gray-600 mb-2">{scene.duration}</div>
                                 {scene.dialogue && (
                                   <div className="text-sm italic text-gray-700">"{scene.dialogue}"</div>
