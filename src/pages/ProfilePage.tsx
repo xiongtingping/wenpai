@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
-import { Edit3, Save, LogOut, Shield, User, Crown, Settings, Phone, Mail, Gift } from 'lucide-react';
+import { Edit3, Save, LogOut, Shield, User, Crown, Settings, Phone, Mail, Gift, ArrowLeft } from 'lucide-react';
 import { NicknameSelector } from '@/components/ui/nickname-selector';
 import PageNavigation from '@/components/layout/PageNavigation';
 
@@ -343,6 +343,17 @@ export default function ProfilePage() {
           <div className="space-y-6 h-full">
             <Card className="h-full flex flex-col">
               <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/')}
+                    className="hover:bg-gray-100 -ml-2"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    返回首页
+                  </Button>
+                </div>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <User className="w-5 h-5" />
                   个人资料
