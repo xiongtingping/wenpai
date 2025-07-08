@@ -276,17 +276,18 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
 
   return (
     <div className="border-b bg-white">
-      <div className="container mx-auto px-4 py-4">
-        {/* 面包屑导航 */}
+      <div className="container mx-auto px-4 py-6">
+        {/* 顶部导航行：返回按钮 + 面包屑路径 + 右侧操作 */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            {/* 优化后的返回按钮 - 根据页面层级显示 */}
+          {/* 左侧：返回按钮 + 面包屑导航 */}
+          <div className="flex items-center gap-3">
+            {/* 优化后的返回按钮 */}
             {currentConfig.level > 1 && currentConfig.parent && (
               <Button
                 variant="ghost"
                 onClick={() => navigate(currentConfig.parent!)}
                 className="
-                  min-w-[44px] h-11 px-4 py-2
+                  min-w-[44px] h-10 px-3 py-2
                   bg-gray-100 hover:bg-gray-200 
                   rounded-full
                   flex items-center gap-2
@@ -296,57 +297,52 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                   hover:scale-105 hover:shadow-sm
                   active:scale-95
                   group
+                  text-sm font-medium
                 "
               >
                 <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
-                <span className="text-sm font-medium">
-                  {PAGE_CONFIGS[currentConfig.parent!]?.title || '返回上一页'}
-                </span>
+                <span>{PAGE_CONFIGS[currentConfig.parent!]?.title || '返回'}</span>
               </Button>
             )}
             
+            {/* 面包屑路径导航 - 只显示路径，不显示当前页 */}
             <Breadcrumb className="flex items-center">
               <BreadcrumbList className="flex items-center">
-                {breadcrumbs.map((crumb, index) => {
+                {breadcrumbs.slice(0, -1).map((crumb, index) => {
                   const Icon = crumb.icon;
-                  const isLast = index === breadcrumbs.length - 1;
                   
                   return (
                     <React.Fragment key={crumb.path}>
                       <BreadcrumbItem className="flex items-center">
-                        {isLast ? (
-                          <BreadcrumbPage className="flex items-center gap-2 text-lg font-medium text-gray-900">
-                            <Icon className="h-5 w-5 text-blue-600" />
-                            {crumb.title}
-                            {crumb.badge && (
-                              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
-                                {crumb.badge}
-                              </Badge>
-                            )}
-                          </BreadcrumbPage>
-                        ) : (
-                          <BreadcrumbLink 
-                            className="
-                              cursor-pointer text-gray-600 hover:text-blue-600 
-                              flex items-center gap-2 
-                              transition-colors duration-200
-                              hover:underline underline-offset-2
-                            "
-                            onClick={() => navigate(crumb.path)}
-                          >
-                            <Icon className="h-4 w-4" />
-                            {crumb.title}
-                          </BreadcrumbLink>
-                        )}
+                        <BreadcrumbLink 
+                          className="
+                            cursor-pointer text-gray-500 hover:text-blue-600 
+                            flex items-center gap-1.5 
+                            transition-colors duration-200
+                            hover:underline underline-offset-2
+                            text-xs font-medium
+                          "
+                          onClick={() => navigate(crumb.path)}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                          {crumb.title}
+                        </BreadcrumbLink>
                       </BreadcrumbItem>
-                      {!isLast && (
-                        <BreadcrumbSeparator className="mx-3 text-gray-400">
-                          /
-                        </BreadcrumbSeparator>
-                      )}
+                      <BreadcrumbSeparator className="mx-2 text-gray-400 text-xs">
+                        /
+                      </BreadcrumbSeparator>
                     </React.Fragment>
                   );
                 })}
+                {/* 显示当前页面名称（不可点击） */}
+                {breadcrumbs.length > 0 && (
+                  <BreadcrumbItem>
+                    <span className="text-gray-500 text-xs font-medium flex items-center gap-1.5">
+                      {React.createElement(currentConfig.icon, { className: "h-3.5 w-3.5" })}
+                      {currentConfig.title}
+                    </span>
+                  </BreadcrumbItem>
+                )}
               </BreadcrumbList>
             </Breadcrumb>
           </div>
@@ -378,30 +374,34 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
               </Button>
             )}
             
-            {/* 额外操作按钮 - 过滤掉返回按钮 */}
+            {/* 额外操作按钮 */}
             {actions}
           </div>
         </div>
 
-        {/* 页面标题和描述 */}
-        {(title || description) && (
-          <div className="mb-4">
-            {title && (
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                {title}
-              </h1>
-            )}
-            {description && (
-              <p className="text-gray-600">
-                {description}
-              </p>
+        {/* 页面主标题区域 */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            {React.createElement(currentConfig.icon, { className: "h-6 w-6 text-blue-600" })}
+            <h1 className="text-2xl font-bold text-gray-900">
+              {title || currentConfig.title}
+            </h1>
+            {currentConfig.badge && (
+              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">
+                {currentConfig.badge}
+              </Badge>
             )}
           </div>
-        )}
+          {description && (
+            <p className="text-gray-600 text-sm leading-relaxed ml-9">
+              {description}
+            </p>
+          )}
+        </div>
 
         {/* 子模块快速切换 */}
         {subModules.length > 0 && (
-          <div className="flex items-center gap-3 flex-wrap pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-100 mt-6">
             <span className="text-sm font-medium text-gray-500 mr-2">快速切换:</span>
             {subModules.map((module, index) => {
               const ModuleIcon = module.icon;
