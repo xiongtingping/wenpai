@@ -42,7 +42,9 @@ import {
   Edit3,
   Move,
   AlertCircle,
-  Flag
+  Flag,
+  RotateCcw,
+  Archive
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -74,6 +76,7 @@ interface TodoItem {
   links?: string[]; // 双链功能
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string; // 删除时间（用于回收站）
 }
 
 /**
@@ -89,10 +92,10 @@ export function MarketingCalendar() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [filteredTodos, setFilteredTodos] = useState<TodoItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string>('all'); // 改为单选
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'priority' | 'title'>('date');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc'); // 默认降序（最新在前）
   
   // 新待办事项表单
   const [newTodo, setNewTodo] = useState({
@@ -122,6 +125,7 @@ export function MarketingCalendar() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCompletedTodos, setShowCompletedTodos] = useState(false);
   const [showStatistics, setShowStatistics] = useState(false);
+  const [showRecycleBin, setShowRecycleBin] = useState(false); // 回收站显示状态
   const [statisticsRange, setStatisticsRange] = useState<'day' | 'week' | 'month' | 'year'>('week');
 
   // 拖拽相关状态
@@ -189,11 +193,11 @@ export function MarketingCalendar() {
   };
 
   /**
-   * 获取日期的待办事项
+   * 获取日期的待办事项（排除已删除的）
    */
   const getTodosForDate = (date: Date) => {
     const dateString = date.toISOString().split('T')[0];
-    return todos.filter(todo => todo.date === dateString);
+    return todos.filter(todo => todo.date === dateString && !todo.deletedAt);
   };
 
   /**
@@ -279,104 +283,265 @@ export function MarketingCalendar() {
   };
 
   /**
-   * 初始化示例数据 - 增加更多节假日
+   * 初始化示例数据 - 增加更多中国节假日和国际节日
    */
   useEffect(() => {
+    const currentYear = new Date().getFullYear();
     const sampleEvents: CalendarEvent[] = [
-      // 法定节假日
+      // 中国法定节假日
       {
         id: '1',
+        title: '元旦',
+        date: `${currentYear}-01-01`,
+        type: 'holiday',
+        description: '公历新年',
+        color: 'red',
+        isLegalHoliday: true
+      },
+      {
+        id: '2',
         title: '春节',
-        date: '2024-02-10',
+        date: `${currentYear}-02-10`,
         type: 'holiday',
         description: '农历新年，最重要的传统节日',
         color: 'red',
         isLegalHoliday: true
       },
       {
-        id: '2',
-        title: '国庆节',
-        date: '2024-10-01',
+        id: '3',
+        title: '清明节',
+        date: `${currentYear}-04-05`,
         type: 'holiday',
-        description: '中华人民共和国成立纪念日',
+        description: '祭祖扫墓的传统节日',
         color: 'red',
         isLegalHoliday: true
       },
       {
-        id: '3',
+        id: '4',
         title: '劳动节',
-        date: '2024-05-01',
+        date: `${currentYear}-05-01`,
         type: 'holiday',
         description: '国际劳动节',
         color: 'red',
         isLegalHoliday: true
       },
-      // 24节气
       {
-        id: '4',
+        id: '5',
+        title: '端午节',
+        date: `${currentYear}-06-10`,
+        type: 'holiday',
+        description: '农历五月初五，纪念屈原',
+        color: 'red',
+        isLegalHoliday: true
+      },
+      {
+        id: '6',
+        title: '中秋节',
+        date: `${currentYear}-09-17`,
+        type: 'holiday',
+        description: '农历八月十五，团圆节',
+        color: 'red',
+        isLegalHoliday: true
+      },
+      {
+        id: '7',
+        title: '国庆节',
+        date: `${currentYear}-10-01`,
+        type: 'holiday',
+        description: '中华人民共和国成立纪念日',
+        color: 'red',
+        isLegalHoliday: true
+      },
+      
+      // 24节气（部分）
+      {
+        id: '8',
         title: '立春',
-        date: '2024-02-04',
+        date: `${currentYear}-02-04`,
         type: 'solar_term',
         description: '二十四节气之首，春季开始',
         color: 'green'
       },
       {
-        id: '5',
+        id: '9',
         title: '春分',
-        date: '2024-03-20',
+        date: `${currentYear}-03-20`,
         type: 'solar_term',
         description: '昼夜平分，春季中点',
         color: 'green'
       },
+      {
+        id: '10',
+        title: '立夏',
+        date: `${currentYear}-05-05`,
+        type: 'solar_term',
+        description: '夏季开始',
+        color: 'green'
+      },
+      {
+        id: '11',
+        title: '夏至',
+        date: `${currentYear}-06-21`,
+        type: 'solar_term',
+        description: '北半球白昼最长的一天',
+        color: 'green'
+      },
+      {
+        id: '12',
+        title: '立秋',
+        date: `${currentYear}-08-07`,
+        type: 'solar_term',
+        description: '秋季开始',
+        color: 'green'
+      },
+      {
+        id: '13',
+        title: '秋分',
+        date: `${currentYear}-09-23`,
+        type: 'solar_term',
+        description: '昼夜平分，秋季中点',
+        color: 'green'
+      },
+      {
+        id: '14',
+        title: '立冬',
+        date: `${currentYear}-11-07`,
+        type: 'solar_term',
+        description: '冬季开始',
+        color: 'green'
+      },
+      {
+        id: '15',
+        title: '冬至',
+        date: `${currentYear}-12-22`,
+        type: 'solar_term',
+        description: '北半球白昼最短的一天',
+        color: 'green'
+      },
+      
       // 农历节日
       {
-        id: '6',
+        id: '16',
         title: '元宵节',
-        date: '2024-02-24',
+        date: `${currentYear}-02-24`,
         type: 'lunar_holiday',
         description: '农历正月十五，观灯节',
         color: 'orange'
       },
       {
-        id: '7',
-        title: '中秋节',
-        date: '2024-09-17',
+        id: '17',
+        title: '七夕节',
+        date: `${currentYear}-08-10`,
         type: 'lunar_holiday',
-        description: '农历八月十五，团圆节',
+        description: '农历七月初七，中国情人节',
         color: 'orange'
       },
-      // 国际节日
       {
-        id: '8',
-        title: '情人节',
-        date: '2024-02-14',
-        type: 'international',
-        description: '西方情人节',
-        color: 'pink'
+        id: '18',
+        title: '重阳节',
+        date: `${currentYear}-10-11`,
+        type: 'lunar_holiday',
+        description: '农历九月初九，敬老节',
+        color: 'orange'
       },
       {
-        id: '9',
+        id: '19',
+        title: '腊八节',
+        date: `${currentYear}-01-18`,
+        type: 'lunar_holiday',
+        description: '农历腊月初八，喝腊八粥',
+        color: 'orange'
+      },
+      
+      // 国际节日
+      {
+        id: '20',
+        title: '情人节',
+        date: `${currentYear}-02-14`,
+        type: 'international',
+        description: '西方情人节',
+        color: 'purple'
+      },
+      {
+        id: '21',
         title: '妇女节',
-        date: '2024-03-08',
+        date: `${currentYear}-03-08`,
         type: 'international',
         description: '国际妇女节',
         color: 'purple'
       },
       {
-        id: '10',
+        id: '22',
+        title: '愚人节',
+        date: `${currentYear}-04-01`,
+        type: 'international',
+        description: '西方愚人节',
+        color: 'purple'
+      },
+      {
+        id: '23',
         title: '世界地球日',
-        date: '2024-04-22',
+        date: `${currentYear}-04-22`,
         type: 'international',
         description: '保护地球环境的节日',
-        color: 'green'
+        color: 'purple'
       },
-      // 历史上的今天
       {
-        id: '11',
+        id: '24',
+        title: '母亲节',
+        date: `${currentYear}-05-12`,
+        type: 'international',
+        description: '感恩母亲的节日',
+        color: 'purple'
+      },
+      {
+        id: '25',
+        title: '儿童节',
+        date: `${currentYear}-06-01`,
+        type: 'international',
+        description: '国际儿童节',
+        color: 'purple'
+      },
+      {
+        id: '26',
+        title: '父亲节',
+        date: `${currentYear}-06-16`,
+        type: 'international',
+        description: '感恩父亲的节日',
+        color: 'purple'
+      },
+      {
+        id: '27',
+        title: '万圣节',
+        date: `${currentYear}-10-31`,
+        type: 'international',
+        description: '西方万圣节',
+        color: 'purple'
+      },
+      {
+        id: '28',
+        title: '圣诞节',
+        date: `${currentYear}-12-25`,
+        type: 'international',
+        description: '西方圣诞节',
+        color: 'purple'
+      },
+      
+      // 历史事件
+      {
+        id: '29',
         title: '世界无线电日',
-        date: '2024-02-13',
+        date: `${currentYear}-02-13`,
         type: 'history',
         description: '联合国设立的世界无线电日',
+        color: 'blue'
+      },
+      {
+        id: '30',
+        title: '世界读书日',
+        date: `${currentYear}-04-23`,
+        type: 'history',
+        description: '联合国教科文组织设立',
         color: 'blue'
       }
     ];
@@ -431,8 +596,15 @@ export function MarketingCalendar() {
   useEffect(() => {
     let filtered = [...todos];
 
-    // 默认隐藏已完成的待办事项
-    if (!showCompletedTodos) {
+    // 根据是否显示回收站筛选
+    if (showRecycleBin) {
+      filtered = filtered.filter(todo => todo.deletedAt);
+    } else {
+      filtered = filtered.filter(todo => !todo.deletedAt);
+    }
+
+    // 默认隐藏已完成的待办事项（回收站模式下显示所有）
+    if (!showCompletedTodos && !showRecycleBin) {
       filtered = filtered.filter(todo => !todo.completed);
     }
 
@@ -445,11 +617,9 @@ export function MarketingCalendar() {
       );
     }
 
-    // 标签筛选
-    if (selectedTags.length > 0) {
-      filtered = filtered.filter(todo => 
-        selectedTags.some(tag => todo.tags.includes(tag))
-      );
+    // 标签筛选（改为单选）
+    if (selectedTag !== 'all') {
+      filtered = filtered.filter(todo => todo.tags.includes(selectedTag));
     }
 
     // 分组筛选
@@ -459,8 +629,8 @@ export function MarketingCalendar() {
 
     // 排序
     filtered.sort((a, b) => {
-      // 已完成的项目排在底部
-      if (a.completed !== b.completed) {
+      // 已完成的项目排在底部（除非在回收站模式）
+      if (!showRecycleBin && a.completed !== b.completed) {
         return a.completed ? 1 : -1;
       }
       
@@ -483,14 +653,14 @@ export function MarketingCalendar() {
     });
 
     setFilteredTodos(filtered);
-  }, [todos, searchQuery, selectedTags, selectedGroup, sortBy, sortOrder, showCompletedTodos]);
+  }, [todos, searchQuery, selectedTag, selectedGroup, sortBy, sortOrder, showCompletedTodos, showRecycleBin]);
 
   /**
    * 获取所有标签
    */
   const getAllTags = () => {
     const allTags = new Set<string>();
-    todos.forEach(todo => {
+    todos.filter(todo => !todo.deletedAt).forEach(todo => {
       todo.tags.forEach(tag => allTags.add(tag));
     });
     return Array.from(allTags);
@@ -501,7 +671,7 @@ export function MarketingCalendar() {
    */
   const getAllGroups = () => {
     const allGroups = new Set<string>();
-    todos.forEach(todo => {
+    todos.filter(todo => !todo.deletedAt).forEach(todo => {
       if (todo.group) allGroups.add(todo.group);
     });
     return Array.from(allGroups);
@@ -569,13 +739,58 @@ export function MarketingCalendar() {
   };
 
   /**
-   * 删除待办事项
+   * 删除待办事项（移至回收站）
    */
   const deleteTodo = (id: string) => {
+    setTodos(prev => prev.map(todo => 
+      todo.id === id ? {
+        ...todo,
+        deletedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } : todo
+    ));
+    toast({
+      title: "已移至回收站",
+      description: "待办事项已移至回收站",
+    });
+  };
+
+  /**
+   * 彻底删除待办事项
+   */
+  const permanentlyDeleteTodo = (id: string) => {
     setTodos(prev => prev.filter(todo => todo.id !== id));
     toast({
-      title: "删除成功",
-      description: "待办事项已删除",
+      title: "彻底删除成功",
+      description: "待办事项已彻底删除",
+    });
+  };
+
+  /**
+   * 从回收站恢复待办事项
+   */
+  const restoreTodo = (id: string) => {
+    setTodos(prev => prev.map(todo => 
+      todo.id === id ? {
+        ...todo,
+        deletedAt: undefined,
+        updatedAt: new Date().toISOString()
+      } : todo
+    ));
+    toast({
+      title: "恢复成功",
+      description: "待办事项已从回收站恢复",
+    });
+  };
+
+  /**
+   * 清空回收站
+   */
+  const clearRecycleBin = () => {
+    setTodos(prev => prev.filter(todo => !todo.deletedAt));
+    toast({
+      title: "回收站已清空",
+      description: "所有已删除的待办事项已彻底删除",
     });
   };
 
@@ -695,7 +910,7 @@ export function MarketingCalendar() {
   };
 
   /**
-   * 获取农历日期（模拟）
+   * 获取农历日期（简化版，实际项目中建议使用专门的农历库）
    */
   const getLunarDate = (date: Date) => {
     const lunarDates = [
@@ -708,21 +923,21 @@ export function MarketingCalendar() {
   };
 
   /**
-   * 获取历史上的今天（模拟）
+   * 获取历史上的今天（简化版）
    */
   const getHistoryToday = (date: Date) => {
     const month = date.getMonth() + 1;
     const day = date.getDate();
     
     const historyEvents = {
+      '1-1': '元旦',
       '2-14': '情人节',
-      '2-15': '世界无线电日',
-      '2-20': '世界社会公正日',
-      '3-8': '国际妇女节',
+      '3-8': '妇女节',
       '3-12': '植树节',
+      '4-1': '愚人节',
       '4-22': '世界地球日',
-      '5-1': '国际劳动节',
-      '6-1': '国际儿童节',
+      '5-1': '劳动节',
+      '6-1': '儿童节',
       '10-1': '国庆节',
       '12-25': '圣诞节'
     };
@@ -788,7 +1003,7 @@ export function MarketingCalendar() {
     
     const filteredTodos = todos.filter(todo => {
       const todoDate = new Date(todo.date);
-      return todoDate >= startDate && todoDate <= endDate;
+      return todoDate >= startDate && todoDate <= endDate && !todo.deletedAt;
     });
     
     const completed = filteredTodos.filter(todo => todo.completed);
@@ -814,7 +1029,7 @@ export function MarketingCalendar() {
    */
   const getCompletedTodos = () => {
     return todos
-      .filter(todo => todo.completed)
+      .filter(todo => todo.completed && !todo.deletedAt)
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   };
 
@@ -822,7 +1037,14 @@ export function MarketingCalendar() {
    * 获取未完成的待办事项
    */
   const getPendingTodos = () => {
-    return todos.filter(todo => !todo.completed);
+    return todos.filter(todo => !todo.completed && !todo.deletedAt);
+  };
+
+  /**
+   * 获取回收站中的待办事项数量
+   */
+  const getRecycleBinCount = () => {
+    return todos.filter(todo => todo.deletedAt).length;
   };
 
   const calendarDays = generateCalendarDays();
@@ -1331,6 +1553,21 @@ export function MarketingCalendar() {
                   </Badge>
                 )}
               </Button>
+
+              <Button
+                variant={showRecycleBin ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowRecycleBin(!showRecycleBin)}
+                className="flex items-center gap-1"
+              >
+                <Archive className="w-3 h-3" />
+                {showRecycleBin ? '显示回收站' : '显示待办'}
+                {getRecycleBinCount() > 0 && (
+                  <Badge variant="secondary" className="text-xs ml-1">
+                    {getRecycleBinCount()}
+                  </Badge>
+                )}
+              </Button>
               
               <select
                 value={selectedGroup}
@@ -1362,18 +1599,21 @@ export function MarketingCalendar() {
               </Button>
             </div>
 
-            {/* 标签筛选 */}
+            {/* 标签筛选（改为单选） */}
             <div className="flex flex-wrap gap-1 mt-2">
+              <Badge
+                variant={selectedTag === 'all' ? "default" : "outline"}
+                className="cursor-pointer text-xs"
+                onClick={() => setSelectedTag('all')}
+              >
+                全部标签
+              </Badge>
               {getAllTags().map(tag => (
                 <Badge
                   key={tag}
-                  variant={selectedTags.includes(tag) ? "default" : "outline"}
+                  variant={selectedTag === tag ? "default" : "outline"}
                   className="cursor-pointer text-xs"
-                  onClick={() => setSelectedTags(prev => 
-                    prev.includes(tag) 
-                      ? prev.filter(t => t !== tag)
-                      : [...prev, tag]
-                  )}
+                  onClick={() => setSelectedTag(tag)}
                 >
                   {tag}
                 </Badge>
@@ -1459,13 +1699,6 @@ export function MarketingCalendar() {
                             {tag}
                           </Badge>
                         ))}
-
-                        {!todo.completed && (
-                          <Badge variant="outline" className="text-xs text-gray-500">
-                            <Move className="w-2 h-2 mr-1" />
-                            可拖拽
-                          </Badge>
-                        )}
                       </div>
                     </div>
                   </div>
