@@ -16,23 +16,23 @@ export function HeroSection() {
           文派全方位赋能新媒体工作者，让您专注于创意，释放生产力。
         </p>
         
-        {/* 功能权限展示 */}
+        {/* 功能权限展示 - 移除免费和专业版标识 */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">
             <Zap className="w-3 h-3 mr-1" />
-            AI内容适配 - 免费10次/月
+            AI内容适配器
           </Badge>
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
             <Sparkles className="w-3 h-3 mr-1" />
-            创意工作室 - 免费
-          </Badge>
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
-            <Sparkles className="w-3 h-3 mr-1" />
-            热点话题 - 免费
+            创意魔方
           </Badge>
           <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 px-3 py-1">
-            <Crown className="w-3 h-3 mr-1" />
-            专业版功能 - 升级解锁
+            <Sparkles className="w-3 h-3 mr-1" />
+            全网雷达
+          </Badge>
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1">
+            <Sparkles className="w-3 h-3 mr-1" />
+            我的资料库
           </Badge>
         </div>
         
@@ -55,14 +55,14 @@ export function HeroSection() {
 
         {/* Product Demo Visual */}
         <div className="mt-16 max-w-5xl mx-auto p-4 md:p-8 bg-gray-100 rounded-2xl shadow-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            {/* Input */}
-            <Card className="p-6 border-0 shadow-md">
-              <h3 className="font-bold text-lg mb-2 text-left flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {/* Input - 优化内边距 */}
+            <Card className="p-4 border-0 shadow-md">
+              <h3 className="font-bold text-lg mb-3 text-left flex items-center">
                 <div className="h-6 w-6 bg-gray-200 rounded-full flex items-center justify-center mr-2 text-gray-700 text-xs">原</div>
                 原始文案
               </h3>
-              <div className="text-left text-gray-700 space-y-3">
+              <div className="text-left text-gray-700 space-y-2 text-sm leading-relaxed">
                 <p>今天试了一款XXX身体乳，味道太治愈了！🌿</p>
                 <p>像小时候喝的牛奶糖味道，甜而不腻，闻着就想咬一口！</p>
                 <p>质地是那种冰淇淋慕斯感，推开超水润，吸收嗖嗖的，一点不粘腻。秋冬干皮姐妹们，闭眼冲它！
@@ -115,6 +115,49 @@ export function HeroSection() {
                   <p className="text-sm text-gray-600">✨秋冬身体乳测评✨ 这款牛奶糖味道的身体乳真的太治愈了！质地像冰淇淋慕斯，推开超水润...</p>
                 </div>
               </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* 添加平台差异化说明 */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">各平台内容特殊性差异</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+            <div className="space-y-4">
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-rose-600 mb-2">小红书</h3>
+                <p className="text-sm text-gray-600">轻松活泼风格，多用emoji表情，个人化视角，首尾互动引导，注重生活化和体验感</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-green-600 mb-2">微信公众号</h3>
+                <p className="text-sm text-gray-600">专业严谨风格，段落清晰，标题引人，适合深度阅读，注重价值输出和专业性</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-black mb-2">抖音</h3>
+                <p className="text-sm text-gray-600">简短有力台词，节奏感强，互动性高，引人共鸣，适合口语化表达和视觉描述</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-blue-600 mb-2">知乎</h3>
+                <p className="text-sm text-gray-600">逻辑严密，分点论述，理性客观，有深度的专业分析，注重论证过程和数据支撑</p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-orange-600 mb-2">微博</h3>
+                <p className="text-sm text-gray-600">简短有话题性，互动元素多，情绪化表达，热点结合，适合快速传播</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-pink-600 mb-2">B站</h3>
+                <p className="text-sm text-gray-600">二次元文化元素，圈层词汇，专业知识融合娱乐表达，年轻化语言风格</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-green-700 mb-2">视频号</h3>
+                <p className="text-sm text-gray-600">亲和力强，互动感高，视觉描述清晰，适合中老年群体，注重情感共鸣</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-gray-600 mb-2">X(推特)</h3>
+                <p className="text-sm text-gray-600">精简直接，多用标签，国际化表达，适合观点输出和快速互动</p>
+              </div>
             </div>
           </div>
         </div>

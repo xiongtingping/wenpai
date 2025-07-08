@@ -65,7 +65,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/adapt': {
     path: '/adapt',
-    title: 'AI内容适配',
+    title: 'AI内容适配器',
     icon: Zap,
     level: 2,
     parent: '/',
@@ -73,7 +73,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/creative-studio': {
     path: '/creative-studio',
-    title: '创意工作室',
+    title: '创意魔方',
     icon: Sparkles,
     level: 2,
     parent: '/',
@@ -94,7 +94,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     subModules: [
       { path: '/library', title: '全部', icon: FolderOpen },
       { path: '/library', title: '网络收藏', icon: Bookmark },
-      { path: '/library', title: '内容提取', icon: FileText },
+      { path: '/library', title: '智采器', icon: FileText },
       { path: '/library', title: '文案管理', icon: Edit },
     ],
   },
@@ -108,7 +108,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/content-extractor': {
     path: '/content-extractor',
-    title: '内容提取',
+    title: '智采器',
     icon: FileText,
     level: 3,
     parent: '/library',
@@ -148,7 +148,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/hot-topics': {
     path: '/hot-topics',
-    title: '热点话题',
+    title: '全网雷达',
     icon: TrendingUp,
     level: 2,
     parent: '/',

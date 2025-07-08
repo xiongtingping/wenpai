@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Settings, LogOut, Edit, Save, X, Camera, Shield, ArrowLeft, Gift } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { User, Settings, LogOut, Edit, Save, X, Camera, Shield, ArrowLeft, Gift, Phone, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
@@ -185,24 +186,20 @@ export default function ProfilePage() {
         }
       />
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-6">
-          {/* 个人信息卡片 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
-                个人信息
-              </CardTitle>
-              <CardDescription>
-                您的基本资料和头像设置
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* 头像设置 */}
-              <div className="space-y-4">
-                <Label className="text-sm font-medium">头像</Label>
-                <div className="flex flex-col items-start">
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* 左侧：个人信息 */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <User className="w-5 h-5" />
+                  个人资料
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* 头像和昵称 */}
+                <div className="text-center space-y-3">
                   <AvatarUpload
                     currentAvatar={editForm.avatar}
                     nickname={editForm.nickname || user?.nickname || '用户'}
@@ -210,157 +207,192 @@ export default function ProfilePage() {
                     onAvatarChange={handleAvatarChange}
                     disabled={!isEditing}
                   />
-                  {isEditing && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      上传自定义头像或点击"随机头像"生成个性化头像
-                    </p>
+                  
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <NicknameSelector
+                        currentNickname={editForm.nickname}
+                        onNicknameChange={handleNicknameChange}
+                        disabled={false}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <h3 className="font-semibold text-lg">{editForm.nickname || '未设置昵称'}</h3>
+                      <p className="text-sm text-gray-500">ID: {user.id}</p>
+                    </div>
                   )}
                 </div>
-              </div>
 
-              {/* 昵称设置 */}
-              <div className="space-y-4">
-                <Label className="text-sm font-medium">昵称</Label>
-                {isEditing ? (
-                  <NicknameSelector
-                    currentNickname={editForm.nickname}
-                    onNicknameChange={handleNicknameChange}
-                    disabled={false}
-                  />
-                ) : (
-                  <div className="p-3 bg-gray-50 rounded-md">
-                    <span className="text-sm">{editForm.nickname || '未设置昵称'}</span>
+                <Separator />
+
+                {/* 基本信息 */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm text-gray-700">基本信息</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">注册时间</span>
+                      <span>{user.createdAt ? new Date(user.createdAt as string).toLocaleDateString('zh-CN') : '未知'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">使用次数</span>
+                      <Badge variant="outline">{usageRemaining} 次</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">邀请用户</span>
+                      <Badge variant="outline">{userInviteStats.totalRegistrations} 人</Badge>
+                    </div>
                   </div>
+                </div>
+
+                {/* 邮箱补充奖励提示 */}
+                {!user.email && (
+                  <>
+                    <Separator />
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Gift className="w-4 h-4 text-amber-600" />
+                        <span className="font-medium text-sm text-amber-800">补充邮箱奖励</span>
+                      </div>
+                      <p className="text-xs text-amber-700">首次验证邮箱可获得10次使用奖励</p>
+                    </div>
+                  </>
                 )}
-              </div>
 
-              {/* 基本信息 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Separator />
+
+                {/* 快捷操作 */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">用户ID</Label>
-                  <div className="p-3 bg-gray-50 rounded-md">
-                    <span className="text-sm font-mono">{user.id}</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">注册时间</Label>
-                  <div className="p-3 bg-gray-50 rounded-md">
-                    <span className="text-sm">
-                      {user.createdAt ? new Date(user.createdAt as string).toLocaleDateString('zh-CN') : '未知'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 联系方式验证 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                联系方式验证
-              </CardTitle>
-              <CardDescription>
-                验证您的手机号和邮箱地址，补充邮箱可获得10次使用次数奖励
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContactVerification
-                currentPhone={editForm.phone}
-                currentEmail={editForm.email}
-                onPhoneChange={handlePhoneChange}
-                onEmailChange={handleEmailChange}
-                disabled={!isEditing}
-              />
-            </CardContent>
-          </Card>
-
-          {/* 邮箱补充奖励提示 */}
-          {!user.email && (
-            <Card className="border-amber-200 bg-amber-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-800">
-                  <Gift className="w-5 h-5" />
-                  补充邮箱奖励
-                </CardTitle>
-                <CardDescription className="text-amber-700">
-                  首次补充邮箱地址，可获得10次免费使用次数
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-amber-700">
-                    <p>• 验证邮箱地址的真实性</p>
-                    <p>• 获得10次免费内容生成次数</p>
-                    <p>• 提升账户安全性</p>
-                  </div>
-                  <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
-                    +10次
-                  </Badge>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/invite')}
+                    className="w-full justify-start"
+                    size="sm"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    邀请好友
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleLogout}
+                    className="w-full justify-start"
+                    size="sm"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    退出登录
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
 
-          {/* 使用统计 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                使用统计
-              </CardTitle>
-              <CardDescription>
-                您的使用情况和统计数据
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{usageRemaining}</div>
-                  <div className="text-sm text-gray-600">剩余使用量</div>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{userInviteStats.totalRegistrations}</div>
-                  <div className="text-sm text-gray-600">邀请注册</div>
-                </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{userInviteStats.totalRegistrations * 20}</div>
-                  <div className="text-sm text-gray-600">总奖励次数</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* 右侧：联系方式和统计 */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* 联系方式验证 */}
+            <Card>
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Shield className="w-5 h-5" />
+                  联系方式验证
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  验证手机号和邮箱地址，提升账户安全性
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* 手机号验证 */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-gray-500" />
+                      <Label className="font-medium">手机号码</Label>
+                      {editForm.phone && (
+                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700">已验证</Badge>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <Input
+                        placeholder="请输入手机号"
+                        value={editForm.phone}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
+                      />
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-md">
+                        <span className="text-sm">{editForm.phone || '未设置'}</span>
+                      </div>
+                    )}
+                  </div>
 
-          {/* 账户操作 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>账户操作</CardTitle>
-              <CardDescription>
-                管理您的账户设置
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/invite')}
-                  className="justify-start"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  邀请好友
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="justify-start"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  退出登录
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  {/* 邮箱验证 */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-gray-500" />
+                      <Label className="font-medium">邮箱地址</Label>
+                      {editForm.email && (
+                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700">已验证</Badge>
+                      )}
+                      {!editForm.email && (
+                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700">+10次奖励</Badge>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <Input
+                        placeholder="请输入邮箱地址"
+                        value={editForm.email}
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        type="email"
+                      />
+                    ) : (
+                      <div className="p-3 bg-gray-50 rounded-md">
+                        <span className="text-sm">{editForm.email || '未设置'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 使用统计 */}
+            <Card>
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Settings className="w-5 h-5" />
+                  使用统计
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  您的账户使用情况和数据统计
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="text-2xl font-bold text-blue-600">{usageRemaining}</div>
+                    <div className="text-sm text-blue-700">剩余使用量</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg border border-green-100">
+                    <div className="text-2xl font-bold text-green-600">{userInviteStats.totalRegistrations}</div>
+                    <div className="text-sm text-green-700">成功邀请</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="text-2xl font-bold text-purple-600">{userInviteStats.totalRegistrations * 20}</div>
+                    <div className="text-sm text-purple-700">邀请奖励</div>
+                  </div>
+                </div>
+
+                <Separator className="my-4" />
+
+                {/* 奖励说明 */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-sm mb-2">奖励机制</h4>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>• 每邀请1人注册，双方各获得20次使用奖励</p>
+                    <p>• 首次验证邮箱，额外获得10次使用奖励</p>
+                    <p>• 使用次数永久有效，不会过期</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
