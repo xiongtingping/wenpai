@@ -122,7 +122,7 @@ export function HeroSection() {
         {/* 添加平台差异化说明 */}
         <div className="mt-16 max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">各平台内容特殊性差异</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
             <div className="space-y-4">
               <div className="p-4 bg-white rounded-lg shadow-sm border">
                 <h3 className="font-semibold text-rose-600 mb-2">小红书</h3>
@@ -157,6 +157,24 @@ export function HeroSection() {
               <div className="p-4 bg-white rounded-lg shadow-sm border">
                 <h3 className="font-semibold text-gray-600 mb-2">X(推特)</h3>
                 <p className="text-sm text-gray-600">精简直接，多用标签，国际化表达，适合观点输出和快速互动</p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-blue-700 mb-2">百家号</h3>
+                <p className="text-sm text-gray-600">长篇深度内容，SEO友好，权威感强，适合资讯类、知识类内容输出</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-red-600 mb-2">网易号</h3>
+                <p className="text-sm text-gray-600">注重原创性，文笔流畅，观点独特，适合深度评论和独家视角分析</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-yellow-600 mb-2">快手</h3>
+                <p className="text-sm text-gray-600">接地气表达，真实朴实，亲民风格，适合生活记录和草根创作者</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg shadow-sm border">
+                <h3 className="font-semibold text-purple-600 mb-2">头条号</h3>
+                <p className="text-sm text-gray-600">标题党友好，热点敏感，算法推荐，适合时事评论和热点追踪</p>
               </div>
             </div>
           </div>
