@@ -86,12 +86,6 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     level: 2,
     parent: '/',
     category: 'content-tools',
-    subModules: [
-      { path: '/library', title: '全部', icon: FolderOpen },
-      { path: '/library', title: '网络收藏', icon: Bookmark },
-      { path: '/library', title: '智采器', icon: FileText },
-      { path: '/library', title: '文案管理', icon: Edit },
-    ],
   },
   '/bookmarks': {
     path: '/bookmarks',
