@@ -112,9 +112,8 @@ export default function BookmarkPage() {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   
   // 对话框状态
-  const [isExtractDialogOpen, setIsExtractDialogOpen] = useState(false);
-  const [isCollectionDialogOpen, setIsCollectionDialogOpen] = useState(false);
-  const [isCopywritingDialogOpen, setIsCopywritingDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [addContentType, setAddContentType] = useState<'collection' | 'extraction' | 'copywriting'>('collection');
   const [editingItem, setEditingItem] = useState<LibraryItem | null>(null);
   
   // 新建项表单
@@ -304,7 +303,7 @@ export default function BookmarkPage() {
       };
 
       setLibraryItems(prev => [newItem, ...prev]);
-      setIsExtractDialogOpen(false);
+      setIsAddDialogOpen(false);
       setExtractUrl('');
       setSelectedFile(null);
       
@@ -387,7 +386,7 @@ export default function BookmarkPage() {
 
     setLibraryItems(prev => [collection, ...prev]);
     setNewCollection({ title: '', url: '', description: '', tags: '', category: '' });
-    setIsCollectionDialogOpen(false);
+    setIsAddDialogOpen(false);
     
     toast({
       title: "收藏成功",
@@ -430,7 +429,7 @@ export default function BookmarkPage() {
 
     setLibraryItems(prev => [copywriting, ...prev]);
     setNewCopywriting({ title: '', content: '', tags: '', category: '', platform: '' });
-    setIsCopywritingDialogOpen(false);
+    setIsAddDialogOpen(false);
     
     toast({
       title: "文案创建成功",
@@ -525,20 +524,10 @@ export default function BookmarkPage() {
         title="我的资料库"
         description="统一管理网络收藏夹、智能采集和文案管理"
         actions={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setIsCollectionDialogOpen(true)}>
-              <Bookmark className="w-4 h-4 mr-2" />
-              添加收藏
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsExtractDialogOpen(true)}>
-              <Zap className="w-4 h-4 mr-2" />
-              内容采集
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsCopywritingDialogOpen(true)}>
-              <Brain className="w-4 h-4 mr-2" />
-              创建文案
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            添加内容
+          </Button>
         }
       />
 
@@ -762,15 +751,15 @@ export default function BookmarkPage() {
                   </p>
                   {!searchQuery && selectedTags.length === 0 && (
                     <div className="flex gap-2 justify-center">
-                      <Button variant="outline" onClick={() => setIsCollectionDialogOpen(true)}>
+                      <Button variant="outline" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
                         <Bookmark className="w-4 h-4 mr-2" />
                         添加收藏
                       </Button>
-                      <Button variant="outline" onClick={() => setIsExtractDialogOpen(true)}>
+                      <Button variant="outline" onClick={() => { setAddContentType('extraction'); setIsAddDialogOpen(true); }}>
                         <Zap className="w-4 h-4 mr-2" />
                         内容采集
                       </Button>
-                      <Button onClick={() => setIsCopywritingDialogOpen(true)}>
+                      <Button onClick={() => { setAddContentType('copywriting'); setIsAddDialogOpen(true); }}>
                         <Brain className="w-4 h-4 mr-2" />
                         创建文案
                       </Button>
@@ -783,7 +772,7 @@ export default function BookmarkPage() {
         </Tabs>
 
         {/* 对话框组件 */}
-        <Dialog open={isCollectionDialogOpen} onOpenChange={setIsCollectionDialogOpen}>
+        <Dialog open={isAddDialogOpen && addContentType === 'collection'} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Bookmark className="w-4 h-4 mr-2" />
@@ -841,7 +830,7 @@ export default function BookmarkPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCollectionDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 取消
               </Button>
               <Button onClick={createCollection}>
@@ -852,7 +841,7 @@ export default function BookmarkPage() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isExtractDialogOpen} onOpenChange={setIsExtractDialogOpen}>
+        <Dialog open={isAddDialogOpen && addContentType === 'extraction'} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Zap className="w-4 h-4 mr-2" />
@@ -935,7 +924,7 @@ export default function BookmarkPage() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsExtractDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 取消
               </Button>
               <Button onClick={extractContent} disabled={isExtracting}>
@@ -955,7 +944,7 @@ export default function BookmarkPage() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isCopywritingDialogOpen} onOpenChange={setIsCopywritingDialogOpen}>
+        <Dialog open={isAddDialogOpen && addContentType === 'copywriting'} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Brain className="w-4 h-4 mr-2" />
@@ -1015,7 +1004,7 @@ export default function BookmarkPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCopywritingDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 取消
               </Button>
               <Button onClick={createCopywriting}>

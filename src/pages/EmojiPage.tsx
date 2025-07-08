@@ -72,7 +72,6 @@ const EmojiPage: React.FC = () => {
   const [selectedStyle, setSelectedStyle] = useState<string>('all');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiItem | null>(null);
-  const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('gallery');
   
   // AI生成相关状态
@@ -81,7 +80,7 @@ const EmojiPage: React.FC = () => {
     mood: 'happy',
     color: 'rainbow',
     effect: 'none',
-    count: 4
+    count: 1
   });
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
 
@@ -324,56 +323,58 @@ const EmojiPage: React.FC = () => {
   };
 
   /**
-   * 随机生成Emoji
+   * 随机生成单个Emoji
    */
-  const generateRandomEmojis = async () => {
-    const randomEmojis = ['🎭', '🎪', '🎨', '🎭', '🌟', '⭐', '🔮', '🎯', '🎲', '🎰'];
-    const shuffled = randomEmojis.sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, generationParams.count);
+  const generateRandomEmoji = async () => {
+    const randomEmojis = ['🎭', '🎪', '🎨', '🌟', '⭐', '🔮', '🎯', '🎲', '🎰', '🌈'];
+    const randomEmoji = randomEmojis[Math.floor(Math.random() * randomEmojis.length)];
     
-    await generateBatchEmojis(selected, generationParams);
+    setIsGenerating(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const newEmoji: EmojiItem = {
+        id: Date.now().toString(),
+        emoji: randomEmoji,
+        name: `AI生成的${randomEmoji}`,
+        category: '其他',
+        tags: ['AI生成', '创意', generationParams.style, generationParams.mood],
+        imageUrl: generateEmojiImageUrl(randomEmoji, generationParams.style),
+        style: generationParams.style,
+        isFavorite: false,
+        downloadCount: 0,
+        createdAt: new Date(),
+        isGenerated: true
+      };
+
+      setEmojis(prev => [newEmoji, ...prev]);
+      toast({
+        title: "生成成功",
+        description: `已生成 AI Emoji图片`,
+      });
+      
+      setActiveTab('gallery');
+    } catch (err) {
+      toast({
+        title: "生成失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  /**
-   * 切换Emoji选中状态
-   */
-  const toggleEmojiSelection = (emojiId: string) => {
-    setSelectedEmojis(prev => 
-      prev.includes(emojiId)
-        ? prev.filter(id => id !== emojiId)
-        : [...prev, emojiId]
-    );
-  };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 页面导航 */}
-      <PageNavigation
-        title="Emoji生成器"
-        description="AI驱动的Emoji图片生成器，支持多种风格和批量生成"
-        actions={
-          <div className="flex gap-2">
-            {selectedEmojis.length > 0 && (
-              <Button variant="outline">
-                <Package className="w-4 h-4 mr-2" />
-                批量下载 ({selectedEmojis.length})
-              </Button>
-            )}
-            <Button onClick={generateRandomEmojis} disabled={isGenerating}>
-              <Shuffle className="w-4 h-4 mr-2" />
-              随机生成
-            </Button>
-          </div>
-        }
-      />
-
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="gallery">Emoji图库</TabsTrigger>
             <TabsTrigger value="generate">AI生成</TabsTrigger>
-            <TabsTrigger value="batch">批量处理</TabsTrigger>
           </TabsList>
 
           {/* Emoji图库标签页 */}
@@ -449,9 +450,7 @@ const EmojiPage: React.FC = () => {
             {/* Emoji网格 */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
               {filteredEmojis.map(emoji => (
-                <Card key={emoji.id} className={`group cursor-pointer hover:shadow-lg transition-all duration-200 ${
-                  selectedEmojis.includes(emoji.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
-                }`}>
+                <Card key={emoji.id} className="group cursor-pointer hover:shadow-lg transition-all duration-200">
                   <CardContent className="p-4">
                     <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-3 relative">
                       <img
@@ -460,15 +459,6 @@ const EmojiPage: React.FC = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         onClick={() => setSelectedEmoji(emoji)}
                       />
-                      
-                      {/* 选择框 */}
-                      <div className="absolute top-2 left-2">
-                        <Checkbox
-                          checked={selectedEmojis.includes(emoji.id)}
-                          onCheckedChange={() => toggleEmojiSelection(emoji.id)}
-                          className="bg-white/80 backdrop-blur-sm"
-                        />
-                      </div>
                       
                       {/* 操作按钮 */}
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -498,47 +488,15 @@ const EmojiPage: React.FC = () => {
                       {/* 风格标识 */}
                       <div className="absolute bottom-2 right-2">
                         <Badge variant="outline" className="text-xs bg-white/80 backdrop-blur-sm">
-                          {styleOptions.find(s => s.value === emoji.style)?.label || emoji.style}
+                          {emoji.style}
                         </Badge>
                       </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="text-center">
-                        <div className="text-2xl mb-1">{emoji.emoji}</div>
-                        <div className="text-sm font-medium truncate">{emoji.name}</div>
-                      </div>
-                      
-                      <div className="flex justify-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copyEmoji(emoji.emoji);
-                          }}
-                          title="复制Emoji"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            downloadEmoji(emoji);
-                          }}
-                          title="下载图片"
-                        >
-                          <Download className="w-3 h-3" />
-                        </Button>
-                      </div>
-                      
-                      <div className="text-center text-xs text-muted-foreground">
-                        {emoji.downloadCount} 次下载
-                      </div>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">{emoji.emoji}</div>
+                      <div className="text-sm font-medium text-gray-700 truncate">{emoji.name}</div>
+                      <div className="text-xs text-gray-500 mt-1">{emoji.category}</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -550,192 +508,94 @@ const EmojiPage: React.FC = () => {
           <TabsContent value="generate" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wand2 className="w-5 h-5" />
-                  AI生成Emoji
-                </CardTitle>
+                <CardTitle>AI生成设置</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>生成风格</Label>
-                    <Select 
-                      value={generationParams.style} 
-                      onValueChange={(value) => setGenerationParams({...generationParams, style: value as any})}
-                    >
+                    <Select value={generationParams.style} onValueChange={(value: any) => setGenerationParams(prev => ({ ...prev, style: value }))}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="选择风格" />
                       </SelectTrigger>
                       <SelectContent>
-                        {styleOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                        {styleOptions.map(style => (
+                          <SelectItem key={style.value} value={style.value}>
+                            {style.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div>
-                    <Label>生成数量</Label>
-                    <Select 
-                      value={generationParams.count.toString()} 
-                      onValueChange={(value) => setGenerationParams({...generationParams, count: parseInt(value)})}
-                    >
+                    <Label>情感氛围</Label>
+                    <Select value={generationParams.mood} onValueChange={(value: any) => setGenerationParams(prev => ({ ...prev, mood: value }))}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="选择氛围" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1个</SelectItem>
-                        <SelectItem value="4">4个</SelectItem>
-                        <SelectItem value="8">8个</SelectItem>
-                        <SelectItem value="12">12个</SelectItem>
-                        <SelectItem value="16">16个</SelectItem>
+                        <SelectItem value="happy">愉快</SelectItem>
+                        <SelectItem value="calm">平静</SelectItem>
+                        <SelectItem value="energetic">活力</SelectItem>
+                        <SelectItem value="mysterious">神秘</SelectItem>
+                        <SelectItem value="romantic">浪漫</SelectItem>
+                        <SelectItem value="professional">专业</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>色彩方案</Label>
+                    <Select value={generationParams.color} onValueChange={(value: any) => setGenerationParams(prev => ({ ...prev, color: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择配色" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="rainbow">彩虹色</SelectItem>
+                        <SelectItem value="pastel">柔和色</SelectItem>
+                        <SelectItem value="dark">深色系</SelectItem>
+                        <SelectItem value="bright">明亮色</SelectItem>
+                        <SelectItem value="monochrome">单色系</SelectItem>
+                        <SelectItem value="gradient">渐变色</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>特效</Label>
+                    <Select value={generationParams.effect} onValueChange={(value: any) => setGenerationParams(prev => ({ ...prev, effect: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择特效" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">无特效</SelectItem>
+                        <SelectItem value="glow">发光</SelectItem>
+                        <SelectItem value="shadow">阴影</SelectItem>
+                        <SelectItem value="sparkle">闪烁</SelectItem>
+                        <SelectItem value="blur">模糊</SelectItem>
+                        <SelectItem value="outline">描边</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                <Button 
-                  onClick={generateRandomEmojis} 
-                  disabled={isGenerating}
-                  className="w-full"
-                  size="lg"
-                >
-                  {isGenerating ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      AI生成中...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      开始生成
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 批量处理标签页 */}
-          <TabsContent value="batch" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Grid3X3 className="w-5 h-5" />
-                  批量操作
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    已选择 {selectedEmojis.length} 个Emoji
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setSelectedEmojis([])}>
-                      清除选择
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setSelectedEmojis(emojis.map(e => e.id))}>
-                      全选
-                    </Button>
-                  </div>
+                <div className="flex justify-center mt-6">
+                  <Button onClick={generateRandomEmoji} disabled={isGenerating}>
+                    {isGenerating ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        生成中...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="w-4 h-4 mr-2" />
+                        开始生成
+                      </>
+                    )}
+                  </Button>
                 </div>
-
-                <Button
-                  disabled={selectedEmojis.length === 0}
-                  className="w-full"
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  批量重新生成
-                </Button>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* 详情对话框 */}
-        {selectedEmoji && (
-          <Dialog open={!!selectedEmoji} onOpenChange={() => setSelectedEmoji(null)}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <span className="text-3xl">{selectedEmoji.emoji}</span>
-                  <span>{selectedEmoji.name}</span>
-                  {selectedEmoji.isGenerated && (
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      AI生成
-                    </Badge>
-                  )}
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                  <img
-                    src={selectedEmoji.imageUrl}
-                    alt={selectedEmoji.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">分类：</span>
-                    <span>{selectedEmoji.category}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">风格：</span>
-                    <span>{styleOptions.find(s => s.value === selectedEmoji.style)?.label || selectedEmoji.style}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">下载次数：</span>
-                    <span>{selectedEmoji.downloadCount}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">创建时间：</span>
-                    <span>{selectedEmoji.createdAt.toLocaleDateString()}</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-1">
-                  {selectedEmoji.tags.map(tag => (
-                    <Badge key={tag} variant="outline">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => copyEmoji(selectedEmoji.emoji)}
-                    className="flex-1"
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    复制Emoji
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => toggleFavorite(selectedEmoji.id)}
-                    className="flex-1"
-                  >
-                    <Heart className={`w-4 h-4 mr-2 ${selectedEmoji.isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
-                    {selectedEmoji.isFavorite ? '取消收藏' : '收藏'}
-                  </Button>
-                  <Button
-                    onClick={() => downloadEmoji(selectedEmoji)}
-                    className="flex-1"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    下载图片
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
       </div>
     </div>
   );

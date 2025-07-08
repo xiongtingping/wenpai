@@ -98,67 +98,6 @@ export function HeroSection() {
             </div>
           </div>
         </div>
-
-        {/* 添加平台差异化说明 */}
-        <div className="mt-16 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">各平台内容特殊性差异</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-            <div className="space-y-4">
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-rose-600 mb-2">小红书</h3>
-                <p className="text-sm text-gray-600">轻松活泼风格，多用emoji表情，个人化视角，首尾互动引导，注重生活化和体验感</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-green-600 mb-2">微信公众号</h3>
-                <p className="text-sm text-gray-600">专业严谨风格，段落清晰，标题引人，适合深度阅读，注重价值输出和专业性</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-black mb-2">抖音</h3>
-                <p className="text-sm text-gray-600">简短有力台词，节奏感强，互动性高，引人共鸣，适合口语化表达和视觉描述</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-blue-600 mb-2">知乎</h3>
-                <p className="text-sm text-gray-600">逻辑严密，分点论述，理性客观，有深度的专业分析，注重论证过程和数据支撑</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-orange-600 mb-2">微博</h3>
-                <p className="text-sm text-gray-600">简短有话题性，互动元素多，情绪化表达，热点结合，适合快速传播</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-pink-600 mb-2">B站</h3>
-                <p className="text-sm text-gray-600">二次元文化元素，圈层词汇，专业知识融合娱乐表达，年轻化语言风格</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-green-700 mb-2">视频号</h3>
-                <p className="text-sm text-gray-600">亲和力强，互动感高，视觉描述清晰，适合中老年群体，注重情感共鸣</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-gray-600 mb-2">X(推特)</h3>
-                <p className="text-sm text-gray-600">精简直接，多用标签，国际化表达，适合观点输出和快速互动</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-blue-700 mb-2">百家号</h3>
-                <p className="text-sm text-gray-600">长篇深度内容，SEO友好，权威感强，适合资讯类、知识类内容输出</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-red-600 mb-2">网易号</h3>
-                <p className="text-sm text-gray-600">注重原创性，文笔流畅，观点独特，适合深度评论和独家视角分析</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-yellow-600 mb-2">快手</h3>
-                <p className="text-sm text-gray-600">接地气表达，真实朴实，亲民风格，适合生活记录和草根创作者</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-purple-600 mb-2">头条号</h3>
-                <p className="text-sm text-gray-600">标题党友好，热点敏感，算法推荐，适合时事评论和热点追踪</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   )

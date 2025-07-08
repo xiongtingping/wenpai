@@ -3,7 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss
 } from "lucide-react";
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
@@ -290,7 +290,11 @@ export default function AdaptPage() {
     { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: <MessageSquare className="h-4 w-4 text-green-500" /> },
     { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: <Video className="h-4 w-4 text-blue-400" /> },
     { id: "twitter", name: "X（推特）", description: "简短、直接的表达，支持多种语言和国际化视角", icon: <Twitter className="h-4 w-4 text-black" /> },
-    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: <SquarePlay className="h-4 w-4 text-green-600" /> }
+    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: <SquarePlay className="h-4 w-4 text-green-600" /> },
+    { id: "baijia", name: "百家号", description: "长篇深度内容，SEO友好，权威感强，适合资讯类内容", icon: <Globe className="h-4 w-4 text-blue-700" /> },
+    { id: "kuaishou", name: "快手", description: "接地气表达，真实朴实，亲民风格，适合生活记录", icon: <Zap className="h-4 w-4 text-yellow-600" /> },
+    { id: "wangyi", name: "网易小蜜蜂", description: "注重原创性，文笔流畅，观点独特，适合深度评论", icon: <Rss className="h-4 w-4 text-red-500" /> },
+    { id: "toutiao", name: "头条号", description: "标题党友好，热点敏感，算法推荐，适合时事评论", icon: <Globe className="h-4 w-4 text-purple-600" /> }
   ], []);
 
   const initializeDefaultSettings = useCallback(() => {

@@ -38,7 +38,8 @@ import {
   TrendingUp,
   Pin,
   X,
-  Eye
+  Eye,
+  RotateCcw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MarketingCalendar } from './MarketingCalendar';
@@ -82,6 +83,128 @@ interface VideoScript {
   shotType: string;
   duration: number;
   notes?: string;
+}
+
+/**
+ * 维度卡片组件
+ */
+interface DimensionCardProps {
+  dimension: CubeDimension;
+  selectedItems: string[];
+  onSelect: (item: string) => void;
+  onDeselect: (item: string) => void;
+  onPin: () => void;
+  isPinned: boolean;
+  cubeData: string[];
+  onAddCustomItem: (item: string) => void;
+  isRequired: boolean;
+}
+
+function DimensionCard({ 
+  dimension, 
+  selectedItems, 
+  onSelect, 
+  onDeselect, 
+  onPin, 
+  isPinned, 
+  cubeData, 
+  onAddCustomItem, 
+  isRequired 
+}: DimensionCardProps) {
+  const [newItem, setNewItem] = useState('');
+  const [showAddInput, setShowAddInput] = useState(false);
+  const selectedItem = Array.isArray(selectedItems) ? selectedItems[0] : selectedItems;
+
+  const handleAddItem = () => {
+    if (newItem.trim()) {
+      onAddCustomItem(newItem.trim());
+      setNewItem('');
+      setShowAddInput(false);
+    }
+  };
+
+  return (
+    <Card className={`relative ${isRequired ? 'border-blue-500' : ''} ${selectedItem ? 'bg-purple-50' : ''}`}>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {dimension.icon}
+            <CardTitle className="text-sm">{dimension.name}</CardTitle>
+            {isRequired && <Badge variant="destructive" className="text-xs">必选</Badge>}
+          </div>
+          {dimension.isPinnable && (
+            <Button
+              size="sm"
+              variant={isPinned ? "default" : "ghost"}
+              onClick={onPin}
+              className="h-6 w-6 p-0"
+            >
+              <Pin className={`w-3 h-3 ${isPinned ? 'text-white' : ''}`} />
+            </Button>
+          )}
+        </div>
+        <CardDescription className="text-xs">{dimension.description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {selectedItem && (
+          <div className="mb-2 p-2 bg-purple-100 rounded flex items-center justify-between">
+            <span className="text-sm font-medium text-purple-800">{selectedItem}</span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onDeselect(selectedItem)}
+              className="h-4 w-4 p-0"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
+        
+        <div className="space-y-1 max-h-32 overflow-y-auto">
+          {cubeData.map((item, index) => (
+            <Button
+              key={index}
+              size="sm"
+              variant={selectedItem === item ? "default" : "outline"}
+              className="w-full justify-start text-xs h-7"
+              onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
+              disabled={selectedItem && selectedItem !== item}
+            >
+              {item}
+            </Button>
+          ))}
+        </div>
+        
+        {!showAddInput ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full mt-2 text-xs"
+            onClick={() => setShowAddInput(true)}
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            添加自定义
+          </Button>
+        ) : (
+          <div className="mt-2 flex gap-1">
+            <Input
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              placeholder="输入自定义项"
+              className="text-xs h-8"
+              onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
+            />
+            <Button size="sm" onClick={handleAddItem}>
+              <Plus className="w-3 h-3" />
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowAddInput(false)}>
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 /**
@@ -182,6 +305,11 @@ export function CreativeCube() {
   // 必选维度检查
   const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
   
+  // 验证生成条件
+  const isValidGeneration = useMemo(() => {
+    return requiredDimensions.every(dim => selectedItems[dim] && selectedItems[dim].trim() !== '');
+  }, [selectedItems]);
+  
   /**
    * 检查必选维度是否已选择
    */
@@ -234,6 +362,110 @@ export function CreativeCube() {
       ...prev,
       [dimensionId]: [...(prev[dimensionId] || []), newItem.trim()]
     }));
+  };
+
+  /**
+   * 选择维度项目
+   */
+  const selectItem = (dimensionId: string, item: string) => {
+    setSelectedItems(prev => ({
+      ...prev,
+      [dimensionId]: item
+    }));
+  };
+
+  /**
+   * 取消选择维度项目
+   */
+  const deselectItem = (dimensionId: string, item: string) => {
+    setSelectedItems(prev => {
+      const newItems = { ...prev };
+      if (newItems[dimensionId] === item) {
+        delete newItems[dimensionId];
+      }
+      return newItems;
+    });
+  };
+
+  /**
+   * 切换固定状态
+   */
+  const togglePin = (dimensionId: string) => {
+    setPinnedDimensions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dimensionId)) {
+        newSet.delete(dimensionId);
+      } else {
+        newSet.add(dimensionId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * 添加自定义项目
+   */
+  const addCustomItem = (dimensionId: string, item: string) => {
+    addItemToCube(dimensionId, item);
+  };
+
+  /**
+   * 随机选择
+   */
+  const randomizeSelection = () => {
+    const newSelection: Record<string, string> = {};
+    
+    dimensions.forEach(dimension => {
+      // 跳过已固定的维度
+      if (pinnedDimensions.has(dimension.id)) {
+        return;
+      }
+      
+      const items = cubeData[dimension.id] || dimension.defaultItems;
+      if (items.length > 0) {
+        const randomIndex = Math.floor(Math.random() * items.length);
+        newSelection[dimension.id] = items[randomIndex];
+      }
+    });
+    
+    setSelectedItems(prev => ({ ...prev, ...newSelection }));
+    
+    toast({
+      title: "随机选择完成",
+      description: `已为${Object.keys(newSelection).length}个维度生成随机选择`,
+    });
+  };
+
+  /**
+   * 清空所有选择
+   */
+  const clearAllSelections = () => {
+    setSelectedItems({});
+    toast({
+      title: "已清空选择",
+      description: "所有维度选择已清空",
+    });
+  };
+
+  /**
+   * 生成创意内容的包装函数
+   */
+  const handleGenerateContent = () => {
+    if (!isValidGeneration) {
+      const requiredCheck = checkRequiredDimensions();
+      const missingNames = requiredCheck.missing.map(dim => {
+        const dimension = dimensions.find(d => d.id === dim);
+        return dimension?.name || dim;
+      });
+      toast({
+        title: "关键维度缺失",
+        description: `请确保已选择【${missingNames.join('】【')}】后再生成内容`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    generateIdea();
   };
 
   /**
@@ -1259,328 +1491,149 @@ Your output must feel like it was written by a real KOC or content strategist �
   };
 
   return (
-    <Tabs defaultValue="creative-cube" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="creative-cube">九宫格魔方</TabsTrigger>
-        <TabsTrigger value="marketing-calendar">营销日历</TabsTrigger>
-        <TabsTrigger value="emoji-generator">Emoji生成器</TabsTrigger>
-        <TabsTrigger value="moments-text">朋友圈文案</TabsTrigger>
-      </TabsList>
+    <div className="space-y-6">
+      {/* 九宫格创意魔方 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            九宫格创意魔方
+          </CardTitle>
+          <CardDescription>
+            选择不同维度的元素，AI将为你生成可直接使用的创意内容
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* 九宫格网格 */}
+          <div className="grid grid-cols-3 gap-4">
+            {dimensions.map((dimension) => (
+              <DimensionCard
+                key={dimension.id}
+                dimension={dimension}
+                selectedItems={selectedItems[dimension.id] ? [selectedItems[dimension.id]] : []}
+                onSelect={(item) => selectItem(dimension.id, item)}
+                onDeselect={(item) => deselectItem(dimension.id, item)}
+                onPin={() => togglePin(dimension.id)}
+                isPinned={pinnedDimensions.has(dimension.id)}
+                cubeData={cubeData[dimension.id] || []}
+                onAddCustomItem={(item) => addCustomItem(dimension.id, item)}
+                isRequired={['target_audience', 'use_case', 'pain_point', 'industry'].includes(dimension.id)}
+              />
+            ))}
+          </div>
 
-      {/* 九宫格创意魔方标签页 */}
-      <TabsContent value="creative-cube">
-        <div className="space-y-6">
-          {/* 九宫格创意魔方 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                九宫格创意魔方
-              </CardTitle>
-              <CardDescription>
-                选择不同维度的元素，AI将为你生成可直接使用的创意内容
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                {dimensions.map((dimension) => {
-                  const status = getDimensionStatus(dimension.id);
-                  const borderColor = status.isRequired 
-                    ? (status.isSelected ? 'border-green-500' : 'border-red-500') 
-                    : status.isRecommended 
-                    ? (status.isSelected ? 'border-blue-500' : 'border-blue-300')
-                    : (status.isSelected ? 'border-gray-500' : 'border-gray-200');
-                  
-                  return (
-                    <Card key={dimension.id} className={`border-2 border-dashed ${borderColor} relative`}>
-                      {/* 必选标识 */}
-                      {status.isRequired && (
-                        <div className="absolute -top-2 -right-2 z-10">
-                          <Badge variant={status.isSelected ? "default" : "destructive"} className="text-xs">
-                            {status.isSelected ? "✓" : "必选"}
-                          </Badge>
-                        </div>
-                      )}
-                      
-                      {/* 推荐标识 */}
-                      {status.isRecommended && !status.isRequired && (
-                        <div className="absolute -top-2 -right-2 z-10">
-                          <Badge variant={status.isSelected ? "default" : "secondary"} className="text-xs">
-                            {status.isSelected ? "✓" : "推荐"}
-                          </Badge>
-                        </div>
-                      )}
-                      
-                      {/* 固定按钮 */}
-                      {dimension.isPinnable && (
-                        <div className="absolute -top-2 -left-2 z-10">
-                          <Button
-                            size="sm"
-                            variant={pinnedDimensions.has(dimension.id) ? "default" : "outline"}
-                            className="h-6 w-6 p-0"
-                            onClick={() => pinDimension(dimension.id)}
-                            title={pinnedDimensions.has(dimension.id) ? "取消固定" : "固定维度"}
-                          >
-                            <Pin className={`w-3 h-3 ${pinnedDimensions.has(dimension.id) ? 'text-white' : ''}`} />
-                          </Button>
-                        </div>
-                      )}
-
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm flex items-center gap-2">
-                          {dimension.icon}
-                          {dimension.name}
-                        </CardTitle>
-                        <CardDescription className="text-xs">
-                          {dimension.description}
-                        </CardDescription>
-                      </CardHeader>
-                      
-                      <CardContent className="space-y-2">
-                        {/* 已选择的项目 */}
-                        {selectedItems[dimension.id] && (
-                          <div className="p-2 bg-primary/10 rounded-md">
-                            <Badge variant="secondary" className="text-xs">
-                              {selectedItems[dimension.id]}
-                            </Badge>
-                          </div>
-                        )}
-                        
-                        {/* 可选项目列表 */}
-                        <div className="space-y-1 max-h-32 overflow-y-auto">
-                          {cubeData[dimension.id]?.map((item, index) => (
-                            <div key={index} className="flex items-center p-1 hover:bg-gray-50 rounded">
-                              <span 
-                                className="text-xs cursor-pointer hover:text-primary flex-1"
-                                onClick={() => setSelectedItems(prev => ({
-                                  ...prev,
-                                  [dimension.id]: item
-                                }))}
-                              >
-                                {item}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {/* 添加新项目 */}
-                        <div className="flex gap-1">
-                          <Input
-                            placeholder="添加新项目..."
-                            className="text-xs h-7"
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                const input = e.target as HTMLInputElement;
-                                addItemToCube(dimension.id, input.value);
-                                input.value = '';
-                              }
-                            }}
-                          />
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0"
-                            onClick={(e) => {
-                              const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
-                              addItemToCube(dimension.id, input?.value || '');
-                              if (input) input.value = '';
-                            }}
-                          >
-                            <Plus className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-4">
-            {/* 固定维度管理 */}
-            {pinnedDimensions.size > 0 && (
-              <Card className="border-blue-200 bg-blue-50/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Pin className="w-4 h-4 text-blue-600" />
-                    固定维度管理
-                    <Badge variant="outline" className="text-xs">
-                      {pinnedDimensions.size}个已固定
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {Array.from(pinnedDimensions).map(dimId => {
-                      const dimension = dimensions.find(d => d.id === dimId);
-                      const selectedValue = selectedItems[dimId];
-                      return (
-                        <div key={dimId} className="flex items-center gap-2 p-2 bg-white rounded-md border border-blue-200">
-                          <span className="text-xs font-medium text-blue-700">
-                            {dimension?.name}：
-                          </span>
-                          <Badge variant="secondary" className="text-xs">
-                            {selectedValue || '未选择'}
-                          </Badge>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-4 w-4 p-0"
-                            onClick={() => unpinDimension(dimId)}
-                            title="取消固定"
-                          >
-                            <X className="w-3 h-3 text-red-500" />
-                          </Button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-2 text-xs text-blue-600">
-                    固定维度将在智能随机生成时保持不变，确保内容方向的一致性
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* 操作按钮 */}
-            <div className="flex gap-2">
-              <Button onClick={smartRandomGenerate} variant="outline">
+          {/* 控制按钮 */}
+          <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-t">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={randomizeSelection}
+                disabled={isGenerating}
+              >
                 <Shuffle className="w-4 h-4 mr-2" />
-                智能随机生成
-                {pinnedDimensions.size > 0 && (
-                  <Badge variant="outline" className="ml-2 text-xs">
-                    跳过{pinnedDimensions.size}个固定维度
-                  </Badge>
-                )}
+                随机选择
               </Button>
-              <Button onClick={() => generateIdea()} disabled={isGenerating}>
-                <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-                {isGenerating ? '生成中...' : '生成创意'}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearAllSelections}
+                disabled={isGenerating}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                清空选择
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge variant={pinnedDimensions.size > 0 ? "default" : "outline"} className="text-xs">
+                <Pin className="w-3 h-3 mr-1" />
+                {pinnedDimensions.size} 个固定维度
+              </Badge>
+              <Button
+                onClick={handleGenerateContent}
+                disabled={!isValidGeneration || isGenerating}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    生成中...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    生成创意内容
+                  </>
+                )}
               </Button>
             </div>
           </div>
 
-          {/* 当前生成的内容 */}
+          {/* 生成内容展示 */}
           {currentContent && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {currentContentType === 'video' ? <Video className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
-                  {currentContentType === 'video' ? '短视频脚本' : '图文内容'}
-                </CardTitle>
-                <div className="flex gap-2 mt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyIdea(currentContent)}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    复制
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={saveIdea}
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    保存
-                  </Button>
-                  {currentContentType === 'video' && (
+            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Lightbulb className="w-5 h-5 text-purple-600" />
+                    生成结果
+                  </CardTitle>
+                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={exportToExcel}
+                      onClick={() => copyIdea(currentContent)}
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      导出脚本
+                      <Copy className="w-4 h-4 mr-1" />
+                      复制
                     </Button>
-                  )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={saveIdea}
+                    >
+                      <Save className="w-4 h-4 mr-1" />
+                      保存
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentContent('')}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <Tabs value={currentContentType} onValueChange={(value) => setCurrentContentType(value as 'text' | 'video')}>
-                  <TabsList>
-                    <TabsTrigger value="text">图文内容</TabsTrigger>
-                    <TabsTrigger value="video">短视频脚本</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="text" className="space-y-4">
-                    <div className="bg-gray-50 p-4 rounded-lg border">
-                      <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">
-                        {currentContent}
-                      </pre>
-                    </div>
-                  </TabsContent>
-
-                  {currentContentType === 'video' && (
-                    <TabsContent value="video" className="space-y-4">
-                      <div className="bg-gray-50 p-4 rounded-lg border">
-                        <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">
-                          {currentContent}
-                        </pre>
-                      </div>
-                      
-                      {/* 分镜头展示 */}
-                      <div className="space-y-2">
-                        <h4 className="font-medium">分镜头脚本</h4>
-                        {videoScript.map((scene, index) => (
-                          <Card key={index} className="p-3">
-                            <div className="flex items-start gap-3">
-                              <Badge variant="outline" className="text-xs">
-                                {scene.sceneNumber}
-                              </Badge>
-                              <div className="flex-1">
-                                <div className="font-medium text-sm mb-1">{scene.sceneDescription}</div>
-                                <div className="text-xs text-gray-600 mb-2">{scene.duration}</div>
-                                {scene.dialogue && (
-                                  <div className="text-sm italic text-gray-700">"{scene.dialogue}"</div>
-                                )}
-                                {scene.notes && (
-                                  <div className="text-xs text-gray-500 mt-1">备注：{scene.notes}</div>
-                                )}
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  )}
-                </Tabs>
+                <div className="whitespace-pre-wrap text-sm leading-relaxed p-4 bg-white rounded-lg border">
+                  {currentContent}
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* 历史创意记录 */}
+          {/* 历史生成记录 */}
           {generatedIdeas.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>历史创意记录</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  历史生成记录
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 max-h-60 overflow-y-auto">
                   {generatedIdeas.map((idea) => (
-                    <Card key={idea.id} className="border">
+                    <Card key={idea.id} className="border border-gray-200">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge variant="outline" className="text-xs">
-                                {idea.contentType === 'video' ? '短视频' : '图文'}
-                              </Badge>
-                              {idea.tags.map((tag, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {idea.generatedContent.substring(0, 200)}...
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(idea.timestamp).toLocaleString()}
-                            </p>
+                            <div className="text-sm text-gray-600 mb-2">{idea.timestamp}</div>
+                            <div className="text-sm line-clamp-3">{idea.generatedContent}</div>
                           </div>
+                          
                           <div className="flex gap-2 ml-4">
                             <Button
                               variant="outline"
@@ -1605,35 +1658,8 @@ Your output must feel like it was written by a real KOC or content strategist �
               </CardContent>
             </Card>
           )}
-        </div>
-      </TabsContent>
-
-      {/* 营销日历标签页 */}
-      <TabsContent value="marketing-calendar">
-        <MarketingCalendar />
-      </TabsContent>
-
-      {/* Emoji生成器标签页 */}
-      <TabsContent value="emoji-generator">
-        {/* 这里可以放置Emoji生成器组件 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Emoji生成器</CardTitle>
-            <CardDescription>AI驱动的表情符号生成器，支持多种风格和自定义</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-gray-500">
-              <div className="text-4xl mb-4">🎨</div>
-              <p>Emoji生成器功能开发中...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* 朋友圈文案标签页 */}
-      <TabsContent value="moments-text">
-        <MomentsTextGenerator />
-      </TabsContent>
-    </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 } 
