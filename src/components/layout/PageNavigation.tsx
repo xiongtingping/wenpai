@@ -177,8 +177,8 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     path: '/invite',
     title: '邀请好友',
     icon: Users,
-    level: 2,
-    parent: '/',
+    level: 3,
+    parent: '/profile',
     category: 'user-tools',
   },
   '/history': {
@@ -325,8 +325,8 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
             {/* 升级专业版按钮 */}
             <UpgradeButton />
             
-            {/* AI适配器快速访问 */}
-            {showAdaptButton && path !== '/adapt' && (
+            {/* AI适配器快速访问 - 只在二级页面显示 */}
+            {showAdaptButton && path !== '/adapt' && currentConfig.level === 2 && (
               <Button
                 size="sm"
                 onClick={() => navigate('/adapt')}

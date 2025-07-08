@@ -39,6 +39,13 @@ export default function ProfilePage() {
   
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // 验证码相关状态
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationField, setVerificationField] = useState<'phone' | 'email' | null>(null);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [countdown, setCountdown] = useState(0);
+  const [pendingValue, setPendingValue] = useState('');
 
   // 模拟用户类型和过期时间
   const [userType, setUserType] = useState<'free' | 'pro'>('free'); // 可以是 'free' 或 'pro'
@@ -94,6 +101,126 @@ export default function ProfilePage() {
   const handlePhoneChange = (newPhone: string) => {
     setEditForm(prev => ({ ...prev, phone: newPhone }));
     setHasChanges(true);
+  };
+
+  /**
+   * 发送验证码
+   */
+  const sendVerificationCode = async (field: 'phone' | 'email', value: string) => {
+    if (countdown > 0) return;
+    
+    if (!value) {
+      toast({
+        title: field === 'phone' ? "请输入手机号" : "请输入邮箱",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (field === 'phone' && !/^1[3-9]\d{9}$/.test(value)) {
+      toast({
+        title: "请输入正确的手机号",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      toast({
+        title: "请输入正确的邮箱地址",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // 这里应该调用发送验证码的API
+      setVerificationField(field);
+      setPendingValue(value);
+      setIsVerifying(true);
+      
+      toast({
+        title: "验证码已发送",
+        description: `验证码已发送到您的${field === 'phone' ? '手机' : '邮箱'}`
+      });
+      
+      // 开始倒计时
+      setCountdown(60);
+      const timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (error) {
+      toast({
+        title: "发送失败",
+        description: "请稍后重试",
+        variant: "destructive"
+      });
+    }
+  };
+
+  /**
+   * 验证验证码并保存
+   */
+  const verifyAndSave = async () => {
+    if (!verificationCode) {
+      toast({
+        title: "请输入验证码",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // 这里应该调用验证验证码的API
+      // 模拟验证成功
+      if (verificationField && pendingValue) {
+        await handleSaveField(verificationField, pendingValue);
+        
+        // 如果是首次验证邮箱，给予奖励
+        if (verificationField === 'email' && !user?.email) {
+          toast({
+            title: "验证成功",
+            description: "邮箱验证成功，获得10次使用奖励！",
+          });
+        }
+        
+        // 重置验证状态
+        setIsVerifying(false);
+        setVerificationField(null);
+        setVerificationCode('');
+        setPendingValue('');
+        setHasChanges(false);
+      }
+    } catch (error) {
+      toast({
+        title: "验证失败",
+        description: "请检查验证码是否正确",
+        variant: "destructive"
+      });
+    }
+  };
+
+  /**
+   * 取消验证
+   */
+  const cancelVerification = () => {
+    setIsVerifying(false);
+    setVerificationField(null);
+    setVerificationCode('');
+    setPendingValue('');
+    
+    // 恢复原来的值
+    if (verificationField === 'phone') {
+      setEditForm(prev => ({ ...prev, phone: user?.phone || '' }));
+    } else if (verificationField === 'email') {
+      setEditForm(prev => ({ ...prev, email: user?.email || '' }));
+    }
   };
 
   /**
@@ -193,6 +320,7 @@ export default function ProfilePage() {
       <PageNavigation
         title="个人中心"
         description="管理您的个人信息和账户设置"
+        showAdaptButton={false}
         actions={
           <Button variant="outline" onClick={() => navigate('/')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -267,9 +395,23 @@ export default function ProfilePage() {
                             专业版
                           </Badge>
                         ) : (
-                          <Badge variant="outline">免费版</Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">免费版</Badge>
+                            <Button
+                              size="sm"
+                              onClick={() => navigate('/payment')}
+                              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs px-2 py-1 h-6"
+                            >
+                              <Crown className="w-3 h-3 mr-1" />
+                              升级专业版
+                            </Button>
+                          </div>
                         )}
                       </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">当前可用次数</span>
+                      <span className="text-green-600 font-medium">{usageRemaining} 次</span>
                     </div>
                     {userType === 'pro' && (
                       <div className="flex justify-between">
@@ -343,11 +485,25 @@ export default function ProfilePage() {
                         <Badge variant="outline" className="text-xs bg-green-50 text-green-700">已验证</Badge>
                       )}
                     </div>
-                    <Input
-                      placeholder="请输入手机号"
-                      value={editForm.phone}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="请输入手机号"
+                        value={editForm.phone}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
+                        disabled={isVerifying && verificationField === 'phone'}
+                      />
+                      {editForm.phone !== user?.phone && editForm.phone && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => sendVerificationCode('phone', editForm.phone)}
+                          disabled={countdown > 0}
+                          className="whitespace-nowrap"
+                        >
+                          {countdown > 0 ? `${countdown}s` : '验证'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   {/* 邮箱验证 */}
@@ -358,17 +514,64 @@ export default function ProfilePage() {
                       {editForm.email && (
                         <Badge variant="outline" className="text-xs bg-green-50 text-green-700">已验证</Badge>
                       )}
-                      {!editForm.email && (
-                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700">+10次奖励</Badge>
+                      {!user?.email && (
+                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700">首次验证获得10次奖励</Badge>
                       )}
                     </div>
-                    <Input
-                      placeholder="请输入邮箱地址"
-                      value={editForm.email}
-                      onChange={(e) => handleEmailChange(e.target.value)}
-                      type="email"
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="请输入邮箱地址"
+                        value={editForm.email}
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        type="email"
+                        disabled={isVerifying && verificationField === 'email'}
+                      />
+                      {editForm.email !== user?.email && editForm.email && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => sendVerificationCode('email', editForm.email)}
+                          disabled={countdown > 0}
+                          className="whitespace-nowrap"
+                        >
+                          {countdown > 0 ? `${countdown}s` : '验证'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
+
+                  {/* 验证码输入 */}
+                  {isVerifying && (
+                    <div className="space-y-3 p-4 bg-blue-50 rounded-lg border">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-blue-800">
+                          请输入发送到{verificationField === 'phone' ? '手机' : '邮箱'}的验证码
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="请输入验证码"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={verifyAndSave}
+                          disabled={!verificationCode}
+                          size="sm"
+                        >
+                          确认
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={cancelVerification}
+                          size="sm"
+                        >
+                          取消
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* 保存按钮 */}
@@ -397,16 +600,7 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* 邮箱补充奖励提示 */}
-                {!user.email && (
-                  <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Gift className="w-4 h-4 text-amber-600" />
-                      <span className="font-medium text-sm text-amber-800">补充邮箱奖励</span>
-                    </div>
-                    <p className="text-xs text-amber-700">首次验证邮箱可获得10次使用奖励</p>
-                  </div>
-                )}
+
               </CardContent>
             </Card>
 
@@ -425,8 +619,7 @@ export default function ProfilePage() {
                     className="flex items-center gap-2"
                   >
                     <User className="w-4 h-4" />
-                    邀请好友 & 使用统计
-                    <Badge variant="secondary" className="ml-1">{userInviteStats.totalRegistrations}</Badge>
+                    立即邀请
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -443,6 +636,21 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                     <span>使用次数永久有效</span>
                     <Badge className="bg-green-100 text-green-700">不会过期</Badge>
+                  </div>
+                </div>
+
+                {/* 邀请统计数据 */}
+                <div className="mt-4 pt-4 border-t">
+                  <h5 className="font-medium text-sm text-gray-700 mb-3">邀请统计</h5>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-semibold text-gray-900">{userInviteStats.totalRegistrations}</div>
+                      <div className="text-gray-600">成功邀请</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-semibold text-green-600">{userInviteStats.totalRegistrations * 20}</div>
+                      <div className="text-gray-600">获得次数</div>
+                    </div>
                   </div>
                 </div>
               </CardContent>

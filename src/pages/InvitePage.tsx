@@ -13,7 +13,9 @@ import {
   RefreshCw, 
   Clock, 
   Award, 
-  TrendingUp 
+  TrendingUp,
+  ArrowLeft,
+  Home
 } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
@@ -95,10 +97,20 @@ function InvitePage() {
         title="邀请好友"
         description="邀请朋友注册，双方都能获得免费使用次数奖励"
         actions={
-          <Button>
-            <Share2 className="h-4 w-4 mr-1" />
-            立即分享
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/profile')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              返回个人中心
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/')}>
+              <Home className="h-4 w-4 mr-2" />
+              返回首页
+            </Button>
+            <Button>
+              <Share2 className="h-4 w-4 mr-1" />
+              立即分享
+            </Button>
+          </div>
         }
       />
 
