@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, History, Share2, CreditCard } from 'lucide-react';
+import { User, LogOut, Share2, CreditCard, Crown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
@@ -48,6 +48,17 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 }) => {
   const { logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  /**
+   * 检查用户是否是免费版
+   */
+  const isFreeUser = () => {
+    // 简单检查，后续可以根据实际的用户数据来判断
+    if (!user || typeof user !== 'object') return true;
+    const userObj = user as Record<string, unknown>;
+    // 检查用户是否有pro标识，默认为免费版
+    return !userObj.isPro && !userObj.isProUser;
+  };
 
   /**
    * 获取头像大小类名
@@ -174,23 +185,27 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/history">
-            <History className="mr-2 h-4 w-4" />
-            <span>历史记录</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
           <Link to="/invite">
             <Share2 className="mr-2 h-4 w-4" />
             <span>邀请好友</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/payment">
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>订阅管理</span>
-          </Link>
-        </DropdownMenuItem>
+        {isFreeUser() && (
+          <DropdownMenuItem asChild>
+            <Link to="/payment" className="text-amber-600 hover:text-amber-700">
+              <Crown className="mr-2 h-4 w-4" />
+              <span>升级专业版</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {!isFreeUser() && (
+          <DropdownMenuItem asChild>
+            <Link to="/payment">
+              <CreditCard className="mr-2 h-4 w-4" />
+              <span>订阅管理</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           onClick={handleLogout}

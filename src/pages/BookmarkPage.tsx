@@ -53,7 +53,9 @@ import {
   Link2,
   FolderOpen,
   Zap,
-  Brain
+  Brain,
+  Eye,
+  X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -115,6 +117,7 @@ export default function BookmarkPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [addContentType, setAddContentType] = useState<'collection' | 'extraction' | 'copywriting'>('collection');
   const [editingItem, setEditingItem] = useState<LibraryItem | null>(null);
+  const [viewingItem, setViewingItem] = useState<LibraryItem | null>(null);
   
   // 新建项表单
   const [newCollection, setNewCollection] = useState({
@@ -556,6 +559,36 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
     setEditingItem(null);
   };
 
+  /**
+   * 查看内容详情
+   */
+  const viewContent = (item: LibraryItem) => {
+    setViewingItem(item);
+  };
+
+  /**
+   * 关闭查看详情
+   */
+  const closeView = () => {
+    setViewingItem(null);
+  };
+
+  /**
+   * 关闭对话框时保持滚动位置
+   */
+  const handleDialogClose = (setter: (value: boolean) => void) => {
+    return (open: boolean) => {
+      if (!open) {
+        // 延迟执行以避免页面跳转
+        setTimeout(() => {
+          setter(false);
+        }, 0);
+      } else {
+        setter(true);
+      }
+    };
+  };
+
   const filteredItems = getFilteredItems();
 
   return (
@@ -704,7 +737,12 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
                               {typeInfo.icon}
                               <span className="ml-1">{typeInfo.name}</span>
                             </Badge>
-                            <h3 className="font-semibold">{item.title}</h3>
+                            <h3 
+                              className="font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+                              onClick={() => viewContent(item)}
+                            >
+                              {item.title}
+                            </h3>
                             {item.isFavorite && (
                               <Star className="w-4 h-4 text-yellow-500 fill-current" />
                             )}
@@ -715,7 +753,10 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
                             )}
                           </div>
                           
-                          <div className="text-sm text-gray-600 mb-3 line-clamp-2">
+                          <div 
+                            className="text-sm text-gray-600 mb-3 line-clamp-2 cursor-pointer hover:text-gray-800 transition-colors"
+                            onClick={() => viewContent(item)}
+                          >
                             {item.content}
                           </div>
 
@@ -814,7 +855,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
         </Tabs>
 
         {/* 对话框组件 */}
-        <Dialog open={isAddDialogOpen && addContentType === 'collection'} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen && addContentType === 'collection'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Bookmark className="w-4 h-4 mr-2" />
@@ -883,7 +924,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isAddDialogOpen && addContentType === 'extraction'} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen && addContentType === 'extraction'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Zap className="w-4 h-4 mr-2" />
@@ -1011,7 +1052,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isAddDialogOpen && addContentType === 'copywriting'} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen && addContentType === 'copywriting'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Brain className="w-4 h-4 mr-2" />
@@ -1083,7 +1124,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
         </Dialog>
 
         {/* 编辑对话框 */}
-        <Dialog open={!!editingItem} onOpenChange={(open) => !open && cancelEdit()}>
+        <Dialog open={!!editingItem} onOpenChange={(open) => !open && setTimeout(() => cancelEdit(), 0)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>编辑内容</DialogTitle>
@@ -1163,6 +1204,108 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
                 保存修改
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* 查看内容对话框 */}
+        <Dialog open={!!viewingItem} onOpenChange={(open) => !open && setTimeout(() => closeView(), 0)}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  {viewingItem?.title}
+                </DialogTitle>
+                <Button variant="ghost" size="sm" onClick={closeView}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <DialogDescription>
+                {viewingItem?.type === 'collection' ? '网络收藏' : 
+                 viewingItem?.type === 'extraction' ? '智采器提取' : '文案管理'}
+                {viewingItem?.source && ` • 来源：${viewingItem.source}`}
+              </DialogDescription>
+            </DialogHeader>
+            
+            {viewingItem && (
+              <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
+                {/* 标签和分类 */}
+                <div className="flex flex-wrap gap-2">
+                  {viewingItem.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                  {viewingItem.category && (
+                    <Badge variant="secondary" className="text-xs">
+                      {viewingItem.category}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* AI总结 */}
+                {viewingItem.summary && (
+                  <div className="p-4 bg-purple-50 rounded-lg border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4 text-purple-500" />
+                      <span className="font-medium text-purple-700">AI总结</span>
+                    </div>
+                    <p className="text-purple-600 text-sm">{viewingItem.summary}</p>
+                  </div>
+                )}
+
+                {/* 主要内容 */}
+                <div className="prose prose-sm max-w-none">
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {viewingItem.content}
+                  </div>
+                </div>
+
+                {/* 元数据 */}
+                {viewingItem.metadata && (
+                  <div className="text-xs text-gray-500 space-y-1 border-t pt-4">
+                    {viewingItem.metadata.wordCount && (
+                      <div>字数：{viewingItem.metadata.wordCount}</div>
+                    )}
+                    {viewingItem.metadata.charCount && (
+                      <div>字符数：{viewingItem.metadata.charCount}</div>
+                    )}
+                    {viewingItem.metadata.date && (
+                      <div>日期：{viewingItem.metadata.date}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-between pt-4 border-t">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => viewingItem && copyContent(viewingItem.content)}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  复制内容
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (viewingItem) {
+                      setEditingItem(viewingItem);
+                      closeView();
+                    }
+                  }}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  编辑
+                </Button>
+              </div>
+              <Button variant="outline" onClick={closeView}>
+                关闭
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

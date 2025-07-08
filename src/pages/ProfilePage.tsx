@@ -36,6 +36,9 @@ export default function ProfilePage() {
     phone: user?.phone || '',
     avatar: user?.avatar || '',
   });
+  
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // 模拟用户类型和过期时间
   const [userType, setUserType] = useState<'free' | 'pro'>('free'); // 可以是 'free' 或 'pro'
@@ -64,7 +67,8 @@ export default function ProfilePage() {
    */
   const handleAvatarChange = (newAvatar: string) => {
     setEditForm(prev => ({ ...prev, avatar: newAvatar }));
-    // 自动保存头像
+    setHasChanges(true);
+    // 头像特殊处理：立即保存
     handleSaveField('avatar', newAvatar);
   };
 
@@ -73,8 +77,7 @@ export default function ProfilePage() {
    */
   const handleNicknameChange = (newNickname: string) => {
     setEditForm(prev => ({ ...prev, nickname: newNickname }));
-    // 自动保存昵称
-    handleSaveField('nickname', newNickname);
+    setHasChanges(true);
   };
 
   /**
@@ -82,8 +85,7 @@ export default function ProfilePage() {
    */
   const handleEmailChange = (newEmail: string) => {
     setEditForm(prev => ({ ...prev, email: newEmail }));
-    // 自动保存邮箱
-    handleSaveField('email', newEmail);
+    setHasChanges(true);
   };
 
   /**
@@ -91,8 +93,7 @@ export default function ProfilePage() {
    */
   const handlePhoneChange = (newPhone: string) => {
     setEditForm(prev => ({ ...prev, phone: newPhone }));
-    // 自动保存手机号
-    handleSaveField('phone', newPhone);
+    setHasChanges(true);
   };
 
   /**
@@ -126,6 +127,46 @@ export default function ProfilePage() {
         description: "请重试",
         variant: "destructive"
       });
+    }
+  };
+
+  /**
+   * 保存所有更改
+   */
+  const handleSaveAll = async () => {
+    if (!user || !hasChanges) return;
+
+    setIsSaving(true);
+    try {
+      // 更新用户信息
+      const updatedUser = {
+        ...user,
+        nickname: editForm.nickname,
+        email: editForm.email,
+        phone: editForm.phone,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // 更新AuthContext中的用户信息
+      setUser(updatedUser);
+
+      // 更新localStorage中的用户信息
+      localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+
+      setHasChanges(false);
+      toast({
+        title: "保存成功",
+        description: "个人信息已更新",
+      });
+    } catch (error) {
+      console.error('保存用户信息失败:', error);
+      toast({
+        title: "保存失败",
+        description: "请重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -176,7 +217,17 @@ export default function ProfilePage() {
                     </Badge>
                   )}
                   {userType === 'free' && (
-                    <Badge variant="outline">免费版</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">免费版</Badge>
+                      <Button
+                        size="sm"
+                        onClick={() => navigate('/payment')}
+                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                      >
+                        <Crown className="w-3 h-3 mr-1" />
+                        升级专业版
+                      </Button>
+                    </div>
                   )}
                 </CardTitle>
               </CardHeader>
@@ -255,18 +306,6 @@ export default function ProfilePage() {
                 {/* 快捷操作 */}
                 <div className="space-y-2">
                   <Button
-                    variant="outline"
-                    onClick={() => navigate('/invite')}
-                    className="w-full justify-between"
-                    size="sm"
-                  >
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      邀请好友 & 使用统计
-                    </div>
-                    <Badge variant="secondary">{userInviteStats.totalRegistrations} 人</Badge>
-                  </Button>
-                  <Button
                     variant="destructive"
                     onClick={handleLogout}
                     className="w-full justify-start"
@@ -332,6 +371,32 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
+                {/* 保存按钮 */}
+                <div className="mt-6 pt-4 border-t">
+                  <Button 
+                    onClick={handleSaveAll}
+                    disabled={!hasChanges || isSaving}
+                    className="w-full"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Save className="w-4 h-4 mr-2 animate-spin" />
+                        保存中...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        保存更改
+                      </>
+                    )}
+                  </Button>
+                  {hasChanges && (
+                    <p className="text-xs text-amber-600 mt-2 text-center">
+                      您有未保存的更改
+                    </p>
+                  )}
+                </div>
+
                 {/* 邮箱补充奖励提示 */}
                 {!user.email && (
                   <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
@@ -348,9 +413,21 @@ export default function ProfilePage() {
             {/* 奖励说明 */}
             <Card>
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Gift className="w-5 h-5" />
-                  奖励机制
+                <CardTitle className="flex items-center justify-between text-lg">
+                  <div className="flex items-center gap-2">
+                    <Gift className="w-5 h-5" />
+                    奖励机制
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/invite')}
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    邀请好友 & 使用统计
+                    <Badge variant="secondary" className="ml-1">{userInviteStats.totalRegistrations}</Badge>
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>

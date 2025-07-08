@@ -15,6 +15,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Badge } from '@/components/ui/badge';
+import { UpgradeButton } from '@/components/ui/upgrade-button';
 import { 
   ArrowLeft,
   Sparkles,
@@ -321,6 +322,9 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
 
           {/* 右侧操作区 */}
           <div className="flex items-center gap-3">
+            {/* 升级专业版按钮 */}
+            <UpgradeButton />
+            
             {/* AI适配器快速访问 */}
             {showAdaptButton && path !== '/adapt' && (
               <Button

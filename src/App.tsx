@@ -34,6 +34,7 @@ import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import EmojiPage from '@/pages/EmojiPage';
 import ToolLayout from '@/components/layout/ToolLayout';
+import { ScrollToTop } from '@/components/layout/ScrollToTop';
 
 /**
  * 应用内容组件
@@ -41,6 +42,9 @@ import ToolLayout from '@/components/layout/ToolLayout';
 const AppContent: React.FC = () => {
   return (
     <div>
+      {/* 滚动到顶部组件 */}
+      <ScrollToTop />
+      
       {/* 路由内容 */}
       <Routes>
         {/* 公开页面 */}

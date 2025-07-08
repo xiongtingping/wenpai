@@ -27,7 +27,7 @@ interface AuthState {
  */
 interface AuthContextType extends AuthState {
   /** 登录方法 */
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   /** 注册方法 */
   register: (email: string, password: string, nickname: string) => Promise<void>;
   /** 登出方法 */
@@ -184,11 +184,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * 登录方法
    */
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (identifier: string, password: string) => {
     if (!authing) throw new Error('认证客户端未初始化');
 
     try {
-      const result = await authing.loginByEmail(email, password);
+      let result;
+      
+      // 检测输入是手机号还是邮箱
+      const isPhone = /^1[3-9]\d{9}$/.test(identifier);
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+      
+      if (isPhone) {
+        // 手机号登录
+        result = await authing.loginByPhonePassword(identifier, password);
+      } else if (isEmail) {
+        // 邮箱登录
+        result = await authing.loginByEmail(identifier, password);
+      } else {
+        throw new Error('请输入正确的手机号或邮箱地址');
+      }
+      
       if (result) {
         await checkAuth();
       } else {
