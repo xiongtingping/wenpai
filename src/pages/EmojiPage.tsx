@@ -507,7 +507,7 @@ const EmojiPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wand2 className="w-5 h-5" />
-                  Noto风格生成器
+                  Noto Emoji 生成器
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">

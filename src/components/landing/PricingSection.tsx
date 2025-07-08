@@ -178,10 +178,10 @@ export function PricingSection() {
               ) : (
                 <>
                   <div className="flex items-center gap-2">
-                    <p className="text-5xl font-extrabold text-purple-600">¥288</p>
+                    <p className="text-5xl font-extrabold text-purple-600">¥239</p>
                     <div className="flex flex-col items-start">
                       <span className="text-xs text-purple-500 font-semibold">限时特惠</span>
-                      <span className="text-xs text-purple-500">原价¥358.8</span>
+                      <span className="text-xs text-purple-500">5折，省¥239.8</span>
                     </div>
                   </div>
                 </>
@@ -269,13 +269,7 @@ export function PricingSection() {
                   <p className="text-sm text-gray-500 mt-1">GPT-4o、DeepSeek V3等最新模型</p>
                 </div>
               </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">优先技术支持</span>
-                  <p className="text-sm text-gray-500 mt-1">专业客服团队，快速响应</p>
-                </div>
-              </li>
+
             </ul>
             <Button 
               className="mt-8 w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90"
@@ -373,15 +367,7 @@ export function PricingSection() {
                       <span className="text-purple-600 font-medium">高级模型</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">技术支持</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-gray-600">社区支持</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 font-medium">优先支持</span>
-                    </td>
-                  </tr>
+
                 </tbody>
               </table>
             </div>

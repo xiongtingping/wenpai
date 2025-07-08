@@ -86,7 +86,7 @@ export default function CreativeStudioPage() {
               </TabsTrigger>
               <TabsTrigger value="cube" className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                九宫格创意魔方法
+                九宫格创意魔方
               </TabsTrigger>
               <TabsTrigger value="wechat" className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4" />

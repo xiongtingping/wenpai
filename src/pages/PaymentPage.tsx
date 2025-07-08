@@ -64,7 +64,7 @@ export default function PaymentPage() {
       setPaymentAmount("23.9");
     } else if (plan === "pro-yearly") {
       // 限时特惠价优先
-      setPaymentAmount("288");
+      setPaymentAmount("239");
     }
   };
 
@@ -175,10 +175,10 @@ export default function PaymentPage() {
             <div className="text-center">
               {/* 限时特惠价 */}
               <div className="flex items-center justify-center gap-2 mb-1">
-                <span className="text-3xl font-bold text-red-600">¥288</span>
+                <span className="text-3xl font-bold text-red-600">¥239</span>
                 <div className="flex flex-col items-start">
                   <span className="text-xs text-red-500 font-semibold">限时特惠价</span>
-                  <span className="text-xs text-red-500">6折 省¥190.8</span>
+                  <span className="text-xs text-red-500">5折 省¥239.8</span>
                 </div>
               </div>
               <div className="flex items-center justify-center gap-1 mb-1">
@@ -233,7 +233,7 @@ export default function PaymentPage() {
                       ¥{paymentAmount}
                       <span className="text-sm font-normal text-muted-foreground">/年</span>
                     </div>
-                    <div className="text-xs text-red-500">限时特惠价 6折 省¥190.8</div>
+                    <div className="text-xs text-red-500">限时特惠价 5折 省¥239.8</div>
                     <div className="text-xs text-gray-500 line-through">¥358.8 暑假特惠价 7.5折 省¥120</div>
                     <div className="text-xs text-gray-500 line-through">¥478.8 原价</div>
                     {timeLeft > 0 && (

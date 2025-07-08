@@ -597,6 +597,22 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
       <PageNavigation
         title="我的资料库"
         description="统一管理网络收藏、智采器和文案管理"
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
+              <Bookmark className="w-4 h-4 mr-2" />
+              添加收藏
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setAddContentType('extraction'); setIsAddDialogOpen(true); }}>
+              <Zap className="w-4 h-4 mr-2" />
+              内容提取
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setAddContentType('copywriting'); setIsAddDialogOpen(true); }}>
+              <Brain className="w-4 h-4 mr-2" />
+              创建文案
+            </Button>
+          </div>
+        }
       />
 
       <div className="container mx-auto px-4 py-8">
