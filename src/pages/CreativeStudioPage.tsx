@@ -59,7 +59,7 @@ import PageNavigation from '@/components/layout/PageNavigation';
 export default function CreativeStudioPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('cube');
+  const [activeTab, setActiveTab] = useState('calendar');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -80,17 +80,17 @@ export default function CreativeStudioPage() {
           {/* 子模块切换 */}
           <div className="flex items-center justify-between mb-6">
             <TabsList className="grid w-full grid-cols-4 max-w-2xl">
-              <TabsTrigger value="cube" className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                创意魔方
-              </TabsTrigger>
               <TabsTrigger value="calendar" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 营销日历
               </TabsTrigger>
+              <TabsTrigger value="cube" className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                九宫格创意魔方法
+              </TabsTrigger>
               <TabsTrigger value="wechat" className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4" />
-                朋友圈模板
+                朋友圈文案
               </TabsTrigger>
               <TabsTrigger value="emoji" className="flex items-center gap-2">
                 <Smile className="w-4 h-4" />
@@ -99,17 +99,17 @@ export default function CreativeStudioPage() {
             </TabsList>
           </div>
 
-          {/* 九宫格创意魔方 */}
-          <TabsContent value="cube" className="mt-6">
-            <CreativeCube />
-          </TabsContent>
-
           {/* 营销日历 */}
           <TabsContent value="calendar" className="mt-6">
             <MarketingCalendar />
           </TabsContent>
 
-          {/* 朋友圈模板 */}
+          {/* 九宫格创意魔方法 */}
+          <TabsContent value="cube" className="mt-6">
+            <CreativeCube />
+          </TabsContent>
+
+          {/* 朋友圈文案 */}
           <TabsContent value="wechat" className="mt-6">
             <WechatTemplatePage />
           </TabsContent>

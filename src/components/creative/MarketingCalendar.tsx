@@ -120,6 +120,9 @@ export function MarketingCalendar() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showCompletedTodos, setShowCompletedTodos] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [statisticsRange, setStatisticsRange] = useState<'day' | 'week' | 'month' | 'year'>('week');
 
   // 拖拽相关状态
   const [draggedTodo, setDraggedTodo] = useState<TodoItem | null>(null);
@@ -428,6 +431,11 @@ export function MarketingCalendar() {
   useEffect(() => {
     let filtered = [...todos];
 
+    // 默认隐藏已完成的待办事项
+    if (!showCompletedTodos) {
+      filtered = filtered.filter(todo => !todo.completed);
+    }
+
     // 搜索筛选
     if (searchQuery) {
       filtered = filtered.filter(todo => 
@@ -451,6 +459,11 @@ export function MarketingCalendar() {
 
     // 排序
     filtered.sort((a, b) => {
+      // 已完成的项目排在底部
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+      }
+      
       let comparison = 0;
       
       switch (sortBy) {
@@ -470,7 +483,7 @@ export function MarketingCalendar() {
     });
 
     setFilteredTodos(filtered);
-  }, [todos, searchQuery, selectedTags, selectedGroup, sortBy, sortOrder]);
+  }, [todos, searchQuery, selectedTags, selectedGroup, sortBy, sortOrder, showCompletedTodos]);
 
   /**
    * 获取所有标签
@@ -726,6 +739,92 @@ export function MarketingCalendar() {
     setNewTodo(prev => ({ ...prev, date: date.toISOString().split('T')[0] }));
   };
 
+  /**
+   * 获取统计数据
+   */
+  const getStatistics = (range: 'day' | 'week' | 'month' | 'year') => {
+    const now = new Date();
+    const startDate = new Date();
+    
+    switch (range) {
+      case 'day':
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'week':
+        const dayOfWeek = now.getDay();
+        const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 周一开始
+        startDate.setDate(now.getDate() - diff);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'month':
+        startDate.setDate(1);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'year':
+        startDate.setMonth(0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+    }
+    
+    const endDate = new Date();
+    switch (range) {
+      case 'day':
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'week':
+        const weekEndDiff = 6 - (endDate.getDay() === 0 ? 6 : endDate.getDay() - 1);
+        endDate.setDate(endDate.getDate() + weekEndDiff);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'month':
+        endDate.setMonth(endDate.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'year':
+        endDate.setMonth(11, 31);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+    }
+    
+    const filteredTodos = todos.filter(todo => {
+      const todoDate = new Date(todo.date);
+      return todoDate >= startDate && todoDate <= endDate;
+    });
+    
+    const completed = filteredTodos.filter(todo => todo.completed);
+    const pending = filteredTodos.filter(todo => !todo.completed);
+    const highPriority = pending.filter(todo => todo.priority === 'high');
+    const overdue = pending.filter(todo => new Date(todo.date) < now);
+    
+    return {
+      total: filteredTodos.length,
+      completed: completed.length,
+      pending: pending.length,
+      highPriority: highPriority.length,
+      overdue: overdue.length,
+      completionRate: filteredTodos.length > 0 ? Math.round((completed.length / filteredTodos.length) * 100) : 0,
+      startDate: startDate.toLocaleDateString('zh-CN'),
+      endDate: endDate.toLocaleDateString('zh-CN'),
+      range: range === 'day' ? '今日' : range === 'week' ? '本周' : range === 'month' ? '本月' : '本年'
+    };
+  };
+
+  /**
+   * 获取已完成的待办事项（按完成时间排序）
+   */
+  const getCompletedTodos = () => {
+    return todos
+      .filter(todo => todo.completed)
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  };
+
+  /**
+   * 获取未完成的待办事项
+   */
+  const getPendingTodos = () => {
+    return todos.filter(todo => !todo.completed);
+  };
+
   const calendarDays = generateCalendarDays();
 
   return (
@@ -763,6 +862,13 @@ export function MarketingCalendar() {
                 onClick={() => setCurrentDate(new Date())}
               >
                 今天
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowStatistics(!showStatistics)}
+              >
+                📊 统计
               </Button>
               <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
                 <DialogTrigger asChild>
@@ -978,6 +1084,103 @@ export function MarketingCalendar() {
         </CardContent>
       </Card>
 
+      {/* 统计信息面板 */}
+      {showStatistics && (
+        <Card className="border-blue-200 bg-blue-50/50">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                📊 待办事项统计
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                {(['day', 'week', 'month', 'year'] as const).map(range => (
+                  <Button
+                    key={range}
+                    size="sm"
+                    variant={statisticsRange === range ? "default" : "outline"}
+                    onClick={() => setStatisticsRange(range)}
+                  >
+                    {range === 'day' ? '日' : range === 'week' ? '周' : range === 'month' ? '月' : '年'}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const stats = getStatistics(statisticsRange);
+              return (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>统计范围</span>
+                    <span>{stats.range} ({stats.startDate} - {stats.endDate})</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="text-center p-4 bg-white rounded-lg border">
+                      <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+                      <div className="text-sm text-gray-600">总计</div>
+                    </div>
+                    <div className="text-center p-4 bg-white rounded-lg border">
+                      <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+                      <div className="text-sm text-gray-600">已完成</div>
+                    </div>
+                    <div className="text-center p-4 bg-white rounded-lg border">
+                      <div className="text-2xl font-bold text-orange-600">{stats.pending}</div>
+                      <div className="text-sm text-gray-600">待完成</div>
+                    </div>
+                    <div className="text-center p-4 bg-white rounded-lg border">
+                      <div className="text-2xl font-bold text-red-600">{stats.highPriority}</div>
+                      <div className="text-sm text-gray-600">高优先级</div>
+                    </div>
+                    <div className="text-center p-4 bg-white rounded-lg border">
+                      <div className="text-2xl font-bold text-purple-600">{stats.overdue}</div>
+                      <div className="text-sm text-gray-600">已逾期</div>
+                    </div>
+                  </div>
+                  
+                  {/* 完成率进度条 */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">完成率</span>
+                      <span className="font-medium">{stats.completionRate}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-green-500 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${stats.completionRate}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  {/* 趋势分析 */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="p-3 bg-white rounded-lg border">
+                      <div className="font-medium text-gray-700 mb-1">效率评价</div>
+                      <div className={`${stats.completionRate >= 80 ? 'text-green-600' : stats.completionRate >= 60 ? 'text-orange-600' : 'text-red-600'}`}>
+                        {stats.completionRate >= 80 ? '🎉 效率很高' : stats.completionRate >= 60 ? '⚡ 效率良好' : '📈 需要改进'}
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white rounded-lg border">
+                      <div className="font-medium text-gray-700 mb-1">任务负载</div>
+                      <div className={`${stats.pending <= 5 ? 'text-green-600' : stats.pending <= 10 ? 'text-orange-600' : 'text-red-600'}`}>
+                        {stats.pending <= 5 ? '😌 负载适中' : stats.pending <= 10 ? '😅 负载较重' : '😰 负载过重'}
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white rounded-lg border">
+                      <div className="font-medium text-gray-700 mb-1">时间管理</div>
+                      <div className={`${stats.overdue === 0 ? 'text-green-600' : stats.overdue <= 2 ? 'text-orange-600' : 'text-red-600'}`}>
+                        {stats.overdue === 0 ? '⏰ 时间管理很好' : stats.overdue <= 2 ? '⏳ 稍有延误' : '🚨 严重延误'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      )}
+
       {/* 编辑待办事项对话框 */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-lg">
@@ -1113,6 +1316,21 @@ export function MarketingCalendar() {
                   className="w-48"
                 />
               </div>
+              
+              <Button
+                variant={showCompletedTodos ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowCompletedTodos(!showCompletedTodos)}
+                className="flex items-center gap-1"
+              >
+                <CheckSquare className="w-3 h-3" />
+                {showCompletedTodos ? '隐藏已完成' : '显示已完成'}
+                {!showCompletedTodos && (
+                  <Badge variant="secondary" className="text-xs ml-1">
+                    {getCompletedTodos().length}
+                  </Badge>
+                )}
+              </Button>
               
               <select
                 value={selectedGroup}
