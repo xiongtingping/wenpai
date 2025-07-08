@@ -7,6 +7,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
 import { 
   Home,
   FileText,
@@ -22,7 +23,8 @@ import {
   Crown,
   FolderOpen,
   Sparkles,
-  Zap
+  Zap,
+  ArrowLeft
 } from 'lucide-react';
 
 interface ToolLayoutProps {
@@ -196,12 +198,24 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-white/95 backdrop-blur-md sticky top-0 z-50">
         <div className="container flex justify-between items-center h-16 px-6">
-          {/* 左侧：Logo + 面包屑导航 */}
-          <div className="flex items-center gap-6">
+          {/* 左侧：Logo + 返回箭头 + 面包屑导航 */}
+          <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center space-x-2">
               <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-8 w-8" />
               <span className="font-bold text-lg">文派</span>
             </Link>
+            
+            {/* 返回箭头 - 仅在二级页面及以下显示 */}
+            {currentConfig.level > 1 && currentConfig.parent && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(currentConfig.parent!)}
+                className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              >
+                <ArrowLeft className="h-4 w-4 text-gray-600 hover:text-gray-900" />
+              </Button>
+            )}
             
             {/* 面包屑导航 - 仅在二级页面及以下显示 */}
             {currentConfig.level > 1 && (

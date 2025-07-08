@@ -17,7 +17,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { UpgradeButton } from '@/components/ui/upgrade-button';
 import { 
-  ArrowLeft,
   Sparkles,
   Zap,
   Home,
@@ -277,35 +276,8 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   return (
     <div className="border-b bg-white">
       <div className="container mx-auto px-4 py-3">
-        {/* 顶部导航行：返回按钮 + 右侧操作 */}
-        <div className="flex items-center justify-between mb-3">
-          {/* 左侧：返回按钮 */}
-          <div className="flex items-center">
-            {/* 优化后的返回按钮 */}
-            {currentConfig.level > 1 && currentConfig.parent && (
-              <Button
-                variant="ghost"
-                onClick={() => navigate(currentConfig.parent!)}
-                className="
-                  min-w-[44px] h-9 px-3 py-1.5
-                  bg-gray-100 hover:bg-gray-200 
-                  rounded-full
-                  flex items-center gap-2
-                  text-gray-700 hover:text-gray-900
-                  border border-gray-200 hover:border-gray-300
-                  transition-all duration-200 ease-in-out
-                  hover:scale-105 hover:shadow-sm
-                  active:scale-95
-                  group
-                  text-sm font-medium
-                "
-              >
-                <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
-                <span>{PAGE_CONFIGS[currentConfig.parent!]?.title || '返回'}</span>
-              </Button>
-            )}
-          </div>
-
+        {/* 顶部导航行：右侧操作 */}
+        <div className="flex items-center justify-end mb-3">
           {/* 右侧操作区 */}
           <div className="flex items-center gap-3">
             {/* 升级专业版按钮 */}
