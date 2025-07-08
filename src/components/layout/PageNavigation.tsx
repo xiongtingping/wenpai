@@ -280,16 +280,28 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
         {/* 面包屑导航 */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            {/* 返回按钮 - 根据页面层级显示 */}
+            {/* 优化后的返回按钮 - 根据页面层级显示 */}
             {currentConfig.level > 1 && currentConfig.parent && (
               <Button
-                variant="outline"
-                size="sm"
+                variant="ghost"
                 onClick={() => navigate(currentConfig.parent!)}
-                className="h-9 flex items-center"
+                className="
+                  min-w-[44px] h-11 px-4 py-2
+                  bg-gray-100 hover:bg-gray-200 
+                  rounded-full
+                  flex items-center gap-2
+                  text-gray-700 hover:text-gray-900
+                  border border-gray-200 hover:border-gray-300
+                  transition-all duration-200 ease-in-out
+                  hover:scale-105 hover:shadow-sm
+                  active:scale-95
+                  group
+                "
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                返回
+                <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
+                <span className="text-sm font-medium">
+                  {PAGE_CONFIGS[currentConfig.parent!]?.title || '返回上一页'}
+                </span>
               </Button>
             )}
             
@@ -303,18 +315,23 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                     <React.Fragment key={crumb.path}>
                       <BreadcrumbItem className="flex items-center">
                         {isLast ? (
-                          <BreadcrumbPage className="flex items-center gap-2 text-lg font-medium">
-                            <Icon className="h-5 w-5" />
+                          <BreadcrumbPage className="flex items-center gap-2 text-lg font-medium text-gray-900">
+                            <Icon className="h-5 w-5 text-blue-600" />
                             {crumb.title}
                             {crumb.badge && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
                                 {crumb.badge}
                               </Badge>
                             )}
                           </BreadcrumbPage>
                         ) : (
                           <BreadcrumbLink 
-                            className="cursor-pointer hover:text-blue-600 flex items-center gap-2"
+                            className="
+                              cursor-pointer text-gray-600 hover:text-blue-600 
+                              flex items-center gap-2 
+                              transition-colors duration-200
+                              hover:underline underline-offset-2
+                            "
                             onClick={() => navigate(crumb.path)}
                           >
                             <Icon className="h-4 w-4" />
@@ -322,7 +339,11 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                           </BreadcrumbLink>
                         )}
                       </BreadcrumbItem>
-                      {!isLast && <BreadcrumbSeparator className="mx-2" />}
+                      {!isLast && (
+                        <BreadcrumbSeparator className="mx-3 text-gray-400">
+                          /
+                        </BreadcrumbSeparator>
+                      )}
                     </React.Fragment>
                   );
                 })}
@@ -338,12 +359,22 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
             {/* AI适配器快速访问 - 只在二级页面显示 */}
             {showAdaptButton && path !== '/adapt' && currentConfig.level === 2 && (
               <Button
-                size="sm"
                 onClick={() => navigate('/adapt')}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="
+                  min-w-[44px] h-9 px-4 py-2
+                  bg-blue-600 hover:bg-blue-700 
+                  text-white
+                  rounded-lg
+                  flex items-center gap-2
+                  transition-all duration-200 ease-in-out
+                  hover:scale-105 hover:shadow-md
+                  active:scale-95
+                  group
+                  border-0
+                "
               >
-                <Zap className="h-4 w-4 mr-1" />
-                AI适配器
+                <Zap className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                <span className="text-sm font-medium">AI适配器</span>
               </Button>
             )}
             
@@ -370,7 +401,8 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
 
         {/* 子模块快速切换 */}
         {subModules.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap pt-3 border-t border-gray-100">
+            <span className="text-sm font-medium text-gray-500 mr-2">快速切换:</span>
             {subModules.map((module, index) => {
               const ModuleIcon = module.icon;
               const isActive = path === module.path;
@@ -378,15 +410,31 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
               return (
                 <Button
                   key={index}
-                  variant={isActive ? "default" : "outline"}
-                  size="sm"
+                  variant={isActive ? "default" : "ghost"}
                   onClick={() => navigate(module.path)}
-                  className="flex items-center gap-2"
+                  className={`
+                    min-w-[44px] h-9 px-3 py-2
+                    flex items-center gap-2
+                    transition-all duration-200 ease-in-out
+                    hover:scale-105 active:scale-95
+                    ${isActive 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm' 
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300'
+                    }
+                    rounded-lg
+                  `}
                 >
                   <ModuleIcon className="h-4 w-4" />
-                  {module.title}
+                  <span className="text-sm font-medium">{module.title}</span>
                   {module.badge && (
-                    <Badge variant="secondary" className="text-xs ml-1">
+                    <Badge 
+                      variant="secondary" 
+                      className={`text-xs ml-1 ${
+                        isActive 
+                          ? 'bg-white/20 text-white border-white/30' 
+                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                      }`}
+                    >
                       {module.badge}
                     </Badge>
                   )}

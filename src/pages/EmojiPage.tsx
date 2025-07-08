@@ -37,77 +37,21 @@ import {
   Eye,
   Star,
   Upload,
-  Share2
+  Share2,
+  Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-
-/**
- * Unicode Emoji分类 - 基于Unicode 15.0标准
- */
-const UNICODE_CATEGORIES = [
-  { id: 'smileys-emotion', name: '笑脸与情感', icon: '😀', count: 168 },
-  { id: 'people-body', name: '人物与身体', icon: '👤', count: 2539 },
-  { id: 'component', name: '组成部分', icon: '👁️', count: 9 },
-  { id: 'animals-nature', name: '动物与自然', icon: '🐶', count: 158 },
-  { id: 'food-drink', name: '食物与饮料', icon: '🍎', count: 135 },
-  { id: 'travel-places', name: '旅行与地点', icon: '🚗', count: 220 },
-  { id: 'activities', name: '活动', icon: '⚽', count: 83 },
-  { id: 'objects', name: '物品', icon: '💡', count: 264 },
-  { id: 'symbols', name: '符号', icon: '❤️', count: 224 },
-  { id: 'flags', name: '旗帜', icon: '🏳️', count: 269 }
-];
-
-/**
- * Noto Emoji风格选项
- */
-const NOTO_STYLES = [
-  { id: 'color', name: 'Noto Color', description: '彩色风格，Google官方设计', preview: '😊' },
-  { id: 'black-white', name: 'Noto黑白', description: '黑白线条风格，简洁明了', preview: '😊' },
-  { id: 'outline', name: 'Noto描边', description: '描边风格，轮廓清晰', preview: '😊' },
-  { id: 'filled', name: 'Noto填充', description: '填充风格，色彩饱满', preview: '😊' },
-  { id: 'gradient', name: 'Noto渐变', description: '渐变风格，视觉丰富', preview: '😊' },
-  { id: 'flat', name: 'Noto扁平', description: '扁平化设计，现代简约', preview: '😊' }
-];
-
-/**
- * 肤色修饰符
- */
-const SKIN_TONES = [
-  { id: '', name: '默认', hex: '', modifier: '' },
-  { id: 'light', name: '浅肤色', hex: '#F7D7C4', modifier: '🏻' },
-  { id: 'medium-light', name: '中浅肤色', hex: '#D4A574', modifier: '🏼' },
-  { id: 'medium', name: '中等肤色', hex: '#A0754D', modifier: '🏽' },
-  { id: 'medium-dark', name: '中深肤色', hex: '#825C42', modifier: '🏾' },
-  { id: 'dark', name: '深肤色', hex: '#5C4033', modifier: '🏿' }
-];
-
-/**
- * Emoji项接口
- */
-interface EmojiItem {
-  id: string;
-  unicode: string;
-  name: string;
-  category: string;
-  subcategory?: string;
-  keywords: string[];
-  hasSkinTone: boolean;
-  hasHairStyle: boolean;
-  isCustom: boolean;
-  styles: Record<string, string>; // 不同风格的图片URL
-  createdAt: Date;
-  isFavorite: boolean;
-}
+import { notoEmojiService, UNICODE_EMOJI_GROUPS, SKIN_TONE_MODIFIERS, NOTO_STYLES, type NotoEmojiData } from '@/services/notoEmojiService';
 
 /**
  * 生成参数接口
  */
 interface GenerationParams {
-  style: string;
+  style: keyof typeof NOTO_STYLES;
   size: number;
   format: 'png' | 'svg' | 'webp';
-  skinTone: string;
+  skinTone: keyof typeof SKIN_TONE_MODIFIERS | '';
   background: 'transparent' | 'white' | 'custom';
   customBg?: string;
   padding: number;
@@ -118,15 +62,16 @@ interface GenerationParams {
  * Emoji生成器主组件
  */
 const EmojiPage: React.FC = () => {
-  const [emojis, setEmojis] = useState<EmojiItem[]>([]);
-  const [filteredEmojis, setFilteredEmojis] = useState<EmojiItem[]>([]);
+  const [emojis, setEmojis] = useState<NotoEmojiData[]>([]);
+  const [filteredEmojis, setFilteredEmojis] = useState<NotoEmojiData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedStyle, setSelectedStyle] = useState<string>('color');
-  const [selectedEmoji, setSelectedEmoji] = useState<EmojiItem | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<keyof typeof NOTO_STYLES>('color');
+  const [selectedEmoji, setSelectedEmoji] = useState<NotoEmojiData | null>(null);
   const [activeTab, setActiveTab] = useState('gallery');
   const [isGenerating, setIsGenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   
   // 生成参数
   const [generationParams, setGenerationParams] = useState<GenerationParams>({
@@ -142,120 +87,21 @@ const EmojiPage: React.FC = () => {
   const { toast } = useToast();
 
   /**
-   * Unicode标准emoji数据 - 简化版，实际应用中会从完整的Unicode数据加载
+   * 获取emoji分类统计
    */
-  const unicodeEmojis: EmojiItem[] = useMemo(() => [
-    {
-      id: 'u1f600',
-      unicode: '😀',
-      name: '笑脸',
-      category: 'smileys-emotion',
-      subcategory: 'face-smiling',
-      keywords: ['笑', '开心', '高兴', '快乐'],
-      hasSkinTone: false,
-      hasHairStyle: false,
-      isCustom: false,
-      styles: {
-        color: 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f600.png',
-        'black-white': 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f600/512.webp'
-      },
-      createdAt: new Date(),
-      isFavorite: false
-    },
-    {
-      id: 'u1f603',
-      unicode: '😃',
-      name: '张嘴笑脸',
-      category: 'smileys-emotion',
-      subcategory: 'face-smiling',
-      keywords: ['笑', '开心', '张嘴', '兴奋'],
-      hasSkinTone: false,
-      hasHairStyle: false,
-      isCustom: false,
-      styles: {
-        color: 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f603.png',
-        'black-white': 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f603/512.webp'
-      },
-      createdAt: new Date(),
-      isFavorite: false
-    },
-    {
-      id: 'u1f44d',
-      unicode: '👍',
-      name: '竖起大拇指',
-      category: 'people-body',
-      subcategory: 'hand-fingers-closed',
-      keywords: ['好', '赞', '同意', '手势'],
-      hasSkinTone: true,
-      hasHairStyle: false,
-      isCustom: false,
-      styles: {
-        color: 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f44d.png',
-        'black-white': 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.webp'
-      },
-      createdAt: new Date(),
-      isFavorite: false
-    },
-    {
-      id: 'u1f436',
-      unicode: '🐶',
-      name: '狗脸',
-      category: 'animals-nature',
-      subcategory: 'animal-mammal',
-      keywords: ['狗', '小狗', '宠物', '动物'],
-      hasSkinTone: false,
-      hasHairStyle: false,
-      isCustom: false,
-      styles: {
-        color: 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f436.png',
-        'black-white': 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f436/512.webp'
-      },
-      createdAt: new Date(),
-      isFavorite: false
-    },
-    {
-      id: 'u1f34e',
-      unicode: '🍎',
-      name: '红苹果',
-      category: 'food-drink',
-      subcategory: 'food-fruit',
-      keywords: ['苹果', '水果', '红色', '健康'],
-      hasSkinTone: false,
-      hasHairStyle: false,
-      isCustom: false,
-      styles: {
-        color: 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f34e.png',
-        'black-white': 'https://fonts.gstatic.com/s/e/notoemoji/latest/1f34e/512.webp'
-      },
-      createdAt: new Date(),
-      isFavorite: false
-    },
-    {
-      id: 'u2764',
-      unicode: '❤️',
-      name: '红心',
-      category: 'symbols',
-      subcategory: 'heart',
-      keywords: ['爱', '心', '红色', '感情'],
-      hasSkinTone: false,
-      hasHairStyle: false,
-      isCustom: false,
-      styles: {
-        color: 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u2764.png',
-        'black-white': 'https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/512.webp'
-      },
-      createdAt: new Date(),
-      isFavorite: false
-    }
-  ], []);
+  const categoryStats = useMemo(() => {
+    const stats = notoEmojiService.getEmojiStats();
+    return stats.byGroup;
+  }, []);
 
   /**
    * 初始化emoji数据
    */
   useEffect(() => {
-    setEmojis(unicodeEmojis);
-    setFilteredEmojis(unicodeEmojis);
-  }, [unicodeEmojis]);
+    const allEmojis = notoEmojiService.getAllEmojis();
+    setEmojis(allEmojis);
+    setFilteredEmojis(allEmojis);
+  }, []);
 
   /**
    * 过滤emoji
@@ -264,45 +110,32 @@ const EmojiPage: React.FC = () => {
     let filtered = emojis;
 
     if (searchTerm) {
-      filtered = filtered.filter(emoji =>
-        emoji.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emoji.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        emoji.unicode.includes(searchTerm)
-      );
+      filtered = notoEmojiService.searchEmojis(searchTerm);
     }
 
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(emoji => emoji.category === selectedCategory);
+      filtered = filtered.filter(emoji => emoji.group === selectedCategory);
     }
 
     setFilteredEmojis(filtered);
   }, [emojis, searchTerm, selectedCategory]);
 
   /**
-   * 生成Noto风格的emoji URL
-   */
-  const generateNotoEmojiUrl = (unicode: string, style: string, size: number = 128) => {
-    const codepoint = unicode.codePointAt(0)?.toString(16).padStart(4, '0');
-    const baseUrls = {
-      color: `https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/${size}/emoji_u${codepoint}.png`,
-      'black-white': `https://fonts.gstatic.com/s/e/notoemoji/latest/${codepoint}/${size}.webp`,
-      outline: `https://fonts.gstatic.com/s/e/notoemoji/latest/${codepoint}/${size}.webp`,
-      filled: `https://fonts.gstatic.com/s/e/notoemoji/latest/${codepoint}/${size}.webp`,
-      gradient: `https://fonts.gstatic.com/s/e/notoemoji/latest/${codepoint}/${size}.webp`,
-      flat: `https://fonts.gstatic.com/s/e/notoemoji/latest/${codepoint}/${size}.webp`
-    };
-    return baseUrls[style as keyof typeof baseUrls] || baseUrls.color;
-  };
-
-  /**
    * 复制emoji到剪贴板
    */
-  const copyEmoji = async (emoji: EmojiItem) => {
+  const copyEmoji = async (emoji: NotoEmojiData) => {
     try {
-      await navigator.clipboard.writeText(emoji.unicode);
+      let emojiToCopy = emoji.unicode;
+      
+      // 应用肤色修饰符
+      if (generationParams.skinTone && emoji.hasSkinTone) {
+        emojiToCopy = notoEmojiService.applySkinToneModifier(emoji.unicode, generationParams.skinTone);
+      }
+      
+      await navigator.clipboard.writeText(emojiToCopy);
       toast({
         title: "复制成功",
-        description: `已复制 ${emoji.unicode} 到剪贴板`,
+        description: `已复制 ${emojiToCopy} 到剪贴板`,
       });
     } catch (err) {
       toast({
@@ -316,12 +149,16 @@ const EmojiPage: React.FC = () => {
   /**
    * 下载emoji
    */
-  const downloadEmoji = async (emoji: EmojiItem) => {
+  const downloadEmoji = async (emoji: NotoEmojiData) => {
     try {
-      const imageUrl = generateNotoEmojiUrl(emoji.unicode, generationParams.style, generationParams.size);
+      const imageUrl = notoEmojiService.generateEmojiUrl(emoji.codepoint, generationParams.style, generationParams.size);
       const response = await fetch(imageUrl);
-      const blob = await response.blob();
       
+      if (!response.ok) {
+        throw new Error('下载失败');
+      }
+      
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -338,7 +175,7 @@ const EmojiPage: React.FC = () => {
     } catch (err) {
       toast({
         title: "下载失败",
-        description: "请稍后重试",
+        description: "图片资源可能不可用，请稍后重试",
         variant: "destructive",
       });
     }
@@ -347,12 +184,16 @@ const EmojiPage: React.FC = () => {
   /**
    * 切换收藏状态
    */
-  const toggleFavorite = (id: string) => {
-    setEmojis(prev => prev.map(emoji =>
-      emoji.id === id
-        ? { ...emoji, isFavorite: !emoji.isFavorite }
-        : emoji
-    ));
+  const toggleFavorite = (unicode: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(unicode)) {
+        newFavorites.delete(unicode);
+      } else {
+        newFavorites.add(unicode);
+      }
+      return newFavorites;
+    });
   };
 
   /**
@@ -361,11 +202,16 @@ const EmojiPage: React.FC = () => {
   const generateBatchEmojis = async () => {
     setIsGenerating(true);
     try {
+      // 模拟生成过程
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // 批量生成URLs
+      const codepoints = filteredEmojis.map(emoji => emoji.codepoint);
+      const urls = notoEmojiService.batchGenerateUrls(codepoints, generationParams.style, generationParams.size);
       
       toast({
         title: "批量生成完成",
-        description: `已生成 ${filteredEmojis.length} 个Noto风格emoji`,
+        description: `已为 ${urls.length} 个emoji生成 ${NOTO_STYLES[generationParams.style].name} 风格图片`,
       });
     } catch (err) {
       toast({
@@ -381,11 +227,30 @@ const EmojiPage: React.FC = () => {
   /**
    * 应用肤色修饰符
    */
-  const applyModifier = (emoji: EmojiItem, modifier: string) => {
-    if (emoji.hasSkinTone && modifier) {
-      return emoji.unicode + modifier;
+  const applyModifier = (emoji: NotoEmojiData) => {
+    if (generationParams.skinTone && emoji.hasSkinTone) {
+      return notoEmojiService.applySkinToneModifier(emoji.unicode, generationParams.skinTone);
     }
     return emoji.unicode;
+  };
+
+  /**
+   * 导出emoji数据
+   */
+  const exportEmojiData = () => {
+    const dataStr = notoEmojiService.exportData();
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'noto-emoji-data.json';
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    toast({
+      title: "导出成功",
+      description: "Emoji数据已导出为JSON文件",
+    });
   };
 
   return (
@@ -395,14 +260,44 @@ const EmojiPage: React.FC = () => {
         title="Noto Emoji 生成器"
         description="基于Google Noto Emoji项目的专业emoji生成工具"
         actions={
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            <Code className="h-3 w-3 mr-1" />
-            Unicode 15.0
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Code className="h-3 w-3 mr-1" />
+              Unicode 15.0
+            </Badge>
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <Star className="h-3 w-3 mr-1" />
+              Google Noto
+            </Badge>
+          </div>
         }
       />
 
       <div className="container mx-auto px-4 py-8 space-y-6">
+        {/* Emoji统计信息卡片 */}
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{emojis.length}</div>
+                <div className="text-sm text-gray-600">总计Emoji</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">{UNICODE_EMOJI_GROUPS.length}</div>
+                <div className="text-sm text-gray-600">Unicode分类</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{Object.keys(SKIN_TONE_MODIFIERS).length}</div>
+                <div className="text-sm text-gray-600">肤色修饰符</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{Object.keys(NOTO_STYLES).length}</div>
+                <div className="text-sm text-gray-600">可用风格</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4">
@@ -414,13 +309,13 @@ const EmojiPage: React.FC = () => {
               <Wand2 className="w-4 h-4" />
               风格生成器
             </TabsTrigger>
-            <TabsTrigger value="custom" className="flex items-center gap-2">
+            <TabsTrigger value="variants" className="flex items-center gap-2">
               <Palette className="w-4 h-4" />
-              自定义设计
+              变体浏览器
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger value="tools" className="flex items-center gap-2">
               <Package className="w-4 h-4" />
-              批量处理
+              开发工具
             </TabsTrigger>
           </TabsList>
 
@@ -446,21 +341,21 @@ const EmojiPage: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">全部分类</SelectItem>
-                      {UNICODE_CATEGORIES.map(category => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.icon} {category.name} ({category.count})
+                      {UNICODE_EMOJI_GROUPS.map(group => (
+                        <SelectItem key={group} value={group}>
+                          {group} ({categoryStats[group] || 0})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
 
-                  <Select value={selectedStyle} onValueChange={setSelectedStyle}>
+                  <Select value={selectedStyle} onValueChange={(value: keyof typeof NOTO_STYLES) => setSelectedStyle(value)}>
                     <SelectTrigger className="w-40">
                       <SelectValue placeholder="选择风格" />
                     </SelectTrigger>
                     <SelectContent>
-                      {NOTO_STYLES.map(style => (
-                        <SelectItem key={style.id} value={style.id}>
+                      {Object.entries(NOTO_STYLES).map(([key, style]) => (
+                        <SelectItem key={key} value={key}>
                           {style.name}
                         </SelectItem>
                       ))}
@@ -496,18 +391,17 @@ const EmojiPage: React.FC = () => {
               >
                 全部
               </Button>
-              {UNICODE_CATEGORIES.map(category => (
+              {UNICODE_EMOJI_GROUPS.map(group => (
                 <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? 'default' : 'outline'}
+                  key={group}
+                  variant={selectedCategory === group ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => setSelectedCategory(group)}
                   className="flex items-center gap-2"
                 >
-                  <span>{category.icon}</span>
-                  <span className="hidden sm:inline">{category.name}</span>
+                  <span className="hidden sm:inline">{group}</span>
                   <Badge variant="secondary" className="text-xs">
-                    {category.count}
+                    {categoryStats[group] || 0}
                   </Badge>
                 </Button>
               ))}
@@ -521,7 +415,7 @@ const EmojiPage: React.FC = () => {
             }>
               {filteredEmojis.map(emoji => (
                 <Card 
-                  key={emoji.id} 
+                  key={emoji.codepoint} 
                   className={`group cursor-pointer hover:shadow-lg transition-all duration-200 ${
                     viewMode === 'grid' ? 'aspect-square' : 'flex-row'
                   }`}
@@ -531,8 +425,9 @@ const EmojiPage: React.FC = () => {
                       <div 
                         className="text-4xl cursor-pointer hover:scale-110 transition-transform"
                         onClick={() => copyEmoji(emoji)}
+                        title={`${emoji.name} (${emoji.unicode})`}
                       >
-                        {applyModifier(emoji, generationParams.skinTone)}
+                        {applyModifier(emoji)}
                       </div>
                       
                       {/* 收藏按钮 */}
@@ -544,10 +439,10 @@ const EmojiPage: React.FC = () => {
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleFavorite(emoji.id);
+                          toggleFavorite(emoji.unicode);
                         }}
                       >
-                        <Heart className={`w-3 h-3 ${emoji.isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                        <Heart className={`w-3 h-3 ${favorites.has(emoji.unicode) ? 'fill-red-500 text-red-500' : ''}`} />
                       </Button>
                     </div>
                     
@@ -557,7 +452,9 @@ const EmojiPage: React.FC = () => {
                       </div>
                       {viewMode === 'list' && (
                         <div className="text-xs text-gray-500 mt-1">
-                          {emoji.keywords.slice(0, 3).join(', ')}
+                          <span className="mr-2">{emoji.group}</span>
+                          {emoji.hasSkinTone && <Badge variant="outline" className="text-xs mr-1">肤色</Badge>}
+                          {emoji.hasGender && <Badge variant="outline" className="text-xs">性别</Badge>}
                         </div>
                       )}
                     </div>
@@ -615,16 +512,15 @@ const EmojiPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Label className="text-sm font-medium mb-2 block">风格选择</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {NOTO_STYLES.map(style => (
+                    <div className="grid grid-cols-1 gap-2">
+                      {Object.entries(NOTO_STYLES).map(([key, style]) => (
                         <Button
-                          key={style.id}
-                          variant={generationParams.style === style.id ? 'default' : 'outline'}
+                          key={key}
+                          variant={generationParams.style === key ? 'default' : 'outline'}
                           className="h-auto p-4 text-left"
-                          onClick={() => setGenerationParams(prev => ({ ...prev, style: style.id }))}
+                          onClick={() => setGenerationParams(prev => ({ ...prev, style: key as keyof typeof NOTO_STYLES }))}
                         >
                           <div>
-                            <div className="text-xl mb-1">{style.preview}</div>
                             <div className="font-medium text-sm">{style.name}</div>
                             <div className="text-xs text-gray-500">{style.description}</div>
                           </div>
@@ -636,20 +532,25 @@ const EmojiPage: React.FC = () => {
                   <div>
                     <Label className="text-sm font-medium mb-2 block">肤色修饰符</Label>
                     <div className="flex flex-wrap gap-2">
-                      {SKIN_TONES.map(tone => (
+                      <Button
+                        variant={generationParams.skinTone === '' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setGenerationParams(prev => ({ ...prev, skinTone: '' }))}
+                      >
+                        默认
+                      </Button>
+                      {Object.entries(SKIN_TONE_MODIFIERS).map(([key, tone]) => (
                         <Button
-                          key={tone.id}
-                          variant={generationParams.skinTone === tone.id ? 'default' : 'outline'}
+                          key={key}
+                          variant={generationParams.skinTone === key ? 'default' : 'outline'}
                           size="sm"
                           className="flex items-center gap-2"
-                          onClick={() => setGenerationParams(prev => ({ ...prev, skinTone: tone.id }))}
+                          onClick={() => setGenerationParams(prev => ({ ...prev, skinTone: key as keyof typeof SKIN_TONE_MODIFIERS }))}
                         >
-                          {tone.hex && (
-                            <div 
-                              className="w-4 h-4 rounded-full border"
-                              style={{ backgroundColor: tone.hex }}
-                            />
-                          )}
+                          <div 
+                            className="w-4 h-4 rounded-full border"
+                            style={{ backgroundColor: `#${tone.hex}` }}
+                          />
                           <span>{tone.name}</span>
                         </Button>
                       ))}
@@ -731,7 +632,7 @@ const EmojiPage: React.FC = () => {
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4 mr-2" />
-                        生成Noto风格Emoji
+                        批量生成Noto风格Emoji
                       </>
                     )}
                   </Button>
@@ -740,45 +641,85 @@ const EmojiPage: React.FC = () => {
             </Card>
           </TabsContent>
 
-          {/* 自定义设计 */}
-          <TabsContent value="custom" className="space-y-6">
+          {/* 变体浏览器 */}
+          <TabsContent value="variants" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Palette className="w-5 h-5" />
-                  自定义Emoji设计
+                  Emoji变体浏览器
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">🎨</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">自定义设计功能</h3>
-                  <p className="text-gray-500 mb-4">基于Noto Emoji的设计系统，创建您自己的emoji</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">肤色和性别变体浏览</h3>
+                  <p className="text-gray-500 mb-4">浏览emoji的所有肤色和性别变体</p>
                   <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                    即将推出
+                    功能开发中
                   </Badge>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* 批量处理 */}
-          <TabsContent value="batch" className="space-y-6">
+          {/* 开发工具 */}
+          <TabsContent value="tools" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="w-5 h-5" />
-                  批量处理工具
+                  开发者工具
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">📦</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">批量下载和转换</h3>
-                  <p className="text-gray-500 mb-4">批量下载整个分类的emoji，或批量转换格式</p>
-                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                    即将推出
-                  </Badge>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button
+                    variant="outline"
+                    className="h-auto p-4 text-left"
+                    onClick={exportEmojiData}
+                  >
+                    <div>
+                      <div className="font-medium">导出Emoji数据</div>
+                      <div className="text-sm text-gray-500">下载完整的emoji数据集</div>
+                    </div>
+                  </Button>
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="h-auto p-4 text-left">
+                        <div>
+                          <div className="font-medium">API信息</div>
+                          <div className="text-sm text-gray-500">查看API使用方法</div>
+                        </div>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Noto Emoji API</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-medium mb-2">基础用法</h4>
+                          <code className="text-sm bg-gray-100 p-2 rounded block">
+                            {`import { notoEmojiService } from '@/services/notoEmojiService';`}
+                          </code>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">获取emoji数据</h4>
+                          <code className="text-sm bg-gray-100 p-2 rounded block">
+                            {`const emojis = notoEmojiService.getAllEmojis();`}
+                          </code>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">生成图片URL</h4>
+                          <code className="text-sm bg-gray-100 p-2 rounded block">
+                            {`const url = notoEmojiService.generateEmojiUrl('1f600', 'color', 128);`}
+                          </code>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </CardContent>
             </Card>
