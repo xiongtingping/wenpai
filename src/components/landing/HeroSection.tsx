@@ -16,26 +16,6 @@ export function HeroSection() {
           文派全方位赋能新媒体工作者，让您专注于创意，释放生产力。
         </p>
         
-        {/* 功能权限展示 - 移除免费和专业版标识 */}
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">
-            <Zap className="w-3 h-3 mr-1" />
-            AI内容适配器
-          </Badge>
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
-            <Sparkles className="w-3 h-3 mr-1" />
-            创意魔方
-          </Badge>
-          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 px-3 py-1">
-            <Sparkles className="w-3 h-3 mr-1" />
-            全网雷达
-          </Badge>
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1">
-            <Sparkles className="w-3 h-3 mr-1" />
-            我的资料库
-          </Badge>
-        </div>
-        
         <div className="mt-10">
           <Link to="/adapt">
             <Button 
@@ -55,14 +35,14 @@ export function HeroSection() {
 
         {/* Product Demo Visual */}
         <div className="mt-16 max-w-5xl mx-auto p-4 md:p-8 bg-gray-100 rounded-2xl shadow-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            {/* Input - 优化内边距 */}
-            <Card className="p-4 border-0 shadow-md">
-              <h3 className="font-bold text-lg mb-3 text-left flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Input - 优化内边距和居中对齐 */}
+            <Card className="p-6 border-0 shadow-md h-full flex flex-col justify-center">
+              <h3 className="font-bold text-lg mb-4 text-center flex items-center justify-center">
                 <div className="h-6 w-6 bg-gray-200 rounded-full flex items-center justify-center mr-2 text-gray-700 text-xs">原</div>
                 原始文案
               </h3>
-              <div className="text-left text-gray-700 space-y-2 text-sm leading-relaxed">
+              <div className="text-center text-gray-700 space-y-3 text-sm leading-relaxed">
                 <p>今天试了一款XXX身体乳，味道太治愈了！🌿</p>
                 <p>像小时候喝的牛奶糖味道，甜而不腻，闻着就想咬一口！</p>
                 <p>质地是那种冰淇淋慕斯感，推开超水润，吸收嗖嗖的，一点不粘腻。秋冬干皮姐妹们，闭眼冲它！
