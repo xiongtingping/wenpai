@@ -79,11 +79,6 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     level: 2,
     parent: '/',
     category: 'creative-tools',
-    subModules: [
-      { path: '/creative-studio', title: '创意魔方', icon: Sparkles },
-      { path: '/creative-studio', title: '营销日历', icon: Calendar },
-      { path: '/creative-studio', title: '朋友圈模板', icon: MessageCircle },
-    ],
   },
   '/library': {
     path: '/library',
