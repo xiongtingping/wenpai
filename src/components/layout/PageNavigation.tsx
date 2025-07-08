@@ -275,11 +275,31 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
 
   return (
     <div className="border-b bg-white">
-      <div className="container mx-auto px-4 py-3">
-        {/* 顶部导航行：右侧操作 */}
-        <div className="flex items-center justify-end mb-3">
-          {/* 右侧操作区 */}
-          <div className="flex items-center gap-3">
+      <div className="container mx-auto px-4 py-2">
+        {/* 主标题和操作按钮区域 - 统一行对齐 */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 min-h-[60px]">
+          {/* 左侧：页面主标题区域 */}
+          <div className="flex-1">
+            <div className="flex items-start md:items-center gap-2.5 mb-1">
+              {React.createElement(currentConfig.icon, { className: "h-5 w-5 text-blue-600 mt-0.5 md:mt-0" })}
+              <h1 className="text-xl font-bold text-gray-900">
+                {title || currentConfig.title}
+              </h1>
+              {currentConfig.badge && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">
+                  {currentConfig.badge}
+                </Badge>
+              )}
+            </div>
+            {description && (
+              <p className="text-gray-600 text-sm leading-relaxed ml-0 md:ml-8">
+                {description}
+              </p>
+            )}
+          </div>
+
+          {/* 右侧：操作按钮区域 */}
+          <div className="flex items-center gap-3 ml-0 md:ml-6 self-start md:self-center">
             {/* 升级专业版按钮 */}
             <UpgradeButton />
             
@@ -310,29 +330,9 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
           </div>
         </div>
 
-        {/* 页面主标题区域 */}
-        <div className="mb-4">
-          <div className="flex items-center gap-2.5 mb-1">
-            {React.createElement(currentConfig.icon, { className: "h-5 w-5 text-blue-600" })}
-            <h1 className="text-xl font-bold text-gray-900">
-              {title || currentConfig.title}
-            </h1>
-            {currentConfig.badge && (
-              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">
-                {currentConfig.badge}
-              </Badge>
-            )}
-          </div>
-          {description && (
-            <p className="text-gray-600 text-sm leading-relaxed ml-8">
-              {description}
-            </p>
-          )}
-        </div>
-
         {/* 子模块快速切换 */}
         {subModules.length > 0 && (
-          <div className="flex items-center gap-3 flex-wrap pt-3 border-t border-gray-100 mt-4">
+          <div className="flex items-center gap-3 flex-wrap pt-2 border-t border-gray-100 mt-2">
             <span className="text-sm font-medium text-gray-500 mr-2">快速切换:</span>
             {subModules.map((module, index) => {
               const ModuleIcon = module.icon;

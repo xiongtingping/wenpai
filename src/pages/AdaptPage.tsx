@@ -1059,7 +1059,7 @@ export default function AdaptPage() {
         }
       />
 
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-6 px-4">
 
       {/* Usage Counter */}
       <div className="mb-6 flex items-center justify-between">
