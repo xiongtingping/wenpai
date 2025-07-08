@@ -15,7 +15,7 @@ interface UpgradeButtonProps {
   /** 按钮样式 */
   variant?: 'default' | 'outline' | 'ghost';
   /** 按钮大小 */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
   /** 是否显示图标 */
   showIcon?: boolean;
   /** 按钮文字 */
