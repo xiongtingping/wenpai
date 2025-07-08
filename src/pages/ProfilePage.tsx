@@ -337,11 +337,11 @@ export default function ProfilePage() {
         showAdaptButton={false}
       />
 
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <div className="container mx-auto px-4 pt-4 pb-2 max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 左侧：个人信息 */}
-          <div className="space-y-6">
-            <Card>
+          <div className="space-y-6 h-full">
+            <Card className="h-full flex flex-col">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <User className="w-5 h-5" />
@@ -367,7 +367,7 @@ export default function ProfilePage() {
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 flex-1 flex flex-col">
                 {/* 头像和昵称 */}
                 <div className="text-center space-y-3">
                   <AvatarUpload
@@ -378,12 +378,23 @@ export default function ProfilePage() {
                     disabled={false}
                   />
                   
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <NicknameSelector
                       currentNickname={editForm.nickname}
                       onNicknameChange={handleNicknameChange}
                       disabled={false}
                     />
+                    {/* 昵称保存按钮 */}
+                    {editForm.nickname !== user?.nickname && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSaveField('nickname', editForm.nickname)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Save className="w-3 h-3 mr-1" />
+                        保存昵称
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -468,12 +479,15 @@ export default function ProfilePage() {
                     退出登录
                   </Button>
                 </div>
+
+                {/* 底部占位空间 - 确保与右侧卡片对齐 */}
+                <div className="flex-1 min-h-[100px]"></div>
               </CardContent>
             </Card>
           </div>
 
           {/* 右侧：联系方式 */}
-          <div className="space-y-6">
+          <div className="space-y-6 h-full">
             {/* 联系方式验证 */}
             <Card>
               <CardHeader className="pb-4">
