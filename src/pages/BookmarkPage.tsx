@@ -1,6 +1,6 @@
 /**
  * 我的资料库页面
- * 整合网络信息收藏、内容提取、文案管理三大功能的资料库中心
+ * 整合网络收藏夹、智能采集、文案管理三大功能的资料库中心
  */
 
 import React, { useState, useRef } from 'react';
@@ -51,7 +51,9 @@ import {
   Loader2,
   File,
   Link2,
-  FolderOpen
+  FolderOpen,
+  Zap,
+  Brain
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -64,7 +66,7 @@ interface LibraryItem {
   id: string;
   title: string;
   content: string;
-  type: 'bookmark' | 'extract' | 'memo';
+  type: 'collection' | 'extraction' | 'copywriting';
   source?: string;
   sourceType?: 'url' | 'file' | 'manual';
   tags: string[];
@@ -102,7 +104,7 @@ export default function BookmarkPage() {
   const [sortBy, setSortBy] = useState<'time' | 'title' | 'type'>('time');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
-  // 内容提取状态
+  // 智能采集状态
   const [extractMethod, setExtractMethod] = useState<'url' | 'file'>('url');
   const [extractUrl, setExtractUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -111,12 +113,12 @@ export default function BookmarkPage() {
   
   // 对话框状态
   const [isExtractDialogOpen, setIsExtractDialogOpen] = useState(false);
-  const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
-  const [isMemoDialogOpen, setIsMemoDialogOpen] = useState(false);
+  const [isCollectionDialogOpen, setIsCollectionDialogOpen] = useState(false);
+  const [isCopywritingDialogOpen, setIsCopywritingDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<LibraryItem | null>(null);
   
   // 新建项表单
-  const [newBookmark, setNewBookmark] = useState({
+  const [newCollection, setNewCollection] = useState({
     title: '',
     url: '',
     description: '',
@@ -124,7 +126,7 @@ export default function BookmarkPage() {
     category: ''
   });
   
-  const [newMemo, setNewMemo] = useState({
+  const [newCopywriting, setNewCopywriting] = useState({
     title: '',
     content: '',
     tags: '',
@@ -141,7 +143,7 @@ export default function BookmarkPage() {
         id: '1',
         title: '小红书营销策略分析',
         content: '深度分析小红书平台的用户特征、内容偏好和营销机会...',
-        type: 'bookmark',
+        type: 'collection',
         source: 'https://example.com/xiaohongshu-analysis',
         sourceType: 'url',
         tags: ['小红书', '营销策略', '社交媒体'],
@@ -155,7 +157,7 @@ export default function BookmarkPage() {
         id: '2',
         title: '品牌推广文案模板',
         content: '🎯 核心卖点：\n• 高效便捷的操作体验\n• 专业可靠的技术支持\n• 性价比超高的解决方案...',
-        type: 'memo',
+        type: 'copywriting',
         tags: ['品牌推广', '文案模板', '营销'],
         isFavorite: true,
         isUsed: true,
@@ -168,7 +170,7 @@ export default function BookmarkPage() {
         id: '3',
         title: '2024年内容营销趋势报告',
         content: '# 2024年内容营销趋势报告\n\n## 主要趋势\n1. AI辅助内容创作\n2. 短视频持续火热\n3. 互动式内容增长...',
-        type: 'extract',
+        type: 'extraction',
         source: '2024-content-marketing-report.pdf',
         sourceType: 'file',
         tags: ['内容营销', '趋势报告', '2024'],
@@ -255,7 +257,7 @@ export default function BookmarkPage() {
   };
 
   /**
-   * 内容提取功能
+   * 智能采集功能
    */
   const extractContent = async () => {
     if (extractMethod === 'url' && !extractUrl.trim()) {
@@ -283,15 +285,15 @@ export default function BookmarkPage() {
       
       const newItem: LibraryItem = {
         id: Date.now().toString(),
-        title: extractMethod === 'url' ? `网页内容：${extractUrl}` : `文件内容：${selectedFile?.name}`,
+        title: extractMethod === 'url' ? `智能采集：${extractUrl}` : `智能采集：${selectedFile?.name}`,
         content: generateMockExtractedContent(extractMethod === 'url' ? extractUrl : selectedFile?.name || ''),
-        type: 'extract',
+        type: 'extraction',
         source: extractMethod === 'url' ? extractUrl : selectedFile?.name,
         sourceType: extractMethod,
-        tags: ['内容提取', extractMethod === 'url' ? '网页' : '文档'],
+        tags: ['智能采集', extractMethod === 'url' ? '网页' : '文档'],
         isFavorite: false,
         isUsed: false,
-        category: '提取内容',
+        category: '采集内容',
         metadata: {
           wordCount: 350,
           charCount: 1200,
@@ -307,12 +309,12 @@ export default function BookmarkPage() {
       setSelectedFile(null);
       
       toast({
-        title: "内容提取成功",
+        title: "智能采集成功",
         description: "内容已添加到资料库",
       });
     } catch {
       toast({
-        title: "提取失败",
+        title: "采集失败",
         description: "请稍后重试",
         variant: "destructive"
       });
@@ -325,11 +327,11 @@ export default function BookmarkPage() {
    * 生成模拟提取内容
    */
   const generateMockExtractedContent = (source: string) => {
-    return `# 提取内容：${source}
+    return `# 智能采集：${source}
 
 ## 主要内容
 
-这是从 ${source} 提取的内容。
+这是从 ${source} 智能采集的内容。
 
 ### 核心要点
 - **关键信息1**：详细阐述了重要概念和基本原理
@@ -350,14 +352,14 @@ export default function BookmarkPage() {
 
 ---
 
-*提取时间：${new Date().toLocaleString('zh-CN')}*`;
+*采集时间：${new Date().toLocaleString('zh-CN')}*`;
   };
 
   /**
-   * 创建书签
+   * 创建网络收藏
    */
-  const createBookmark = () => {
-    if (!newBookmark.title.trim() || !newBookmark.url.trim()) {
+  const createCollection = () => {
+    if (!newCollection.title.trim() || !newCollection.url.trim()) {
       toast({
         title: "请填写完整信息",
         description: "标题和URL不能为空",
@@ -366,38 +368,38 @@ export default function BookmarkPage() {
       return;
     }
 
-    const tags = newBookmark.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const tags = newCollection.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
     
-    const bookmark: LibraryItem = {
+    const collection: LibraryItem = {
       id: Date.now().toString(),
-      title: newBookmark.title.trim(),
-      content: newBookmark.description.trim() || '暂无描述',
-      type: 'bookmark',
-      source: newBookmark.url.trim(),
+      title: newCollection.title.trim(),
+      content: newCollection.description.trim() || '暂无描述',
+      type: 'collection',
+      source: newCollection.url.trim(),
       sourceType: 'url',
       tags,
       isFavorite: false,
       isUsed: false,
-      category: newBookmark.category || '未分类',
+      category: newCollection.category || '未分类',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    setLibraryItems(prev => [bookmark, ...prev]);
-    setNewBookmark({ title: '', url: '', description: '', tags: '', category: '' });
-    setIsBookmarkDialogOpen(false);
+    setLibraryItems(prev => [collection, ...prev]);
+    setNewCollection({ title: '', url: '', description: '', tags: '', category: '' });
+    setIsCollectionDialogOpen(false);
     
     toast({
-      title: "书签创建成功",
-      description: "新书签已保存到资料库",
+      title: "收藏成功",
+      description: "新收藏已保存到资料库",
     });
   };
 
   /**
    * 创建文案
    */
-  const createMemo = () => {
-    if (!newMemo.title.trim() || !newMemo.content.trim()) {
+  const createCopywriting = () => {
+    if (!newCopywriting.title.trim() || !newCopywriting.content.trim()) {
       toast({
         title: "请填写完整信息",
         description: "标题和内容不能为空",
@@ -406,29 +408,29 @@ export default function BookmarkPage() {
       return;
     }
 
-    const tags = newMemo.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const tags = newCopywriting.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
     
-    const memo: LibraryItem = {
+    const copywriting: LibraryItem = {
       id: Date.now().toString(),
-      title: newMemo.title.trim(),
-      content: newMemo.content.trim(),
-      type: 'memo',
+      title: newCopywriting.title.trim(),
+      content: newCopywriting.content.trim(),
+      type: 'copywriting',
       tags,
       isFavorite: false,
       isUsed: false,
-      category: newMemo.category || '未分类',
-      platform: newMemo.platform || undefined,
+      category: newCopywriting.category || '未分类',
+      platform: newCopywriting.platform || undefined,
       metadata: {
-        wordCount: newMemo.content.trim().split(/\s+/).length,
-        charCount: newMemo.content.trim().length
+        wordCount: newCopywriting.content.trim().split(/\s+/).length,
+        charCount: newCopywriting.content.trim().length
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    setLibraryItems(prev => [memo, ...prev]);
-    setNewMemo({ title: '', content: '', tags: '', category: '', platform: '' });
-    setIsMemoDialogOpen(false);
+    setLibraryItems(prev => [copywriting, ...prev]);
+    setNewCopywriting({ title: '', content: '', tags: '', category: '', platform: '' });
+    setIsCopywritingDialogOpen(false);
     
     toast({
       title: "文案创建成功",
@@ -503,12 +505,12 @@ export default function BookmarkPage() {
    */
   const getTypeInfo = (type: string) => {
     switch (type) {
-      case 'bookmark':
-        return { icon: <Bookmark className="w-4 h-4" />, name: '书签' };
-      case 'extract':
-        return { icon: <FileText className="w-4 h-4" />, name: '提取' };
-      case 'memo':
-        return { icon: <Edit className="w-4 h-4" />, name: '文案' };
+      case 'collection':
+        return { icon: <Bookmark className="w-4 h-4" />, name: '收藏' };
+      case 'extraction':
+        return { icon: <Zap className="w-4 h-4" />, name: '采集' };
+      case 'copywriting':
+        return { icon: <Brain className="w-4 h-4" />, name: '文案' };
       default:
         return { icon: <FileText className="w-4 h-4" />, name: '其他' };
     }
@@ -521,19 +523,19 @@ export default function BookmarkPage() {
       {/* 页面导航 */}
       <PageNavigation
         title="我的资料库"
-        description="统一管理您的网络收藏、内容提取和文案创作"
+        description="统一管理网络收藏夹、智能采集和文案管理"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setIsBookmarkDialogOpen(true)}>
+            <Button variant="outline" size="sm" onClick={() => setIsCollectionDialogOpen(true)}>
               <Bookmark className="w-4 h-4 mr-2" />
-              添加书签
+              添加收藏
             </Button>
             <Button variant="outline" size="sm" onClick={() => setIsExtractDialogOpen(true)}>
-              <FileText className="w-4 h-4 mr-2" />
-              内容提取
+              <Zap className="w-4 h-4 mr-2" />
+              内容采集
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsMemoDialogOpen(true)}>
-              <Edit className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => setIsCopywritingDialogOpen(true)}>
+              <Brain className="w-4 h-4 mr-2" />
               创建文案
             </Button>
           </div>
@@ -549,16 +551,16 @@ export default function BookmarkPage() {
                 <FolderOpen className="w-4 h-4" />
                 全部
               </TabsTrigger>
-              <TabsTrigger value="bookmark" className="flex items-center gap-2">
+              <TabsTrigger value="collection" className="flex items-center gap-2">
                 <Bookmark className="w-4 h-4" />
-                书签
+                收藏
               </TabsTrigger>
-              <TabsTrigger value="extract" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                提取
+              <TabsTrigger value="extraction" className="flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                采集
               </TabsTrigger>
-              <TabsTrigger value="memo" className="flex items-center gap-2">
-                <Edit className="w-4 h-4" />
+              <TabsTrigger value="copywriting" className="flex items-center gap-2">
+                <Brain className="w-4 h-4" />
                 文案
               </TabsTrigger>
             </TabsList>
@@ -760,16 +762,16 @@ export default function BookmarkPage() {
                   </p>
                   {!searchQuery && selectedTags.length === 0 && (
                     <div className="flex gap-2 justify-center">
-                      <Button variant="outline" onClick={() => setIsBookmarkDialogOpen(true)}>
+                      <Button variant="outline" onClick={() => setIsCollectionDialogOpen(true)}>
                         <Bookmark className="w-4 h-4 mr-2" />
-                        添加书签
+                        添加收藏
                       </Button>
                       <Button variant="outline" onClick={() => setIsExtractDialogOpen(true)}>
-                        <FileText className="w-4 h-4 mr-2" />
-                        内容提取
+                        <Zap className="w-4 h-4 mr-2" />
+                        内容采集
                       </Button>
-                      <Button onClick={() => setIsMemoDialogOpen(true)}>
-                        <Edit className="w-4 h-4 mr-2" />
+                      <Button onClick={() => setIsCopywritingDialogOpen(true)}>
+                        <Brain className="w-4 h-4 mr-2" />
                         创建文案
                       </Button>
                     </div>
@@ -781,16 +783,16 @@ export default function BookmarkPage() {
         </Tabs>
 
         {/* 对话框组件 */}
-        <Dialog open={isBookmarkDialogOpen} onOpenChange={setIsBookmarkDialogOpen}>
+        <Dialog open={isCollectionDialogOpen} onOpenChange={setIsCollectionDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Bookmark className="w-4 h-4 mr-2" />
-              添加书签
+              添加收藏
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>添加网络书签</DialogTitle>
+              <DialogTitle>添加网络收藏</DialogTitle>
               <DialogDescription>
                 保存有价值的网页链接到资料库
               </DialogDescription>
@@ -799,24 +801,24 @@ export default function BookmarkPage() {
               <div>
                 <Label>标题</Label>
                 <Input
-                  value={newBookmark.title}
-                  onChange={(e) => setNewBookmark(prev => ({ ...prev, title: e.target.value }))}
+                  value={newCollection.title}
+                  onChange={(e) => setNewCollection(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="输入网页标题"
                 />
               </div>
               <div>
                 <Label>URL</Label>
                 <Input
-                  value={newBookmark.url}
-                  onChange={(e) => setNewBookmark(prev => ({ ...prev, url: e.target.value }))}
+                  value={newCollection.url}
+                  onChange={(e) => setNewCollection(prev => ({ ...prev, url: e.target.value }))}
                   placeholder="https://example.com"
                 />
               </div>
               <div>
                 <Label>描述</Label>
                 <Textarea
-                  value={newBookmark.description}
-                  onChange={(e) => setNewBookmark(prev => ({ ...prev, description: e.target.value }))}
+                  value={newCollection.description}
+                  onChange={(e) => setNewCollection(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="简短描述这个网页的内容"
                   rows={3}
                 />
@@ -824,25 +826,25 @@ export default function BookmarkPage() {
               <div>
                 <Label>标签（用逗号分隔）</Label>
                 <Input
-                  value={newBookmark.tags}
-                  onChange={(e) => setNewBookmark(prev => ({ ...prev, tags: e.target.value }))}
+                  value={newCollection.tags}
+                  onChange={(e) => setNewCollection(prev => ({ ...prev, tags: e.target.value }))}
                   placeholder="营销,策略,分析"
                 />
               </div>
               <div>
                 <Label>分类</Label>
                 <Input
-                  value={newBookmark.category}
-                  onChange={(e) => setNewBookmark(prev => ({ ...prev, category: e.target.value }))}
+                  value={newCollection.category}
+                  onChange={(e) => setNewCollection(prev => ({ ...prev, category: e.target.value }))}
                   placeholder="营销资料"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsBookmarkDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsCollectionDialogOpen(false)}>
                 取消
               </Button>
-              <Button onClick={createBookmark}>
+              <Button onClick={createCollection}>
                 <Save className="w-4 h-4 mr-2" />
                 保存
               </Button>
@@ -853,20 +855,20 @@ export default function BookmarkPage() {
         <Dialog open={isExtractDialogOpen} onOpenChange={setIsExtractDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
-              <FileText className="w-4 h-4 mr-2" />
-              内容提取
+              <Zap className="w-4 h-4 mr-2" />
+              内容采集
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>内容提取</DialogTitle>
+              <DialogTitle>内容采集</DialogTitle>
               <DialogDescription>
                 从网页或文件中提取内容到资料库
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>提取方式</Label>
+                <Label>采集方式</Label>
                 <Select value={extractMethod} onValueChange={(value: 'url' | 'file') => setExtractMethod(value)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -940,12 +942,12 @@ export default function BookmarkPage() {
                 {isExtracting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    提取中...
+                    采集中...
                   </>
                 ) : (
                   <>
                     <Search className="w-4 h-4 mr-2" />
-                    开始提取
+                    开始采集
                   </>
                 )}
               </Button>
@@ -953,10 +955,10 @@ export default function BookmarkPage() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isMemoDialogOpen} onOpenChange={setIsMemoDialogOpen}>
+        <Dialog open={isCopywritingDialogOpen} onOpenChange={setIsCopywritingDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
-              <Edit className="w-4 h-4 mr-2" />
+              <Brain className="w-4 h-4 mr-2" />
               创建文案
             </Button>
           </DialogTrigger>
@@ -971,16 +973,16 @@ export default function BookmarkPage() {
               <div>
                 <Label>标题</Label>
                 <Input
-                  value={newMemo.title}
-                  onChange={(e) => setNewMemo(prev => ({ ...prev, title: e.target.value }))}
+                  value={newCopywriting.title}
+                  onChange={(e) => setNewCopywriting(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="输入文案标题"
                 />
               </div>
               <div>
                 <Label>内容</Label>
                 <Textarea
-                  value={newMemo.content}
-                  onChange={(e) => setNewMemo(prev => ({ ...prev, content: e.target.value }))}
+                  value={newCopywriting.content}
+                  onChange={(e) => setNewCopywriting(prev => ({ ...prev, content: e.target.value }))}
                   placeholder="输入文案内容，支持Markdown格式"
                   rows={8}
                 />
@@ -989,16 +991,16 @@ export default function BookmarkPage() {
                 <div>
                   <Label>标签（用逗号分隔）</Label>
                   <Input
-                    value={newMemo.tags}
-                    onChange={(e) => setNewMemo(prev => ({ ...prev, tags: e.target.value }))}
+                    value={newCopywriting.tags}
+                    onChange={(e) => setNewCopywriting(prev => ({ ...prev, tags: e.target.value }))}
                     placeholder="营销,文案,推广"
                   />
                 </div>
                 <div>
                   <Label>分类</Label>
                   <Input
-                    value={newMemo.category}
-                    onChange={(e) => setNewMemo(prev => ({ ...prev, category: e.target.value }))}
+                    value={newCopywriting.category}
+                    onChange={(e) => setNewCopywriting(prev => ({ ...prev, category: e.target.value }))}
                     placeholder="营销文案"
                   />
                 </div>
@@ -1006,17 +1008,17 @@ export default function BookmarkPage() {
               <div>
                 <Label>平台</Label>
                 <Input
-                  value={newMemo.platform}
-                  onChange={(e) => setNewMemo(prev => ({ ...prev, platform: e.target.value }))}
+                  value={newCopywriting.platform}
+                  onChange={(e) => setNewCopywriting(prev => ({ ...prev, platform: e.target.value }))}
                   placeholder="微信公众号"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsMemoDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsCopywritingDialogOpen(false)}>
                 取消
               </Button>
-              <Button onClick={createMemo}>
+              <Button onClick={createCopywriting}>
                 <Save className="w-4 h-4 mr-2" />
                 保存
               </Button>

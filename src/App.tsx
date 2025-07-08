@@ -27,7 +27,6 @@ import Callback from '@/pages/Callback';
 import AuthTestPage from '@/pages/AuthTestPage';
 import UserStatusPage from '@/pages/UserStatusPage';
 import BookmarkPage from '@/pages/BookmarkPage';
-import EmojiPage from '@/pages/EmojiPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import TestNewFeaturesPage from '@/pages/TestNewFeaturesPage';
 import ContentExtractorPage from '@/pages/ContentExtractorPage';
@@ -123,18 +122,6 @@ const AppContent: React.FC = () => {
             <ToolLayout>
               <BookmarkPage />
             </ToolLayout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/emoji-generator" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <EmojiPage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/emojis" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <EmojiPage />
           </ProtectedRoute>
         } />
         
