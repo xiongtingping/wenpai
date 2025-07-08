@@ -251,14 +251,29 @@ export function CreativeCube() {
       }
     });
     
+    // 确保必选维度都有值
+    const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
+    requiredDimensions.forEach(dimId => {
+      if (!newSelection[dimId] || newSelection[dimId].trim() === '') {
+        const dimension = dimensions.find(d => d.id === dimId);
+        if (dimension && dimension.defaultItems.length > 0) {
+          const randomIndex = Math.floor(Math.random() * dimension.defaultItems.length);
+          newSelection[dimId] = dimension.defaultItems[randomIndex];
+        }
+      }
+    });
+    
     setSelectedItems(newSelection);
     
     toast({
       title: "智能随机生成完成",
       description: `已为${dimensions.length - pinnedDimensions.size}个维度生成随机组合`,
     });
-    // 立即用最新的newSelection生成创意，避免异步setSelectedItems导致校验失效
-    generateIdea(newSelection);
+    
+    // 使用 setTimeout 确保状态更新后再生成，避免检查失效
+    setTimeout(() => {
+      generateIdea(newSelection);
+    }, 100);
   };
 
   /**
@@ -515,7 +530,7 @@ ${highlights}`;
         '旅游途中': `🎯 旅游途中省钱攻略，预算超支不再怕！\n🌍 本地推荐，让旅行更深度！\n💰 实时预算提醒，让旅行更省心！`
       },
       '健康': {
-        '健身': `💪 健身效率提升，时间不够也能练出好身材！\n🏃‍♀️ 科学训练计划，让运动更高效！\n⏰ 时间管理，让健身更轻松！`,
+        '健身': `💪 健身效率提升，时间不够也能练出好身材！\n��‍♀️ 科学训练计划，让运动更高效！\n⏰ 时间管理，让健身更轻松！`,
         '碎片时间': `⏰ 碎片时间养生，随时随地都能健康！\n🌿 简单易坚持，让养生更轻松！\n💪 科学指导，让健康更有效！`
       }
     };
@@ -950,40 +965,65 @@ ${generateStandardCallToAction()}
   const generateIdea = async (customSelectedItems?: Record<string, string>) => {
     const useItems = customSelectedItems || selectedItems;
     const { target_audience, use_case, pain_point, content_format, tone_style, core_value, emotional_need, industry, platform_or_trend } = useItems;
-    // 只检查必选维度
+    
+    // 检查必选维度 - 修复检查逻辑
     const requiredCheck = (() => {
       const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
-      const missingDimensions = requiredDimensions.filter(dim => !useItems[dim]);
+      const missingDimensions = requiredDimensions.filter(dim => {
+        const value = useItems[dim];
+        return !value || value.trim() === '';
+      });
       return {
         isValid: missingDimensions.length === 0,
         missing: missingDimensions
       };
     })();
+    
     if (!requiredCheck.isValid) {
       const missingNames = requiredCheck.missing.map(dim => {
         const dimension = dimensions.find(d => d.id === dim);
         return dimension?.name || dim;
       });
       toast({
-        title: "维度不完整",
-        description: `请确保选择了所有必要维度：${missingNames.join('、')}`,
+        title: "关键维度缺失",
+        description: `请确保已选择【${missingNames.join('】【')}】后再生成内容`,
         variant: "destructive"
       });
       return;
     }
+    
     setIsGenerating(true);
     try {
       // 构建AI提示词
       const prompt = buildPrompt();
+      
       // 确定内容类型
       const format = content_format || '图文';
       const isVideo = format.includes('视频') || format.includes('短视频');
       const contentType = isVideo ? 'video' : 'text';
+      
       // 调用AI服务生成内容
       const aiResponse = await callAIForCreativeContent(prompt, contentType);
+      
       if (aiResponse.success && aiResponse.content) {
         setCurrentContent(aiResponse.content);
         setCurrentContentType(contentType);
+        
+        // 保存到历史记录
+        const newResult: CreativeResult = {
+          id: Date.now().toString(),
+          combination: useItems,
+          generatedContent: aiResponse.content,
+          contentType,
+          timestamp: new Date().toISOString(),
+          tags: getIndustryTags()
+        };
+        setGeneratedIdeas(prev => [newResult, ...prev.slice(0, 9)]); // 保留最近10条
+        
+        toast({
+          title: "生成成功",
+          description: `已生成${contentType === 'video' ? '短视频脚本' : '图文内容'}`,
+        });
       } else {
         toast({
           title: "生成失败",
@@ -1014,58 +1054,38 @@ ${generateStandardCallToAction()}
       
       const systemPrompt = `You are an expert social media copywriter and brand storyteller.
 
-Your job is to generate emotionally resonant and platform-ready marketing content based on **user-selected dimensions**, using natural human language and realistic storytelling.
+Your job is to generate emotionally resonant and platform-ready marketing content based on user-selected dimensions, using natural human language and realistic storytelling.
 
 ---
 
-🎯 Required Dimensions (must be selected):
-- Target audience（目标客群）
-- Usage scenario（使用场景）
-- Pain point（用户痛点）
-- Industry（行业）
+🧭 Writing Rules:
 
-✅ Optional Dimensions (include only if provided):
-- Core value（核心价值）
-- Emotional need（情感诉求）
-- Content format（内容形式）
-- Tone/style（表达风格）
-- Platform/trend（平台/趋势）
+1. You MUST fully integrate all provided dimensions into a **cohesive, vivid, and emotionally realistic** storyline — **no keywords or labels**.
 
----
+2. Only use dimensions that are explicitly provided. Do not invent or assume any missing information.
 
-🧭 Writing Rules (strict):
-
-1. You MUST fully integrate all selected dimensions into a **cohesive, vivid, and emotionally realistic** storyline — **no keywords or labels**.
-
-2. **Do not mention or fabricate** any unselected dimension. If a dimension is not selected, omit it completely — no filler, no placeholders.
-
-3. 🖼 If the selected format is "graphic copy" (图文):
+3. 🖼 For graphic content (图文):
    - Start with a strong emotional hook.
    - Present a realistic pain point within the selected scenario.
    - Transition naturally into a solution or product tied to the industry.
    - Close with relatable interaction prompts (e.g. "你也有这种烦恼吗？快来评论！").
 
-4. 🎥 If the selected format is "short video":
+4. 🎥 For video content:
    - Output a structured script with: Scene description, camera movement, dialogue/subtitle, visual cues, BGM suggestion, emotional tone.
-   - Avoid stiff storyboarding; use real-life pacing and emotion fit for TikTok/Xiaohongshu.
+   - Use real-life pacing and emotion fit for TikTok/Xiaohongshu.
 
 5. 💬 Language must:
-   - Match the tone and voice of the selected audience (e.g., 宝妈、大学生、银发族).
+   - Match the tone and voice of the selected audience.
    - Avoid marketing clichés like "提升用户体验" or "打造差异化".
-   - Use conversational, emoji-rich, platform-native expressions (where appropriate).
+   - Use conversational, emoji-rich, platform-native expressions.
 
 ---
 
 🚫 Never:
-- Invent or assume dimensions not selected.
+- Invent or assume dimensions not provided.
 - Output generic frameworks, bullet points, or headings.
 - Repeat input words mechanically without meaningful transformation.
-- Generate placeholder content like "undefined" or "核心价值：" without context.
-
----
-
-⚠️ If any **required dimension** is missing (目标客群、使用场景、痛点、行业), return:
-> ❌ "关键维度缺失：请确保已选择【目标客群】【使用场景】【用户痛点】【行业】后再生成内容。"
+- Generate placeholder content.
 
 🎯 Goal:
 Your output must feel like it was written by a real KOC or content strategist — creative, emotionally engaging, and 100% based on the provided input.`;
