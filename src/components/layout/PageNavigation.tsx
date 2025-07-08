@@ -114,6 +114,14 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     parent: '/library',
     category: 'content-tools',
   },
+  '/emoji-generator': {
+    path: '/emoji-generator',
+    title: 'Emoji生成器',
+    icon: Smile,
+    level: 2,
+    parent: '/',
+    category: 'creative-tools',
+  },
   '/emojis': {
     path: '/emojis',
     title: 'Emoji生成器',
@@ -121,6 +129,14 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     level: 2,
     parent: '/',
     category: 'creative-tools',
+  },
+  '/share-manager': {
+    path: '/share-manager',
+    title: '一键转发',
+    icon: Upload,
+    level: 2,
+    parent: '/',
+    category: 'distribution-tools',
   },
   '/wechat-templates': {
     path: '/wechat-templates',
