@@ -1,6 +1,6 @@
 /**
  * 我的资料库页面
- * 整合网络收藏夹、智能采集、文案管理三大功能的资料库中心
+ * 整合网络收藏夹、智能采集、文案管理、内容提取四大功能的统一资料库中心
  */
 
 import React, { useState, useRef } from 'react';
@@ -66,7 +66,7 @@ interface LibraryItem {
   id: string;
   title: string;
   content: string;
-  type: 'collection' | 'extraction' | 'copywriting';
+  type: 'collection' | 'extraction' | 'copywriting' | 'memo';
   source?: string;
   sourceType?: 'url' | 'file' | 'manual';
   tags: string[];

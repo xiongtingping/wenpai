@@ -364,4 +364,14 @@ export function validatePlatformContent(platform: string, content: string): { va
   }
 
   return { valid: true };
-} 
+}
+
+// 导出平台数组用于UI组件
+export const platforms = Object.keys(platformNameMap).map(id => ({
+  id,
+  name: platformNameMap[id as keyof typeof platformNameMap],
+  icon: platformIcons[id as keyof typeof platformIcons],
+  description: `发布到 ${platformNameMap[id as keyof typeof platformNameMap]}`,
+  maxLength: platformSpecs[id as keyof typeof platformSpecs]?.maxLength || 1000,
+  features: platformSpecs[id as keyof typeof platformSpecs]?.features || []
+})); 

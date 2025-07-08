@@ -32,6 +32,7 @@ import TestNewFeaturesPage from '@/pages/TestNewFeaturesPage';
 import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
+import EmojiPage from '@/pages/EmojiPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 
 /**
@@ -159,6 +160,22 @@ const AppContent: React.FC = () => {
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
               <CreativeStudioPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/emoji-generator" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <EmojiPage />
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/emojis" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <EmojiPage />
             </ToolLayout>
           </ProtectedRoute>
         } />
