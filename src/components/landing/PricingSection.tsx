@@ -39,6 +39,55 @@ export function PricingSection() {
     }
   }
 
+  // 判断功能是否为当前套餐专属
+  function getFeatureStatus(feature: string, planTier: string) {
+    // 这里可根据feature内容和planTier灵活判断
+    if (feature.includes('创意魔方') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
+    if (feature.includes('全网雷达') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
+    if (feature.includes('品牌库') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
+    if (feature.includes('高级模型') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
+    if (feature.includes('最新模型') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
+    // 其他功能默认可用
+    return { disabled: false, label: '' };
+  }
+
+  // 渲染features时去重次数文案
+  function renderFeatures(features: string[], plan: any) {
+    const seen = new Set();
+    return features.filter(f => {
+      // 只保留第一个出现的“xx次/月”
+      if (/\d+次\/月/.test(f)) {
+        if (seen.has('usage')) return false;
+        seen.add('usage');
+        return true;
+      }
+      return true;
+    }).map((feature, index) => {
+      const { disabled, label } = getFeatureStatus(feature, plan.tier);
+      return (
+        <li key={index} className={`flex items-start space-x-3 ${disabled ? 'opacity-50 pointer-events-none select-none' : ''}`}>
+          <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-purple-500' : 'text-green-500'}`} />
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{feature}</span>
+            {feature.includes('次/月') && (
+              <Badge variant="outline" className={`ml-2 text-xs ${plan.recommended ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+                {plan.limits.adaptUsageLimit > 0 ? `${plan.limits.adaptUsageLimit}次/月` : '不限量'}
+              </Badge>
+            )}
+            {feature.includes('tokens') && (
+              <Badge variant="outline" className={`ml-2 text-xs ${plan.recommended ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
+                {plan.limits.tokenLimit.toLocaleString()} tokens
+              </Badge>
+            )}
+            {disabled && label && (
+              <Badge variant="outline" className="ml-2 text-xs bg-gray-100 text-gray-500 border-gray-300">{label}</Badge>
+            )}
+          </div>
+        </li>
+      );
+    });
+  }
+
   return (
     <section id="pricing" className="py-20 opacity-0 animate-fadeIn">
       <div className="container mx-auto px-6">
@@ -127,34 +176,7 @@ export function PricingSection() {
                 </div>
                 
                 <ul className="mt-8 space-y-4 text-gray-600 flex-grow">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <Check className={`w-5 h-5 mt-0.5 ${
-                        isRecommended ? 'text-purple-500' : 'text-green-500'
-                      }`} />
-                      <div>
-                        <span className="font-medium">{feature}</span>
-                        {feature.includes('次/月') && (
-                          <Badge variant="outline" className={`ml-2 text-xs ${
-                            isRecommended 
-                              ? 'bg-purple-50 text-purple-700 border-purple-200' 
-                              : 'bg-blue-50 text-blue-700 border-blue-200'
-                          }`}>
-                            {plan.limits.adaptUsageLimit > 0 ? `${plan.limits.adaptUsageLimit}次/月` : '不限量'}
-                          </Badge>
-                        )}
-                        {feature.includes('tokens') && (
-                          <Badge variant="outline" className={`ml-2 text-xs ${
-                            isRecommended 
-                              ? 'bg-purple-50 text-purple-700 border-purple-200' 
-                              : 'bg-green-50 text-green-700 border-green-200'
-                          }`}>
-                            {plan.limits.tokenLimit.toLocaleString()} tokens
-                          </Badge>
-                        )}
-                      </div>
-                    </li>
-                  ))}
+                  {renderFeatures(plan.features, plan)}
                 </ul>
                 
                 <Button 
