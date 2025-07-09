@@ -8,9 +8,9 @@ import * as XLSX from 'xlsx';
 // 图片 OCR
 import Tesseract from 'tesseract.js';
 
-// 配置 PDF.js worker - 禁用worker，使用主线程处理
+// 配置 PDF.js worker - 使用主线程处理，避免CORS问题
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = null as any;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 }
 
 /**
