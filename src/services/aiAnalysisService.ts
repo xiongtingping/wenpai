@@ -8,8 +8,8 @@ import * as XLSX from 'xlsx';
 // 图片 OCR
 import Tesseract from 'tesseract.js';
 
-// 配置 PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// 配置 PDF.js worker - 使用空字符串避免CORS问题，PDF.js会自动使用主线程
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 /**
  * AI 分析服务
