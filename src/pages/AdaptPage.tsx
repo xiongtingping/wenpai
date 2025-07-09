@@ -3,7 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings
 } from "lucide-react";
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,45 @@ import {
 } from "@/api/contentAdapter";
 import { useUserStore } from "@/store/userStore";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
+import { 
+  publishContent, 
+  batchPublishContent, 
+  checkPlatformAuth,
+  type PublishContent,
+  type PublishResult
+} from '@/api/platformApiService';
+
+/**
+ * 主流平台内容发布入口URL映射
+ * 用于一键转发跳转
+ */
+const platformUrls: Record<string, string> = {
+  weibo: 'https://weibo.com/newpost',
+  xiaohongshu: 'https://creator.xiaohongshu.com/publish',
+  zhihu: 'https://zhuanlan.zhihu.com/write',
+  bilibili: 'https://member.bilibili.com/platform/upload/text',
+  douyin: 'https://creator.douyin.com/creator-micro/content/upload',
+  toutiao: 'https://mp.toutiao.com/profile_v4/graphic/publish',
+  baijiahao: 'https://baijiahao.baidu.com/builder/rc/edit',
+  kuaishou: 'https://cp.kuaishou.com/article/publish',
+  wechat: 'https://mp.weixin.qq.com/',
+  facebook: 'https://www.facebook.com/',
+  twitter: 'https://twitter.com/compose/tweet',
+  linkedin: 'https://www.linkedin.com/feed/',
+  v2ex: 'https://www.v2ex.com/new',
+  github: 'https://github.com/new',
+  sspai: 'https://sspai.com/write',
+  juejin: 'https://juejin.cn/editor/drafts/new',
+  csdn: 'https://mp.csdn.net/mp_blog/creation/editor',
+  hellogithub: 'https://hellogithub.com/',
+  ithome: 'https://my.ithome.com/#/write',
+  ngabbs: 'https://bbs.nga.cn/thread.php?fid=-7',
+  weatheralarm: 'https://www.nmc.cn/',
+  earthquake: 'https://www.ceic.ac.cn/',
+  history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704'
+};
 
 // Helper function to get platform icon
 function getPlatformIcon(platformId: string): JSX.Element {
@@ -121,18 +160,6 @@ function getPlatformIcon(platformId: string): JSX.Element {
       );
   }
 }
-
-// Platform URL mapping for external links
-const platformUrls: Record<string, string> = {
-  'xiaohongshu': 'https://www.xiaohongshu.com',
-  'wechat': 'https://mp.weixin.qq.com',
-  'zhihu': 'https://www.zhihu.com',
-  'weibo': 'https://weibo.com',
-  'douyin': 'https://www.douyin.com',
-  'bilibili': 'https://www.bilibili.com',
-  'video': 'https://channels.weixin.qq.com',
-  'twitter': 'https://twitter.com'
-};
 
 // Helper functions for character count ranges based on platform requirements
 function getCharCountMin(platformId: string): number {
@@ -251,6 +278,17 @@ function CheckboxCard({
     </Card>
   );
 }
+
+/**
+ * 转发历史记录项类型
+ */
+type ShareHistoryItem = {
+  id: string;
+  platformId: string;
+  platformName: string;
+  content: string;
+  time: string;
+};
 
 export default function AdaptPage() {
   const { toast } = useToast();
@@ -717,10 +755,14 @@ export default function AdaptPage() {
     });
   };
 
-  // Share content
+  // 弹窗状态
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [pendingPublish, setPendingPublish] = useState<{ platformId: string; content: string } | null>(null);
 
-
-  // Publish to platform
+  /**
+   * 打开一键转发确认弹窗
+   * @param platformId 平台ID
+   */
   const handlePublish = (platformId: string) => {
     const result = results.find(r => r.platformId === platformId);
     if (!result || !result.content) {
@@ -731,23 +773,210 @@ export default function AdaptPage() {
       });
       return;
     }
+    setPendingPublish({ platformId, content: result.content });
+    setPublishDialogOpen(true);
+  };
 
-    // 先复制内容到剪贴板
-    navigator.clipboard.writeText(result.content);
-    
-    const url = platformUrls[platformId];
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+  /**
+   * 处理API直发
+   * @param platformId 平台ID
+   * @param content 发布内容
+   */
+  const handleApiPublish = async (platformId: string, content: string) => {
+    if (!checkPlatformAuth(platformId)) {
       toast({
-        title: "内容已复制，正在跳转",
-        description: `内容已复制到剪贴板，正在打开${platformId}官网`,
+        title: "未授权",
+        description: "请先配置平台API授权信息",
+        variant: "destructive"
       });
-    } else {
+      setApiManagerOpen(true);
+      return;
+    }
+
+    setPublishingPlatforms(prev => new Set(prev).add(platformId));
+    
+    try {
+      const publishData: PublishContent = {
+        text: content,
+        title: `AI生成内容 - ${new Date().toLocaleString()}`,
+        hashtags: []
+      };
+
+      const result = await publishContent(platformId, publishData);
+      
+      if (result.success) {
+        // 写入历史记录
+        const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+        shareHistory.unshift({
+          id: Date.now().toString(),
+          platformId,
+          platformName: platformId,
+          content,
+          time: new Date().toISOString()
+        });
+        localStorage.setItem('shareHistory', JSON.stringify(shareHistory));
+
+        toast({
+          title: "发布成功",
+          description: `内容已成功发布到${platformId}`,
+        });
+
+        if (result.publishUrl) {
+          window.open(result.publishUrl, '_blank', 'noopener,noreferrer');
+        }
+      } else {
+        toast({
+          title: "发布失败",
+          description: result.error || '发布过程中出现错误',
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
       toast({
-        title: "内容已复制",
-        description: "内容已复制到剪贴板，但该平台的发布链接暂未配置",
+        title: "发布失败",
+        description: error instanceof Error ? error.message : '网络错误',
+        variant: "destructive"
+      });
+    } finally {
+      setPublishingPlatforms(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(platformId);
+        return newSet;
       });
     }
+  };
+
+  /**
+   * 批量API直发
+   * @param platforms 平台ID数组
+   */
+  const handleBatchApiPublish = async (platforms: string[]) => {
+    const unauthorizedPlatforms = platforms.filter(p => !checkPlatformAuth(p));
+    
+    if (unauthorizedPlatforms.length > 0) {
+      toast({
+        title: "部分平台未授权",
+        description: `请先配置 ${unauthorizedPlatforms.join(', ')} 的API授权信息`,
+        variant: "destructive"
+      });
+      setApiManagerOpen(true);
+      return;
+    }
+
+    const availablePlatforms = platforms.filter(p => checkPlatformAuth(p));
+    if (availablePlatforms.length === 0) {
+      toast({
+        title: "无可用平台",
+        description: "请先配置至少一个平台的API授权信息",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 获取第一个平台的内容作为模板
+    const firstResult = results.find(r => r.platformId === availablePlatforms[0]);
+    if (!firstResult?.content) {
+      toast({
+        title: "无内容可发布",
+        description: "请先生成内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setPublishingPlatforms(new Set(availablePlatforms));
+
+    try {
+          const publishData: PublishContent = {
+      text: firstResult.content,
+      title: `AI生成内容 - ${new Date().toLocaleString()}`,
+      hashtags: []
+    };
+
+    const results = await batchPublishContent(availablePlatforms, publishData);
+      
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.length - successCount;
+
+      // 写入历史记录
+      const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+      results.forEach((result, index) => {
+        if (result.success) {
+          shareHistory.unshift({
+            id: Date.now().toString() + index,
+            platformId: availablePlatforms[index],
+            platformName: availablePlatforms[index],
+            content: firstResult.content,
+            time: new Date().toISOString()
+          });
+        }
+      });
+      localStorage.setItem('shareHistory', JSON.stringify(shareHistory));
+
+      toast({
+        title: "批量发布完成",
+        description: `成功: ${successCount}个平台，失败: ${failCount}个平台`,
+      });
+
+      // 打开成功的发布链接
+      results.forEach((result, index) => {
+        if (result.success && result.publishUrl) {
+          setTimeout(() => {
+            window.open(result.publishUrl, '_blank', 'noopener,noreferrer');
+          }, index * 500);
+        }
+      });
+    } catch (error) {
+      toast({
+        title: "批量发布失败",
+        description: error instanceof Error ? error.message : '网络错误',
+        variant: "destructive"
+      });
+    } finally {
+      setPublishingPlatforms(new Set());
+    }
+  };
+
+  /**
+   * 确认一键转发
+   */
+  const confirmPublish = () => {
+    if (!pendingPublish) return;
+    const { platformId, content } = pendingPublish;
+    
+    if (publishMode === 'api') {
+      handleApiPublish(platformId, content);
+    } else {
+      // 传统跳转模式
+      navigator.clipboard.writeText(content);
+      // 写入历史记录
+      const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+      shareHistory.unshift({
+        id: Date.now().toString(),
+        platformId,
+        platformName: platformId,
+        content,
+        time: new Date().toISOString()
+      });
+      localStorage.setItem('shareHistory', JSON.stringify(shareHistory));
+      // 跳转
+      const url = platformUrls[platformId];
+      if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        toast({
+          title: "内容已复制，正在跳转",
+          description: `内容已复制到剪贴板，正在打开${platformId}官网`,
+        });
+      } else {
+        toast({
+          title: "内容已复制",
+          description: "内容已复制到剪贴板，但该平台的发布链接暂未配置",
+        });
+      }
+    }
+    
+    setPublishDialogOpen(false);
+    setPendingPublish(null);
   };
 
   /**
@@ -1041,6 +1270,120 @@ export default function AdaptPage() {
     });
   };
 
+  // 批量转发状态
+  const [batchPublishOpen, setBatchPublishOpen] = useState(false);
+  const [batchSelectedPlatforms, setBatchSelectedPlatforms] = useState<string[]>([]);
+  const [batchQueue, setBatchQueue] = useState<{ platformId: string; content: string }[]>([]);
+  const [batchCurrent, setBatchCurrent] = useState<{ platformId: string; content: string } | null>(null);
+
+  /**
+   * 打开批量一键转发弹窗
+   */
+  const handleBatchPublish = () => {
+    // 只展示有内容的平台
+    const available = results.filter(r => r.content).map(r => r.platformId);
+    setBatchSelectedPlatforms(available);
+    setBatchPublishOpen(true);
+  };
+
+  /**
+   * 确认批量转发平台
+   */
+  const confirmBatchPlatforms = () => {
+    // 构建转发队列
+    const queue = batchSelectedPlatforms.map(pid => {
+      const result = results.find(r => r.platformId === pid);
+      return result && result.content ? { platformId: pid, content: result.content } : null;
+    }).filter(Boolean) as { platformId: string; content: string }[];
+    
+    if (publishMode === 'api') {
+      handleBatchApiPublish(batchSelectedPlatforms);
+      setBatchPublishOpen(false);
+    } else {
+      setBatchQueue(queue);
+      setBatchPublishOpen(false);
+      if (queue.length > 0) {
+        setBatchCurrent(queue[0]);
+      }
+    }
+  };
+
+  /**
+   * 处理批量转发中的单个平台
+   */
+  const handleBatchPublishConfirm = () => {
+    if (!batchCurrent) return;
+    const { platformId, content } = batchCurrent;
+    navigator.clipboard.writeText(content);
+    // 写入历史
+    const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+    shareHistory.unshift({
+      id: Date.now().toString(),
+      platformId,
+      platformName: platformId,
+      content,
+      time: new Date().toISOString()
+    });
+    localStorage.setItem('shareHistory', JSON.stringify(shareHistory));
+    // 跳转
+    const url = platformUrls[platformId];
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    // 进入下一个
+    const idx = batchQueue.findIndex(q => q.platformId === platformId);
+    if (idx >= 0 && idx < batchQueue.length - 1) {
+      setBatchCurrent(batchQueue[idx + 1]);
+    } else {
+      setBatchCurrent(null);
+      setBatchQueue([]);
+      toast({ title: '批量转发完成', description: '已完成所有平台的转发' });
+    }
+  };
+
+  /**
+   * 跳过当前批量转发
+   */
+  const handleBatchPublishSkip = () => {
+    if (!batchCurrent) return;
+    const idx = batchQueue.findIndex(q => q.platformId === batchCurrent.platformId);
+    if (idx >= 0 && idx < batchQueue.length - 1) {
+      setBatchCurrent(batchQueue[idx + 1]);
+    } else {
+      setBatchCurrent(null);
+      setBatchQueue([]);
+      toast({ title: '批量转发完成', description: '已完成所有平台的转发' });
+    }
+  };
+
+  // 历史Tab状态
+  const [showHistory, setShowHistory] = useState(false);
+  const [shareHistory, setShareHistory] = useState<ShareHistoryItem[]>([]);
+
+  /**
+   * 加载转发历史
+   */
+  const loadShareHistory = useCallback(() => {
+    const history: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+    setShareHistory(history);
+  }, []);
+
+  /**
+   * 清空转发历史
+   */
+  const clearShareHistory = () => {
+    localStorage.removeItem('shareHistory');
+    setShareHistory([]);
+    toast({ title: '已清空', description: '转发历史已清空' });
+  };
+
+  useEffect(() => {
+    if (showHistory) loadShareHistory();
+  }, [showHistory, loadShareHistory]);
+
+  // API直发状态
+  const [apiManagerOpen, setApiManagerOpen] = useState(false);
+  const [publishMode, setPublishMode] = useState<'jump' | 'api'>('jump');
+  const [publishingPlatforms, setPublishingPlatforms] = useState<Set<string>>(new Set());
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 页面导航 */}
@@ -1049,13 +1392,22 @@ export default function AdaptPage() {
         description="一次创作，多平台适配，让您的内容在每个平台都能发挥最大效果"
         showAdaptButton={false}
         actions={
-          <Button 
-            variant="outline"
-            onClick={() => window.location.href = "/history"}
-          >
-            <FileText className="h-4 w-4 mr-1" />
-            历史记录
-          </Button>
+          <>
+            <Button 
+              variant="outline"
+              onClick={() => window.location.href = "/history"}
+            >
+              <FileText className="h-4 w-4 mr-1" />
+              历史记录
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setApiManagerOpen(true)}
+            >
+              <Settings className="h-4 w-4 mr-1" />
+              API配置
+            </Button>
+          </>
         }
       />
 
@@ -1082,6 +1434,39 @@ export default function AdaptPage() {
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      {/* 发布模式切换 */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <Label className="text-sm font-medium">发布模式:</Label>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={publishMode === 'jump' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPublishMode('jump')}
+              >
+                <ExternalLink className="w-4 h-4 mr-1" />
+                跳转发布
+              </Button>
+              <Button
+                variant={publishMode === 'api' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setPublishMode('api')}
+              >
+                <Zap className="w-4 h-4 mr-1" />
+                API直发
+              </Button>
+            </div>
+            {publishMode === 'api' && (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                <Zap className="w-3 h-3 mr-1" />
+                需要配置API密钥
+              </Badge>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Content Input Section */}
       <Card className="mb-8">
@@ -1477,7 +1862,22 @@ export default function AdaptPage() {
       {/* Results Section */}
       {results.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-3xl font-bold mb-8 text-center">平台适配结果</h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold">平台适配结果</h2>
+            <Button
+              size="lg"
+              variant="default"
+              onClick={handleBatchPublish}
+              disabled={results.filter(r => r.content).length === 0}
+            >
+              {publishMode === 'api' ? (
+                <Zap className="h-5 w-5 mr-2" />
+              ) : (
+                <ExternalLink className="h-5 w-5 mr-2" />
+              )}
+              {publishMode === 'api' ? '批量API直发' : '批量一键转发'}
+            </Button>
+          </div>
           
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
             <TabsList className="mb-6 grid w-full grid-cols-4 lg:grid-cols-8 h-12">
@@ -1746,9 +2146,21 @@ export default function AdaptPage() {
                           size="lg"
                           variant="default"
                           onClick={() => handlePublish(result.platformId)}
+                          disabled={publishingPlatforms.has(result.platformId)}
                         >
-                          <ExternalLink className="h-5 w-5 mr-2" />
-                          立刻发布
+                          {publishingPlatforms.has(result.platformId) ? (
+                            <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+                          ) : publishMode === 'api' ? (
+                            <Zap className="h-5 w-5 mr-2" />
+                          ) : (
+                            <ExternalLink className="h-5 w-5 mr-2" />
+                          )}
+                          {publishingPlatforms.has(result.platformId) 
+                            ? '发布中...' 
+                            : publishMode === 'api' 
+                              ? 'API直发' 
+                              : '立刻发布'
+                          }
                         </Button>
                       </div>
                     )}
@@ -1760,6 +2172,105 @@ export default function AdaptPage() {
         </div>
       )}
     </div>
+    <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>一键转发确认</DialogTitle>
+        </DialogHeader>
+        <div className="py-2 text-gray-700">
+          <p>
+            {publishMode === 'api' 
+              ? '是否通过API直接发布内容？' 
+              : '内容已复制到剪贴板，是否跳转到平台发布页？'
+            }
+          </p>
+          <div className="bg-gray-100 rounded p-2 mt-2 text-xs break-all max-h-32 overflow-auto">
+            {pendingPublish?.content}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>取消</Button>
+          <Button variant="default" onClick={confirmPublish}>
+            {publishMode === 'api' ? '确认发布' : '跳转并发布'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={batchPublishOpen} onOpenChange={setBatchPublishOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>批量一键转发</DialogTitle>
+        </DialogHeader>
+        <div className="py-2 text-gray-700">
+          <p>请选择要批量转发的平台：</p>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {results.filter(r => r.content).map(r => (
+              <Button
+                key={r.platformId}
+                variant={batchSelectedPlatforms.includes(r.platformId) ? 'default' : 'outline'}
+                onClick={() => setBatchSelectedPlatforms(prev => prev.includes(r.platformId) ? prev.filter(p => p !== r.platformId) : [...prev, r.platformId])}
+              >
+                {r.platformId}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setBatchPublishOpen(false)}>取消</Button>
+          <Button variant="default" onClick={confirmBatchPlatforms} disabled={batchSelectedPlatforms.length === 0}>开始批量转发</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={!!batchCurrent} onOpenChange={open => { if (!open) setBatchCurrent(null); }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>批量一键转发</DialogTitle>
+        </DialogHeader>
+        <div className="py-2 text-gray-700">
+          <p>内容已复制到剪贴板，是否跳转到 {batchCurrent?.platformId} 发布页？</p>
+          <div className="bg-gray-100 rounded p-2 mt-2 text-xs break-all max-h-32 overflow-auto">
+            {batchCurrent?.content}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={handleBatchPublishSkip}>跳过</Button>
+          <Button variant="default" onClick={handleBatchPublishConfirm}>跳转并发布</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={showHistory} onOpenChange={setShowHistory}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>转发历史</DialogTitle>
+        </DialogHeader>
+        <div className="py-2 text-gray-700 max-h-[60vh] overflow-auto">
+          {shareHistory.length === 0 ? (
+            <div className="text-center text-gray-400 py-8">暂无转发历史</div>
+          ) : (
+            <div className="space-y-4">
+              {shareHistory.map(item => (
+                <div key={item.id} className="border rounded p-2 bg-gray-50">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-blue-600">{item.platformName}</span>
+                    <span className="text-xs text-gray-400">{new Date(item.time).toLocaleString()}</span>
+                  </div>
+                  <div className="text-xs break-all mb-1">{item.content}</div>
+                  <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(item.content)}>复制内容</Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={clearShareHistory} disabled={shareHistory.length === 0}>清空历史</Button>
+          <Button variant="default" onClick={() => setShowHistory(false)}>关闭</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    <PlatformApiManager 
+      open={apiManagerOpen} 
+      onOpenChange={setApiManagerOpen} 
+    />
     </div>
   );
 }
