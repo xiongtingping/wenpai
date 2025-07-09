@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
-import { Edit3, Save, LogOut, Shield, User, Crown, Settings, Phone, Mail, Gift, ArrowLeft } from 'lucide-react';
+import { Edit3, Save, LogOut, Shield, User, Crown, Settings, Phone, Mail, Gift, ArrowLeft, Home } from 'lucide-react';
 import { NicknameSelector } from '@/components/ui/nickname-selector';
 import PageNavigation from '@/components/layout/PageNavigation';
 
@@ -89,8 +89,6 @@ export default function ProfilePage() {
   const handleAvatarChange = (newAvatar: string) => {
     setEditForm(prev => ({ ...prev, avatar: newAvatar }));
     setHasChanges(true);
-    // 头像特殊处理：立即保存
-    handleSaveField('avatar', newAvatar);
   };
 
   /**
@@ -199,8 +197,8 @@ export default function ProfilePage() {
         // 如果是首次验证邮箱，给予奖励
         if (verificationField === 'email' && !user?.email) {
           toast({
-            title: "验证成功",
-            description: "邮箱验证成功，获得10次使用奖励！",
+            title: "邮箱验证成功",
+            description: "恭喜您获得10次免费使用次数！",
           });
         }
         
@@ -209,7 +207,6 @@ export default function ProfilePage() {
         setVerificationField(null);
         setVerificationCode('');
         setPendingValue('');
-        setHasChanges(false);
       }
     } catch (error) {
       toast({
@@ -228,38 +225,26 @@ export default function ProfilePage() {
     setVerificationField(null);
     setVerificationCode('');
     setPendingValue('');
-    
-    // 恢复原来的值
-    if (verificationField === 'phone') {
-      setEditForm(prev => ({ ...prev, phone: user?.phone || '' }));
-    } else if (verificationField === 'email') {
-      setEditForm(prev => ({ ...prev, email: user?.email || '' }));
-    }
   };
 
   /**
    * 保存单个字段
    */
   const handleSaveField = async (field: string, value: string) => {
-    if (!user) return;
-
     try {
-      // 更新用户信息
+      // 这里应该调用保存用户信息的API
       const updatedUser = {
         ...user,
         [field]: value,
         updatedAt: new Date().toISOString(),
       };
-
-      // 更新AuthContext中的用户信息
       setUser(updatedUser);
-
-      // 更新localStorage中的用户信息
       localStorage.setItem('authing_user', JSON.stringify(updatedUser));
-
+      
+      setHasChanges(false);
       toast({
         title: "保存成功",
-        description: `${field === 'nickname' ? '昵称' : field === 'email' ? '邮箱' : field === 'phone' ? '手机号' : '头像'}已更新`,
+        description: "个人信息已更新",
       });
     } catch (error) {
       console.error('保存用户信息失败:', error);
@@ -275,25 +260,19 @@ export default function ProfilePage() {
    * 保存所有更改
    */
   const handleSaveAll = async () => {
-    if (!user || !hasChanges) return;
-
+    if (!hasChanges) return;
+    
     setIsSaving(true);
     try {
-      // 更新用户信息
+      // 这里应该调用保存用户信息的API
       const updatedUser = {
         ...user,
-        nickname: editForm.nickname,
-        email: editForm.email,
-        phone: editForm.phone,
+        ...editForm,
         updatedAt: new Date().toISOString(),
       };
-
-      // 更新AuthContext中的用户信息
       setUser(updatedUser);
-
-      // 更新localStorage中的用户信息
       localStorage.setItem('authing_user', JSON.stringify(updatedUser));
-
+      
       setHasChanges(false);
       toast({
         title: "保存成功",
@@ -329,7 +308,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* 页面导航 */}
       <PageNavigation
         title="个人中心"
@@ -341,48 +320,50 @@ export default function ProfilePage() {
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="hover:bg-gray-100"
+              className="hover:bg-blue-100 text-blue-600 -ml-2"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" />
+              <Home className="h-4 w-4 mr-1" />
               返回首页
             </Button>
           </div>
         }
       />
 
-      <div className="container mx-auto px-4 pt-4 pb-2 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 左侧：个人信息 */}
-          <div className="space-y-6 h-full">
-            <Card className="h-full flex flex-col">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <User className="w-5 h-5" />
+      <div className="container mx-auto px-4 pt-6 pb-8 max-w-7xl">
+        {/* 顶部返回按钮 */}
+        <div className="mb-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="hover:bg-blue-100 text-blue-600 -ml-2"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            返回首页
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* 左侧：个人资料 */}
+          <div className="xl:col-span-1">
+            <Card className="h-full shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <User className="w-6 h-6" />
+                  </div>
                   个人资料
                   {userType === 'pro' && (
-                    <Badge className="bg-amber-500 hover:bg-amber-600">
+                    <Badge className="bg-amber-500 hover:bg-amber-600 ml-auto">
                       <Crown className="w-3 h-3 mr-1" />
                       专业版
                     </Badge>
                   )}
-                  {userType === 'free' && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">免费版</Badge>
-                      <Button
-                        size="sm"
-                        onClick={() => navigate('/payment')}
-                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
-                      >
-                        <Crown className="w-3 h-3 mr-1" />
-                        升级专业版
-                      </Button>
-                    </div>
-                  )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 flex-1 flex flex-col">
+              <CardContent className="p-6 space-y-6">
                 {/* 头像和昵称 */}
-                <div className="text-center space-y-3">
+                <div className="text-center space-y-4">
                   <div className="relative">
                     <AvatarUpload
                       currentAvatar={editForm.avatar}
@@ -391,17 +372,6 @@ export default function ProfilePage() {
                       onAvatarChange={handleAvatarChange}
                       disabled={false}
                     />
-                    {/* 头像修改保存按钮 */}
-                    {editForm.avatar !== user?.avatar && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleSaveField('avatar', editForm.avatar)}
-                        className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Save className="w-3 h-3 mr-1" />
-                        保存头像
-                      </Button>
-                    )}
                   </div>
                   
                   <div className="space-y-3">
@@ -410,64 +380,74 @@ export default function ProfilePage() {
                       onNicknameChange={handleNicknameChange}
                       disabled={false}
                     />
-                    {/* 昵称保存按钮 */}
-                    {editForm.nickname !== user?.nickname && (
+                    {/* 头像和昵称保存按钮 */}
+                    {(editForm.avatar !== user?.avatar || editForm.nickname !== user?.nickname) && (
                       <Button
                         size="sm"
-                        onClick={() => handleSaveField('nickname', editForm.nickname)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => {
+                          if (editForm.avatar !== user?.avatar) {
+                            handleSaveField('avatar', editForm.avatar);
+                          }
+                          if (editForm.nickname !== user?.nickname) {
+                            handleSaveField('nickname', editForm.nickname);
+                          }
+                        }}
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
                       >
                         <Save className="w-3 h-3 mr-1" />
-                        保存昵称
+                        保存更改
                       </Button>
                     )}
                   </div>
                 </div>
 
-                <Separator />
+                <Separator className="bg-gray-200" />
 
                 {/* 账号信息 */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-sm text-gray-700">账号信息</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-blue-500" />
+                    账号信息
+                  </h4>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <span className="text-gray-600">用户ID</span>
-                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{user.id}</span>
+                      <span className="font-mono text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{user.id}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <span className="text-gray-600">账户类型</span>
                       <div className="flex items-center gap-2">
                         {userType === 'pro' ? (
-                          <Badge className="bg-amber-500 hover:bg-amber-600">
+                          <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
                             <Crown className="w-3 h-3 mr-1" />
                             专业版
                           </Badge>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline">免费版</Badge>
+                            <Badge variant="outline" className="border-gray-300">免费版</Badge>
                             <Button
                               size="sm"
                               onClick={() => navigate('/payment')}
                               className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs px-2 py-1 h-6"
                             >
                               <Crown className="w-3 h-3 mr-1" />
-                              升级专业版
+                              升级
                             </Button>
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">当前可用次数</span>
-                      <span className="text-green-600 font-medium">{usageRemaining} 次</span>
+                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                      <span className="text-gray-600">可用次数</span>
+                      <span className="text-green-600 font-semibold">{usageRemaining} 次</span>
                     </div>
                     {userType === 'pro' && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">专业版有效期至</span>
+                      <div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
+                        <span className="text-gray-600">专业版有效期</span>
                         <span className="text-amber-600 font-medium">{proExpiryDate}</span>
                       </div>
                     )}
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <span className="text-gray-600">注册时间</span>
                       <span>{user.createdAt ? new Date(user.createdAt as string).toLocaleDateString('zh-CN') : '未知'}</span>
                     </div>
@@ -476,72 +456,70 @@ export default function ProfilePage() {
 
                 {userType === 'pro' && (
                   <>
-                    <Separator />
-                    <div className="space-y-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => navigate('/subscription')}
-                        className="w-full justify-start"
-                        size="sm"
-                      >
-                        <Settings className="w-4 h-4 mr-2" />
-                        订阅管理
-                      </Button>
-                    </div>
+                    <Separator className="bg-gray-200" />
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate('/subscription')}
+                      className="w-full justify-start border-blue-200 text-blue-600 hover:bg-blue-50"
+                      size="sm"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      订阅管理
+                    </Button>
                   </>
                 )}
 
-                <Separator />
+                <Separator className="bg-gray-200" />
 
                 {/* 快捷操作 */}
-                <div className="space-y-2">
-                  <Button
-                    variant="destructive"
-                    onClick={handleLogout}
-                    className="w-full justify-start"
-                    size="sm"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    退出登录
-                  </Button>
-                </div>
-
-                {/* 底部占位空间 - 确保与右侧卡片对齐 */}
-                <div className="flex-1 min-h-[100px]"></div>
+                <Button
+                  variant="destructive"
+                  onClick={handleLogout}
+                  className="w-full justify-start"
+                  size="sm"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  退出登录
+                </Button>
               </CardContent>
             </Card>
           </div>
 
-          {/* 右侧：联系方式 */}
-          <div className="space-y-6 h-full">
+          {/* 右侧：联系方式和奖励机制 */}
+          <div className="xl:col-span-2 space-y-6">
             {/* 联系方式验证 */}
-            <Card>
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Shield className="w-5 h-5" />
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Shield className="w-6 h-6" />
+                  </div>
                   联系方式
                 </CardTitle>
-                <CardDescription className="text-sm">
+                <CardDescription className="text-green-100">
                   验证手机号和邮箱地址，提升账户安全性
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* 手机号验证 */}
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-gray-500" />
-                      <Label className="font-medium">手机号码</Label>
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Phone className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <Label className="font-semibold text-gray-800">手机号码</Label>
                       {editForm.phone && (
-                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700">已验证</Badge>
+                        <Badge className="bg-green-100 text-green-700 text-xs">已验证</Badge>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="space-y-2">
                       <Input
                         placeholder="请输入手机号"
                         value={editForm.phone}
                         onChange={(e) => handlePhoneChange(e.target.value)}
                         disabled={isVerifying && verificationField === 'phone'}
+                        className="border-gray-300 focus:border-blue-500"
                       />
                       {editForm.phone !== user?.phone && editForm.phone && (
                         <Button
@@ -549,33 +527,36 @@ export default function ProfilePage() {
                           size="sm"
                           onClick={() => sendVerificationCode('phone', editForm.phone)}
                           disabled={countdown > 0}
-                          className="whitespace-nowrap"
+                          className="w-full border-blue-300 text-blue-600 hover:bg-blue-50"
                         >
-                          {countdown > 0 ? `${countdown}s` : '验证'}
+                          {countdown > 0 ? `${countdown}s` : '发送验证码'}
                         </Button>
                       )}
                     </div>
                   </div>
 
                   {/* 邮箱验证 */}
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-500" />
-                      <Label className="font-medium">邮箱地址</Label>
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Mail className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <Label className="font-semibold text-gray-800">邮箱地址</Label>
                       {editForm.email && (
-                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700">已验证</Badge>
+                        <Badge className="bg-green-100 text-green-700 text-xs">已验证</Badge>
                       )}
                       {!user?.email && (
-                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700">首次验证获得10次奖励</Badge>
+                        <Badge className="bg-amber-100 text-amber-700 text-xs">首次验证奖励</Badge>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="space-y-2">
                       <Input
                         placeholder="请输入邮箱地址"
                         value={editForm.email}
                         onChange={(e) => handleEmailChange(e.target.value)}
                         type="email"
                         disabled={isVerifying && verificationField === 'email'}
+                        className="border-gray-300 focus:border-purple-500"
                       />
                       {editForm.email !== user?.email && editForm.email && (
                         <Button
@@ -583,54 +564,56 @@ export default function ProfilePage() {
                           size="sm"
                           onClick={() => sendVerificationCode('email', editForm.email)}
                           disabled={countdown > 0}
-                          className="whitespace-nowrap"
+                          className="w-full border-purple-300 text-purple-600 hover:bg-purple-50"
                         >
-                          {countdown > 0 ? `${countdown}s` : '验证'}
+                          {countdown > 0 ? `${countdown}s` : '发送验证码'}
                         </Button>
                       )}
                     </div>
                   </div>
-
-                  {/* 验证码输入 */}
-                  {isVerifying && (
-                    <div className="space-y-3 p-4 bg-blue-50 rounded-lg border">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-blue-800">
-                          请输入发送到{verificationField === 'phone' ? '手机' : '邮箱'}的验证码
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="请输入验证码"
-                          value={verificationCode}
-                          onChange={(e) => setVerificationCode(e.target.value)}
-                          className="flex-1"
-                        />
-                        <Button
-                          onClick={verifyAndSave}
-                          disabled={!verificationCode}
-                          size="sm"
-                        >
-                          确认
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={cancelVerification}
-                          size="sm"
-                        >
-                          取消
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
+                {/* 验证码输入 */}
+                {isVerifying && (
+                  <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-sm font-semibold text-blue-800">
+                        请输入发送到{verificationField === 'phone' ? '手机' : '邮箱'}的验证码
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="请输入验证码"
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        className="flex-1 border-blue-300 focus:border-blue-500"
+                      />
+                      <Button
+                        onClick={verifyAndSave}
+                        disabled={!verificationCode}
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        确认
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={cancelVerification}
+                        size="sm"
+                        className="border-gray-300"
+                      >
+                        取消
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* 保存按钮 */}
-                <div className="mt-6 pt-4 border-t">
+                <div className="mt-6 pt-4 border-t border-gray-200">
                   <Button 
                     onClick={handleSaveAll}
                     disabled={!hasChanges || isSaving}
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700"
                   >
                     {isSaving ? (
                       <>
@@ -640,7 +623,7 @@ export default function ProfilePage() {
                     ) : (
                       <>
                         <Save className="w-4 h-4 mr-2" />
-                        保存更改
+                        保存所有更改
                       </>
                     )}
                   </Button>
@@ -650,54 +633,79 @@ export default function ProfilePage() {
                     </p>
                   )}
                 </div>
-
-
               </CardContent>
             </Card>
 
-            {/* 奖励说明 */}
-            <Card>
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center justify-between text-lg">
-                  <div className="flex items-center gap-2">
-                    <Gift className="w-5 h-5" />
+            {/* 奖励机制 */}
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-6 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-t-lg">
+                <CardTitle className="flex items-center justify-between text-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Gift className="w-6 h-6" />
+                    </div>
                     奖励机制
                   </div>
                   <Button
                     variant="outline"
                     onClick={() => navigate('/invite')}
                     size="sm"
-                    className="flex items-center gap-2"
+                    className="bg-white/20 border-white/30 text-white hover:bg-white/30"
                   >
-                    <User className="w-4 h-4" />
+                    <User className="w-4 h-4 mr-2" />
                     立即邀请
                   </Button>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm text-gray-600">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <span>每邀请1人注册</span>
-                    <Badge className="bg-blue-100 text-blue-700">双方各获得20次</Badge>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* 奖励规则 */}
+                  <div className="space-y-4">
+                    <h5 className="font-semibold text-gray-800 mb-3">奖励规则</h5>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-500 rounded-lg">
+                            <User className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-gray-700">每邀请1人注册</span>
+                        </div>
+                        <Badge className="bg-blue-500 text-white">双方各获得20次</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500 rounded-lg">
+                            <Gift className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-gray-700">使用次数永久有效</span>
+                        </div>
+                        <Badge className="bg-green-500 text-white">不会过期</Badge>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <span>使用次数永久有效</span>
-                    <Badge className="bg-green-100 text-green-700">不会过期</Badge>
-                  </div>
-                </div>
 
-                {/* 邀请统计数据 */}
-                <div className="mt-4 pt-4 border-t">
-                  <h5 className="font-medium text-sm text-gray-700 mb-3">邀请统计</h5>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-gray-50 p-3 rounded-lg text-center">
-                      <div className="text-lg font-semibold text-gray-900">{userInviteStats.totalRegistrations}</div>
-                      <div className="text-gray-600">成功邀请</div>
+                  {/* 邀请统计 */}
+                  <div className="space-y-4">
+                    <h5 className="font-semibold text-gray-800 mb-3">邀请统计</h5>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200 text-center">
+                        <div className="text-2xl font-bold text-purple-600 mb-1">{userInviteStats.totalRegistrations}</div>
+                        <div className="text-sm text-gray-600">成功邀请</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200 text-center">
+                        <div className="text-2xl font-bold text-green-600 mb-1">{userInviteStats.totalRegistrations * 20}</div>
+                        <div className="text-sm text-gray-600">获得次数</div>
+                      </div>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded-lg text-center">
-                      <div className="text-lg font-semibold text-green-600">{userInviteStats.totalRegistrations * 20}</div>
-                      <div className="text-gray-600">获得次数</div>
-                    </div>
+                    
+                    {/* 快速邀请按钮 */}
+                    <Button
+                      onClick={() => navigate('/invite')}
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      邀请好友获得奖励
+                    </Button>
                   </div>
                 </div>
               </CardContent>

@@ -44,8 +44,7 @@ import {
   getApiProvider,
   setModel,
   getModel,
-  getAvailableModels,
-  modelDescriptions
+  getAvailableModels
 } from "@/api/contentAdapter";
 import { useUserStore } from "@/store/userStore";
 import { cn } from "@/lib/utils";
@@ -1655,62 +1654,19 @@ export default function AdaptPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {getAvailableModels()[apiProvider]?.map((model) => {
-                    const modelInfo = modelDescriptions[model];
                     return (
                       <SelectItem key={model} value={model}>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{modelInfo?.name || model}</span>
-                          <span className="text-xs text-gray-500">{modelInfo?.name || '模型描述'}</span>
-                        </div>
+                        <span className="font-medium">{model}</span>
                       </SelectItem>
                     );
                   })}
                 </SelectContent>
               </Select>
-              {userPlan === 'free' && (
-                <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-xs text-amber-800 font-medium">免费版限制</p>
-                      <p className="text-xs text-amber-700 mt-1">
-                        免费版只能使用基础模型，升级专业版可解锁所有高级模型
-                      </p>
-                    </div>
-                    <Button 
-                      size="sm" 
-                      className="ml-2 bg-amber-600 hover:bg-amber-700 text-white text-xs"
-                      onClick={() => window.location.href = '/payment'}
-                    >
-                      立即开通
-                    </Button>
-                  </div>
-                </div>
-              )}
+
             </div>
           </div>
           
-          {selectedModel && modelDescriptions[selectedModel] && (
-            <div className="mt-4 bg-blue-50 p-4 rounded-md">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h5 className="text-sm font-medium text-blue-900">
-                    {modelDescriptions[selectedModel]?.name || selectedModel}
-                  </h5>
-                  <p className="text-xs text-blue-700 mt-1">
-                    模型描述
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  <Badge variant="secondary" className="text-xs">
-                    高性能
-                  </Badge>
-                  <Badge variant="secondary" className="text-xs">
-                    稳定可靠
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          )}
+
         </CardContent>
       </Card>
 

@@ -461,7 +461,7 @@ const EmojiPage: React.FC = () => {
                       onClick={() => setViewMode('grid')}
                     >
                       <Grid3X3 className="w-4 h-4" />
-                    </Button>
+                  </Button>
                     <Button
                       variant={viewMode === 'list' ? 'default' : 'outline'}
                       size="sm"
@@ -574,8 +574,8 @@ const EmojiPage: React.FC = () => {
                         >
                           <Download className="w-4 h-4" />
                         </Button>
-                      </div>
-                    )}
+                        </div>
+                      )}
                   </CardContent>
                 </Card>
               ))}

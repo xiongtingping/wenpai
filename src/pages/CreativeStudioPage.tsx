@@ -47,7 +47,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
-import { MarketingCalendar } from '@/components/creative/MarketingCalendar';
+import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
 import EmojiPage from '@/pages/EmojiPage';
 import PageNavigation from '@/components/layout/PageNavigation';

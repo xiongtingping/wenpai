@@ -45,7 +45,7 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { MarketingCalendar } from './MarketingCalendar';
+import MarketingCalendar from './MarketingCalendar';
 import { MomentsTextGenerator } from './MomentsTextGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
