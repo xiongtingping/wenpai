@@ -1,4 +1,12 @@
 import { BrandAnalysisResult, ContentCheckResult } from '@/types/brand';
+// PDF 解析依赖
+import * as pdfjsLib from 'pdfjs-dist';
+// Word 文档解析
+import mammoth from 'mammoth';
+// Excel 解析
+import * as XLSX from 'xlsx';
+// 图片 OCR
+import Tesseract from 'tesseract.js';
 
 /**
  * AI 分析服务
@@ -22,6 +30,50 @@ class AIAnalysisService {
       AIAnalysisService.instance = new AIAnalysisService();
     }
     return AIAnalysisService.instance;
+  }
+
+  /**
+   * 获取支持的文件类型
+   */
+  public getSupportedFileTypes(): Array<{
+    extension: string;
+    mimeType: string;
+    description: string;
+  }> {
+    return [
+      { extension: '.txt', mimeType: 'text/plain', description: '纯文本文件' },
+      { extension: '.md', mimeType: 'text/markdown', description: 'Markdown 文档' },
+      { extension: '.csv', mimeType: 'text/csv', description: 'CSV 表格文件' },
+      { extension: '.json', mimeType: 'application/json', description: 'JSON 数据文件' },
+      { extension: '.pdf', mimeType: 'application/pdf', description: 'PDF 文档' },
+      { extension: '.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', description: 'Word 文档' },
+      { extension: '.doc', mimeType: 'application/msword', description: 'Word 文档（旧版）' },
+      { extension: '.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', description: 'Excel 表格' },
+      { extension: '.xls', mimeType: 'application/vnd.ms-excel', description: 'Excel 表格（旧版）' },
+      { extension: '.pptx', mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', description: 'PowerPoint 演示文稿' },
+      { extension: '.ppt', mimeType: 'application/vnd.ms-powerpoint', description: 'PowerPoint 演示文稿（旧版）' },
+      { extension: '.jpg', mimeType: 'image/jpeg', description: 'JPEG 图片' },
+      { extension: '.jpeg', mimeType: 'image/jpeg', description: 'JPEG 图片' },
+      { extension: '.png', mimeType: 'image/png', description: 'PNG 图片' },
+      { extension: '.gif', mimeType: 'image/gif', description: 'GIF 图片' },
+      { extension: '.bmp', mimeType: 'image/bmp', description: 'BMP 图片' },
+      { extension: '.webp', mimeType: 'image/webp', description: 'WebP 图片' }
+    ];
+  }
+
+  /**
+   * 检查文件类型是否支持
+   */
+  public isFileTypeSupported(file: File): boolean {
+    const supportedTypes = this.getSupportedFileTypes();
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    const isMimeTypeSupported = supportedTypes.some(type => 
+      file.type === type.mimeType || file.type.includes(type.extension.slice(1))
+    );
+    const isExtensionSupported = supportedTypes.some(type => 
+      fileExtension === type.extension
+    );
+    return isMimeTypeSupported || isExtensionSupported;
   }
 
   /**
@@ -99,11 +151,16 @@ ${content}
 
       // 读取所有文件内容
       for (const file of files) {
-        if (file.type.includes('text') || file.type.includes('pdf') || 
-            file.type.includes('doc') || file.type.includes('markdown')) {
+        if (this.isFileTypeSupported(file)) {
           const content = await this.readFileContent(file);
           contents.push(content);
+        } else {
+          console.warn(`不支持的文件类型: ${file.name} (${file.type})`);
         }
+      }
+
+      if (contents.length === 0) {
+        throw new Error('没有可分析的文件内容');
       }
 
       // 合并所有内容进行分析
@@ -190,21 +247,100 @@ ${content}
   private async readFileContent(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        resolve(e.target?.result as string);
+      reader.onload = async (e) => {
+        try {
+          const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+          
+          // 文本文件处理
+          if (file.type.includes('text') || file.type.includes('markdown') || 
+              fileExtension === '.txt' || fileExtension === '.md' || 
+              fileExtension === '.csv' || fileExtension === '.json') {
+            resolve(e.target?.result as string);
+          } 
+          // PDF 文件处理
+          else if (file.type.includes('pdf') || fileExtension === '.pdf') {
+            const typedArray = new Uint8Array(e.target?.result as ArrayBuffer);
+            const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+            let text = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const content = await page.getTextContent();
+              text += content.items.map((item: any) => item.str).join(' ');
+            }
+            resolve(text);
+          } 
+          // Word 文档处理
+          else if (file.type.includes('word') || fileExtension === '.docx' || fileExtension === '.doc') {
+            const arrayBuffer = e.target?.result as ArrayBuffer;
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            resolve(result.value);
+          } 
+          // Excel 文件处理
+          else if (file.type.includes('excel') || file.type.includes('spreadsheet') || 
+                   fileExtension === '.xlsx' || fileExtension === '.xls') {
+            const arrayBuffer = e.target?.result as ArrayBuffer;
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            let text = '';
+            
+            // 遍历所有工作表
+            workbook.SheetNames.forEach(sheetName => {
+              const worksheet = workbook.Sheets[sheetName];
+              const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+              
+              // 将表格数据转换为文本
+              jsonData.forEach((row: any) => {
+                if (Array.isArray(row)) {
+                  text += row.join('\t') + '\n';
+                }
+              });
+            });
+            resolve(text);
+          } 
+          // PowerPoint 文件处理
+          else if (file.type.includes('powerpoint') || file.type.includes('presentation') || 
+                   fileExtension === '.pptx' || fileExtension === '.ppt') {
+            // 注意：PowerPoint 解析比较复杂，这里提供一个基础实现
+            // 实际项目中可能需要更专业的库
+            const arrayBuffer = e.target?.result as ArrayBuffer;
+            // 这里可以集成 pptxjs 或其他 PowerPoint 解析库
+            // 暂时返回一个提示信息
+            resolve('PowerPoint 文件内容提取功能正在开发中...');
+          } 
+          // 图片文件处理（OCR）
+          else if (file.type.includes('image') || 
+                   fileExtension === '.jpg' || fileExtension === '.jpeg' || 
+                   fileExtension === '.png' || fileExtension === '.gif' || 
+                   fileExtension === '.bmp' || fileExtension === '.webp') {
+            const arrayBuffer = e.target?.result as ArrayBuffer;
+            const blob = new Blob([arrayBuffer], { type: file.type });
+            
+            // 使用 Tesseract.js 进行 OCR
+            const result = await Tesseract.recognize(blob, 'chi_sim+eng', {
+              logger: m => console.log(m)
+            });
+            resolve(result.data.text);
+          } 
+          else {
+            reject(new Error(`暂不支持该文件类型: ${file.type} (${fileExtension})`));
+          }
+        } catch (err) {
+          reject(new Error('文件解析失败: ' + (err as Error).message));
+        }
       };
       
       reader.onerror = (e) => {
         reject(new Error('文件读取失败'));
       };
 
-      if (file.type.includes('text') || file.type.includes('markdown')) {
+      // 根据文件类型选择读取方式
+      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+      
+      if (file.type.includes('text') || file.type.includes('markdown') || 
+          fileExtension === '.txt' || fileExtension === '.md' || 
+          fileExtension === '.csv' || fileExtension === '.json') {
         reader.readAsText(file);
       } else {
-        // TODO: 处理 PDF 和 Word 文件
-        // 这里需要添加相应的文件处理库
-        reject(new Error('暂不支持该文件类型'));
+        reader.readAsArrayBuffer(file);
       }
     });
   }

@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileText, AlertCircle, Brain } from "lucide-react";
+import { Upload, FileText, AlertCircle, Brain, FileType, Image, FileSpreadsheet, Presentation } from "lucide-react";
 import BrandProfileService from '@/services/brandProfileService';
+import AIAnalysisService from '@/services/aiAnalysisService';
 import { BrandProfile } from '@/types/brand';
 
 interface BrandProfileGeneratorProps {
@@ -25,6 +27,10 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const { toast } = useToast();
+
+  // 获取支持的文件类型
+  const aiService = AIAnalysisService.getInstance();
+  const supportedFileTypes = aiService.getSupportedFileTypes();
 
   // 表单状态
   const [formData, setFormData] = useState({
@@ -87,7 +93,9 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
           keyThemes: analysisResult.keywords,
           brandPersonality: "AI 分析生成的品牌个性",
           targetAudience: "AI 分析确定的目标受众",
-          contentSuggestions: analysisResult.suggestions
+          contentSuggestions: analysisResult.suggestions,
+          valueAlignment: ["建议1", "建议2"],
+          topicConsistency: ["建议1", "建议2"]
         }
       };
 
@@ -139,7 +147,9 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
           "强调产品的创新性和实用价值",
           "使用专业但平易近人的语气",
           "分享用户成功案例",
-        ]
+        ],
+        valueAlignment: ["建议1", "建议2"],
+        topicConsistency: ["建议1", "建议2"]
       };
 
       // 更新表单数据
@@ -252,7 +262,7 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
             className="hidden"
             id="brand-files"
             onChange={handleFileUpload}
-            accept=".pdf,.doc,.docx,.txt,.jpg,.png"
+            accept={supportedFileTypes.map(type => type.extension).join(',')}
           />
           <label
             htmlFor="brand-files"
@@ -262,10 +272,39 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
             <div className="text-sm text-gray-600">
               点击或拖拽上传品牌资料文件
               <p className="text-xs text-gray-400 mt-1">
-                支持 PDF、Word、文本文件和图片
+                支持多种文件格式，AI 将自动提取文本内容进行分析
               </p>
             </div>
           </label>
+        </div>
+
+        {/* 支持的文件类型说明 */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-gray-700">支持的文件类型：</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {supportedFileTypes.map((fileType) => (
+              <div key={fileType.extension} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                {fileType.extension === '.txt' && <FileType className="h-4 w-4 text-blue-500" />}
+                {fileType.extension === '.md' && <FileText className="h-4 w-4 text-green-500" />}
+                {fileType.extension === '.pdf' && <FileText className="h-4 w-4 text-red-500" />}
+                {fileType.extension === '.docx' && <FileText className="h-4 w-4 text-blue-600" />}
+                {fileType.extension === '.doc' && <FileText className="h-4 w-4 text-blue-600" />}
+                {fileType.extension === '.xlsx' && <FileSpreadsheet className="h-4 w-4 text-green-600" />}
+                {fileType.extension === '.xls' && <FileSpreadsheet className="h-4 w-4 text-green-600" />}
+                {fileType.extension === '.pptx' && <Presentation className="h-4 w-4 text-orange-600" />}
+                {fileType.extension === '.ppt' && <Presentation className="h-4 w-4 text-orange-600" />}
+                {(fileType.extension === '.jpg' || fileType.extension === '.jpeg' || 
+                  fileType.extension === '.png' || fileType.extension === '.gif' || 
+                  fileType.extension === '.bmp' || fileType.extension === '.webp') && 
+                  <Image className="h-4 w-4 text-purple-500" />
+                }
+                <Badge variant="outline" className="text-xs">
+                  {fileType.extension}
+                </Badge>
+                <span className="text-xs text-gray-600">{fileType.description}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* 上传进度 */}

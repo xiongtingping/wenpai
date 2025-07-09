@@ -18,6 +18,10 @@ import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { Edit3, Save, LogOut, Shield, User, Crown, Settings, Phone, Mail, Gift, ArrowLeft, Home } from 'lucide-react';
 import { NicknameSelector } from '@/components/ui/nickname-selector';
 import PageNavigation from '@/components/layout/PageNavigation';
+import { UsageStatsCard } from '@/components/ui/usage-stats';
+import { getSubscriptionPlan } from '@/config/subscriptionPlans';
+import { UsageStats } from '@/types/subscription';
+import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
 
 /**
  * 个人中心页面组件
@@ -48,8 +52,20 @@ export default function ProfilePage() {
   const [pendingValue, setPendingValue] = useState('');
 
   // 模拟用户类型和过期时间
-  const [userType] = useState<'free' | 'pro'>('free'); // 可以是 'free' 或 'pro'
+  const [userType] = useState<'trial' | 'pro' | 'premium'>('trial'); // 可以是 'trial'、'pro' 或 'premium'
   const proExpiryDate = '2024-12-31'; // 专业版到期时间
+
+  // 模拟使用情况统计
+  const [usageStats] = useState<UsageStats>({
+    adaptUsageUsed: 3,
+    adaptUsageRemaining: 7,
+    tokensUsed: 25000,
+    tokensRemaining: 75000,
+    usagePercentage: 25
+  });
+
+  // 获取当前订阅计划
+  const currentPlan = getSubscriptionPlan(userType);
 
   // 同步用户数据到编辑表单
   React.useEffect(() => {
@@ -404,14 +420,9 @@ export default function ProfilePage() {
                     <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <span className="text-gray-600">账户类型</span>
                       <div className="flex items-center gap-2">
-                        {userType === 'pro' ? (
-                          <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
-                            <Crown className="w-3 h-3 mr-1" />
-                            专业版
-                          </Badge>
-                        ) : (
+                        {userType === 'trial' ? (
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="border-gray-300">免费版</Badge>
+                            <Badge variant="outline" className="border-gray-300">体验版</Badge>
                             <Button
                               size="sm"
                               onClick={() => navigate('/payment')}
@@ -421,6 +432,16 @@ export default function ProfilePage() {
                               升级
                             </Button>
                           </div>
+                        ) : userType === 'pro' ? (
+                          <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                            <Crown className="w-3 h-3 mr-1" />
+                            专业版
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                            <Crown className="w-3 h-3 mr-1" />
+                            高级版
+                          </Badge>
                         )}
                       </div>
                     </div>
@@ -428,6 +449,14 @@ export default function ProfilePage() {
                       <span className="text-gray-600">可用次数</span>
                       <span className="text-green-600 font-semibold">{usageRemaining} 次</span>
                     </div>
+                    {currentPlan && (
+                      <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                        <span className="text-gray-600">Token限制</span>
+                        <span className="text-blue-600 font-semibold">
+                          {currentPlan.limits.tokenLimit.toLocaleString()} tokens
+                        </span>
+                      </div>
+                    )}
                     {userType === 'pro' && (
                       <div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
                         <span className="text-gray-600">专业版有效期</span>
@@ -441,7 +470,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {userType === 'pro' && (
+                {(userType === 'pro' || userType === 'premium') && (
                   <>
                     <Separator className="bg-gray-200" />
                     <Button
@@ -472,8 +501,20 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* 右侧：联系方式和奖励机制 */}
+          {/* 右侧：使用情况统计、联系方式和奖励机制 */}
           <div className="xl:col-span-2 space-y-6">
+            {/* 使用情况统计 */}
+            {currentPlan && (
+              <UsageStatsCard
+                usageStats={usageStats}
+                planName={currentPlan.name}
+                adaptUsageLimit={currentPlan.limits.adaptUsageLimit}
+                tokenLimit={currentPlan.limits.tokenLimit}
+                userType={userType}
+                onUpgrade={() => navigate('/payment')}
+              />
+            )}
+
             {/* 联系方式验证 */}
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader className="pb-6 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-t-lg">

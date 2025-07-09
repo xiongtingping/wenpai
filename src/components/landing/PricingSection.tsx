@@ -6,28 +6,30 @@ import { Badge } from "@/components/ui/badge"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/AuthContext"
-import { Crown, Sparkles, Check, X } from "lucide-react"
+import { Crown, Sparkles, Check, X, Star } from "lucide-react"
+import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
+import { SubscriptionPeriod } from "@/types/subscription"
 
 export function PricingSection() {
-  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly")
+  const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
   const { toast } = useToast()
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
 
-  // Handle Pro plan selection
-  const handleProPlanClick = () => {
+  // Handle plan selection
+  const handlePlanClick = (planId: string) => {
     if (isAuthenticated) {
       // User is logged in, go directly to payment
-      localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly");
+      localStorage.setItem("selectedPlan", planId);
       navigate("/payment");
       
       toast({
         title: "正在为您跳转到支付页面",
-        description: "请完成支付以开通专业版功能",
+        description: "请完成支付以开通相应功能",
       });
     } else {
       // User is not logged in, redirect to login/register choice page
-      localStorage.setItem("selectedPlan", billing === "monthly" ? "pro-monthly" : "pro-yearly");
+      localStorage.setItem("selectedPlan", planId);
       navigate("/register");
     
       toast({
@@ -42,7 +44,7 @@ export function PricingSection() {
       <div className="container mx-auto px-6">
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">选择适合您的方案</h2>
-          <p className="mt-4 text-lg text-gray-600">从免费体验到专业版，全方位赋能新媒体创意工作者</p>
+          <p className="mt-4 text-lg text-gray-600">从免费体验到高级版，全方位赋能新媒体创意工作者</p>
           
           <div className="mt-8 flex justify-center items-center space-x-4">
             <span className={billing === "monthly" ? "text-blue-600 font-semibold" : ""}>
@@ -53,264 +55,220 @@ export function PricingSection() {
               onCheckedChange={(checked) => setBilling(checked ? "yearly" : "monthly")}
             />
             <span className={billing === "yearly" ? "text-blue-600 font-semibold" : ""}>
-              按年支付 <span className="text-sm text-green-500">(立省20%)</span>
+              按年支付 <span className="text-sm text-green-500">(更优惠)</span>
             </span>
           </div>
+          {billing === "yearly" && (
+            <div className="mt-2 text-center text-sm text-green-600">
+              <p>专业版：年付省120元</p>
+              <p>高级版：年付省300元</p>
+            </div>
+          )}
         </div>
 
-        <div className="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Free Plan */}
-          <Card className="border-2 border-gray-200 p-8 flex flex-col">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-green-600" />
-              <h3 className="text-2xl font-semibold">免费版</h3>
-            </div>
-            <p className="mt-2 text-gray-500">适合个人体验者和初学者</p>
-            <p className="mt-6 text-5xl font-extrabold">¥0</p>
-            <p className="text-gray-500">永久免费</p>
-            
-            <ul className="mt-8 space-y-4 text-gray-600 flex-grow">
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-green-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">AI内容适配</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-blue-50 text-blue-700 border-blue-200">
-                    每月10次
-                  </Badge>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-green-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">创意工作室</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    免费
-                  </Badge>
-                  <p className="text-sm text-gray-500 mt-1">九宫格创意魔方、营销日历、文案管理、任务清单</p>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-green-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">全网热点话题</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    免费
-                  </Badge>
-                  <p className="text-sm text-gray-500 mt-1">实时获取各平台热门话题和趋势</p>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-green-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">基础AI模型</span>
-                  <p className="text-sm text-gray-500 mt-1">支持主流平台内容适配</p>
-                </div>
-              </li>
+        <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {SUBSCRIPTION_PLANS.map((plan) => {
+            const pricing = billing === 'monthly' ? plan.monthly : plan.yearly;
+            const isRecommended = plan.recommended;
+            const isTrial = plan.tier === 'trial';
 
-              <li className="flex items-start space-x-3">
-                <X className="w-5 h-5 text-red-500 mt-0.5" />
-                <div>
-                  <span className="text-gray-400 line-through">智采器</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
+            return (
+              <Card 
+                key={plan.id}
+                className={`border-2 p-8 flex flex-col relative ${
+                  isRecommended 
+                    ? 'border-purple-600 shadow-2xl bg-gradient-to-br from-purple-50 to-blue-50' 
+                    : 'border-gray-200'
+                }`}
+              >
+                {isRecommended && (
+                  <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full">
+                    <Star className="w-3 h-3 mr-1 inline" />
+                    推荐
+                  </span>
+                )}
+                
+                <div className="flex items-center gap-2 mb-4">
+                  {plan.tier === 'premium' ? (
+                    <Crown className="w-6 h-6 text-yellow-600" />
+                  ) : plan.tier === 'pro' ? (
+                    <Crown className="w-6 h-6 text-purple-600" />
+                  ) : (
+                    <Sparkles className="w-6 h-6 text-green-600" />
+                  )}
+                  <h3 className="text-2xl font-semibold">{plan.name}</h3>
                 </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <X className="w-5 h-5 text-red-500 mt-0.5" />
-                <div>
-                  <span className="text-gray-400 line-through">品牌库</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <X className="w-5 h-5 text-red-500 mt-0.5" />
-                <div>
-                  <span className="text-gray-400 line-through">一键分发</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
-                </div>
-              </li>
-            </ul>
-            <Button variant="outline" className="mt-8 w-full" asChild>
-              <Link to="/adapt">开始免费使用</Link>
-            </Button>
-          </Card>
-
-          {/* Pro Plan */}
-          <Card className="border-2 border-purple-600 p-8 flex flex-col relative shadow-2xl bg-gradient-to-br from-purple-50 to-blue-50">
-            <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full">
-              <Crown className="w-3 h-3 mr-1 inline" />
-              最受欢迎
-            </span>
-            <div className="flex items-center gap-2 mb-4">
-              <Crown className="w-6 h-6 text-purple-600" />
-              <h3 className="text-2xl font-semibold">专业版</h3>
-            </div>
-            <p className="mt-2 text-gray-500">适合专业创作者和内容团队</p>
-            <div className="mt-6">
-              {billing === "monthly" ? (
-                <>
-                  <div className="flex items-center gap-2">
-                    <p className="text-5xl font-extrabold text-purple-600">¥29.9</p>
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs text-purple-500 font-semibold">限时特惠</span>
-                      <span className="text-xs text-purple-500">原价¥39.9</span>
+                
+                <p className="mt-2 text-gray-500">{plan.description}</p>
+                
+                <div className="mt-6">
+                  {isTrial ? (
+                    <div className="text-center">
+                      <p className="text-5xl font-extrabold text-green-600">¥0</p>
+                      <p className="text-gray-500">永久免费</p>
                     </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2">
-                    <p className="text-5xl font-extrabold text-purple-600">¥239</p>
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs text-purple-500 font-semibold">限时特惠</span>
-                      <span className="text-xs text-purple-500">5折，省¥239.8</span>
+                  ) : (
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <p className={`text-5xl font-extrabold ${
+                          isRecommended ? 'text-purple-600' : 'text-gray-900'
+                        }`}>
+                          ¥{pricing.discountPrice}
+                        </p>
+                        <div className="flex flex-col items-start">
+                          <span className="text-xs text-red-500 font-semibold">限时特惠</span>
+                          <span className="text-xs text-gray-500 line-through">¥{pricing.originalPrice}</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-500">/{billing === "monthly" ? "月" : "年"}</p>
+                      <p className="text-xs text-red-500 mt-1">省¥{pricing.savedAmount}</p>
                     </div>
-                  </div>
-                </>
-              )}
-              <p className="text-gray-500">{billing === "monthly" ? "/月" : "/年"}</p>
-            </div>
-            
-            <ul className="mt-8 space-y-4 text-gray-600 flex-grow">
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">AI内容适配</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    无限制
-                  </Badge>
+                  )}
                 </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">创意工作室</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    免费
-                  </Badge>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">全网热点话题</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
-                    免费
-                  </Badge>
-                </div>
-              </li>
-
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">智采器</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
-                  <p className="text-sm text-gray-500 mt-1">智能提取网页、文档内容，支持多种格式转换</p>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">品牌库</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
-                  <p className="text-sm text-gray-500 mt-1">AI自动学习品牌调性，确保品牌声音一致</p>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">一键分发</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
-                  <p className="text-sm text-gray-500 mt-1">支持一键将内容分发到多个平台</p>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">高级AI模型</span>
-                  <p className="text-sm text-gray-500 mt-1">GPT-4o、DeepSeek V3等最新模型</p>
-                </div>
-              </li>
-
-            </ul>
-            <Button 
-              className="mt-8 w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90"
-              onClick={handleProPlanClick}
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              立即升级专业版
-            </Button>
-          </Card>
+                
+                <ul className="mt-8 space-y-4 text-gray-600 flex-grow">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start space-x-3">
+                      <Check className={`w-5 h-5 mt-0.5 ${
+                        isRecommended ? 'text-purple-500' : 'text-green-500'
+                      }`} />
+                      <div>
+                        <span className="font-medium">{feature}</span>
+                        {feature.includes('次/月') && (
+                          <Badge variant="outline" className={`ml-2 text-xs ${
+                            isRecommended 
+                              ? 'bg-purple-50 text-purple-700 border-purple-200' 
+                              : 'bg-blue-50 text-blue-700 border-blue-200'
+                          }`}>
+                            {plan.limits.adaptUsageLimit > 0 ? `${plan.limits.adaptUsageLimit}次/月` : '不限量'}
+                          </Badge>
+                        )}
+                        {feature.includes('tokens') && (
+                          <Badge variant="outline" className={`ml-2 text-xs ${
+                            isRecommended 
+                              ? 'bg-purple-50 text-purple-700 border-purple-200' 
+                              : 'bg-green-50 text-green-700 border-green-200'
+                          }`}>
+                            {plan.limits.tokenLimit.toLocaleString()} tokens
+                          </Badge>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Button 
+                  variant={isTrial ? "outline" : "default"}
+                  className={`mt-8 w-full ${
+                    isRecommended 
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90' 
+                      : ''
+                  }`}
+                  onClick={() => !isTrial && handlePlanClick(plan.id)}
+                  disabled={isTrial}
+                >
+                  {isTrial ? (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      开始免费使用
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="w-4 h-4 mr-2" />
+                      立即升级{plan.name}
+                    </>
+                  )}
+                </Button>
+              </Card>
+            );
+          })}
         </div>
 
         {/* 功能对比表 */}
         <div className="mt-16">
           <h3 className="text-2xl font-bold text-center mb-8">功能详细对比</h3>
           <div className="overflow-x-auto">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-6xl mx-auto">
               <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="border border-gray-200 px-6 py-3 text-left font-semibold text-gray-900">功能</th>
-                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-900 w-32">免费版</th>
+                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-900 w-32">体验版</th>
                     <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-purple-900 bg-purple-50 w-32">专业版</th>
+                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-yellow-900 bg-yellow-50 w-32">高级版</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI内容适配器</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">每月10次</span>
+                      <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">10次/月</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">无限制</span>
+                      <span className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">30次/月</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">不限量</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">Token限制</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-gray-600">100,000</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600">200,000</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-yellow-600">500,000</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">我的资料库</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-green-600 font-medium">✅</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-green-600 font-medium">✅</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">创意魔方</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-green-600 font-medium">✅ 免费</span>
+                      <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-green-600 font-medium">✅ 免费</span>
+                      <span className="text-green-600 font-medium">✅</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网雷达</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-green-600 font-medium">✅ 免费</span>
+                      <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-green-600 font-medium">✅ 免费</span>
+                      <span className="text-red-500 font-medium">❌</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                   </tr>
-
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">智采器</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 font-medium">✅ 专业版</span>
+                      <span className="text-red-500 font-medium">❌</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
@@ -319,28 +277,24 @@ export function PricingSection() {
                       <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 font-medium">✅ 专业版</span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">一键分发</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-red-500 font-medium">❌</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 font-medium">✅ 专业版</span>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI模型选择</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI模型</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-gray-600">基础模型</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
                       <span className="text-purple-600 font-medium">高级模型</span>
                     </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-yellow-600 font-medium">最新模型</span>
+                    </td>
                   </tr>
-
                 </tbody>
               </table>
             </div>

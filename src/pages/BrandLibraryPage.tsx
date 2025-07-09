@@ -25,48 +25,7 @@ import { Progress } from "@/components/ui/progress";
 import PageNavigation from '@/components/layout/PageNavigation';
 import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
 import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
-
-// Interface for brand profile
-interface BrandProfile {
-  id: string;
-  name: string;
-  tone: string;
-  slogans: string[];
-  keywords: string[];
-  forbiddenWords: string[];
-  files: string[];
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  
-  // AI 分析结果
-  aiAnalysis?: {
-    toneAnalysis: string;
-    keyThemes: string[];
-    brandPersonality: string;
-    targetAudience: string;
-    contentSuggestions: string[];
-  };
-}
-
-// 品牌资料类型
-type BrandAssetType = 'logo' | 'document' | 'image' | 'slogan' | 'value';
-
-// Interface for brand assets
-interface BrandAsset {
-  id: string;
-  name: string;
-  type: BrandAssetType;
-  content: string;
-  uploadDate: Date;
-  fileUrl?: string;
-  size?: string;
-  fileIcon?: JSX.Element;
-  description?: string;
-  category?: string;
-  extractedKeywords?: string[];
-  processingStatus?: 'pending' | 'processing' | 'completed' | 'failed';
-}
+import { BrandProfile, BrandAsset } from '@/types/brand';
 
 // Sort options
 type SortOption = 'date-new' | 'date-old' | 'name-asc' | 'name-desc' | 'size-asc' | 'size-desc';
@@ -103,7 +62,16 @@ export default function BrandLibraryPage() {
       forbiddenWords: ['过度营销', '技术术语', '负面词汇'],
       files: [],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      aiAnalysis: {
+        toneAnalysis: '专业而亲切',
+        keyThemes: ['专业', '可靠', '创新'],
+        brandPersonality: '专业可靠的品牌形象',
+        targetAudience: '追求专业解决方案的用户',
+        contentSuggestions: ['强调专业性', '突出可靠性', '展现创新性'],
+        valueAlignment: ['建议1', '建议2'],
+        topicConsistency: ['建议1', '建议2']
+      }
     };
     setBrandProfile(defaultProfile);
   }, []);

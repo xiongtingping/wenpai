@@ -36,6 +36,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import { 
   generateAdaptedContent, 
   regeneratePlatformContent, 
@@ -50,6 +51,8 @@ import { useUserStore } from "@/store/userStore";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
+import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
+import { PremiumFeatureDialog } from '@/components/ui/premium-feature-dialog';
 import { 
   publishContent, 
   batchPublishContent, 
@@ -291,6 +294,7 @@ type ShareHistoryItem = {
 
 export default function AdaptPage() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [results, setResults] = useState<PlatformResult[]>([]);
@@ -318,6 +322,14 @@ export default function AdaptPage() {
     usageRemaining, 
     decrementUsage 
   } = useUserStore();
+
+  // 使用次数提醒弹窗状态
+  const [showUsageReminder, setShowUsageReminder] = useState(false);
+  const [usageReminderCount, setUsageReminderCount] = useState(0);
+  
+  // 高级功能权限弹窗状态
+  const [showPremiumFeature, setShowPremiumFeature] = useState(false);
+  const [premiumFeatureInfo, setPremiumFeatureInfo] = useState({ name: '', description: '' });
 
   const platforms = useMemo(() => [
     { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-rose-500" /> },
@@ -445,6 +457,26 @@ export default function AdaptPage() {
   // Check if content meets requirements for selected platforms
   const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && usageRemaining > 0;
 
+  // 检查使用次数并显示提醒
+  const checkUsageAndShowReminder = () => {
+    if (usageRemaining <= 3 && usageRemaining > 0) {
+      setUsageReminderCount(usageRemaining);
+      setShowUsageReminder(true);
+      return false;
+    }
+    return true;
+  };
+
+  // 检查高级功能权限
+  const checkPremiumFeature = (featureName: string, featureDescription: string) => {
+    if (userPlan === 'free') {
+      setPremiumFeatureInfo({ name: featureName, description: featureDescription });
+      setShowPremiumFeature(true);
+      return false;
+    }
+    return true;
+  };
+
   // Handle platform selection
   const togglePlatform = (platformId: string, isChecked: boolean) => {
     if (isChecked) {
@@ -549,6 +581,12 @@ export default function AdaptPage() {
   // 修改generateContent，在内容生成成功后调用saveToHistory
   const generateContent = async () => {
     if (!canGenerate) return;
+    
+    // 检查使用次数并显示提醒
+    if (!checkUsageAndShowReminder()) {
+      return;
+    }
+    
     if (usageRemaining <= 0) {
       toast({
         title: "使用次数已用完",
@@ -1487,7 +1525,12 @@ export default function AdaptPage() {
               <Checkbox 
                 id="use-brand-library" 
                 checked={useBrandLibrary}
-                onCheckedChange={(checked) => setUseBrandLibrary(!!checked)}
+                onCheckedChange={(checked) => {
+                  if (checked && !checkPremiumFeature('品牌库功能', '使用品牌库资料进行创作，AI会自动遵循您的品牌语言规范')) {
+                    return;
+                  }
+                  setUseBrandLibrary(!!checked);
+                }}
               />
               <div>
                 <Label htmlFor="use-brand-library" className="text-sm cursor-pointer">
@@ -2219,6 +2262,30 @@ export default function AdaptPage() {
     <PlatformApiManager 
       open={apiManagerOpen} 
       onOpenChange={setApiManagerOpen} 
+    />
+
+    {/* 使用次数提醒弹窗 */}
+    <UsageReminderDialog
+      isOpen={showUsageReminder}
+      onClose={() => setShowUsageReminder(false)}
+      onUpgrade={() => {
+        setShowUsageReminder(false);
+        navigate('/payment');
+      }}
+      remainingCount={usageReminderCount}
+      userType={userPlan === 'free' ? 'trial' : 'pro'}
+    />
+
+    {/* 高级功能权限弹窗 */}
+    <PremiumFeatureDialog
+      isOpen={showPremiumFeature}
+      onClose={() => setShowPremiumFeature(false)}
+      onUpgrade={() => {
+        setShowPremiumFeature(false);
+        navigate('/payment');
+      }}
+      featureName={premiumFeatureInfo.name}
+      featureDescription={premiumFeatureInfo.description}
     />
     </div>
   );
