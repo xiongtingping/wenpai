@@ -139,7 +139,7 @@ ${mockResult.content}
 请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
           }];
 
-          const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 500);
+          const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 500);
           
           if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
             mockResult.summary = response.data.data.choices[0].message.content;
@@ -348,7 +348,7 @@ ${result.content}
 请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
       }];
 
-      const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 500);
+      const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 500);
       
       let summary;
       if (response.success && response.data?.data?.choices?.[0]?.message?.content) {

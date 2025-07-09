@@ -29,7 +29,7 @@ export interface ProxyResponse<T = any> {
  */
 export async function callOpenAIProxy(
   messages: any[],
-  model: string = 'gpt-3.5-turbo',
+  model: string = 'gpt-4o',
   temperature: number = 0.7,
   maxTokens: number = 1000
 ): Promise<ProxyResponse> {

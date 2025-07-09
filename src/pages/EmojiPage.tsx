@@ -289,7 +289,7 @@ const EmojiPage: React.FC = () => {
 推荐理由: 详细说明每个emoji的使用场景和情感表达效果`
       }];
 
-      const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 300);
+      const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 300);
       
       if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
         const content = response.data.data.choices[0].message.content;

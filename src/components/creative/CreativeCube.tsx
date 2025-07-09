@@ -1375,7 +1375,7 @@ Your output must feel like it was written by a real KOC or content strategist �
       console.log('调用OpenAI API，消息数量:', messages.length);
       console.log('用户提示词长度:', prompt.length);
 
-      const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 1000);
+      const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 1000);
 
       console.log('AI服务响应:', response);
 

@@ -99,7 +99,7 @@ export interface ContentAdaptResponse {
 
 // API提供商配置
 let currentApiProvider = 'openai';
-let currentModel = 'gpt-3.5-turbo';
+let currentModel = 'gpt-4o';
 
 /**
  * 设置API提供商
@@ -107,6 +107,14 @@ let currentModel = 'gpt-3.5-turbo';
  */
 export function setApiProvider(provider: string): void {
   currentApiProvider = provider;
+  // 当切换提供商时，自动设置最佳模型
+  if (provider === 'openai') {
+    currentModel = 'gpt-4o';
+  } else if (provider === 'deepseek') {
+    currentModel = 'deepseek-v3';
+  } else if (provider === 'gemini') {
+    currentModel = 'gemini-pro';
+  }
 }
 
 /**
@@ -139,8 +147,8 @@ export function getModel(): string {
  */
 export function getAvailableModels(): Record<string, string[]> {
   return {
-    openai: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo'],
-    deepseek: ['deepseek-chat', 'deepseek-coder'],
+    openai: ['gpt-4o', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'],
+    deepseek: ['deepseek-v3', 'deepseek-chat', 'deepseek-coder'],
     gemini: ['gemini-pro', 'gemini-pro-vision']
   };
 }
@@ -159,44 +167,56 @@ interface ModelDescription {
  * 模型描述
  */
 export const modelDescriptions: Record<string, ModelDescription> = {
-  'gpt-3.5-turbo': {
-    name: '快速、经济的选择，适合一般内容生成',
-    useCases: ['一般内容生成', '简单问答', '文本总结'],
-    strengths: ['响应快速', '成本较低', '稳定性好'],
-    bestFor: '日常内容创作和简单任务'
+  'gpt-4o': {
+    name: 'GPT-4o (推荐) - 最新最强大的AI模型',
+    useCases: ['高级内容创作', '复杂分析', '创意设计', '专业写作'],
+    strengths: ['性能最佳', '理解能力最强', '创意丰富', '响应快速'],
+    bestFor: '对质量要求极高的专业任务，优先推荐'
   },
-  'gpt-4': {
-    name: '更智能的模型，适合复杂任务',
+  'gpt-4-turbo': {
+    name: 'GPT-4 Turbo - 高性能平衡选择',
     useCases: ['复杂分析', '创意写作', '技术文档'],
     strengths: ['理解能力强', '逻辑清晰', '创意丰富'],
     bestFor: '需要深度思考的复杂任务'
   },
-  'gpt-4-turbo': {
-    name: '最新版本，性能最佳',
-    useCases: ['高级分析', '创意设计', '专业写作'],
-    strengths: ['性能最佳', '知识最新', '功能全面'],
-    bestFor: '对质量要求极高的专业任务'
+  'gpt-4': {
+    name: 'GPT-4 - 经典智能模型',
+    useCases: ['复杂分析', '创意写作', '技术文档'],
+    strengths: ['理解能力强', '逻辑清晰', '创意丰富'],
+    bestFor: '需要深度思考的复杂任务'
+  },
+  'gpt-3.5-turbo': {
+    name: 'GPT-3.5 Turbo - 快速经济选择',
+    useCases: ['一般内容生成', '简单问答', '文本总结'],
+    strengths: ['响应快速', '成本较低', '稳定性好'],
+    bestFor: '日常内容创作和简单任务'
+  },
+  'deepseek-v3': {
+    name: 'DeepSeek V3 (备选) - 中文优化最新版本',
+    useCases: ['中文写作', '本地化内容', '中文分析', '创意内容'],
+    strengths: ['中文理解优秀', '文化适应性强', '表达自然', '性能强劲'],
+    bestFor: '中文内容创作和本地化任务，备选推荐'
   },
   'deepseek-chat': {
-    name: '中文优化，适合中文内容生成',
+    name: 'DeepSeek Chat - 中文优化模型',
     useCases: ['中文写作', '本地化内容', '中文分析'],
     strengths: ['中文理解优秀', '文化适应性强', '表达自然'],
     bestFor: '中文内容创作和本地化任务'
   },
   'deepseek-coder': {
-    name: '代码生成优化',
+    name: 'DeepSeek Coder - 代码生成优化',
     useCases: ['代码生成', '代码审查', '技术文档'],
     strengths: ['代码质量高', '技术理解深', '注释完整'],
     bestFor: '编程和技术相关任务'
   },
   'gemini-pro': {
-    name: 'Google的AI模型，多语言支持',
+    name: 'Gemini Pro - Google多语言模型',
     useCases: ['多语言内容', '跨文化分析', '国际化任务'],
     strengths: ['多语言支持', '文化敏感', '全球化视角'],
     bestFor: '多语言和国际化内容创作'
   },
   'gemini-pro-vision': {
-    name: '支持图像理解的模型',
+    name: 'Gemini Pro Vision - 支持图像理解',
     useCases: ['图像分析', '视觉内容创作', '图文结合'],
     strengths: ['视觉理解强', '图文结合', '创意丰富'],
     bestFor: '需要图像理解的任务'

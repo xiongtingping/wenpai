@@ -1199,7 +1199,7 @@ export default function AdaptPage() {
         <CardHeader>
           <CardTitle className="text-lg">AI 模型选择</CardTitle>
           <CardDescription>
-            选择适合您需求的AI模型，不同模型适合不同的内容类型
+            默认优先调用GPT-4o模型，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容
           </CardDescription>
         </CardHeader>
         <CardContent>

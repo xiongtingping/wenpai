@@ -20,7 +20,7 @@ export interface DevProxyResponse<T = any> {
 const OPENAI_CONFIG = {
   endpoint: 'https://api.openai.com/v1/chat/completions',
   apiKey: 'sk-proj-your-api-key-here', // 需要配置真实的API Key
-  model: 'gpt-3.5-turbo'
+  model: 'gpt-4o'
 };
 
 /**
@@ -33,7 +33,7 @@ const OPENAI_CONFIG = {
  */
 export async function callOpenAIDevProxy(
   messages: any[],
-  model: string = 'gpt-3.5-turbo',
+  model: string = 'gpt-4o',
   temperature: number = 0.7,
   maxTokens: number = 1000
 ): Promise<DevProxyResponse> {
@@ -217,7 +217,7 @@ export async function testDevApiConnectivity(): Promise<DevProxyResponse> {
   try {
     // 简单的连接测试
     const testMessages = [{ role: 'user', content: 'Hello' }];
-    const response = await callOpenAIDevProxy(testMessages, 'gpt-3.5-turbo', 0.7, 50);
+    const response = await callOpenAIDevProxy(testMessages, 'gpt-4o', 0.7, 50);
     
     return {
       success: true,
