@@ -287,12 +287,12 @@ export default function BookmarkPage() {
       
       const newItem: LibraryItem = {
         id: Date.now().toString(),
-        title: extractMethod === 'url' ? `智采器：${extractUrl}` : `智采器：${selectedFile?.name}`,
+        title: extractMethod === 'url' ? `内容提取：${extractUrl}` : `内容提取：${selectedFile?.name}`,
         content: generateMockExtractedContent(extractMethod === 'url' ? extractUrl : selectedFile?.name || ''),
         type: 'extraction',
         source: extractMethod === 'url' ? extractUrl : selectedFile?.name,
         sourceType: extractMethod,
-        tags: ['智采器', extractMethod === 'url' ? '网页提取' : selectedFile?.type.includes('image') ? 'OCR识别' : selectedFile?.type.includes('pdf') ? 'PDF提取' : '文档提取'],
+                  tags: ['内容提取', extractMethod === 'url' ? '网页提取' : selectedFile?.type.includes('image') ? 'OCR识别' : selectedFile?.type.includes('pdf') ? 'PDF提取' : '文档提取'],
         isFavorite: false,
         isUsed: false,
         category: '智能提取',
@@ -312,12 +312,12 @@ export default function BookmarkPage() {
       setSelectedFile(null);
       
       toast({
-        title: "智采器提取成功",
+        title: "内容提取成功",
         description: "内容已智能提取并添加到资料库",
       });
     } catch {
       toast({
-        title: "智采器提取失败",
+        title: "内容提取失败",
         description: "请检查网络连接或文件格式后重试",
         variant: "destructive"
       });
@@ -333,7 +333,7 @@ export default function BookmarkPage() {
     const isImage = source.includes('.jpg') || source.includes('.png') || source.includes('.jpeg');
     const isPDF = source.includes('.pdf');
     
-    return `# 智采器提取：${source}
+    return `# 内容提取：${source}
 
 ## 📄 智能提取结果
 
@@ -520,7 +520,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
       case 'collection':
         return { icon: <Bookmark className="w-4 h-4" />, name: '网络收藏' };
       case 'extraction':
-        return { icon: <Zap className="w-4 h-4" />, name: '智采器' };
+        return { icon: <Zap className="w-4 h-4" />, name: '内容提取' };
       case 'copywriting':
         return { icon: <Brain className="w-4 h-4" />, name: '文案管理' };
       default:
@@ -596,7 +596,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
       {/* 页面导航 */}
       <PageNavigation
         title="我的资料库"
-        description="统一管理网络收藏、智采器和文案管理"
+        description="统一管理网络收藏、内容提取和文案管理"
         actions={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
@@ -630,7 +630,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
               </TabsTrigger>
               <TabsTrigger value="extraction" className="flex items-center gap-2">
                 <Zap className="w-4 h-4" />
-                智采器
+                内容提取
               </TabsTrigger>
               <TabsTrigger value="copywriting" className="flex items-center gap-2">
                 <Brain className="w-4 h-4" />
@@ -933,7 +933,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>智采器 - 内容提取</DialogTitle>
+              <DialogTitle>内容提取</DialogTitle>
               <DialogDescription>
                 从网页、PDF、图片中智能提取文字内容并生成AI总结
               </DialogDescription>
@@ -1130,7 +1130,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
               <DialogTitle>编辑内容</DialogTitle>
               <DialogDescription>
                 修改{editingItem?.type === 'collection' ? '网络收藏' : 
-                     editingItem?.type === 'extraction' ? '智采器' : '文案管理'}内容
+                     editingItem?.type === 'extraction' ? '内容提取' : '文案管理'}内容
               </DialogDescription>
             </DialogHeader>
             {editingItem && (
@@ -1222,7 +1222,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
               </div>
               <DialogDescription>
                 {viewingItem?.type === 'collection' ? '网络收藏' : 
-                 viewingItem?.type === 'extraction' ? '智采器提取' : '文案管理'}
+                 viewingItem?.type === 'extraction' ? '内容提取' : '文案管理'}
                 {viewingItem?.source && ` • 来源：${viewingItem.source}`}
               </DialogDescription>
             </DialogHeader>

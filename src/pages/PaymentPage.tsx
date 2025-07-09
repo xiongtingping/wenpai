@@ -49,13 +49,22 @@ export default function PaymentPage() {
   // 处理计划选择
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
-    setShowQRCode(false);
+    if (plan.tier !== 'trial') {
+      setShowQRCode(true);
+      toast({
+        title: "支付二维码已显示",
+        description: "请使用手机扫码完成支付",
+      });
+    }
   };
 
   // 处理周期选择
   const handlePeriodSelect = (period: SubscriptionPeriod) => {
     setSelectedPeriod(period);
-    setShowQRCode(false);
+    // 如果已选择计划且不是体验版，重新显示支付二维码
+    if (selectedPlan && selectedPlan.tier !== 'trial') {
+      setShowQRCode(true);
+    }
   };
 
   // 获取当前价格
@@ -235,6 +244,10 @@ export default function PaymentPage() {
                   variant={isSelected ? "default" : "outline"}
                   className="w-full"
                   disabled={plan.tier === 'trial'}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePlanSelect(plan);
+                  }}
                 >
                   {plan.tier === 'trial' ? '当前版本' : isSelected ? '已选择' : '选择此计划'}
                 </Button>
@@ -244,59 +257,7 @@ export default function PaymentPage() {
         })}
       </div>
 
-      {/* 选中计划详情 */}
-      {selectedPlan && selectedPlan.tier !== 'trial' && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>订单信息</CardTitle>
-            <p className="text-muted-foreground text-sm">
-              您选择的是{selectedPlan.name} - {selectedPeriod === 'monthly' ? '按月订阅' : '按年订阅'}
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center py-4 border-b">
-              <div>
-                <p className="font-medium">{selectedPlan.name}</p>
-                <p className="text-muted-foreground text-sm">
-                  {selectedPeriod === 'monthly' ? '按月订阅' : '按年订阅'}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="flex flex-col items-end gap-1">
-                  <div className="text-xl font-bold text-red-600">
-                    ¥{getCurrentPrice()}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      /{selectedPeriod === 'monthly' ? '月' : '年'}
-                    </span>
-                  </div>
-                  {isInDiscountPeriod(registrationDate) && timeLeft > 0 && (
-                    <>
-                      <div className="text-xs text-red-500">
-                        限时特惠价 省¥{getSavedAmount()}
-                      </div>
-                      <div className="text-xs text-gray-500 line-through">
-                        ¥{getOriginalPrice()} 原价
-                      </div>
-                      <div className="text-xs text-red-500 mt-1">
-                        倒计时：{formatTimeLeft()}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
 
-            <div className="mt-4">
-              <h3 className="font-medium mb-2">您将获得：</h3>
-              <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
-                {selectedPlan.features.map((feature, index) => (
-                  <li key={index}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* 支付二维码 */}
       {showQRCode && selectedPlan && selectedPlan.tier !== 'trial' && (
@@ -375,18 +336,7 @@ export default function PaymentPage() {
         </Card>
       )}
 
-      {/* 支付按钮 */}
-      {selectedPlan && selectedPlan.tier !== 'trial' && !showQRCode && (
-        <div className="text-center">
-          <Button 
-            size="lg"
-            className="bg-gradient-to-r from-blue-500 to-purple-600" 
-            onClick={handlePayment}
-          >
-            立即支付
-          </Button>
-        </div>
-      )}
+
 
       <div className="mt-8 text-center text-sm text-muted-foreground">
         <p className="text-green-600 font-medium mb-2">💡 随时可取消</p>

@@ -82,7 +82,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/content-extractor': {
     path: '/content-extractor',
-    title: '智采器',
+            title: '内容提取',
     icon: FileText,
     level: 3,
     parent: '/library',

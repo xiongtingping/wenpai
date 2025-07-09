@@ -47,6 +47,12 @@ import {
   getModel,
   getAvailableModels
 } from "@/api/contentAdapter";
+import { 
+  getAvailableModelsForTier, 
+  getModelInfo, 
+  isModelAvailableForTier,
+  type AIModel 
+} from "@/config/aiModels";
 import { useUserStore } from "@/store/userStore";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -316,6 +322,9 @@ export default function AdaptPage() {
   const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>('openai');
   const [selectedModel, setSelectedModel] = useState(getModel());
   const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  
+  // AI模型选择
+  const availableModels = getAvailableModelsForTier(userPlan === 'free' ? 'trial' : userPlan === 'pro' ? 'pro' : 'premium');
   
   // User store for usage tracking
   const { 
@@ -1562,6 +1571,38 @@ export default function AdaptPage() {
           {showAdvancedSettings && (
             <div className="mt-4 border-t pt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* AI模型选择 */}
+                <div>
+                  <Label className="text-xs mb-2 block">AI模型选择</Label>
+                  <Select 
+                    value={selectedModel}
+                    onValueChange={(value) => {
+                      setSelectedModel(value);
+                      setModel(value);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择AI模型" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableModels.map((model) => (
+                        <SelectItem key={model.id} value={model.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{model.name}</span>
+                            <span className="text-xs text-muted-foreground">{model.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedModel && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <p className="font-medium">{getModelInfo(selectedModel)?.name}</p>
+                      <p>{getModelInfo(selectedModel)?.description}</p>
+                    </div>
+                  )}
+                </div>
+                
                 <div>
                   <Label className="text-xs mb-2 block">全局字符数限制</Label>
                   <Select 

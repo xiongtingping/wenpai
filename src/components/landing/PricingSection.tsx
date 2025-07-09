@@ -259,18 +259,7 @@ export function PricingSection() {
                       <span className="text-green-600 font-medium">✅</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">智采器</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-red-500 font-medium">❌</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-red-500 font-medium">❌</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-green-600 font-medium">✅</span>
-                    </td>
-                  </tr>
+
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">品牌库</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">

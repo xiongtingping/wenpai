@@ -97,7 +97,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/content-extractor': {
     path: '/content-extractor',
-    title: '智采器',
+            title: '内容提取',
     icon: FileText,
     level: 3,
     parent: '/library',
@@ -197,7 +197,7 @@ interface PageNavigationProps {
   title?: string;
   /** 页面描述 */
   description?: string;
-  /** 是否显示AI适配器快速访问按钮 */
+  /** 是否显示AI内容适配器快速访问按钮 */
   showAdaptButton?: boolean;
   /** 额外的操作按钮 */
   actions?: React.ReactNode;
@@ -297,7 +297,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
             {/* 升级专业版按钮 */}
             <UpgradeButton />
             
-            {/* AI适配器快速访问 - 只在二级页面显示 */}
+            {/* AI内容适配器快速访问 - 只在二级页面显示 */}
             {showAdaptButton && path !== '/adapt' && currentConfig.level === 2 && (
               <Button
                 onClick={() => navigate('/adapt')}
@@ -315,7 +315,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                 "
               >
                 <Zap className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                <span className="text-sm font-medium">AI适配器</span>
+                <span className="text-sm font-medium">AI内容适配器</span>
               </Button>
             )}
             

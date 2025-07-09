@@ -8,8 +8,10 @@ import * as XLSX from 'xlsx';
 // 图片 OCR
 import Tesseract from 'tesseract.js';
 
-// 配置 PDF.js worker - 使用空字符串避免CORS问题，PDF.js会自动使用主线程
-pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+// 配置 PDF.js worker - 禁用worker，使用主线程处理
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = null as any;
+}
 
 /**
  * AI 分析服务
@@ -262,15 +264,25 @@ ${content}
           } 
           // PDF 文件处理
           else if (file.type.includes('pdf') || fileExtension === '.pdf') {
-            const typedArray = new Uint8Array(e.target?.result as ArrayBuffer);
-            const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
-            let text = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
-              const page = await pdf.getPage(i);
-              const content = await page.getTextContent();
-              text += content.items.map((item: any) => item.str).join(' ');
+            try {
+              const typedArray = new Uint8Array(e.target?.result as ArrayBuffer);
+              const pdf = await pdfjsLib.getDocument({ 
+                data: typedArray,
+                useWorkerFetch: false,
+                isEvalSupported: false,
+                useSystemFonts: true
+              }).promise;
+              let text = '';
+              for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map((item: any) => item.str).join(' ');
+              }
+              resolve(text);
+            } catch (pdfError) {
+              console.warn('PDF解析失败，返回文件名作为内容:', pdfError);
+              resolve(`PDF文件: ${file.name} (内容解析失败，请检查文件格式)`);
             }
-            resolve(text);
           } 
           // Word 文档处理
           else if (file.type.includes('word') || fileExtension === '.docx' || fileExtension === '.doc') {

@@ -50,7 +50,7 @@ export function PremiumFeatureDialog({
               <li>• 不限量AI内容适配</li>
               <li>• 创意魔方功能</li>
               <li>• 全网雷达功能</li>
-              <li>• 智采器功能</li>
+              
               <li>• 品牌库功能</li>
               <li>• 最新AI模型</li>
               <li>• 余额继承机制</li>

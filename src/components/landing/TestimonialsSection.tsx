@@ -47,7 +47,7 @@ function TestimonialCard({ content, name, position, index }: TestimonialProps) {
 export function TestimonialsSection() {
   const testimonials = [
     {
-      content: "过去一个团队半天的工作量，现在用AI适配器10分钟就搞定了，而且内容质量和品牌一致性都非常有保障。这是我们团队今年引入的最有价值的工具。",
+              content: "过去一个团队半天的工作量，现在用AI内容适配器10分钟就搞定了，而且内容质量和品牌一致性都非常有保障。这是我们团队今年引入的最有价值的工具。",
       name: "王经理",
       position: "某快消品牌市场总监"
     },

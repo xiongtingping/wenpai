@@ -53,7 +53,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     limits: {
       adaptUsageLimit: 30,
       tokenLimit: 200000,
-      availableModels: ['GPT-4o'],
+      availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
       availableFeatures: ['AI内容适配器（30次/月）', '创意魔方', '我的资料库', '高级模型']
     },
     recommended: true,
@@ -84,14 +84,13 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     limits: {
       adaptUsageLimit: -1, // 不限量
       tokenLimit: 500000,
-      availableModels: ['GPT-4o', '最新模型'],
-      availableFeatures: ['AI内容适配器（不限量）', '创意魔方', '全网雷达', '智采器', '我的资料库', '品牌库', '高级模型及最新模型']
+      availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
+      availableFeatures: ['AI内容适配器（不限量）', '创意魔方', '全网雷达', '我的资料库', '品牌库', '高级模型及最新模型']
     },
     features: [
       'AI内容适配器（不限量）',
       '创意魔方',
       '全网雷达',
-      '智采器',
       '我的资料库',
       '品牌库',
       '高级模型及最新模型'
