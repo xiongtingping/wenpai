@@ -314,19 +314,6 @@ export default function ProfilePage() {
         title="个人中心"
         description="管理您的个人信息和账户设置"
         showAdaptButton={false}
-        actions={
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="hover:bg-blue-100 text-blue-600 -ml-2"
-            >
-              <Home className="h-4 w-4 mr-1" />
-              返回首页
-            </Button>
-          </div>
-        }
       />
 
       <div className="container mx-auto px-4 pt-6 pb-8 max-w-7xl">

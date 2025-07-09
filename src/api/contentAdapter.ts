@@ -147,9 +147,9 @@ export function getModel(): string {
  */
 export function getAvailableModels(): Record<string, string[]> {
   return {
-    openai: ['gpt-4o', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'],
-    deepseek: ['deepseek-v3', 'deepseek-chat', 'deepseek-coder'],
-    gemini: ['gemini-pro', 'gemini-pro-vision']
+    openai: ['gpt-4o'],
+    deepseek: ['deepseek-v3'],
+    gemini: ['gemini-pro']
   };
 }
 

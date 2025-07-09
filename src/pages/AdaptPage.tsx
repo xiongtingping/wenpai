@@ -1592,11 +1592,10 @@ export default function AdaptPage() {
               <Label className="text-sm mb-2 block">API 提供商</Label>
               <Select 
                 value={apiProvider}
-                onValueChange={(value: 'openai' | 'gemini' | 'deepseek') => {
-                  setCurrentApiProvider(value);
-                  setApiProvider(value as 'openai' | 'deepseek' | 'gemini');
-                  // 重置模型为第一个可用模型
-                  const available = getAvailableModels()[apiProvider] || [];
+                onValueChange={(value) => {
+                  setApiProvider(value);
+                  setApiProvider(value);
+                  const available = getAvailableModels()[value] || [];
                   if (available.length > 0) {
                     setSelectedModel(available[0]);
                     setModel(available[0]);
@@ -1610,32 +1609,16 @@ export default function AdaptPage() {
                   <SelectItem value="openai">
                     <div className="flex flex-col">
                       <span className="font-medium text-blue-600">OpenAI</span>
-                      <span className="text-xs text-gray-500">GPT-3.5/4系列</span>
+                      <span className="text-xs text-gray-500">GPT-4o</span>
                     </div>
                   </SelectItem>
 
                   <SelectItem value="deepseek">
                     <div className="flex flex-col">
                       <span className="font-medium text-orange-600">DeepSeek</span>
-                      <span className="text-xs text-gray-500">DeepSeek系列</span>
+                      <span className="text-xs text-gray-500">DeepSeek V3</span>
                     </div>
                   </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label className="text-sm mb-2 block">用户计划</Label>
-              <Select 
-                value={userPlan}
-                onValueChange={(value: 'free' | 'pro') => setUserPlan(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="选择用户计划" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="free">免费版 (基础模型)</SelectItem>
-                  <SelectItem value="pro">专业版 (所有模型)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1662,7 +1645,6 @@ export default function AdaptPage() {
                   })}
                 </SelectContent>
               </Select>
-
             </div>
           </div>
           
