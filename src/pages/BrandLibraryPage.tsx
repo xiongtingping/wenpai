@@ -332,7 +332,6 @@ export default function BrandLibraryPage() {
       <PageNavigation
         title="品牌资料库"
         description="上传并管理品牌资料，AI 自动分析品牌调性"
-        icon={<BookOpen className="h-6 w-6" />}
       />
 
       <div className="container mx-auto py-6 space-y-6">

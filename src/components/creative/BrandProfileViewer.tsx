@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Target, MessageSquare, Users, Sparkles } from "lucide-react";
+import { BrandProfile } from '@/types/brand';
 
 interface BrandProfileViewerProps {
   profile: BrandProfile;

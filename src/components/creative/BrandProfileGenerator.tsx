@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, FileText, AlertCircle, Brain } from "lucide-react";
 import BrandProfileService from '@/services/brandProfileService';
+import { BrandProfile } from '@/types/brand';
 
 interface BrandProfileGeneratorProps {
   onProfileGenerated: (profile: BrandProfile) => void;
