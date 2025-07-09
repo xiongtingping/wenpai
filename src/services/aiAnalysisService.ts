@@ -8,11 +8,14 @@ import * as XLSX from 'xlsx';
 // 图片 OCR
 import Tesseract from 'tesseract.js';
 
-// 配置 PDF.js worker - 完全禁用worker，使用主线程处理
+// 配置 PDF.js worker - 使用官方CDN worker
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = null as any;
-  // 禁用worker相关功能
-  pdfjsLib.GlobalWorkerOptions.workerPort = null as any;
+  try {
+    // 使用官方CDN worker，避免CORS问题
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  } catch (error) {
+    console.warn('PDF.js worker配置失败:', error);
+  }
 }
 
 /**

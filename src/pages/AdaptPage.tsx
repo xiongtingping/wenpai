@@ -51,6 +51,8 @@ import {
   getAvailableModelsForTier, 
   getModelInfo, 
   isModelAvailableForTier,
+  getAllModels,
+  getModelProvider,
   type AIModel 
 } from "@/config/aiModels";
 import { useUserStore } from "@/store/userStore";
@@ -321,10 +323,26 @@ export default function AdaptPage() {
   // AI Model settings
   const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>('openai');
   const [selectedModel, setSelectedModel] = useState(getModel());
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
   
-  // AI模型选择
-  const availableModels = getAvailableModelsForTier(userPlan === 'free' ? 'trial' : userPlan === 'pro' ? 'pro' : 'premium');
+  // 订阅等级本地状态，后续可全局提升
+  const [userPlan, setUserPlan] = useState<'trial' | 'pro' | 'premium'>('trial');
+  
+  // 获取可用模型
+  const availableModels = getAvailableModelsForTier(userPlan);
+  
+  // 所有模型
+  const allModels = getAllModels();
+  
+  // 处理模型选择
+  const handleModelSelect = (modelId: string, disabled: boolean) => {
+    if (disabled) return;
+    setSelectedModel(modelId);
+    setModel(modelId);
+    // 自动切换API提供商
+    const provider = getModelProvider(modelId);
+    if (provider === 'OpenAI') setCurrentApiProvider('openai');
+    if (provider === 'DeepSeek') setCurrentApiProvider('deepseek');
+  };
   
   // User store for usage tracking
   const { 
@@ -478,7 +496,7 @@ export default function AdaptPage() {
 
   // 检查高级功能权限
   const checkPremiumFeature = (featureName: string, featureDescription: string) => {
-    if (userPlan === 'free') {
+    if (userPlan === 'trial') {
       setPremiumFeatureInfo({ name: featureName, description: featureDescription });
       setShowPremiumFeature(true);
       return false;
@@ -1672,76 +1690,60 @@ export default function AdaptPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* GPT-4o 选项 */}
-              <div 
-                className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                  selectedModel === 'gpt-4o' 
-                    ? 'border-blue-500 bg-blue-50 shadow-sm' 
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
-                onClick={() => {
-                  setSelectedModel('gpt-4o');
-                  setModel('gpt-4o');
-                  setApiProvider('openai');
-                }}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    selectedModel === 'gpt-4o' 
-                      ? 'border-blue-500 bg-blue-500' 
-                      : 'border-gray-300'
-                  }`}>
-                    {selectedModel === 'gpt-4o' && (
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-blue-600">OpenAI GPT-4o</span>
-                      <Badge className="bg-blue-100 text-blue-700 text-xs">推荐</Badge>
+            <div className="flex gap-4 flex-wrap">
+              {allModels.map((model) => {
+                const isAvailable = availableModels.some(m => m.id === model.id);
+                let disabled = !isAvailable;
+                let badge = '';
+                if (model.id === 'gpt-4o' && userPlan === 'trial') badge = '专业版/高级版专属';
+                return (
+                  <div
+                    key={model.id}
+                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all w-72 min-h-[120px] flex flex-col justify-between ${
+                      selectedModel === model.id
+                        ? 'border-blue-500 bg-blue-50 shadow-sm'
+                        : disabled
+                        ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                    onClick={() => handleModelSelect(model.id, disabled)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        selectedModel === model.id
+                          ? 'border-blue-500 bg-blue-500'
+                          : 'border-gray-300'
+                      }`}>
+                        {selectedModel === model.id && (
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-blue-600">{model.name}</span>
+                          {badge && (
+                            <Badge className="bg-gray-200 text-gray-600 text-xs ml-2">{badge}</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">{model.description}</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      最新最强大的AI模型，性能卓越，创意丰富
-                    </p>
                   </div>
-                </div>
+                );
+              })}
+            </div>
+            {selectedModel && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                <p className="font-medium">{getModelInfo(selectedModel)?.name}</p>
+                <p>{getModelInfo(selectedModel)?.description}</p>
               </div>
-
-              {/* DeepSeek V3 选项 */}
-              <div 
-                className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                  selectedModel === 'deepseek-v3' 
-                    ? 'border-orange-500 bg-orange-50 shadow-sm' 
-                    : 'border-gray-200 hover:border-orange-300'
-                }`}
-                onClick={() => {
-                  setSelectedModel('deepseek-v3');
-                  setModel('deepseek-v3');
-                  setApiProvider('deepseek');
-                }}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    selectedModel === 'deepseek-v3' 
-                      ? 'border-orange-500 bg-orange-500' 
-                      : 'border-gray-300'
-                  }`}>
-                    {selectedModel === 'deepseek-v3' && (
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-orange-600">DeepSeek V3</span>
-                      <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs">备选</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      中文优化模型，理解力强，适合本地化内容
-                    </p>
-                  </div>
-                </div>
-              </div>
+            )}
+            {/* 订阅等级切换，仅开发/测试用，正式版应自动获取 */}
+            <div className="mt-4 flex gap-2 items-center">
+              <span className="text-xs text-gray-500">模拟订阅等级：</span>
+              <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
+              <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
+              <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
             </div>
           </div>
         </CardContent>
@@ -2314,7 +2316,7 @@ export default function AdaptPage() {
         navigate('/payment');
       }}
       remainingCount={usageReminderCount}
-      userType={userPlan === 'free' ? 'trial' : 'pro'}
+      userType={userPlan === 'trial' ? 'trial' : 'pro'}
     />
 
     {/* 高级功能权限弹窗 */}
