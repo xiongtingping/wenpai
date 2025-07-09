@@ -8,6 +8,9 @@ import * as XLSX from 'xlsx';
 // 图片 OCR
 import Tesseract from 'tesseract.js';
 
+// 配置 PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
 /**
  * AI 分析服务
  * @description 处理品牌资料的 AI 分析，使用 GPT-4 模型
