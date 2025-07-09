@@ -107,10 +107,11 @@ export function PricingSection() {
                   <p className="text-sm text-gray-500 mt-1">支持主流平台内容适配</p>
                 </div>
               </li>
+
               <li className="flex items-start space-x-3">
                 <X className="w-5 h-5 text-red-500 mt-0.5" />
                 <div>
-                  <span className="text-gray-400 line-through">Emoji表情库</span>
+                  <span className="text-gray-400 line-through">智采器</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
                     <Crown className="w-3 h-3 mr-1" />
                     专业版
@@ -120,7 +121,7 @@ export function PricingSection() {
               <li className="flex items-start space-x-3">
                 <X className="w-5 h-5 text-red-500 mt-0.5" />
                 <div>
-                  <span className="text-gray-400 line-through">内容提取功能</span>
+                  <span className="text-gray-400 line-through">品牌库</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
                     <Crown className="w-3 h-3 mr-1" />
                     专业版
@@ -130,17 +131,7 @@ export function PricingSection() {
               <li className="flex items-start space-x-3">
                 <X className="w-5 h-5 text-red-500 mt-0.5" />
                 <div>
-                  <span className="text-gray-400 line-through">品牌资料库</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <X className="w-5 h-5 text-red-500 mt-0.5" />
-                <div>
-                  <span className="text-gray-400 line-through">一键转发</span>
+                  <span className="text-gray-400 line-through">一键分发</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
                     <Crown className="w-3 h-3 mr-1" />
                     专业版
@@ -218,21 +209,11 @@ export function PricingSection() {
                   </Badge>
                 </div>
               </li>
+
               <li className="flex items-start space-x-3">
                 <Check className="w-5 h-5 text-purple-500 mt-0.5" />
                 <div>
-                  <span className="font-medium">Emoji表情库</span>
-                  <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
-                    <Crown className="w-3 h-3 mr-1" />
-                    专业版
-                  </Badge>
-                  <p className="text-sm text-gray-500 mt-1">一键生成符合平台调性的表情组合</p>
-                </div>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Check className="w-5 h-5 text-purple-500 mt-0.5" />
-                <div>
-                  <span className="font-medium">内容提取功能</span>
+                  <span className="font-medium">智采器</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
                     <Crown className="w-3 h-3 mr-1" />
                     专业版
@@ -243,7 +224,7 @@ export function PricingSection() {
               <li className="flex items-start space-x-3">
                 <Check className="w-5 h-5 text-purple-500 mt-0.5" />
                 <div>
-                  <span className="font-medium">品牌资料库</span>
+                  <span className="font-medium">品牌库</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
                     <Crown className="w-3 h-3 mr-1" />
                     专业版
@@ -254,12 +235,12 @@ export function PricingSection() {
               <li className="flex items-start space-x-3">
                 <Check className="w-5 h-5 text-purple-500 mt-0.5" />
                 <div>
-                  <span className="font-medium">一键转发</span>
+                  <span className="font-medium">一键分发</span>
                   <Badge variant="outline" className="ml-2 text-xs bg-purple-50 text-purple-700 border-purple-200">
                     <Crown className="w-3 h-3 mr-1" />
                     专业版
                   </Badge>
-                  <p className="text-sm text-gray-500 mt-1">支持一键将内容转发到多个平台</p>
+                  <p className="text-sm text-gray-500 mt-1">支持一键将内容分发到多个平台</p>
                 </div>
               </li>
               <li className="flex items-start space-x-3">
@@ -296,7 +277,7 @@ export function PricingSection() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI内容适配</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI内容适配器</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">每月10次</span>
                     </td>
@@ -305,7 +286,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">创意工作室</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">创意魔方</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-green-600 font-medium">✅ 免费</span>
                     </td>
@@ -314,7 +295,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网热点话题</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网雷达</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-green-600 font-medium">✅ 免费</span>
                     </td>
@@ -322,8 +303,9 @@ export function PricingSection() {
                       <span className="text-green-600 font-medium">✅ 免费</span>
                     </td>
                   </tr>
+
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">Emoji表情库</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">智采器</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-red-500 font-medium">❌</span>
                     </td>
@@ -332,7 +314,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">内容提取功能</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">品牌库</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-red-500 font-medium">❌</span>
                     </td>
@@ -341,16 +323,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">品牌资料库</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-red-500 font-medium">❌</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 font-medium">✅ 专业版</span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">一键转发</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">一键分发</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-red-500 font-medium">❌</span>
                     </td>

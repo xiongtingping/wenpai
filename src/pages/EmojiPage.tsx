@@ -258,8 +258,9 @@ const EmojiPage: React.FC = () => {
       {/* 页面导航 */}
       <PageNavigation
         title="Noto Emoji 生成器"
-        description="基于Google Noto Emoji项目的专业emoji生成工具"
+        description="专业emoji生成工具"
         showAdaptButton={false}
+        actions={<div></div>}
       />
 
       <div className="container mx-auto px-4 py-8 space-y-6">
@@ -268,16 +269,6 @@ const EmojiPage: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">项目信息</h3>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                  <Code className="h-3 w-3 mr-1" />
-                  Unicode 15.0
-                </Badge>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  <Star className="h-3 w-3 mr-1" />
-                  Google Noto
-                </Badge>
-              </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">

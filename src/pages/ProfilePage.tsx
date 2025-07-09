@@ -336,15 +336,17 @@ export default function ProfilePage() {
         description="管理您的个人信息和账户设置"
         showAdaptButton={false}
         actions={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="hover:bg-gray-100"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            返回首页
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              返回首页
+            </Button>
+          </div>
         }
       />
 
@@ -381,13 +383,26 @@ export default function ProfilePage() {
               <CardContent className="space-y-4 flex-1 flex flex-col">
                 {/* 头像和昵称 */}
                 <div className="text-center space-y-3">
-                  <AvatarUpload
-                    currentAvatar={editForm.avatar}
-                    nickname={editForm.nickname || user?.nickname || '用户'}
-                    size="lg"
-                    onAvatarChange={handleAvatarChange}
-                    disabled={false}
-                  />
+                  <div className="relative">
+                    <AvatarUpload
+                      currentAvatar={editForm.avatar}
+                      nickname={editForm.nickname || user?.nickname || '用户'}
+                      size="lg"
+                      onAvatarChange={handleAvatarChange}
+                      disabled={false}
+                    />
+                    {/* 头像修改保存按钮 */}
+                    {editForm.avatar !== user?.avatar && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSaveField('avatar', editForm.avatar)}
+                        className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Save className="w-3 h-3 mr-1" />
+                        保存头像
+                      </Button>
+                    )}
+                  </div>
                   
                   <div className="space-y-3">
                     <NicknameSelector

@@ -507,7 +507,7 @@ Good night, beautiful world 🌎
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">微信朋友圈文案模板</h1>
+          <h1 className="text-xl font-bold">微信朋友圈文案模板</h1>
           <p className="text-muted-foreground">精心设计的文案模板，让你的朋友圈更有魅力</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
