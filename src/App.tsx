@@ -33,6 +33,7 @@ import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import EmojiPage from '@/pages/EmojiPage';
+import AboutPage from '@/pages/AboutPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 
@@ -183,6 +184,8 @@ const AppContent: React.FC = () => {
             </ToolLayout>
           </ProtectedRoute>
         } />
+
+        <Route path="/about" element={<AboutPage />} />
 
         {/* 404 页面 */}
         <Route path="*" element={<NotFoundPage />} />

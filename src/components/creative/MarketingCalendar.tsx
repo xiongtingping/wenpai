@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, ChevronLeft, ChevronRight, Star, TrendingUp, Gift, Heart, Zap } from 'lucide-react';
+import { Lunar } from 'lunar-javascript';
 
 /**
  * 营销建议接口
@@ -26,28 +27,39 @@ interface MarketingSuggestion {
  */
 export default function MarketingCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [lunarInfo, setLunarInfo] = useState<any>(null);
   const [suggestions, setSuggestions] = useState<MarketingSuggestion[]>([]);
 
   /**
-   * 生成营销建议
+   * 获取农历信息
    */
   useEffect(() => {
-    generateSuggestions();
+    try {
+      const lunar = Lunar.fromDate(currentDate);
+      setLunarInfo(lunar);
+      generateSuggestions(lunar);
+    } catch (error) {
+      console.error('获取农历信息失败:', error);
+      // 即使农历信息获取失败，也要生成基本的营销建议
+      generateSuggestions(null);
+    }
   }, [currentDate]);
 
   /**
    * 生成营销建议
    */
-  const generateSuggestions = () => {
+  const generateSuggestions = (lunar: any) => {
     const newSuggestions: MarketingSuggestion[] = [];
     
-    // 获取日期信息
+    // 获取农历信息
+    const lunarMonth = lunar ? lunar.getMonth() : null;
+    const lunarDay = lunar ? lunar.getDay() : null;
     const solarMonth = currentDate.getMonth() + 1;
     const solarDay = currentDate.getDate();
     const weekDay = currentDate.getDay();
     
     // 传统节日
-    const festivals = getFestivals(solarMonth, solarDay);
+    const festivals = getFestivals(lunarMonth, lunarDay, solarMonth, solarDay);
     festivals.forEach(festival => {
       newSuggestions.push({
         type: 'festival',
@@ -72,8 +84,53 @@ export default function MarketingCalendar() {
   /**
    * 获取传统节日信息
    */
-  const getFestivals = (solarMonth: number, solarDay: number) => {
+  const getFestivals = (lunarMonth: number | null, lunarDay: number | null, solarMonth: number, solarDay: number) => {
     const festivals = [];
+
+    // 春节
+    if (lunarMonth === 1 && lunarDay === 1) {
+      festivals.push({
+        name: '春节',
+        description: '中国最重要的传统节日，适合推出新年主题营销活动',
+        tags: ['新年', '团圆', '祝福', '红包']
+      });
+    }
+
+    // 元宵节
+    if (lunarMonth === 1 && lunarDay === 15) {
+      festivals.push({
+        name: '元宵节',
+        description: '元宵佳节，适合推出团圆主题和灯谜活动',
+        tags: ['元宵', '团圆', '灯谜', '汤圆']
+      });
+    }
+
+    // 端午节
+    if (lunarMonth === 5 && lunarDay === 5) {
+      festivals.push({
+        name: '端午节',
+        description: '端午节，适合推出粽子、龙舟等传统文化主题',
+        tags: ['端午', '粽子', '龙舟', '传统文化']
+      });
+    }
+
+    // 中秋节
+    if (lunarMonth === 8 && lunarDay === 15) {
+      festivals.push({
+        name: '中秋节',
+        description: '中秋佳节，适合推出月饼、团圆主题营销',
+        tags: ['中秋', '月饼', '团圆', '月亮']
+      });
+    }
+
+    // 重阳节
+    if (lunarMonth === 9 && lunarDay === 9) {
+      festivals.push({
+        name: '重阳节',
+        description: '重阳节，适合推出敬老、登高主题活动',
+        tags: ['重阳', '敬老', '登高', '菊花']
+      });
+    }
 
     // 西方节日
     if (solarMonth === 12 && solarDay === 25) {
@@ -97,22 +154,6 @@ export default function MarketingCalendar() {
         name: '元旦',
         description: '新年第一天，适合推出新年主题营销活动',
         tags: ['新年', '元旦', '祝福', '新开始']
-      });
-    }
-
-    if (solarMonth === 5 && solarDay === 1) {
-      festivals.push({
-        name: '劳动节',
-        description: '劳动节，适合推出劳动者主题营销活动',
-        tags: ['劳动节', '劳动者', '致敬', '感恩']
-      });
-    }
-
-    if (solarMonth === 10 && solarDay === 1) {
-      festivals.push({
-        name: '国庆节',
-        description: '国庆节，适合推出爱国主题营销活动',
-        tags: ['国庆', '爱国', '庆祝', '自豪']
       });
     }
 
@@ -259,7 +300,7 @@ export default function MarketingCalendar() {
             营销日历
           </CardTitle>
           <CardDescription>
-            基于日期信息提供营销建议，帮助您选择最佳营销时机
+            基于农历信息提供营销建议，帮助您选择最佳营销时机
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -281,9 +322,10 @@ export default function MarketingCalendar() {
                 })}
               </div>
               <div className="text-sm text-gray-500">
-                {currentDate.toLocaleDateString('zh-CN', { 
-                  weekday: 'long' 
-                })}
+                {lunarInfo ? 
+                  `${lunarInfo.getYearInGanZhi()}年 ${lunarInfo.getMonthInChinese()}月 ${lunarInfo.getDayInChinese()}` : 
+                  currentDate.toLocaleDateString('zh-CN', { weekday: 'long' })
+                }
               </div>
             </div>
             
@@ -296,25 +338,46 @@ export default function MarketingCalendar() {
             </Button>
           </div>
 
-          {/* 日期信息 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-sm text-gray-600">月份</div>
-              <div className="font-semibold">{currentDate.getMonth() + 1}月</div>
+          {/* 农历信息 */}
+          {lunarInfo ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-sm text-gray-600">农历</div>
+                <div className="font-semibold">{lunarInfo.getMonthInChinese()}月{lunarInfo.getDayInChinese()}</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-sm text-gray-600">干支</div>
+                <div className="font-semibold">{lunarInfo.getYearInGanZhi()}</div>
+              </div>
+              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                <div className="text-sm text-gray-600">生肖</div>
+                <div className="font-semibold">{lunarInfo.getYearShengXiao()}</div>
+              </div>
+              <div className="text-center p-3 bg-orange-50 rounded-lg">
+                <div className="text-sm text-gray-600">星期</div>
+                <div className="font-semibold">{currentDate.toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
+              </div>
             </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-sm text-gray-600">日期</div>
-              <div className="font-semibold">{currentDate.getDate()}日</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-sm text-gray-600">月份</div>
+                <div className="font-semibold">{currentDate.getMonth() + 1}月</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-sm text-gray-600">日期</div>
+                <div className="font-semibold">{currentDate.getDate()}日</div>
+              </div>
+              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                <div className="text-sm text-gray-600">星期</div>
+                <div className="font-semibold">{currentDate.toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
+              </div>
+              <div className="text-center p-3 bg-orange-50 rounded-lg">
+                <div className="text-sm text-gray-600">季度</div>
+                <div className="font-semibold">Q{Math.ceil((currentDate.getMonth() + 1) / 3)}</div>
+              </div>
             </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-sm text-gray-600">星期</div>
-              <div className="font-semibold">{currentDate.toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
-            </div>
-            <div className="text-center p-3 bg-orange-50 rounded-lg">
-              <div className="text-sm text-gray-600">季度</div>
-              <div className="font-semibold">Q{Math.ceil((currentDate.getMonth() + 1) / 3)}</div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
@@ -382,9 +445,11 @@ export default function MarketingCalendar() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {[
               { name: '元旦', date: '2024-01-01' },
+              { name: '春节', date: '2024-02-10' },
               { name: '情人节', date: '2024-02-14' },
-              { name: '劳动节', date: '2024-05-01' },
-              { name: '国庆节', date: '2024-10-01' },
+              { name: '元宵节', date: '2024-02-24' },
+              { name: '端午节', date: '2024-06-10' },
+              { name: '中秋节', date: '2024-09-17' },
               { name: '圣诞节', date: '2024-12-25' },
               { name: '今天', date: new Date().toISOString().split('T')[0] }
             ].map((item, index) => (

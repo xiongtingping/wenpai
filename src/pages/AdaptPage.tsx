@@ -1583,72 +1583,83 @@ export default function AdaptPage() {
         <CardHeader>
           <CardTitle className="text-lg">AI 模型选择</CardTitle>
           <CardDescription>
-            默认优先调用GPT-4o模型，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容
+            选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label className="text-sm mb-2 block">API 提供商</Label>
-              <Select 
-                value={apiProvider}
-                onValueChange={(value) => {
-                  setApiProvider(value);
-                  setApiProvider(value);
-                  const available = getAvailableModels()[value] || [];
-                  if (available.length > 0) {
-                    setSelectedModel(available[0]);
-                    setModel(available[0]);
-                  }
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* GPT-4o 选项 */}
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                  selectedModel === 'gpt-4o' 
+                    ? 'border-blue-500 bg-blue-50 shadow-sm' 
+                    : 'border-gray-200 hover:border-blue-300'
+                }`}
+                onClick={() => {
+                  setSelectedModel('gpt-4o');
+                  setModel('gpt-4o');
+                  setApiProvider('openai');
                 }}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="选择API提供商" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="openai">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-blue-600">OpenAI</span>
-                      <span className="text-xs text-gray-500">GPT-4o</span>
+                <div className="flex items-center space-x-3">
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    selectedModel === 'gpt-4o' 
+                      ? 'border-blue-500 bg-blue-500' 
+                      : 'border-gray-300'
+                  }`}>
+                    {selectedModel === 'gpt-4o' && (
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-blue-600">OpenAI GPT-4o</span>
+                      <Badge className="bg-blue-100 text-blue-700 text-xs">推荐</Badge>
                     </div>
-                  </SelectItem>
+                    <p className="text-sm text-gray-600 mt-1">
+                      最新最强大的AI模型，性能卓越，创意丰富
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                  <SelectItem value="deepseek">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-orange-600">DeepSeek</span>
-                      <span className="text-xs text-gray-500">DeepSeek V3</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label className="text-sm mb-2 block">AI 模型</Label>
-              <Select 
-                value={selectedModel}
-                onValueChange={(value) => {
-                  setSelectedModel(value);
-                  setModel(value);
+              {/* DeepSeek V3 选项 */}
+              <div 
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                  selectedModel === 'deepseek-v3' 
+                    ? 'border-orange-500 bg-orange-50 shadow-sm' 
+                    : 'border-gray-200 hover:border-orange-300'
+                }`}
+                onClick={() => {
+                  setSelectedModel('deepseek-v3');
+                  setModel('deepseek-v3');
+                  setApiProvider('deepseek');
                 }}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="选择AI模型" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getAvailableModels()[apiProvider]?.map((model) => {
-                    return (
-                      <SelectItem key={model} value={model}>
-                        <span className="font-medium">{model}</span>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+                <div className="flex items-center space-x-3">
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    selectedModel === 'deepseek-v3' 
+                      ? 'border-orange-500 bg-orange-500' 
+                      : 'border-gray-300'
+                  }`}>
+                    {selectedModel === 'deepseek-v3' && (
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-orange-600">DeepSeek V3</span>
+                      <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs">备选</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      中文优化模型，理解力强，适合本地化内容
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          
-
         </CardContent>
       </Card>
 

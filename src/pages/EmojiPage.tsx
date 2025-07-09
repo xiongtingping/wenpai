@@ -367,7 +367,7 @@ const EmojiPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{emojis.length}</div>
+                <div className="text-2xl font-bold text-blue-600">3000+</div>
                 <div className="text-sm text-gray-600">总计Emoji</div>
               </div>
               <div className="text-center">
