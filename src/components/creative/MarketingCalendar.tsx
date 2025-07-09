@@ -305,14 +305,14 @@ export default function MarketingCalendar() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="outline"
-              size="sm"
+              <Button
+                variant="outline"
+                size="sm"
               onClick={() => changeDate('prev')}
-            >
+              >
               <ChevronLeft className="w-4 h-4" />
-            </Button>
-            
+              </Button>
+              
             <div className="text-center">
               <div className="text-lg font-semibold">
                 {currentDate.toLocaleDateString('zh-CN', { 
@@ -320,23 +320,23 @@ export default function MarketingCalendar() {
                   month: 'long', 
                   day: 'numeric' 
                 })}
-              </div>
+            </div>
               <div className="text-sm text-gray-500">
                 {lunarInfo ? 
                   `${lunarInfo.getYearInGanZhi()}年 ${lunarInfo.getMonthInChinese()}月 ${lunarInfo.getDayInChinese()}` : 
                   currentDate.toLocaleDateString('zh-CN', { weekday: 'long' })
                 }
-              </div>
-            </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
+                    </div>
+                    </div>
+                    
+              <Button
+                variant="outline"
+                size="sm"
               onClick={() => changeDate('next')}
-            >
+              >
               <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
+              </Button>
+            </div>
 
           {/* 农历信息 */}
           {lunarInfo ? (
@@ -348,35 +348,35 @@ export default function MarketingCalendar() {
               <div className="text-center p-3 bg-green-50 rounded-lg">
                 <div className="text-sm text-gray-600">干支</div>
                 <div className="font-semibold">{lunarInfo.getYearInGanZhi()}</div>
-              </div>
+                  </div>
               <div className="text-center p-3 bg-purple-50 rounded-lg">
                 <div className="text-sm text-gray-600">生肖</div>
                 <div className="font-semibold">{lunarInfo.getYearShengXiao()}</div>
-              </div>
+                    </div>
               <div className="text-center p-3 bg-orange-50 rounded-lg">
                 <div className="text-sm text-gray-600">星期</div>
                 <div className="font-semibold">{currentDate.toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
-              </div>
-            </div>
+                      </div>
+                      </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <div className="text-sm text-gray-600">月份</div>
                 <div className="font-semibold">{currentDate.getMonth() + 1}月</div>
-              </div>
+                        </div>
               <div className="text-center p-3 bg-green-50 rounded-lg">
                 <div className="text-sm text-gray-600">日期</div>
                 <div className="font-semibold">{currentDate.getDate()}日</div>
-              </div>
+                      </div>
               <div className="text-center p-3 bg-purple-50 rounded-lg">
                 <div className="text-sm text-gray-600">星期</div>
                 <div className="font-semibold">{currentDate.toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
-              </div>
+                  </div>
               <div className="text-center p-3 bg-orange-50 rounded-lg">
                 <div className="text-sm text-gray-600">季度</div>
                 <div className="font-semibold">Q{Math.ceil((currentDate.getMonth() + 1) / 3)}</div>
-              </div>
-            </div>
+                </div>
+          </div>
           )}
         </CardContent>
       </Card>
@@ -387,41 +387,41 @@ export default function MarketingCalendar() {
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
             营销建议
-          </CardTitle>
+              </CardTitle>
           <CardDescription>
             基于当前日期的营销机会和建议
           </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </CardHeader>
+          <CardContent>
           {suggestions.length > 0 ? (
-            <div className="space-y-4">
+                <div className="space-y-4">
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
                   className="p-4 border rounded-lg hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                       {getTypeIcon(suggestion.type)}
                       <h4 className="font-semibold">{suggestion.title}</h4>
                       {getPriorityIcon(suggestion.priority)}
-                    </div>
+              </div>
                     <Badge 
                       variant={suggestion.priority === 'high' ? 'destructive' : 
                               suggestion.priority === 'medium' ? 'default' : 'secondary'}
                     >
                       {suggestion.priority === 'high' ? '高优先级' : 
                        suggestion.priority === 'medium' ? '中优先级' : '低优先级'}
-                    </Badge>
+                  </Badge>
                   </div>
                   <p className="text-gray-600 mb-3">{suggestion.description}</p>
                   <div className="flex flex-wrap gap-1">
                     {suggestion.tags.map((tag, tagIndex) => (
                       <Badge key={tagIndex} variant="outline" className="text-xs">
                         #{tag}
-                      </Badge>
+                  </Badge>
                     ))}
-                  </div>
+            </div>
                 </div>
               ))}
             </div>
@@ -453,19 +453,19 @@ export default function MarketingCalendar() {
               { name: '圣诞节', date: '2024-12-25' },
               { name: '今天', date: new Date().toISOString().split('T')[0] }
             ].map((item, index) => (
-              <Button
+                          <Button
                 key={index}
                 variant="outline"
-                size="sm"
+                            size="sm"
                 onClick={() => setCurrentDate(new Date(item.date))}
                 className="text-xs"
-              >
+                          >
                 {item.name}
-              </Button>
+                          </Button>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
     </div>
   );
 } 
