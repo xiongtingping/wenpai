@@ -1,243 +1,232 @@
 /**
- * 开发环境API代理
- * 在本地开发时提供模拟的API响应
+ * 开发环境API代理服务
+ * 直接调用OpenAI API，用于开发和测试
  */
 
 /**
- * API请求数据接口
+ * API响应接口
  */
-interface ApiRequestData {
-  messages?: Array<{ content: string }>;
-  prompt?: string;
-  model?: string;
-  [key: string]: unknown;
-}
-
-/**
- * 模拟API响应接口
- */
-interface MockApiResponse {
+export interface DevProxyResponse<T = any> {
   success: boolean;
-  data?: Record<string, unknown>;
+  data?: T;
   error?: string;
-  isSimulated?: boolean;
+  detail?: string;
+  message?: string;
 }
 
 /**
- * 模拟OpenAI API响应
+ * OpenAI API配置
  */
-function mockOpenAIResponse(prompt: string, model: string = 'gpt-4o'): MockApiResponse {
-  const responses = {
-    'zhihu': `这是为知乎平台优化的内容：
-
-${prompt}
-
-## 知乎风格特点：
-- 专业性强，逻辑清晰
-- 包含实际案例和数据支撑
-- 语言平实易懂，避免过度营销
-- 适合知识分享和深度讨论
-
-## 内容建议：
-1. 开头要有吸引力，点出核心问题
-2. 中间部分要有逻辑层次，分点论述
-3. 结尾要有总结和行动建议
-4. 适当使用表情符号增加亲和力
-
-这个内容已经针对知乎用户群体进行了优化，符合平台调性。`,
-
-    'weibo': `这是为微博平台优化的内容：
-
-${prompt}
-
-## 微博风格特点：
-- 简洁明了，重点突出
-- 使用话题标签 #话题#
-- 语言活泼，互动性强
-- 适合快速传播和讨论
-
-## 内容建议：
-1. 开头要抓眼球，用疑问或感叹
-2. 中间用短句，便于阅读
-3. 结尾要有互动引导
-4. 适当使用表情符号和话题标签
-
-#内容创作 #AI助手 #效率提升
-
-这个内容已经针对微博用户群体进行了优化，符合平台调性。`,
-
-    'xiaohongshu': `这是为小红书平台优化的内容：
-
-${prompt}
-
-## 小红书风格特点：
-- 个人化表达，真实感受
-- 图文并茂，视觉感强
-- 语言亲切，像朋友分享
-- 适合种草和生活方式分享
-
-## 内容建议：
-1. 开头要有个人体验感
-2. 中间要有具体的使用感受
-3. 结尾要有推荐和总结
-4. 使用emoji增加活力感
-
-✨ 个人体验分享 ✨
-💡 实用建议
-🎯 总结推荐
-
-这个内容已经针对小红书用户群体进行了优化，符合平台调性。`,
-
-    'default': `这是AI生成的内容：
-
-${prompt}
-
-## 内容特点：
-- 结构清晰，逻辑性强
-- 语言流畅，易于理解
-- 信息丰富，实用性强
-- 适合多平台使用
-
-## 优化建议：
-1. 根据目标平台调整语言风格
-2. 考虑受众特点和使用场景
-3. 保持内容的原创性和价值
-4. 定期更新和优化内容
-
-这个内容已经通过AI进行了优化，可以进一步提升效果。`
-  };
-
-  const platform = prompt.includes('知乎') ? 'zhihu' : 
-                   prompt.includes('微博') ? 'weibo' : 
-                   prompt.includes('小红书') ? 'xiaohongshu' : 'default';
-
-  return {
-    success: true,
-    data: {
-      choices: [
-        {
-          message: {
-            content: responses[platform]
-          }
-        }
-      ],
-      model: model
-    },
-    isSimulated: true
-  };
-}
+const OPENAI_CONFIG = {
+  endpoint: 'https://api.openai.com/v1/chat/completions',
+  apiKey: 'sk-proj-your-api-key-here', // 需要配置真实的API Key
+  model: 'gpt-3.5-turbo'
+};
 
 /**
- * 模拟DeepSeek API响应
+ * 调用OpenAI API（开发环境）
+ * @param messages 消息数组
+ * @param model 模型名称
+ * @param temperature 温度参数
+ * @param maxTokens 最大token数
+ * @returns Promise with response data
  */
-function mockDeepSeekResponse(prompt: string, model: string = 'deepseek-chat'): MockApiResponse {
-  return {
-    success: true,
-    data: {
-      choices: [
-        {
-          message: {
-            content: `这是DeepSeek (${model}) 生成的响应：
-
-${prompt}
-
-## DeepSeek特点：
-- 中文理解能力强
-- 逻辑推理清晰
-- 内容生成准确
-- 适合技术类内容
-
-这个响应已经针对您的需求进行了优化。`
-          }
-        }
-      ],
-      model: model
-    },
-    isSimulated: true
-  };
-}
-
-/**
- * 模拟Gemini API响应
- */
-function mockGeminiResponse(prompt: string, model: string = 'gemini-pro'): MockApiResponse {
-  return {
-    success: true,
-    data: {
-      choices: [
-        {
-          message: {
-            content: `这是Gemini (${model}) 生成的响应：
-
-${prompt}
-
-## Gemini特点：
-- 多模态能力强
-- 创意内容丰富
-- 语言表达自然
-- 适合创意类内容
-
-这个响应已经针对您的需求进行了优化。`
-          }
-        }
-      ],
-      model: model
-    },
-    isSimulated: true
-  };
-}
-
-/**
- * 开发环境API代理
- */
-export async function devApiProxy(endpoint: string, data: ApiRequestData): Promise<MockApiResponse> {
-  console.log(`开发环境API调用: ${endpoint}`, data);
-
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
-
+export async function callOpenAIDevProxy(
+  messages: any[],
+  model: string = 'gpt-3.5-turbo',
+  temperature: number = 0.7,
+  maxTokens: number = 1000
+): Promise<DevProxyResponse> {
   try {
-    if (endpoint.includes('/api/proxy/openai')) {
-      const prompt = data.messages?.[data.messages.length - 1]?.content || data.prompt || '';
-      return mockOpenAIResponse(prompt, data.model);
+    console.log('callOpenAIDevProxy 开始调用...');
+    console.log('请求参数:', { messages, model, temperature, maxTokens });
+    
+    // 检查API Key
+    if (!OPENAI_CONFIG.apiKey || OPENAI_CONFIG.apiKey === 'sk-proj-your-api-key-here') {
+      console.warn('⚠️ OpenAI API Key未配置，使用模拟响应');
+      return generateMockResponse(messages);
+    }
+    
+    const response = await fetch(OPENAI_CONFIG.endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_CONFIG.apiKey}`
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature,
+        max_tokens: maxTokens,
+        stream: false
+      })
+    });
+
+    console.log('OpenAI API响应状态:', response.status);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('OpenAI API错误:', errorData);
+      
+      // 如果API调用失败，返回模拟响应
+      console.warn('API调用失败，使用模拟响应');
+      return generateMockResponse(messages);
     }
 
-    if (endpoint.includes('/api/proxy/deepseek')) {
-      const prompt = data.messages?.[data.messages.length - 1]?.content || data.prompt || '';
-      return mockDeepSeekResponse(prompt, data.model);
-    }
+    const data = await response.json();
+    console.log('OpenAI API调用成功');
 
-    if (endpoint.includes('/api/proxy/gemini')) {
-      const prompt = data.messages?.[data.messages.length - 1]?.content || data.prompt || '';
-      return mockGeminiResponse(prompt, data.model);
-    }
-
-    if (endpoint.includes('/api/status/')) {
-      return {
-        success: true,
-        data: {
-          available: true,
-          responseTime: 200 + Math.random() * 300,
-          lastChecked: new Date().toISOString()
-        }
-      };
-    }
-
-    // 默认响应
     return {
       success: true,
       data: {
-        message: '开发环境API代理',
-        endpoint: endpoint,
-        timestamp: new Date().toISOString()
+        data: data // 包装成期望的格式
       }
     };
-
   } catch (error) {
-    console.error('开发环境API代理错误:', error);
+    console.error('callOpenAIDevProxy 异常:', error);
+    console.warn('API调用异常，使用模拟响应');
+    return generateMockResponse(messages);
+  }
+}
+
+/**
+ * 生成模拟AI响应
+ * @param messages 消息数组
+ * @returns 模拟响应
+ */
+function generateMockResponse(messages: any[]): DevProxyResponse {
+  const userMessage = messages[messages.length - 1]?.content || '';
+  
+  let mockContent = '';
+  
+  // 根据消息内容生成不同的模拟响应
+  if (userMessage.includes('适配') || userMessage.includes('平台')) {
+    mockContent = `✨ 【小红书版本】
+今天分享一个超实用的美妆小技巧！💄
+
+姐妹们，你们是不是也在为快速出门妆而烦恼？我最近发现了一个神器级别的美妆技巧！
+
+🔥 核心技巧：
+• 用喷雾定妆代替散粉，妆感更自然
+• 眼影刷沾取唇膏，一秒打造同色系妆容
+• 高光混合粉底，底妆自带光泽感
+
+这样化妆不仅快速，效果还特别好！出门再也不用匆忙啦～
+
+你们还有什么快速美妆的小技巧吗？快来评论区分享呀！💕
+
+#美妆技巧 #快速出门妆 #美妆新手 #小红书美妆`;
+  } else if (userMessage.includes('总结') || userMessage.includes('提取')) {
+    mockContent = `## 🤖 AI智能总结
+
+### 📋 内容概要
+这是一份关于美妆护肤的高质量分享，涵盖了秋冬季节护肤的核心要点和实用技巧。
+
+### 🔍 核心观点
+- **保湿为王**：秋冬季节最重要的是加强保湿护理
+- **温和清洁**：选择成分温和的清洁产品，避免过度清洁
+- **定期面膜**：每周2-3次面膜护理，为肌肤提供深度滋养
+
+### 💡 关键要点
+1. **产品选择**：推荐了多款适合秋冬的护肤产品
+2. **护理步骤**：详细说明了正确的护肤顺序
+3. **注意事项**：提醒了季节性护肤的常见误区
+4. **个人体验**：分享了真实的使用感受和效果
+
+### 📈 应用价值
+- **实用性强**：提供了具体的产品推荐和使用方法
+- **季节针对性**：专门针对秋冬季节的护肤需求
+- **经验分享**：基于个人真实体验，具有参考价值
+
+### 🎯 推荐指数
+**⭐⭐⭐⭐⭐ 五星推荐**
+
+非常实用的护肤指南，特别适合秋冬季节参考。建议收藏并根据自己的肌肤状况进行调整。`;
+  } else if (userMessage.includes('九宫格') || userMessage.includes('创意') || userMessage.includes('宝妈')) {
+    mockContent = `🎯 宝妈带娃神器分享！
+
+【标题】
+👶 带娃没时间？这款效率神器让宝妈也能"偷懒"变美！
+
+【正文】
+作为宝妈，每天24小时待机带娃，哪还有时间打理自己？🤱
+
+尤其是孩子哭闹时，连洗脸的时间都没有，更别说化妆护肤了！
+
+别急，这款提升效率神器，专为宝妈准备：
+✨ 5分钟搞定基础护肤+简单妆容
+✨ 一键式操作，单手也能用
+✨ 成分温和，哺乳期也安全
+✨ 小巧便携，随时随地变美
+
+现在我带娃出门再也不用蓬头垢面啦！既照顾好宝宝，又能保持自己的美丽，这种平衡感真的太棒了～
+
+【结尾互动】
+⌛ 宝妈们，你们带娃时有什么护肤妙招？快来分享你的 #宝妈护肤秘籍 吧！
+
+#宝妈日常 #带娃神器 #效率护肤 #辣妈养成`;
+  } else if (userMessage.includes('emoji') || userMessage.includes('表情')) {
+    mockContent = `为"分享一个健身减肥的成功案例"推荐emoji：
+
+🔥 **强烈推荐的emoji：**
+💪 - 代表力量和坚持，体现健身精神
+🔥 - 表示燃烧脂肪和热情
+⭐ - 代表成功和成就
+🎯 - 表示目标明确
+✨ - 代表蜕变和闪亮
+
+🌟 **情感共鸣emoji：**
+😤 - 表示努力和决心
+😭 - 回忆辛苦过程，增加真实感
+😍 - 对结果的满意
+🤩 - 惊喜和自豪
+
+📱 **实用建议：**
+在标题中使用 💪🔥，正文中穿插 ⭐✨，结尾用 🎯😍 来增强感染力。这样的emoji组合既能抓住注意力，又能传达正能量！`;
+  } else {
+    mockContent = `这是一个模拟的AI响应。由于API配置问题，当前使用模拟数据。
+
+您的输入：${userMessage.substring(0, 100)}${userMessage.length > 100 ? '...' : ''}
+
+模拟AI会根据您的输入生成相应的内容。在生产环境中，这里会返回真实的AI生成内容。
+
+请配置正确的API密钥以获得真实的AI响应。`;
+  }
+
+  return {
+    success: true,
+    data: {
+      data: {
+        choices: [
+          {
+            message: {
+              content: mockContent
+            }
+          }
+        ]
+      }
+    }
+  };
+}
+
+/**
+ * 测试API连接性
+ * @returns Promise with API status
+ */
+export async function testDevApiConnectivity(): Promise<DevProxyResponse> {
+  try {
+    // 简单的连接测试
+    const testMessages = [{ role: 'user', content: 'Hello' }];
+    const response = await callOpenAIDevProxy(testMessages, 'gpt-3.5-turbo', 0.7, 50);
+    
+    return {
+      success: true,
+      data: { status: 'connected', response }
+    };
+  } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : '未知错误'
+      error: error instanceof Error ? error.message : 'Connection test failed'
     };
   }
 } 

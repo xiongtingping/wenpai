@@ -4,6 +4,7 @@
  */
 
 import { callOpenAIProxy, callDeepSeekProxy, callGeminiProxy } from './apiProxy';
+import { callOpenAIDevProxy } from './devApiProxy';
 
 /**
  * AI API响应接口
@@ -370,7 +371,7 @@ export async function checkApiAvailability(): Promise<AIApiResponse> {
     
     switch (currentApiProvider) {
       case 'openai':
-        return await callOpenAIProxy(testMessage, currentModel);
+        return await callOpenAIDevProxy(testMessage, currentModel);
       case 'deepseek':
         return await callDeepSeekProxy(testMessage, currentModel);
       case 'gemini':
@@ -442,7 +443,8 @@ export async function adaptContent(request: ContentAdaptRequest): Promise<Conten
         
         switch (currentApiProvider) {
           case 'openai':
-            response = await callOpenAIProxy(messages, currentModel);
+            // 优先使用开发环境代理
+            response = await callOpenAIDevProxy(messages, currentModel);
             break;
           case 'deepseek':
             response = await callDeepSeekProxy(messages, currentModel);

@@ -42,6 +42,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
+import { callOpenAIDevProxy } from '@/api/devApiProxy';
 
 /**
  * 提取结果接口
@@ -126,8 +127,29 @@ export default function ContentExtractorPage() {
 
       // 如果开启自动总结，生成AI总结
       if (autoSummary) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        mockResult.summary = generateAISummary(mockResult.content);
+        try {
+          await new Promise(resolve => setTimeout(resolve, 500)); // 模拟提取延迟
+          
+          const messages = [{
+            role: 'user',
+            content: `请为以下提取的内容生成AI智能总结：
+
+${mockResult.content}
+
+请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
+          }];
+
+          const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 500);
+          
+          if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
+            mockResult.summary = response.data.data.choices[0].message.content;
+          } else {
+            mockResult.summary = generateAISummary(mockResult.content); // 回退到模拟
+          }
+        } catch (error) {
+          console.error('AI总结失败:', error);
+          mockResult.summary = generateAISummary(mockResult.content); // 回退到模拟
+        }
       }
 
       setExtractResults(prev => [mockResult, ...prev]);
@@ -317,9 +339,23 @@ export default function ContentExtractorPage() {
     setIsGeneratingSummary(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const messages = [{
+        role: 'user',
+        content: `请为以下提取的内容生成AI智能总结：
+
+${result.content}
+
+请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
+      }];
+
+      const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 500);
       
-      const summary = generateAISummary(result.content);
+      let summary;
+      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
+        summary = response.data.data.choices[0].message.content;
+      } else {
+        summary = generateAISummary(result.content); // 回退到模拟
+      }
       
       setExtractResults(prev => prev.map(r => 
         r.id === resultId ? { ...r, summary } : r
@@ -329,7 +365,15 @@ export default function ContentExtractorPage() {
         title: "AI总结完成",
         description: "已为您生成智能内容总结",
       });
-    } catch {
+    } catch (error) {
+      console.error('AI总结失败:', error);
+      
+      // 回退到模拟总结
+      const summary = generateAISummary(result.content);
+      setExtractResults(prev => prev.map(r => 
+        r.id === resultId ? { ...r, summary } : r
+      ));
+      
       toast({
         title: "总结失败",
         description: "请稍后重试AI总结功能",

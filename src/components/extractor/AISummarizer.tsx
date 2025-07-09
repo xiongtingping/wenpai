@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-
 import { Sparkles, Copy, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { callOpenAIDevProxy } from '@/api/devApiProxy';
 
 /**
  * AI总结组件
@@ -27,29 +27,29 @@ export const AISummarizer: React.FC = () => {
 
     setIsGenerating(true);
     try {
-      // 模拟AI总结过程
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 调用AI API生成总结
+      const messages = [{
+        role: 'user',
+        content: `请为以下内容生成AI智能总结：
+
+${content}
+
+请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
+      }];
+
+      const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 500);
       
-      const mockSummary = `基于您提供的内容，AI总结如下：
-
-主要观点：
-• 内容涵盖了多个重要方面
-• 信息结构清晰，逻辑性强
-• 具有实用价值和参考意义
-
-关键要点：
-• 重点突出了核心概念
-• 提供了具体的实施建议
-• 包含了相关的背景信息
-
-总结：这是一份内容丰富、结构合理的文档，值得深入学习和参考。`;
-
-      setSummary(mockSummary);
-      toast({
-        title: "总结完成",
-        description: "AI已为您生成内容总结",
-      });
-    } catch {
+      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
+        setSummary(response.data.data.choices[0].message.content);
+        toast({
+          title: "总结完成",
+          description: "AI已为您生成内容总结",
+        });
+      } else {
+        throw new Error('AI响应格式异常');
+      }
+    } catch (error) {
+      console.error('AI总结失败:', error);
       toast({
         title: "总结失败",
         description: "请稍后重试",

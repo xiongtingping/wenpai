@@ -52,6 +52,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUserStore } from '@/store/userStore';
 import { callOpenAIProxy } from '@/api/apiProxy';
+import { callOpenAIDevProxy } from '@/api/devApiProxy';
 import { Label as UILabel } from '@/components/ui/label';
 
 /**
@@ -1326,7 +1327,7 @@ ${generateStandardCallToAction()}
       console.log('开始调用AI服务...');
       
       // 导入AI服务
-      const { callOpenAIProxy } = await import('@/api/apiProxy');
+      const { callOpenAIDevProxy } = await import('@/api/devApiProxy');
       
       const systemPrompt = `You are an expert social media copywriter and brand storyteller.
 
@@ -1374,7 +1375,7 @@ Your output must feel like it was written by a real KOC or content strategist �
       console.log('调用OpenAI API，消息数量:', messages.length);
       console.log('用户提示词长度:', prompt.length);
 
-      const response = await callOpenAIProxy(messages, 'gpt-3.5-turbo', 0.7, 1000);
+      const response = await callOpenAIDevProxy(messages, 'gpt-3.5-turbo', 0.7, 1000);
 
       console.log('AI服务响应:', response);
 
