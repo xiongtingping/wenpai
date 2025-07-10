@@ -124,13 +124,18 @@ ${content}
         throw new Error('AI分析服务请求失败');
       }
 
-      // 检查响应数据结构
-      if (!Array.isArray(response.data.choices) || !response.data.choices[0] || !response.data.choices[0].message) {
+      // 检查响应数据结构 - 兼容不同的API响应格式
+      let choices = response.data.choices;
+      if (!choices && response.data.data && response.data.data.choices) {
+        choices = response.data.data.choices;
+      }
+      
+      if (!Array.isArray(choices) || !choices[0] || !choices[0].message) {
         console.error('API响应数据结构异常，完整响应:', response);
         throw new Error('AI分析服务返回数据格式异常，请稍后重试');
       }
 
-      const content = response.data.choices[0].message.content;
+      const content = choices[0].message.content;
       if (!content) {
         throw new Error('API返回空内容');
       }
@@ -247,13 +252,18 @@ ${content}
         throw new Error('AI分析服务请求失败');
       }
 
-      // 检查响应数据结构
-      if (!Array.isArray(response.data.choices) || !response.data.choices[0] || !response.data.choices[0].message) {
+      // 检查响应数据结构 - 兼容不同的API响应格式
+      let choices = response.data.choices;
+      if (!choices && response.data.data && response.data.data.choices) {
+        choices = response.data.data.choices;
+      }
+      
+      if (!Array.isArray(choices) || !choices[0] || !choices[0].message) {
         console.error('API响应数据结构异常，完整响应:', response);
         throw new Error('AI分析服务返回数据格式异常，请稍后重试');
       }
 
-      const content = response.data.choices[0].message.content;
+      const content = choices[0].message.content;
       if (!content) {
         throw new Error('API返回空内容');
       }
