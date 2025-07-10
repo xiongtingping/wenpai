@@ -1588,14 +1588,14 @@ export default function AdaptPage() {
           {/* Advanced Options */}
           {showAdvancedSettings && (
             <div className="mt-3 border-t pt-3">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <Label className="text-xs mb-1 block">全局字符数限制</Label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs w-32 flex-shrink-0">全局字符数限制</Label>
                   <Select 
                     value={globalSettings.charCountPreset}
                     onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
                   >
-                    <SelectTrigger className="h-8">
+                    <SelectTrigger className="h-8 w-48">
                       <SelectValue placeholder="选择字符数限制" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1608,25 +1608,21 @@ export default function AdaptPage() {
                 </div>
                 
                 <div className="flex items-center space-x-2">
+                  <Label className="text-xs w-32 flex-shrink-0">全局启用表情符号</Label>
                   <Checkbox 
                     id="global-emoji" 
                     checked={globalSettings.globalEmoji}
                     onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
                   />
-                  <Label htmlFor="global-emoji" className="text-xs cursor-pointer">
-                    全局启用表情符号
-                  </Label>
                 </div>
                 
                 <div className="flex items-center space-x-2">
+                  <Label className="text-xs w-32 flex-shrink-0">全局启用Markdown格式</Label>
                   <Checkbox 
                     id="global-md"
                     checked={globalSettings.globalMd}
                     onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
                   />
-                  <Label htmlFor="global-md" className="text-xs cursor-pointer">
-                    全局启用Markdown格式
-                  </Label>
                 </div>
               </div>
               <div className="flex justify-end mt-3">
@@ -1654,8 +1650,8 @@ export default function AdaptPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex gap-4 flex-wrap">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {allModels.map((model) => {
                 const isAvailable = availableModels.some(m => m.id === model.id);
                 let disabled = !isAvailable;
@@ -1664,7 +1660,7 @@ export default function AdaptPage() {
                 return (
                   <div
                     key={model.id}
-                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all w-72 min-h-[120px] flex flex-col justify-between ${
+                    className={`p-6 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
                       selectedModel === model.id
                         ? 'border-blue-500 bg-blue-50 shadow-sm'
                         : disabled
@@ -1673,24 +1669,24 @@ export default function AdaptPage() {
                     }`}
                     onClick={() => handleModelSelect(model.id, disabled)}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    <div className="flex items-start space-x-4">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
                         selectedModel === model.id
                           ? 'border-blue-500 bg-blue-500'
                           : 'border-gray-300'
                       }`}>
                         {selectedModel === model.id && (
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                          <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-blue-600">{model.name}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-semibold text-blue-600 text-base">{model.name}</span>
                           {badge && (
-                            <Badge className="bg-gray-200 text-gray-600 text-xs ml-2">{badge}</Badge>
+                            <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">{model.description}</p>
+                        <p className="text-sm text-gray-600 leading-relaxed">{model.description}</p>
                       </div>
                     </div>
                   </div>

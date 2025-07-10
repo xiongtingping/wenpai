@@ -208,37 +208,37 @@ export default function ProfilePage() {
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <CardContent className="p-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* 左侧：头像和昵称 */}
-              <div className="space-y-6 flex flex-col items-center">
+              <div className="space-y-4 flex flex-col items-center">
                 <AvatarUpload currentAvatar={editForm.avatar} nickname={editForm.nickname || user?.nickname || '用户'} size="lg" onAvatarChange={handleAvatarChange} disabled={false} />
                 <NicknameSelector currentNickname={editForm.nickname} onNicknameChange={handleNicknameChange} disabled={false} />
               </div>
               {/* 右侧：联系方式 */}
-              <div className="space-y-6">
+              <div className="space-y-3">
                 {/* 手机号 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Phone className="w-4 h-4 text-blue-600" />手机号码</Label>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-1">
                     <Input placeholder="请输入手机号" value={editForm.phone} onChange={e => handlePhoneChange(e.target.value)} disabled={isVerifying && verificationField === 'phone'} className="border-gray-300 focus:border-blue-500" />
                     {editForm.phone !== user?.phone && editForm.phone && (
                       <Button variant="outline" size="sm" onClick={() => sendVerificationCode('phone', editForm.phone)} disabled={countdown > 0} className="border-blue-300 text-blue-600 hover:bg-blue-50 min-w-[90px]">{countdown > 0 ? `${countdown}s` : '发送验证码'}</Button>
                     )}
                   </div>
-                  {editForm.phone && <Badge className="bg-green-100 text-green-700 text-xs mt-2">已验证</Badge>}
+                  {editForm.phone && <Badge className="bg-green-100 text-green-700 text-xs mt-1">已验证</Badge>}
                 </div>
                 {/* 邮箱 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Mail className="w-4 h-4 text-purple-600" />邮箱地址</Label>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-1">
                     <Input placeholder="请输入邮箱地址" value={editForm.email} onChange={e => handleEmailChange(e.target.value)} type="email" disabled={isVerifying && verificationField === 'email'} className="border-gray-300 focus:border-purple-500" />
                     {editForm.email !== user?.email && editForm.email && (
                       <Button variant="outline" size="sm" onClick={() => sendVerificationCode('email', editForm.email)} disabled={countdown > 0} className="border-purple-300 text-purple-600 hover:bg-purple-50 min-w-[90px]">{countdown > 0 ? `${countdown}s` : '发送验证码'}</Button>
                     )}
                   </div>
-                  {editForm.email && <Badge className="bg-green-100 text-green-700 text-xs mt-2">已验证</Badge>}
-                  {!user?.email && <Badge className="bg-amber-100 text-amber-700 text-xs mt-2">首次验证奖励</Badge>}
+                  {editForm.email && <Badge className="bg-green-100 text-green-700 text-xs mt-1">已验证</Badge>}
+                  {!user?.email && <Badge className="bg-amber-100 text-amber-700 text-xs mt-1">首次验证奖励</Badge>}
                 </div>
               </div>
             </div>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
               </div>
             )}
             {/* 保存按钮 */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-gray-200">
               <Button onClick={handleSaveAll} disabled={!hasChanges || isSaving} className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700">
                 {isSaving ? (<><Save className="w-4 h-4 mr-2 animate-spin" />保存中...</>) : (<><Save className="w-4 h-4 mr-2" />保存所有更改</>)}
               </Button>

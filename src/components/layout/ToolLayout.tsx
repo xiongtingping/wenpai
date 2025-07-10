@@ -199,11 +199,14 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
       <header className="border-b bg-white/95 backdrop-blur-md sticky top-0 z-50">
         <div className="container flex justify-between items-center h-16 px-6">
           {/* 左侧：Logo + 返回箭头 + 面包屑导航 */}
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-8 w-8" />
-              <span className="font-bold text-lg">文派</span>
-            </Link>
+          <div className="flex items-center gap-6">
+            {/* Logo区域 */}
+            <div className="flex items-center">
+              <Link to="/" className="flex items-center space-x-2">
+                <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-8 w-8" />
+                <span className="font-bold text-lg">文派</span>
+              </Link>
+            </div>
             
             {/* 返回箭头 - 仅在二级页面及以下显示 */}
             {currentConfig.level > 1 && currentConfig.parent && (
@@ -219,46 +222,48 @@ export default function ToolLayout({ children }: ToolLayoutProps) {
             
             {/* 面包屑导航 - 仅在二级页面及以下显示 */}
             {currentConfig.level > 1 && (
-              <Breadcrumb className="flex items-center">
-                <BreadcrumbList className="flex items-center">
-                  {breadcrumbs.map((crumb, index) => {
-                    const Icon = crumb.icon;
-                    const isLast = index === breadcrumbs.length - 1;
-                    
-                    return (
-                      <React.Fragment key={crumb.path}>
-                        <BreadcrumbItem className="flex items-center">
-                          {isLast ? (
-                            <span className="text-gray-900 text-sm font-medium flex items-center gap-1.5">
-                              <Icon className="h-4 w-4" />
-                              {crumb.title}
-                            </span>
-                          ) : (
-                            <BreadcrumbLink 
-                              className="
-                                cursor-pointer text-gray-500 hover:text-blue-600 
-                                flex items-center gap-1.5 
-                                transition-colors duration-200
-                                hover:underline underline-offset-2
-                                text-sm font-medium
-                              "
-                              onClick={() => navigate(crumb.path)}
-                            >
-                              <Icon className="h-4 w-4" />
-                              {crumb.title}
-                            </BreadcrumbLink>
+              <div className="flex items-center">
+                <Breadcrumb className="flex items-center">
+                  <BreadcrumbList className="flex items-center">
+                    {breadcrumbs.map((crumb, index) => {
+                      const Icon = crumb.icon;
+                      const isLast = index === breadcrumbs.length - 1;
+                      
+                      return (
+                        <React.Fragment key={crumb.path}>
+                          <BreadcrumbItem className="flex items-center">
+                            {isLast ? (
+                              <span className="text-gray-900 text-sm font-medium flex items-center gap-1.5">
+                                <Icon className="h-4 w-4" />
+                                {crumb.title}
+                              </span>
+                            ) : (
+                              <BreadcrumbLink 
+                                className="
+                                  cursor-pointer text-gray-500 hover:text-blue-600 
+                                  flex items-center gap-1.5 
+                                  transition-colors duration-200
+                                  hover:underline underline-offset-2
+                                  text-sm font-medium
+                                "
+                                onClick={() => navigate(crumb.path)}
+                              >
+                                <Icon className="h-4 w-4" />
+                                {crumb.title}
+                              </BreadcrumbLink>
+                            )}
+                          </BreadcrumbItem>
+                          {!isLast && (
+                            <BreadcrumbSeparator className="mx-2 text-gray-400 text-sm">
+                              /
+                            </BreadcrumbSeparator>
                           )}
-                        </BreadcrumbItem>
-                        {!isLast && (
-                          <BreadcrumbSeparator className="mx-2 text-gray-400 text-sm">
-                            /
-                          </BreadcrumbSeparator>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </BreadcrumbList>
-              </Breadcrumb>
+                        </React.Fragment>
+                      );
+                    })}
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
             )}
           </div>
           
