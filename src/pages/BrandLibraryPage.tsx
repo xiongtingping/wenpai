@@ -762,6 +762,7 @@ export default function BrandLibraryPage() {
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
         showAdaptButton={false}
+        showUpgradeButton={false}
       />
 
       <div className="container mx-auto py-6 px-4 max-w-7xl">

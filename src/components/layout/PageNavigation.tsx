@@ -199,6 +199,8 @@ interface PageNavigationProps {
   description?: string;
   /** 是否显示AI内容适配器快速访问按钮 */
   showAdaptButton?: boolean;
+  /** 是否显示升级专业版按钮 */
+  showUpgradeButton?: boolean;
   /** 额外的操作按钮 */
   actions?: React.ReactNode;
 }
@@ -213,6 +215,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   title,
   description,
   showAdaptButton = true,
+  showUpgradeButton = true,
   actions,
 }) => {
   const navigate = useNavigate();
@@ -295,7 +298,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
           {/* 右侧：操作按钮区域 */}
           <div className="flex items-center gap-3 ml-0 md:ml-6 self-start md:self-center">
             {/* 升级专业版按钮 */}
-            <UpgradeButton />
+            {showUpgradeButton && <UpgradeButton />}
             
             {/* AI内容适配器快速访问 - 只在二级页面显示 */}
             {showAdaptButton && path !== '/adapt' && currentConfig.level === 2 && (
