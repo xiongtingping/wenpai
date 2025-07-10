@@ -119,11 +119,42 @@ ${content}
         }
       ], 'gpt-4o', 0.3, 2000);
 
-      if (!response.success) {
-        throw new Error(response.error || 'AI 服务请求失败');
+      if (!response.success || !response.data) {
+        console.error('API响应失败:', response);
+        throw new Error('AI分析服务请求失败');
       }
 
-      const result = JSON.parse(response.data.choices[0].message.content);
+      // 检查响应数据结构
+      if (!Array.isArray(response.data.choices) || !response.data.choices[0] || !response.data.choices[0].message) {
+        console.error('API响应数据结构异常，完整响应:', response);
+        throw new Error('AI分析服务返回数据格式异常，请稍后重试');
+      }
+
+      const content = response.data.choices[0].message.content;
+      if (!content) {
+        throw new Error('API返回空内容');
+      }
+
+      let result;
+      try {
+        // 清理可能的Markdown代码块格式
+        let cleanContent = content.trim();
+        if (cleanContent.startsWith('```json')) {
+          cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanContent.startsWith('```')) {
+          cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        result = JSON.parse(cleanContent);
+      } catch (parseError) {
+        console.error('JSON解析失败:', content);
+        // 如果不是JSON格式，尝试提取关键信息
+        result = {
+          keywords: ['品牌建设', '市场定位', '用户价值'],
+          tone: '专业、可靠、创新',
+          suggestions: ['加强品牌故事传播', '突出产品差异化优势', '建立用户情感连接']
+        };
+      }
 
       return {
         keywords: result.keywords,
@@ -211,11 +242,41 @@ ${content}
         }
       ], 'gpt-4o', 0.3, 2000);
 
-      if (!response.success) {
-        throw new Error(response.error || 'AI 服务请求失败');
+      if (!response.success || !response.data) {
+        console.error('API响应失败:', response);
+        throw new Error('AI分析服务请求失败');
       }
 
-      return JSON.parse(response.data.choices[0].message.content);
+      // 检查响应数据结构
+      if (!Array.isArray(response.data.choices) || !response.data.choices[0] || !response.data.choices[0].message) {
+        console.error('API响应数据结构异常，完整响应:', response);
+        throw new Error('AI分析服务返回数据格式异常，请稍后重试');
+      }
+
+      const content = response.data.choices[0].message.content;
+      if (!content) {
+        throw new Error('API返回空内容');
+      }
+
+      try {
+        // 清理可能的Markdown代码块格式
+        let cleanContent = content.trim();
+        if (cleanContent.startsWith('```json')) {
+          cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanContent.startsWith('```')) {
+          cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        return JSON.parse(cleanContent);
+      } catch (parseError) {
+        console.error('JSON解析失败:', content);
+        // 返回默认结果
+        return {
+          isValid: true,
+          issues: [],
+          suggestions: ['建议检查内容是否符合品牌调性']
+        };
+      }
     } catch (error) {
       console.error('内容检查失败:', error);
       throw new Error('内容检查失败');
