@@ -1587,16 +1587,15 @@ export default function AdaptPage() {
           
           {/* Advanced Options */}
           {showAdvancedSettings && (
-            <div className="mt-4 border-t pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
+            <div className="mt-3 border-t pt-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <Label className="text-xs mb-2 block">全局字符数限制</Label>
+                  <Label className="text-xs mb-1 block">全局字符数限制</Label>
                   <Select 
                     value={globalSettings.charCountPreset}
                     onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder="选择字符数限制" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1630,14 +1629,14 @@ export default function AdaptPage() {
                   </Label>
                 </div>
               </div>
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-end mt-3">
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={saveSettings}
-                  className="flex items-center"
+                  className="flex items-center h-8"
                 >
-                  <Save className="h-4 w-4 mr-1" />
+                  <Save className="h-3 w-3 mr-1" />
                   保存设置
                 </Button>
               </div>

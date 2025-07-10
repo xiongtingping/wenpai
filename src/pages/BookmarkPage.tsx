@@ -597,22 +597,6 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
       <PageNavigation
         title="我的资料库"
         description="统一管理网络收藏、内容提取和文案管理"
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
-              <Bookmark className="w-4 h-4 mr-2" />
-              添加收藏
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => { setAddContentType('extraction'); setIsAddDialogOpen(true); }}>
-              <Zap className="w-4 h-4 mr-2" />
-              内容提取
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => { setAddContentType('copywriting'); setIsAddDialogOpen(true); }}>
-              <Brain className="w-4 h-4 mr-2" />
-              创建文案
-            </Button>
-          </div>
-        }
       />
 
       <div className="container mx-auto px-4 py-8">
@@ -637,6 +621,22 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
                 文案管理
               </TabsTrigger>
             </TabsList>
+            
+            {/* 操作按钮 */}
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
+                <Bookmark className="w-4 h-4 mr-2" />
+                添加收藏
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setAddContentType('extraction'); setIsAddDialogOpen(true); }}>
+                <Zap className="w-4 h-4 mr-2" />
+                内容提取
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setAddContentType('copywriting'); setIsAddDialogOpen(true); }}>
+                <Brain className="w-4 h-4 mr-2" />
+                创建文案
+              </Button>
+            </div>
           </div>
 
           {/* 搜索和筛选工具栏 */}
@@ -1278,32 +1278,27 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
               </div>
             )}
 
-            <div className="flex justify-between pt-4 border-t">
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => viewingItem && copyContent(viewingItem.content)}
-                >
-                  <Copy className="w-4 h-4 mr-2" />
-                  复制内容
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    if (viewingItem) {
-                      setEditingItem(viewingItem);
-                      closeView();
-                    }
-                  }}
-                >
-                  <Edit className="w-4 h-4 mr-2" />
-                  编辑
-                </Button>
-              </div>
-              <Button variant="outline" onClick={closeView}>
-                关闭
+            <div className="flex gap-2 pt-4 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => viewingItem && copyContent(viewingItem.content)}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                复制内容
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (viewingItem) {
+                    setEditingItem(viewingItem);
+                    closeView();
+                  }
+                }}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                编辑
               </Button>
             </div>
           </DialogContent>

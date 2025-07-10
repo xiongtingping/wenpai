@@ -191,7 +191,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <PageNavigation title="个人中心" description="管理您的个人信息和账户设置" showAdaptButton={false} />
-      <div className="container mx-auto px-4 pt-6 pb-8 max-w-6xl">
+      <div className="container mx-auto px-6 pt-8 pb-8 max-w-6xl">
         <div className="mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="hover:bg-blue-100 text-blue-600 -ml-2">
             <ArrowLeft className="h-4 w-4 mr-2" /> 返回首页
@@ -199,7 +199,7 @@ export default function ProfilePage() {
         </div>
         
         {/* 个人资料与联系方式合并卡片 */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-6">
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-10">
           <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
             <CardTitle className="flex items-center gap-3 text-xl">
               <User className="w-6 h-6 p-1 bg-white/20 rounded-lg" /> 个人资料
@@ -256,7 +256,7 @@ export default function ProfilePage() {
               </div>
             )}
             {/* 保存按钮 */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-6 pt-6 border-t border-gray-200">
               <Button onClick={handleSaveAll} disabled={!hasChanges || isSaving} className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700">
                 {isSaving ? (<><Save className="w-4 h-4 mr-2 animate-spin" />保存中...</>) : (<><Save className="w-4 h-4 mr-2" />保存所有更改</>)}
               </Button>

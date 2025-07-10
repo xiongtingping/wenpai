@@ -151,7 +151,6 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     level: 2,
     parent: '/',
     category: 'insight-tools',
-    badge: '开发中',
   },
   '/profile': {
     path: '/profile',

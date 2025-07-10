@@ -1310,10 +1310,24 @@ export default function BrandLibraryPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           {asset.processingStatus === 'pending' && (
-                            <Badge variant="secondary">
-                              <Clock className="h-3 w-3 mr-1" />
-                              待分析
-                            </Badge>
+                            <>
+                              <Badge variant="secondary">
+                                <Clock className="h-3 w-3 mr-1" />
+                                待分析
+                              </Badge>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAnalyzeSingleAsset(asset);
+                                }}
+                                disabled={isAnalyzingAsset === asset.id}
+                              >
+                                <Brain className="h-3 w-3 mr-1" />
+                                {isAnalyzingAsset === asset.id ? '分析中...' : 'AI分析'}
+                              </Button>
+                            </>
                           )}
                           {asset.processingStatus === 'processing' && (
                             <Badge variant="default">
@@ -1328,10 +1342,24 @@ export default function BrandLibraryPage() {
                             </Badge>
                           )}
                           {asset.processingStatus === 'failed' && (
-                            <Badge variant="destructive">
-                              <X className="h-3 w-3 mr-1" />
-                              分析失败
-                            </Badge>
+                            <>
+                              <Badge variant="destructive">
+                                <X className="h-3 w-3 mr-1" />
+                                分析失败
+                              </Badge>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAnalyzeSingleAsset(asset);
+                                }}
+                                disabled={isAnalyzingAsset === asset.id}
+                              >
+                                <Brain className="h-3 w-3 mr-1" />
+                                {isAnalyzingAsset === asset.id ? '分析中...' : '重新分析'}
+                              </Button>
+                            </>
                           )}
                           
                               <DropdownMenu>
