@@ -89,35 +89,49 @@ if (typeof window !== 'undefined') {
    * @param content 要分析的内容
    */
   public async analyzeBrandContent(content: string): Promise<BrandAnalysisResult> {
+    // 检查内容是否为空或过短
+    if (!content || content.trim().length < 10) {
+      console.warn('品牌资料内容过短，使用默认分析结果');
+      return {
+        keywords: ['品牌建设', '市场定位', '用户价值'],
+        tone: '专业、可靠、创新',
+        suggestions: ['请提供更多品牌资料以获得更准确的分析', '建议包含品牌介绍、产品描述、市场定位等信息']
+      };
+    }
+
     const prompt = `
 作为一名品牌策略专家，请分析以下品牌资料，提取关键信息：
 
+品牌资料内容：
 ${content}
 
-请提供以下分析结果：
-1. 品牌关键词（最多5个）
-2. 品牌语气特征
-3. 内容建议
+请严格按照以下JSON格式返回分析结果，不要包含任何其他文字说明：
 
-请按照以下 JSON 格式返回：
 {
-  "keywords": ["关键词1", "关键词2", ...],
+  "keywords": ["关键词1", "关键词2", "关键词3", "关键词4", "关键词5"],
   "tone": "语气特征描述",
-  "suggestions": ["建议1", "建议2", ...]
+  "suggestions": ["建议1", "建议2", "建议3"]
 }
+
+要求：
+1. 关键词：提取5个最能代表品牌特征的关键词
+2. 语气特征：描述品牌的语调风格，如"专业、可靠、创新"或"年轻、活力、时尚"
+3. 内容建议：提供3条具体的品牌建设建议
+
+注意：必须返回有效的JSON格式，不要包含任何解释性文字。
 `;
 
     try {
       const response = await callOpenAIProxy([
         {
           role: 'system',
-          content: '你是一名专业的品牌策略分析专家，擅长提取品牌特征和调性。请严格按照JSON格式返回分析结果。'
+          content: '你是一名专业的品牌策略分析专家。你的任务是将品牌资料分析为JSON格式。重要：1) 只返回JSON格式，不要包含任何其他文字；2) 确保JSON格式完全正确；3) 如果内容不足，基于常见品牌特征进行合理推测。'
         },
         {
           role: 'user',
           content: prompt
         }
-      ], 'gpt-4o', 0.3, 2000);
+      ], 'gpt-4o', 0.1, 2000);
 
       if (!response.success || !response.data) {
         console.error('API响应失败:', response);
@@ -150,15 +164,34 @@ ${content}
           cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
         }
         
+        // 尝试直接解析JSON
         result = JSON.parse(cleanContent);
       } catch (parseError) {
-        console.error('JSON解析失败:', content);
-        // 如果不是JSON格式，尝试提取关键信息
-        result = {
-          keywords: ['品牌建设', '市场定位', '用户价值'],
-          tone: '专业、可靠、创新',
-          suggestions: ['加强品牌故事传播', '突出产品差异化优势', '建立用户情感连接']
-        };
+        console.error('JSON解析失败，原始内容:', content);
+        
+        // 如果解析失败，检查是否是错误提示
+        if (content.includes('请提供') || content.includes('内容不足') || content.length < 50) {
+          console.warn('AI返回了错误提示，使用默认分析结果');
+          result = {
+            keywords: ['品牌建设', '市场定位', '用户价值', '产品创新', '用户体验'],
+            tone: '专业、可靠、创新',
+            suggestions: ['请提供更多品牌资料以获得更准确的分析', '建议包含品牌介绍、产品描述、市场定位等信息', '可以上传品牌手册、产品介绍等文档']
+          };
+        } else {
+          // 尝试从文本中提取关键信息
+          console.warn('尝试从非JSON响应中提取信息');
+          const keywords = content.match(/关键词[：:]\s*([^，。\n]+)/g)?.map(k => k.replace(/关键词[：:]\s*/, '')) || 
+                          ['品牌建设', '市场定位', '用户价值'];
+          const tone = content.match(/语气[：:]\s*([^，。\n]+)/)?.pop() || '专业、可靠、创新';
+          const suggestions = content.match(/建议[：:]\s*([^，。\n]+)/g)?.map(s => s.replace(/建议[：:]\s*/, '')) || 
+                             ['加强品牌故事传播', '突出产品差异化优势', '建立用户情感连接'];
+          
+          result = {
+            keywords: keywords.slice(0, 5),
+            tone: tone,
+            suggestions: suggestions.slice(0, 3)
+          };
+        }
       }
 
       return {
