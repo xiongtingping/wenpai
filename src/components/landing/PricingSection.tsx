@@ -81,12 +81,11 @@ export function PricingSection() {
   // 渲染features时去重次数文案
   function renderFeatures(features: string[], plan: any) {
     return features
-      .filter(f => !/\d+次\/月/.test(f)) // 3. 去掉“10次/月”文案
+      .filter(f => !/免费|专业版|\d+次\/月/.test(f)) // 3. 去掉“10次/月”文案
       .map((feature, index) => {
         let text = feature
           .replace(/创意工作室/g, '创意魔方') // 1. 替换
           .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 2. 替换
-          .replace(/免费/g, '') // 4. 去除免费
           .replace(/专业功能/g, '更多功能') // 6. 替换
           .replace(/专业版/g, '') // 7. 去除专业版
           .replace(/热点话题/g, m => m.replace('免费', '')) // 5. 去除热点话题下免费
@@ -126,8 +125,8 @@ export function PricingSection() {
               checked={billing === "yearly"}
               onCheckedChange={(checked) => setBilling(checked ? "yearly" : "monthly")}
             />
-            <span className={billing === "yearly" ? "text-blue-600 font-semibold" : ""}>
-              按年支付 <span className="text-sm text-green-500">(更优惠)</span>
+            <span className={billing === "yearly" ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold px-4 py-2 rounded shadow-lg scale-110" : "text-gray-700 font-semibold"}>
+              按年订阅 <span className="text-xs ml-1">(更优惠)</span>
             </span>
           </div>
 

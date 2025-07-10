@@ -54,62 +54,58 @@ export interface DailyHotResponse {
 /**
  * 获取全网热点聚合数据
  * @returns Promise<DailyHotResponse> 全网热点聚合数据
+ * @throws Error 当API请求失败时抛出错误
  */
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
   try {
-    // 尝试通过代理或直接请求
-    const res = await axios.get('https://api-hot.imsyy.top/all', {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      timeout: 5000
+    // 获取支持的平台列表
+    const supportedPlatforms = getSupportedPlatforms();
+    const aggregatedData: Record<string, DailyHotItem[]> = {};
+    
+    // 并发请求各个平台的数据
+    const platformPromises = supportedPlatforms.map(async (platform) => {
+      try {
+        const platformData = await getDailyHotByPlatform(platform);
+        if (platformData.length > 0) {
+          aggregatedData[platform] = platformData;
+        }
+        return { platform, success: true, count: platformData.length };
+      } catch (error) {
+        console.warn(`获取${platform}数据失败:`, error);
+        return { platform, success: false, count: 0 };
+      }
     });
-    return res.data;
-  } catch (error) {
-    console.error('获取全网热点数据失败:', error);
-    // 返回丰富的模拟数据作为备选
+    
+    // 等待所有请求完成
+    const results = await Promise.allSettled(platformPromises);
+    
+    // 统计成功和失败的平台
+    const successfulPlatforms = results
+      .filter(result => result.status === 'fulfilled')
+      .map(result => (result as PromiseFulfilledResult<any>).value)
+      .filter(result => result.success);
+    
+    const failedPlatforms = results
+      .filter(result => result.status === 'fulfilled')
+      .map(result => (result as PromiseFulfilledResult<any>).value)
+      .filter(result => !result.success);
+    
+    console.log(`热点数据获取完成: ${successfulPlatforms.length}个平台成功, ${failedPlatforms.length}个平台失败`);
+    
+    // 检查是否有任何平台数据获取成功
+    if (Object.keys(aggregatedData).length === 0) {
+      throw new Error('所有平台数据获取失败，请检查网络连接或API服务状态');
+    }
+    
     return {
       code: 200,
       msg: 'success',
-      data: {
-        weibo: [
-          { title: '微博热搜：AI技术突破性进展', hot: '999999', url: '#', platform: 'weibo' },
-          { title: '微博热搜：新年祝福话题', hot: '888888', url: '#', platform: 'weibo' },
-          { title: '微博热搜：科技创新发展', hot: '777777', url: '#', platform: 'weibo' },
-          { title: '微博热搜：健康生活方式', hot: '666666', url: '#', platform: 'weibo' },
-          { title: '微博热搜：教育改革动态', hot: '555555', url: '#', platform: 'weibo' }
-        ],
-        zhihu: [
-          { title: '知乎热榜：如何提高工作效率', hot: '888888', url: '#', platform: 'zhihu' },
-          { title: '知乎热榜：技术发展趋势分析', hot: '777777', url: '#', platform: 'zhihu' },
-          { title: '知乎热榜：个人成长心得分享', hot: '666666', url: '#', platform: 'zhihu' },
-          { title: '知乎热榜：行业前景展望', hot: '555555', url: '#', platform: 'zhihu' },
-          { title: '知乎热榜：创业经验总结', hot: '444444', url: '#', platform: 'zhihu' }
-        ],
-        douyin: [
-          { title: '抖音热点：创意短视频制作', hot: '777777', url: '#', platform: 'douyin' },
-          { title: '抖音热点：生活技能分享', hot: '666666', url: '#', platform: 'douyin' },
-          { title: '抖音热点：美食制作教程', hot: '555555', url: '#', platform: 'douyin' },
-          { title: '抖音热点：旅行攻略推荐', hot: '444444', url: '#', platform: 'douyin' },
-          { title: '抖音热点：健身运动指导', hot: '333333', url: '#', platform: 'douyin' }
-        ],
-        bilibili: [
-          { title: 'B站热门：技术教程分享', hot: '666666', url: '#', platform: 'bilibili' },
-          { title: 'B站热门：游戏解说视频', hot: '555555', url: '#', platform: 'bilibili' },
-          { title: 'B站热门：知识科普内容', hot: '444444', url: '#', platform: 'bilibili' },
-          { title: 'B站热门：动漫资讯更新', hot: '333333', url: '#', platform: 'bilibili' },
-          { title: 'B站热门：创作经验分享', hot: '222222', url: '#', platform: 'bilibili' }
-        ],
-        baidu: [
-          { title: '百度热搜：科技新闻动态', hot: '555555', url: '#', platform: 'baidu' },
-          { title: '百度热搜：社会热点事件', hot: '444444', url: '#', platform: 'baidu' },
-          { title: '百度热搜：娱乐资讯更新', hot: '333333', url: '#', platform: 'baidu' },
-          { title: '百度热搜：体育赛事报道', hot: '222222', url: '#', platform: 'baidu' },
-          { title: '百度热搜：财经市场分析', hot: '111111', url: '#', platform: 'baidu' }
-        ]
-      }
+      data: aggregatedData
     };
+  } catch (error) {
+    console.error('获取全网热点数据失败:', error);
+    // 直接抛出错误，不返回模拟数据
+    throw new Error(`获取全网热点数据失败: ${error instanceof Error ? error.message : '网络连接异常'}`);
   }
 }
 
@@ -120,14 +116,57 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
  */
 export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
   try {
-    const res = await axios.get(`https://api-hot.imsyy.top/${platform}`);
-    if (res.data && res.data.code === 200) {
-      return res.data.data || [];
+    const res = await axios.get(`https://api-hot.imsyy.top/${platform}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      timeout: 8000
+    });
+    
+    // 检查响应数据格式
+    if (!res.data) {
+      throw new Error('API返回空数据');
     }
+    
+    // 处理不同的响应格式
+    if (res.data.code === 200 && Array.isArray(res.data.data)) {
+      // 标准格式：{ code: 200, data: [...] }
+      return res.data.data.map((item: any) => ({
+        ...item,
+        platform // 添加平台标识
+      }));
+    } else if (Array.isArray(res.data)) {
+      // 直接返回数组格式
+      return res.data.map((item: any) => ({
+        ...item,
+        platform // 添加平台标识
+      }));
+    } else if (res.data.code === 200 && typeof res.data.data === 'object') {
+      // 对象格式，尝试提取数组
+      const data = res.data.data;
+      if (Array.isArray(data)) {
+        return data.map((item: any) => ({
+          ...item,
+          platform
+        }));
+      } else {
+        // 如果是对象，尝试找到包含数组的字段
+        const arrayFields = Object.keys(data).filter(key => Array.isArray(data[key]));
+        if (arrayFields.length > 0) {
+          return data[arrayFields[0]].map((item: any) => ({
+            ...item,
+            platform
+          }));
+        }
+      }
+    }
+    
+    console.warn(`平台${platform}返回数据格式异常:`, res.data);
     return [];
   } catch (error) {
     console.error(`获取${platform}热榜数据失败:`, error);
-    return [];
+    throw error; // 重新抛出错误，让调用方处理
   }
 }
 

@@ -1587,9 +1587,9 @@ export default function AdaptPage() {
           
           {/* Advanced Options */}
           {showAdvancedSettings && (
-            <div className="mt-2">
-              <div className="bg-white rounded-lg shadow p-3 flex flex-col items-center w-full max-w-2xl mx-auto">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 w-full">
+            <div className="mt-2 w-full">
+              <div className="bg-white rounded-lg shadow p-3 flex flex-col items-center w-full max-w-full">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full px-4">
                   <div className="flex items-center space-x-1">
                     <Label className="text-xs w-28 flex-shrink-0">全局字符数限制</Label>
                     <Select 

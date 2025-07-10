@@ -97,7 +97,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
   },
   '/content-extractor': {
     path: '/content-extractor',
-            title: '内容提取',
+    title: '内容提取',
     icon: FileText,
     level: 3,
     parent: '/library',
@@ -270,32 +270,65 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   const subModules = getSubModules();
 
   return (
-    <div className="border-b bg-white">
-      <div className="container mx-auto px-4 py-2">
-        {/* 主标题和操作按钮区域 - 统一行对齐 */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 min-h-[60px]">
-          {/* 左侧：页面主标题区域 */}
-          <div className="flex-1">
-            <div className="flex items-start md:items-center gap-2.5 mb-1">
-              {React.createElement(currentConfig.icon, { className: "h-5 w-5 text-blue-600 mt-0.5 md:mt-0" })}
-              <h1 className="text-xl font-bold text-gray-900">
+    <div className="bg-white border-b border-gray-200">
+      <div className="container mx-auto px-4 py-6">
+        {/* 面包屑导航 */}
+        <Breadcrumb className="mb-3">
+          <BreadcrumbList>
+            {breadcrumbs.map((item, index) => {
+              const ItemIcon = item.icon;
+              const isLast = index === breadcrumbs.length - 1;
+              
+              return (
+                <React.Fragment key={item.path}>
+                  <BreadcrumbItem>
+                    {isLast ? (
+                      <BreadcrumbPage className="flex items-center gap-2 text-gray-600">
+                        <ItemIcon className="h-4 w-4" />
+                        {item.title}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink 
+                        href={item.path}
+                        className="flex items-center gap-2 text-gray-500 hover:text-gray-700"
+                      >
+                        <ItemIcon className="h-4 w-4" />
+                        {item.title}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {!isLast && <BreadcrumbSeparator />}
+                </React.Fragment>
+              );
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        {/* 页面标题和描述 */}
+        <div className="mb-6">
+          <div className="flex items-start gap-3 mb-2">
+            {React.createElement(currentConfig.icon, { className: "h-6 w-6 text-blue-600 mt-1" })}
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                 {title || currentConfig.title}
+                {currentConfig.badge && (
+                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                    {currentConfig.badge}
+                  </Badge>
+                )}
               </h1>
-              {currentConfig.badge && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">
-                  {currentConfig.badge}
-                </Badge>
+              {description && (
+                <p className="text-gray-600 text-base leading-relaxed mt-2">
+                  {description}
+                </p>
               )}
             </div>
-            {description && (
-              <p className="text-gray-600 text-sm leading-relaxed ml-0 md:ml-8">
-                {description}
-              </p>
-            )}
           </div>
+        </div>
 
-          {/* 右侧：操作按钮区域 */}
-          <div className="flex items-center gap-3 ml-0 md:ml-6 self-start md:self-center">
+        {/* 操作按钮区域 */}
+        {(showUpgradeButton || showAdaptButton || actions) && (
+          <div className="flex items-center gap-3 mb-4">
             {/* 升级专业版按钮 */}
             {showUpgradeButton && <UpgradeButton />}
             
@@ -304,7 +337,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
               <Button
                 onClick={() => navigate('/adapt')}
                 className="
-                  min-w-[44px] h-9 px-4 py-2
+                  min-w-[44px] h-10 px-4 py-2
                   bg-blue-600 hover:bg-blue-700 
                   text-white
                   rounded-lg
@@ -324,11 +357,11 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
             {/* 额外操作按钮 */}
             {actions}
           </div>
-        </div>
+        )}
 
         {/* 子模块快速切换 */}
         {subModules.length > 0 && (
-          <div className="flex items-center gap-3 flex-wrap pt-2 border-t border-gray-100 mt-2">
+          <div className="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-100">
             <span className="text-sm font-medium text-gray-500 mr-2">快速切换:</span>
             {subModules.map((module, index) => {
               const ModuleIcon = module.icon;
@@ -340,7 +373,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                   variant={isActive ? "default" : "ghost"}
                   onClick={() => navigate(module.path)}
                   className={`
-                    min-w-[44px] h-8 px-3 py-1.5
+                    min-w-[44px] h-9 px-3 py-2
                     flex items-center gap-2
                     transition-all duration-200 ease-in-out
                     hover:scale-105 active:scale-95

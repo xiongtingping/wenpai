@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,7 @@ import ToolLayout from "@/components/layout/ToolLayout";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PageNavigation from '@/components/layout/PageNavigation';
 
 const ApiTestPage = () => {
   const [testContent, setTestContent] = useState("这是一段测试内容，用于检查API连接是否正常工作。希望能够顺利适配到各个平台。");
@@ -197,6 +198,19 @@ const ApiTestPage = () => {
 
   return (
     <ToolLayout>
+      {/* 页面导航 */}
+      <PageNavigation
+        title="API连接测试"
+        description="测试与AI API的连接情况，支持OpenAI、Google Gemini和DeepSeek"
+        showAdaptButton={false}
+        actions={
+          <Button variant="outline">
+            <Settings className="h-4 w-4 mr-2" />
+            API配置
+          </Button>
+        }
+      />
+
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">多模型 API 连接测试工具</h1>
         <p className="text-gray-500 mb-8">

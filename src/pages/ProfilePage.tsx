@@ -209,14 +209,20 @@ export default function ProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-8 pt-8 pb-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              {/* 左侧：头像和昵称 */}
-              <div className="space-y-4 flex flex-col items-center flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+              {/* 左侧：头像修改区 */}
+              <div className="flex flex-col items-center md:col-span-1">
                 <AvatarUpload currentAvatar={editForm.avatar} nickname={editForm.nickname || user?.nickname || '用户'} size="lg" onAvatarChange={handleAvatarChange} disabled={false} />
-                <div className="mt-2 text-lg font-semibold text-gray-800">{editForm.nickname || user?.nickname || '用户'}</div>
               </div>
-              {/* 右侧：联系方式 */}
-              <div className="flex flex-col gap-3 flex-1">
+              {/* 右侧：表单区 */}
+              <div className="flex flex-col gap-6 md:col-span-2">
+                {/* 昵称 */}
+                <div>
+                  <Label className="font-semibold text-gray-800 flex items-center gap-2"><User className="w-4 h-4 text-blue-600" />昵称</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input placeholder="请输入昵称" value={editForm.nickname} onChange={e => handleNicknameChange(e.target.value)} className="border-gray-300 focus:border-blue-500 text-lg text-gray-900" />
+                  </div>
+                </div>
                 {/* 手机号 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Phone className="w-4 h-4 text-blue-600" />手机号码</Label>
