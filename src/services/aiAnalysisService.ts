@@ -1,5 +1,5 @@
 import { BrandAnalysisResult, ContentCheckResult } from '@/types/brand';
-import { callOpenAIProxy } from '@/api/apiProxy';
+import { callOpenAIProxy } from '@/api/localApiProxy';
 // PDF 解析依赖
 import * as pdfjsLib from 'pdfjs-dist';
 // Word 文档解析

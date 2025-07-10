@@ -35,6 +35,7 @@ import ShareManagerPage from '@/pages/ShareManagerPage';
 import EmojiPage from '@/pages/EmojiPage';
 import AboutPage from '@/pages/AboutPage';
 import TestPage from '@/pages/TestPage';
+import AITestPage from '@/pages/AITestPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 
@@ -188,6 +189,7 @@ const AppContent: React.FC = () => {
 
         <Route path="/about" element={<AboutPage />} />
         <Route path="/test" element={<TestPage />} />
+        <Route path="/ai-test" element={<AITestPage />} />
 
         {/* 404 页面 */}
         <Route path="*" element={<NotFoundPage />} />
