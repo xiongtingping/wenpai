@@ -12,8 +12,8 @@ import Tesseract from 'tesseract.js';
 // 配置 PDF.js worker - 使用官方CDN worker
 if (typeof window !== 'undefined') {
   try {
-    // 使用官方CDN worker，避免CORS问题
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    // 使用最新版本的worker，避免版本不匹配
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.3.93/build/pdf.worker.min.js';
   } catch (error) {
     console.warn('PDF.js worker配置失败:', error);
   }
@@ -347,22 +347,43 @@ ${content}
           else if (file.type.includes('pdf') || fileExtension === '.pdf') {
             try {
               const typedArray = new Uint8Array(e.target?.result as ArrayBuffer);
+              
+              // 使用更稳定的PDF解析配置
               const pdf = await pdfjsLib.getDocument({ 
                 data: typedArray,
                 useWorkerFetch: false,
                 isEvalSupported: false,
                 useSystemFonts: true
               }).promise;
+              
               let text = '';
-              for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                text += content.items.map((item: any) => item.str).join(' ');
+              const numPages = Math.min(pdf.numPages, 10); // 限制最多解析10页
+              
+              for (let i = 1; i <= numPages; i++) {
+                try {
+                  const page = await pdf.getPage(i);
+                  const content = await page.getTextContent();
+                  const pageText = content.items.map((item: any) => item.str).join(' ');
+                  text += pageText + '\n';
+                } catch (pageError) {
+                  console.warn(`PDF第${i}页解析失败:`, pageError);
+                  continue;
+                }
               }
+              
+              if (text.trim().length === 0) {
+                throw new Error('PDF内容为空');
+              }
+              
               resolve(text);
             } catch (pdfError) {
-              console.warn('PDF解析失败，返回文件名作为内容:', pdfError);
-              resolve(`PDF文件: ${file.name} (内容解析失败，请检查文件格式)`);
+              console.warn('PDF解析失败，尝试备用方案:', pdfError);
+              
+              // 备用方案：返回文件信息
+              const fileSize = file.size;
+              const fileInfo = `PDF文件: ${file.name}\n文件大小: ${(fileSize / 1024).toFixed(2)} KB\n\n由于PDF解析技术限制，无法提取文本内容。\n建议：\n1. 将PDF转换为Word文档后上传\n2. 复制PDF内容到文本文件后上传\n3. 手动输入品牌资料内容`;
+              
+              resolve(fileInfo);
             }
           } 
           // Word 文档处理
