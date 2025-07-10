@@ -199,8 +199,8 @@ export default function ProfilePage() {
         </div>
         
         {/* 个人资料与联系方式合并卡片 */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-8">
-          <CardHeader className="pb-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-6">
+          <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
             <CardTitle className="flex items-center gap-3 text-xl">
               <User className="w-6 h-6 p-1 bg-white/20 rounded-lg" /> 个人资料
               {userType === 'pro' && (
@@ -209,14 +209,14 @@ export default function ProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* 左侧：头像和昵称 */}
-              <div className="space-y-6 flex flex-col items-center">
+              <div className="space-y-4 flex flex-col items-center">
                 <AvatarUpload currentAvatar={editForm.avatar} nickname={editForm.nickname || user?.nickname || '用户'} size="lg" onAvatarChange={handleAvatarChange} disabled={false} />
                 <NicknameSelector currentNickname={editForm.nickname} onNicknameChange={handleNicknameChange} disabled={false} />
               </div>
               {/* 右侧：联系方式 */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* 手机号 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Phone className="w-4 h-4 text-blue-600" />手机号码</Label>
@@ -244,7 +244,7 @@ export default function ProfilePage() {
             </div>
             {/* 验证码输入 */}
             {isVerifying && (
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-sm font-semibold text-blue-800">请输入发送到{verificationField === 'phone' ? '手机' : '邮箱'}的验证码</span>
                 </div>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
               </div>
             )}
             {/* 保存按钮 */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-gray-200">
               <Button onClick={handleSaveAll} disabled={!hasChanges || isSaving} className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700">
                 {isSaving ? (<><Save className="w-4 h-4 mr-2 animate-spin" />保存中...</>) : (<><Save className="w-4 h-4 mr-2" />保存所有更改</>)}
               </Button>
@@ -266,7 +266,7 @@ export default function ProfilePage() {
         </Card>
 
         {/* 账号信息和使用统计 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* 账号信息卡片 */}
           <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="pb-6 bg-gradient-to-r from-blue-100 to-purple-100 text-gray-800 rounded-t-lg">
@@ -300,7 +300,7 @@ export default function ProfilePage() {
 
         {/* 奖励机制 */}
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-6 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-t-lg">
+          <CardHeader className="pb-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-t-lg">
             <CardTitle className="flex items-center justify-between text-xl">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 rounded-lg"><Gift className="w-6 h-6" /></div>
@@ -312,7 +312,7 @@ export default function ProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <h5 className="font-semibold text-gray-800 mb-3">奖励规则</h5>
                 <div className="space-y-3">

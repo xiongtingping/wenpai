@@ -213,9 +213,14 @@ export interface BrandAsset {
  * 品牌调性分析结果
  */
 export interface BrandAnalysisResult {
-  keywords: string[];
-  tone: string;
-  suggestions: string[];
+  keywords: string[];              // 向后兼容
+  brandKeywords?: string[];        // 品牌核心概念、价值主张、品牌定位相关的词汇
+  productKeywords?: string[];      // 具体产品特征、功能、材质、技术相关的词汇
+  targetAudience?: string[];       // 用户群体、市场定位、消费者特征相关的词汇
+  brandStory?: string[];           // 历史、文化、情感、传承相关的词汇
+  competitiveAdvantage?: string[]; // 差异化、优势、特色、领先相关的词汇
+  tone: string;                    // 品牌语调风格
+  suggestions: string[];           // 品牌建设建议
 }
 
 /**

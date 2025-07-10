@@ -16,7 +16,8 @@ import {
   BookOpen, Palette, MessageSquare, Shield,
   Plus, X, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
-  TrendingUp, Users2, Package, Share2, MoreHorizontal
+  TrendingUp, Users2, Package, Share2, MoreHorizontal,
+  Loader2
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -81,10 +82,10 @@ export default function BrandLibraryPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  
   // 可用的文件分类
   const categories = ["品牌手册", "文案指南", "产品介绍", "营销素材", "新闻稿", "企业介绍", "VI规范", "品牌故事"];
-
+  
   // 品牌语料库维度定义
   const [brandDimensions, setBrandDimensions] = useState<BrandDimension[]>([
     {
@@ -295,25 +296,8 @@ export default function BrandLibraryPage() {
         fileIcon = <FileText className="h-8 w-8 text-blue-700" />;
       }
       
-      // 根据文件类型自动分配分类
+      // 默认分类为"品牌资料"，用户可以后续修改
       let category = '品牌资料';
-      if (file.name.toLowerCase().includes('手册') || file.name.toLowerCase().includes('guide')) {
-        category = '品牌手册';
-      } else if (file.name.toLowerCase().includes('文案') || file.name.toLowerCase().includes('copy')) {
-        category = '文案指南';
-      } else if (file.name.toLowerCase().includes('产品') || file.name.toLowerCase().includes('product')) {
-        category = '产品介绍';
-      } else if (file.name.toLowerCase().includes('营销') || file.name.toLowerCase().includes('marketing')) {
-        category = '营销素材';
-      } else if (file.name.toLowerCase().includes('新闻') || file.name.toLowerCase().includes('press')) {
-        category = '新闻稿';
-      } else if (file.name.toLowerCase().includes('企业') || file.name.toLowerCase().includes('company')) {
-        category = '企业介绍';
-      } else if (file.name.toLowerCase().includes('vi') || file.name.toLowerCase().includes('规范')) {
-        category = 'VI规范';
-      } else if (file.name.toLowerCase().includes('story') || file.name.toLowerCase().includes('story')) {
-        category = '品牌故事';
-      }
       
       try {
         // 读取文件内容
@@ -328,20 +312,20 @@ export default function BrandLibraryPage() {
         }
         
         // 创建资产对象
-        const asset: BrandAsset = {
-          id: `asset-${Date.now()}-${i}`,
-          name: file.name,
+      const asset: BrandAsset = {
+        id: `asset-${Date.now()}-${i}`,
+        name: file.name,
           type: 'document',
           content: fileContent,
-          uploadDate: new Date(),
-          fileIcon,
-          description: '',
+        uploadDate: new Date(),
+        fileIcon,
+        description: '',
           category: category,
-          processingStatus: 'pending'
-        };
-        
-        newAssets.push(asset);
-        
+        processingStatus: 'pending'
+      };
+      
+      newAssets.push(asset);
+      
       } catch (error) {
         console.error(`读取文件 ${file.name} 失败:`, error);
         
@@ -376,8 +360,13 @@ export default function BrandLibraryPage() {
     
     toast({
       title: "文件上传成功",
-      description: `已成功上传 ${newAssets.length} 个品牌资料文件，AI将自动分析并补充语料库`,
+      description: `已成功上传 ${newAssets.length} 个品牌资料文件，AI正在自动分析...`,
     });
+
+    // 自动开始AI分析
+    setTimeout(() => {
+      handleProcessAssets();
+    }, 1000);
 
     // 自动开始AI分析
     setTimeout(() => {
@@ -425,8 +414,16 @@ export default function BrandLibraryPage() {
       const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
       
       // 构建分析结果
-      const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.keywords.join('、')}\n2. 品牌语气特征：${analysisResult.tone}\n3. 内容建议：${analysisResult.suggestions.join('、')}`;
-      const extractedKeywords = analysisResult.keywords;
+      const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.brandKeywords?.join('、') || analysisResult.keywords.join('、')}\n2. 产品关键词：${analysisResult.productKeywords?.join('、') || ''}\n3. 目标受众：${analysisResult.targetAudience?.join('、') || ''}\n4. 品牌故事：${analysisResult.brandStory?.join('、') || ''}\n5. 竞争优势：${analysisResult.competitiveAdvantage?.join('、') || ''}\n6. 品牌语气特征：${analysisResult.tone}\n7. 内容建议：${analysisResult.suggestions.join('、')}`;
+      
+      // 合并所有关键词用于向后兼容
+      const allKeywords = [
+        ...(analysisResult.brandKeywords || []),
+        ...(analysisResult.productKeywords || []),
+        ...(analysisResult.targetAudience || []),
+        ...(analysisResult.brandStory || []),
+        ...(analysisResult.competitiveAdvantage || [])
+      ];
 
       // 更新资产数据
       setBrandAssets(prev => prev.map(a => 
@@ -434,14 +431,14 @@ export default function BrandLibraryPage() {
           ? { 
               ...a, 
               content: extractedContent,
-              extractedKeywords: extractedKeywords,
+              extractedKeywords: allKeywords,
               processingStatus: 'completed' as const
             }
           : a
       ));
 
       // 自动补充语料库维度
-      updateBrandDimensions(extractedKeywords, extractedContent);
+      updateBrandDimensionsWithMultiDimension(analysisResult, extractedContent);
 
       toast({
         title: "AI分析完成",
@@ -484,39 +481,47 @@ export default function BrandLibraryPage() {
 
     try {
       const aiService = AIAnalysisService.getInstance();
+
+    for (let i = 0; i < unprocessedAssets.length; i++) {
+      const asset = unprocessedAssets[i];
       
-      for (let i = 0; i < unprocessedAssets.length; i++) {
-        const asset = unprocessedAssets[i];
-        
         // 更新处理状态
-        setBrandAssets(prev => prev.map(a => 
-          a.id === asset.id 
-            ? { ...a, processingStatus: 'processing' as const }
-            : a
-        ));
+      setBrandAssets(prev => prev.map(a => 
+        a.id === asset.id 
+          ? { ...a, processingStatus: 'processing' as const }
+          : a
+      ));
 
         try {
-          // 调用AI分析
-          const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
-          
-          // 构建分析结果
-          const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.keywords.join('、')}\n2. 品牌语气特征：${analysisResult.tone}\n3. 内容建议：${analysisResult.suggestions.join('、')}`;
-          const extractedKeywords = analysisResult.keywords;
+                  // 调用AI分析
+        const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
+        
+        // 构建分析结果
+        const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.brandKeywords?.join('、') || analysisResult.keywords.join('、')}\n2. 产品关键词：${analysisResult.productKeywords?.join('、') || ''}\n3. 目标受众：${analysisResult.targetAudience?.join('、') || ''}\n4. 品牌故事：${analysisResult.brandStory?.join('、') || ''}\n5. 竞争优势：${analysisResult.competitiveAdvantage?.join('、') || ''}\n6. 品牌语气特征：${analysisResult.tone}\n7. 内容建议：${analysisResult.suggestions.join('、')}`;
+        
+        // 合并所有关键词用于向后兼容
+        const allKeywords = [
+          ...(analysisResult.brandKeywords || []),
+          ...(analysisResult.productKeywords || []),
+          ...(analysisResult.targetAudience || []),
+          ...(analysisResult.brandStory || []),
+          ...(analysisResult.competitiveAdvantage || [])
+        ];
 
-          // 更新资产数据
-          setBrandAssets(prev => prev.map(a => 
-            a.id === asset.id 
-              ? { 
-                  ...a, 
-                  content: extractedContent,
-                  extractedKeywords: extractedKeywords,
-                  processingStatus: 'completed' as const
-                }
-              : a
-          ));
+        // 更新资产数据
+      setBrandAssets(prev => prev.map(a => 
+        a.id === asset.id 
+          ? { 
+              ...a, 
+                content: extractedContent,
+                extractedKeywords: allKeywords,
+              processingStatus: 'completed' as const
+            }
+          : a
+      ));
 
-          // 自动补充语料库维度
-          updateBrandDimensions(extractedKeywords, extractedContent);
+        // 自动补充语料库维度
+        updateBrandDimensionsWithMultiDimension(analysisResult, extractedContent);
 
         } catch (error) {
           console.error(`分析 ${asset.name} 失败:`, error);
@@ -527,8 +532,8 @@ export default function BrandLibraryPage() {
           ));
         }
 
-        setProcessingProgress(((i + 1) / unprocessedAssets.length) * 100);
-      }
+      setProcessingProgress(((i + 1) / unprocessedAssets.length) * 100);
+    }
 
       toast({
         title: "批量AI分析完成",
@@ -543,13 +548,93 @@ export default function BrandLibraryPage() {
         variant: "destructive"
       });
     } finally {
-      setIsProcessing(false);
-      setProcessingProgress(0);
+    setIsProcessing(false);
+    setProcessingProgress(0);
     }
   };
 
   /**
-   * 根据AI分析结果更新品牌维度
+   * 根据AI分析结果更新品牌维度（多维度版本）
+   */
+  const updateBrandDimensionsWithMultiDimension = (analysisResult: any, content: string) => {
+    setBrandDimensions(prev => prev.map(dimension => {
+      // 根据维度类型和关键词自动补充内容
+      let newValue = dimension.value;
+      let newKeywords = [...dimension.keywords];
+
+      switch (dimension.id) {
+        case 'brandKeywords':
+          if (dimension.value === '') {
+            const brandKeywords = analysisResult.brandKeywords || analysisResult.keywords || [];
+            if (brandKeywords.length > 0) {
+              newValue = brandKeywords.join('、');
+              newKeywords = [...dimension.keywords, ...brandKeywords];
+            }
+          }
+          break;
+        case 'productKeywords':
+          if (dimension.value === '') {
+            const productKeywords = analysisResult.productKeywords || [];
+            if (productKeywords.length > 0) {
+              newValue = productKeywords.join('、');
+              newKeywords = productKeywords;
+            }
+          }
+          break;
+        case 'targetAudience':
+          if (dimension.value === '') {
+            const audienceKeywords = analysisResult.targetAudience || [];
+            if (audienceKeywords.length > 0) {
+              newValue = audienceKeywords.join('、');
+              newKeywords = audienceKeywords;
+            }
+          }
+          break;
+        case 'brandStory':
+          if (dimension.value === '') {
+            const storyKeywords = analysisResult.brandStory || [];
+            if (storyKeywords.length > 0) {
+              newValue = storyKeywords.join('、');
+              newKeywords = storyKeywords;
+            }
+          }
+          break;
+        case 'competitiveAdvantage':
+          if (dimension.value === '') {
+            const advantageKeywords = analysisResult.competitiveAdvantage || [];
+            if (advantageKeywords.length > 0) {
+              newValue = advantageKeywords.join('、');
+              newKeywords = advantageKeywords;
+            }
+          }
+          break;
+        case 'brandDescription':
+          if (dimension.value === '') {
+            newValue = content.substring(0, 200) + '...';
+          }
+          break;
+        case 'brandTone':
+          if (dimension.value === '') {
+            newValue = analysisResult.tone || '专业、可靠、创新';
+          }
+          break;
+        case 'brandPersonality':
+          if (dimension.value === '') {
+            newValue = '专业可靠、用户友好、创新引领';
+          }
+          break;
+      }
+
+      return {
+        ...dimension,
+        value: newValue,
+        keywords: newKeywords
+      };
+    }));
+  };
+
+  /**
+   * 根据AI分析结果更新品牌维度（向后兼容版本）
    */
   const updateBrandDimensions = (keywords: string[], content: string) => {
     setBrandDimensions(prev => prev.map(dimension => {
@@ -560,14 +645,19 @@ export default function BrandLibraryPage() {
       switch (dimension.id) {
         case 'brandKeywords':
           if (dimension.value === '') {
-            // 避免重复的关键词
-            const uniqueKeywords = keywords.filter(k => 
-              !dimension.keywords.includes(k) && 
-              k.length > 1
+            // 品牌关键词：提取品牌核心概念、价值主张、品牌定位相关的词汇
+            const brandKeywords = keywords.filter(k => 
+              k.length > 1 && 
+              !dimension.keywords.includes(k) &&
+              (k.includes('品牌') || k.includes('价值') || k.includes('理念') || 
+               k.includes('定位') || k.includes('使命') || k.includes('愿景') ||
+               k.includes('文化') || k.includes('精神') || k.includes('传承') ||
+               k.includes('创新') || k.includes('专业') || k.includes('可靠') ||
+               k.includes('品质') || k.includes('服务') || k.includes('体验'))
             );
-            if (uniqueKeywords.length > 0) {
-              newValue = uniqueKeywords.join('、');
-              newKeywords = [...dimension.keywords, ...uniqueKeywords];
+            if (brandKeywords.length > 0) {
+              newValue = brandKeywords.join('、');
+              newKeywords = [...dimension.keywords, ...brandKeywords];
             }
           }
           break;
@@ -588,13 +678,75 @@ export default function BrandLibraryPage() {
           break;
         case 'productKeywords':
           if (dimension.value === '') {
+            // 产品关键词：提取具体产品特征、功能、材质、技术相关的词汇
             const productKeywords = keywords.filter(k => 
               k.length > 1 && 
-              !['品牌', '价值', '理念', '目标', '专业', '创新', '用户', '服务'].includes(k)
+              !dimension.keywords.includes(k) &&
+              !['品牌', '价值', '理念', '目标', '专业', '创新', '用户', '服务', '体验'].includes(k) &&
+              (k.includes('产品') || k.includes('功能') || k.includes('技术') || 
+               k.includes('材质') || k.includes('设计') || k.includes('工艺') ||
+               k.includes('性能') || k.includes('质量') || k.includes('规格') ||
+               k.includes('型号') || k.includes('系列') || k.includes('版本') ||
+               k.includes('升级') || k.includes('优化') || k.includes('改进') ||
+               k.includes('特色') || k.includes('优势') || k.includes('特点'))
             );
             if (productKeywords.length > 0) {
               newValue = productKeywords.join('、');
               newKeywords = productKeywords;
+            }
+          }
+          break;
+        case 'targetAudience':
+          if (dimension.value === '') {
+            // 目标受众：提取用户群体、市场定位相关的词汇
+            const audienceKeywords = keywords.filter(k => 
+              k.length > 1 && 
+              !dimension.keywords.includes(k) &&
+              (k.includes('用户') || k.includes('客户') || k.includes('消费者') || 
+               k.includes('人群') || k.includes('群体') || k.includes('市场') ||
+               k.includes('年龄') || k.includes('性别') || k.includes('职业') ||
+               k.includes('收入') || k.includes('地域') || k.includes('偏好') ||
+               k.includes('需求') || k.includes('痛点') || k.includes('场景'))
+            );
+            if (audienceKeywords.length > 0) {
+              newValue = audienceKeywords.join('、');
+              newKeywords = audienceKeywords;
+            }
+          }
+          break;
+        case 'brandStory':
+          if (dimension.value === '') {
+            // 品牌故事：提取历史、文化、情感相关的词汇
+            const storyKeywords = keywords.filter(k => 
+              k.length > 1 && 
+              !dimension.keywords.includes(k) &&
+              (k.includes('历史') || k.includes('文化') || k.includes('传承') || 
+               k.includes('故事') || k.includes('情感') || k.includes('记忆') ||
+               k.includes('传统') || k.includes('经典') || k.includes('情怀') ||
+               k.includes('回忆') || k.includes('时光') || k.includes('岁月') ||
+               k.includes('初心') || k.includes('使命') || k.includes('愿景'))
+            );
+            if (storyKeywords.length > 0) {
+              newValue = storyKeywords.join('、');
+              newKeywords = storyKeywords;
+            }
+          }
+          break;
+        case 'competitiveAdvantage':
+          if (dimension.value === '') {
+            // 竞争优势：提取差异化、优势、特色相关的词汇
+            const advantageKeywords = keywords.filter(k => 
+              k.length > 1 && 
+              !dimension.keywords.includes(k) &&
+              (k.includes('优势') || k.includes('特色') || k.includes('差异化') || 
+               k.includes('独特') || k.includes('领先') || k.includes('第一') ||
+               k.includes('首创') || k.includes('专利') || k.includes('技术') ||
+               k.includes('创新') || k.includes('突破') || k.includes('革命') ||
+               k.includes('颠覆') || k.includes('改变') || k.includes('提升'))
+            );
+            if (advantageKeywords.length > 0) {
+              newValue = advantageKeywords.join('、');
+              newKeywords = advantageKeywords;
             }
           }
           break;
@@ -654,7 +806,7 @@ export default function BrandLibraryPage() {
     // 移除必填项验证
     // 保存到本地存储
     localStorage.setItem('brandDimensions', JSON.stringify(brandDimensions));
-    
+
     toast({
       title: "保存成功",
       description: "品牌语料库已保存",
@@ -797,13 +949,22 @@ export default function BrandLibraryPage() {
       />
 
       <div className="container mx-auto py-6 px-4 max-w-7xl">
+        {/* 页面顶部操作栏 */}
+        <div className="flex justify-between items-center mb-6">
+          <div></div>
+          <Button onClick={saveBrandDimensions}>
+            <Save className="h-4 w-4 mr-2" />
+            保存语料库
+            </Button>
+          </div>
+
         {/* 隐藏的文件输入 */}
         <input
           ref={fileInputRef}
-          type="file"
-          multiple
+                  type="file" 
+                  multiple
           accept=".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png,.gif,.bmp,.webp,.xls,.xlsx,.ppt,.pptx"
-          onChange={handleFileUpload}
+                  onChange={handleFileUpload}
           className="hidden"
         />
 
@@ -842,8 +1003,8 @@ export default function BrandLibraryPage() {
           <AlertDescription>
             <strong>使用提示：</strong>上传品牌资料越多，AI分析越准确。建议上传品牌手册、产品介绍、营销文案等资料。
             所有维度都支持手动编辑，AI会自动补充关键词建议。
-          </AlertDescription>
-        </Alert>
+                </AlertDescription>
+              </Alert>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
@@ -853,12 +1014,6 @@ export default function BrandLibraryPage() {
 
           {/* 品牌语料库维度 */}
           <TabsContent value="dimensions" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button onClick={saveBrandDimensions}>
-                <Save className="h-4 w-4 mr-2" />
-                保存语料库
-              </Button>
-            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 基础信息 */}
               <Card>
@@ -882,9 +1037,9 @@ export default function BrandLibraryPage() {
                       onCancel={() => setEditingDimension(null)}
                     />
                   ))}
-                </CardContent>
-              </Card>
-
+            </CardContent>
+          </Card>
+          
               {/* 语调风格 */}
               <Card>
                 <CardHeader className="pb-3">
@@ -959,7 +1114,7 @@ export default function BrandLibraryPage() {
                   ))}
                 </CardContent>
               </Card>
-            </div>
+                </div>
           </TabsContent>
 
           {/* 资料管理 */}
@@ -992,15 +1147,15 @@ export default function BrandLibraryPage() {
                 {/* 搜索和筛选 */}
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
                   <div className="flex-1">
-                    <div className="relative">
+                  <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        placeholder="搜索资料..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                    <Input 
+                      placeholder="搜索资料..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10"
-                      />
-                    </div>
+                    />
+                  </div>
                   </div>
                   <div className="flex gap-2">
                     <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
@@ -1014,23 +1169,23 @@ export default function BrandLibraryPage() {
                         <SelectItem value="name-desc">名称 Z-A</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Popover>
-                      <PopoverTrigger asChild>
+                  <Popover>
+                    <PopoverTrigger asChild>
                         <Button variant="outline" className="w-[120px]">
                           <Filter className="h-4 w-4 mr-2" />
                           分类
-                        </Button>
-                      </PopoverTrigger>
+                      </Button>
+                    </PopoverTrigger>
                       <PopoverContent className="w-48">
-                        <Command>
+                      <Command>
                           <CommandInput placeholder="搜索分类..." />
-                          <CommandList>
-                            <CommandEmpty>未找到分类</CommandEmpty>
+                        <CommandList>
+                          <CommandEmpty>未找到分类</CommandEmpty>
                             <CommandGroup>
                               {categories.map((category) => (
-                                <CommandItem
-                                  key={category}
-                                  onSelect={() => toggleCategory(category)}
+                              <CommandItem 
+                                key={category} 
+                                onSelect={() => toggleCategory(category)}
                                 >
                                   <div className="flex items-center space-x-2">
                                     <input
@@ -1041,166 +1196,120 @@ export default function BrandLibraryPage() {
                                     />
                                     <span>{category}</span>
                                   </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
+              </div>
 
                 {brandAssets.length === 0 ? (
                   <div className="text-center py-8">
                     <FileUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500">暂无品牌资料，请上传文件开始构建语料库</p>
-                  </div>
-                ) : (
+                    </div>
+                  ) : (
                   <div className="space-y-4">
-                    {filteredAndSortedAssets.map((asset) => (
-                      <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      {filteredAndSortedAssets.map((asset) => (
+                      <div 
+                        key={asset.id} 
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => handleViewAsset(asset)}
+                      >
                         <div className="flex items-center gap-3 flex-1">
-                          {asset.fileIcon}
-                          <div className="flex-1 min-w-0">
-                            {isEditingAsset === asset.id ? (
-                              <div className="space-y-2">
-                                <Input
-                                  value={editingAssetName}
-                                  onChange={(e) => setEditingAssetName(e.target.value)}
-                                  className="text-sm"
-                                />
-                                <Select 
-                                  value={asset.category || ''} 
-                                  onValueChange={(value) => {
-                                    setBrandAssets(prev => prev.map(a => 
-                                      a.id === asset.id ? { ...a, category: value } : a
-                                    ));
-                                  }}
-                                >
-                                  <SelectTrigger className="text-sm">
-                                    <SelectValue placeholder="选择分类" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {categories.map((category) => (
-                                      <SelectItem key={category} value={category}>
-                                        {category}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <Textarea
-                                  value={editingAssetDescription}
-                                  onChange={(e) => setEditingAssetDescription(e.target.value)}
-                                  placeholder="添加描述..."
-                                  className="text-sm min-h-[60px]"
-                                />
-                              </div>
-                            ) : (
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <p className="font-medium truncate">{asset.name}</p>
-                                  {asset.category && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      {asset.category}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-500">
-                                  {asset.uploadDate.toLocaleDateString()}
-                                </p>
-                                {asset.description && (
-                                  <p className="text-sm text-gray-600 mt-1">{asset.description}</p>
+                                {asset.fileIcon}
+                                <div className="flex-1 min-w-0">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium truncate">{asset.name}</p>
+                                {asset.category && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {asset.category}
+                                  </Badge>
                                 )}
+                                </div>
+                              <p className="text-sm text-gray-500">
+                                {asset.uploadDate.toLocaleDateString()}
+                              </p>
+                              {asset.description && (
+                                <p className="text-sm text-gray-600 mt-1">{asset.description}</p>
+                              )}
                               </div>
-                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {asset.processingStatus === 'pending' && (
-                            <Badge variant="secondary">待处理</Badge>
+                            <Badge variant="secondary">
+                              <Clock className="h-3 w-3 mr-1" />
+                              待分析
+                            </Badge>
                           )}
                           {asset.processingStatus === 'processing' && (
-                            <Badge variant="outline">处理中</Badge>
+                            <Badge variant="default">
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              分析中
+                            </Badge>
                           )}
                           {asset.processingStatus === 'completed' && (
-                            <Badge variant="default">已完成</Badge>
+                            <Badge variant="default">
+                              <Check className="h-3 w-3 mr-1" />
+                              已完成
+                            </Badge>
                           )}
                           {asset.processingStatus === 'failed' && (
-                            <Badge variant="destructive">失败</Badge>
+                            <Badge variant="destructive">
+                              <X className="h-3 w-3 mr-1" />
+                              分析失败
+                            </Badge>
                           )}
                           
-                          {isEditingAsset === asset.id ? (
-                            <div className="flex gap-1">
-                              <Button size="sm" onClick={handleSaveAssetEdit}>
-                                <Check className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => setIsEditingAsset(null)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                                <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleAnalyzeSingleAsset(asset)}>
+                                <Brain className="h-4 w-4 mr-2" />
+                                {isAnalyzingAsset === asset.id ? '分析中...' : '重新分析'}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDeleteAsset(asset.id)}>
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    删除
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleEditAsset(asset)}>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  编辑
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleViewAsset(asset)}>
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  查看内容
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleAnalyzeSingleAsset(asset)}>
-                                  <Brain className="h-4 w-4 mr-2" />
-                                  {isAnalyzingAsset === asset.id ? '分析中...' : 'AI分析'}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleShareAsset(asset)}>
-                                  <Share2 className="h-4 w-4 mr-2" />
-                                  分享
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDeleteAsset(asset.id)}>
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  删除
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                              </div>
+                      ))}
+                    </div>
+                  )}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+                </TabsContent>
+              </Tabs>
+                </div>
 
       {/* 资料查看弹窗 */}
       <Dialog open={isViewingAsset !== null} onOpenChange={() => setIsViewingAsset(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh]">
-          <DialogHeader>
+            <DialogHeader>
             <DialogTitle>资料内容</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
+            </DialogHeader>
+              <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
               <pre className="whitespace-pre-wrap text-sm overflow-auto max-h-[60vh]">
                 {assetViewerContent}
               </pre>
-            </div>
-          </div>
+                  </div>
+                </div>
         </DialogContent>
       </Dialog>
-    </div>
+                    </div>
   );
 }
 
@@ -1240,13 +1349,13 @@ function DimensionForm({
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           {dimension.icon}
-          <div>
+                  <div>
             <Label className="text-sm font-medium">
               {dimension.title}
             </Label>
             <p className="text-xs text-gray-500">{dimension.description}</p>
-          </div>
-        </div>
+                  </div>
+                  </div>
         {!isEditing ? (
           <Button variant="ghost" size="sm" onClick={onEdit}>
             <Edit className="h-4 w-4" />
@@ -1256,8 +1365,8 @@ function DimensionForm({
             <X className="h-4 w-4" />
           </Button>
         )}
-      </div>
-
+                </div>
+                
       {isEditing ? (
         <div className="space-y-3">
           <Textarea
@@ -1271,7 +1380,7 @@ function DimensionForm({
           <div className="space-y-2">
             <Label className="text-xs font-medium">关键词</Label>
             <div className="flex gap-2">
-              <Input
+                    <Input
                 placeholder="添加关键词..."
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
@@ -1281,7 +1390,7 @@ function DimensionForm({
               <Button size="sm" onClick={handleAddKeyword}>
                 <Plus className="h-4 w-4" />
               </Button>
-            </div>
+                  </div>
             {dimension.keywords.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {dimension.keywords.map((keyword, index) => (
@@ -1294,10 +1403,10 @@ function DimensionForm({
                     {keyword} <X className="h-3 w-3 ml-1" />
                   </Badge>
                 ))}
-              </div>
+                  </div>
             )}
-          </div>
-        </div>
+                  </div>
+                </div>
       ) : (
         <div className="p-3 bg-gray-50 rounded-md">
           {dimension.value ? (
@@ -1312,10 +1421,10 @@ function DimensionForm({
                   {keyword}
                 </Badge>
               ))}
-            </div>
+                </div>
           )}
-        </div>
-      )}
+              </div>
+            )}
     </div>
   );
 }

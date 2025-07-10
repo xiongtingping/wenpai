@@ -158,10 +158,7 @@ export default function PaymentPage() {
             按年订阅
             <Badge variant="secondary" className="ml-2">更优惠</Badge>
           </Button>
-          <div className="text-center mt-2 text-sm text-green-600">
-            <p>专业版：年付省120元</p>
-            <p>高级版：年付省300元</p>
-          </div>
+
         </div>
       </div>
 
@@ -225,6 +222,12 @@ export default function PaymentPage() {
                       <div className="text-sm text-gray-500">
                         /{selectedPeriod === 'monthly' ? '月' : '年'}
                       </div>
+                      {selectedPeriod === 'yearly' && plan.tier === 'pro' && (
+                        <div className="text-xs text-green-600">年付省120元</div>
+                      )}
+                      {selectedPeriod === 'yearly' && plan.tier === 'premium' && (
+                        <div className="text-xs text-green-600">年付省300元</div>
+                      )}
                     </div>
                   )}
                 </div>

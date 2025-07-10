@@ -194,7 +194,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuItem asChild>
             <Link to="/payment" className="text-amber-600 hover:text-amber-700">
               <Crown className="mr-2 h-4 w-4" />
-              <span>升级专业版</span>
+                              <span>立即解锁高级功能</span>
             </Link>
           </DropdownMenuItem>
         )}

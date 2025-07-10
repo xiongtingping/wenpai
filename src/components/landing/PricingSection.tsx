@@ -107,12 +107,7 @@ export function PricingSection() {
               按年支付 <span className="text-sm text-green-500">(更优惠)</span>
             </span>
           </div>
-          {billing === "yearly" && (
-            <div className="mt-2 text-center text-sm text-green-600">
-              <p>专业版：年付省120元</p>
-              <p>高级版：年付省300元</p>
-            </div>
-          )}
+
         </div>
 
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -171,6 +166,12 @@ export function PricingSection() {
                       </div>
                       <p className="text-gray-500">/{billing === "monthly" ? "月" : "年"}</p>
                       <p className="text-xs text-red-500 mt-1">省¥{pricing.savedAmount}</p>
+                      {billing === "yearly" && plan.tier === "pro" && (
+                        <p className="text-xs text-green-600 mt-1">年付省120元</p>
+                      )}
+                      {billing === "yearly" && plan.tier === "premium" && (
+                        <p className="text-xs text-green-600 mt-1">年付省300元</p>
+                      )}
                     </div>
                   )}
                 </div>

@@ -100,7 +100,7 @@ if (typeof window !== 'undefined') {
     }
 
     const prompt = `
-作为一名品牌策略专家，请分析以下品牌资料，提取关键信息：
+作为一名品牌策略专家，请分析以下品牌资料，提取关键信息并按照不同维度进行分类：
 
 品牌资料内容：
 ${content}
@@ -108,17 +108,29 @@ ${content}
 请严格按照以下JSON格式返回分析结果，不要包含任何其他文字说明：
 
 {
-  "keywords": ["关键词1", "关键词2", "关键词3", "关键词4", "关键词5"],
+  "brandKeywords": ["品牌核心概念1", "品牌核心概念2", "品牌核心概念3"],
+  "productKeywords": ["产品特征1", "产品特征2", "产品特征3"],
+  "targetAudience": ["目标受众1", "目标受众2", "目标受众3"],
+  "brandStory": ["品牌故事元素1", "品牌故事元素2", "品牌故事元素3"],
+  "competitiveAdvantage": ["竞争优势1", "竞争优势2", "竞争优势3"],
   "tone": "语气特征描述",
   "suggestions": ["建议1", "建议2", "建议3"]
 }
 
 要求：
-1. 关键词：提取5个最能代表品牌特征的关键词
-2. 语气特征：描述品牌的语调风格，如"专业、可靠、创新"或"年轻、活力、时尚"
-3. 内容建议：提供3条具体的品牌建设建议
+1. brandKeywords：品牌核心概念、价值主张、品牌定位相关的词汇
+2. productKeywords：具体产品特征、功能、材质、技术相关的词汇
+3. targetAudience：用户群体、市场定位、消费者特征相关的词汇
+4. brandStory：历史、文化、情感、传承相关的词汇
+5. competitiveAdvantage：差异化、优势、特色、领先相关的词汇
+6. tone：描述品牌的语调风格，如"专业、可靠、创新"或"年轻、活力、时尚"
+7. suggestions：提供3条具体的品牌建设建议
 
-注意：必须返回有效的JSON格式，不要包含任何解释性文字。
+注意：
+- 每个维度至少提供3个关键词，最多5个
+- 不同维度之间避免重复
+- 必须返回有效的JSON格式，不要包含任何解释性文字
+- 如果某个维度信息不足，可以基于品牌特征进行合理推测
 `;
 
     try {
@@ -194,8 +206,21 @@ ${content}
         }
       }
 
+      // 兼容新旧格式
+      const keywords = result.keywords || result.brandKeywords || [];
+      const brandKeywords = result.brandKeywords || keywords;
+      const productKeywords = result.productKeywords || [];
+      const targetAudience = result.targetAudience || [];
+      const brandStory = result.brandStory || [];
+      const competitiveAdvantage = result.competitiveAdvantage || [];
+
       return {
-        keywords: result.keywords,
+        keywords: keywords, // 保持向后兼容
+        brandKeywords: brandKeywords,
+        productKeywords: productKeywords,
+        targetAudience: targetAudience,
+        brandStory: brandStory,
+        competitiveAdvantage: competitiveAdvantage,
         tone: result.tone,
         suggestions: result.suggestions
       };
@@ -428,14 +453,26 @@ ${content}
                    fileExtension === '.jpg' || fileExtension === '.jpeg' || 
                    fileExtension === '.png' || fileExtension === '.gif' || 
                    fileExtension === '.bmp' || fileExtension === '.webp') {
-            const arrayBuffer = e.target?.result as ArrayBuffer;
-            const blob = new Blob([arrayBuffer], { type: file.type });
-            
-            // 使用 Tesseract.js 进行 OCR
-            const result = await Tesseract.recognize(blob, 'chi_sim+eng', {
-              logger: m => console.log(m)
-            });
-            resolve(result.data.text);
+            /**
+             * 使用 Tesseract.js 进行图片OCR识别，支持中英文。
+             * @returns 图片中的文本内容，若识别失败则返回友好提示。
+             */
+            try {
+              const arrayBuffer = e.target?.result as ArrayBuffer;
+              const blob = new Blob([arrayBuffer], { type: file.type });
+              const result = await Tesseract.recognize(blob, 'chi_sim+eng', {
+                logger: m => console.log(m)
+              });
+              const text = result.data.text.trim();
+              if (!text) {
+                resolve('图片未识别到有效文字，请上传包含清晰文字的图片。');
+              } else {
+                resolve(text);
+              }
+            } catch (ocrError) {
+              console.warn('图片OCR识别失败:', ocrError);
+              resolve('图片内容识别失败，请确保图片为清晰的文字图片。');
+            }
           } 
           else {
             reject(new Error(`暂不支持该文件类型: ${file.type} (${fileExtension})`));
@@ -463,4 +500,4 @@ ${content}
   }
 }
 
-export default AIAnalysisService; 
+export default AIAnalysisService;
