@@ -36,10 +36,36 @@ async function simulateOpenAIResponse(
   const userMessage = messages.find(msg => msg.role === 'user');
   const content = userMessage?.content || '';
   
+  console.log('模拟响应 - 分析内容:', content.substring(0, 200) + '...');
+  
   // 根据内容生成模拟响应
   let responseContent = '';
   
-  if (content.includes('品牌') || content.includes('分析')) {
+  // 检查是否是品牌分析请求
+  if (content.includes('品牌') || content.includes('分析') || content.includes('舍得') || content.includes('酒业')) {
+    // 基于舍得酒业的内容生成更具体的分析
+    responseContent = JSON.stringify({
+      keywords: ['生态白酒', '舍得酒业', '品牌传承', '品质保证', '市场定位'],
+      tone: '专业、可靠、传承、创新',
+      suggestions: [
+        '强化生态白酒品牌定位，突出环保理念',
+        '加强品牌故事传播，展现舍得酒业的历史传承',
+        '建立用户情感连接，传递品质生活理念',
+        '持续创新产品功能，满足现代消费者需求'
+      ]
+    });
+  } else if (content.includes('内容') || content.includes('营销')) {
+    responseContent = JSON.stringify({
+      keywords: ['内容营销', '用户增长', '品牌推广', '社交媒体', '用户互动'],
+      tone: '友好、专业、可信',
+      suggestions: [
+        '优化内容质量，提升用户参与度',
+        '增加用户互动，建立品牌社区',
+        '提升品牌知名度，扩大市场影响力'
+      ]
+    });
+  } else {
+    // 默认响应
     responseContent = JSON.stringify({
       keywords: ['品牌建设', '市场定位', '用户价值', '创新驱动', '品质保证'],
       tone: '专业、可靠、创新',
@@ -50,17 +76,9 @@ async function simulateOpenAIResponse(
         '持续创新产品功能'
       ]
     });
-  } else {
-    responseContent = JSON.stringify({
-      keywords: ['内容营销', '用户增长', '品牌推广'],
-      tone: '友好、专业、可信',
-      suggestions: [
-        '优化内容质量',
-        '增加用户互动',
-        '提升品牌知名度'
-      ]
-    });
   }
+  
+  console.log('模拟响应 - 生成结果:', responseContent);
   
   return {
     success: true,
