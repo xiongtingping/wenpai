@@ -14,7 +14,7 @@ import {
   getModel,
   getAvailableModels
 } from "@/api/contentAdapter";
-import { Loader2, CheckCircle2, XCircle, Zap } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Zap, Settings } from "lucide-react";
 import ToolLayout from "@/components/layout/ToolLayout";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";

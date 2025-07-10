@@ -165,7 +165,7 @@ export const TopNavigation: React.FC = () => {
                 </div>
                 
                 {/* 用户头像 */}
-                <UserAvatar />
+                <UserAvatar user={user} />
               </>
             ) : (
               <>

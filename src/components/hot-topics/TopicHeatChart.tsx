@@ -202,9 +202,9 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
               
               <div className="text-center">
                 <div className={`text-lg font-semibold flex items-center justify-center gap-1 ${
-                  getTrendColor(stats.trend)
+                  getTrendColor(stats.trend as 'up' | 'down' | 'stable')
                 }`}>
-                  {getTrendIcon(stats.trend)}
+                  {getTrendIcon(stats.trend as 'up' | 'down' | 'stable')}
                   {stats.changePercent > 0 ? '+' : ''}{stats.changePercent.toFixed(1)}%
                 </div>
                 <div className="text-sm text-gray-500">变化趋势</div>

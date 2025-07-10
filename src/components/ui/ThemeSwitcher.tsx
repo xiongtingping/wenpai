@@ -1,6 +1,6 @@
 import React from 'react';
 import { THEMES, useTheme, Theme } from '@/hooks/useTheme';
-import { useUserStore } from '@/store/userStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from './button';
 import { Badge } from './badge';
 
@@ -10,8 +10,9 @@ import { Badge } from './badge';
  */
 export const ThemeSwitcher: React.FC = () => {
   const { theme, switchTheme, themes, themeNames } = useTheme();
-  const user = useUserStore(state => state.user);
-  const isPro = user?.plan === 'pro' || user?.plan === 'premium' || user?.isProUser;
+  const { user } = useAuth();
+  const plan = (user as any)?.plan;
+  const isPro = plan === 'pro' || plan === 'premium' || (user as any)?.isProUser;
 
   if (!isPro) {
     return (
