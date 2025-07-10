@@ -1,4 +1,4 @@
-import { Book, Video, MessageSquare, Send, Twitter, SquarePlay, Globe, Rss, Zap } from "lucide-react";
+import { Book, Video, MessageSquare, Send, Twitter, SquarePlay, Globe, Rss, Zap, Facebook, Linkedin, Instagram, Newspaper, User, Hash } from "lucide-react";
 
 export function TrustSection() {
   return (
@@ -51,6 +51,51 @@ export function TrustSection() {
           <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
             <Rss className="h-8 w-8 text-red-500 mb-2" />
             <span className="text-sm font-medium text-gray-700">网易号</span>
+          </div>
+          {/* 新增平台logo */}
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Newspaper className="h-8 w-8 text-orange-600 mb-2" />
+            <span className="text-sm font-medium text-gray-700">头条号</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Facebook className="h-8 w-8 text-blue-600 mb-2" />
+            <span className="text-sm font-medium text-gray-700">Facebook</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Twitter className="h-8 w-8 text-blue-400 mb-2" />
+            <span className="text-sm font-medium text-gray-700">Twitter</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Linkedin className="h-8 w-8 text-blue-700 mb-2" />
+            <span className="text-sm font-medium text-gray-700">LinkedIn</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Instagram className="h-8 w-8 text-pink-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700">Instagram</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <User className="h-8 w-8 text-green-700 mb-2" />
+            <span className="text-sm font-medium text-gray-700">豆瓣</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Hash className="h-8 w-8 text-gray-700 mb-2" />
+            <span className="text-sm font-medium text-gray-700">V2EX</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Hash className="h-8 w-8 text-blue-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700">掘金</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <Hash className="h-8 w-8 text-orange-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700">CSDN</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <MessageSquare className="h-8 w-8 text-blue-400 mb-2" />
+            <span className="text-sm font-medium text-gray-700">知乎专栏</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <SquarePlay className="h-8 w-8 text-green-600 mb-2" />
+            <span className="text-sm font-medium text-gray-700">视频号</span>
           </div>
         </div>
         

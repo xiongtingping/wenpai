@@ -7,34 +7,32 @@ type TestimonialProps = {
   index: number
 }
 
-function TestimonialCard({ content, name, position, index }: TestimonialProps) {
-  // Generate consistent avatar based on name and position
-  const getAvatarUrl = (index: number) => {
-    const avatarTypes = ['business', 'marketing', 'tech', 'creative'];
-    const type = avatarTypes[index % avatarTypes.length];
-    
-    // Use index to ensure different avatars for each testimonial
-    switch(type) {
-      case 'business':
-        return `https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop`;
-      case 'marketing':
-        return `https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop`;
-      case 'tech':
-        return `https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop`;
-      case 'creative':
-        return `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop`;
-      default:
-        return `https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop`;
-    }
-  };
+// 替换头像为虚拟SVG
+const VirtualAvatar = ({ index }: { index: number }) => {
+  const colors = [
+    'text-blue-500', 'text-purple-500', 'text-pink-500', 'text-green-500'
+  ];
+  const color = colors[index % colors.length];
+  return (
+    <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center border-2 ${color}`}>
+      {/* 简单AI机器人SVG */}
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="10" width="20" height="14" rx="6" fill="currentColor" />
+        <rect x="12" y="6" width="8" height="6" rx="3" fill="currentColor" />
+        <circle cx="12" cy="17" r="2" fill="#fff" />
+        <circle cx="20" cy="17" r="2" fill="#fff" />
+        <rect x="14" y="21" width="4" height="2" rx="1" fill="#fff" />
+      </svg>
+    </div>
+  );
+};
 
+function TestimonialCard({ content, name, position, index }: TestimonialProps) {
   return (
     <Card className="bg-gray-100 p-8 rounded-xl shadow-lg">
       <p className="text-gray-700">{content}</p>
       <div className="mt-6 flex items-start">
-        <div className="w-12 h-12 rounded-full bg-gray-300 overflow-hidden flex-shrink-0">
-          <img src={getAvatarUrl(index)} alt={name} className="w-full h-full object-cover" />
-        </div>
+        <VirtualAvatar index={index} />
         <div className="ml-4 flex-1">
           <p className="font-semibold text-gray-900">{name}</p>
           <p className="text-sm text-gray-500">{position}</p>

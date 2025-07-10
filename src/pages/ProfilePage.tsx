@@ -199,48 +199,48 @@ export default function ProfilePage() {
         </div>
         
         {/* 个人资料与联系方式合并卡片 */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-10">
-          <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-3 text-xl">
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-white via-blue-50 to-purple-50/60 backdrop-blur-sm">
+          <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white rounded-t-xl">
+            <CardTitle className="flex items-center gap-3 text-2xl font-extrabold tracking-tight drop-shadow">
               <User className="w-6 h-6 p-1 bg-white/20 rounded-lg" /> 个人资料
               {userType === 'pro' && (
                 <Badge className="bg-amber-500 hover:bg-amber-600 ml-auto"><Crown className="w-3 h-3 mr-1" />专业版</Badge>
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-5">
+          <CardContent className="px-8 pt-8 pb-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* 左侧：头像和昵称 */}
-              <div className="space-y-4 flex flex-col items-center">
+              <div className="space-y-4 flex flex-col items-center flex-1">
                 <AvatarUpload currentAvatar={editForm.avatar} nickname={editForm.nickname || user?.nickname || '用户'} size="lg" onAvatarChange={handleAvatarChange} disabled={false} />
-                <NicknameSelector currentNickname={editForm.nickname} onNicknameChange={handleNicknameChange} disabled={false} />
+                <div className="mt-2 text-lg font-semibold text-gray-800">{editForm.nickname || user?.nickname || '用户'}</div>
               </div>
               {/* 右侧：联系方式 */}
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 flex-1">
                 {/* 手机号 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Phone className="w-4 h-4 text-blue-600" />手机号码</Label>
                   <div className="flex gap-2 mt-1">
-                    <Input placeholder="请输入手机号" value={editForm.phone} onChange={e => handlePhoneChange(e.target.value)} disabled={isVerifying && verificationField === 'phone'} className="border-gray-300 focus:border-blue-500" />
+                    <Input placeholder="请输入手机号" value={editForm.phone} onChange={e => handlePhoneChange(e.target.value)} disabled={isVerifying && verificationField === 'phone'} className="border-gray-300 focus:border-blue-500 text-lg text-gray-900" />
                     {editForm.phone !== user?.phone && editForm.phone && (
                       <Button variant="outline" size="sm" onClick={() => sendVerificationCode('phone', editForm.phone)} disabled={countdown > 0} className="border-blue-300 text-blue-600 hover:bg-blue-50 min-w-[90px]">{countdown > 0 ? `${countdown}s` : '发送验证码'}</Button>
                     )}
                   </div>
-                  {editForm.phone && <Badge className="bg-green-100 text-green-700 text-xs mt-1">已验证</Badge>}
+                  {editForm.phone && <Badge className="bg-green-500 text-white text-[11px] px-2 py-0.5 rounded-full mt-1">已验证</Badge>}
                 </div>
                 {/* 邮箱 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Mail className="w-4 h-4 text-purple-600" />邮箱地址</Label>
                   <div className="flex gap-2 mt-1">
-                    <Input placeholder="请输入邮箱地址" value={editForm.email} onChange={e => handleEmailChange(e.target.value)} type="email" disabled={isVerifying && verificationField === 'email'} className="border-gray-300 focus:border-purple-500" />
+                    <Input placeholder="请输入邮箱地址" value={editForm.email} onChange={e => handleEmailChange(e.target.value)} type="email" disabled={isVerifying && verificationField === 'email'} className="border-gray-300 focus:border-purple-500 text-lg text-gray-900" />
                     {editForm.email !== user?.email && editForm.email && (
                       <Button variant="outline" size="sm" onClick={() => sendVerificationCode('email', editForm.email)} disabled={countdown > 0} className="border-purple-300 text-purple-600 hover:bg-purple-50 min-w-[90px]">{countdown > 0 ? `${countdown}s` : '发送验证码'}</Button>
                     )}
                   </div>
                   {(editForm.email || !user?.email) && (
                     <div className="flex gap-1 mt-1">
-                      {editForm.email && <Badge className="bg-green-100 text-green-700 text-xs">已验证</Badge>}
-                      {!user?.email && <Badge className="bg-amber-100 text-amber-700 text-xs">首次验证奖励</Badge>}
+                      {editForm.email && <Badge className="bg-green-500 text-white text-[11px] px-2 py-0.5 rounded-full">已验证</Badge>}
+                      {!user?.email && <Badge className="bg-yellow-400 text-white text-[11px] px-2 py-0.5 rounded-full">首次验证奖励</Badge>}
                     </div>
                   )}
                 </div>
@@ -261,7 +261,7 @@ export default function ProfilePage() {
             )}
             {/* 保存按钮 */}
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <Button onClick={handleSaveAll} disabled={!hasChanges || isSaving} className="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700">
+              <Button onClick={handleSaveAll} disabled={!hasChanges || isSaving} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg py-3">
                 {isSaving ? (<><Save className="w-4 h-4 mr-2 animate-spin" />保存中...</>) : (<><Save className="w-4 h-4 mr-2" />保存所有更改</>)}
               </Button>
               {hasChanges && (<p className="text-xs text-amber-600 mt-2 text-center">您有未保存的更改</p>)}
@@ -284,7 +284,7 @@ export default function ProfilePage() {
               {userType === 'pro' && (<div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg"><span className="text-gray-600">专业版有效期</span><span className="text-amber-600 font-medium">{proExpiryDate}</span></div>)}
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><span className="text-gray-600">注册时间</span><span>{user.createdAt ? new Date(user.createdAt as string).toLocaleDateString('zh-CN') : '未知'}</span></div>
               {(userType === 'pro' || userType === 'premium') && (<Button variant="outline" onClick={() => navigate('/subscription')} className="w-full justify-start border-blue-200 text-blue-600 hover:bg-blue-50" size="sm"><Settings className="w-4 h-4 mr-2" />订阅管理</Button>)}
-              <Separator className="bg-gray-200" />
+              <Separator className="bg-gray-100" />
               <Button variant="destructive" onClick={handleLogout} className="w-full justify-start" size="sm"><LogOut className="w-4 h-4 mr-2" />退出登录</Button>
             </CardContent>
           </Card>

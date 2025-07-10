@@ -1587,36 +1587,36 @@ export default function AdaptPage() {
           
           {/* Advanced Options */}
           {showAdvancedSettings && (
-            <div className="mt-3 border-t pt-3">
-              <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center w-full max-w-2xl mx-auto">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-4 w-full">
-                  <div className="flex items-center space-x-2">
-                    <Label className="text-xs w-32 flex-shrink-0">全局字符数限制</Label>
+            <div className="mt-2">
+              <div className="bg-white rounded-lg shadow p-3 flex flex-col items-center w-full max-w-2xl mx-auto">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 w-full">
+                  <div className="flex items-center space-x-1">
+                    <Label className="text-xs w-28 flex-shrink-0">全局字符数限制</Label>
                     <Select 
                       value={globalSettings.charCountPreset}
                       onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
                     >
-                      <SelectTrigger className="h-8 w-48">
+                      <SelectTrigger className="h-7 w-36 text-xs">
                         <SelectValue placeholder="选择字符数限制" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="auto">根据平台自动设置</SelectItem>
-                        <SelectItem value="mini">精简版 (50-200字)</SelectItem>
-                        <SelectItem value="standard">标准版 (200-800字)</SelectItem>
-                        <SelectItem value="detailed">详细版 (800以上)</SelectItem>
+                        <SelectItem value="auto">自动</SelectItem>
+                        <SelectItem value="mini">精简(50-200字)</SelectItem>
+                        <SelectItem value="standard">标准(200-800字)</SelectItem>
+                        <SelectItem value="detailed">详细(800+)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Label className="text-xs w-32 flex-shrink-0">全局启用表情符号</Label>
+                  <div className="flex items-center space-x-1">
+                    <Label className="text-xs w-28 flex-shrink-0">启用表情符号</Label>
                     <Checkbox 
                       id="global-emoji" 
                       checked={globalSettings.globalEmoji}
                       onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
                     />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Label className="text-xs w-32 flex-shrink-0">全局启用Markdown格式</Label>
+                  <div className="flex items-center space-x-1">
+                    <Label className="text-xs w-28 flex-shrink-0">启用Markdown格式</Label>
                     <Checkbox 
                       id="global-md"
                       checked={globalSettings.globalMd}
@@ -1624,15 +1624,15 @@ export default function AdaptPage() {
                     />
                   </div>
                 </div>
-                <div className="flex justify-center mt-4 w-full">
+                <div className="flex justify-center mt-2 w-full">
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={saveSettings}
-                    className="flex items-center h-8"
+                    className="flex items-center h-7 text-xs px-3"
                   >
                     <Save className="h-3 w-3 mr-1" />
-                    保存设置
+                    保存
                   </Button>
                 </div>
               </div>

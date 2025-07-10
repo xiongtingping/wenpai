@@ -50,7 +50,7 @@ export function Footer() {
         </div>
         <div className="mt-12 pt-8 border-t border-gray-200">
           <div className="flex flex-col items-center text-center">
-            <p className="text-sm text-gray-500 mb-4">&copy; 2024 文派 (www.aiwenpai.com). All rights reserved.</p>
+            <p className="text-sm text-gray-500 mb-4">&copy; 2024 文派 (www.wenpai.xyz). All rights reserved.</p>
             <p className="text-sm text-gray-500 max-w-3xl mx-auto">
               「文派」是一款AI内容适配工具，用户可通过付费方式获得高级使用权限。本平台仅提供内容生成与适配技术支持，所有AI生成的内容均由算法自动生成，仅供用户参考与辅助使用。用户需自行对所生成内容的使用后果承担责任，确保在使用过程中遵守其所在地区的相关法律法规与平台规范。
             </p>

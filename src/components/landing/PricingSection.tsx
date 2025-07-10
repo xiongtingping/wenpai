@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -15,6 +15,33 @@ export function PricingSection() {
   const { toast } = useToast()
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  // 倒计时逻辑（30分钟）
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    // 以本地存储的登录时间为基准
+    let loginTime = localStorage.getItem('loginTime');
+    if (!loginTime) {
+      loginTime = Date.now().toString();
+      localStorage.setItem('loginTime', loginTime);
+    }
+    const start = parseInt(loginTime, 10);
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const left = Math.max(0, 30 * 60 - Math.floor((now - start) / 1000));
+      setTimeLeft(left);
+      if (left <= 0) clearInterval(interval);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  // 格式化倒计时
+  const formatTimeLeft = () => {
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   // Handle plan selection
   const handlePlanClick = (planId: string) => {
@@ -53,39 +80,27 @@ export function PricingSection() {
 
   // 渲染features时去重次数文案
   function renderFeatures(features: string[], plan: any) {
-    const seen = new Set();
-    return features.filter(f => {
-      // 只保留第一个出现的“xx次/月”
-      if (/\d+次\/月/.test(f)) {
-        if (seen.has('usage')) return false;
-        seen.add('usage');
-        return true;
-      }
-      return true;
-    }).map((feature, index) => {
-      const { disabled, label } = getFeatureStatus(feature, plan.tier);
-      return (
-        <li key={index} className={`flex items-start space-x-3 ${disabled ? 'opacity-50 pointer-events-none select-none' : ''}`}>
-          <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-purple-500' : 'text-green-500'}`} />
-          <div className="flex items-center gap-2">
-            <span className="font-medium">{feature}</span>
-            {feature.includes('次/月') && (
-              <Badge variant="outline" className={`ml-2 text-xs ${plan.recommended ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
-                {plan.limits.adaptUsageLimit > 0 ? `${plan.limits.adaptUsageLimit}次/月` : '不限量'}
-              </Badge>
-            )}
-            {feature.includes('tokens') && (
-              <Badge variant="outline" className={`ml-2 text-xs ${plan.recommended ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
-                {plan.limits.tokenLimit.toLocaleString()} tokens
-              </Badge>
-            )}
-            {disabled && label && (
-              <Badge variant="outline" className="ml-2 text-xs bg-gray-100 text-gray-500 border-gray-300">{label}</Badge>
-            )}
-          </div>
-        </li>
-      );
-    });
+    return features
+      .filter(f => !/\d+次\/月/.test(f)) // 3. 去掉“10次/月”文案
+      .map((feature, index) => {
+        let text = feature
+          .replace(/创意工作室/g, '创意魔方') // 1. 替换
+          .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 2. 替换
+          .replace(/免费/g, '') // 4. 去除免费
+          .replace(/专业功能/g, '更多功能') // 6. 替换
+          .replace(/专业版/g, '') // 7. 去除专业版
+          .replace(/热点话题/g, m => m.replace('免费', '')) // 5. 去除热点话题下免费
+          .replace(/\s+/g, ' ') // 清理多余空格
+          .trim();
+        return (
+          <li key={index} className={`flex items-start space-x-3`}>
+            <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-purple-500' : 'text-green-500'}`} />
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{text}</span>
+            </div>
+          </li>
+        );
+      });
   }
 
   return (
@@ -94,6 +109,14 @@ export function PricingSection() {
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">选择适合您的方案</h2>
           <p className="mt-4 text-lg text-gray-600">从免费体验到高级版，全方位赋能新媒体创意工作者</p>
+          {/* 登录用户显示倒计时 */}
+          {isAuthenticated && timeLeft > 0 && (
+            <div className="mt-4 flex justify-center items-center gap-2 text-red-600 text-sm font-semibold">
+              <span>限时特惠倒计时：</span>
+              <span className="bg-red-50 px-2 py-1 rounded">{formatTimeLeft()}</span>
+              <span>注册后30分钟内享受专属优惠</span>
+            </div>
+          )}
           
           <div className="mt-8 flex justify-center items-center space-x-4">
             <span className={billing === "monthly" ? "text-blue-600 font-semibold" : ""}>
@@ -153,24 +176,30 @@ export function PricingSection() {
                     </div>
                   ) : (
                     <div className="text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <p className={`text-5xl font-extrabold ${
-                          isRecommended ? 'text-purple-600' : 'text-gray-900'
-                        }`}>
-                          ¥{pricing.discountPrice}
-                        </p>
-                        <div className="flex flex-col items-start">
-                          <span className="text-xs text-red-500 font-semibold">限时特惠</span>
-                          <span className="text-xs text-gray-500 line-through">¥{pricing.originalPrice}</span>
+                      {isAuthenticated && timeLeft > 0 ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <p className={`text-5xl font-extrabold ${
+                            isRecommended ? 'text-purple-600' : 'text-gray-900'
+                          }`}>
+                            ¥{pricing.discountPrice}
+                          </p>
+                          <div className="flex flex-col items-start">
+                            <span className="text-xs text-red-500 font-semibold">限时特惠</span>
+                            <span className="text-xs text-gray-500 line-through">¥{pricing.originalPrice}</span>
+                          </div>
                         </div>
-                      </div>
-                      <p className="text-gray-500">/{billing === "monthly" ? "月" : "年"}</p>
-                      <p className="text-xs text-red-500 mt-1">省¥{pricing.savedAmount}</p>
-                      {billing === "yearly" && plan.tier === "pro" && (
-                        <p className="text-xs text-green-600 mt-1">年付省120元</p>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2">
+                          <p className={`text-5xl font-extrabold ${
+                            isRecommended ? 'text-purple-600' : 'text-gray-900'
+                          }`}>
+                            ¥{pricing.originalPrice}
+                          </p>
+                        </div>
                       )}
-                      {billing === "yearly" && plan.tier === "premium" && (
-                        <p className="text-xs text-green-600 mt-1">年付省300元</p>
+                      <p className="text-gray-500">/{billing === "monthly" ? "月" : "年"}</p>
+                      {isAuthenticated && timeLeft > 0 && (
+                        <p className="text-xs text-red-500 mt-1">省¥{pricing.savedAmount}</p>
                       )}
                     </div>
                   )}
