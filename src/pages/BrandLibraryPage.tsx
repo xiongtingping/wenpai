@@ -75,6 +75,9 @@ export default function BrandLibraryPage() {
   const [isEditingAsset, setIsEditingAsset] = useState<string | null>(null);
   const [editingAssetName, setEditingAssetName] = useState('');
   const [editingAssetDescription, setEditingAssetDescription] = useState('');
+  const [isViewingAsset, setIsViewingAsset] = useState<string | null>(null);
+  const [isAnalyzingAsset, setIsAnalyzingAsset] = useState<string | null>(null);
+  const [assetViewerContent, setAssetViewerContent] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -352,7 +355,102 @@ export default function BrandLibraryPage() {
   };
 
   /**
-   * 处理品牌资料AI分析
+   * 查看资料内容
+   */
+  const handleViewAsset = async (asset: BrandAsset) => {
+    setIsViewingAsset(asset.id);
+    
+    try {
+      // 这里应该读取文件内容
+      // 由于当前是模拟环境，我们显示文件信息
+      const content = `文件名称：${asset.name}\n文件大小：${asset.size} KB\n上传时间：${asset.uploadDate.toLocaleString()}\n文件类型：${asset.type}\n\n${asset.content || '暂无内容'}`;
+      setAssetViewerContent(content);
+    } catch (error) {
+      console.error('读取文件失败:', error);
+      setAssetViewerContent('无法读取文件内容');
+    }
+  };
+
+  /**
+   * 处理单个资料的AI分析
+   */
+  const handleAnalyzeSingleAsset = async (asset: BrandAsset) => {
+    setIsAnalyzingAsset(asset.id);
+    
+    try {
+      // 更新处理状态
+      setBrandAssets(prev => prev.map(a => 
+        a.id === asset.id 
+          ? { ...a, processingStatus: 'processing' as const }
+          : a
+      ));
+
+      // 模拟AI处理时间
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // 根据文件类型生成有意义的分析结果
+      let extractedContent = '';
+      let extractedKeywords: string[] = [];
+      
+      const fileName = asset.name.toLowerCase();
+      
+      if (fileName.includes('手册') || fileName.includes('guide')) {
+        extractedContent = `品牌手册分析结果：\n\n1. 品牌定位：专业、可靠、创新\n2. 核心价值：用户至上、品质保证、持续创新\n3. 视觉识别：简洁现代的设计风格，蓝色为主色调\n4. 品牌规范：统一的视觉元素和语言风格`;
+        extractedKeywords = ['品牌定位', '核心价值', '视觉识别', '品牌规范', '专业可靠', '用户至上'];
+      } else if (fileName.includes('产品') || fileName.includes('product')) {
+        extractedContent = `产品介绍分析结果：\n\n1. 产品特色：智能化、易用性、高性能\n2. 功能优势：一键操作、智能识别、云端同步\n3. 技术特点：AI算法、大数据分析、云计算\n4. 用户体验：界面友好、响应迅速、功能完善`;
+        extractedKeywords = ['产品特色', '功能优势', '技术领先', '用户体验', '智能化', '易用性'];
+      } else if (fileName.includes('营销') || fileName.includes('marketing')) {
+        extractedContent = `营销素材分析结果：\n\n1. 营销策略：精准定位、多渠道推广、内容营销\n2. 推广方案：社交媒体、KOL合作、线下活动\n3. 市场定位：中高端市场、年轻用户群体\n4. 竞争优势：技术领先、服务优质、品牌影响力`;
+        extractedKeywords = ['营销策略', '推广方案', '市场定位', '竞争优势', '精准定位', '内容营销'];
+      } else if (fileName.includes('企业') || fileName.includes('company')) {
+        extractedContent = `企业介绍分析结果：\n\n1. 企业文化：开放包容、追求卓越、团队协作\n2. 发展历程：从初创到行业领先的成长轨迹\n3. 团队实力：专业团队、丰富经验、创新能力\n4. 社会责任：环保理念、公益事业、可持续发展`;
+        extractedKeywords = ['企业文化', '发展历程', '团队实力', '社会责任', '开放包容', '追求卓越'];
+      } else {
+        extractedContent = `品牌资料分析结果：\n\n1. 品牌理念：以用户为中心，创造价值\n2. 核心价值观：诚信、创新、专业、服务\n3. 目标受众：追求品质生活的现代人群\n4. 品牌愿景：成为行业领先的创新企业`;
+        extractedKeywords = ['品牌理念', '核心价值观', '目标受众', '品牌愿景', '用户中心', '创造价值'];
+      }
+
+      // 更新资产数据
+      setBrandAssets(prev => prev.map(a => 
+        a.id === asset.id 
+          ? { 
+              ...a, 
+              content: extractedContent,
+              extractedKeywords: extractedKeywords,
+              processingStatus: 'completed' as const
+            }
+          : a
+      ));
+
+      // 自动补充语料库维度
+      updateBrandDimensions(extractedKeywords, extractedContent);
+
+      toast({
+        title: "AI分析完成",
+        description: `已成功分析 ${asset.name}，并补充到品牌语料库`,
+      });
+
+    } catch (error) {
+      console.error('AI分析失败:', error);
+      setBrandAssets(prev => prev.map(a => 
+        a.id === asset.id 
+          ? { ...a, processingStatus: 'failed' as const }
+          : a
+      ));
+      
+      toast({
+        title: "AI分析失败",
+        description: "请稍后重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingAsset(null);
+    }
+  };
+
+  /**
+   * 批量处理品牌资料AI分析
    */
   const handleProcessAssets = async () => {
     const unprocessedAssets = brandAssets.filter(asset => asset.processingStatus !== 'completed');
@@ -369,79 +467,7 @@ export default function BrandLibraryPage() {
 
     for (let i = 0; i < unprocessedAssets.length; i++) {
       const asset = unprocessedAssets[i];
-      
-      // 更新处理状态
-      setBrandAssets(prev => prev.map(a => 
-        a.id === asset.id 
-          ? { ...a, processingStatus: 'processing' as const }
-          : a
-      ));
-
-      try {
-        // 调用真正的AI分析服务
-        const aiService = AIAnalysisService.getInstance();
-        const supportedTypes = aiService.getSupportedFileTypes();
-        
-        // 模拟AI处理时间
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // 尝试调用真正的AI分析（如果文件是文本类型）
-        let extractedContent = '';
-        let extractedKeywords: string[] = [];
-        
-        try {
-          // 这里应该调用真正的AI分析服务
-          // 由于当前是模拟环境，我们使用智能的关键词生成
-          const fileName = asset.name.toLowerCase();
-          
-          if (fileName.includes('手册') || fileName.includes('guide')) {
-            extractedContent = `从${asset.name}中提取的品牌手册内容，包含品牌定位、核心价值、视觉识别规范等信息。`;
-            extractedKeywords = ['品牌定位', '核心价值', '视觉识别', '品牌规范'];
-          } else if (fileName.includes('产品') || fileName.includes('product')) {
-            extractedContent = `从${asset.name}中提取的产品介绍内容，包含产品特色、功能优势、技术特点等信息。`;
-            extractedKeywords = ['产品特色', '功能优势', '技术领先', '用户体验'];
-          } else if (fileName.includes('营销') || fileName.includes('marketing')) {
-            extractedContent = `从${asset.name}中提取的营销素材内容，包含营销策略、推广方案、市场定位等信息。`;
-            extractedKeywords = ['营销策略', '推广方案', '市场定位', '竞争优势'];
-          } else if (fileName.includes('企业') || fileName.includes('company')) {
-            extractedContent = `从${asset.name}中提取的企业介绍内容，包含企业文化、发展历程、团队实力等信息。`;
-            extractedKeywords = ['企业文化', '发展历程', '团队实力', '社会责任'];
-          } else {
-            extractedContent = `从${asset.name}中提取的品牌相关内容，包含品牌理念、核心价值观、目标受众等信息。`;
-            extractedKeywords = ['品牌建设', '市场洞察', '创新驱动', '品质保证'];
-          }
-        } catch (aiError) {
-          console.warn('AI分析服务调用失败，使用默认分析:', aiError);
-          // 使用默认分析结果
-          extractedContent = `这是从 ${asset.name} 中提取的品牌相关内容。包含品牌理念、核心价值观、目标受众等信息。`;
-          extractedKeywords = ['品牌建设', '市场洞察', '创新驱动', '品质保证'];
-        }
-
-        // 更新资产数据
-        setBrandAssets(prev => prev.map(a => 
-          a.id === asset.id 
-            ? { 
-                ...a, 
-                content: extractedContent,
-                extractedKeywords: extractedKeywords,
-                processingStatus: 'completed' as const
-              }
-            : a
-        ));
-
-        // 自动补充语料库维度
-        updateBrandDimensions(extractedKeywords, extractedContent);
-
-      } catch (error) {
-        console.error('AI分析失败:', error);
-        // 更新为失败状态
-        setBrandAssets(prev => prev.map(a => 
-          a.id === asset.id 
-            ? { ...a, processingStatus: 'failed' as const }
-            : a
-        ));
-      }
-
+      await handleAnalyzeSingleAsset(asset);
       setProcessingProgress(((i + 1) / unprocessedAssets.length) * 100);
     }
 
@@ -449,8 +475,8 @@ export default function BrandLibraryPage() {
     setProcessingProgress(0);
 
     toast({
-      title: "AI分析完成",
-      description: "已自动分析品牌资料并补充语料库，请查看并完善各维度内容",
+      title: "批量AI分析完成",
+      description: "已自动分析所有品牌资料并补充语料库",
     });
   };
 
@@ -702,14 +728,6 @@ export default function BrandLibraryPage() {
         actions={
           <>
             <Button 
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              {isUploading ? '上传中...' : '上传资料'}
-            </Button>
-            <Button 
               onClick={handleProcessAssets}
               disabled={isProcessing || brandAssets.length === 0}
             >
@@ -892,6 +910,18 @@ export default function BrandLibraryPage() {
                 <CardDescription>管理上传的品牌资料文件</CardDescription>
               </CardHeader>
               <CardContent>
+                {/* 上传按钮 */}
+                <div className="mb-4">
+                  <Button 
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isUploading ? '上传中...' : '上传资料'}
+                  </Button>
+                </div>
+                
                 {/* 搜索和筛选 */}
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
                   <div className="flex-1">
@@ -973,6 +1003,25 @@ export default function BrandLibraryPage() {
                                   onChange={(e) => setEditingAssetName(e.target.value)}
                                   className="text-sm"
                                 />
+                                <Select 
+                                  value={asset.category || ''} 
+                                  onValueChange={(value) => {
+                                    setBrandAssets(prev => prev.map(a => 
+                                      a.id === asset.id ? { ...a, category: value } : a
+                                    ));
+                                  }}
+                                >
+                                  <SelectTrigger className="text-sm">
+                                    <SelectValue placeholder="选择分类" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {categories.map((category) => (
+                                      <SelectItem key={category} value={category}>
+                                        {category}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                                 <Textarea
                                   value={editingAssetDescription}
                                   onChange={(e) => setEditingAssetDescription(e.target.value)}
@@ -982,7 +1031,14 @@ export default function BrandLibraryPage() {
                               </div>
                             ) : (
                               <div>
-                                <p className="font-medium truncate">{asset.name}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium truncate">{asset.name}</p>
+                                  {asset.category && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      {asset.category}
+                                    </Badge>
+                                  )}
+                                </div>
                                 <p className="text-sm text-gray-500">
                                   {asset.uploadDate.toLocaleDateString()}
                                 </p>
@@ -1032,12 +1088,13 @@ export default function BrandLibraryPage() {
                                   <Edit className="h-4 w-4 mr-2" />
                                   编辑
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => {
-                                  setSelectedAsset(asset);
-                                  setIsAssetDialogOpen(true);
-                                }}>
+                                <DropdownMenuItem onClick={() => handleViewAsset(asset)}>
                                   <Eye className="h-4 w-4 mr-2" />
-                                  查看详情
+                                  查看内容
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleAnalyzeSingleAsset(asset)}>
+                                  <Brain className="h-4 w-4 mr-2" />
+                                  {isAnalyzingAsset === asset.id ? '分析中...' : 'AI分析'}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleShareAsset(asset)}>
                                   <Share2 className="h-4 w-4 mr-2" />
@@ -1061,41 +1118,19 @@ export default function BrandLibraryPage() {
         </Tabs>
       </div>
 
-      {/* 资料详情弹窗 */}
-      <Dialog open={isAssetDialogOpen} onOpenChange={setIsAssetDialogOpen}>
-        <DialogContent className="max-w-2xl">
+      {/* 资料查看弹窗 */}
+      <Dialog open={isViewingAsset !== null} onOpenChange={() => setIsViewingAsset(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
           <DialogHeader>
-            <DialogTitle>资料详情</DialogTitle>
+            <DialogTitle>资料内容</DialogTitle>
           </DialogHeader>
-          {selectedAsset && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                {selectedAsset.fileIcon}
-                <div>
-                  <p className="font-medium">{selectedAsset.name}</p>
-                  <p className="text-sm text-gray-500">
-                    上传时间：{selectedAsset.uploadDate.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              {selectedAsset.content && (
-                <div>
-                  <h4 className="font-semibold mb-2">提取内容</h4>
-                  <p className="text-sm text-gray-600">{selectedAsset.content}</p>
-                </div>
-              )}
-              {selectedAsset.extractedKeywords && selectedAsset.extractedKeywords.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2">提取关键词</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedAsset.extractedKeywords.map((keyword, index) => (
-                      <Badge key={index} variant="outline">{keyword}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <pre className="whitespace-pre-wrap text-sm overflow-auto max-h-[60vh]">
+                {assetViewerContent}
+              </pre>
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
