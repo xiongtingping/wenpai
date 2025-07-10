@@ -68,6 +68,19 @@ export default function BrandLibraryPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('品牌资料');
+  const [showCategorySelector, setShowCategorySelector] = useState(false);
+  
+  // 预设的分类选项
+  const categoryOptions = [
+    '品牌资料',
+    '产品介绍',
+    '营销素材',
+    '用户反馈',
+    '竞品分析',
+    '行业报告',
+    '其他'
+  ];
   const [isAssetDialogOpen, setIsAssetDialogOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<BrandAsset | null>(null);
   const [editingDimension, setEditingDimension] = useState<string | null>(null);
@@ -76,6 +89,7 @@ export default function BrandLibraryPage() {
   const [isEditingAsset, setIsEditingAsset] = useState<string | null>(null);
   const [editingAssetName, setEditingAssetName] = useState('');
   const [editingAssetDescription, setEditingAssetDescription] = useState('');
+  const [editingAssetCategory, setEditingAssetCategory] = useState('');
   const [isViewingAsset, setIsViewingAsset] = useState<string | null>(null);
   const [isAnalyzingAsset, setIsAnalyzingAsset] = useState<string | null>(null);
   const [assetViewerContent, setAssetViewerContent] = useState('');
@@ -296,8 +310,8 @@ export default function BrandLibraryPage() {
         fileIcon = <FileText className="h-8 w-8 text-blue-700" />;
       }
       
-      // 默认分类为"品牌资料"，用户可以后续修改
-      let category = '品牌资料';
+      // 使用用户选择的分类
+      let category = selectedCategory;
       
       try {
         // 读取文件内容
@@ -381,9 +395,8 @@ export default function BrandLibraryPage() {
     setIsViewingAsset(asset.id);
     
     try {
-      // 这里应该读取文件内容
-      // 由于当前是模拟环境，我们显示文件信息
-      const content = `文件名称：${asset.name}\n文件大小：${asset.size} KB\n上传时间：${asset.uploadDate.toLocaleString()}\n文件类型：${asset.type}\n\n${asset.content || '暂无内容'}`;
+      // 显示原始文件内容，而不是AI分析结果
+      const content = `文件名称：${asset.name}\n文件大小：${asset.size || '未知'} KB\n上传时间：${asset.uploadDate.toLocaleString()}\n文件类型：${asset.type}\n\n原始内容：\n${asset.content || '暂无内容'}`;
       setAssetViewerContent(content);
     } catch (error) {
       console.error('读取文件失败:', error);
@@ -838,6 +851,7 @@ export default function BrandLibraryPage() {
     setSelectedAsset(asset);
     setEditingAssetName(asset.name);
     setEditingAssetDescription(asset.description || '');
+    setEditingAssetCategory(asset.category || '品牌资料');
     setIsEditingAsset(asset.id);
   };
 
@@ -849,12 +863,20 @@ export default function BrandLibraryPage() {
     
     setBrandAssets(prev => prev.map(asset => 
       asset.id === selectedAsset.id 
-        ? { ...asset, name: editingAssetName, description: editingAssetDescription }
+        ? { 
+            ...asset, 
+            name: editingAssetName, 
+            description: editingAssetDescription,
+            category: editingAssetCategory
+          }
         : asset
     ));
     
     setIsEditingAsset(null);
     setSelectedAsset(null);
+    setEditingAssetName('');
+    setEditingAssetDescription('');
+    setEditingAssetCategory('');
     
     toast({
       title: "保存成功",
@@ -944,19 +966,11 @@ export default function BrandLibraryPage() {
       <PageNavigation
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
-        showAdaptButton={false}
-        showUpgradeButton={false}
+        showAdaptButton={true}
+        showUpgradeButton={true}
       />
 
-      <div className="container mx-auto py-6 px-4 max-w-7xl">
-        {/* 页面顶部操作栏 */}
-        <div className="flex justify-between items-center mb-6">
-          <div></div>
-          <Button onClick={saveBrandDimensions}>
-            <Save className="h-4 w-4 mr-2" />
-            保存语料库
-            </Button>
-          </div>
+            <div className="container mx-auto py-6 px-4 max-w-7xl">
 
         {/* 隐藏的文件输入 */}
         <input
@@ -1014,6 +1028,12 @@ export default function BrandLibraryPage() {
 
           {/* 品牌语料库维度 */}
           <TabsContent value="dimensions" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <Button onClick={saveBrandDimensions}>
+                <Save className="h-4 w-4 mr-2" />
+                保存语料库
+              </Button>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 基础信息 */}
               <Card>
@@ -1126,7 +1146,24 @@ export default function BrandLibraryPage() {
               </CardHeader>
               <CardContent>
                 {/* 上传和AI分析按钮 */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex gap-2 mb-4 items-center">
+                  {/* 分类选择器 */}
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm font-medium">分类：</Label>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="选择分类" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categoryOptions.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
                   <Button 
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
@@ -1142,6 +1179,37 @@ export default function BrandLibraryPage() {
                     <Brain className="h-4 w-4 mr-2" />
                     {isProcessing ? 'AI分析中...' : '批量AI分析'}
                   </Button>
+                </div>
+
+                {/* 文件格式说明 */}
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-blue-900 mb-2">支持的文件格式</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-blue-600" />
+                          <span>文档：PDF, DOC, DOCX, TXT, MD</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FileImage className="h-4 w-4 text-green-600" />
+                          <span>图片：JPG, PNG, GIF, BMP, WEBP</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <File className="h-4 w-4 text-red-600" />
+                          <span>表格：XLS, XLSX</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-purple-600" />
+                          <span>演示：PPT, PPTX</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-blue-700 mt-2">
+                        <strong>注意：</strong>单个文件大小建议不超过10MB，支持批量上传多个文件。AI将自动分析文件内容并提取品牌相关信息。
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* 搜索和筛选 */}
@@ -1272,16 +1340,19 @@ export default function BrandLibraryPage() {
                                 <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleAnalyzeSingleAsset(asset)}>
-                                <Brain className="h-4 w-4 mr-2" />
-                                {isAnalyzingAsset === asset.id ? '分析中...' : '重新分析'}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDeleteAsset(asset.id)}>
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    删除
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
+                                                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditAsset(asset);
+                                }}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  编辑
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDeleteAsset(asset.id)}>
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  删除
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
                               </DropdownMenu>
                             </div>
                               </div>
@@ -1307,6 +1378,72 @@ export default function BrandLibraryPage() {
               </pre>
                   </div>
                 </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 资料编辑弹窗 */}
+      <Dialog open={isEditingAsset !== null} onOpenChange={() => {
+        setIsEditingAsset(null);
+        setEditingAssetName('');
+        setEditingAssetDescription('');
+        setEditingAssetCategory('');
+      }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>编辑资料</DialogTitle>
+            <DialogDescription>
+              修改资料的基本信息，包括名称、描述和分类
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="asset-name">资料名称</Label>
+              <Input
+                id="asset-name"
+                value={editingAssetName}
+                onChange={(e) => setEditingAssetName(e.target.value)}
+                placeholder="请输入资料名称"
+              />
+            </div>
+            <div>
+              <Label htmlFor="asset-category">分类</Label>
+              <Select value={editingAssetCategory} onValueChange={setEditingAssetCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择分类" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="asset-description">描述</Label>
+              <Textarea
+                id="asset-description"
+                value={editingAssetDescription}
+                onChange={(e) => setEditingAssetDescription(e.target.value)}
+                placeholder="请输入资料描述（可选）"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setIsEditingAsset(null);
+              setEditingAssetName('');
+              setEditingAssetDescription('');
+              setEditingAssetCategory('');
+            }}>
+              取消
+            </Button>
+            <Button onClick={handleSaveAssetEdit}>
+              保存
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
                     </div>

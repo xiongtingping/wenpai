@@ -209,14 +209,14 @@ export default function ProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               {/* 左侧：头像和昵称 */}
-              <div className="space-y-4 flex flex-col items-center">
+              <div className="space-y-6 flex flex-col items-center">
                 <AvatarUpload currentAvatar={editForm.avatar} nickname={editForm.nickname || user?.nickname || '用户'} size="lg" onAvatarChange={handleAvatarChange} disabled={false} />
                 <NicknameSelector currentNickname={editForm.nickname} onNicknameChange={handleNicknameChange} disabled={false} />
               </div>
               {/* 右侧：联系方式 */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {/* 手机号 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Phone className="w-4 h-4 text-blue-600" />手机号码</Label>
