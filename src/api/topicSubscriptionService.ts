@@ -4,6 +4,11 @@
  */
 
 import axios from 'axios';
+import { 
+  notifyTopicUpdate, 
+  notifyHeatAlert, 
+  notifySubscriptionStatus 
+} from '@/services/notificationService';
 
 /**
  * 订阅话题接口
@@ -22,6 +27,7 @@ export interface TopicSubscription {
   lastCheckAt?: string;
   checkInterval: number; // 检查间隔（分钟）
   minHeatThreshold?: number; // 最小热度阈值
+  maxHeatThreshold?: number; // 最大热度阈值（用于热度警报）
 }
 
 /**
@@ -103,6 +109,22 @@ const DEFAULT_SEARCH_SOURCES: SearchSource[] = [
     apiUrl: 'https://www.toutiao.com/search_content/',
     isEnabled: true,
     rateLimit: 12
+  },
+  {
+    id: 'bilibili-search',
+    name: 'B站搜索',
+    type: 'social',
+    apiUrl: 'https://api.bilibili.com/x/web-interface/search/type',
+    isEnabled: true,
+    rateLimit: 8
+  },
+  {
+    id: 'douyin-search',
+    name: '抖音搜索',
+    type: 'social',
+    apiUrl: 'https://www.douyin.com/aweme/v1/web/search/item/',
+    isEnabled: true,
+    rateLimit: 5
   }
 ];
 
@@ -144,6 +166,10 @@ export function addTopicSubscription(subscription: Omit<TopicSubscription, 'id' 
   
   subscriptions.push(newSubscription);
   saveTopicSubscriptions(subscriptions);
+  
+  // 发送通知
+  notifySubscriptionStatus('created', newSubscription.name);
+  
   return newSubscription;
 }
 
@@ -156,13 +182,18 @@ export function updateTopicSubscription(id: string, updates: Partial<TopicSubscr
   
   if (index === -1) return null;
   
+  const oldSubscription = subscriptions[index];
   subscriptions[index] = {
-    ...subscriptions[index],
+    ...oldSubscription,
     ...updates,
     updatedAt: new Date().toISOString()
   };
   
   saveTopicSubscriptions(subscriptions);
+  
+  // 发送通知
+  notifySubscriptionStatus('updated', subscriptions[index].name);
+  
   return subscriptions[index];
 }
 
@@ -171,6 +202,7 @@ export function updateTopicSubscription(id: string, updates: Partial<TopicSubscr
  */
 export function deleteTopicSubscription(id: string): boolean {
   const subscriptions = getTopicSubscriptions();
+  const subscription = subscriptions.find(s => s.id === id);
   const filtered = subscriptions.filter(s => s.id !== id);
   
   if (filtered.length === subscriptions.length) {
@@ -178,6 +210,12 @@ export function deleteTopicSubscription(id: string): boolean {
   }
   
   saveTopicSubscriptions(filtered);
+  
+  // 发送通知
+  if (subscription) {
+    notifySubscriptionStatus('deleted', subscription.name);
+  }
+  
   return true;
 }
 
@@ -219,10 +257,24 @@ export async function monitorTopic(subscription: TopicSubscription): Promise<Top
     const uniqueResults = deduplicateResults(results);
     const sortedResults = uniqueResults.sort((a, b) => b.heat - a.heat);
     
+    // 检查热度阈值
+    if (subscription.maxHeatThreshold) {
+      const highHeatResults = sortedResults.filter(r => r.heat >= subscription.maxHeatThreshold!);
+      if (highHeatResults.length > 0 && subscription.notificationEnabled) {
+        const maxHeat = Math.max(...highHeatResults.map(r => r.heat));
+        notifyHeatAlert(subscription.keyword, maxHeat, subscription.maxHeatThreshold);
+      }
+    }
+    
     // 更新最后检查时间
     updateTopicSubscription(subscription.id, {
       lastCheckAt: new Date().toISOString()
     });
+    
+    // 发送话题更新通知
+    if (subscription.notificationEnabled) {
+      notifyTopicUpdate(subscription.keyword, sortedResults, subscription.name);
+    }
     
     return sortedResults;
   } catch (error) {
@@ -260,73 +312,108 @@ async function searchKeyword(keyword: string, source: SearchSource): Promise<Top
  * 搜索新闻
  */
 async function searchNews(keyword: string, source: SearchSource): Promise<TopicMonitorResult[]> {
-  // 这里可以集成真实的新闻API
-  // 目前返回模拟数据
-  return [
+  // 模拟新闻搜索，实际项目中可以集成真实的新闻API
+  const mockNews = [
     {
-      id: generateId(),
-      subscriptionId: '',
-      keyword,
       title: `关于"${keyword}"的最新新闻报道`,
       content: `这是一条关于"${keyword}"的新闻内容，包含了相关的信息和背景。`,
-      url: '#',
-      platform: source.name,
-      source: source.id,
       heat: Math.floor(Math.random() * 100000) + 1000,
-      publishedAt: new Date().toISOString(),
-      discoveredAt: new Date().toISOString(),
-      tags: [keyword],
-      relevance: 0.9
+      sentiment: 'neutral' as const
+    },
+    {
+      title: `"${keyword}"相关热点事件`,
+      content: `近期关于"${keyword}"的热点事件引发了广泛关注。`,
+      heat: Math.floor(Math.random() * 80000) + 500,
+      sentiment: 'positive' as const
     }
   ];
+  
+  return mockNews.map(news => ({
+    id: generateId(),
+    subscriptionId: '',
+    keyword,
+    title: news.title,
+    content: news.content,
+    url: '#',
+    platform: source.name,
+    source: source.id,
+    heat: news.heat,
+    publishedAt: new Date().toISOString(),
+    discoveredAt: new Date().toISOString(),
+    tags: [keyword],
+    sentiment: news.sentiment,
+    relevance: 0.9
+  }));
 }
 
 /**
  * 搜索社交媒体
  */
 async function searchSocial(keyword: string, source: SearchSource): Promise<TopicMonitorResult[]> {
-  // 这里可以集成真实的社交媒体API
-  return [
+  // 模拟社交媒体搜索
+  const mockSocial = [
     {
-      id: generateId(),
-      subscriptionId: '',
-      keyword,
       title: `"${keyword}"相关讨论`,
       content: `社交媒体上关于"${keyword}"的热门讨论内容。`,
-      url: '#',
-      platform: source.name,
-      source: source.id,
       heat: Math.floor(Math.random() * 50000) + 500,
-      publishedAt: new Date().toISOString(),
-      discoveredAt: new Date().toISOString(),
-      tags: [keyword],
-      relevance: 0.8
+      sentiment: 'positive' as const
+    },
+    {
+      title: `"${keyword}"用户热议`,
+      content: `用户们对"${keyword}"的讨论和观点分享。`,
+      heat: Math.floor(Math.random() * 30000) + 200,
+      sentiment: 'neutral' as const
     }
   ];
+  
+  return mockSocial.map(social => ({
+    id: generateId(),
+    subscriptionId: '',
+    keyword,
+    title: social.title,
+    content: social.content,
+    url: '#',
+    platform: source.name,
+    source: source.id,
+    heat: social.heat,
+    publishedAt: new Date().toISOString(),
+    discoveredAt: new Date().toISOString(),
+    tags: [keyword],
+    sentiment: social.sentiment,
+    relevance: 0.8
+  }));
 }
 
 /**
  * 搜索网页
  */
 async function searchWeb(keyword: string, source: SearchSource): Promise<TopicMonitorResult[]> {
-  // 这里可以集成搜索引擎API
-  return [
+  // 模拟网页搜索
+  const mockWeb = [
     {
-      id: generateId(),
-      subscriptionId: '',
-      keyword,
       title: `"${keyword}"相关网页内容`,
       content: `关于"${keyword}"的网页搜索结果和相关信息。`,
-      url: '#',
-      platform: source.name,
-      source: source.id,
       heat: Math.floor(Math.random() * 20000) + 100,
-      publishedAt: new Date().toISOString(),
-      discoveredAt: new Date().toISOString(),
-      tags: [keyword],
-      relevance: 0.7
+      sentiment: 'neutral' as const
     }
   ];
+  
+  return mockWeb.map(web => ({
+    id: generateId(),
+    subscriptionId: '',
+    keyword,
+    title: web.title,
+    content: web.content,
+    url: '#',
+    platform: source.name,
+    source: source.id,
+    heat: web.heat,
+    publishedAt: new Date().toISOString(),
+    discoveredAt: new Date().toISOString(),
+    tags: [keyword],
+    sentiment: web.sentiment,
+    relevance: 0.7
+  }));
 }
 
 /**
@@ -348,7 +435,7 @@ function deduplicateResults(results: TopicMonitorResult[]): TopicMonitorResult[]
  * 获取话题热度趋势
  */
 export async function getTopicHeatTrend(keyword: string, days: number = 7): Promise<TopicHeatTrend[]> {
-  // 这里可以计算历史热度趋势
+  // 模拟热度趋势数据，实际项目中可以从历史数据计算
   const trends: TopicHeatTrend[] = [];
   const now = new Date();
   
@@ -361,7 +448,7 @@ export async function getTopicHeatTrend(keyword: string, days: number = 7): Prom
       date: date.toISOString().split('T')[0],
       heat: Math.floor(Math.random() * 100000) + 1000,
       mentions: Math.floor(Math.random() * 100) + 10,
-      platforms: ['微博', '知乎', '百度']
+      platforms: ['微博', '知乎', '百度', 'B站', '抖音']
     });
   }
   
@@ -401,4 +488,34 @@ export async function checkAllSubscriptions(): Promise<Record<string, TopicMonit
   }
   
   return results;
+}
+
+/**
+ * 启用/禁用订阅
+ */
+export function toggleSubscription(id: string, isActive: boolean): boolean {
+  const subscription = updateTopicSubscription(id, { isActive });
+  if (subscription) {
+    notifySubscriptionStatus(isActive ? 'enabled' : 'disabled', subscription.name);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * 获取订阅统计信息
+ */
+export function getSubscriptionStats() {
+  const subscriptions = getTopicSubscriptions();
+  const activeCount = subscriptions.filter(s => s.isActive).length;
+  const totalCount = subscriptions.length;
+  const notificationEnabledCount = subscriptions.filter(s => s.notificationEnabled).length;
+  
+  return {
+    total: totalCount,
+    active: activeCount,
+    inactive: totalCount - activeCount,
+    notificationEnabled: notificationEnabledCount,
+    notificationDisabled: totalCount - notificationEnabledCount
+  };
 } 

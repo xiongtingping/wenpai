@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import UserAvatar from '@/components/auth/UserAvatar';
+import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
 import { 
   Sparkles,
   Zap,
@@ -131,8 +132,10 @@ export const TopNavigation: React.FC = () => {
           </nav>
 
           {/* 右侧用户区域 */}
-          <div className="flex items-center space-x-3">
-            {/* 用户功能 */}
+          <div className="flex items-center gap-2">
+            {/* 主题切换器 */}
+            <ThemeSwitcher />
+            {/* 用户头像等 */}
             {isAuthenticated ? (
               <>
                 {/* 用户功能下拉菜单 */}

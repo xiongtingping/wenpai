@@ -49,11 +49,17 @@ import {
   TrendingUp as TrendingUpIcon,
   AlertCircle,
   CheckCircle,
-  Loader2
+  Loader2,
+  Play,
+  Pause,
+  BarChart,
+  PieChart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
+import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
+import NotificationCenter from '@/components/hot-topics/NotificationCenter';
 import { 
   getDailyHotAll,
   getDailyHotByPlatform,
@@ -72,6 +78,8 @@ import {
   getTopicHeatTrend,
   getAvailableSearchSources,
   checkAllSubscriptions,
+  toggleSubscription,
+  getSubscriptionStats,
   type TopicSubscription,
   type TopicMonitorResult,
   type TopicHeatTrend,
@@ -95,13 +103,18 @@ export default function HotTopicsPage() {
   const [error, setError] = useState<string | null>(null);
   
   // 话题订阅状态
-  const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions'>('hot');
+  const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions' | 'notifications'>('hot');
   const [subscriptions, setSubscriptions] = useState<TopicSubscription[]>([]);
   const [monitorResults, setMonitorResults] = useState<Record<string, TopicMonitorResult[]>>({});
   const [selectedSubscription, setSelectedSubscription] = useState<TopicSubscription | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
+  const [subscriptionStats, setSubscriptionStats] = useState(getSubscriptionStats());
+  
+  // 热度趋势状态
+  const [heatTrends, setHeatTrends] = useState<Record<string, TopicHeatTrend[]>>({});
+  const [loadingTrends, setLoadingTrends] = useState<Record<string, boolean>>({});
   
   // 新增订阅表单
   const [newSubscription, setNewSubscription] = useState({
@@ -113,7 +126,8 @@ export default function HotTopicsPage() {
     isActive: true,
     notificationEnabled: true,
     checkInterval: 30,
-    minHeatThreshold: 1000
+    minHeatThreshold: 1000,
+    maxHeatThreshold: 50000
   });
   
   // 搜索源配置
@@ -198,20 +212,8 @@ export default function HotTopicsPage() {
         return <Monitor className="w-4 h-4" />;
       case 'github':
         return <Globe className="w-4 h-4" />;
-      case 'v2ex':
-        return <Users className="w-4 h-4" />;
-      case 'ngabbs':
-        return <Users className="w-4 h-4" />;
-      case 'hellogithub':
-        return <Globe className="w-4 h-4" />;
-      case 'weatheralarm':
-        return <Calendar className="w-4 h-4" />;
-      case 'earthquake':
-        return <MapPin className="w-4 h-4" />;
-      case 'history':
-        return <Bookmark className="w-4 h-4" />;
       default:
-        return <Globe className="w-4 h-4" />;
+        return <Hash className="w-4 h-4" />;
     }
   };
 
@@ -219,20 +221,15 @@ export default function HotTopicsPage() {
    * 获取当前平台数据
    */
   const getCurrentPlatformData = (): DailyHotItem[] => {
-    if (!allHotData || !allHotData.data) return [];
+    if (!allHotData) return [];
     
     if (currentPlatform === 'all') {
-      // 聚合所有平台数据，取前50条
+      // 聚合所有平台数据
       const allItems: DailyHotItem[] = [];
-      Object.entries(allHotData.data).forEach(([platform, items]) => {
-        items.forEach(item => {
-          allItems.push({
-            ...item,
-            platform // 添加平台标识
-          });
-        });
+      Object.values(allHotData.data).forEach(items => {
+        allItems.push(...items);
       });
-      return allItems.slice(0, 50);
+      return allItems.slice(0, 50); // 限制数量
     }
     
     return allHotData.data[currentPlatform] || [];
@@ -242,36 +239,31 @@ export default function HotTopicsPage() {
    * 获取统计信息
    */
   const getStats = () => {
-    if (!allHotData || !allHotData.data) return null;
+    if (!allHotData) return { total: 0, platforms: 0 };
     
-    const platforms = Object.keys(allHotData.data);
-    const totalTopics = platforms.reduce((sum, platform) => 
-      sum + (allHotData.data[platform]?.length || 0), 0
-    );
+    const total = Object.values(allHotData.data).reduce((sum, items) => sum + items.length, 0);
+    const platforms = Object.keys(allHotData.data).length;
     
-    return {
-      totalPlatforms: platforms.length,
-      totalTopics,
-      averageTopicsPerPlatform: Math.round(totalTopics / platforms.length)
-    };
+    return { total, platforms };
   };
 
   /**
-   * 加载话题订阅
+   * 加载订阅列表
    */
   const loadSubscriptions = () => {
     const subs = getTopicSubscriptions();
     setSubscriptions(subs);
+    setSubscriptionStats(getSubscriptionStats());
   };
 
   /**
-   * 添加话题订阅
+   * 添加订阅
    */
   const handleAddSubscription = () => {
     if (!newSubscription.keyword.trim() || !newSubscription.name.trim()) {
       toast({
-        title: "请填写完整信息",
-        description: "关键词和名称不能为空",
+        title: "请填写必填项",
+        description: "关键词和订阅名称不能为空",
         variant: "destructive"
       });
       return;
@@ -286,43 +278,50 @@ export default function HotTopicsPage() {
       return;
     }
 
-    const subscription = addTopicSubscription(newSubscription);
-    setSubscriptions(prev => [...prev, subscription]);
-    setIsAddDialogOpen(false);
-    
-    // 重置表单
-    setNewSubscription({
-      keyword: '',
-      name: '',
-      description: '',
-      platforms: [],
-      sources: [],
-      isActive: true,
-      notificationEnabled: true,
-      checkInterval: 30,
-      minHeatThreshold: 1000
-    });
-
-    toast({
-      title: "订阅添加成功",
-      description: `已开始监控话题"${subscription.name}"`,
-    });
+    try {
+      addTopicSubscription(newSubscription);
+      setIsAddDialogOpen(false);
+      setNewSubscription({
+        keyword: '',
+        name: '',
+        description: '',
+        platforms: [],
+        sources: [],
+        isActive: true,
+        notificationEnabled: true,
+        checkInterval: 30,
+        minHeatThreshold: 1000,
+        maxHeatThreshold: 50000
+      });
+      loadSubscriptions();
+      
+      toast({
+        title: "订阅创建成功",
+        description: `话题"${newSubscription.keyword}"已添加到监控列表`,
+      });
+    } catch (error) {
+      toast({
+        title: "创建失败",
+        description: "请重试",
+        variant: "destructive"
+      });
+    }
   };
 
   /**
-   * 删除话题订阅
+   * 删除订阅
    */
   const handleDeleteSubscription = (id: string) => {
-    if (deleteTopicSubscription(id)) {
-      setSubscriptions(prev => prev.filter(s => s.id !== id));
-      setMonitorResults(prev => {
-        const newResults = { ...prev };
-        delete newResults[id];
-        return newResults;
-      });
+    const subscription = subscriptions.find(s => s.id === id);
+    if (!subscription) return;
+
+    if (confirm(`确定要删除话题订阅"${subscription.name}"吗？`)) {
+      deleteTopicSubscription(id);
+      loadSubscriptions();
+      
       toast({
-        title: "订阅已删除",
-        description: "话题监控已停止",
+        title: "删除成功",
+        description: `话题订阅"${subscription.name}"已删除`,
       });
     }
   };
@@ -331,27 +330,21 @@ export default function HotTopicsPage() {
    * 切换订阅状态
    */
   const handleToggleSubscription = (id: string, isActive: boolean) => {
-    const updated = updateTopicSubscription(id, { isActive });
-    if (updated) {
-      setSubscriptions(prev => prev.map(s => s.id === id ? updated : s));
-      toast({
-        title: isActive ? "监控已启动" : "监控已暂停",
-        description: `话题"${updated.name}"${isActive ? '开始' : '暂停'}监控`,
-      });
-    }
+    toggleSubscription(id, isActive);
+    loadSubscriptions();
   };
 
   /**
-   * 监控话题
+   * 监控单个话题
    */
   const handleMonitorTopic = async (subscription: TopicSubscription) => {
-    setIsMonitoring(true);
     try {
       const results = await monitorTopic(subscription);
       setMonitorResults(prev => ({
         ...prev,
         [subscription.id]: results
       }));
+      
       toast({
         title: "监控完成",
         description: `发现 ${results.length} 条相关内容`,
@@ -359,11 +352,9 @@ export default function HotTopicsPage() {
     } catch (error) {
       toast({
         title: "监控失败",
-        description: "请稍后重试",
+        description: "请重试",
         variant: "destructive"
       });
-    } finally {
-      setIsMonitoring(false);
     }
   };
 
@@ -374,17 +365,17 @@ export default function HotTopicsPage() {
     setIsMonitoring(true);
     try {
       const results = await checkAllSubscriptions();
-      setMonitorResults(prev => ({ ...prev, ...results }));
+      setMonitorResults(results);
       
       const totalResults = Object.values(results).flat().length;
       toast({
-        title: "批量检查完成",
+        title: "检查完成",
         description: `共发现 ${totalResults} 条相关内容`,
       });
     } catch (error) {
       toast({
         title: "检查失败",
-        description: "请稍后重试",
+        description: "请重试",
         variant: "destructive"
       });
     } finally {
@@ -393,8 +384,23 @@ export default function HotTopicsPage() {
   };
 
   /**
-   * 初始化数据
+   * 加载热度趋势
    */
+  const loadHeatTrends = async (keyword: string) => {
+    if (heatTrends[keyword]) return;
+    
+    setLoadingTrends(prev => ({ ...prev, [keyword]: true }));
+    try {
+      const trends = await getTopicHeatTrend(keyword, 7);
+      setHeatTrends(prev => ({ ...prev, [keyword]: trends }));
+    } catch (error) {
+      console.error('加载热度趋势失败:', error);
+    } finally {
+      setLoadingTrends(prev => ({ ...prev, [keyword]: false }));
+    }
+  };
+
+  // 初始化
   useEffect(() => {
     fetchHotData();
     loadSubscriptions();
@@ -429,9 +435,9 @@ export default function HotTopicsPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* 主标签页 */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions')} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'notifications')} className="w-full">
           <div className="flex items-center justify-between mb-6">
-            <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsList className="grid w-full grid-cols-3 max-w-md">
               <TabsTrigger value="hot" className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
                 全网热点
@@ -439,6 +445,10 @@ export default function HotTopicsPage() {
               <TabsTrigger value="subscriptions" className="flex items-center gap-2">
                 <Bell className="w-4 h-4" />
                 话题订阅
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="flex items-center gap-2">
+                <Bell className="w-4 h-4" />
+                通知中心
               </TabsTrigger>
             </TabsList>
             
@@ -471,7 +481,7 @@ export default function HotTopicsPage() {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="keyword">关键词</Label>
+                          <Label htmlFor="keyword">关键词 *</Label>
                           <Input
                             id="keyword"
                             value={newSubscription.keyword}
@@ -480,7 +490,7 @@ export default function HotTopicsPage() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="name">订阅名称</Label>
+                          <Label htmlFor="name">订阅名称 *</Label>
                           <Input
                             id="name"
                             value={newSubscription.name}
@@ -498,7 +508,7 @@ export default function HotTopicsPage() {
                           />
                         </div>
                         <div>
-                          <Label>搜索源</Label>
+                          <Label>搜索源 *</Label>
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             {searchSources.map((source) => (
                               <div key={source.id} className="flex items-center space-x-2">
@@ -543,6 +553,16 @@ export default function HotTopicsPage() {
                             </SelectContent>
                           </Select>
                         </div>
+                        <div>
+                          <Label htmlFor="maxHeat">热度警报阈值</Label>
+                          <Input
+                            id="maxHeat"
+                            type="number"
+                            value={newSubscription.maxHeatThreshold}
+                            onChange={(e) => setNewSubscription(prev => ({ ...prev, maxHeatThreshold: parseInt(e.target.value) || 0 }))}
+                            placeholder="超过此热度时发送警报"
+                          />
+                        </div>
                         <div className="flex items-center space-x-2">
                           <Switch
                             id="notification"
@@ -571,212 +591,155 @@ export default function HotTopicsPage() {
           <TabsContent value="hot">
             {/* 错误状态显示 */}
             {error && (
-          <Card className="mb-6 border-red-200 bg-red-50">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <TrendingDown className="w-4 h-4 text-red-600" />
+              <Card className="mb-6 border-red-200 bg-red-50">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <TrendingDown className="w-4 h-4 text-red-600" />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-red-800">获取热点数据失败</h3>
+                      <p className="text-sm text-red-700 mt-1">{error}</p>
+                      <p className="text-xs text-red-600 mt-2">
+                        可能原因：网络连接异常、API服务暂时不可用、或防火墙限制
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRefresh}
+                      disabled={refreshing}
+                      className="border-red-300 text-red-700 hover:bg-red-100"
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                      重试
+                    </Button>
                   </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium text-red-800">获取热点数据失败</h3>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
-                  <p className="text-xs text-red-600 mt-2">
-                    可能原因：网络连接异常、API服务暂时不可用、或防火墙限制
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="border-red-300 text-red-700 hover:bg-red-100"
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-                  重试
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                </CardContent>
+              </Card>
+            )}
 
-        {/* 统计概览 */}
-        {stats && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">支持平台</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.totalPlatforms}</p>
-                  </div>
-                  <Globe className="h-8 w-8 text-blue-500" />
+            {/* 平台选择 */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-lg">选择平台</CardTitle>
+                <CardDescription>
+                  查看不同平台的热门话题
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={currentPlatform === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setCurrentPlatform('all')}
+                  >
+                    全部平台
+                  </Button>
+                  {supportedPlatforms.map((platform) => (
+                    <Button
+                      key={platform}
+                      variant={currentPlatform === platform ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setCurrentPlatform(platform)}
+                    >
+                      {getPlatformIcon(platform)}
+                      {getPlatformDisplayName(platform)}
+                    </Button>
+                  ))}
                 </div>
               </CardContent>
             </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">总话题数</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.totalTopics}</p>
-                  </div>
-                  <Hash className="h-8 w-8 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">平均话题数</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.averageTopicsPerPlatform}</p>
-                  </div>
-                  <BarChart3 className="h-8 w-8 text-purple-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
-        {/* 平台选择 */}
-        {!error && (
-          <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              选择平台
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={currentPlatform === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setCurrentPlatform('all')}
-              >
-                <Globe className="w-4 h-4 mr-2" />
-                全部平台
-              </Button>
-              {supportedPlatforms.map((platform) => (
-                <Button
-                  key={platform}
-                  variant={currentPlatform === platform ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setCurrentPlatform(platform)}
-                >
-                  <div className={`w-3 h-3 rounded-full mr-2 ${getPlatformIconClass(platform)}`} />
-                  {getPlatformDisplayName(platform)}
-                </Button>
-              ))}
+            {/* 统计信息 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">总话题数</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                    </div>
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Hash className="w-4 h-4 text-blue-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">平台数量</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.platforms}</p>
+                    </div>
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <Globe className="w-4 h-4 text-green-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">更新时间</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {new Date().toLocaleTimeString('zh-CN')}
+                      </p>
+                    </div>
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-purple-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
-        )}
 
-        {/* 话题列表 */}
-        {!error && (
-          <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                {currentPlatform === 'all' ? '全网热点' : getPlatformDisplayName(currentPlatform)}
-                <Badge variant="outline">{currentData.length}</Badge>
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const dataStr = JSON.stringify(currentData, null, 2);
-                    navigator.clipboard.writeText(dataStr);
-                    toast({
-                      title: "数据已复制",
-                      description: "话题数据已复制到剪贴板",
-                    });
-                  }}
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  导出数据
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
+            {/* 话题列表 */}
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 <span className="ml-2 text-gray-600">加载中...</span>
               </div>
-            ) : currentData.length === 0 ? (
-              <div className="text-center py-12">
-                <Hash className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600">暂无热门话题</p>
-              </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid gap-4">
                 {currentData.map((item, index) => (
-                  <Card
-                    key={`${currentPlatform}-${index}`}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                  >
+                  <Card key={index} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="flex-shrink-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                              {index + 1}
-                            </div>
-                            <h3 className="font-medium text-gray-900 line-clamp-2">
-                              {item.title}
-                            </h3>
+                            <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {item.platform}
+                            </Badge>
                             {item.hot && (
-                              <Badge variant="outline" className="text-xs">
-                                {item.hot}
+                              <Badge variant="destructive" className="text-xs">
+                                <Flame className="w-3 h-3 mr-1" />
+                                热
                               </Badge>
                             )}
                           </div>
-                          
-                          {item.desc && (
-                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                              {item.desc}
-                            </p>
-                          )}
-                          
+                          <h3 className="font-medium text-gray-900 mb-2">{item.title}</h3>
+                          <p className="text-sm text-gray-600 mb-3">{item.desc}</p>
                           <div className="flex items-center gap-4 text-xs text-gray-500">
-                            {currentPlatform === 'all' && item.platform && (
-                              <div className="flex items-center gap-1">
-                                <div className={`w-3 h-3 rounded-full ${getPlatformIconClass(item.platform)}`} />
-                                <span>{getPlatformDisplayName(item.platform)}</span>
-                              </div>
-                            )}
-                            {item.index && (
-                              <div className="flex items-center gap-1">
-                                <Hash className="w-3 h-3" />
-                                <span>第{item.index}名</span>
-                              </div>
-                            )}
+                            <span>热度: {item.hot}</span>
+                            <span>平台: {item.platform || '未知'}</span>
+                            <span>序号: {item.index || 'N/A'}</span>
                           </div>
                         </div>
-                        
-                        <div className="flex gap-2">
-                          {item.url && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                window.open(item.url, '_blank');
-                              }}
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
-                          )}
+                        <div className="flex items-center gap-1 ml-4">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Share2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -784,9 +747,209 @@ export default function HotTopicsPage() {
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
-        )}
+          </TabsContent>
+
+          {/* 话题订阅标签页 */}
+          <TabsContent value="subscriptions">
+            {/* 订阅统计 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-900">{subscriptionStats.total}</p>
+                    <p className="text-sm text-gray-600">总订阅数</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">{subscriptionStats.active}</p>
+                    <p className="text-sm text-gray-600">活跃订阅</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{subscriptionStats.notificationEnabled}</p>
+                    <p className="text-sm text-gray-600">通知开启</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-purple-600">
+                      {Object.values(monitorResults).flat().length}
+                    </p>
+                    <p className="text-sm text-gray-600">监控结果</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 订阅列表 */}
+            {subscriptions.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <BellOff className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">暂无话题订阅</h3>
+                  <p className="text-gray-600 mb-4">
+                    创建话题订阅，实时监控感兴趣的内容
+                  </p>
+                  <Button onClick={() => setIsAddDialogOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    添加第一个订阅
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {subscriptions.map((subscription) => (
+                  <Card key={subscription.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Target className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">{subscription.name}</h3>
+                            <p className="text-sm text-gray-600">关键词: {subscription.keyword}</p>
+                            {subscription.description && (
+                              <p className="text-sm text-gray-500 mt-1">{subscription.description}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={subscription.isActive}
+                            onCheckedChange={(checked) => handleToggleSubscription(subscription.id, checked)}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleMonitorTopic(subscription)}
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            检查
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedSubscription(subscription);
+                              loadHeatTrends(subscription.keyword);
+                            }}
+                          >
+                            <BarChart className="w-4 h-4 mr-2" />
+                            趋势
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteSubscription(subscription.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">状态:</span>
+                          <Badge 
+                            variant={subscription.isActive ? "default" : "secondary"}
+                            className="ml-2"
+                          >
+                            {subscription.isActive ? (
+                              <>
+                                <Play className="w-3 h-3 mr-1" />
+                                监控中
+                              </>
+                            ) : (
+                              <>
+                                <Pause className="w-3 h-3 mr-1" />
+                                已暂停
+                              </>
+                            )}
+                          </Badge>
+                        </div>
+                        
+                        <div>
+                          <span className="text-gray-500">检查间隔:</span>
+                          <span className="ml-2 font-medium">{subscription.checkInterval}分钟</span>
+                        </div>
+                        
+                        <div>
+                          <span className="text-gray-500">搜索源:</span>
+                          <span className="ml-2 font-medium">{subscription.sources.length}个</span>
+                        </div>
+                        
+                        <div>
+                          <span className="text-gray-500">通知:</span>
+                          <Badge 
+                            variant={subscription.notificationEnabled ? "default" : "secondary"}
+                            className="ml-2"
+                          >
+                            {subscription.notificationEnabled ? "开启" : "关闭"}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* 监控结果 */}
+                      {monitorResults[subscription.id] && (
+                        <div className="mt-4 pt-4 border-t">
+                          <h4 className="font-medium text-gray-900 mb-2">
+                            最新监控结果 ({monitorResults[subscription.id].length} 条)
+                          </h4>
+                          <div className="space-y-2">
+                            {monitorResults[subscription.id].slice(0, 3).map((result) => (
+                              <div key={result.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">{result.title}</p>
+                                  <p className="text-xs text-gray-600">{result.platform} • 热度: {result.heat}</p>
+                                </div>
+                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                  <ExternalLink className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            
+            {/* 热度趋势图表 */}
+            {selectedSubscription && heatTrends[selectedSubscription.keyword] && (
+              <div className="mt-6">
+                <TopicHeatChart
+                  keyword={selectedSubscription.keyword}
+                  trends={heatTrends[selectedSubscription.keyword]}
+                  loading={loadingTrends[selectedSubscription.keyword]}
+                  onRefresh={() => loadHeatTrends(selectedSubscription.keyword)}
+                />
+              </div>
+            )}
+          </TabsContent>
+
+          {/* 通知中心标签页 */}
+          <TabsContent value="notifications">
+            <NotificationCenter />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
