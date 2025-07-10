@@ -1,4 +1,5 @@
 import { BrandAnalysisResult, ContentCheckResult } from '@/types/brand';
+import { callOpenAIProxy } from '@/api/apiProxy';
 // PDF 解析依赖
 import * as pdfjsLib from 'pdfjs-dist';
 // Word 文档解析
@@ -18,19 +19,16 @@ if (typeof window !== 'undefined') {
   }
 }
 
-/**
- * AI 分析服务
- * @description 处理品牌资料的 AI 分析，使用 GPT-4 模型
- */
-class AIAnalysisService {
-  private static instance: AIAnalysisService;
-  private apiEndpoint: string;
-  private apiKey: string;
+  /**
+   * AI 分析服务
+   * @description 处理品牌资料的 AI 分析，使用 GPT-4o 模型
+   */
+  class AIAnalysisService {
+    private static instance: AIAnalysisService;
 
-  private constructor() {
-    this.apiEndpoint = import.meta.env.VITE_AI_API_ENDPOINT || '';
-    this.apiKey = import.meta.env.VITE_AI_API_KEY || '';
-  }
+    private constructor() {
+      // 使用API代理，不需要直接配置API密钥
+    }
 
   /**
    * 获取服务实例（单例模式）
@@ -110,35 +108,22 @@ ${content}
 `;
 
     try {
-      const response = await fetch(this.apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
+      const response = await callOpenAIProxy([
+        {
+          role: 'system',
+          content: '你是一名专业的品牌策略分析专家，擅长提取品牌特征和调性。请严格按照JSON格式返回分析结果。'
         },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system',
-              content: '你是一名专业的品牌策略分析专家，擅长提取品牌特征和调性。'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000
-        })
-      });
+        {
+          role: 'user',
+          content: prompt
+        }
+      ], 'gpt-4o', 0.3, 2000);
 
-      if (!response.ok) {
-        throw new Error('AI 服务请求失败');
+      if (!response.success) {
+        throw new Error(response.error || 'AI 服务请求失败');
       }
 
-      const data = await response.json();
-      const result = JSON.parse(data.choices[0].message.content);
+      const result = JSON.parse(response.data.choices[0].message.content);
 
       return {
         keywords: result.keywords,
@@ -215,35 +200,22 @@ ${content}
 `;
 
     try {
-      const response = await fetch(this.apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
+      const response = await callOpenAIProxy([
+        {
+          role: 'system',
+          content: '你是一名专业的品牌语气检查专家，擅长评估内容是否符合品牌调性。请严格按照JSON格式返回分析结果。'
         },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system',
-              content: '你是一名专业的品牌语气检查专家，擅长评估内容是否符合品牌调性。'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000
-        })
-      });
+        {
+          role: 'user',
+          content: prompt
+        }
+      ], 'gpt-4o', 0.3, 2000);
 
-      if (!response.ok) {
-        throw new Error('AI 服务请求失败');
+      if (!response.success) {
+        throw new Error(response.error || 'AI 服务请求失败');
       }
 
-      const data = await response.json();
-      return JSON.parse(data.choices[0].message.content);
+      return JSON.parse(response.data.choices[0].message.content);
     } catch (error) {
       console.error('内容检查失败:', error);
       throw new Error('内容检查失败');

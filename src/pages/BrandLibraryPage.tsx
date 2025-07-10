@@ -385,31 +385,17 @@ export default function BrandLibraryPage() {
           : a
       ));
 
-      // 模拟AI处理时间
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // 调用真正的AI分析服务
+      const aiService = AIAnalysisService.getInstance();
       
-      // 根据文件类型生成有意义的分析结果
-      let extractedContent = '';
-      let extractedKeywords: string[] = [];
+      // 直接使用内容进行分析，不需要创建文件对象
       
-      const fileName = asset.name.toLowerCase();
+      // 调用AI分析
+      const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
       
-      if (fileName.includes('手册') || fileName.includes('guide')) {
-        extractedContent = `品牌手册分析结果：\n\n1. 品牌定位：专业、可靠、创新\n2. 核心价值：用户至上、品质保证、持续创新\n3. 视觉识别：简洁现代的设计风格，蓝色为主色调\n4. 品牌规范：统一的视觉元素和语言风格`;
-        extractedKeywords = ['品牌定位', '核心价值', '视觉识别', '品牌规范', '专业可靠', '用户至上'];
-      } else if (fileName.includes('产品') || fileName.includes('product')) {
-        extractedContent = `产品介绍分析结果：\n\n1. 产品特色：智能化、易用性、高性能\n2. 功能优势：一键操作、智能识别、云端同步\n3. 技术特点：AI算法、大数据分析、云计算\n4. 用户体验：界面友好、响应迅速、功能完善`;
-        extractedKeywords = ['产品特色', '功能优势', '技术领先', '用户体验', '智能化', '易用性'];
-      } else if (fileName.includes('营销') || fileName.includes('marketing')) {
-        extractedContent = `营销素材分析结果：\n\n1. 营销策略：精准定位、多渠道推广、内容营销\n2. 推广方案：社交媒体、KOL合作、线下活动\n3. 市场定位：中高端市场、年轻用户群体\n4. 竞争优势：技术领先、服务优质、品牌影响力`;
-        extractedKeywords = ['营销策略', '推广方案', '市场定位', '竞争优势', '精准定位', '内容营销'];
-      } else if (fileName.includes('企业') || fileName.includes('company')) {
-        extractedContent = `企业介绍分析结果：\n\n1. 企业文化：开放包容、追求卓越、团队协作\n2. 发展历程：从初创到行业领先的成长轨迹\n3. 团队实力：专业团队、丰富经验、创新能力\n4. 社会责任：环保理念、公益事业、可持续发展`;
-        extractedKeywords = ['企业文化', '发展历程', '团队实力', '社会责任', '开放包容', '追求卓越'];
-      } else {
-        extractedContent = `品牌资料分析结果：\n\n1. 品牌理念：以用户为中心，创造价值\n2. 核心价值观：诚信、创新、专业、服务\n3. 目标受众：追求品质生活的现代人群\n4. 品牌愿景：成为行业领先的创新企业`;
-        extractedKeywords = ['品牌理念', '核心价值观', '目标受众', '品牌愿景', '用户中心', '创造价值'];
-      }
+      // 构建分析结果
+      const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.keywords.join('、')}\n2. 品牌语气特征：${analysisResult.tone}\n3. 内容建议：${analysisResult.suggestions.join('、')}`;
+      const extractedKeywords = analysisResult.keywords;
 
       // 更新资产数据
       setBrandAssets(prev => prev.map(a => 
@@ -441,7 +427,7 @@ export default function BrandLibraryPage() {
       
       toast({
         title: "AI分析失败",
-        description: "请稍后重试",
+        description: error instanceof Error ? error.message : "请稍后重试",
         variant: "destructive"
       });
     } finally {
@@ -465,19 +451,70 @@ export default function BrandLibraryPage() {
     setIsProcessing(true);
     setProcessingProgress(0);
 
-    for (let i = 0; i < unprocessedAssets.length; i++) {
-      const asset = unprocessedAssets[i];
-      await handleAnalyzeSingleAsset(asset);
-      setProcessingProgress(((i + 1) / unprocessedAssets.length) * 100);
+    try {
+      const aiService = AIAnalysisService.getInstance();
+      
+      for (let i = 0; i < unprocessedAssets.length; i++) {
+        const asset = unprocessedAssets[i];
+        
+        // 更新处理状态
+        setBrandAssets(prev => prev.map(a => 
+          a.id === asset.id 
+            ? { ...a, processingStatus: 'processing' as const }
+            : a
+        ));
+
+        try {
+          // 调用AI分析
+          const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
+          
+          // 构建分析结果
+          const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.keywords.join('、')}\n2. 品牌语气特征：${analysisResult.tone}\n3. 内容建议：${analysisResult.suggestions.join('、')}`;
+          const extractedKeywords = analysisResult.keywords;
+
+          // 更新资产数据
+          setBrandAssets(prev => prev.map(a => 
+            a.id === asset.id 
+              ? { 
+                  ...a, 
+                  content: extractedContent,
+                  extractedKeywords: extractedKeywords,
+                  processingStatus: 'completed' as const
+                }
+              : a
+          ));
+
+          // 自动补充语料库维度
+          updateBrandDimensions(extractedKeywords, extractedContent);
+
+        } catch (error) {
+          console.error(`分析 ${asset.name} 失败:`, error);
+          setBrandAssets(prev => prev.map(a => 
+            a.id === asset.id 
+              ? { ...a, processingStatus: 'failed' as const }
+              : a
+          ));
+        }
+
+        setProcessingProgress(((i + 1) / unprocessedAssets.length) * 100);
+      }
+
+      toast({
+        title: "批量AI分析完成",
+        description: "已自动分析所有品牌资料并补充语料库",
+      });
+
+    } catch (error) {
+      console.error('批量AI分析失败:', error);
+      toast({
+        title: "批量AI分析失败",
+        description: error instanceof Error ? error.message : "请稍后重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+      setProcessingProgress(0);
     }
-
-    setIsProcessing(false);
-    setProcessingProgress(0);
-
-    toast({
-      title: "批量AI分析完成",
-      description: "已自动分析所有品牌资料并补充语料库",
-    });
   };
 
   /**
@@ -725,21 +762,6 @@ export default function BrandLibraryPage() {
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
         showAdaptButton={false}
-        actions={
-          <>
-            <Button 
-              onClick={handleProcessAssets}
-              disabled={isProcessing || brandAssets.length === 0}
-            >
-              <Brain className="h-4 w-4 mr-2" />
-              {isProcessing ? 'AI分析中...' : 'AI分析'}
-            </Button>
-            <Button onClick={saveBrandDimensions}>
-              <Save className="h-4 w-4 mr-2" />
-              保存语料库
-            </Button>
-          </>
-        }
       />
 
       <div className="container mx-auto py-6 px-4 max-w-7xl">
@@ -799,6 +821,12 @@ export default function BrandLibraryPage() {
 
           {/* 品牌语料库维度 */}
           <TabsContent value="dimensions" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <Button onClick={saveBrandDimensions}>
+                <Save className="h-4 w-4 mr-2" />
+                保存语料库
+              </Button>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 基础信息 */}
               <Card>
@@ -910,8 +938,8 @@ export default function BrandLibraryPage() {
                 <CardDescription>管理上传的品牌资料文件</CardDescription>
               </CardHeader>
               <CardContent>
-                {/* 上传按钮 */}
-                <div className="mb-4">
+                {/* 上传和AI分析按钮 */}
+                <div className="flex gap-2 mb-4">
                   <Button 
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
@@ -919,6 +947,13 @@ export default function BrandLibraryPage() {
                   >
                     <Upload className="h-4 w-4 mr-2" />
                     {isUploading ? '上传中...' : '上传资料'}
+                  </Button>
+                  <Button 
+                    onClick={handleProcessAssets}
+                    disabled={isProcessing || brandAssets.length === 0}
+                  >
+                    <Brain className="h-4 w-4 mr-2" />
+                    {isProcessing ? 'AI分析中...' : '批量AI分析'}
                   </Button>
                 </div>
                 
