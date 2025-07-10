@@ -525,7 +525,7 @@ async function checkGeminiStatus(headers) {
   }
 }
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   // 设置CORS头
   const headers = {
     'Access-Control-Allow-Origin': '*',
