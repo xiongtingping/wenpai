@@ -330,7 +330,7 @@ ${content}
    * 读取文件内容
    * @param file 文件对象
    */
-  private async readFileContent(file: File): Promise<string> {
+  public async readFileContent(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async (e) => {

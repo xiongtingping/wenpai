@@ -315,22 +315,53 @@ export default function BrandLibraryPage() {
         category = '品牌故事';
       }
       
-      // 创建资产对象
-      const asset: BrandAsset = {
-        id: `asset-${Date.now()}-${i}`,
-        name: file.name,
-        type: 'document',
-        content: '',
-        uploadDate: new Date(),
-        fileIcon,
-        description: '',
-        category: category,
-        processingStatus: 'pending'
-      };
+      try {
+        // 读取文件内容
+        const aiService = AIAnalysisService.getInstance();
+        let fileContent = '';
+        
+        if (aiService.isFileTypeSupported(file)) {
+          fileContent = await aiService.readFileContent(file);
+          console.log(`文件 ${file.name} 内容长度:`, fileContent.length);
+        } else {
+          fileContent = `不支持的文件类型: ${file.type}`;
+        }
+        
+        // 创建资产对象
+        const asset: BrandAsset = {
+          id: `asset-${Date.now()}-${i}`,
+          name: file.name,
+          type: 'document',
+          content: fileContent,
+          uploadDate: new Date(),
+          fileIcon,
+          description: '',
+          category: category,
+          processingStatus: 'pending'
+        };
+        
+        newAssets.push(asset);
+        
+      } catch (error) {
+        console.error(`读取文件 ${file.name} 失败:`, error);
+        
+        // 创建资产对象（内容为空）
+        const asset: BrandAsset = {
+          id: `asset-${Date.now()}-${i}`,
+          name: file.name,
+          type: 'document',
+          content: `文件读取失败: ${error instanceof Error ? error.message : '未知错误'}`,
+          uploadDate: new Date(),
+          fileIcon,
+          description: '',
+          category: category,
+          processingStatus: 'failed'
+        };
+        
+        newAssets.push(asset);
+      }
       
-      newAssets.push(asset);
-      
-      // 模拟上传进度
+      // 更新上传进度
       setUploadProgress(((i + 1) / files.length) * 100);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
