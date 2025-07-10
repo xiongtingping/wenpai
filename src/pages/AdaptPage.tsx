@@ -1548,7 +1548,7 @@ export default function AdaptPage() {
             onChange={(e) => setOriginalContent(e.target.value)}
           />
           <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
               <Checkbox 
                 id="use-brand-library" 
                 checked={useBrandLibrary}
@@ -1569,17 +1569,17 @@ export default function AdaptPage() {
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center">
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowAdvancedSettings(prev => !prev)}
-                className="text-xs"
+                className="text-xs rounded-lg shadow-sm border border-blue-200"
               >
                 适配设置
                 {showAdvancedSettings ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />}
               </Button>
-              <Badge variant="outline">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                 {contentCharCount} 字符
               </Badge>
             </div>
@@ -1588,53 +1588,53 @@ export default function AdaptPage() {
           {/* Advanced Options */}
           {showAdvancedSettings && (
             <div className="mt-3 border-t pt-3">
-              <div className="flex flex-col items-center space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Label className="text-xs w-32 flex-shrink-0">全局字符数限制</Label>
-                  <Select 
-                    value={globalSettings.charCountPreset}
-                    onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
+              <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center w-full max-w-2xl mx-auto">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-4 w-full">
+                  <div className="flex items-center space-x-2">
+                    <Label className="text-xs w-32 flex-shrink-0">全局字符数限制</Label>
+                    <Select 
+                      value={globalSettings.charCountPreset}
+                      onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
+                    >
+                      <SelectTrigger className="h-8 w-48">
+                        <SelectValue placeholder="选择字符数限制" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">根据平台自动设置</SelectItem>
+                        <SelectItem value="mini">精简版 (50-200字)</SelectItem>
+                        <SelectItem value="standard">标准版 (200-800字)</SelectItem>
+                        <SelectItem value="detailed">详细版 (800以上)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Label className="text-xs w-32 flex-shrink-0">全局启用表情符号</Label>
+                    <Checkbox 
+                      id="global-emoji" 
+                      checked={globalSettings.globalEmoji}
+                      onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Label className="text-xs w-32 flex-shrink-0">全局启用Markdown格式</Label>
+                    <Checkbox 
+                      id="global-md"
+                      checked={globalSettings.globalMd}
+                      onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-center mt-4 w-full">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={saveSettings}
+                    className="flex items-center h-8"
                   >
-                    <SelectTrigger className="h-8 w-48">
-                      <SelectValue placeholder="选择字符数限制" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="auto">根据平台自动设置</SelectItem>
-                      <SelectItem value="mini">精简版 (50-200字)</SelectItem>
-                      <SelectItem value="standard">标准版 (200-800字)</SelectItem>
-                      <SelectItem value="detailed">详细版 (800以上)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <Save className="h-3 w-3 mr-1" />
+                    保存设置
+                  </Button>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Label className="text-xs w-32 flex-shrink-0">全局启用表情符号</Label>
-                  <Checkbox 
-                    id="global-emoji" 
-                    checked={globalSettings.globalEmoji}
-                    onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Label className="text-xs w-32 flex-shrink-0">全局启用Markdown格式</Label>
-                  <Checkbox 
-                    id="global-md"
-                    checked={globalSettings.globalMd}
-                    onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-center mt-3">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={saveSettings}
-                  className="flex items-center h-8"
-                >
-                  <Save className="h-3 w-3 mr-1" />
-                  保存设置
-                </Button>
               </div>
             </div>
           )}

@@ -21,7 +21,7 @@ const HelpDocumentation = () => {
     },
     {
       title: "全网雷达",
-      content: "实时获取各平台热门话题和趋势，为您的创作提供灵感和方向。"
+      content: "全网雷达"
     },
     {
       title: "我的资料库",
@@ -37,7 +37,7 @@ const HelpDocumentation = () => {
     },
     {
       title: "品牌库",
-      content: "上传品牌资料，AI自动学习品牌调性，确保跨平台传播时品牌声音一致。"
+      content: "品牌库"
     },
     {
       title: "一键转发",

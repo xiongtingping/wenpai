@@ -216,7 +216,7 @@ export default function ProfilePage() {
                 <NicknameSelector currentNickname={editForm.nickname} onNicknameChange={handleNicknameChange} disabled={false} />
               </div>
               {/* 右侧：联系方式 */}
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {/* 手机号 */}
                 <div>
                   <Label className="font-semibold text-gray-800 flex items-center gap-2"><Phone className="w-4 h-4 text-blue-600" />手机号码</Label>
@@ -237,10 +237,12 @@ export default function ProfilePage() {
                       <Button variant="outline" size="sm" onClick={() => sendVerificationCode('email', editForm.email)} disabled={countdown > 0} className="border-purple-300 text-purple-600 hover:bg-purple-50 min-w-[90px]">{countdown > 0 ? `${countdown}s` : '发送验证码'}</Button>
                     )}
                   </div>
-                  <div className="flex gap-1 mt-1">
-                    {editForm.email && <Badge className="bg-green-100 text-green-700 text-xs">已验证</Badge>}
-                    {!user?.email && <Badge className="bg-amber-100 text-amber-700 text-xs">首次验证奖励</Badge>}
-                  </div>
+                  {(editForm.email || !user?.email) && (
+                    <div className="flex gap-1 mt-1">
+                      {editForm.email && <Badge className="bg-green-100 text-green-700 text-xs">已验证</Badge>}
+                      {!user?.email && <Badge className="bg-amber-100 text-amber-700 text-xs">首次验证奖励</Badge>}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
