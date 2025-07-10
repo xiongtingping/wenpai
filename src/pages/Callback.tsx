@@ -16,7 +16,7 @@ import { getAuthingConfig } from '@/config/authing';
 const Callback: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { checkAuth } = useAuth();
+  const { login } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('正在处理认证回调...');
 
@@ -111,7 +111,7 @@ const Callback: React.FC = () => {
     };
 
     handleCallback();
-  }, [searchParams, checkAuth, navigate]);
+  }, [searchParams, login, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

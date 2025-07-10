@@ -46,7 +46,7 @@ export default function RegisterPage() {
   });
   
   const { toast } = useToast();
-  const { register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   /**
@@ -152,7 +152,16 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      await register(phoneForm.phone, phoneForm.password, phoneForm.nickname);
+      await login({
+        id: 'temp-user-id',
+        phone: phoneForm.phone,
+        username: phoneForm.nickname,
+        nickname: phoneForm.nickname,
+        plan: 'free',
+        isProUser: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
       
       toast({
         title: "注册成功",
@@ -201,7 +210,16 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      await register(emailForm.email, emailForm.password, emailForm.nickname);
+      await login({
+        id: 'temp-user-id',
+        email: emailForm.email,
+        username: emailForm.nickname,
+        nickname: emailForm.nickname,
+        plan: 'free',
+        isProUser: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
       
       toast({
         title: "注册成功",

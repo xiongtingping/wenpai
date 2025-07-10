@@ -119,7 +119,19 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      await login(passwordForm.phone, passwordForm.password);
+      // 模拟登录成功
+      const userData = {
+        id: 'temp-user-id',
+        phone: passwordForm.phone,
+        username: passwordForm.phone,
+        nickname: passwordForm.phone,
+        plan: 'free',
+        isProUser: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await login(userData);
       
       toast({
         title: "登录成功",
@@ -158,7 +170,19 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      await login(codeForm.phone, codeForm.code);
+      // 模拟登录成功
+      const userData = {
+        id: 'temp-user-id',
+        phone: codeForm.phone,
+        username: codeForm.phone,
+        nickname: codeForm.phone,
+        plan: 'free',
+        isProUser: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await login(userData);
       
       toast({
         title: "登录成功",

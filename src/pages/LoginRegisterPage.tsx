@@ -21,7 +21,7 @@ export default function LoginRegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const { setUser } = useAuth();
+  const { login } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -114,7 +114,7 @@ export default function LoginRegisterPage() {
         ...((authingUser as unknown) as Record<string, unknown>)
       };
       
-      setUser(convertedUser);
+      login(convertedUser);
       toast({ title: "登录成功", description: "欢迎回来！" });
       setTimeout(() => navigate('/'), 800);
     } catch (error: any) {
@@ -153,7 +153,7 @@ export default function LoginRegisterPage() {
         avatar: String(authingUser.photo || ''),
         ...((authingUser as unknown) as Record<string, unknown>)
       };
-      setUser(convertedUser);
+      login(convertedUser);
       toast({ title: "注册成功", description: "请前往邮箱设置初始密码或通过找回密码功能设置密码。" });
       setTimeout(() => navigate('/'), 1200);
     } catch (error: any) {

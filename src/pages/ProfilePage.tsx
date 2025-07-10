@@ -23,7 +23,7 @@ import { UsageStats } from '@/types/subscription';
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { user, isAuthenticated, logout, setUser } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { usageRemaining, userInviteStats } = useUserStore();
   const navigate = useNavigate();
 
@@ -71,10 +71,10 @@ export default function ProfilePage() {
         avatar: editForm.avatar,
         updatedAt: new Date().toISOString(),
       };
-      setUser(updatedUser);
+      // setUser(updatedUser); // This line was removed as per the edit hint
       localStorage.setItem('authing_user', JSON.stringify(updatedUser));
     }
-  }, [editForm.nickname, editForm.avatar, user, setUser]);
+  }, [editForm.nickname, editForm.avatar, user]); // Removed setUser from dependency array
 
   if (!isAuthenticated || !user) {
     navigate('/login');
@@ -159,7 +159,7 @@ export default function ProfilePage() {
   const handleSaveField = async (field: string, value: string) => {
     try {
       const updatedUser = { ...user, [field]: value, updatedAt: new Date().toISOString() };
-      setUser(updatedUser);
+      // setUser(updatedUser); // This line was removed as per the edit hint
       localStorage.setItem('authing_user', JSON.stringify(updatedUser));
       setHasChanges(false);
       toast({ title: "保存成功", description: "个人信息已更新" });
@@ -172,7 +172,7 @@ export default function ProfilePage() {
     setIsSaving(true);
     try {
       const updatedUser = { ...user, ...editForm, updatedAt: new Date().toISOString() };
-      setUser(updatedUser);
+      // setUser(updatedUser); // This line was removed as per the edit hint
       localStorage.setItem('authing_user', JSON.stringify(updatedUser));
       setHasChanges(false);
       toast({ title: "保存成功", description: "个人信息已更新" });

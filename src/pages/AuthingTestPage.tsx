@@ -23,7 +23,7 @@ import { getAuthingConfig } from "@/config/authing";
  */
 export default function AuthingTestPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isAuthenticated, logout, setUser } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -69,7 +69,7 @@ export default function AuthingTestPage() {
         ...((authingUser as unknown) as Record<string, unknown>)
       };
       
-      setUser(convertedUser);
+      // setUser(convertedUser); // This line was removed as per the edit hint
       toast({
         title: "登录成功",
         description: `用户: ${convertedUser.nickname || convertedUser.username || convertedUser.email}`,
@@ -105,7 +105,7 @@ export default function AuthingTestPage() {
         ...((authingUser as unknown) as Record<string, unknown>)
       };
       
-      setUser(convertedUser);
+      // setUser(convertedUser); // This line was removed as per the edit hint
       toast({
         title: "登录成功",
         description: `用户: ${convertedUser.nickname || convertedUser.username || convertedUser.phone}`,
@@ -148,7 +148,7 @@ export default function AuthingTestPage() {
         ...((authingUser as unknown) as Record<string, unknown>)
       };
       
-      setUser(convertedUser);
+      // setUser(convertedUser); // This line was removed as per the edit hint
       toast({
         title: "注册成功",
         description: `用户: ${convertedUser.nickname || convertedUser.username || convertedUser.email}`,

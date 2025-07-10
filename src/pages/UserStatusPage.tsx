@@ -9,12 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function UserStatusPage() {
-  const { 
-    user, 
-    error, 
-    isLoading, 
-    isAuthenticated, 
-    checkAuth
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    error,
+    login,
+    logout,
+    updateUser,
   } = useAuth();
 
   useEffect(() => {
@@ -26,13 +28,13 @@ export default function UserStatusPage() {
 
   const handleRefreshAuth = async () => {
     console.log('Manual refresh auth called');
-    await checkAuth();
+    // await checkAuth(); // This line is removed as per the edit hint.
   };
 
   const handleGetCurrentUser = async () => {
     try {
       console.log('Calling checkAuth...');
-      await checkAuth();
+      // await checkAuth(); // This line is removed as per the edit hint.
       console.log('checkAuth completed');
     } catch (error) {
       console.error('checkAuth error:', error);
@@ -76,13 +78,13 @@ export default function UserStatusPage() {
             <Button onClick={handleGetCurrentUser} variant="outline">
               测试 checkAuth
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 localStorage.removeItem('authing_user');
                 localStorage.removeItem('authing_code');
                 localStorage.removeItem('authing_state');
                 window.location.reload();
-              }} 
+              }}
               variant="destructive"
             >
               清除存储并刷新

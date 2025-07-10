@@ -4,19 +4,29 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AuthTestPage() {
-  const { 
-    user, 
-    isAuthenticated, 
-    isLoading, 
-    error, 
-    showLogin, 
-    logout
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    error,
+    login,
+    logout,
+    updateUser,
   } = useAuth();
 
   const handleShowLogin = async () => {
     console.log('AuthTestPage: showLogin called');
     try {
-      await showLogin();
+      await login({
+        id: 'test-user-id',
+        username: 'testuser',
+        email: 'test@example.com',
+        nickname: '测试用户',
+        plan: 'free',
+        isProUser: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
     } catch (error) {
       console.error('AuthTestPage: showLogin failed:', error);
     }
@@ -54,8 +64,8 @@ export default function AuthTestPage() {
           )}
 
           <div className="flex space-x-4">
-            <Button 
-              onClick={handleShowLogin} 
+            <Button
+              onClick={handleShowLogin}
             >
               显示登录窗口
             </Button>

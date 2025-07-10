@@ -1,6 +1,6 @@
 import React from 'react';
 import { THEMES, useTheme, Theme } from '@/hooks/useTheme';
-import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from './button';
 import { Badge } from './badge';
 
@@ -10,9 +10,19 @@ import { Badge } from './badge';
  */
 export const ThemeSwitcher: React.FC = () => {
   const { theme, switchTheme, themes, themeNames } = useTheme();
-  const { user } = useAuth();
-  const plan = (user as any)?.plan;
-  const isPro = plan === 'pro' || plan === 'premium' || (user as any)?.isProUser;
+  const { hasRole, loading } = usePermissions();
+  
+  // 检查是否有专业/高级用户角色
+  const isPro = hasRole('premium') || hasRole('pro') || hasRole('admin');
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        <span className="text-sm text-gray-500">加载中...</span>
+      </div>
+    );
+  }
 
   if (!isPro) {
     return (
@@ -28,7 +38,7 @@ export const ThemeSwitcher: React.FC = () => {
           size="sm"
           variant={theme === t ? 'default' : 'outline'}
           onClick={() => switchTheme(t)}
-          className={theme === t ? 'font-bold' : ''}
+          className="min-w-[60px]"
         >
           {themeNames[t]}
         </Button>

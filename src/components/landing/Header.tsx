@@ -6,7 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useAuth } from "@/contexts/AuthContext"
-import UserAvatar from "@/components/auth/UserAvatar"
+import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 
 const HelpDocumentation = () => {
@@ -136,10 +136,9 @@ export function Header() {
             
             {isAuthenticated ? (
               <UserAvatar 
-                user={user}
-                showDropdown={true}
+                user={user} 
+                showDropdown={true} 
                 size="md"
-                showUsername={false}
               />
             ) : (
               <div className="flex items-center space-x-2">
@@ -196,10 +195,9 @@ export function Header() {
                 
                 {isAuthenticated ? (
                   <UserAvatar 
-                    user={user}
-                    showDropdown={true}
+                    user={user} 
+                    showDropdown={true} 
                     size="md"
-                    showUsername={true}
                   />
                 ) : (
                   <div className="flex flex-col space-y-2">

@@ -237,7 +237,7 @@ class AuthingService {
   /**
    * 获取用户角色
    */
-  async getUserRoles(): Promise<string[]> {
+  async getUserRoles(): Promise<any[]> {
     try {
       const guard = this.initGuard();
       const userInfo = await guard.trackSession();

@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthing } from './useAuthing';
+import authingService from '@/services/authingService';
 
 /**
  * 权限类型定义
@@ -14,11 +15,14 @@ export interface Permission {
   action: string;
 }
 
+/**
+ * 角色类型定义
+ */
 export interface Role {
   id: string;
   name: string;
   code: string;
-  description?: string;
+  description: string;
 }
 
 /**
@@ -70,27 +74,6 @@ interface UsePermissionsReturn extends PermissionState {
 }
 
 /**
- * 默认权限配置
- * 可以根据实际需求调整
- */
-const DEFAULT_PERMISSIONS: Permission[] = [
-  { resource: 'content', action: 'read' },
-  { resource: 'content', action: 'create' },
-  { resource: 'content', action: 'update' },
-  { resource: 'content', action: 'delete' },
-  { resource: 'user', action: 'read' },
-  { resource: 'user', action: 'update' },
-  { resource: 'payment', action: 'read' },
-  { resource: 'payment', action: 'create' },
-];
-
-const DEFAULT_ROLES: Role[] = [
-  { id: '1', name: '普通用户', code: 'user', description: '基础功能用户' },
-  { id: '2', name: '高级用户', code: 'premium', description: '高级功能用户' },
-  { id: '3', name: '管理员', code: 'admin', description: '系统管理员' },
-];
-
-/**
  * 权限管理 Hook
  * @returns UsePermissionsReturn
  */
@@ -120,14 +103,29 @@ export function usePermissions(): UsePermissionsReturn {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      // 这里可以根据实际的 Authing 配置来获取用户权限
-      // 目前使用模拟数据
-      const userRoles = DEFAULT_ROLES.slice(0, 2); // 模拟用户有前两个角色
-      const userPermissions = DEFAULT_PERMISSIONS.slice(0, 6); // 模拟用户有前6个权限
+      // 调用真实API获取用户权限和角色
+      const [permissions, roles] = await Promise.all([
+        authingService.getUserPermissions(),
+        authingService.getUserRoles()
+      ]);
+
+      // 转换权限格式
+      const formattedPermissions: Permission[] = permissions.map((perm: string) => {
+        const [resource, action] = perm.split(':');
+        return { resource, action };
+      });
+
+      // 转换角色格式
+      const formattedRoles: Role[] = roles.map((role: any) => ({
+        id: role.id || role.code,
+        name: role.name || role.displayName,
+        code: role.code,
+        description: role.description || ''
+      }));
 
       setState({
-        roles: userRoles,
-        permissions: userPermissions,
+        roles: formattedRoles,
+        permissions: formattedPermissions,
         loading: false,
         error: null,
       });

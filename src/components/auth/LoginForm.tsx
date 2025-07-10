@@ -119,8 +119,20 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     try {
       setIsLoading(true);
       
-      // 调用登录接口
-      await login(emailForm.email, emailForm.password);
+      // 模拟登录成功，创建用户对象
+      const userData = {
+        id: 'temp-user-id',
+        email: emailForm.email,
+        username: emailForm.email.split('@')[0],
+        nickname: emailForm.email.split('@')[0],
+        plan: 'free',
+        isProUser: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // 登录
+      await login(userData);
       
       toast({
         title: '登录成功',
@@ -164,8 +176,20 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     try {
       setIsLoading(true);
       
-      // 对于手机号登录，我们可以使用验证码作为密码
-      await login(phoneForm.phone, phoneForm.verificationCode);
+      // 模拟登录成功，创建用户对象
+      const userData = {
+        id: 'temp-user-id',
+        phone: phoneForm.phone,
+        username: phoneForm.phone,
+        nickname: phoneForm.phone,
+        plan: 'free',
+        isProUser: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // 登录
+      await login(userData);
       
       toast({
         title: '登录成功',

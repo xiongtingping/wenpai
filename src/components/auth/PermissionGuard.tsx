@@ -6,6 +6,7 @@
 import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 
 /**
  * 权限守卫属性
@@ -34,6 +35,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   children,
   requiredPermissions = [],
   requiredRoles = [],
+  redirectTo,
   loadingComponent = (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
@@ -58,10 +60,16 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   ),
 }) => {
   const location = useLocation();
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { 
+    loading: permissionLoading, 
+    hasAllPermissions, 
+    hasAllRoles,
+    checkPermissions 
+  } = usePermissions();
 
-  // 如果正在加载，显示加载组件
-  if (isLoading) {
+  // 如果正在加载认证或权限信息，显示加载组件
+  if (authLoading || permissionLoading) {
     return <>{loadingComponent}</>;
   }
 
@@ -81,13 +89,20 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
     return <>{children}</>;
   }
 
-  // 简化权限检查：暂时跳过复杂的权限验证
-  // TODO: 实现完整的权限检查逻辑
-  const hasRequiredPermissions = true; // 临时设置为true
-  const hasRequiredRoles = true; // 临时设置为true
+  // 进行真实的权限检查
+  const permissionResult = checkPermissions(
+    requiredPermissions.map(p => {
+      const [resource, action] = p.split(':');
+      return { resource, action };
+    }),
+    requiredRoles
+  );
 
-  // 如果权限不足，显示无权限组件
-  if (!hasRequiredPermissions || !hasRequiredRoles) {
+  // 如果权限不足，显示无权限组件或重定向
+  if (!permissionResult.hasPermission) {
+    if (redirectTo) {
+      return <Navigate to={redirectTo} replace />;
+    }
     return <>{noPermissionComponent}</>;
   }
 
