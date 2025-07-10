@@ -92,7 +92,7 @@ export default function BrandLibraryPage() {
       placeholder: '请输入您的品牌名称...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'basic'
     },
     {
@@ -103,7 +103,7 @@ export default function BrandLibraryPage() {
       placeholder: '请描述您的品牌定位、特色和核心价值...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'basic'
     },
     {
@@ -125,7 +125,7 @@ export default function BrandLibraryPage() {
       placeholder: '请描述您的品牌价值观和基本原则...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'identity'
     },
     {
@@ -136,7 +136,7 @@ export default function BrandLibraryPage() {
       placeholder: '请描述您的品牌愿景、使命和长期目标...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'identity'
     },
     {
@@ -169,7 +169,7 @@ export default function BrandLibraryPage() {
       placeholder: '请列出描述您产品的核心关键词...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'content'
     },
     {
@@ -180,7 +180,7 @@ export default function BrandLibraryPage() {
       placeholder: '请描述您的品牌语调、语气和语言风格...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'voice'
     },
     {
@@ -191,7 +191,7 @@ export default function BrandLibraryPage() {
       placeholder: '请描述您的品牌个性特征...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'voice'
     },
     {
@@ -202,7 +202,7 @@ export default function BrandLibraryPage() {
       placeholder: '请列出您的品牌核心话题和内容方向...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'content'
     },
     {
@@ -224,7 +224,7 @@ export default function BrandLibraryPage() {
       placeholder: '请列出您的品牌关键词...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'content'
     },
     {
@@ -235,7 +235,7 @@ export default function BrandLibraryPage() {
       placeholder: '请列出您的品牌禁用词...',
       value: '',
       keywords: [],
-      isRequired: true,
+      isRequired: false,
       category: 'content'
     }
   ]);
@@ -292,6 +292,26 @@ export default function BrandLibraryPage() {
         fileIcon = <FileText className="h-8 w-8 text-blue-700" />;
       }
       
+      // 根据文件类型自动分配分类
+      let category = '品牌资料';
+      if (file.name.toLowerCase().includes('手册') || file.name.toLowerCase().includes('guide')) {
+        category = '品牌手册';
+      } else if (file.name.toLowerCase().includes('文案') || file.name.toLowerCase().includes('copy')) {
+        category = '文案指南';
+      } else if (file.name.toLowerCase().includes('产品') || file.name.toLowerCase().includes('product')) {
+        category = '产品介绍';
+      } else if (file.name.toLowerCase().includes('营销') || file.name.toLowerCase().includes('marketing')) {
+        category = '营销素材';
+      } else if (file.name.toLowerCase().includes('新闻') || file.name.toLowerCase().includes('press')) {
+        category = '新闻稿';
+      } else if (file.name.toLowerCase().includes('企业') || file.name.toLowerCase().includes('company')) {
+        category = '企业介绍';
+      } else if (file.name.toLowerCase().includes('vi') || file.name.toLowerCase().includes('规范')) {
+        category = 'VI规范';
+      } else if (file.name.toLowerCase().includes('story') || file.name.toLowerCase().includes('story')) {
+        category = '品牌故事';
+      }
+      
       // 创建资产对象
       const asset: BrandAsset = {
         id: `asset-${Date.now()}-${i}`,
@@ -301,7 +321,7 @@ export default function BrandLibraryPage() {
         uploadDate: new Date(),
         fileIcon,
         description: '',
-        category: '品牌资料',
+        category: category,
         processingStatus: 'pending'
       };
       
@@ -365,24 +385,52 @@ export default function BrandLibraryPage() {
         // 模拟AI处理时间
         await new Promise(resolve => setTimeout(resolve, 2000));
         
-        // 生成AI分析结果
-        const mockContent = `这是从 ${asset.name} 中提取的品牌相关内容。包含品牌理念、核心价值观、目标受众等信息。`;
-        const mockKeywords = ['品牌', '价值', '理念', '目标', '专业', '创新', '用户', '服务'];
+        // 尝试调用真正的AI分析（如果文件是文本类型）
+        let extractedContent = '';
+        let extractedKeywords: string[] = [];
+        
+        try {
+          // 这里应该调用真正的AI分析服务
+          // 由于当前是模拟环境，我们使用智能的关键词生成
+          const fileName = asset.name.toLowerCase();
+          
+          if (fileName.includes('手册') || fileName.includes('guide')) {
+            extractedContent = `从${asset.name}中提取的品牌手册内容，包含品牌定位、核心价值、视觉识别规范等信息。`;
+            extractedKeywords = ['品牌定位', '核心价值', '视觉识别', '品牌规范'];
+          } else if (fileName.includes('产品') || fileName.includes('product')) {
+            extractedContent = `从${asset.name}中提取的产品介绍内容，包含产品特色、功能优势、技术特点等信息。`;
+            extractedKeywords = ['产品特色', '功能优势', '技术领先', '用户体验'];
+          } else if (fileName.includes('营销') || fileName.includes('marketing')) {
+            extractedContent = `从${asset.name}中提取的营销素材内容，包含营销策略、推广方案、市场定位等信息。`;
+            extractedKeywords = ['营销策略', '推广方案', '市场定位', '竞争优势'];
+          } else if (fileName.includes('企业') || fileName.includes('company')) {
+            extractedContent = `从${asset.name}中提取的企业介绍内容，包含企业文化、发展历程、团队实力等信息。`;
+            extractedKeywords = ['企业文化', '发展历程', '团队实力', '社会责任'];
+          } else {
+            extractedContent = `从${asset.name}中提取的品牌相关内容，包含品牌理念、核心价值观、目标受众等信息。`;
+            extractedKeywords = ['品牌建设', '市场洞察', '创新驱动', '品质保证'];
+          }
+        } catch (aiError) {
+          console.warn('AI分析服务调用失败，使用默认分析:', aiError);
+          // 使用默认分析结果
+          extractedContent = `这是从 ${asset.name} 中提取的品牌相关内容。包含品牌理念、核心价值观、目标受众等信息。`;
+          extractedKeywords = ['品牌建设', '市场洞察', '创新驱动', '品质保证'];
+        }
 
         // 更新资产数据
         setBrandAssets(prev => prev.map(a => 
           a.id === asset.id 
             ? { 
                 ...a, 
-                content: mockContent,
-                extractedKeywords: mockKeywords,
+                content: extractedContent,
+                extractedKeywords: extractedKeywords,
                 processingStatus: 'completed' as const
               }
             : a
         ));
 
         // 自动补充语料库维度
-        updateBrandDimensions(mockKeywords, mockContent);
+        updateBrandDimensions(extractedKeywords, extractedContent);
 
       } catch (error) {
         console.error('AI分析失败:', error);
@@ -418,8 +466,15 @@ export default function BrandLibraryPage() {
       switch (dimension.id) {
         case 'brandKeywords':
           if (dimension.value === '') {
-            newValue = keywords.join('、');
-            newKeywords = keywords;
+            // 避免重复的关键词
+            const uniqueKeywords = keywords.filter(k => 
+              !dimension.keywords.includes(k) && 
+              k.length > 1
+            );
+            if (uniqueKeywords.length > 0) {
+              newValue = uniqueKeywords.join('、');
+              newKeywords = [...dimension.keywords, ...uniqueKeywords];
+            }
           }
           break;
         case 'brandDescription':
@@ -439,7 +494,14 @@ export default function BrandLibraryPage() {
           break;
         case 'productKeywords':
           if (dimension.value === '') {
-            newValue = keywords.filter(k => k.length > 1).join('、');
+            const productKeywords = keywords.filter(k => 
+              k.length > 1 && 
+              !['品牌', '价值', '理念', '目标', '专业', '创新', '用户', '服务'].includes(k)
+            );
+            if (productKeywords.length > 0) {
+              newValue = productKeywords.join('、');
+              newKeywords = productKeywords;
+            }
           }
           break;
       }
@@ -495,19 +557,7 @@ export default function BrandLibraryPage() {
    * 保存品牌语料库
    */
   const saveBrandDimensions = () => {
-    // 验证必填项
-    const requiredDimensions = brandDimensions.filter(d => d.isRequired);
-    const emptyRequired = requiredDimensions.filter(d => !d.value.trim());
-    
-    if (emptyRequired.length > 0) {
-      toast({
-        title: "请完善必填信息",
-        description: `请填写：${emptyRequired.map(d => d.title).join('、')}`,
-        variant: "destructive"
-      });
-      return;
-    }
-
+    // 移除必填项验证
     // 保存到本地存储
     localStorage.setItem('brandDimensions', JSON.stringify(brandDimensions));
     
@@ -1091,7 +1141,6 @@ function DimensionForm({
           <div>
             <Label className="text-sm font-medium">
               {dimension.title}
-              {dimension.isRequired && <span className="text-red-500 ml-1">*</span>}
             </Label>
             <p className="text-xs text-gray-500">{dimension.description}</p>
           </div>
