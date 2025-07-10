@@ -117,6 +117,13 @@ export function Header() {
         {/* Action Buttons */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
+            <Button 
+              onClick={() => navigate('/payment')}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
+            >
+              立即解锁高级功能
+            </Button>
+            
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1">
@@ -157,6 +164,13 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
+                <Button 
+                  onClick={() => navigate('/payment')}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
+                >
+                  立即解锁高级功能
+                </Button>
+                
                 <Link to="/adapt" className="text-lg font-medium py-2">
                   AI内容适配器
                 </Link>

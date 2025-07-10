@@ -1588,7 +1588,7 @@ export default function AdaptPage() {
           {/* Advanced Options */}
           {showAdvancedSettings && (
             <div className="mt-3 border-t pt-3">
-              <div className="space-y-3">
+              <div className="flex flex-col items-center space-y-3">
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs w-32 flex-shrink-0">全局字符数限制</Label>
                   <Select 
@@ -1625,7 +1625,7 @@ export default function AdaptPage() {
                   />
                 </div>
               </div>
-              <div className="flex justify-end mt-3">
+              <div className="flex justify-center mt-3">
                 <Button 
                   variant="outline" 
                   size="sm" 

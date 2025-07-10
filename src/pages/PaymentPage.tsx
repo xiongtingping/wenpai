@@ -222,10 +222,11 @@ export default function PaymentPage() {
                       <div className="text-sm text-gray-500">
                         /{selectedPeriod === 'monthly' ? '月' : '年'}
                       </div>
-                      {selectedPeriod === 'yearly' && plan.tier === 'pro' && (
+                      {/* 年付优惠文案 - 仅在非限时优惠期间显示 */}
+                      {selectedPeriod === 'yearly' && !isInDiscount && plan.tier === 'pro' && (
                         <div className="text-xs text-green-600">年付省120元</div>
                       )}
-                      {selectedPeriod === 'yearly' && plan.tier === 'premium' && (
+                      {selectedPeriod === 'yearly' && !isInDiscount && plan.tier === 'premium' && (
                         <div className="text-xs text-green-600">年付省300元</div>
                       )}
                     </div>

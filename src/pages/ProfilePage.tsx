@@ -237,8 +237,10 @@ export default function ProfilePage() {
                       <Button variant="outline" size="sm" onClick={() => sendVerificationCode('email', editForm.email)} disabled={countdown > 0} className="border-purple-300 text-purple-600 hover:bg-purple-50 min-w-[90px]">{countdown > 0 ? `${countdown}s` : '发送验证码'}</Button>
                     )}
                   </div>
-                  {editForm.email && <Badge className="bg-green-100 text-green-700 text-xs mt-1">已验证</Badge>}
-                  {!user?.email && <Badge className="bg-amber-100 text-amber-700 text-xs mt-1">首次验证奖励</Badge>}
+                  <div className="flex gap-1 mt-1">
+                    {editForm.email && <Badge className="bg-green-100 text-green-700 text-xs">已验证</Badge>}
+                    {!user?.email && <Badge className="bg-amber-100 text-amber-700 text-xs">首次验证奖励</Badge>}
+                  </div>
                 </div>
               </div>
             </div>
