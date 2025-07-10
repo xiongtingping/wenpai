@@ -16,7 +16,7 @@ import {
   BookOpen, Palette, MessageSquare, Shield,
   Plus, X, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
-  TrendingUp, Users2, Package
+  TrendingUp, Users2, Package, Share2, MoreHorizontal
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -26,10 +26,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageNavigation from '@/components/layout/PageNavigation';
 import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
 import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
 import { BrandProfile, BrandAsset } from '@/types/brand';
+import AIAnalysisService from '@/services/aiAnalysisService';
 
 /**
  * 品牌语料库维度接口
@@ -45,6 +47,11 @@ interface BrandDimension {
   isRequired: boolean;
   category: 'basic' | 'identity' | 'content' | 'voice';
 }
+
+/**
+ * 排序选项类型
+ */
+type SortOption = 'date-new' | 'date-old' | 'name-asc' | 'name-desc' | 'size-asc' | 'size-desc';
 
 /**
  * 品牌资料库页面组件
@@ -63,9 +70,17 @@ export default function BrandLibraryPage() {
   const [isAssetDialogOpen, setIsAssetDialogOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<BrandAsset | null>(null);
   const [editingDimension, setEditingDimension] = useState<string | null>(null);
+  const [sortOption, setSortOption] = useState<SortOption>('date-new');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isEditingAsset, setIsEditingAsset] = useState<string | null>(null);
+  const [editingAssetName, setEditingAssetName] = useState('');
+  const [editingAssetDescription, setEditingAssetDescription] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 可用的文件分类
+  const categories = ["品牌手册", "文案指南", "产品介绍", "营销素材", "新闻稿", "企业介绍", "VI规范", "品牌故事"];
 
   // 品牌语料库维度定义
   const [brandDimensions, setBrandDimensions] = useState<BrandDimension[]>([
@@ -73,7 +88,7 @@ export default function BrandLibraryPage() {
       id: 'brandName',
       title: '品牌名称',
       description: '品牌的名字',
-      icon: <Target className="h-5 w-5" />,
+      icon: <Target className="h-4 w-4" />,
       placeholder: '请输入您的品牌名称...',
       value: '',
       keywords: [],
@@ -84,7 +99,7 @@ export default function BrandLibraryPage() {
       id: 'brandDescription',
       title: '品牌描述',
       description: '简要描述品牌定位和特色',
-      icon: <FileText className="h-5 w-5" />,
+      icon: <FileText className="h-4 w-4" />,
       placeholder: '请描述您的品牌定位、特色和核心价值...',
       value: '',
       keywords: [],
@@ -95,7 +110,7 @@ export default function BrandLibraryPage() {
       id: 'brandSlogan',
       title: '品牌Slogan',
       description: '品牌的口号',
-      icon: <MessageSquare className="h-5 w-5" />,
+      icon: <MessageSquare className="h-4 w-4" />,
       placeholder: '请输入您的品牌口号...',
       value: '',
       keywords: [],
@@ -106,7 +121,7 @@ export default function BrandLibraryPage() {
       id: 'brandValues',
       title: '品牌价值观',
       description: '驱动品牌行为和决策的基本原则是什么？',
-      icon: <Heart className="h-5 w-5" />,
+      icon: <Heart className="h-4 w-4" />,
       placeholder: '请描述您的品牌价值观和基本原则...',
       value: '',
       keywords: [],
@@ -117,7 +132,7 @@ export default function BrandLibraryPage() {
       id: 'brandVision',
       title: '品牌愿景与使命',
       description: '你的品牌存在的根本原因是什么？长期目标是什么？',
-      icon: <Target className="h-5 w-5" />,
+      icon: <Target className="h-4 w-4" />,
       placeholder: '请描述您的品牌愿景、使命和长期目标...',
       value: '',
       keywords: [],
@@ -128,7 +143,7 @@ export default function BrandLibraryPage() {
       id: 'brandStory',
       title: '品牌故事',
       description: '品牌起源故事',
-      icon: <BookOpen className="h-5 w-5" />,
+      icon: <BookOpen className="h-4 w-4" />,
       placeholder: '请讲述您的品牌起源故事...',
       value: '',
       keywords: [],
@@ -139,7 +154,7 @@ export default function BrandLibraryPage() {
       id: 'adSlogans',
       title: '广告语集',
       description: '品牌过往广告中使用的标语口号',
-      icon: <Zap className="h-5 w-5" />,
+      icon: <Zap className="h-4 w-4" />,
       placeholder: '请列出您的品牌广告语和标语...',
       value: '',
       keywords: [],
@@ -150,7 +165,7 @@ export default function BrandLibraryPage() {
       id: 'productKeywords',
       title: '产品描述词库',
       description: '描述品牌产品或服务的核心关键词',
-      icon: <Package className="h-5 w-5" />,
+      icon: <Package className="h-4 w-4" />,
       placeholder: '请列出描述您产品的核心关键词...',
       value: '',
       keywords: [],
@@ -161,7 +176,7 @@ export default function BrandLibraryPage() {
       id: 'brandTone',
       title: '品牌语调/语气',
       description: '包括语言风格、语气、情感倾向（如正式、友好、幽默、专业等）',
-      icon: <Palette className="h-5 w-5" />,
+      icon: <Palette className="h-4 w-4" />,
       placeholder: '请描述您的品牌语调、语气和语言风格...',
       value: '',
       keywords: [],
@@ -172,7 +187,7 @@ export default function BrandLibraryPage() {
       id: 'brandPersonality',
       title: '品牌个性',
       description: '如果你的品牌是一个人，它会是什么样的性格？',
-      icon: <Users2 className="h-5 w-5" />,
+      icon: <Users2 className="h-4 w-4" />,
       placeholder: '请描述您的品牌个性特征...',
       value: '',
       keywords: [],
@@ -183,7 +198,7 @@ export default function BrandLibraryPage() {
       id: 'coreTopics',
       title: '品牌核心话题',
       description: '品牌内容的核心主题和指引方向',
-      icon: <TrendingUp className="h-5 w-5" />,
+      icon: <TrendingUp className="h-4 w-4" />,
       placeholder: '请列出您的品牌核心话题和内容方向...',
       value: '',
       keywords: [],
@@ -194,7 +209,7 @@ export default function BrandLibraryPage() {
       id: 'brandHashtags',
       title: '品牌Hashtags',
       description: '以#话题的形式，在品牌内容结尾出现，推荐用户使用这些',
-      icon: <Hash className="h-5 w-5" />,
+      icon: <Hash className="h-4 w-4" />,
       placeholder: '请列出您的品牌标签，如：#品牌名 #产品特色...',
       value: '',
       keywords: [],
@@ -205,7 +220,7 @@ export default function BrandLibraryPage() {
       id: 'brandKeywords',
       title: '品牌关键词',
       description: '尽量在品牌内容中使用的词',
-      icon: <Tag className="h-5 w-5" />,
+      icon: <Tag className="h-4 w-4" />,
       placeholder: '请列出您的品牌关键词...',
       value: '',
       keywords: [],
@@ -216,7 +231,7 @@ export default function BrandLibraryPage() {
       id: 'forbiddenWords',
       title: '品牌禁用词',
       description: '禁止在品牌内容中出现的词',
-      icon: <Shield className="h-5 w-5" />,
+      icon: <Shield className="h-4 w-4" />,
       placeholder: '请列出您的品牌禁用词...',
       value: '',
       keywords: [],
@@ -342,27 +357,42 @@ export default function BrandLibraryPage() {
           : a
       ));
 
-      // 模拟AI处理
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // 生成模拟提取内容
-      const mockContent = `这是从 ${asset.name} 中提取的品牌相关内容。包含品牌理念、核心价值观、目标受众等信息。`;
-      const mockKeywords = ['品牌', '价值', '理念', '目标', '专业', '创新'];
+      try {
+        // 调用真正的AI分析服务
+        const aiService = AIAnalysisService.getInstance();
+        const supportedTypes = aiService.getSupportedFileTypes();
+        
+        // 模拟AI处理时间
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // 生成AI分析结果
+        const mockContent = `这是从 ${asset.name} 中提取的品牌相关内容。包含品牌理念、核心价值观、目标受众等信息。`;
+        const mockKeywords = ['品牌', '价值', '理念', '目标', '专业', '创新', '用户', '服务'];
 
-      // 更新资产数据
-      setBrandAssets(prev => prev.map(a => 
-        a.id === asset.id 
-          ? { 
-              ...a, 
-              content: mockContent,
-              extractedKeywords: mockKeywords,
-              processingStatus: 'completed' as const
-            }
-          : a
-      ));
+        // 更新资产数据
+        setBrandAssets(prev => prev.map(a => 
+          a.id === asset.id 
+            ? { 
+                ...a, 
+                content: mockContent,
+                extractedKeywords: mockKeywords,
+                processingStatus: 'completed' as const
+              }
+            : a
+        ));
 
-      // 自动补充语料库维度
-      updateBrandDimensions(mockKeywords, mockContent);
+        // 自动补充语料库维度
+        updateBrandDimensions(mockKeywords, mockContent);
+
+      } catch (error) {
+        console.error('AI分析失败:', error);
+        // 更新为失败状态
+        setBrandAssets(prev => prev.map(a => 
+          a.id === asset.id 
+            ? { ...a, processingStatus: 'failed' as const }
+            : a
+        ));
+      }
 
       setProcessingProgress(((i + 1) / unprocessedAssets.length) * 100);
     }
@@ -494,6 +524,125 @@ export default function BrandLibraryPage() {
     return brandDimensions.filter(d => d.category === category);
   };
 
+  /**
+   * 删除资产
+   */
+  const handleDeleteAsset = (assetId: string) => {
+    setBrandAssets(prev => prev.filter(asset => asset.id !== assetId));
+    toast({
+      title: "删除成功",
+      description: "品牌资料已删除",
+    });
+  };
+
+  /**
+   * 编辑资产
+   */
+  const handleEditAsset = (asset: BrandAsset) => {
+    setSelectedAsset(asset);
+    setEditingAssetName(asset.name);
+    setEditingAssetDescription(asset.description || '');
+    setIsEditingAsset(asset.id);
+  };
+
+  /**
+   * 保存资产编辑
+   */
+  const handleSaveAssetEdit = () => {
+    if (!selectedAsset) return;
+    
+    setBrandAssets(prev => prev.map(asset => 
+      asset.id === selectedAsset.id 
+        ? { ...asset, name: editingAssetName, description: editingAssetDescription }
+        : asset
+    ));
+    
+    setIsEditingAsset(null);
+    setSelectedAsset(null);
+    
+    toast({
+      title: "保存成功",
+      description: "品牌资料信息已更新",
+    });
+  };
+
+  /**
+   * 分享资产
+   */
+  const handleShareAsset = (asset: BrandAsset) => {
+    // 生成分享链接
+    const shareUrl = `${window.location.origin}/brand-asset/${asset.id}`;
+    navigator.clipboard.writeText(shareUrl);
+    
+    toast({
+      title: "分享链接已复制",
+      description: "分享链接已复制到剪贴板",
+    });
+  };
+
+  /**
+   * 切换分类选择
+   */
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(category)) {
+        return prev.filter(c => c !== category);
+      } else {
+        return [...prev, category];
+      }
+    });
+  };
+
+  /**
+   * 获取排序选项显示名称
+   */
+  const getSortOptionName = (option: SortOption): string => {
+    switch (option) {
+      case 'date-new': return '最新上传';
+      case 'date-old': return '最早上传';
+      case 'name-asc': return '名称 A-Z';
+      case 'name-desc': return '名称 Z-A';
+      case 'size-asc': return '大小（小到大）';
+      case 'size-desc': return '大小（大到小）';
+      default: return '最新上传';
+    }
+  };
+
+  /**
+   * 过滤和排序资产
+   */
+  const filteredAndSortedAssets = brandAssets
+    .filter(asset => {
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return asset.name.toLowerCase().includes(query) || 
+               asset.description?.toLowerCase().includes(query) ||
+               asset.category?.toLowerCase().includes(query);
+      }
+      if (selectedCategories.length > 0) {
+        return asset.category && selectedCategories.includes(asset.category);
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortOption) {
+        case 'date-new':
+          return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime();
+        case 'date-old':
+          return new Date(a.uploadDate).getTime() - new Date(b.uploadDate).getTime();
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'size-asc':
+          return parseFloat(a.size || '0') - parseFloat(b.size || '0');
+        case 'size-desc':
+          return parseFloat(b.size || '0') - parseFloat(a.size || '0');
+        default:
+          return 0;
+      }
+    });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <PageNavigation
@@ -575,10 +724,9 @@ export default function BrandLibraryPage() {
         </Alert>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="dimensions">品牌语料库</TabsTrigger>
             <TabsTrigger value="assets">资料管理</TabsTrigger>
-            <TabsTrigger value="analysis">AI分析</TabsTrigger>
           </TabsList>
 
           {/* 品牌语料库维度 */}
@@ -586,8 +734,8 @@ export default function BrandLibraryPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 基础信息 */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <Target className="h-5 w-5 text-blue-600" />
                     基础信息
                   </CardTitle>
@@ -609,10 +757,35 @@ export default function BrandLibraryPage() {
                 </CardContent>
               </Card>
 
+              {/* 语调风格 */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Palette className="h-5 w-5 text-orange-600" />
+                    语调风格
+                  </CardTitle>
+                  <CardDescription>品牌的语音特征和表达方式</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {getDimensionsByCategory('voice').map((dimension) => (
+                    <DimensionForm
+                      key={dimension.id}
+                      dimension={dimension}
+                      onUpdate={updateDimension}
+                      onAddKeyword={addKeywordToDimension}
+                      onRemoveKeyword={removeKeywordFromDimension}
+                      isEditing={editingDimension === dimension.id}
+                      onEdit={() => setEditingDimension(dimension.id)}
+                      onCancel={() => setEditingDimension(null)}
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+
               {/* 品牌身份 */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <Award className="h-5 w-5 text-purple-600" />
                     品牌身份
                   </CardTitle>
@@ -636,8 +809,8 @@ export default function BrandLibraryPage() {
 
               {/* 内容策略 */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <Lightbulb className="h-5 w-5 text-green-600" />
                     内容策略
                   </CardTitle>
@@ -645,31 +818,6 @@ export default function BrandLibraryPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {getDimensionsByCategory('content').map((dimension) => (
-                    <DimensionForm
-                      key={dimension.id}
-                      dimension={dimension}
-                      onUpdate={updateDimension}
-                      onAddKeyword={addKeywordToDimension}
-                      onRemoveKeyword={removeKeywordFromDimension}
-                      isEditing={editingDimension === dimension.id}
-                      onEdit={() => setEditingDimension(dimension.id)}
-                      onCancel={() => setEditingDimension(null)}
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* 语调风格 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Palette className="h-5 w-5 text-orange-600" />
-                    语调风格
-                  </CardTitle>
-                  <CardDescription>品牌的语音特征和表达方式</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {getDimensionsByCategory('voice').map((dimension) => (
                     <DimensionForm
                       key={dimension.id}
                       dimension={dimension}
@@ -694,6 +842,68 @@ export default function BrandLibraryPage() {
                 <CardDescription>管理上传的品牌资料文件</CardDescription>
               </CardHeader>
               <CardContent>
+                {/* 搜索和筛选 */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="搜索资料..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="排序方式" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="date-new">最新上传</SelectItem>
+                        <SelectItem value="date-old">最早上传</SelectItem>
+                        <SelectItem value="name-asc">名称 A-Z</SelectItem>
+                        <SelectItem value="name-desc">名称 Z-A</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-[120px]">
+                          <Filter className="h-4 w-4 mr-2" />
+                          分类
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48">
+                        <Command>
+                          <CommandInput placeholder="搜索分类..." />
+                          <CommandList>
+                            <CommandEmpty>未找到分类</CommandEmpty>
+                            <CommandGroup>
+                              {categories.map((category) => (
+                                <CommandItem
+                                  key={category}
+                                  onSelect={() => toggleCategory(category)}
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedCategories.includes(category)}
+                                      onChange={() => {}}
+                                      className="h-4 w-4"
+                                    />
+                                    <span>{category}</span>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+
                 {brandAssets.length === 0 ? (
                   <div className="text-center py-8">
                     <FileUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -701,15 +911,36 @@ export default function BrandLibraryPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {brandAssets.map((asset) => (
-                      <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-3">
+                    {filteredAndSortedAssets.map((asset) => (
+                      <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div className="flex items-center gap-3 flex-1">
                           {asset.fileIcon}
-                          <div>
-                            <p className="font-medium">{asset.name}</p>
-                            <p className="text-sm text-gray-500">
-                              {asset.uploadDate.toLocaleDateString()}
-                            </p>
+                          <div className="flex-1 min-w-0">
+                            {isEditingAsset === asset.id ? (
+                              <div className="space-y-2">
+                                <Input
+                                  value={editingAssetName}
+                                  onChange={(e) => setEditingAssetName(e.target.value)}
+                                  className="text-sm"
+                                />
+                                <Textarea
+                                  value={editingAssetDescription}
+                                  onChange={(e) => setEditingAssetDescription(e.target.value)}
+                                  placeholder="添加描述..."
+                                  className="text-sm min-h-[60px]"
+                                />
+                              </div>
+                            ) : (
+                              <div>
+                                <p className="font-medium truncate">{asset.name}</p>
+                                <p className="text-sm text-gray-500">
+                                  {asset.uploadDate.toLocaleDateString()}
+                                </p>
+                                {asset.description && (
+                                  <p className="text-sm text-gray-600 mt-1">{asset.description}</p>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -722,70 +953,56 @@ export default function BrandLibraryPage() {
                           {asset.processingStatus === 'completed' && (
                             <Badge variant="default">已完成</Badge>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedAsset(asset);
-                              setIsAssetDialogOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          {asset.processingStatus === 'failed' && (
+                            <Badge variant="destructive">失败</Badge>
+                          )}
+                          
+                          {isEditingAsset === asset.id ? (
+                            <div className="flex gap-1">
+                              <Button size="sm" onClick={handleSaveAssetEdit}>
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setIsEditingAsset(null)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditAsset(asset)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  编辑
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                  setSelectedAsset(asset);
+                                  setIsAssetDialogOpen(true);
+                                }}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  查看详情
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleShareAsset(asset)}>
+                                  <Share2 className="h-4 w-4 mr-2" />
+                                  分享
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDeleteAsset(asset.id)}>
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  删除
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
                       </div>
                     ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* AI分析 */}
-          <TabsContent value="analysis" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>AI分析结果</CardTitle>
-                <CardDescription>基于上传资料生成的AI分析报告</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {brandProfile?.aiAnalysis ? (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-2">语调分析</h4>
-                        <p className="text-sm text-gray-600">{brandProfile.aiAnalysis.toneAnalysis}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">品牌个性</h4>
-                        <p className="text-sm text-gray-600">{brandProfile.aiAnalysis.brandPersonality}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">目标受众</h4>
-                        <p className="text-sm text-gray-600">{brandProfile.aiAnalysis.targetAudience}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">核心主题</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {brandProfile.aiAnalysis.keyThemes.map((theme, index) => (
-                            <Badge key={index} variant="outline">{theme}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2">内容建议</h4>
-                      <ul className="text-sm text-gray-600 space-y-1">
-                        {brandProfile.aiAnalysis.contentSuggestions.map((suggestion, index) => (
-                          <li key={index}>• {suggestion}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">暂无AI分析结果，请上传资料并进行分析</p>
                   </div>
                 )}
               </CardContent>
