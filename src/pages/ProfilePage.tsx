@@ -191,7 +191,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <PageNavigation title="个人中心" description="管理您的个人信息和账户设置" showAdaptButton={false} />
-      <div className="container mx-auto px-6 pt-8 pb-8 max-w-6xl">
+      <div className="container mx-auto px-4 sm:px-6 pt-8 pb-8 max-w-6xl">
         <div className="mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="hover:bg-blue-100 text-blue-600 -ml-2">
             <ArrowLeft className="h-4 w-4 mr-2" /> 返回首页
@@ -201,10 +201,12 @@ export default function ProfilePage() {
         {/* 个人资料与联系方式合并卡片 */}
         <Card className="shadow-lg border-0 bg-gradient-to-br from-white via-blue-50 to-purple-50/60 backdrop-blur-sm">
           <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white rounded-t-xl">
-            <CardTitle className="flex items-center gap-3 text-2xl font-extrabold tracking-tight drop-shadow">
-              <User className="w-6 h-6 p-1 bg-white/20 rounded-lg" /> 个人资料
+            <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl font-extrabold tracking-tight drop-shadow">
+              <User className="w-5 h-5 sm:w-6 sm:h-6 p-1 bg-white/20 rounded-lg" /> 个人资料
               {userType === 'pro' && (
-                <Badge className="bg-amber-500 hover:bg-amber-600 ml-auto"><Crown className="w-3 h-3 mr-1" />专业版</Badge>
+                <Badge className="bg-amber-500 hover:bg-amber-600 ml-auto text-xs sm:text-sm">
+                  <Crown className="w-3 h-3 mr-1" />专业版
+                </Badge>
               )}
             </CardTitle>
           </CardHeader>

@@ -436,154 +436,37 @@ export default function HotTopicsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'notifications')} className="w-full">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <TabsList className="grid w-full grid-cols-3 max-w-md">
-              <TabsTrigger value="hot" className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                全网热点
+              <TabsTrigger value="hot" className="flex items-center gap-2 text-xs sm:text-sm">
+                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">全网热点</span>
+                <span className="sm:hidden">热点</span>
               </TabsTrigger>
-              <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-                <Bell className="w-4 h-4" />
-                话题订阅
+              <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">话题订阅</span>
+                <span className="sm:hidden">订阅</span>
               </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2">
-                <Bell className="w-4 h-4" />
-                通知中心
+              <TabsTrigger value="notifications" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">通知中心</span>
+                <span className="sm:hidden">通知</span>
               </TabsTrigger>
             </TabsList>
             
             {/* 操作按钮 */}
-            <div className="flex items-center gap-2">
-              {activeTab === 'subscriptions' && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCheckAllSubscriptions}
-                    disabled={isMonitoring}
-                  >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${isMonitoring ? 'animate-spin' : ''}`} />
-                    检查所有
-                  </Button>
-                  <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="sm">
-                        <Plus className="h-4 w-4 mr-2" />
-                        添加订阅
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>添加话题订阅</DialogTitle>
-                        <DialogDescription>
-                          设置关键词和监控配置，实时追踪相关话题
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="keyword">关键词 *</Label>
-                          <Input
-                            id="keyword"
-                            value={newSubscription.keyword}
-                            onChange={(e) => setNewSubscription(prev => ({ ...prev, keyword: e.target.value }))}
-                            placeholder="输入要监控的关键词"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="name">订阅名称 *</Label>
-                          <Input
-                            id="name"
-                            value={newSubscription.name}
-                            onChange={(e) => setNewSubscription(prev => ({ ...prev, name: e.target.value }))}
-                            placeholder="给这个订阅起个名字"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="description">描述</Label>
-                          <Input
-                            id="description"
-                            value={newSubscription.description}
-                            onChange={(e) => setNewSubscription(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder="可选：添加描述"
-                          />
-                        </div>
-                        <div>
-                          <Label>搜索源 *</Label>
-                          <div className="grid grid-cols-2 gap-2 mt-2">
-                            {searchSources.map((source) => (
-                              <div key={source.id} className="flex items-center space-x-2">
-                                <input
-                                  type="checkbox"
-                                  id={source.id}
-                                  checked={newSubscription.sources.includes(source.id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setNewSubscription(prev => ({
-                                        ...prev,
-                                        sources: [...prev.sources, source.id]
-                                      }));
-                                    } else {
-                                      setNewSubscription(prev => ({
-                                        ...prev,
-                                        sources: prev.sources.filter(s => s !== source.id)
-                                      }));
-                                    }
-                                  }}
-                                />
-                                <Label htmlFor={source.id} className="text-sm">{source.name}</Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <Label htmlFor="interval">检查间隔（分钟）</Label>
-                          <Select
-                            value={newSubscription.checkInterval.toString()}
-                            onValueChange={(value) => setNewSubscription(prev => ({ ...prev, checkInterval: parseInt(value) }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="5">5分钟</SelectItem>
-                              <SelectItem value="15">15分钟</SelectItem>
-                              <SelectItem value="30">30分钟</SelectItem>
-                              <SelectItem value="60">1小时</SelectItem>
-                              <SelectItem value="120">2小时</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="maxHeat">热度警报阈值</Label>
-                          <Input
-                            id="maxHeat"
-                            type="number"
-                            value={newSubscription.maxHeatThreshold}
-                            onChange={(e) => setNewSubscription(prev => ({ ...prev, maxHeatThreshold: parseInt(e.target.value) || 0 }))}
-                            placeholder="超过此热度时发送警报"
-                          />
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="notification"
-                            checked={newSubscription.notificationEnabled}
-                            onCheckedChange={(checked) => setNewSubscription(prev => ({ ...prev, notificationEnabled: checked }))}
-                          />
-                          <Label htmlFor="notification">启用通知</Label>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                          取消
-                        </Button>
-                        <Button onClick={handleAddSubscription}>
-                          添加订阅
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </>
-              )}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddDialogOpen(true)}
+                className="text-xs sm:text-sm"
+              >
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">添加订阅</span>
+                <span className="sm:hidden">添加</span>
+              </Button>
             </div>
           </div>
 

@@ -15,6 +15,7 @@ import HotTopicsPage from '@/pages/HotTopicsPage';
 import ApiTestPage from '@/pages/ApiTestPage';
 import PaymentPage from '@/pages/PaymentPage';
 import ProfilePage from '@/pages/ProfilePage';
+import SettingsPage from '@/pages/SettingsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import TermsPage from '@/pages/TermsPage';
 import ChangelogPage from '@/pages/ChangelogPage';
@@ -38,6 +39,7 @@ import TestPage from '@/pages/TestPage';
 import AITestPage from '@/pages/AITestPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
+import DevTools from '@/components/ui/dev-tools';
 
 /**
  * 应用内容组件
@@ -114,6 +116,14 @@ const AppContent: React.FC = () => {
         <Route path="/profile" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ProfilePage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <SettingsPage />
+            </ToolLayout>
           </ProtectedRoute>
         } />
         
@@ -205,9 +215,16 @@ function App() {
   return (
     <TooltipProvider>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
           <AppContent />
         </BrowserRouter>
+        {/* 开发工具 - 仅在开发环境下显示 */}
+        <DevTools />
       </AuthProvider>
       <Toaster />
     </TooltipProvider>

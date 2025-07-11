@@ -61,7 +61,7 @@ const AuthingLoginPage: React.FC = () => {
     };
     
     setUserInfo(convertedUser);
-    console.log('登录成功:', convertedUser);
+    // 登录成功处理
     
     // 重定向到目标页面或首页
     const from = location.state?.from?.pathname || '/';
@@ -83,8 +83,13 @@ const AuthingLoginPage: React.FC = () => {
       ...userInfo // 保留其他属性
     };
     
+    // 设置注册时间和优惠开始时间
+    const now = Date.now();
+    localStorage.setItem('promo_start', now.toString());
+    localStorage.setItem('registration_time', now.toString());
+    
     setUserInfo(convertedUser);
-    console.log('注册成功:', convertedUser);
+    // 注册成功处理
     
     // 重定向到目标页面或首页
     const from = location.state?.from?.pathname || '/';

@@ -22,28 +22,41 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // 获取用户注册时间，如果没有则使用当前时间
-  const registrationDate = user?.createdAt ? new Date(user.createdAt as string) : new Date();
-
-  // 计算限时优惠倒计时
+  // 限时优惠倒计时逻辑（30分钟）
   useEffect(() => {
-    const timer = setInterval(() => {
-      const remaining = calculateDiscountCountdown(registrationDate);
+    // 获取用户注册时间
+    const promoStart = localStorage.getItem('promo_start');
+    if (!promoStart) return;
+    
+    const startTime = parseInt(promoStart, 10);
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const remaining = Math.max(0, 30 * 60 * 1000 - (now - startTime));
       setTimeLeft(remaining);
       
       if (remaining <= 0) {
-        clearInterval(timer);
+        clearInterval(interval);
       }
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [registrationDate]);
+    return () => clearInterval(interval);
+  }, []);
 
   // 格式化倒计时
   const formatTimeLeft = () => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
+    const minutes = Math.floor(timeLeft / 60000);
+    const seconds = Math.floor((timeLeft % 60000) / 1000);
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // 检查是否在限时优惠期内
+  const isInPromoPeriod = () => {
+    const promoStart = localStorage.getItem('promo_start');
+    if (!promoStart) return false;
+    
+    const startTime = parseInt(promoStart, 10);
+    const now = Date.now();
+    return (now - startTime) < 30 * 60 * 1000; // 30分钟
   };
 
   // 处理计划选择
@@ -72,7 +85,7 @@ export default function PaymentPage() {
     if (!selectedPlan) return 0;
     
     const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
-    const isInDiscount = isInDiscountPeriod(registrationDate);
+    const isInDiscount = isInPromoPeriod();
     
     return isInDiscount ? pricing.discountPrice : pricing.originalPrice;
   };
@@ -129,14 +142,18 @@ export default function PaymentPage() {
 
       {/* 限时优惠倒计时 */}
       {timeLeft > 0 && (
-        <div className="mb-8 p-4 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg">
-          <div className="flex items-center justify-center gap-2 text-red-600">
-            <Clock className="h-5 w-5" />
-            <span className="font-medium">限时优惠倒计时：{formatTimeLeft()}</span>
+        <div className="mb-8 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-lg font-bold text-red-600">
+              仅首次注册用户可享，注册后30分钟内享受25%折扣优惠，倒计时结束后恢复原价
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xl font-bold text-red-600">限时优惠倒计时：</span>
+              <span className="text-2xl font-bold bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
+                {formatTimeLeft()}
+              </span>
+            </div>
           </div>
-          <p className="text-center text-sm text-red-600 mt-1">
-            注册后30分钟内享受25%折扣优惠，倒计时结束后恢复原价
-          </p>
         </div>
       )}
 
@@ -153,7 +170,11 @@ export default function PaymentPage() {
           <Button
             variant={selectedPeriod === 'yearly' ? 'default' : 'outline'}
             onClick={() => handlePeriodSelect('yearly')}
-            className="min-w-[120px]"
+            className={`min-w-[120px] transition-all duration-300 ${
+              selectedPeriod === 'yearly' 
+                ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90' 
+                : 'bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200'
+            }`}
           >
             按年订阅
             <Badge variant="secondary" className="ml-2">更优惠</Badge>
@@ -166,7 +187,7 @@ export default function PaymentPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {SUBSCRIPTION_PLANS.map((plan) => {
           const pricing = selectedPeriod === 'monthly' ? plan.monthly : plan.yearly;
-          const isInDiscount = isInDiscountPeriod(registrationDate);
+          const isInDiscount = isInPromoPeriod();
           const currentPrice = isInDiscount ? pricing.discountPrice : pricing.originalPrice;
           const isSelected = selectedPlan?.id === plan.id;
 

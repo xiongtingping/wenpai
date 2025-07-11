@@ -31,8 +31,21 @@ import {
   Users,
   Settings,
   Crown,
-  FolderOpen
+  FolderOpen,
+  ChevronRight
 } from 'lucide-react';
+
+/**
+ * 二级页面导航配置
+ */
+const SECONDARY_NAV_ITEMS = [
+  { path: '/', label: '首页', icon: Home },
+  { path: '/adapt', label: 'AI内容适配器', icon: FileText },
+  { path: '/creative-studio', label: '创意魔方', icon: Sparkles },
+  { path: '/hot-topics', label: '全网雷达', icon: TrendingUp },
+  { path: '/library', label: '我的资料库', icon: FolderOpen },
+  { path: '/brand-library', label: '品牌库', icon: Users },
+];
 
 /**
  * 页面配置接口
@@ -198,7 +211,7 @@ interface PageNavigationProps {
   description?: string;
   /** 是否显示AI内容适配器快速访问按钮 */
   showAdaptButton?: boolean;
-  /** 是否显示升级专业版按钮 */
+  /** 是否显示升级按钮 */
   showUpgradeButton?: boolean;
   /** 额外的操作按钮 */
   actions?: React.ReactNode;
@@ -206,8 +219,6 @@ interface PageNavigationProps {
 
 /**
  * 页面导航组件
- * @param props 组件属性
- * @returns React 组件
  */
 export const PageNavigation: React.FC<PageNavigationProps> = ({
   currentPath,
@@ -220,187 +231,186 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const path = currentPath || location.pathname;
-  
-  // 获取当前页面配置
-  const currentConfig: PageConfig = PAGE_CONFIGS[path] || {
-    path,
-    title: title || '页面',
-    icon: FileText,
-    level: 2,
-    parent: '/',
+
+  /**
+   * 检查当前路径是否激活
+   */
+  const isActivePath = (navPath: string) => {
+    if (navPath === '/') {
+      return path === '/';
+    }
+    return path.startsWith(navPath);
   };
 
   /**
-   * 构建面包屑路径
+   * 构建面包屑导航
    */
   const buildBreadcrumbs = () => {
-    const breadcrumbs: PageConfig[] = [];
-    let current = currentConfig;
+    const breadcrumbs = [];
+    const currentConfig = PAGE_CONFIGS[path];
     
-    // 添加当前页面
-    breadcrumbs.unshift(current);
-    
-    // 向上追溯父页面
-    while (current.parent && PAGE_CONFIGS[current.parent]) {
-      current = PAGE_CONFIGS[current.parent];
-      breadcrumbs.unshift(current);
+    if (currentConfig) {
+      // 添加父页面
+      if (currentConfig.parent && PAGE_CONFIGS[currentConfig.parent]) {
+        const parentConfig = PAGE_CONFIGS[currentConfig.parent];
+        breadcrumbs.push({
+          path: parentConfig.path,
+          title: parentConfig.title,
+          icon: parentConfig.icon,
+        });
+      }
+      
+      // 添加当前页面
+      breadcrumbs.push({
+        path: currentConfig.path,
+        title: currentConfig.title,
+        icon: currentConfig.icon,
+        badge: currentConfig.badge,
+      });
     }
     
     return breadcrumbs;
   };
 
   /**
-   * 获取同类别的子模块
+   * 获取子模块列表
    */
   const getSubModules = () => {
-    if (currentConfig.subModules) {
-      return currentConfig.subModules;
-    }
+    const currentConfig = PAGE_CONFIGS[path];
+    if (!currentConfig?.category) return [];
     
-    // 如果是三级页面，找到二级页面的子模块
-    if (currentConfig.level === 3 && currentConfig.parent) {
-      const parentConfig = PAGE_CONFIGS[currentConfig.parent];
-      return parentConfig?.subModules || [];
-    }
-    
-    return [];
+    return Object.values(PAGE_CONFIGS).filter(
+      config => config.category === currentConfig.category && config.path !== path
+    );
   };
 
   const breadcrumbs = buildBreadcrumbs();
   const subModules = getSubModules();
 
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="border-b bg-gradient-to-r from-background via-background/95 to-background/90 backdrop-blur-sm shadow-sm">
       <div className="container mx-auto px-4 py-6">
         {/* 面包屑导航 */}
-        <Breadcrumb className="mb-3">
-          <BreadcrumbList>
-            {breadcrumbs.map((item, index) => {
-              const ItemIcon = item.icon;
-              const isLast = index === breadcrumbs.length - 1;
-              
-              return (
-                <React.Fragment key={item.path}>
-                  <BreadcrumbItem>
-                    {isLast ? (
-                      <BreadcrumbPage className="flex items-center gap-2 text-gray-600">
-                        <ItemIcon className="h-4 w-4" />
-                        {item.title}
-                      </BreadcrumbPage>
-                    ) : (
-                      <BreadcrumbLink 
-                        href={item.path}
-                        className="flex items-center gap-2 text-gray-500 hover:text-gray-700"
-                      >
-                        <ItemIcon className="h-4 w-4" />
-                        {item.title}
-                      </BreadcrumbLink>
-                    )}
-                  </BreadcrumbItem>
-                  {!isLast && <BreadcrumbSeparator />}
-                </React.Fragment>
-              );
-            })}
-          </BreadcrumbList>
-        </Breadcrumb>
-
-        {/* 页面标题和描述 */}
-        <div className="mb-6">
-          <div className="flex items-start gap-3 mb-2">
-            {React.createElement(currentConfig.icon, { className: "h-6 w-6 text-blue-600 mt-1" })}
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                {title || currentConfig.title}
-                {currentConfig.badge && (
-                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                    {currentConfig.badge}
-                  </Badge>
-                )}
-              </h1>
-              {description && (
-                <p className="text-gray-600 text-base leading-relaxed mt-2">
-                  {description}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* 操作按钮区域 */}
-        {(showUpgradeButton || showAdaptButton || actions) && (
-          <div className="flex items-center gap-3 mb-4">
-            {/* 升级专业版按钮 */}
-            {showUpgradeButton && <UpgradeButton />}
-            
-            {/* AI内容适配器快速访问 - 只在二级页面显示 */}
-            {showAdaptButton && path !== '/adapt' && currentConfig.level === 2 && (
-              <Button
-                onClick={() => navigate('/adapt')}
-                className="
-                  min-w-[44px] h-10 px-4 py-2
-                  bg-blue-600 hover:bg-blue-700 
-                  text-white
-                  rounded-lg
-                  flex items-center gap-2
-                  transition-all duration-200 ease-in-out
-                  hover:scale-105 hover:shadow-md
-                  active:scale-95
-                  group
-                  border-0
-                "
-              >
-                <Zap className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                <span className="text-sm font-medium">AI内容适配器</span>
-              </Button>
-            )}
-            
-            {/* 额外操作按钮 */}
-            {actions}
+        {breadcrumbs.length > 0 && (
+          <div className="mb-4">
+            <Breadcrumb>
+              <BreadcrumbList className="flex-wrap">
+                <BreadcrumbItem>
+                  <BreadcrumbLink 
+                    href="/" 
+                    className="flex items-center gap-1 hover:text-primary transition-all duration-200 hover:scale-105"
+                  >
+                    <Home className="w-4 h-4" />
+                    <span className="hidden sm:inline">首页</span>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                {breadcrumbs.map((item, index) => (
+                  <React.Fragment key={item.path}>
+                    <BreadcrumbSeparator>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                      {index === breadcrumbs.length - 1 ? (
+                        <BreadcrumbPage className="flex items-center gap-2">
+                          <item.icon className="w-4 h-4" />
+                          <span className="hidden sm:inline">{item.title}</span>
+                          {item.badge && (
+                            <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 border-orange-200">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </BreadcrumbPage>
+                      ) : (
+                        <BreadcrumbLink 
+                          href={item.path}
+                          className="flex items-center gap-2 hover:text-primary transition-all duration-200 hover:scale-105"
+                        >
+                          <item.icon className="w-4 h-4" />
+                          <span className="hidden sm:inline">{item.title}</span>
+                        </BreadcrumbLink>
+                      )}
+                    </BreadcrumbItem>
+                  </React.Fragment>
+                ))}
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
         )}
 
-        {/* 子模块快速切换 */}
-        {subModules.length > 0 && (
-          <div className="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-100">
-            <span className="text-sm font-medium text-gray-500 mr-2">快速切换:</span>
-            {subModules.map((module, index) => {
-              const ModuleIcon = module.icon;
-              const isActive = path === module.path;
-              
-              return (
+        {/* 页面标题和描述 */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                {title || PAGE_CONFIGS[path]?.title || '页面'}
+              </h1>
+              {PAGE_CONFIGS[path]?.badge && (
+                <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 border-orange-200 animate-pulse">
+                  {PAGE_CONFIGS[path].badge}
+                </Badge>
+              )}
+            </div>
+            {description && (
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
+                {description}
+              </p>
+            )}
+          </div>
+
+          {/* 操作按钮区域 */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {actions}
+            
+            {/* AI内容适配器快速访问 */}
+            {showAdaptButton && path !== '/adapt' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/adapt')}
+                className="hidden sm:inline-flex hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 border-blue-200 hover:border-blue-300 transition-all duration-200"
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                AI适配器
+              </Button>
+            )}
+            
+            {/* 升级按钮 */}
+            {showUpgradeButton && (
+              <UpgradeButton className="hidden sm:inline-flex" />
+            )}
+          </div>
+        </div>
+
+        {/* 子模块快速导航 */}
+        {subModules.length > 0 && PAGE_CONFIGS[path]?.level > 2 && (
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">相关功能</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-gray-200 via-gray-300 to-transparent"></div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {subModules.map((module) => (
                 <Button
-                  key={index}
-                  variant={isActive ? "default" : "ghost"}
+                  key={module.path}
+                  variant={path === module.path ? "default" : "outline"}
+                  size="sm"
                   onClick={() => navigate(module.path)}
-                  className={`
-                    min-w-[44px] h-9 px-3 py-2
-                    flex items-center gap-2
-                    transition-all duration-200 ease-in-out
-                    hover:scale-105 active:scale-95
-                    ${isActive 
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm' 
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300'
-                    }
-                    rounded-lg
-                  `}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                    path === module.path
+                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105"
+                      : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 border-gray-300 hover:border-blue-300 hover:scale-105"
+                  }`}
                 >
-                  <ModuleIcon className="h-4 w-4" />
-                  <span className="text-sm font-medium">{module.title}</span>
+                  <module.icon className="w-4 h-4" />
+                  <span className="font-medium">{module.title}</span>
                   {module.badge && (
-                    <Badge 
-                      variant="secondary" 
-                      className={`text-xs ml-1 ${
-                        isActive 
-                          ? 'bg-white/20 text-white border-white/30' 
-                          : 'bg-amber-50 text-amber-700 border-amber-200'
-                      }`}
-                    >
+                    <Badge variant="secondary" className="ml-1 text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 border-orange-200">
                       {module.badge}
                     </Badge>
                   )}
                 </Button>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
       </div>

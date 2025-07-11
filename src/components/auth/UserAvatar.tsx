@@ -14,9 +14,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { User } from '@/types/user';
+
+/**
+ * 检查是否为开发环境
+ */
+const isDevelopment = () => {
+  return import.meta.env.DEV || process.env.NODE_ENV === 'development';
+};
 
 /**
  * 用户头像组件属性
@@ -57,8 +65,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // 获取头像首字母
   const initials = displayName.slice(0, 2).toUpperCase();
   
-  // 检查是否为专业用户
-  const isPro = hasRole('premium') || hasRole('pro') || hasRole('admin');
+  // 开发环境下跳过权限检查
+  const isPro = isDevelopment() || hasRole('premium') || hasRole('pro') || hasRole('admin');
 
   const avatarContent = (
     <Avatar className={`${size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'}`}>
@@ -89,7 +97,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
             </p>
             {isPro && (
               <p className="text-xs leading-none text-primary font-medium">
-                ⭐ 专业用户
+                {isDevelopment() ? '⭐ 开发模式' : '⭐ 专业用户'}
               </p>
             )}
           </div>
@@ -101,7 +109,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         <DropdownMenuItem asChild>
           <a href="/settings">设置</a>
         </DropdownMenuItem>
-        {!isPro && (
+        {!isPro && !isDevelopment() && (
           <DropdownMenuItem asChild>
             <a href="/payment">升级专业版</a>
           </DropdownMenuItem>

@@ -5,6 +5,13 @@ import { Button } from './button';
 import { Badge } from './badge';
 
 /**
+ * 检查是否为开发环境
+ */
+const isDevelopment = () => {
+  return import.meta.env.DEV || process.env.NODE_ENV === 'development';
+};
+
+/**
  * 主题切换器组件
  * 仅专业/高级用户可见
  */
@@ -12,10 +19,10 @@ export const ThemeSwitcher: React.FC = () => {
   const { theme, switchTheme, themes, themeNames } = useTheme();
   const { hasRole, loading } = usePermissions();
   
-  // 检查是否有专业/高级用户角色
-  const isPro = hasRole('premium') || hasRole('pro') || hasRole('admin');
+  // 开发环境下跳过权限检查
+  const isPro = isDevelopment() || hasRole('premium') || hasRole('pro') || hasRole('admin');
 
-  if (loading) {
+  if (loading && !isDevelopment()) {
     return (
       <div className="flex items-center gap-2">
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -24,7 +31,7 @@ export const ThemeSwitcher: React.FC = () => {
     );
   }
 
-  if (!isPro) {
+  if (!isPro && !isDevelopment()) {
     return (
       <Badge variant="secondary" className="ml-2">仅专业/高级用户可用</Badge>
     );
@@ -32,6 +39,11 @@ export const ThemeSwitcher: React.FC = () => {
 
   return (
     <div className="flex items-center gap-2">
+      {isDevelopment() && (
+        <Badge variant="premium" className="text-xs">
+          DEV
+        </Badge>
+      )}
       {themes.map((t) => (
         <Button
           key={t}

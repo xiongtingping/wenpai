@@ -152,6 +152,11 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
+      // 设置注册时间和优惠开始时间
+      const now = Date.now();
+      localStorage.setItem('promo_start', now.toString());
+      localStorage.setItem('registration_time', now.toString());
+      
       await login({
         id: 'temp-user-id',
         phone: phoneForm.phone,
@@ -168,6 +173,7 @@ export default function RegisterPage() {
         description: "欢迎加入文派！"
       });
       
+      // 注册成功后跳转到首页
       navigate('/');
     } catch (error: any) {
       toast({
@@ -210,6 +216,11 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
+      // 设置注册时间和优惠开始时间
+      const now = Date.now();
+      localStorage.setItem('promo_start', now.toString());
+      localStorage.setItem('registration_time', now.toString());
+      
       await login({
         id: 'temp-user-id',
         email: emailForm.email,
@@ -226,6 +237,7 @@ export default function RegisterPage() {
         description: "欢迎加入文派！"
       });
       
+      // 注册成功后跳转到首页
       navigate('/');
     } catch (error: any) {
       toast({

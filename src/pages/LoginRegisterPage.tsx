@@ -143,6 +143,12 @@ export default function LoginRegisterPage() {
         { nickname: registerForm.nickname }
       );
       localStorage.setItem('authing_user', JSON.stringify(authingUser));
+      
+      // 设置注册时间和优惠开始时间
+      const now = Date.now();
+      localStorage.setItem('promo_start', now.toString());
+      localStorage.setItem('registration_time', now.toString());
+      
       // 转换为内部User类型
       const convertedUser: AuthUser = {
         id: String(authingUser.id || ''),

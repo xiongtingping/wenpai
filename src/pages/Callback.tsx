@@ -54,17 +54,16 @@ const Callback: React.FC = () => {
         });
 
         try {
-          console.log('收到授权码:', code);
-          console.log('收到状态:', state);
+                // 处理授权码和状态
           
           setStatus('success');
           setMessage('认证成功！正在获取用户信息...');
           
           // 使用授权码直接获取用户信息
           try {
-            console.log('使用授权码获取用户信息...');
+            // 使用授权码获取用户信息
             
-            // 直接使用授权码构建用户信息
+            // 构建的用户信息
             const userInfo = {
               id: code, // 使用授权码作为临时ID
               username: '用户',
@@ -76,8 +75,6 @@ const Callback: React.FC = () => {
               state: state,
               loginTime: new Date().toISOString()
             };
-            
-            console.log('构建的用户信息:', userInfo);
             
             // 保存用户信息到本地存储
             localStorage.setItem('authing_user', JSON.stringify(userInfo));

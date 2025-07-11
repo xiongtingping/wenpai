@@ -3,8 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 import AuthGuard from '@/components/auth/AuthGuard';
 import PermissionGuard from '@/components/auth/PermissionGuard';
+
+/**
+ * 检查是否为开发环境
+ */
+const isDevelopment = () => {
+  return import.meta.env.DEV || process.env.NODE_ENV === 'development';
+};
 
 /**
  * 权限测试页面组件
@@ -12,6 +20,7 @@ import PermissionGuard from '@/components/auth/PermissionGuard';
  */
 const PermissionTestPage: React.FC = () => {
   const { user, isAuthenticated, error } = useAuth();
+  const { roles, permissions, hasPermission, hasRole, checkPermissions } = usePermissions();
   const [testResults, setTestResults] = useState<string[]>([]);
 
   /**
@@ -20,8 +29,6 @@ const PermissionTestPage: React.FC = () => {
   const addTestResult = (result: string) => {
     setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
   };
-
-
 
   /**
    * 测试基本认证
@@ -54,54 +61,89 @@ const PermissionTestPage: React.FC = () => {
     addTestResult('测试复杂权限 - 需要 content:create 权限');
   };
 
+  /**
+   * 测试权限检查
+   */
+  const testPermissionCheck = () => {
+    const result = checkPermissions(
+      [{ resource: 'content', action: 'read' }],
+      ['admin']
+    );
+    addTestResult(`权限检查结果: ${JSON.stringify(result)}`);
+  };
+
+  /**
+   * 清除测试结果
+   */
+  const clearResults = () => {
+    setTestResults([]);
+  };
+
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">权限测试页面</h1>
-        <p className="text-muted-foreground">
-          测试认证和权限守卫功能
+        <h1 className="text-3xl font-bold mb-4">权限测试页面</h1>
+        
+        {/* 开发环境标识 */}
+        {isDevelopment() && (
+          <Card className="mb-6 border-amber-200 bg-amber-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="premium">DEV</Badge>
+                <span className="font-semibold text-amber-800">开发模式</span>
+              </div>
+              <p className="text-amber-700 text-sm">
+                当前处于开发环境，所有权限检查都会返回通过，方便测试所有功能。
+                生产环境将使用真实的权限验证。
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        <p className="text-gray-600">
+          此页面用于测试权限系统的各项功能，包括认证、权限检查、角色验证等。
         </p>
       </div>
 
       {/* 当前状态 */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>当前认证状态</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">状态:</span>
-              <Badge variant={isAuthenticated ? "default" : "secondary"}>
-                {error || '正常'}
-              </Badge>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>认证状态</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <p><strong>已认证:</strong> {isAuthenticated ? '✅ 是' : '❌ 否'}</p>
+              <p><strong>用户:</strong> {user ? (user.username || user.email || user.id) : '无'}</p>
+              <p><strong>错误:</strong> {error || '无'}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium">已认证:</span>
-              <Badge variant={isAuthenticated ? "default" : "destructive"}>
-                {isAuthenticated ? "是" : "否"}
-              </Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>权限信息</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <p><strong>角色数量:</strong> {roles.length}</p>
+              <p><strong>权限数量:</strong> {permissions.length}</p>
+              <p><strong>环境:</strong> {isDevelopment() ? '开发环境' : '生产环境'}</p>
             </div>
-            {user && (
-              <div className="flex items-center gap-2">
-                <span className="font-medium">用户:</span>
-                <span>{user.username || user.email || user.id}</span>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* 测试按钮 */}
-      <Card className="mb-6">
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle>测试功能</CardTitle>
           <CardDescription>
-            点击按钮测试不同的认证和权限功能
+            点击按钮测试各项权限功能
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             <Button onClick={testBasicAuth} variant="outline">
               测试基本认证
             </Button>
@@ -114,11 +156,16 @@ const PermissionTestPage: React.FC = () => {
             <Button onClick={testComplexPermission} variant="outline">
               测试复杂权限
             </Button>
+            <Button onClick={testPermissionCheck} variant="outline">
+              测试权限检查
+            </Button>
+            <Button onClick={clearResults} variant="destructive">
+              清除结果
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* 权限守卫测试区域 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* 基本认证守卫 */}
         <Card>
@@ -236,32 +283,21 @@ const PermissionTestPage: React.FC = () => {
         <CardHeader>
           <CardTitle>测试结果</CardTitle>
           <CardDescription>
-            测试操作的日志记录
+            测试操作的详细结果
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="max-h-64 overflow-y-auto space-y-1">
             {testResults.length === 0 ? (
-              <p className="text-muted-foreground">暂无测试结果</p>
+              <p className="text-gray-500">暂无测试结果</p>
             ) : (
               testResults.map((result, index) => (
-                <div key={index} className="text-sm font-mono bg-gray-50 p-2 rounded">
+                <div key={index} className="text-sm font-mono bg-gray-100 p-2 rounded">
                   {result}
                 </div>
               ))
             )}
           </div>
-          {testResults.length > 0 && (
-            <div className="mt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTestResults([])}
-              >
-                清空结果
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

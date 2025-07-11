@@ -632,70 +632,89 @@ ${result.content}
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* 提取方式选择 */}
-                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'url' | 'file' | 'text')}>
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="url" className="flex items-center gap-1">
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">提取方式</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <Button
+                      variant={activeTab === 'url' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setActiveTab('url')}
+                      className="flex items-center gap-2"
+                    >
                       <Globe className="w-4 h-4" />
-                      网页
-                    </TabsTrigger>
-                    <TabsTrigger value="file" className="flex items-center gap-1">
-                      <Upload className="w-4 h-4" />
-                      文件
-                    </TabsTrigger>
-                    <TabsTrigger value="text" className="flex items-center gap-1">
+                      <span className="hidden sm:inline">网页URL</span>
+                      <span className="sm:hidden">URL</span>
+                    </Button>
+                    <Button
+                      variant={activeTab === 'file' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setActiveTab('file')}
+                      className="flex items-center gap-2"
+                    >
+                      <File className="w-4 h-4" />
+                      <span className="hidden sm:inline">文件上传</span>
+                      <span className="sm:hidden">文件</span>
+                    </Button>
+                    <Button
+                      variant={activeTab === 'text' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setActiveTab('text')}
+                      className="flex items-center gap-2"
+                    >
                       <FileText className="w-4 h-4" />
-                      文本
-                    </TabsTrigger>
-                  </TabsList>
+                      <span className="hidden sm:inline">文本输入</span>
+                      <span className="sm:hidden">文本</span>
+                    </Button>
+                  </div>
+                </div>
 
-                  <TabsContent value="url" className="space-y-4">
-                    <div>
-                      <Label>网页URL</Label>
-                      <Input
-                        placeholder="https://example.com"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        className="mt-2"
+                {activeTab === 'url' && (
+                  <div>
+                    <Label>网页URL</Label>
+                    <Input
+                      placeholder="https://example.com"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="mt-2"
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'file' && (
+                  <div>
+                    <Label>选择文件</Label>
+                    <div className="mt-2">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileSelect}
+                        accept=".txt,.md,.doc,.docx,.pdf"
+                        className="hidden"
                       />
+                      <Button
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        {selectedFile ? selectedFile.name : '选择文件'}
+                      </Button>
                     </div>
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="file" className="space-y-4">
-                    <div>
-                      <Label>选择文件</Label>
-                      <div className="mt-2">
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleFileSelect}
-                          accept=".txt,.md,.doc,.docx,.pdf"
-                          className="hidden"
-                        />
-                        <Button
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full"
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          {selectedFile ? selectedFile.name : '选择文件'}
-                        </Button>
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="text" className="space-y-4">
-                    <div>
-                      <Label>文本内容</Label>
-                      <Textarea
-                        placeholder="输入要提取和总结的文本内容..."
-                        value={textContent}
-                        onChange={(e) => setTextContent(e.target.value)}
-                        rows={6}
-                        className="mt-2"
-                      />
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                {activeTab === 'text' && (
+                  <div>
+                    <Label>文本内容</Label>
+                    <Textarea
+                      placeholder="输入要提取和总结的文本内容..."
+                      value={textContent}
+                      onChange={(e) => setTextContent(e.target.value)}
+                      rows={6}
+                      className="mt-2"
+                    />
+                  </div>
+                )}
 
                 {/* 自动总结选项 */}
                 <div className="flex items-center space-x-2">

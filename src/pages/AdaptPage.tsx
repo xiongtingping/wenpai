@@ -1713,7 +1713,7 @@ export default function AdaptPage() {
       {/* Platform Selection */}
       <div className="mb-8">
         <h2 className="text-lg font-medium mb-4">选择目标平台</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-fr">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
           {platforms.map(platform => (
             <CheckboxCard
               key={platform.id}
@@ -1876,9 +1876,9 @@ export default function AdaptPage() {
           </div>
           
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
-            <TabsList className="mb-6 grid w-full grid-cols-4 lg:grid-cols-8 h-12">
+            <TabsList className="mb-6 grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 h-12 overflow-x-auto">
               {results.map(result => (
-                <TabsTrigger key={result.platformId} value={result.platformId} className="text-sm font-medium">
+                <TabsTrigger key={result.platformId} value={result.platformId} className="text-xs sm:text-sm font-medium min-w-0">
                   <div className="flex items-center">
                     {getPlatformIcon(result.platformId)}
                   </div>
@@ -1977,10 +1977,10 @@ export default function AdaptPage() {
                       </div>
                       
                       {/* 主要内容区域 */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
                         {/* 原始/编辑内容 - 左侧 */}
                         <div className="space-y-4">
-                          <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
+                          <div className="flex items-center justify-center xl:justify-start gap-2 mb-3">
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                             <h4 className="text-lg font-semibold text-gray-900">生成内容</h4>
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>

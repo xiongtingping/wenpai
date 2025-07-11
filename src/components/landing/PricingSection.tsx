@@ -17,30 +17,44 @@ export function PricingSection() {
   const navigate = useNavigate()
   const [timeLeft, setTimeLeft] = useState(0);
 
-  // 倒计时逻辑（30分钟）
+  // 限时优惠倒计时逻辑（30分钟）
   useEffect(() => {
     if (!isAuthenticated) return;
-    // 以本地存储的登录时间为基准
-    let loginTime = localStorage.getItem('loginTime');
-    if (!loginTime) {
-      loginTime = Date.now().toString();
-      localStorage.setItem('loginTime', loginTime);
-    }
-    const start = parseInt(loginTime, 10);
+    
+    // 获取用户注册时间
+    const promoStart = localStorage.getItem('promo_start');
+    if (!promoStart) return;
+    
+    const startTime = parseInt(promoStart, 10);
     const interval = setInterval(() => {
       const now = Date.now();
-      const left = Math.max(0, 30 * 60 - Math.floor((now - start) / 1000));
-      setTimeLeft(left);
-      if (left <= 0) clearInterval(interval);
+      const timeLeft = Math.max(0, 30 * 60 * 1000 - (now - startTime));
+      setTimeLeft(timeLeft);
+      
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+      }
     }, 1000);
+    
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
   // 格式化倒计时
   const formatTimeLeft = () => {
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    const minutes = Math.floor(timeLeft / 60000);
+    const seconds = Math.floor((timeLeft % 60000) / 1000);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // 检查是否在限时优惠期内
+  const isInPromoPeriod = () => {
+    if (!isAuthenticated) return false;
+    const promoStart = localStorage.getItem('promo_start');
+    if (!promoStart) return false;
+    
+    const startTime = parseInt(promoStart, 10);
+    const now = Date.now();
+    return (now - startTime) < 30 * 60 * 1000; // 30分钟
   };
 
   // Handle plan selection
@@ -78,17 +92,17 @@ export function PricingSection() {
     return { disabled: false, label: '' };
   }
 
-  // 渲染features时去重次数文案
+  // 渲染features时去掉右上角文案标签
   function renderFeatures(features: string[], plan: any) {
     return features
-      .filter(f => !/免费|专业版|\d+次\/月/.test(f)) // 3. 去掉“10次/月”文案
+      .filter(f => !/免费|专业版|\d+次\/月/.test(f)) // 去掉"免费"、"专业版"、"10次/月"等文案
       .map((feature, index) => {
         let text = feature
-          .replace(/创意工作室/g, '创意魔方') // 1. 替换
-          .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 2. 替换
-          .replace(/专业功能/g, '更多功能') // 6. 替换
-          .replace(/专业版/g, '') // 7. 去除专业版
-          .replace(/热点话题/g, m => m.replace('免费', '')) // 5. 去除热点话题下免费
+          .replace(/创意工作室/g, '创意魔方') // 替换
+          .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 替换
+          .replace(/专业功能/g, '更多功能') // 替换
+          .replace(/专业版/g, '') // 去除专业版
+          .replace(/热点话题/g, m => m.replace('免费', '')) // 去除热点话题下免费
           .replace(/\s+/g, ' ') // 清理多余空格
           .trim();
         return (
@@ -109,25 +123,50 @@ export function PricingSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">选择适合您的方案</h2>
           <p className="mt-4 text-lg text-gray-600">从免费体验到高级版，全方位赋能新媒体创意工作者</p>
           {/* 登录用户显示倒计时 */}
-          {isAuthenticated && timeLeft > 0 && (
-            <div className="mt-4 flex justify-center items-center gap-2 text-red-600 text-sm font-semibold">
-              <span>限时特惠倒计时：</span>
-              <span className="bg-red-50 px-2 py-1 rounded">{formatTimeLeft()}</span>
-              <span>注册后30分钟内享受专属优惠</span>
+          {isAuthenticated && isInPromoPeriod() && (
+            <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-lg font-bold text-red-600">
+                  仅首次注册用户可享，注册后30分钟内享受25%折扣优惠，倒计时结束后恢复原价
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xl font-bold text-red-600">限时优惠倒计时：</span>
+                  <span className="text-2xl font-bold bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
+                    {formatTimeLeft()}
+                  </span>
+                </div>
+              </div>
             </div>
           )}
           
           <div className="mt-8 flex justify-center items-center space-x-4">
-            <span className={billing === "monthly" ? "text-blue-600 font-semibold" : ""}>
+            <Button
+              variant={billing === "monthly" ? "default" : "outline"}
+              onClick={() => setBilling("monthly")}
+              className={`px-6 py-3 font-semibold transition-all duration-300 ${
+                billing === "monthly" 
+                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg" 
+                  : "text-gray-600 hover:text-gray-800 border-gray-300"
+              }`}
+            >
               按月支付
-            </span>
+            </Button>
             <Switch
               checked={billing === "yearly"}
               onCheckedChange={(checked) => setBilling(checked ? "yearly" : "monthly")}
+              className="mx-4"
             />
-            <span className={billing === "yearly" ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold px-4 py-2 rounded shadow-lg scale-110" : "text-gray-700 font-semibold"}>
+            <Button
+              variant={billing === "yearly" ? "default" : "outline"}
+              onClick={() => setBilling("yearly")}
+              className={`px-6 py-3 font-semibold transition-all duration-300 ${
+                billing === "yearly" 
+                  ? "bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white shadow-lg scale-105" 
+                  : "bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200"
+              }`}
+            >
               按年订阅 <span className="text-xs ml-1">(更优惠)</span>
-            </span>
+            </Button>
           </div>
 
         </div>
@@ -175,7 +214,7 @@ export function PricingSection() {
                     </div>
                   ) : (
                     <div className="text-center">
-                      {isAuthenticated && timeLeft > 0 ? (
+                      {isAuthenticated && isInPromoPeriod() ? (
                         <div className="flex items-center justify-center gap-2">
                           <p className={`text-5xl font-extrabold ${
                             isRecommended ? 'text-purple-600' : 'text-gray-900'
@@ -197,7 +236,7 @@ export function PricingSection() {
                         </div>
                       )}
                       <p className="text-gray-500">/{billing === "monthly" ? "月" : "年"}</p>
-                      {isAuthenticated && timeLeft > 0 && (
+                      {isAuthenticated && isInPromoPeriod() && (
                         <p className="text-xs text-red-500 mt-1">省¥{pricing.savedAmount}</p>
                       )}
                     </div>

@@ -602,39 +602,41 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
       <div className="container mx-auto px-4 py-8">
         {/* 分类标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex items-center justify-between mb-6">
-            <TabsList className="grid w-full grid-cols-4 max-w-md">
-              <TabsTrigger value="all" className="flex items-center gap-2">
-                <FolderOpen className="w-4 h-4" />
-                全部
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-md">
+              <TabsTrigger value="all" className="flex items-center gap-2 text-xs sm:text-sm">
+                <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">全部</span>
+                <span className="sm:hidden">全部</span>
               </TabsTrigger>
-              <TabsTrigger value="collection" className="flex items-center gap-2">
-                <Bookmark className="w-4 h-4" />
-                网络收藏
+              <TabsTrigger value="collection" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">网络收藏</span>
+                <span className="sm:hidden">收藏</span>
               </TabsTrigger>
-              <TabsTrigger value="extraction" className="flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                内容提取
+              <TabsTrigger value="extraction" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">内容提取</span>
+                <span className="sm:hidden">提取</span>
               </TabsTrigger>
-              <TabsTrigger value="copywriting" className="flex items-center gap-2">
-                <Brain className="w-4 h-4" />
-                文案管理
+              <TabsTrigger value="copywriting" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">文案管理</span>
+                <span className="sm:hidden">文案</span>
               </TabsTrigger>
             </TabsList>
             
             {/* 操作按钮 */}
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => { setAddContentType('collection'); setIsAddDialogOpen(true); }}>
-                <Bookmark className="w-4 h-4 mr-2" />
-                添加收藏
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => { setAddContentType('extraction'); setIsAddDialogOpen(true); }}>
-                <Zap className="w-4 h-4 mr-2" />
-                内容提取
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => { setAddContentType('copywriting'); setIsAddDialogOpen(true); }}>
-                <Brain className="w-4 h-4 mr-2" />
-                创建文案
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddDialogOpen(true)}
+                className="text-xs sm:text-sm"
+              >
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">添加内容</span>
+                <span className="sm:hidden">添加</span>
               </Button>
             </div>
           </div>
