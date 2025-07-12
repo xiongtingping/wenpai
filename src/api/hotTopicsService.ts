@@ -45,62 +45,67 @@ export interface DailyHotResponse {
  * @throws Error 当API请求失败时抛出错误
  */
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
-  try {
-    // 首先尝试直接调用API
-    const response = await fetch('https://api-hot.imsyy.top/all', {
+  // 尝试多个API源，确保能够获取到真实数据
+  const apiSources = [
+    {
+      name: 'netlify-proxy',
+      url: '/.netlify/functions/api',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'hot-topics' })
+    },
+    {
+      name: 'direct-api',
+      url: 'https://api-hot.imsyy.top/all',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
     }
+  ];
 
-    const data = await response.json();
-    
-    // 检查响应格式
-    if (data.code === 200 && data.data) {
-      return data;
-    } else if (data.error) {
-      throw new Error(data.error);
-    } else {
-      throw new Error('Invalid response format');
-    }
-  } catch (error) {
-    console.error('直接API调用失败，尝试Netlify函数代理:', error);
-    
-    // 如果直接调用失败，尝试Netlify函数代理
+  for (const source of apiSources) {
     try {
-      const proxyResponse = await fetch('/.netlify/functions/api', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'hot-topics'
-        })
-      });
+      console.log(`尝试使用API源: ${source.name}`);
+      
+      const options: RequestInit = {
+        method: source.method,
+        headers: source.headers
+      };
 
-      if (!proxyResponse.ok) {
-        throw new Error(`HTTP error! status: ${proxyResponse.status}`);
+      if (source.body) {
+        options.body = source.body;
       }
 
-      const proxyData = await proxyResponse.json();
+      const response = await fetch(source.url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       
-      if (proxyData.code === 200 && proxyData.data) {
-        return proxyData;
-      } else if (proxyData.error) {
-        throw new Error(proxyData.error);
+      // 检查响应格式
+      if (data.code === 200 && data.data) {
+        console.log(`✅ 成功使用API源: ${source.name}`);
+        return data;
+      } else if (data.error) {
+        throw new Error(data.error);
       } else {
         throw new Error('Invalid response format');
       }
-    } catch (proxyError) {
-      console.error('Netlify函数代理也失败:', proxyError);
-      throw new Error(`获取全网热点数据失败: ${error instanceof Error ? error.message : '网络连接异常'}`);
+    } catch (error) {
+      console.error(`API源 ${source.name} 失败:`, error);
+      // 继续尝试下一个源
+      continue;
     }
   }
+
+  // 所有API源都失败了
+  throw new Error('无法获取热点数据，请检查网络连接或稍后重试');
 }
 
 /**
@@ -109,127 +114,104 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
  * @returns Promise<DailyHotItem[]> 平台热榜数据
  */
 export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
-  try {
-    // 首先尝试直接调用API
-    const response = await fetch(`https://api-hot.imsyy.top/${platform}`, {
+  // 尝试多个API源，确保能够获取到真实数据
+  const apiSources = [
+    {
+      name: 'netlify-proxy',
+      url: '/.netlify/functions/api',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'hot-topics', platform })
+    },
+    {
+      name: 'direct-api',
+      url: `https://api-hot.imsyy.top/${platform}`,
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
     }
+  ];
 
-    const data = await response.json();
-    
-    // 检查响应数据格式
-    if (!data) {
-      throw new Error('API返回空数据');
-    }
-
-    // 处理不同的响应格式
-    if (data.code === 200 && Array.isArray(data.data)) {
-      // 标准格式：{ code: 200, data: [...] }
-      return data.data.map((item: any) => ({
-        ...item,
-        platform // 添加平台标识
-      }));
-    } else if (Array.isArray(data)) {
-      // 直接返回数组格式
-      return data.map((item: any) => ({
-        ...item,
-        platform // 添加平台标识
-      }));
-    } else if (data.code === 200 && typeof data.data === 'object') {
-      // 对象格式，尝试提取数组
-      const responseData = data.data;
-      if (Array.isArray(responseData)) {
-        return responseData.map((item: any) => ({
-          ...item,
-          platform
-        }));
-      } else {
-        // 如果是对象，尝试找到包含数组的字段
-        const arrayFields = Object.keys(responseData).filter(key => Array.isArray(responseData[key]));
-        if (arrayFields.length > 0) {
-          return responseData[arrayFields[0]].map((item: any) => ({
-            ...item,
-            platform
-          }));
-        }
-      }
-    } else if (data.error) {
-      throw new Error(data.error);
-    }
-    
-    console.warn(`平台${platform}返回数据格式异常:`, data);
-    return [];
-  } catch (error) {
-    console.error(`直接API调用失败，尝试Netlify函数代理:`, error);
-    
-    // 如果直接调用失败，尝试Netlify函数代理
+  for (const source of apiSources) {
     try {
-      const proxyResponse = await fetch('/.netlify/functions/api', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'hot-topics',
-          platform: platform
-        })
-      });
+      console.log(`尝试使用API源获取${platform}数据: ${source.name}`);
+      
+      const options: RequestInit = {
+        method: source.method,
+        headers: source.headers
+      };
 
-      if (!proxyResponse.ok) {
-        throw new Error(`HTTP error! status: ${proxyResponse.status}`);
+      if (source.body) {
+        options.body = source.body;
       }
 
-      const proxyData = await proxyResponse.json();
+      const response = await fetch(source.url, options);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       
-      // 处理代理响应数据格式
-      if (!proxyData) {
+      // 检查响应数据格式
+      if (!data) {
         throw new Error('API返回空数据');
       }
 
-      if (proxyData.code === 200 && Array.isArray(proxyData.data)) {
-        return proxyData.data.map((item: any) => ({
+      // 处理不同的响应格式
+      if (data.code === 200 && Array.isArray(data.data)) {
+        // 标准格式：{ code: 200, data: [...] }
+        console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+        return data.data.map((item: any) => ({
           ...item,
-          platform
+          platform // 添加平台标识
         }));
-      } else if (Array.isArray(proxyData)) {
-        return proxyData.map((item: any) => ({
+      } else if (Array.isArray(data)) {
+        // 直接返回数组格式
+        console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+        return data.map((item: any) => ({
           ...item,
-          platform
+          platform // 添加平台标识
         }));
-      } else if (proxyData.code === 200 && typeof proxyData.data === 'object') {
-        const responseData = proxyData.data;
+      } else if (data.code === 200 && typeof data.data === 'object') {
+        // 对象格式，尝试提取数组
+        const responseData = data.data;
         if (Array.isArray(responseData)) {
+          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
           return responseData.map((item: any) => ({
             ...item,
             platform
           }));
         } else {
+          // 如果是对象，尝试找到包含数组的字段
           const arrayFields = Object.keys(responseData).filter(key => Array.isArray(responseData[key]));
           if (arrayFields.length > 0) {
+            console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
             return responseData[arrayFields[0]].map((item: any) => ({
               ...item,
               platform
             }));
           }
         }
-      } else if (proxyData.error) {
-        throw new Error(proxyData.error);
+      } else if (data.error) {
+        throw new Error(data.error);
       }
       
-      console.warn(`平台${platform}代理返回数据格式异常:`, proxyData);
-      return [];
-    } catch (proxyError) {
-      console.error(`Netlify函数代理也失败:`, proxyError);
-      throw error; // 重新抛出原始错误
+      console.warn(`平台${platform}返回数据格式异常:`, data);
+      continue; // 尝试下一个源
+    } catch (error) {
+      console.error(`API源 ${source.name} 获取${platform}数据失败:`, error);
+      // 继续尝试下一个源
+      continue;
     }
   }
+
+  // 所有API源都失败了
+  throw new Error(`无法获取${platform}平台数据，请检查网络连接或稍后重试`);
 }
 
 /**
@@ -316,89 +298,7 @@ export function getPlatformIconClass(platform: string): string {
   return platformIcons[platform] || 'icon-default';
 }
 
-/**
- * 获取本地备选热点话题数据
- * @returns Record<string, DailyHotItem[]> 本地热点话题数据
- */
-function getLocalHotTopicsData(): Record<string, DailyHotItem[]> {
-  const now = new Date();
-  const timestamp = now.toISOString();
-  
-  return {
-    weibo: [
-      {
-        title: '文派AI内容适配工具上线',
-        hot: '9999',
-        url: 'https://wenpai.netlify.app',
-        desc: 'AI驱动的多平台内容适配工具',
-        platform: 'weibo',
-        index: 1
-      },
-      {
-        title: 'AI技术发展趋势',
-        hot: '8888',
-        url: '#',
-        desc: '人工智能技术的最新发展方向',
-        platform: 'weibo',
-        index: 2
-      }
-    ],
-    zhihu: [
-      {
-        title: '如何提高内容创作效率？',
-        hot: '7777',
-        url: '#',
-        desc: '探讨内容创作的新方法和工具',
-        platform: 'zhihu',
-        index: 1
-      },
-      {
-        title: 'AI辅助写作的实践',
-        hot: '6666',
-        url: '#',
-        desc: 'AI在写作领域的应用案例',
-        platform: 'zhihu',
-        index: 2
-      }
-    ],
-    douyin: [
-      {
-        title: '短视频创作技巧分享',
-        hot: '5555',
-        url: '#',
-        desc: '短视频内容创作的最佳实践',
-        platform: 'douyin',
-        index: 1
-      },
-      {
-        title: 'AI视频生成技术',
-        hot: '4444',
-        url: '#',
-        desc: 'AI在视频创作中的应用',
-        platform: 'douyin',
-        index: 2
-      }
-    ],
-    bilibili: [
-      {
-        title: 'B站UP主创作指南',
-        hot: '3333',
-        url: '#',
-        desc: 'B站内容创作的经验分享',
-        platform: 'bilibili',
-        index: 1
-      },
-      {
-        title: '科技类视频制作',
-        hot: '2222',
-        url: '#',
-        desc: '科技内容视频的制作技巧',
-        platform: 'bilibili',
-        index: 2
-      }
-    ]
-  };
-}
+
 
 /**
  * 获取摩鱼日历数据
