@@ -1,19 +1,19 @@
 /**
- * 首页主视觉区块（极简现代风格）
- * 参考用户最新设计，简洁渐变背景，主副标题、按钮居中
+ * 首页主视觉区块（极简大标题风格）
+ * 参考用户最新设计，纯白背景，大号主标题，圆润按钮，紧凑留白
  */
 import React from 'react';
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="bg-gradient-to-b from-white to-slate-50 py-20">
-      <div className="max-w-5xl mx-auto px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-          让内容创作更 <span className="text-blue-600">智能</span>、更 <span className="text-pink-500">高效</span>
+    <section className="bg-white py-24 text-center">
+      <div className="max-w-4xl mx-auto px-4">
+        <h1 className="text-5xl font-bold leading-tight mb-4">
+          让内容创作更 <span className="text-blue-600 font-extrabold">智能</span>、更 <span className="text-pink-500 font-extrabold">高效</span>
         </h1>
-        <p className="text-lg text-gray-600 mb-6">AI驱动的智能内容适配、创意生成与多平台分发工具</p>
+        <p className="text-lg text-gray-500 mb-8">AI驱动的智能内容适配、创意生成与多平台分发工具</p>
         <a href="/adapt">
-          <button className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:opacity-90 transition">
+          <button className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-lg rounded-full shadow-xl hover:scale-105 transition">
             开始创作
           </button>
         </a>
