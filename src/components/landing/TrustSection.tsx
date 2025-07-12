@@ -2,7 +2,15 @@ import { Book, Video, MessageSquare, Send, Twitter, SquarePlay, Globe, Rss, Zap,
 
 export function TrustSection() {
   return (
-    <section className="py-16 opacity-0 animate-fadeIn bg-[#f9f9f9]" id="trust-section">
+    <section className="py-16 opacity-0 animate-fadeIn bg-[#f9f9f9] relative" id="trust-section">
+      {/* 顶部渐变过渡层 - 从白色过渡到浅灰色 */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-10"
+        style={{
+          background: 'linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%)'
+        }}
+      />
+      
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
@@ -108,6 +116,14 @@ export function TrustSection() {
           </span>
         </div>
       </div>
+      
+      {/* 底部渐变过渡层 - 从浅灰色过渡到白色 */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-10"
+        style={{
+          background: 'linear-gradient(to top, #ffffff 0%, #f9f9f9 100%)'
+        }}
+      />
     </section>
   )
 }
