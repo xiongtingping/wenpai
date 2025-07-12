@@ -468,8 +468,6 @@ export default function HotTopicsPage() {
     try {
       addTopicSubscription({
         ...newSubscription,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
         lastChecked: null,
         lastNotification: null
       });

@@ -25,6 +25,8 @@ export interface TopicSubscription {
   createdAt: string;
   updatedAt: string;
   lastCheckAt?: string;
+  lastChecked?: string | null;
+  lastNotification?: string | null;
   checkInterval: number; // 检查间隔（分钟）
   minHeatThreshold?: number; // 最小热度阈值
   maxHeatThreshold?: number; // 最大热度阈值（用于热度警报）

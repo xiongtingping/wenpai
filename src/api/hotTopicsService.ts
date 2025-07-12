@@ -31,6 +31,12 @@ export interface DailyHotItem {
   relatedTopics?: string[];
   /** 热度排名 */
   rank?: number;
+  /** 偏好分数（用于智能排序） */
+  preferenceScore?: number;
+  /** 匹配的关键词 */
+  matchedKeywords?: string[];
+  /** 是否为高优先级话题 */
+  isHighPriority?: boolean;
 }
 
 /**
