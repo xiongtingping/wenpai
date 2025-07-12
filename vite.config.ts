@@ -11,16 +11,21 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 5173,
     host: true,
     open: true,
     // 开发环境优化
     hmr: {
       overlay: true, // 显示错误覆盖层
     },
-    // 代理Netlify函数到本地开发服务器
+    // 代理Netlify函数到本地开发环境
     proxy: {
       '/.netlify/functions/api': {
+        target: 'http://localhost:8888',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/.netlify/functions/cors-test': {
         target: 'http://localhost:8888',
         changeOrigin: true,
         secure: false,

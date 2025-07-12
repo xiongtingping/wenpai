@@ -33,8 +33,8 @@
 
 [dev]
   command = "npm run dev"
-  port = 3000
-  targetPort = 3007
+  port = 8888
+  targetPort = 5173
   publish = "dist"
 
 [[headers]]

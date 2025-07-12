@@ -79,7 +79,10 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
 
   for (const source of apiSources) {
     try {
-      console.log(`尝试使用API源: ${source.name}`);
+      // 只在开发环境下输出调试日志
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`尝试使用API源: ${source.name}`);
+      }
       
       const options: RequestInit = {
         method: source.method,
@@ -103,29 +106,64 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
         try {
           const parsedContents = JSON.parse(data.contents);
           if (parsedContents.code === 200 && parsedContents.data) {
-            console.log(`✅ 成功使用API源: ${source.name}`);
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`✅ 成功使用API源: ${source.name}`);
+            }
             return parsedContents;
           }
         } catch (parseError) {
-          console.error('解析allorigins响应失败:', parseError);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('解析allorigins响应失败:', parseError);
+          }
         }
       }
       
       // 检查标准响应格式
       if (data.code === 200 && data.data) {
-        console.log(`✅ 成功使用API源: ${source.name}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ 成功使用API源: ${source.name}`);
+        }
         return data;
+      } else if (data.code === 200 && data.routes) {
+        // 处理API路由信息，获取主要平台的数据
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ 获取到API路由信息，开始获取主要平台数据: ${source.name}`);
+        }
+        
+        // 获取主要平台的数据
+        const mainPlatforms = ['weibo', 'zhihu', 'bilibili', 'douyin'];
+        const platformData: Record<string, DailyHotItem[]> = {};
+        
+        for (const platform of mainPlatforms) {
+          try {
+            const platformItems = await getDailyHotByPlatform(platform);
+            platformData[platform] = platformItems;
+          } catch (error) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn(`获取${platform}数据失败:`, error);
+            }
+            platformData[platform] = [];
+          }
+        }
+        
+        return {
+          code: 200,
+          msg: 'success',
+          data: platformData
+        };
       } else if (data.error) {
         throw new Error(data.error);
       } else {
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error(`API源 ${source.name} 失败:`, error);
-      
-      // 详细的CORS错误处理
-      if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-        console.warn(`检测到CORS错误，尝试下一个API源: ${source.name}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`API源 ${source.name} 失败:`, error);
+        
+        // 详细的CORS错误处理
+        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+          console.warn(`检测到CORS错误，尝试下一个API源: ${source.name}`);
+        }
       }
       
       // 继续尝试下一个源
@@ -177,7 +215,10 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
 
   for (const source of apiSources) {
     try {
-      console.log(`尝试使用API源获取${platform}数据: ${source.name}`);
+      // 只在开发环境下输出调试日志
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`尝试使用API源获取${platform}数据: ${source.name}`);
+      }
       
       const options: RequestInit = {
         method: source.method,
@@ -207,7 +248,9 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
         try {
           processedData = JSON.parse(data.contents);
         } catch (parseError) {
-          console.error('解析allorigins响应失败:', parseError);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('解析allorigins响应失败:', parseError);
+          }
           continue; // 尝试下一个源
         }
       }
@@ -215,14 +258,18 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
       // 处理不同的响应格式
       if (processedData.code === 200 && Array.isArray(processedData.data)) {
         // 标准格式：{ code: 200, data: [...] }
-        console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+        }
         return processedData.data.map((item: any) => ({
           ...item,
           platform // 添加平台标识
         }));
       } else if (Array.isArray(processedData)) {
         // 直接返回数组格式
-        console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+        }
         return processedData.map((item: any) => ({
           ...item,
           platform // 添加平台标识
@@ -231,7 +278,9 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
         // 对象格式，尝试提取数组
         const responseData = processedData.data;
         if (Array.isArray(responseData)) {
-          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+          }
           return responseData.map((item: any) => ({
             ...item,
             platform
@@ -240,7 +289,9 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
           // 如果是对象，尝试找到包含数组的字段
           const arrayFields = Object.keys(responseData).filter(key => Array.isArray(responseData[key]));
           if (arrayFields.length > 0) {
-            console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+            }
             return responseData[arrayFields[0]].map((item: any) => ({
               ...item,
               platform
@@ -251,10 +302,14 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
         throw new Error(processedData.error);
       }
       
-      console.warn(`平台${platform}返回数据格式异常:`, data);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`平台${platform}返回数据格式异常:`, processedData);
+      }
       continue; // 尝试下一个源
     } catch (error) {
-      console.error(`API源 ${source.name} 获取${platform}数据失败:`, error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`API源 ${source.name} 获取${platform}数据失败:`, error);
+      }
       // 继续尝试下一个源
       continue;
     }

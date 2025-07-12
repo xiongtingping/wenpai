@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地Netlify函数测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .loading {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>本地Netlify函数测试</h1>
+        
+        <div class="info">
+            <strong>当前环境：</strong> 本地开发环境 (http://localhost:5173)<br>
+            <strong>测试目标：</strong> 验证Netlify函数代理是否正常工作<br>
+            <strong>代理配置：</strong> Vite代理将/.netlify/functions/api转发到http://localhost:8888
+        </div>
+        
+        <div class="test-section">
+            <h3>1. 测试Vite代理配置</h3>
+            <button onclick="testViteProxy()">测试Vite代理</button>
+            <div id="vite-proxy-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. 测试热点话题API（通过代理）</h3>
+            <button onclick="testHotTopicsProxy()">测试热点话题API</button>
+            <div id="hot-topics-proxy-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. 测试微博数据（通过代理）</h3>
+            <button onclick="testWeiboProxy()">测试微博数据</button>
+            <div id="weibo-proxy-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. 测试直接调用第三方API</h3>
+            <button onclick="testDirectAPI()">测试直接API调用</button>
+            <div id="direct-api-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>5. 测试allorigins代理</h3>
+            <button onclick="testAllOriginsProxy()">测试allorigins代理</button>
+            <div id="allorigins-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 显示测试结果
+         * @param {string} elementId 结果元素ID
+         * @param {string} message 结果消息
+         * @param {boolean} isSuccess 是否成功
+         */
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+            element.style.display = 'block';
+        }
+
+        /**
+         * 测试Vite代理配置
+         */
+        async function testViteProxy() {
+            const resultElement = document.getElementById('vite-proxy-result');
+            resultElement.textContent = '正在测试Vite代理...';
+            resultElement.className = 'result loading';
+            resultElement.style.display = 'block';
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'test' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                showResult('vite-proxy-result', `✅ Vite代理测试成功！\n\n响应数据：\n${JSON.stringify(data, null, 2)}`, true);
+            } catch (error) {
+                showResult('vite-proxy-result', `❌ Vite代理测试失败：\n${error.message}\n\n可能的原因：\n1. Netlify CLI未启动\n2. 端口8888未监听\n3. 代理配置错误`, false);
+            }
+        }
+
+        /**
+         * 测试热点话题API（通过代理）
+         */
+        async function testHotTopicsProxy() {
+            const resultElement = document.getElementById('hot-topics-proxy-result');
+            resultElement.textContent = '正在测试热点话题API...';
+            resultElement.className = 'result loading';
+            resultElement.style.display = 'block';
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'hot-topics' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                showResult('hot-topics-proxy-result', `✅ 热点话题API测试成功！\n\n响应数据：\n${JSON.stringify(data, null, 2)}`, true);
+            } catch (error) {
+                showResult('hot-topics-proxy-result', `❌ 热点话题API测试失败：\n${error.message}`, false);
+            }
+        }
+
+        /**
+         * 测试微博数据（通过代理）
+         */
+        async function testWeiboProxy() {
+            const resultElement = document.getElementById('weibo-proxy-result');
+            resultElement.textContent = '正在测试微博数据...';
+            resultElement.className = 'result loading';
+            resultElement.style.display = 'block';
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'hot-topics', platform: 'weibo' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                showResult('weibo-proxy-result', `✅ 微博数据测试成功！\n\n响应数据：\n${JSON.stringify(data, null, 2)}`, true);
+            } catch (error) {
+                showResult('weibo-proxy-result', `❌ 微博数据测试失败：\n${error.message}`, false);
+            }
+        }
+
+        /**
+         * 测试直接调用第三方API
+         */
+        async function testDirectAPI() {
+            const resultElement = document.getElementById('direct-api-result');
+            resultElement.textContent = '正在测试直接API调用...';
+            resultElement.className = 'result loading';
+            resultElement.style.display = 'block';
+            
+            try {
+                const response = await fetch('https://api-hot.imsyy.top/all', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                showResult('direct-api-result', `✅ 直接API调用成功！\n\n响应数据：\n${JSON.stringify(data, null, 2)}`, true);
+            } catch (error) {
+                showResult('direct-api-result', `❌ 直接API调用失败（预期CORS错误）：\n${error.message}`, false);
+            }
+        }
+
+        /**
+         * 测试allorigins代理
+         */
+        async function testAllOriginsProxy() {
+            const resultElement = document.getElementById('allorigins-result');
+            resultElement.textContent = '正在测试allorigins代理...';
+            resultElement.className = 'result loading';
+            resultElement.style.display = 'block';
+            
+            try {
+                const response = await fetch('https://api.allorigins.win/get?url=https://api-hot.imsyy.top/all', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                showResult('allorigins-result', `✅ allorigins代理测试成功！\n\n响应数据：\n${JSON.stringify(data, null, 2)}`, true);
+            } catch (error) {
+                showResult('allorigins-result', `❌ allorigins代理测试失败：\n${error.message}`, false);
+            }
+        }
+    </script>
+</body>
+</html> 
