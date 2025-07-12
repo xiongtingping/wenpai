@@ -40,16 +40,16 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     tier: 'pro',
     description: '适合个人创作者和中小企业',
     monthly: {
-      originalPrice: 39.9,
-      discountPrice: 29.9,
+      originalPrice: 39,
+      discountPrice: 29,
       discountPercentage: 25,
       savedAmount: 10
     },
     yearly: {
-      originalPrice: 478.8,
-      discountPrice: 358,
+      originalPrice: 468,
+      discountPrice: 349,
       discountPercentage: 25,
-      savedAmount: 120.8
+      savedAmount: 119
     },
     limits: {
       adaptUsageLimit: 30,
@@ -73,15 +73,15 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     description: '适合专业团队和企业用户',
     monthly: {
       originalPrice: 99,
-      discountPrice: 73.9,
-      discountPercentage: 25,
-      savedAmount: 25.1
+      discountPrice: 69,
+      discountPercentage: 30,
+      savedAmount: 30
     },
     yearly: {
       originalPrice: 1188,
-      discountPrice: 888,
-      discountPercentage: 25,
-      savedAmount: 300
+      discountPrice: 828,
+      discountPercentage: 30,
+      savedAmount: 360
     },
     limits: {
       adaptUsageLimit: -1, // 不限量

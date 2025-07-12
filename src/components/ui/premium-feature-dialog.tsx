@@ -60,7 +60,7 @@ export function PremiumFeatureDialog({
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-3 rounded-lg border border-amber-200">
             <div className="flex items-center gap-2 text-amber-800">
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">限时优惠：年付省300元</span>
+              <span className="text-sm font-medium">限时优惠：年付省360元</span>
             </div>
           </div>
         </div>
