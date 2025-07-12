@@ -7,7 +7,7 @@
   functions = "netlify/functions"
 
   [build.environment]
-    NODE_VERSION = "18.20.3"
+    NODE_VERSION = "20.16.0"
 
 # API重定向到Netlify函数
 [[redirects]]
