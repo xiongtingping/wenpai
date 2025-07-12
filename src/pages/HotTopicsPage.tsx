@@ -376,7 +376,7 @@ export default function HotTopicsPage() {
         try {
           const filters = JSON.parse(savedFilters);
           setInterestFilters(filters);
-        } catch (error) {
+    } catch (error) {
           console.error('加载兴趣过滤器失败:', error);
         }
       }
@@ -444,10 +444,10 @@ export default function HotTopicsPage() {
     if (!allHotData || !allHotData.data) {
       return { total: 0, platforms: 0 };
     }
-
+    
     const total = Object.values(allHotData.data).reduce((sum, topics) => sum + topics.length, 0);
     const platforms = Object.keys(allHotData.data).length;
-
+    
     return { total, platforms };
   };
 
@@ -543,7 +543,7 @@ export default function HotTopicsPage() {
 
       setIsAddDialogOpen(false);
       loadSubscriptions();
-
+      
       toast({
         title: "订阅添加成功",
         description: `已添加关键词"${newSubscription.keyword}"的订阅`,
@@ -582,8 +582,8 @@ export default function HotTopicsPage() {
    */
   const handleToggleSubscription = (id: string, isActive: boolean) => {
     try {
-      toggleSubscription(id, isActive);
-      loadSubscriptions();
+    toggleSubscription(id, isActive);
+    loadSubscriptions();
       toast({
         title: isActive ? "订阅已启用" : "订阅已禁用",
         description: isActive ? "订阅监控已开始" : "订阅监控已暂停",
@@ -610,8 +610,8 @@ export default function HotTopicsPage() {
       }));
       
       if (results.length > 0) {
-        toast({
-          title: "监控完成",
+      toast({
+        title: "监控完成",
           description: `发现 ${results.length} 个相关话题`,
         });
       } else {
@@ -1087,7 +1087,7 @@ export default function HotTopicsPage() {
                           <span className="ml-2">{subscription.minHeatThreshold}-{subscription.maxHeatThreshold}</span>
                         </div>
                       </div>
-
+                      
                       {/* 监控结果 */}
                       {monitorResults[subscription.id] && monitorResults[subscription.id].length > 0 && (
                         <div className="mt-4">
@@ -1136,7 +1136,7 @@ export default function HotTopicsPage() {
                     <p className="text-gray-600">
                       点击话题右侧的书签图标来收藏感兴趣的内容
                     </p>
-                  </div>
+              </div>
                 ) : (
                   <div className="space-y-3">
                     {Array.from(bookmarkedTopics).map((topicId, index) => {
