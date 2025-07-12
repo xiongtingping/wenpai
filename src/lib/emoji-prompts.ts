@@ -34,122 +34,13 @@ export const complexityLabels = ['简单', '适中', '复杂', '非常复杂', '
  * 根据品牌和角色描述构建情绪prompt
  * @param characterDesc 角色描述
  * @param brand 品牌名称
- * @param uploadedImage 上传的图片文件
  * @returns 情绪prompt数组
  */
-export function buildEmotionPrompts(characterDesc: string, brand: string, uploadedImage?: File | null) {
-  // 基础品牌描述增强
-  const enhancedDesc = characterDesc.trim() || '可爱的卡通形象';
-  
-  // 构建更详细的提示词模板
-  const basePrompt = `一个${brand}品牌的${enhancedDesc}，`;
-  
-  return baseEmotions.map((emotion) => {
-    // 根据不同表情类型构建更具体的描述
-    let emotionDesc = '';
-    switch (emotion) {
-      case '开心微笑':
-        emotionDesc = '面带温暖微笑，眼睛弯弯的，表情友好亲切';
-        break;
-      case '大笑':
-        emotionDesc = '开怀大笑，眼睛眯成一条线，露出整齐的牙齿';
-        break;
-      case '生气':
-        emotionDesc = '眉头紧皱，嘴巴抿成一条线，表情严肃但不可怕';
-        break;
-      case '哭泣':
-        emotionDesc = '眼角含泪，嘴巴微微下垂，表情委屈但可爱';
-        break;
-      case '惊讶':
-        emotionDesc = '眼睛睁大，嘴巴微微张开，表情惊讶但有趣';
-        break;
-      case '疑惑':
-        emotionDesc = '歪着头，眉毛微微上扬，表情困惑但可爱';
-        break;
-      case '睡觉':
-        emotionDesc = '闭着眼睛，嘴巴微微张开，表情安详可爱';
-        break;
-      case '吐舌':
-        emotionDesc = '调皮地吐着舌头，眼睛眨着，表情俏皮可爱';
-        break;
-      case '鼓掌':
-        emotionDesc = '双手鼓掌，脸上带着赞许的笑容';
-        break;
-      case '比心':
-        emotionDesc = '双手比心，脸上带着温暖的笑容';
-        break;
-      case '点赞':
-        emotionDesc = '竖起大拇指，脸上带着赞许的表情';
-        break;
-      case 'OK 手势':
-        emotionDesc = '做出OK手势，脸上带着自信的笑容';
-        break;
-      case '拒绝':
-        emotionDesc = '摇头摆手，表情坚定但友好';
-        break;
-      case '拍头':
-        emotionDesc = '轻拍头部，表情恍然大悟';
-        break;
-      case '举手提问':
-        emotionDesc = '举手提问，表情好奇认真';
-        break;
-      case '加油':
-        emotionDesc = '握拳加油，表情充满干劲';
-        break;
-      case '挑眉':
-        emotionDesc = '单边挑眉，表情俏皮有趣';
-        break;
-      case '害羞':
-        emotionDesc = '脸颊微红，低头害羞，表情可爱';
-        break;
-      case '眨眼':
-        emotionDesc = '单眼眨眼，表情俏皮可爱';
-        break;
-      case '黑脸':
-        emotionDesc = '表情严肃，但保持可爱风格';
-        break;
-      case '鼻涕泡':
-        emotionDesc = '鼻子冒泡，表情呆萌可爱';
-        break;
-      case '流口水':
-        emotionDesc = '嘴角流口水，表情馋嘴可爱';
-        break;
-      case '咀嚼':
-        emotionDesc = '嘴巴咀嚼，表情满足可爱';
-        break;
-      case '偷笑':
-        emotionDesc = '偷偷笑着，表情俏皮可爱';
-        break;
-      case '吓到':
-        emotionDesc = '被吓到，表情惊讶但可爱';
-        break;
-      case '打喷嚏':
-        emotionDesc = '打喷嚏，表情可爱';
-        break;
-      case '爱心眼':
-        emotionDesc = '眼睛变成爱心，表情迷恋可爱';
-        break;
-      case '庆祝':
-        emotionDesc = '庆祝动作，表情开心兴奋';
-        break;
-      case '拿红包':
-        emotionDesc = '拿着红包，表情开心满足';
-        break;
-      case '举杯微笑':
-        emotionDesc = '举杯微笑，表情优雅友好';
-        break;
-      default:
-        emotionDesc = `正在${emotion}`;
-    }
-    
-    // 构建完整的提示词
-    const fullPrompt = `${basePrompt}${emotionDesc}，表情风格为 emoji，扁平卡通风，透明背景，高质量，细节丰富`;
-    
-    return {
-      emotion,
-      prompt: fullPrompt,
-    };
-  });
+export function buildEmotionPrompts(characterDesc: string, brand: string) {
+  return baseEmotions.map((emotion) => ({
+    emotion,
+    prompt: `一个${brand}品牌卡通形象正在${emotion}，${characterDesc}，表情风格为 emoji，扁平卡通风，透明背景`,
+  }));
 }
 
 /**
