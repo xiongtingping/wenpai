@@ -692,24 +692,10 @@ export default function HotTopicsPage() {
         title="全网雷达"
         description="实时监控各平台热门话题，支持自定义话题订阅和智能追踪"
         showAdaptButton={false}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              刷新
-            </Button>
-          </div>
-        }
+        // 移除actions中的刷新按钮
       />
 
       <div className="container mx-auto px-4 py-8">
-
-
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'bookmarks')} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -730,8 +716,7 @@ export default function HotTopicsPage() {
                 <span className="sm:hidden">收藏</span>
               </TabsTrigger>
             </TabsList>
-            
-            {/* 操作按钮 */}
+            {/* 操作按钮区，添加订阅和刷新并列 */}
             <div className="flex items-center gap-2 flex-wrap">
               <Button
                 variant="outline"
@@ -742,6 +727,16 @@ export default function HotTopicsPage() {
                 <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">添加订阅</span>
                 <span className="sm:hidden">添加</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="text-xs sm:text-sm"
+              >
+                <RefreshCw className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
+                刷新
               </Button>
             </div>
           </div>
@@ -802,10 +797,11 @@ export default function HotTopicsPage() {
                   </CardHeader>
                   <CardContent>
                     <Tabs defaultValue="all" className="w-full">
-                      <TabsList className="grid w-full grid-cols-7">
-                        <TabsTrigger value="all">总榜</TabsTrigger>
+                      {/* Tab栏横向滚动优化 */}
+                      <TabsList className="flex w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                        <TabsTrigger value="all" className="min-w-[72px]">总榜</TabsTrigger>
                         {supportedPlatforms.map((platform) => (
-                          <TabsTrigger key={platform} value={platform}>
+                          <TabsTrigger key={platform} value={platform} className="min-w-[72px]">
                             {getPlatformDisplayName(platform)}
                           </TabsTrigger>
                         ))}
