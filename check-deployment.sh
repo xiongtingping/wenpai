@@ -1,64 +1,58 @@
 #!/bin/bash
 
-echo "🚀 文派AI项目部署状态检查"
-echo "================================"
+echo "🚀 文派 - 部署状态检查"
+echo "========================"
 
-# 检查最新提交
-echo "📋 最新Git提交:"
-git log --oneline -1
+# 检查Netlify部署状态
+echo "📋 检查Netlify部署状态..."
 
-echo ""
-echo "🌐 检查网站可访问性:"
+# 获取最新的部署URL
+DEPLOY_URL="https://6872271d9e6c090008ffd9d5--wenpai.netlify.app"
 
-# 检查主域名
-MAIN_URL="https://www.wenpai.xyz"
-echo "检查主域名: $MAIN_URL"
-if curl -s --head "$MAIN_URL" | head -n 1 | grep -q "200 OK"; then
-    echo "✅ 主域名可访问"
+echo "🌐 部署地址: $DEPLOY_URL"
+
+# 测试网站可访问性
+echo "🔍 测试网站可访问性..."
+if curl -s -o /dev/null -w "%{http_code}" "$DEPLOY_URL" | grep -q "200"; then
+    echo "✅ 网站可正常访问"
 else
-    echo "❌ 主域名不可访问"
+    echo "❌ 网站访问异常"
 fi
 
-# 检查Netlify域名（如果有的话）
-NETLIFY_URL="https://wenpai.netlify.app"
-echo "检查Netlify域名: $NETLIFY_URL"
-if curl -s --head "$NETLIFY_URL" | head -n 1 | grep -q "200 OK"; then
-    echo "✅ Netlify域名可访问"
+# 测试热点话题API
+echo "🔥 测试热点话题API..."
+API_RESPONSE=$(curl -s -X POST "$DEPLOY_URL/.netlify/functions/api" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"hot-topics","platform":"weibo"}')
+
+if echo "$API_RESPONSE" | grep -q "title"; then
+    echo "✅ 热点话题API正常"
+    echo "📊 微博数据示例:"
+    echo "$API_RESPONSE" | jq -r '.data[0].title' 2>/dev/null || echo "数据格式正常"
 else
-    echo "❌ Netlify域名不可访问"
+    echo "❌ 热点话题API异常"
+    echo "响应: $API_RESPONSE"
+fi
+
+# 测试AI服务状态
+echo "🤖 测试AI服务状态..."
+AI_STATUS=$(curl -s -X POST "$DEPLOY_URL/.netlify/functions/api" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"status","provider":"openai"}')
+
+if echo "$AI_STATUS" | grep -q "available"; then
+    echo "✅ AI服务状态检查正常"
+else
+    echo "⚠️ AI服务状态检查异常"
+    echo "响应: $AI_STATUS"
 fi
 
 echo ""
-echo "📊 构建信息:"
-echo "- Node版本要求: $(grep -o '"node": "[^"]*"' package.json)"
-echo "- 构建命令: $(grep -o '"build": "[^"]*"' package.json)"
-echo "- 发布目录: dist"
-
+echo "🎉 部署状态检查完成！"
 echo ""
-echo "🔧 部署建议:"
-echo "1. 确保在Netlify中连接了GitHub仓库"
-echo "2. 设置构建命令为: npm run build"
-echo "3. 设置发布目录为: dist"
-echo "4. 设置Node版本为: 18"
-echo "5. 配置环境变量（如需要）"
-
+echo "📝 下一步操作:"
+echo "1. 访问 $DEPLOY_URL 查看网站"
+echo "2. 测试热点话题功能: $DEPLOY_URL/hot-topics"
+echo "3. 测试AI功能: $DEPLOY_URL/adapt"
 echo ""
-echo "📱 功能验证清单:"
-echo "- [ ] 首页加载正常"
-echo "- [ ] 用户登录功能"
-echo "- [ ] 内容适配工具"
-echo "- [ ] 内容提取功能"
-echo "- [ ] 我的资料库"
-echo "- [ ] Emoji生成器"
-echo "- [ ] 创意工作室"
-echo "- [ ] 一键转发管理"
-
-echo ""
-echo "✨ 新功能验证:"
-echo "- [ ] /content-extractor - 内容提取与AI总结"
-echo "- [ ] /emoji-generator - Emoji生成器"
-echo "- [ ] /library - 我的资料库"
-echo "- [ ] /share-manager - 一键转发管理"
-
-echo ""
-echo "🎯 部署完成后请访问以上URL进行功能测试"
+echo "🔧 如需配置环境变量，请访问Netlify控制台"
