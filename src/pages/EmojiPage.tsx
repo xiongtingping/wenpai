@@ -327,14 +327,6 @@ const EmojiPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 页面导航 */}
-      <PageNavigation
-        title="Emoji 生成器"
-        description="专业emoji生成工具"
-        showAdaptButton={false}
-        actions={<div></div>}
-      />
-
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* Emoji统计信息卡片 */}
         <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">

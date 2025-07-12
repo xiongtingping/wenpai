@@ -629,16 +629,59 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
             
             {/* 操作按钮 */}
             <div className="flex items-center gap-2 flex-wrap">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAddDialogOpen(true)}
-                className="text-xs sm:text-sm"
-              >
-                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">添加内容</span>
-                <span className="sm:hidden">添加</span>
-              </Button>
+              <Dialog open={isAddDialogOpen && addContentType === 'collection'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAddContentType('collection');
+                      setIsAddDialogOpen(true);
+                    }}
+                    className="text-xs sm:text-sm"
+                  >
+                    <Bookmark className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">添加网络收藏</span>
+                    <span className="sm:hidden">收藏</span>
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
+
+              <Dialog open={isAddDialogOpen && addContentType === 'extraction'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAddContentType('extraction');
+                      setIsAddDialogOpen(true);
+                    }}
+                    className="text-xs sm:text-sm"
+                  >
+                    <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">内容提取</span>
+                    <span className="sm:hidden">提取</span>
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
+
+              <Dialog open={isAddDialogOpen && addContentType === 'copywriting'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAddContentType('copywriting');
+                      setIsAddDialogOpen(true);
+                    }}
+                    className="text-xs sm:text-sm"
+                  >
+                    <Brain className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">创建文案</span>
+                    <span className="sm:hidden">文案</span>
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
             </div>
           </div>
 

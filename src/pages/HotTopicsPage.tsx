@@ -891,40 +891,6 @@ export default function HotTopicsPage() {
               </div>
             )}
 
-            {/* 平台选择 */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg">选择平台</CardTitle>
-                <CardDescription>
-                  查看不同平台的热门话题
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant={currentPlatform === 'all' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCurrentPlatform('all')}
-                  >
-                    全部平台
-                  </Button>
-                  {supportedPlatforms.map((platform) => (
-                    <Button
-                      key={platform}
-                      variant={currentPlatform === platform ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setCurrentPlatform(platform)}
-                    >
-                      {getPlatformIcon(platform)}
-                      {getPlatformDisplayName(platform)}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-
-
             {/* 兴趣调节 */}
             <InterestFilter onFilterChange={handleInterestFilterChange} />
 

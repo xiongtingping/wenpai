@@ -84,10 +84,10 @@ export function PricingSection() {
   function getFeatureStatus(feature: string, planTier: string) {
     // 这里可根据feature内容和planTier灵活判断
     if (feature.includes('创意魔方') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
+    if (feature.includes('全网雷达') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
     if (feature.includes('品牌库') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
     if (feature.includes('高级模型') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
     if (feature.includes('最新模型') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
-    // 全网雷达现在是免费功能，所有版本都可用
     // 其他功能默认可用
     return { disabled: false, label: '' };
   }
@@ -339,10 +339,10 @@ export function PricingSection() {
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网雷达</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-green-600 font-medium">✅</span>
+                      <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-green-600 font-medium">✅</span>
+                      <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
                       <span className="text-green-600 font-medium">✅</span>

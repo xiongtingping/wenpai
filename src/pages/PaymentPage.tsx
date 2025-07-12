@@ -75,11 +75,11 @@ export default function PaymentPage() {
       
       // 自动滚动到二维码区域
       setTimeout(() => {
-        const qrCodeElement = document.getElementById('payment-qr-code');
+        const qrCodeElement = document.querySelector('[data-qr-code]');
         if (qrCodeElement) {
           qrCodeElement.scrollIntoView({ 
             behavior: 'smooth', 
-            block: 'center' 
+            block: 'start' 
           });
         }
       }, 100);
@@ -262,10 +262,10 @@ export default function PaymentPage() {
                       </div>
                       {/* 年付优惠文案 - 仅在非限时优惠期间显示 */}
                       {selectedPeriod === 'yearly' && !isInDiscount && plan.tier === 'pro' && (
-                        <div className="text-xs text-green-600">年付省119元</div>
+                        <div className="text-xs text-green-600">年付省120元</div>
                       )}
                       {selectedPeriod === 'yearly' && !isInDiscount && plan.tier === 'premium' && (
-                        <div className="text-xs text-green-600">年付省360元</div>
+                        <div className="text-xs text-green-600">年付省300元</div>
                       )}
                     </div>
                   )}
@@ -284,11 +284,7 @@ export default function PaymentPage() {
                 {/* 选择按钮 */}
                 <Button 
                   variant={isSelected ? "default" : "outline"}
-                  className={`w-full transition-all duration-200 ${
-                    isSelected 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700' 
-                      : 'hover:bg-blue-50 hover:border-blue-300'
-                  }`}
+                  className="w-full"
                   disabled={plan.tier === 'trial'}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -307,90 +303,79 @@ export default function PaymentPage() {
 
       {/* 支付二维码 */}
       {showQRCode && selectedPlan && selectedPlan.tier !== 'trial' && (
-        <>
-          {/* 滚动提示 */}
-          <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg text-center">
-            <p className="text-blue-700 font-medium">
-              🎯 已为您自动滚动到支付区域，请选择支付方式
-            </p>
-          </div>
-          
-          <Card id="payment-qr-code" className="border-2 border-blue-500 shadow-xl animate-pulse">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
-              <CardTitle className="text-xl text-blue-700 flex items-center gap-2">
-                💳 支付方式
-              </CardTitle>
-              <p className="text-muted-foreground text-sm">选择您喜欢的支付方式，扫码完成支付</p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* 支付宝二维码 */}
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-4 text-blue-600">支付宝支付</h3>
-                    <div className="bg-white p-6 rounded-lg border-2 border-blue-200 shadow-lg">
-                      <div className="w-48 h-48 mx-auto bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                        <div className="text-center">
-                          <div className="text-4xl mb-2">📱</div>
-                          <div className="text-sm text-gray-600">支付宝二维码</div>
-                          <div className="text-xs text-gray-500 mt-1">请使用支付宝扫码</div>
-                        </div>
+        <Card data-qr-code>
+          <CardHeader>
+            <CardTitle>支付方式</CardTitle>
+            <p className="text-muted-foreground text-sm">选择您喜欢的支付方式</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 支付宝二维码 */}
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-4 text-blue-600">支付宝支付</h3>
+                  <div className="bg-white p-6 rounded-lg border-2 border-blue-200 shadow-lg">
+                    <div className="w-48 h-48 mx-auto bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">📱</div>
+                        <div className="text-sm text-gray-600">支付宝二维码</div>
+                        <div className="text-xs text-gray-500 mt-1">请使用支付宝扫码</div>
                       </div>
-                      <div className="text-2xl font-bold text-blue-600 mb-2">¥{getCurrentPrice()}</div>
-                      <p className="text-sm text-gray-600">扫码完成支付</p>
                     </div>
-                  </div>
-
-                  {/* 微信支付二维码 */}
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-4 text-green-600">微信支付</h3>
-                    <div className="bg-white p-6 rounded-lg border-2 border-green-200 shadow-lg">
-                      <div className="w-48 h-48 mx-auto bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                        <div className="text-center">
-                          <div className="text-4xl mb-2">📱</div>
-                          <div className="text-sm text-gray-600">微信二维码</div>
-                          <div className="text-xs text-gray-500 mt-1">请使用微信扫码</div>
-                        </div>
-                      </div>
-                      <div className="text-2xl font-bold text-green-600 mb-2">¥{getCurrentPrice()}</div>
-                      <p className="text-sm text-gray-600">扫码完成支付</p>
-                    </div>
+                    <div className="text-2xl font-bold text-blue-600 mb-2">¥{getCurrentPrice()}</div>
+                    <p className="text-sm text-gray-600">扫码完成支付</p>
                   </div>
                 </div>
 
+                {/* 微信支付二维码 */}
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    支付二维码已显示，请使用手机扫码完成支付
-                  </p>
-                  <div className="flex justify-center gap-4">
-                    <Button 
-                      variant="outline"
-                      onClick={() => {
-                        toast({
-                          title: "支付说明",
-                          description: "请使用手机支付宝或微信扫码完成支付",
-                        });
-                      }}
-                    >
-                      支付说明
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => {
-                        toast({
-                          title: "联系客服",
-                          description: "如有支付问题，请联系客服",
-                        });
-                      }}
-                    >
-                      联系客服
-                    </Button>
+                  <h3 className="text-lg font-semibold mb-4 text-green-600">微信支付</h3>
+                  <div className="bg-white p-6 rounded-lg border-2 border-green-200 shadow-lg">
+                    <div className="w-48 h-48 mx-auto bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">📱</div>
+                        <div className="text-sm text-gray-600">微信二维码</div>
+                        <div className="text-xs text-gray-500 mt-1">请使用微信扫码</div>
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600 mb-2">¥{getCurrentPrice()}</div>
+                    <p className="text-sm text-gray-600">扫码完成支付</p>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </>
+
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-4">
+                  支付二维码已显示，请使用手机扫码完成支付
+                </p>
+                <div className="flex justify-center gap-4">
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "支付说明",
+                        description: "请使用手机支付宝或微信扫码完成支付",
+                      });
+                    }}
+                  >
+                    支付说明
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "联系客服",
+                        description: "如有支付问题，请联系客服",
+                      });
+                    }}
+                  >
+                    联系客服
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
 
