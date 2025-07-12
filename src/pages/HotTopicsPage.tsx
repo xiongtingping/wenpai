@@ -113,7 +113,7 @@ export default function HotTopicsPage() {
   const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(new Set());
   
   // 话题订阅状态
-  const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions' | 'notifications'>('hot');
+  const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions' | 'bookmarks'>('hot');
   const [subscriptions, setSubscriptions] = useState<TopicSubscription[]>([]);
   const [monitorResults, setMonitorResults] = useState<Record<string, TopicMonitorResult[]>>({});
   const [selectedSubscription, setSelectedSubscription] = useState<TopicSubscription | null>(null);
@@ -322,22 +322,21 @@ export default function HotTopicsPage() {
     const topicId = `${topic.platform}-${topic.title}`;
     markAsRead(topicId);
     
-    // 保存话题数据到localStorage，供详情页使用
-    const storedTopics = localStorage.getItem('hotTopicsData');
-    if (storedTopics) {
-      try {
-        const allTopics = JSON.parse(storedTopics);
-        if (!allTopics[topic.platform || '']) {
-          allTopics[topic.platform || ''] = [];
-        }
-        allTopics[topic.platform || ''].push(topic);
-        localStorage.setItem('hotTopicsData', JSON.stringify(allTopics));
-      } catch (error) {
-        console.error('保存话题数据失败:', error);
+    // 直接跳转到源网页
+    if (topic.url) {
+      window.open(topic.url, '_blank');
+    } else {
+      // 如果没有URL，尝试使用移动端链接
+      if (topic.mobil_url) {
+        window.open(topic.mobil_url, '_blank');
+      } else {
+        toast({
+          title: "无法打开链接",
+          description: "该话题暂无源链接",
+          variant: "destructive"
+        });
       }
     }
-    
-    navigate(`/hot-topics/detail/${encodeURIComponent(topic.platform || '')}/${encodeURIComponent(topic.title)}`);
   };
 
   /**
@@ -425,11 +424,13 @@ export default function HotTopicsPage() {
     let allTopics: DailyHotItem[] = [];
     
     if (currentPlatform === 'all') {
-      // 使用聚合排序算法
-      allTopics = aggregateAndSortTopics(allHotData.data);
+      // 获取所有平台的前10个话题
+      Object.values(allHotData.data).forEach(platformTopics => {
+        allTopics = allTopics.concat(platformTopics.slice(0, 10));
+      });
     } else {
-      // 获取指定平台数据
-      allTopics = allHotData.data[currentPlatform] || [];
+      // 获取指定平台的前10个话题
+      allTopics = (allHotData.data[currentPlatform] || []).slice(0, 10);
     }
 
     // 应用智能过滤和排序
@@ -707,27 +708,10 @@ export default function HotTopicsPage() {
       />
 
       <div className="container mx-auto px-4 py-8">
-        {/* 更新时间 */}
-        <div className="mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">最后更新</p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {lastUpdateTime.toLocaleString('zh-CN')}
-                  </p>
-                </div>
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-purple-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* 主标签页 */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'notifications')} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'bookmarks')} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <TabsList className="grid w-full grid-cols-3 max-w-md">
               <TabsTrigger value="hot" className="flex items-center gap-2 text-xs sm:text-sm">
@@ -740,10 +724,10 @@ export default function HotTopicsPage() {
                 <span className="hidden sm:inline">话题订阅</span>
                 <span className="sm:hidden">订阅</span>
               </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2 text-xs sm:text-sm">
-                <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">通知中心</span>
-                <span className="sm:hidden">通知</span>
+              <TabsTrigger value="bookmarks" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">灵感夹</span>
+                <span className="sm:hidden">收藏</span>
               </TabsTrigger>
             </TabsList>
             
@@ -797,53 +781,112 @@ export default function HotTopicsPage() {
             )}
 
             {/* 今日最热门话题 */}
-            {!loading && currentData.length > 0 && (
+            {!loading && allHotData && allHotData.data && (
               <div className="mb-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Flame className="w-5 h-5 text-red-500" />
-                      今日最热门话题
-                    </CardTitle>
-                    <CardDescription>
-                      根据综合热度算法排序的前10个话题
-                    </CardDescription>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          <Flame className="w-5 h-5 text-red-500" />
+                          今日最热门话题
+                        </CardTitle>
+                        <CardDescription>
+                          各平台热门话题排行榜
+                        </CardDescription>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        最后更新: {lastUpdateTime.toLocaleString('zh-CN')}
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                      {currentData.slice(0, 10).map((topic, index) => (
-                        <div
-                          key={index}
-                          className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
-                            isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
-                          } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
-                          onClick={() => handleTopicClick(topic)}
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="destructive" className="text-xs">
-                              #{index + 1}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {getPlatformDisplayName(topic.platform || '')}
-                            </Badge>
-                          </div>
-                          <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                            {topic.title}
-                          </h4>
-                          <div className="flex items-center justify-between text-xs text-gray-500">
-                            <span>{topic.hot}</span>
-                            <div className="flex items-center gap-1">
-                              {isTopicBookmarked(topic) && (
-                                <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
-                              )}
-                              {isTopicRead(topic) && (
-                                <Eye className="w-3 h-3 text-gray-400" />
-                              )}
+                    <Tabs defaultValue="all" className="w-full">
+                      <TabsList className="grid w-full grid-cols-6">
+                        <TabsTrigger value="all">总榜</TabsTrigger>
+                        <TabsTrigger value="weibo">微博</TabsTrigger>
+                        <TabsTrigger value="zhihu">知乎</TabsTrigger>
+                        <TabsTrigger value="douyin">抖音</TabsTrigger>
+                        <TabsTrigger value="bilibili">B站</TabsTrigger>
+                        <TabsTrigger value="baidu">百度</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="all" className="mt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                          {aggregateAndSortTopics(allHotData.data).slice(0, 10).map((topic, index) => (
+                            <div
+                              key={index}
+                              className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                                isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
+                              } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
+                              onClick={() => handleTopicClick(topic)}
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge variant="destructive" className="text-xs">
+                                  #{index + 1}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {getPlatformDisplayName(topic.platform || '')}
+                                </Badge>
+                              </div>
+                              <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                                {topic.title}
+                              </h4>
+                              <div className="flex items-center justify-between text-xs text-gray-500">
+                                <span>{topic.hot}</span>
+                                <div className="flex items-center gap-1">
+                                  {isTopicBookmarked(topic) && (
+                                    <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
+                                  )}
+                                  {isTopicRead(topic) && (
+                                    <Eye className="w-3 h-3 text-gray-400" />
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
+                      </TabsContent>
+                      
+                      {['weibo', 'zhihu', 'douyin', 'bilibili', 'baidu'].map((platform) => (
+                        <TabsContent key={platform} value={platform} className="mt-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
+                              <div
+                                key={index}
+                                className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                                  isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
+                                } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
+                                onClick={() => handleTopicClick(topic)}
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="destructive" className="text-xs">
+                                    #{index + 1}
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    {getPlatformDisplayName(platform)}
+                                  </Badge>
+                                </div>
+                                <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                                  {topic.title}
+                                </h4>
+                                <div className="flex items-center justify-between text-xs text-gray-500">
+                                  <span>{topic.hot}</span>
+                                  <div className="flex items-center gap-1">
+                                    {isTopicBookmarked(topic) && (
+                                      <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
+                                    )}
+                                    {isTopicRead(topic) && (
+                                      <Eye className="w-3 h-3 text-gray-400" />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </TabsContent>
                       ))}
-                    </div>
+                    </Tabs>
                   </CardContent>
                 </Card>
               </div>
@@ -895,101 +938,7 @@ export default function HotTopicsPage() {
               />
             )}
 
-            {/* 话题列表 */}
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-2 text-gray-600">加载中...</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {currentData.map((item, index) => {
-                  // 检查是否为高优先级话题
-                  const isHighPriority = item.preferenceScore > 0;
-                  
-                  return (
-                    <div 
-                      key={index} 
-                      className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
-                        isHighPriority ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'
-                      } ${isTopicRead(item) ? 'opacity-75' : ''} ${isTopicBookmarked(item) ? 'border-yellow-300 bg-yellow-50' : ''}`}
-                      onClick={() => handleTopicClick(item)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            {isHighPriority && (
-                              <Badge className="bg-blue-500 text-white text-xs">
-                                <Star className="w-3 h-3 mr-1" />
-                                高优先级
-                              </Badge>
-                            )}
-                            <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {getPlatformDisplayName(item.platform || '')}
-                            </Badge>
-                            {item.hot && (
-                              <Badge variant="destructive" className="text-xs">
-                                <Flame className="w-3 h-3 mr-1" />
-                                热
-                              </Badge>
-                            )}
-                          </div>
-                          <h3 className={`font-medium text-gray-900 mb-2 ${
-                            isHighPriority ? 'flex items-center gap-2' : ''
-                          }`}>
-                            {isHighPriority && <span className="text-blue-600">[⭐]</span>}
-                            {item.title}
-                          </h3>
-                          {item.desc && (
-                            <p className="text-sm text-gray-600 mb-2">{item.desc}</p>
-                          )}
-                          {item.content && (
-                            <p className="text-sm text-gray-500 mb-2 line-clamp-2">{item.content}</p>
-                          )}
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>热度: {item.hot}</span>
-                            <span>平台: {getPlatformDisplayName(item.platform || '')}</span>
-                            {item.rank && <span>排名: #{item.rank}</span>}
-                            {isHighPriority && item.matchedKeywords && item.matchedKeywords.length > 0 && (
-                              <span className="text-blue-600">
-                                匹配: {item.matchedKeywords.join(', ')}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 ml-4">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleBookmark(item);
-                            }}
-                          >
-                            <Bookmark className={`w-4 h-4 ${isTopicBookmarked(item) ? 'text-yellow-500 fill-current' : ''}`} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (item.url) {
-                                window.open(item.url, '_blank');
-                              }
-                            }}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+
           </TabsContent>
 
           {/* 话题订阅标签页 */}
@@ -1164,9 +1113,116 @@ export default function HotTopicsPage() {
             )}
           </TabsContent>
 
-          {/* 通知中心标签页 */}
-          <TabsContent value="notifications">
-            <NotificationCenter />
+          {/* 灵感夹标签页 */}
+          <TabsContent value="bookmarks">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bookmark className="w-5 h-5 text-yellow-500" />
+                  灵感夹
+                </CardTitle>
+                <CardDescription>
+                  您收藏的感兴趣话题
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {bookmarkedTopics.size === 0 ? (
+                  <div className="text-center py-12">
+                    <Bookmark className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无收藏话题</h3>
+                    <p className="text-gray-600">
+                      点击话题右侧的书签图标来收藏感兴趣的内容
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {Array.from(bookmarkedTopics).map((topicId, index) => {
+                      // 从所有数据中查找收藏的话题
+                      let topic: DailyHotItem | null = null;
+                      if (allHotData && allHotData.data) {
+                        for (const [platform, topics] of Object.entries(allHotData.data)) {
+                          const found = topics.find(t => `${t.platform}-${t.title}` === topicId);
+                          if (found) {
+                            topic = found;
+                            break;
+                          }
+                        }
+                      }
+                      
+                      if (!topic) return null;
+                      
+                      return (
+                        <div 
+                          key={topicId}
+                          className="p-4 rounded-lg border border-yellow-300 bg-yellow-50 cursor-pointer transition-all hover:shadow-md"
+                          onClick={() => handleTopicClick(topic!)}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge className="bg-yellow-500 text-white text-xs">
+                                  <Bookmark className="w-3 h-3 mr-1" />
+                                  已收藏
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {getPlatformDisplayName(topic.platform || '')}
+                                </Badge>
+                                {topic.hot && (
+                                  <Badge variant="destructive" className="text-xs">
+                                    <Flame className="w-3 h-3 mr-1" />
+                                    热
+                                  </Badge>
+                                )}
+                              </div>
+                              <h3 className="font-medium text-gray-900 mb-2">
+                                {topic.title}
+                              </h3>
+                              {topic.desc && (
+                                <p className="text-sm text-gray-600 mb-2">{topic.desc}</p>
+                              )}
+                              {topic.content && (
+                                <p className="text-sm text-gray-500 mb-2 line-clamp-2">{topic.content}</p>
+                              )}
+                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                                <span>热度: {topic.hot}</span>
+                                <span>平台: {getPlatformDisplayName(topic.platform || '')}</span>
+                                {topic.rank && <span>排名: #{topic.rank}</span>}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 ml-4">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleBookmark(topic!);
+                                }}
+                              >
+                                <Bookmark className="w-4 h-4 text-yellow-500 fill-current" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (topic!.url) {
+                                    window.open(topic!.url, '_blank');
+                                  }
+                                }}
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
