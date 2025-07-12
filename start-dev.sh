@@ -6,7 +6,9 @@
 echo "🚀 启动文派开发环境..."
 
 # 设置环境变量
-export OPENAI_API_KEY="REMOVED"
+# 读取本地环境变量OPENAI_API_KEY（请在.env文件或shell环境中配置）
+# @env OPENAI_API_KEY 用于OpenAI API访问
+export OPENAI_API_KEY="${OPENAI_API_KEY}"
 
 # 检查端口是否被占用
 check_port() {
