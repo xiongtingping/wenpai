@@ -69,6 +69,8 @@ import {
   type DailyHotItem,
   type DailyHotResponse
 } from '@/api/hotTopicsService';
+import InterestFilter, { InterestFilters } from '@/components/hot-topics/InterestFilter';
+import TopicCategories from '@/components/hot-topics/TopicCategories';
 import {
   getTopicSubscriptions,
   addTopicSubscription,
@@ -135,6 +137,103 @@ export default function HotTopicsPage() {
   
   // 支持的平台列表
   const supportedPlatforms = getSupportedPlatforms();
+
+  // 兴趣过滤器状态
+  const [interestFilters, setInterestFilters] = useState<InterestFilters>({
+    blockedKeywords: [],
+    blockedPlatforms: [],
+    preferredKeywords: [],
+    preferredPlatforms: [],
+    showBlocked: false
+  });
+
+  // 分类状态
+  const [currentCategory, setCurrentCategory] = useState('all');
+  const [filteredTopics, setFilteredTopics] = useState<DailyHotItem[]>([]);
+
+  /**
+   * 应用兴趣过滤器
+   */
+  const applyInterestFilters = (topics: DailyHotItem[]): DailyHotItem[] => {
+    return topics.filter(topic => {
+      const title = topic.title.toLowerCase();
+      const desc = (topic.desc || '').toLowerCase();
+      const platform = topic.platform || '';
+
+      // 检查是否被屏蔽
+      const isBlockedByKeyword = interestFilters.blockedKeywords.some(keyword => 
+        title.includes(keyword.toLowerCase()) || desc.includes(keyword.toLowerCase())
+      );
+      
+      const isBlockedByPlatform = interestFilters.blockedPlatforms.includes(platform);
+
+      if (isBlockedByKeyword || isBlockedByPlatform) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  /**
+   * 应用偏好排序
+   */
+  const applyPreferenceSorting = (topics: DailyHotItem[]): DailyHotItem[] => {
+    return topics.sort((a, b) => {
+      const titleA = a.title.toLowerCase();
+      const descA = (a.desc || '').toLowerCase();
+      const platformA = a.platform || '';
+      
+      const titleB = b.title.toLowerCase();
+      const descB = (b.desc || '').toLowerCase();
+      const platformB = b.platform || '';
+
+      // 计算偏好分数
+      let scoreA = 0;
+      let scoreB = 0;
+
+      // 偏好关键词加分
+      interestFilters.preferredKeywords.forEach(keyword => {
+        if (titleA.includes(keyword.toLowerCase()) || descA.includes(keyword.toLowerCase())) {
+          scoreA += 10;
+        }
+        if (titleB.includes(keyword.toLowerCase()) || descB.includes(keyword.toLowerCase())) {
+          scoreB += 10;
+        }
+      });
+
+      // 偏好平台加分
+      if (interestFilters.preferredPlatforms.includes(platformA)) {
+        scoreA += 5;
+      }
+      if (interestFilters.preferredPlatforms.includes(platformB)) {
+        scoreB += 5;
+      }
+
+      return scoreB - scoreA;
+    });
+  };
+
+  /**
+   * 处理话题点击
+   */
+  const handleTopicClick = (topic: DailyHotItem) => {
+    navigate(`/hot-topics/detail/${encodeURIComponent(topic.title)}/${topic.platform || 'unknown'}`);
+  };
+
+  /**
+   * 处理分类变化
+   */
+  const handleCategoryChange = (category: string) => {
+    setCurrentCategory(category);
+  };
+
+  /**
+   * 处理兴趣过滤器变化
+   */
+  const handleInterestFilterChange = (filters: InterestFilters) => {
+    setInterestFilters(filters);
+  };
 
   /**
    * 获取全网热点数据
@@ -223,16 +322,29 @@ export default function HotTopicsPage() {
   const getCurrentPlatformData = (): DailyHotItem[] => {
     if (!allHotData) return [];
     
+    let allItems: DailyHotItem[] = [];
+    
     if (currentPlatform === 'all') {
       // 聚合所有平台数据
-      const allItems: DailyHotItem[] = [];
-      Object.values(allHotData.data).forEach(items => {
-        allItems.push(...items);
+      Object.entries(allHotData.data).forEach(([platform, items]) => {
+        items.forEach(item => {
+          allItems.push({
+            ...item,
+            platform: platform
+          });
+        });
       });
-      return allItems.slice(0, 50); // 限制数量
+    } else {
+      allItems = allHotData.data[currentPlatform] || [];
     }
+
+    // 应用兴趣过滤器
+    allItems = applyInterestFilters(allItems);
     
-    return allHotData.data[currentPlatform] || [];
+    // 应用偏好排序
+    allItems = applyPreferenceSorting(allItems);
+
+    return allItems.slice(0, 50); // 限制数量
   };
 
   /**
@@ -534,6 +646,18 @@ export default function HotTopicsPage() {
               </CardContent>
             </Card>
 
+            {/* 兴趣调节 */}
+            <InterestFilter onFilterChange={handleInterestFilterChange} />
+
+            {/* 话题分类 */}
+            {currentPlatform === 'all' && !loading && currentData.length > 0 && (
+              <TopicCategories
+                topics={currentData}
+                onCategoryChange={handleCategoryChange}
+                onTopicClick={handleTopicClick}
+              />
+            )}
+
             {/* 统计信息 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <Card>
@@ -590,14 +714,18 @@ export default function HotTopicsPage() {
             ) : (
               <div className="grid gap-4">
                 {currentData.map((item, index) => (
-                  <Card key={index} className="hover:shadow-md transition-shadow">
+                  <Card 
+                    key={index} 
+                    className="hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => handleTopicClick(item)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
                             <Badge variant="outline" className="text-xs">
-                              {item.platform}
+                              {getPlatformDisplayName(item.platform || '')}
                             </Badge>
                             {item.hot && (
                               <Badge variant="destructive" className="text-xs">
@@ -607,19 +735,39 @@ export default function HotTopicsPage() {
                             )}
                           </div>
                           <h3 className="font-medium text-gray-900 mb-2">{item.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{item.desc}</p>
+                          {item.desc && (
+                            <p className="text-sm text-gray-600 mb-3">{item.desc}</p>
+                          )}
                           <div className="flex items-center gap-4 text-xs text-gray-500">
                             <span>热度: {item.hot}</span>
-                            <span>平台: {item.platform || '未知'}</span>
+                            <span>平台: {getPlatformDisplayName(item.platform || '')}</span>
                             <span>序号: {item.index || 'N/A'}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 ml-4">
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTopicClick(item);
+                            }}
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Share2 className="w-4 h-4" />
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (item.url) {
+                                window.open(item.url, '_blank');
+                              }
+                            }}
+                          >
+                            <ExternalLink className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>

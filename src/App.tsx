@@ -25,6 +25,7 @@ const AdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
 const InvitePage = React.lazy(() => import('@/pages/InvitePage'));
 const BrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
 const HotTopicsPage = React.lazy(() => import('@/pages/HotTopicsPage'));
+const HotTopicDetailPage = React.lazy(() => import('@/pages/HotTopicDetailPage'));
 const PaymentPage = React.lazy(() => import('@/pages/PaymentPage'));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
@@ -128,6 +129,16 @@ const AppContent: React.FC = () => {
             <ToolLayout>
               <Suspense fallback={<LoadingSpinner />}>
                 <HotTopicsPage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/hot-topics/detail/:id/:platform" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <HotTopicDetailPage />
               </Suspense>
             </ToolLayout>
           </ProtectedRoute>
