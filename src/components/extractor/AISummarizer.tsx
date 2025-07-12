@@ -56,8 +56,10 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
       
       const response = await aiService.summarizeContent(content);
       
-      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-        const generatedSummary = response.data.data.choices[0].message.content;
+      const responseData = response.data as Record<string, unknown>;
+      const choices = responseData?.data as Record<string, unknown>;
+      if (response.success && choices?.choices?.[0]?.message?.content) {
+        const generatedSummary = choices.choices[0].message.content;
         setSummary(generatedSummary);
         
         // 调用回调函数

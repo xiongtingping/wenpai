@@ -153,7 +153,7 @@ export default function PromptBuilder({
         setCustomPrompt(prompt);
       }
     }
-  }, [uploadedData, style, complexity, generationMode]);
+  }, [uploadedData, style, complexity, generationMode, useCustomPrompt]);
 
   return (
     <Card className="w-full max-w-2xl mx-auto">

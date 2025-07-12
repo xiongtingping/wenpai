@@ -23,5 +23,5 @@ export interface User {
   /** 更新时间 */
   updatedAt?: string;
   /** 其他属性 */
-  [key: string]: any;
+  [key: string]: unknown;
 } 

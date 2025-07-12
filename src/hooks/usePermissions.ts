@@ -189,11 +189,11 @@ export function usePermissions(): UsePermissionsReturn {
       });
 
       // 转换角色格式
-      const formattedRoles: Role[] = roles.map((role: any) => ({
-        id: role.id || role.code,
-        name: role.name || role.displayName,
-        code: role.code,
-        description: role.description || ''
+      const formattedRoles: Role[] = roles.map((role: Record<string, unknown>) => ({
+        id: (role.id as string) || (role.code as string),
+        name: (role.name as string) || (role.displayName as string),
+        code: role.code as string,
+        description: (role.description as string) || ''
       }));
 
       setState({

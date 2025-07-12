@@ -311,7 +311,7 @@ export default function BrandLibraryPage() {
       }
       
       // 使用用户选择的分类
-      let category = selectedCategory;
+      const category = selectedCategory;
       
       try {
         // 读取文件内容

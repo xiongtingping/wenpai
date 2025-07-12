@@ -1687,7 +1687,7 @@ export default function AdaptPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {allModels.map((model) => {
                 const isAvailable = availableModels.some(m => m.id === model.id);
-                let disabled = !isAvailable;
+                const disabled = !isAvailable;
                 let badge = '';
                 if (model.id === 'gpt-4o' && userPlan === 'trial') badge = '专业版/高级版专属';
                 return (

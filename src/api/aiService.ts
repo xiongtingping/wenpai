@@ -22,7 +22,7 @@ const DEFAULT_CONFIG = {
 /**
  * AI服务响应接口
  */
-export interface AIResponse<T = any> {
+export interface AIResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -339,7 +339,7 @@ class AIService {
    * @param request 请求参数
    * @returns Promise<AIResponse>
    */
-  private async callNetlifyProxy(request: any): Promise<AIResponse> {
+  private async callNetlifyProxy(request: Record<string, unknown>): Promise<AIResponse> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), DEFAULT_CONFIG.timeout);
@@ -364,7 +364,7 @@ class AIService {
       return {
         success: true,
         data,
-        provider: request.provider,
+        provider: request.provider as string,
         timestamp: new Date().toISOString()
       };
     } catch (error) {
@@ -385,7 +385,7 @@ class AIService {
   async adaptContent(
     originalContent: string,
     targetPlatforms: string[],
-    settings?: any
+    settings?: Record<string, unknown>
   ): Promise<AIResponse> {
     try {
       const messages: Array<{
@@ -486,7 +486,7 @@ class AIService {
    * @param brandProfile 品牌档案
    * @returns Promise<AIResponse>
    */
-  async checkContentTone(content: string, brandProfile: any): Promise<AIResponse> {
+  async checkContentTone(content: string, brandProfile: Record<string, unknown>): Promise<AIResponse> {
     try {
       const messages: Array<{
         role: 'system' | 'user' | 'assistant';

@@ -141,8 +141,10 @@ ${mockResult.content}
 
           const response = await aiService.summarizeContent(mockResult.content);
           
-          if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-            mockResult.summary = response.data.data.choices[0].message.content;
+          const responseData = response.data as Record<string, unknown>;
+          const choices = responseData?.data as Record<string, unknown>;
+          if (response.success && choices?.choices?.[0]?.message?.content) {
+            mockResult.summary = choices.choices[0].message.content;
           } else {
             mockResult.summary = generateAISummary(mockResult.content); // 回退到模拟
           }
@@ -343,8 +345,10 @@ ${mockResult.content}
           
       
       let summary;
-      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-        summary = response.data.data.choices[0].message.content;
+      const responseData = response.data as Record<string, unknown>;
+      const choices = responseData?.data as Record<string, unknown>;
+      if (response.success && choices?.choices?.[0]?.message?.content) {
+        summary = choices.choices[0].message.content;
       } else {
         summary = generateAISummary(result.content); // 回退到模拟
       }

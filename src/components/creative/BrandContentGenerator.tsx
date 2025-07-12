@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Brain, Sparkles, CheckCircle, AlertCircle } from "lucide-react";
 import BrandProfileService from '@/services/brandProfileService';
+import { BrandProfile } from '@/types/brand';
 
 /**
  * 品牌内容生成组件
@@ -17,8 +18,12 @@ export default function BrandContentGenerator() {
   const [topic, setTopic] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [currentProfile, setCurrentProfile] = useState<any>(null);
-  const [contentCheckResult, setContentCheckResult] = useState<any>(null);
+  const [currentProfile, setCurrentProfile] = useState<BrandProfile | null>(null);
+  const [contentCheckResult, setContentCheckResult] = useState<{
+    isValid: boolean;
+    issues: string[];
+    suggestions: string[];
+  } | null>(null);
   const { toast } = useToast();
 
   /**

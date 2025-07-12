@@ -19,10 +19,6 @@ import {
   Heart,
   Sparkles,
   Coffee,
-  Sun,
-  Moon,
-  Camera,
-  Music,
   Plane,
   Gift,
   BookOpen,
@@ -68,7 +64,7 @@ const categories = [
   { id: 'travel', name: '旅行生活', icon: <Plane className="w-4 h-4" />, color: 'purple' },
   { id: 'food', name: '美食分享', icon: <Utensils className="w-4 h-4" />, color: 'orange' },
   { id: 'fitness', name: '健身运动', icon: <Dumbbell className="w-4 h-4" />, color: 'cyan' },
-  { id: 'night', name: '深夜时光', icon: <Moon className="w-4 h-4" />, color: 'indigo' },
+  { id: 'night', name: '深夜时光', icon: <Coffee className="w-4 h-4" />, color: 'indigo' },
   { id: 'festival', name: '节日祝福', icon: <Gift className="w-4 h-4" />, color: 'pink' },
 ];
 

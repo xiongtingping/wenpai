@@ -179,8 +179,10 @@ export async function adaptContentToPlatforms(request: ContentAdaptRequest): Pro
       // 调用AI服务进行内容适配
       const response = await aiService.adaptContent(originalContent, [platformName], customSettings);
       
-      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-        const adaptedContent = response.data.data.choices[0].message.content;
+      const responseData = response.data as Record<string, unknown>;
+      const choices = responseData?.data as Record<string, unknown>;
+      if (response.success && choices?.choices?.[0]?.message?.content) {
+        const adaptedContent = choices.choices[0].message.content;
         
         // 计算元数据
         const metadata = calculateContentMetadata(adaptedContent, platformConfig);

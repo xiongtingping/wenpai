@@ -176,7 +176,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
     setCurrentCount(0);
 
     try {
-      const prompts = buildEmotionPrompts(character, brand, uploadedImage);
+      const prompts = buildEmotionPrompts(character, brand);
       setTotalCount(prompts.length);
 
       // 串行处理，避免并发请求导致的问题

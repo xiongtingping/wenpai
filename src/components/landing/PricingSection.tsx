@@ -97,7 +97,7 @@ export function PricingSection() {
     return features
       .filter(f => !/免费|专业版|\d+次\/月/.test(f)) // 去掉"免费"、"专业版"、"10次/月"等文案
       .map((feature, index) => {
-        let text = feature
+        const text = feature
           .replace(/创意工作室/g, '创意魔方') // 替换
           .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 替换
           .replace(/专业功能/g, '更多功能') // 替换

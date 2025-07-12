@@ -99,13 +99,14 @@ export const useAuthing = (): UseAuthingReturn => {
       const userInfo = await guard.trackSession();
       if (userInfo) {
         // 转换 Authing SDK 的用户类型到我们的 User 类型
+        const userInfoRecord = userInfo as unknown as Record<string, unknown>;
         const userData: User = {
-          id: String((userInfo as any).id || (userInfo as any).userId || ''),
-          username: String((userInfo as any).username || (userInfo as any).nickname || ''),
-          email: String((userInfo as any).email || ''),
-          phone: String((userInfo as any).phone || ''),
-          nickname: String((userInfo as any).nickname || (userInfo as any).username || ''),
-          avatar: String((userInfo as any).photo || (userInfo as any).avatar || ''),
+          id: String(userInfoRecord.id || userInfoRecord.userId || ''),
+          username: String(userInfoRecord.username || userInfoRecord.nickname || ''),
+          email: String(userInfoRecord.email || ''),
+          phone: String(userInfoRecord.phone || ''),
+          nickname: String(userInfoRecord.nickname || userInfoRecord.username || ''),
+          avatar: String(userInfoRecord.photo || userInfoRecord.avatar || ''),
           ...userInfo // 保留其他属性
         };
         

@@ -24,7 +24,7 @@ export interface User {
   avatar?: string;
   plan?: string;
   isProUser?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -114,8 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         phone: String(authingUser.phone || ''),
         nickname: String(authingUser.nickname || authingUser.username || ''),
         avatar: String(authingUser.photo || authingUser.avatar || ''),
-        plan: (authingUser as any).plan || 'free',
-        isProUser: (authingUser as any).isProUser || false,
+        plan: (authingUser as Record<string, unknown>).plan as string || 'free',
+        isProUser: (authingUser as Record<string, unknown>).isProUser as boolean || false,
         ...authingUser // 保留其他属性
       };
 

@@ -266,8 +266,10 @@ const EmojiPage: React.FC = () => {
 
       const response = await aiService.recommendEmojis(contentContext);
       
-      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-        const content = response.data.data.choices[0].message.content;
+      const responseData = response.data as Record<string, unknown>;
+      const choices = responseData?.data as Record<string, unknown>;
+      if (response.success && choices?.choices?.[0]?.message?.content) {
+        const content = choices.choices[0].message.content;
         
         // 提取推荐的emoji
         const emojiMatch = content.match(/推荐emoji[:：]\s*(.+?)(?:\n|推荐理由|$)/i);
