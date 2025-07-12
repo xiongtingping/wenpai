@@ -70,6 +70,7 @@ import {
   getSupportedPlatforms,
   getPlatformDisplayName,
   getPlatformIconClass,
+  aggregateAndSortTopics,
   type DailyHotItem,
   type DailyHotResponse
 } from '@/api/hotTopicsService';
@@ -107,6 +108,9 @@ export default function HotTopicsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
+  const [readTopics, setReadTopics] = useState<Set<string>>(new Set());
+  const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(new Set());
   
   // 话题订阅状态
   const [activeTab, setActiveTab] = useState<'hot' | 'subscriptions' | 'notifications'>('hot');
@@ -314,6 +318,10 @@ export default function HotTopicsPage() {
    * 处理话题点击
    */
   const handleTopicClick = (topic: DailyHotItem) => {
+    // 标记为已读
+    const topicId = `${topic.platform}-${topic.title}`;
+    markAsRead(topicId);
+    
     // 保存话题数据到localStorage，供详情页使用
     const storedTopics = localStorage.getItem('hotTopicsData');
     if (storedTopics) {
@@ -358,6 +366,7 @@ export default function HotTopicsPage() {
       
       const data = await getDailyHotAll();
       setAllHotData(data);
+      setLastUpdateTime(new Date());
       
       // 保存数据到localStorage
       localStorage.setItem('hotTopicsData', JSON.stringify(data.data));
@@ -416,10 +425,8 @@ export default function HotTopicsPage() {
     let allTopics: DailyHotItem[] = [];
     
     if (currentPlatform === 'all') {
-      // 合并所有平台数据
-      Object.values(allHotData.data).forEach(platformTopics => {
-        allTopics = allTopics.concat(platformTopics);
-      });
+      // 使用聚合排序算法
+      allTopics = aggregateAndSortTopics(allHotData.data);
     } else {
       // 获取指定平台数据
       allTopics = allHotData.data[currentPlatform] || [];
@@ -441,6 +448,53 @@ export default function HotTopicsPage() {
     const platforms = Object.keys(allHotData.data).length;
 
     return { total, platforms };
+  };
+
+  /**
+   * 标记话题为已读
+   */
+  const markAsRead = (topicId: string) => {
+    setReadTopics(prev => new Set([...prev, topicId]));
+  };
+
+  /**
+   * 切换话题收藏状态
+   */
+  const toggleBookmark = (topic: DailyHotItem) => {
+    const topicId = `${topic.platform}-${topic.title}`;
+    setBookmarkedTopics(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(topicId)) {
+        newSet.delete(topicId);
+        toast({
+          title: "已取消收藏",
+          description: "话题已从灵感夹移除",
+        });
+      } else {
+        newSet.add(topicId);
+        toast({
+          title: "已收藏",
+          description: "话题已添加到灵感夹",
+        });
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * 检查话题是否已读
+   */
+  const isTopicRead = (topic: DailyHotItem): boolean => {
+    const topicId = `${topic.platform}-${topic.title}`;
+    return readTopics.has(topicId);
+  };
+
+  /**
+   * 检查话题是否已收藏
+   */
+  const isTopicBookmarked = (topic: DailyHotItem): boolean => {
+    const topicId = `${topic.platform}-${topic.title}`;
+    return bookmarkedTopics.has(topicId);
   };
 
   /**
@@ -653,43 +707,15 @@ export default function HotTopicsPage() {
       />
 
       <div className="container mx-auto px-4 py-8">
-        {/* 统计信息 - 移到顶部 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* 更新时间 */}
+        <div className="mb-6">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">总话题数</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                </div>
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Hash className="w-4 h-4 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">平台数量</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.platforms}</p>
-                </div>
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <Globe className="w-4 h-4 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">更新时间</p>
+                  <p className="text-sm font-medium text-gray-600">最后更新</p>
                   <p className="text-sm font-bold text-gray-900">
-                    {new Date().toLocaleTimeString('zh-CN')}
+                    {lastUpdateTime.toLocaleString('zh-CN')}
                   </p>
                 </div>
                 <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -770,21 +796,56 @@ export default function HotTopicsPage() {
               </Card>
             )}
 
-            {/* 前三热度领奖台 */}
-            {!loading && topThreeTopics.length > 0 && (
+            {/* 今日最热门话题 */}
+            {!loading && currentData.length > 0 && (
               <div className="mb-6">
-                <TopThreePodium
-                  topThree={topThreeTopics}
-                  onTopicClick={handleTopicClick}
-                  onShare={(topic) => {
-                    // 实现分享功能
-                    console.log('分享话题:', topic.title);
-                  }}
-                  onBookmark={(topic) => {
-                    // 实现收藏功能
-                    console.log('收藏话题:', topic.title);
-                  }}
-                />
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Flame className="w-5 h-5 text-red-500" />
+                      今日最热门话题
+                    </CardTitle>
+                    <CardDescription>
+                      根据综合热度算法排序的前10个话题
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                      {currentData.slice(0, 10).map((topic, index) => (
+                        <div
+                          key={index}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                            isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
+                          } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
+                          onClick={() => handleTopicClick(topic)}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="destructive" className="text-xs">
+                              #{index + 1}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {getPlatformDisplayName(topic.platform || '')}
+                            </Badge>
+                          </div>
+                          <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                            {topic.title}
+                          </h4>
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <span>{topic.hot}</span>
+                            <div className="flex items-center gap-1">
+                              {isTopicBookmarked(topic) && (
+                                <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
+                              )}
+                              {isTopicRead(topic) && (
+                                <Eye className="w-3 h-3 text-gray-400" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 
@@ -820,25 +881,7 @@ export default function HotTopicsPage() {
               </CardContent>
             </Card>
 
-            {/* 智能过滤说明 */}
-            <Card className="mb-6 border-blue-200 bg-blue-50">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Star className="w-4 h-4 text-blue-600" />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-blue-800 mb-1">智能过滤系统</h3>
-                    <p className="text-sm text-blue-700">
-                      系统会根据您的屏蔽词和偏好关键词自动过滤和排序话题。
-                      <span className="font-medium">[⭐]</span> 标记表示高优先级话题。
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
 
             {/* 兴趣调节 */}
             <InterestFilter onFilterChange={handleInterestFilterChange} />
@@ -859,92 +902,90 @@ export default function HotTopicsPage() {
                 <span className="ml-2 text-gray-600">加载中...</span>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className="space-y-3">
                 {currentData.map((item, index) => {
                   // 检查是否为高优先级话题
                   const isHighPriority = item.preferenceScore > 0;
                   
                   return (
-                    <Card 
+                    <div 
                       key={index} 
-                      className={`hover:shadow-md transition-shadow cursor-pointer ${
-                        isHighPriority ? 'border-blue-300 bg-blue-50' : ''
-                      }`}
+                      className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                        isHighPriority ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white'
+                      } ${isTopicRead(item) ? 'opacity-75' : ''} ${isTopicBookmarked(item) ? 'border-yellow-300 bg-yellow-50' : ''}`}
                       onClick={() => handleTopicClick(item)}
                     >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              {isHighPriority && (
-                                <Badge className="bg-blue-500 text-white text-xs">
-                                  <Star className="w-3 h-3 mr-1" />
-                                  高优先级
-                                </Badge>
-                              )}
-                              <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {getPlatformDisplayName(item.platform || '')}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            {isHighPriority && (
+                              <Badge className="bg-blue-500 text-white text-xs">
+                                <Star className="w-3 h-3 mr-1" />
+                                高优先级
                               </Badge>
-                              {item.hot && (
-                                <Badge variant="destructive" className="text-xs">
-                                  <Flame className="w-3 h-3 mr-1" />
-                                  热
-                                </Badge>
-                              )}
-                            </div>
-                            <h3 className={`font-medium text-gray-900 mb-2 ${
-                              isHighPriority ? 'flex items-center gap-2' : ''
-                            }`}>
-                              {isHighPriority && <span className="text-blue-600">[⭐]</span>}
-                              {item.title}
-                            </h3>
-                            {item.desc && (
-                              <p className="text-sm text-gray-600 mb-3">{item.desc}</p>
                             )}
-                            {item.content && (
-                              <p className="text-sm text-gray-500 mb-3 line-clamp-2">{item.content}</p>
+                            <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {getPlatformDisplayName(item.platform || '')}
+                            </Badge>
+                            {item.hot && (
+                              <Badge variant="destructive" className="text-xs">
+                                <Flame className="w-3 h-3 mr-1" />
+                                热
+                              </Badge>
                             )}
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <span>热度: {item.hot}</span>
-                              <span>平台: {getPlatformDisplayName(item.platform || '')}</span>
-                              {item.rank && <span>排名: #{item.rank}</span>}
-                              {isHighPriority && item.matchedKeywords && item.matchedKeywords.length > 0 && (
-                                <span className="text-blue-600">
-                                  匹配: {item.matchedKeywords.join(', ')}
-                                </span>
-                              )}
-                            </div>
                           </div>
-                          <div className="flex items-center gap-1 ml-4">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTopicClick(item);
-                              }}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (item.url) {
-                                  window.open(item.url, '_blank');
-                                }
-                              }}
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
+                          <h3 className={`font-medium text-gray-900 mb-2 ${
+                            isHighPriority ? 'flex items-center gap-2' : ''
+                          }`}>
+                            {isHighPriority && <span className="text-blue-600">[⭐]</span>}
+                            {item.title}
+                          </h3>
+                          {item.desc && (
+                            <p className="text-sm text-gray-600 mb-2">{item.desc}</p>
+                          )}
+                          {item.content && (
+                            <p className="text-sm text-gray-500 mb-2 line-clamp-2">{item.content}</p>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span>热度: {item.hot}</span>
+                            <span>平台: {getPlatformDisplayName(item.platform || '')}</span>
+                            {item.rank && <span>排名: #{item.rank}</span>}
+                            {isHighPriority && item.matchedKeywords && item.matchedKeywords.length > 0 && (
+                              <span className="text-blue-600">
+                                匹配: {item.matchedKeywords.join(', ')}
+                              </span>
+                            )}
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <div className="flex items-center gap-1 ml-4">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleBookmark(item);
+                            }}
+                          >
+                            <Bookmark className={`w-4 h-4 ${isTopicBookmarked(item) ? 'text-yellow-500 fill-current' : ''}`} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (item.url) {
+                                window.open(item.url, '_blank');
+                              }
+                            }}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

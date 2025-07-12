@@ -77,15 +77,44 @@ function generateTopicContent(title: string, platform: string): string {
 
   const platformName = platformNames[platform as keyof typeof platformNames] || platform;
   
-  // 根据话题标题生成相关内容
-  const contentTemplates = [
-    `关于"${title}"的话题在${platformName}平台引发了广泛讨论。这个话题涉及多个方面的内容，包括背景信息、相关讨论和重要观点。`,
-    `"${title}"是当前${platformName}平台的热点话题之一。这个话题涵盖了相关的背景信息、各方观点和重要讨论内容。`,
-    `在${platformName}平台上，"${title}"成为了热门讨论话题。这个话题包含了详细的相关信息、背景介绍和重要观点。`,
-    `"${title}"话题在${platformName}平台持续发酵，引发了大量用户的关注和讨论。这个话题涉及多个维度的内容分析。`
-  ];
-
-  return contentTemplates[Math.floor(Math.random() * contentTemplates.length)];
+  // 根据话题类型和关键词生成更丰富的内容
+  const lowerTitle = title.toLowerCase();
+  
+  // 娱乐类话题
+  if (lowerTitle.includes('明星') || lowerTitle.includes('演员') || lowerTitle.includes('歌手') || 
+      lowerTitle.includes('电影') || lowerTitle.includes('电视剧') || lowerTitle.includes('综艺') ||
+      lowerTitle.includes('周杰伦') || lowerTitle.includes('更新')) {
+    return `"${title}"在${platformName}上引发热议。该话题涉及娱乐圈最新动态，网友们纷纷发表看法，讨论热度持续攀升。相关话题包括明星动态、作品评价、行业趋势等多个方面。`;
+  }
+  
+  // 科技类话题
+  if (lowerTitle.includes('科技') || lowerTitle.includes('手机') || lowerTitle.includes('电脑') || 
+      lowerTitle.includes('ai') || lowerTitle.includes('人工智能') || lowerTitle.includes('互联网') ||
+      lowerTitle.includes('苹果') || lowerTitle.includes('华为') || lowerTitle.includes('小米')) {
+    return `"${title}"成为${platformName}科技圈焦点。该话题涉及技术创新、产品发布、行业趋势等，引发了专业人士和普通用户的广泛讨论。相关分析包括技术细节、市场影响、未来展望等。`;
+  }
+  
+  // 社会类话题
+  if (lowerTitle.includes('社会') || lowerTitle.includes('民生') || lowerTitle.includes('政策') || 
+      lowerTitle.includes('教育') || lowerTitle.includes('医疗') || lowerTitle.includes('交通') ||
+      lowerTitle.includes('医院') || lowerTitle.includes('洗手')) {
+    return `"${title}"在${platformName}上引发社会关注。该话题涉及民生热点、社会现象、政策解读等，网友们从不同角度展开讨论，反映了公众对相关问题的关注和思考。`;
+  }
+  
+  // 体育类话题
+  if (lowerTitle.includes('体育') || lowerTitle.includes('足球') || lowerTitle.includes('篮球') || 
+      lowerTitle.includes('比赛') || lowerTitle.includes('运动员') || lowerTitle.includes('奥运')) {
+    return `"${title}"在${platformName}体育圈引发热议。该话题涉及体育赛事、运动员表现、比赛结果等，体育爱好者们积极参与讨论，分享观点和感受。`;
+  }
+  
+  // 财经类话题
+  if (lowerTitle.includes('财经') || lowerTitle.includes('股市') || lowerTitle.includes('基金') || 
+      lowerTitle.includes('经济') || lowerTitle.includes('投资') || lowerTitle.includes('理财')) {
+    return `"${title}"成为${platformName}财经领域热点。该话题涉及市场动态、投资趋势、经济政策等，吸引了投资者和财经爱好者的关注，相关分析包括市场影响、投资建议等。`;
+  }
+  
+  // 默认内容
+  return `"${title}"在${platformName}上引发关注。该话题涉及多个方面的讨论，网友们从不同角度分享观点，形成了丰富的讨论内容。相关话题包括背景分析、影响评估、未来展望等。`;
 }
 
 /**
@@ -284,6 +313,87 @@ function processHotTopicsData(response: DailyHotResponse): DailyHotResponse {
     ...response,
     data: processedData
   };
+}
+
+/**
+ * 聚合所有平台数据并按综合热度排序
+ * @param allData 所有平台的数据
+ * @returns 聚合排序后的数据
+ */
+export function aggregateAndSortTopics(allData: Record<string, DailyHotItem[]>): DailyHotItem[] {
+  const allTopics: DailyHotItem[] = [];
+  
+  // 收集所有平台的话题
+  for (const [platform, items] of Object.entries(allData)) {
+    items.forEach(item => {
+      allTopics.push({
+        ...item,
+        platform
+      });
+    });
+  }
+  
+  // 计算综合热度分数
+  const topicsWithScore = allTopics.map(topic => {
+    const hotValue = parseInt(topic.hot) || 0;
+    const platform = topic.platform || '';
+    
+    // 平台权重配置（基于平台用户活跃度和影响力）
+    const platformWeights: Record<string, number> = {
+      'weibo': 1.2,    // 微博权重最高，用户基数大
+      'zhihu': 1.1,    // 知乎权重较高，内容质量高
+      'douyin': 1.0,   // 抖音权重中等
+      'bilibili': 0.9, // B站权重稍低
+      'baidu': 0.8,    // 百度权重较低
+      '36kr': 0.7,     // 36氪权重较低
+      'ithome': 0.6,   // IT之家权重较低
+      'sspai': 0.5,    // 少数派权重较低
+      'juejin': 0.4,   // 掘金权重较低
+      'csdn': 0.3,     // CSDN权重较低
+      'github': 0.2    // GitHub权重最低
+    };
+    
+    const platformWeight = platformWeights[platform] || 0.5;
+    
+    // 计算综合热度分数 = 原始热度值 × 平台权重
+    const compositeScore = hotValue * platformWeight;
+    
+    return {
+      ...topic,
+      compositeScore,
+      originalHot: topic.hot // 保存原始热度值
+    };
+  });
+  
+  // 按综合热度分数降序排序
+  const sortedTopics = topicsWithScore.sort((a, b) => {
+    const scoreA = (a as any).compositeScore || 0;
+    const scoreB = (b as any).compositeScore || 0;
+    return scoreB - scoreA;
+  });
+  
+  // 重新分配排名
+  return sortedTopics.map((topic, index) => ({
+    ...topic,
+    rank: index + 1,
+    // 格式化热度显示
+    hot: formatHotValue((topic as any).originalHot || topic.hot)
+  }));
+}
+
+/**
+ * 格式化热度值显示
+ * @param hot 原始热度值
+ * @returns 格式化后的热度值
+ */
+function formatHotValue(hot: string): string {
+  const num = parseInt(hot);
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1)}M`;
+  } else if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}K`;
+  }
+  return hot;
 }
 
 /**
