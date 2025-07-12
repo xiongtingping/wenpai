@@ -52,6 +52,53 @@ export default function ProfilePage() {
           </Button>
         </div>
         
+        <div className="mb-8">
+          <div className="rounded-xl shadow-sm bg-white overflow-hidden">
+            {/* 顶部紫色渐变栏，降低高度 */}
+            <div className="h-20 bg-gradient-to-r from-purple-500 to-pink-400 flex items-center px-6">
+              <span className="text-white text-lg font-bold">个人资料</span>
+            </div>
+            <div className="p-6 flex flex-col gap-6 md:flex-row md:gap-8">
+              {/* 上传头像区 */}
+              <div className="flex flex-col items-center md:items-start gap-2 md:w-1/4">
+                {/* 头像上传组件（假设为AvatarUpload） */}
+                <div className="mb-2">
+                  {/* AvatarUpload 组件插入处 */}
+                </div>
+                <div className="text-xs text-gray-500 leading-relaxed text-center md:text-left">
+                  支持 jpg/png/gif，建议尺寸 200x200px，最大2MB。
+                </div>
+              </div>
+              {/* 表单区 */}
+              <div className="flex-1 flex flex-col gap-4">
+                {/* 昵称输入框 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">昵称</label>
+                  <input className="w-full border rounded px-3 py-2 text-sm" placeholder="请输入昵称" />
+                </div>
+                {/* 手机号输入框 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                  <input className="w-full border rounded px-3 py-2 text-sm" placeholder="请输入手机号" />
+                </div>
+                {/* 邮箱输入框及首次验证奖励提示 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                  <input className="w-full border rounded px-3 py-2 text-sm" placeholder="请输入邮箱" />
+                  <div className="mt-1 text-xs text-yellow-600">首次验证奖励：完成邮箱验证可获10次免费使用</div>
+                </div>
+                {/* 保存按钮 */}
+                <button 
+                  className="w-full mt-2 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 disabled:bg-gray-300 disabled:text-white disabled:cursor-not-allowed transition-all"
+                  disabled={true /* 仅示例，实际应根据hasChanges等变量控制 */}
+                >
+                  保存所有更改
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-0">
           {/* 账号信息卡片 */}
           <div className="p-6 rounded-xl shadow-sm bg-white flex flex-col gap-4">
