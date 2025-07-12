@@ -24,7 +24,7 @@ module.exports.handler = async (event, context) => {
 
   try {
     const body = event.body ? JSON.parse(event.body) : {};
-    const { provider, action, ...requestBody } = body;
+    const { provider, action, platform, ...requestBody } = body;
 
     // 根据provider和action路由到不同的处理函数
     if (action === 'status') {
@@ -41,7 +41,39 @@ module.exports.handler = async (event, context) => {
           };
       }
     }
-    // ... 省略其余业务逻辑 ...
+
+    // 处理热点话题API请求
+    if (action === 'hot-topics') {
+      if (platform) {
+        return await getHotTopicsByPlatform(platform, headers);
+      } else {
+        return await getAllHotTopics(headers);
+      }
+    }
+
+    // 处理AI生成请求
+    if (action === 'generate') {
+      switch (provider) {
+        case 'openai':
+          return await generateWithOpenAI(requestBody, headers);
+        case 'deepseek':
+          return await generateWithDeepSeek(requestBody, headers);
+        case 'gemini':
+          return await generateWithGemini(requestBody, headers);
+        default:
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Unknown provider' })
+          };
+      }
+    }
+
+    // 处理图像生成请求
+    if (action === 'generate-image') {
+      return await generateImage(requestBody, headers);
+    }
+
     return {
       statusCode: 501,
       headers,
@@ -55,4 +87,365 @@ module.exports.handler = async (event, context) => {
     };
   }
 };
-// ... 其余辅助函数 ... 
+
+/**
+ * 获取指定平台的热点话题
+ */
+async function getHotTopicsByPlatform(platform, headers) {
+  try {
+    const response = await fetch(`https://api-hot.imsyy.top/${platform}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      timeout: 8000
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(data)
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ 
+        error: `Failed to fetch ${platform} data: ${error.message}` 
+      })
+    };
+  }
+}
+
+/**
+ * 获取所有平台的热点话题
+ */
+async function getAllHotTopics(headers) {
+  try {
+    const response = await fetch('https://api-hot.imsyy.top/all', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      timeout: 8000
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(data)
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ 
+        error: `Failed to fetch all hot topics: ${error.message}` 
+      })
+    };
+  }
+}
+
+/**
+ * 检查OpenAI服务状态
+ */
+async function checkOpenAIStatus(headers) {
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          available: false,
+          message: 'OpenAI API key not configured'
+        })
+      };
+    }
+
+    const response = await fetch('https://api.openai.com/v1/models', {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 5000
+    });
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        available: response.ok,
+        message: response.ok ? 'OpenAI API is available' : 'OpenAI API is not available'
+      })
+    };
+  } catch (error) {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        available: false,
+        message: `OpenAI API error: ${error.message}`
+      })
+    };
+  }
+}
+
+/**
+ * 检查DeepSeek服务状态
+ */
+async function checkDeepSeekStatus(headers) {
+  try {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          available: false,
+          message: 'DeepSeek API key not configured'
+        })
+      };
+    }
+
+    const response = await fetch('https://api.deepseek.com/v1/models', {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 5000
+    });
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        available: response.ok,
+        message: response.ok ? 'DeepSeek API is available' : 'DeepSeek API is not available'
+      })
+    };
+  } catch (error) {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        available: false,
+        message: `DeepSeek API error: ${error.message}`
+      })
+    };
+  }
+}
+
+/**
+ * 使用OpenAI生成内容
+ */
+async function generateWithOpenAI(requestBody, headers) {
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: requestBody.model || 'gpt-4o',
+        messages: requestBody.messages,
+        temperature: requestBody.temperature || 0.7,
+        max_tokens: requestBody.maxTokens || 1000
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        success: true,
+        data: data
+      })
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        error: error.message
+      })
+    };
+  }
+}
+
+/**
+ * 使用DeepSeek生成内容
+ */
+async function generateWithDeepSeek(requestBody, headers) {
+  try {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      throw new Error('DeepSeek API key not configured');
+    }
+
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: requestBody.model || 'deepseek-chat',
+        messages: requestBody.messages,
+        temperature: requestBody.temperature || 0.7,
+        max_tokens: requestBody.maxTokens || 1000
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        success: true,
+        data: data
+      })
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        error: error.message
+      })
+    };
+  }
+}
+
+/**
+ * 使用Gemini生成内容
+ */
+async function generateWithGemini(requestBody, headers) {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('Gemini API key not configured');
+    }
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: requestBody.messages.map(msg => ({
+          parts: [{ text: msg.content }]
+        }))
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        success: true,
+        data: data
+      })
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        error: error.message
+      })
+    };
+  }
+}
+
+/**
+ * 生成图像
+ */
+async function generateImage(requestBody, headers) {
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: requestBody.prompt,
+        n: requestBody.n || 1,
+        size: requestBody.size || '512x512',
+        response_format: requestBody.response_format || 'url'
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        success: true,
+        data: data
+      })
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        success: false,
+        error: error.message
+      })
+    };
+  }
+} 

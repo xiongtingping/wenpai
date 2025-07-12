@@ -28,26 +28,14 @@ export interface DailyHotItem {
 }
 
 /**
- * DailyHotApi 平台热榜数据结构
- */
-export interface DailyHotPlatform {
-  /** 平台名称 */
-  name: string;
-  /** 平台标识 */
-  key: string;
-  /** 热榜数据 */
-  data: DailyHotItem[];
-}
-
-/**
- * DailyHotApi 聚合返回数据结构
+ * DailyHotApi 响应数据结构
  */
 export interface DailyHotResponse {
-  /** 状态码 */
+  /** 响应状态码 */
   code: number;
-  /** 消息 */
+  /** 响应消息 */
   msg: string;
-  /** 数据 */
+  /** 响应数据 */
   data: Record<string, DailyHotItem[]>;
 }
 
@@ -58,53 +46,33 @@ export interface DailyHotResponse {
  */
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
   try {
-    // 获取支持的平台列表
-    const supportedPlatforms = getSupportedPlatforms();
-    const aggregatedData: Record<string, DailyHotItem[]> = {};
-    
-    // 并发请求各个平台的数据
-    const platformPromises = supportedPlatforms.map(async (platform) => {
-      try {
-        const platformData = await getDailyHotByPlatform(platform);
-        if (platformData.length > 0) {
-          aggregatedData[platform] = platformData;
-        }
-        return { platform, success: true, count: platformData.length };
-      } catch (error) {
-        console.warn(`获取${platform}数据失败:`, error);
-        return { platform, success: false, count: 0 };
-      }
+    // 通过Netlify函数代理获取数据
+    const response = await fetch('/.netlify/functions/api', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'hot-topics'
+      })
     });
-    
-    // 等待所有请求完成
-    const results = await Promise.allSettled(platformPromises);
-    
-    // 统计成功和失败的平台
-    const successfulPlatforms = results
-      .filter(result => result.status === 'fulfilled')
-      .map(result => (result as PromiseFulfilledResult<any>).value)
-      .filter(result => result.success);
-    
-    const failedPlatforms = results
-      .filter(result => result.status === 'fulfilled')
-      .map(result => (result as PromiseFulfilledResult<any>).value)
-      .filter(result => !result.success);
-    
-    console.log(`热点数据获取完成: ${successfulPlatforms.length}个平台成功, ${failedPlatforms.length}个平台失败`);
-    
-    // 检查是否有任何平台数据获取成功
-    if (Object.keys(aggregatedData).length === 0) {
-      throw new Error('所有平台数据获取失败，请检查网络连接或API服务状态');
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
     
-    return {
-      code: 200,
-      msg: 'success',
-      data: aggregatedData
-    };
+    // 检查响应格式
+    if (data.code === 200 && data.data) {
+      return data;
+    } else if (data.error) {
+      throw new Error(data.error);
+    } else {
+      throw new Error('Invalid response format');
+    }
   } catch (error) {
     console.error('获取全网热点数据失败:', error);
-    // 直接抛出错误，不返回模拟数据
     throw new Error(`获取全网热点数据失败: ${error instanceof Error ? error.message : '网络连接异常'}`);
   }
 }
@@ -116,53 +84,65 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
  */
 export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
   try {
-    const res = await axios.get(`https://api-hot.imsyy.top/${platform}`, {
+    // 通过Netlify函数代理获取数据
+    const response = await fetch('/.netlify/functions/api', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
       },
-      timeout: 8000
+      body: JSON.stringify({
+        action: 'hot-topics',
+        platform: platform
+      })
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
     
     // 检查响应数据格式
-    if (!res.data) {
+    if (!data) {
       throw new Error('API返回空数据');
     }
-    
+
     // 处理不同的响应格式
-    if (res.data.code === 200 && Array.isArray(res.data.data)) {
+    if (data.code === 200 && Array.isArray(data.data)) {
       // 标准格式：{ code: 200, data: [...] }
-      return res.data.data.map((item: any) => ({
+      return data.data.map((item: any) => ({
         ...item,
         platform // 添加平台标识
       }));
-    } else if (Array.isArray(res.data)) {
+    } else if (Array.isArray(data)) {
       // 直接返回数组格式
-      return res.data.map((item: any) => ({
+      return data.map((item: any) => ({
         ...item,
         platform // 添加平台标识
       }));
-    } else if (res.data.code === 200 && typeof res.data.data === 'object') {
+    } else if (data.code === 200 && typeof data.data === 'object') {
       // 对象格式，尝试提取数组
-      const data = res.data.data;
-      if (Array.isArray(data)) {
-        return data.map((item: any) => ({
+      const responseData = data.data;
+      if (Array.isArray(responseData)) {
+        return responseData.map((item: any) => ({
           ...item,
           platform
         }));
       } else {
         // 如果是对象，尝试找到包含数组的字段
-        const arrayFields = Object.keys(data).filter(key => Array.isArray(data[key]));
+        const arrayFields = Object.keys(responseData).filter(key => Array.isArray(responseData[key]));
         if (arrayFields.length > 0) {
-          return data[arrayFields[0]].map((item: any) => ({
+          return responseData[arrayFields[0]].map((item: any) => ({
             ...item,
             platform
           }));
         }
       }
+    } else if (data.error) {
+      throw new Error(data.error);
     }
     
-    console.warn(`平台${platform}返回数据格式异常:`, res.data);
+    console.warn(`平台${platform}返回数据格式异常:`, data);
     return [];
   } catch (error) {
     console.error(`获取${platform}热榜数据失败:`, error);
@@ -203,62 +183,56 @@ export function getSupportedPlatforms(): string[] {
  */
 export function getPlatformDisplayName(platform: string): string {
   const platformNames: Record<string, string> = {
-    weibo: '微博',
-    zhihu: '知乎',
-    douyin: '抖音',
-    bilibili: 'B站',
-    baidu: '百度',
+    'weibo': '微博',
+    'zhihu': '知乎',
+    'douyin': '抖音',
+    'bilibili': 'B站',
+    'baidu': '百度',
     '36kr': '36氪',
-    ithome: 'IT之家',
-    sspai: '少数派',
-    juejin: '掘金',
-    csdn: 'CSDN',
-    github: 'GitHub',
-    v2ex: 'V2EX',
-    ngabbs: 'NGA',
-    hellogithub: 'HelloGitHub',
-    weatheralarm: '中央气象台',
-    earthquake: '中国地震台',
-    history: '历史上的今天'
+    'ithome': 'IT之家',
+    'sspai': '少数派',
+    'juejin': '掘金',
+    'csdn': 'CSDN',
+    'github': 'GitHub',
+    'v2ex': 'V2EX',
+    'ngabbs': 'NGA',
+    'hellogithub': 'HelloGitHub',
+    'weatheralarm': '中央气象台',
+    'earthquake': '中国地震台',
+    'history': '历史上的今天'
   };
+  
   return platformNames[platform] || platform;
 }
 
 /**
- * 获取平台图标样式
+ * 获取平台图标CSS类名
  * @param platform 平台标识
- * @returns string 平台图标CSS类名
+ * @returns string 图标CSS类名
  */
 export function getPlatformIconClass(platform: string): string {
-  const iconClasses: Record<string, string> = {
-    weibo: 'bg-orange-500',
-    zhihu: 'bg-blue-500',
-    douyin: 'bg-black',
-    bilibili: 'bg-pink-500',
-    baidu: 'bg-blue-600',
-    '36kr': 'bg-green-500',
-    ithome: 'bg-blue-700',
-    sspai: 'bg-purple-500',
-    juejin: 'bg-yellow-500',
-    csdn: 'bg-red-500',
-    github: 'bg-gray-800',
-    v2ex: 'bg-green-600',
-    ngabbs: 'bg-blue-800',
-    hellogithub: 'bg-purple-600',
-    weatheralarm: 'bg-yellow-600',
-    earthquake: 'bg-red-600',
-    history: 'bg-indigo-500'
+  const platformIcons: Record<string, string> = {
+    'weibo': 'icon-weibo',
+    'zhihu': 'icon-zhihu',
+    'douyin': 'icon-douyin',
+    'bilibili': 'icon-bilibili',
+    'baidu': 'icon-baidu',
+    '36kr': 'icon-36kr',
+    'ithome': 'icon-ithome',
+    'sspai': 'icon-sspai',
+    'juejin': 'icon-juejin',
+    'csdn': 'icon-csdn',
+    'github': 'icon-github',
+    'v2ex': 'icon-v2ex',
+    'ngabbs': 'icon-ngabbs',
+    'hellogithub': 'icon-hellogithub',
+    'weatheralarm': 'icon-weather',
+    'earthquake': 'icon-earthquake',
+    'history': 'icon-history'
   };
-  return iconClasses[platform] || 'bg-gray-500';
+  
+  return platformIcons[platform] || 'icon-default';
 }
-
-/**
- * 获取抖音热榜数据（保留原有接口兼容性）
- * @returns Promise<DailyHotItem[]> 抖音热榜列表
- */
-export async function getDouyinHotList(): Promise<DailyHotItem[]> {
-  return getDailyHotByPlatform('douyin');
-      }
 
 /**
  * 获取摩鱼日历数据
