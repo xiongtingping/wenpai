@@ -1,6 +1,7 @@
 /**
  * 顶部导航栏组件
  * 全站通用的Logo、功能导航和用户功能导航
+ * 优化版：桌面端16px字体，移动端14px，增强交互反馈
  */
 
 import React, { useState } from 'react';
@@ -82,10 +83,10 @@ export const TopNavigation: React.FC = () => {
   const MobileNavItem = ({ item }: { item: typeof navItems[0] }) => (
     <Link
       to={item.path}
-      className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 ${
+      className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
         isActivePath(item.path)
           ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-          : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+          : 'text-gray-700 hover:text-blue-600 hover:bg-accent/50'
       }`}
       onClick={() => setMobileMenuOpen(false)}
     >
@@ -122,10 +123,10 @@ export const TopNavigation: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 relative group ${
+                  className={`flex items-center space-x-2 px-4 py-2 text-base font-medium rounded-md transition-all duration-200 relative group ${
                     isActivePath(item.path)
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                      : 'text-gray-700 hover:text-blue-600 hover:bg-accent/50 hover:border-b-2 hover:border-blue-500'
                   }`}
                 >
                   <item.icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${
@@ -151,8 +152,8 @@ export const TopNavigation: React.FC = () => {
                   <DropdownMenuItem key={item.path} asChild>
                     <Link
                       to={item.path}
-                      className={`flex items-center space-x-2 ${
-                        isActivePath(item.path) ? 'bg-accent text-accent-foreground' : ''
+                      className={`flex items-center space-x-2 text-sm font-medium ${
+                        isActivePath(item.path) ? 'bg-accent text-accent-foreground' : 'text-gray-700'
                       }`}
                     >
                       <item.icon className="w-4 h-4" />
@@ -190,12 +191,12 @@ export const TopNavigation: React.FC = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <Link to="/login">
-                  <Button variant="outline" size="sm" className="hidden sm:inline-flex hover:bg-accent/50">
+                  <Button variant="outline" size="sm" className="hidden sm:inline-flex hover:bg-accent/50 text-sm font-medium">
                     登录
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="sm" className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-md">
+                  <Button size="sm" className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-md text-sm font-medium">
                     注册
                   </Button>
                 </Link>
@@ -253,7 +254,7 @@ export const TopNavigation: React.FC = () => {
                         
                         <Link
                           to="/profile"
-                          className="flex items-center space-x-3 px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200"
+                          className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <Settings className="w-5 h-5" />
@@ -264,14 +265,14 @@ export const TopNavigation: React.FC = () => {
                       <div className="space-y-2">
                         <Link
                           to="/login"
-                          className="flex items-center space-x-3 px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg transition-all duration-200"
+                          className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <span>登录</span>
                         </Link>
                         <Link
                           to="/register"
-                          className="flex items-center space-x-3 px-4 py-3 text-base font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all duration-200 shadow-md"
+                          className="flex items-center space-x-3 px-4 py-3 text-sm font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all duration-200 shadow-md"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <span>注册</span>
