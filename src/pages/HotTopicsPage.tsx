@@ -53,13 +53,17 @@ import {
   Play,
   Pause,
   BarChart,
-  PieChart
+  PieChart,
+  Star,
+  Shield,
+  Heart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
 import NotificationCenter from '@/components/hot-topics/NotificationCenter';
+import TopThreePodium from '@/components/hot-topics/TopThreePodium';
 import { 
   getDailyHotAll,
   getDailyHotByPlatform,
@@ -152,6 +156,90 @@ export default function HotTopicsPage() {
   const [filteredTopics, setFilteredTopics] = useState<DailyHotItem[]>([]);
 
   /**
+   * 智能过滤和排序话题
+   * 根据屏蔽词和偏好关键词进行动态过滤与优先推送
+   */
+  const applySmartFiltering = (topics: DailyHotItem[]): DailyHotItem[] => {
+    // 1. 屏蔽词过滤
+    const filteredByBlocked = topics.filter(topic => {
+      const title = topic.title.toLowerCase();
+      const desc = (topic.desc || '').toLowerCase();
+      const content = (topic.content || '').toLowerCase();
+      const platform = topic.platform || '';
+
+      // 检查是否被屏蔽
+      const isBlockedByKeyword = interestFilters.blockedKeywords.some(keyword => 
+        title.includes(keyword.toLowerCase()) || 
+        desc.includes(keyword.toLowerCase()) ||
+        content.includes(keyword.toLowerCase())
+      );
+      
+      const isBlockedByPlatform = interestFilters.blockedPlatforms.includes(platform);
+
+      return !isBlockedByKeyword && !isBlockedByPlatform;
+    });
+
+    // 2. 偏好关键词标记和排序
+    const topicsWithPriority = filteredByBlocked.map(topic => {
+      const title = topic.title.toLowerCase();
+      const desc = (topic.desc || '').toLowerCase();
+      const content = (topic.content || '').toLowerCase();
+      const platform = topic.platform || '';
+
+      // 计算偏好分数
+      let preferenceScore = 0;
+      let matchedKeywords: string[] = [];
+
+      // 偏好关键词加分
+      interestFilters.preferredKeywords.forEach(keyword => {
+        const keywordLower = keyword.toLowerCase();
+        if (title.includes(keywordLower) || desc.includes(keywordLower) || content.includes(keywordLower)) {
+          preferenceScore += 10;
+          matchedKeywords.push(keyword);
+        }
+      });
+
+      // 偏好平台加分
+      if (interestFilters.preferredPlatforms.includes(platform)) {
+        preferenceScore += 5;
+      }
+
+      return {
+        ...topic,
+        preferenceScore,
+        matchedKeywords,
+        isHighPriority: preferenceScore > 0
+      };
+    });
+
+    // 3. 按优先级分组和排序
+    const highPriority = topicsWithPriority
+      .filter(topic => topic.isHighPriority)
+      .sort((a, b) => {
+        // 按偏好关键词数量降序排序
+        if (b.preferenceScore !== a.preferenceScore) {
+          return b.preferenceScore - a.preferenceScore;
+        }
+        // 如果分数相同，按热度值降序排序
+        const hotA = parseInt(a.hot) || 0;
+        const hotB = parseInt(b.hot) || 0;
+        return hotB - hotA;
+      });
+
+    const normalPriority = topicsWithPriority
+      .filter(topic => !topic.isHighPriority)
+      .sort((a, b) => {
+        // 按热度值降序排序
+        const hotA = parseInt(a.hot) || 0;
+        const hotB = parseInt(b.hot) || 0;
+        return hotB - hotA;
+      });
+
+    // 4. 合并结果：先推送高优先组，再推普通优先组
+    return [...highPriority, ...normalPriority];
+  };
+
+  /**
    * 应用兴趣过滤器
    */
   const applyInterestFilters = (topics: DailyHotItem[]): DailyHotItem[] => {
@@ -210,7 +298,15 @@ export default function HotTopicsPage() {
         scoreB += 5;
       }
 
-      return scoreB - scoreA;
+      // 按偏好分数降序排序
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA;
+      }
+
+      // 如果偏好分数相同，按热度值降序排序
+      const hotA = parseInt(a.hot) || 0;
+      const hotB = parseInt(b.hot) || 0;
+      return hotB - hotA;
     });
   };
 
@@ -218,7 +314,22 @@ export default function HotTopicsPage() {
    * 处理话题点击
    */
   const handleTopicClick = (topic: DailyHotItem) => {
-    navigate(`/hot-topics/detail/${encodeURIComponent(topic.title)}/${topic.platform || 'unknown'}`);
+    // 保存话题数据到localStorage，供详情页使用
+    const storedTopics = localStorage.getItem('hotTopicsData');
+    if (storedTopics) {
+      try {
+        const allTopics = JSON.parse(storedTopics);
+        if (!allTopics[topic.platform || '']) {
+          allTopics[topic.platform || ''] = [];
+        }
+        allTopics[topic.platform || ''].push(topic);
+        localStorage.setItem('hotTopicsData', JSON.stringify(allTopics));
+      } catch (error) {
+        console.error('保存话题数据失败:', error);
+      }
+    }
+    
+    navigate(`/hot-topics/detail/${encodeURIComponent(topic.platform || '')}/${encodeURIComponent(topic.title)}`);
   };
 
   /**
@@ -233,134 +344,107 @@ export default function HotTopicsPage() {
    */
   const handleInterestFilterChange = (filters: InterestFilters) => {
     setInterestFilters(filters);
+    // 保存到localStorage
+    localStorage.setItem('interestFilters', JSON.stringify(filters));
   };
 
   /**
-   * 获取全网热点数据
+   * 获取热点数据
    */
   const fetchHotData = async () => {
     try {
       setLoading(true);
-      setError(null); // 清除之前的错误
+      setError(null);
+      
       const data = await getDailyHotAll();
       setAllHotData(data);
-    } catch (error) {
-      console.error('获取全网热点数据失败:', error);
-      const errorMessage = error instanceof Error ? error.message : '网络连接异常';
-      setError(errorMessage);
-      toast({
-        title: "获取数据失败",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      
+      // 保存数据到localStorage
+      localStorage.setItem('hotTopicsData', JSON.stringify(data.data));
+      
+      // 加载保存的兴趣过滤器
+      const savedFilters = localStorage.getItem('interestFilters');
+      if (savedFilters) {
+        try {
+          const filters = JSON.parse(savedFilters);
+          setInterestFilters(filters);
+        } catch (error) {
+          console.error('加载兴趣过滤器失败:', error);
+        }
+      }
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '获取数据失败');
     } finally {
       setLoading(false);
     }
   };
 
   /**
-   * 刷新数据
+   * 处理刷新
    */
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchHotData();
     setRefreshing(false);
-    if (!error) {
-      toast({
-        title: "数据已刷新",
-        description: "全网热点数据已更新",
-      });
-    }
   };
 
   /**
-   * 搜索话题
+   * 处理搜索
    */
   const handleSearch = () => {
-    // 搜索功能将在后续实现
-    toast({
-      title: "搜索功能",
-      description: "搜索功能开发中",
-    });
+    // 实现搜索功能
+    console.log('搜索:', searchQuery);
   };
 
   /**
    * 获取平台图标
    */
   const getPlatformIcon = (platform: string) => {
-    switch (platform) {
-      case 'weibo':
-        return <Globe className="w-4 h-4" />;
-      case 'zhihu':
-        return <Monitor className="w-4 h-4" />;
-      case 'douyin':
-        return <Video className="w-4 h-4" />;
-      case 'bilibili':
-        return <Users className="w-4 h-4" />;
-      case 'baidu':
-        return <Globe className="w-4 h-4" />;
-      case '36kr':
-        return <Zap className="w-4 h-4" />;
-      case 'ithome':
-        return <Monitor className="w-4 h-4" />;
-      case 'sspai':
-        return <Bookmark className="w-4 h-4" />;
-      case 'juejin':
-        return <Target className="w-4 h-4" />;
-      case 'csdn':
-        return <Monitor className="w-4 h-4" />;
-      case 'github':
-        return <Globe className="w-4 h-4" />;
-      default:
-        return <Hash className="w-4 h-4" />;
-    }
+    const iconClass = getPlatformIconClass(platform);
+    return <span className={`${iconClass} mr-2`}></span>;
   };
 
   /**
    * 获取当前平台数据
    */
   const getCurrentPlatformData = (): DailyHotItem[] => {
-    if (!allHotData) return [];
-    
-    let allItems: DailyHotItem[] = [];
-    
-    if (currentPlatform === 'all') {
-      // 聚合所有平台数据
-      Object.entries(allHotData.data).forEach(([platform, items]) => {
-        items.forEach(item => {
-          allItems.push({
-            ...item,
-            platform: platform
-          });
-        });
-      });
-    } else {
-      allItems = allHotData.data[currentPlatform] || [];
+    if (!allHotData || !allHotData.data) {
+      return [];
     }
 
-    // 应用兴趣过滤器
-    allItems = applyInterestFilters(allItems);
+    let allTopics: DailyHotItem[] = [];
     
-    // 应用偏好排序
-    allItems = applyPreferenceSorting(allItems);
+    if (currentPlatform === 'all') {
+      // 合并所有平台数据
+      Object.values(allHotData.data).forEach(platformTopics => {
+        allTopics = allTopics.concat(platformTopics);
+      });
+    } else {
+      // 获取指定平台数据
+      allTopics = allHotData.data[currentPlatform] || [];
+    }
 
-    return allItems.slice(0, 50); // 限制数量
+    // 应用智能过滤和排序
+    return applySmartFiltering(allTopics);
   };
 
   /**
-   * 获取统计信息
+   * 获取统计数据
    */
   const getStats = () => {
-    if (!allHotData) return { total: 0, platforms: 0 };
-    
-    const total = Object.values(allHotData.data).reduce((sum, items) => sum + items.length, 0);
+    if (!allHotData || !allHotData.data) {
+      return { total: 0, platforms: 0 };
+    }
+
+    const total = Object.values(allHotData.data).reduce((sum, topics) => sum + topics.length, 0);
     const platforms = Object.keys(allHotData.data).length;
-    
+
     return { total, platforms };
   };
 
   /**
-   * 加载订阅列表
+   * 加载订阅
    */
   const loadSubscriptions = () => {
     const subs = getTopicSubscriptions();
@@ -369,30 +453,28 @@ export default function HotTopicsPage() {
   };
 
   /**
-   * 添加订阅
+   * 处理添加订阅
    */
   const handleAddSubscription = () => {
-    if (!newSubscription.keyword.trim() || !newSubscription.name.trim()) {
+    if (!newSubscription.keyword.trim()) {
       toast({
-        title: "请填写必填项",
-        description: "关键词和订阅名称不能为空",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (newSubscription.sources.length === 0) {
-      toast({
-        title: "请选择搜索源",
-        description: "至少选择一个搜索源",
+        title: "请输入关键词",
+        description: "订阅关键词不能为空",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      addTopicSubscription(newSubscription);
-      setIsAddDialogOpen(false);
+      addTopicSubscription({
+        ...newSubscription,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        lastChecked: null,
+        lastNotification: null
+      });
+
+      // 重置表单
       setNewSubscription({
         keyword: '',
         name: '',
@@ -405,51 +487,68 @@ export default function HotTopicsPage() {
         minHeatThreshold: 1000,
         maxHeatThreshold: 50000
       });
+
+      setIsAddDialogOpen(false);
       loadSubscriptions();
-      
+
       toast({
-        title: "订阅创建成功",
-        description: `话题"${newSubscription.keyword}"已添加到监控列表`,
+        title: "订阅添加成功",
+        description: `已添加关键词"${newSubscription.keyword}"的订阅`,
       });
     } catch (error) {
       toast({
-        title: "创建失败",
-        description: "请重试",
+        title: "添加失败",
+        description: "添加订阅时发生错误",
         variant: "destructive"
       });
     }
   };
 
   /**
-   * 删除订阅
+   * 处理删除订阅
    */
   const handleDeleteSubscription = (id: string) => {
-    const subscription = subscriptions.find(s => s.id === id);
-    if (!subscription) return;
-
-    if (confirm(`确定要删除话题订阅"${subscription.name}"吗？`)) {
+    try {
       deleteTopicSubscription(id);
       loadSubscriptions();
-      
       toast({
         title: "删除成功",
-        description: `话题订阅"${subscription.name}"已删除`,
+        description: "订阅已删除",
+      });
+    } catch (error) {
+      toast({
+        title: "删除失败",
+        description: "删除订阅时发生错误",
+        variant: "destructive"
       });
     }
   };
 
   /**
-   * 切换订阅状态
+   * 处理切换订阅状态
    */
   const handleToggleSubscription = (id: string, isActive: boolean) => {
-    toggleSubscription(id, isActive);
-    loadSubscriptions();
+    try {
+      toggleSubscription(id, isActive);
+      loadSubscriptions();
+      toast({
+        title: isActive ? "订阅已启用" : "订阅已禁用",
+        description: isActive ? "订阅监控已开始" : "订阅监控已暂停",
+      });
+    } catch (error) {
+      toast({
+        title: "操作失败",
+        description: "切换订阅状态时发生错误",
+        variant: "destructive"
+      });
+    }
   };
 
   /**
-   * 监控单个话题
+   * 处理监控话题
    */
   const handleMonitorTopic = async (subscription: TopicSubscription) => {
+    setIsMonitoring(true);
     try {
       const results = await monitorTopic(subscription);
       setMonitorResults(prev => ({
@@ -457,21 +556,30 @@ export default function HotTopicsPage() {
         [subscription.id]: results
       }));
       
-      toast({
-        title: "监控完成",
-        description: `发现 ${results.length} 条相关内容`,
-      });
+      if (results.length > 0) {
+        toast({
+          title: "监控完成",
+          description: `发现 ${results.length} 个相关话题`,
+        });
+      } else {
+        toast({
+          title: "监控完成",
+          description: "未发现相关话题",
+        });
+      }
     } catch (error) {
       toast({
         title: "监控失败",
-        description: "请重试",
+        description: "监控话题时发生错误",
         variant: "destructive"
       });
+    } finally {
+      setIsMonitoring(false);
     }
   };
 
   /**
-   * 检查所有订阅
+   * 处理检查所有订阅
    */
   const handleCheckAllSubscriptions = async () => {
     setIsMonitoring(true);
@@ -481,13 +589,13 @@ export default function HotTopicsPage() {
       
       const totalResults = Object.values(results).flat().length;
       toast({
-        title: "检查完成",
-        description: `共发现 ${totalResults} 条相关内容`,
+        title: "批量检查完成",
+        description: `共发现 ${totalResults} 个相关话题`,
       });
     } catch (error) {
       toast({
-        title: "检查失败",
-        description: "请重试",
+        title: "批量检查失败",
+        description: "检查订阅时发生错误",
         variant: "destructive"
       });
     } finally {
@@ -521,6 +629,9 @@ export default function HotTopicsPage() {
   const currentData = getCurrentPlatformData();
   const stats = getStats();
 
+  // 获取前三名话题用于领奖台展示
+  const topThreeTopics = currentData.slice(0, 3);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 页面导航 */}
@@ -544,6 +655,53 @@ export default function HotTopicsPage() {
       />
 
       <div className="container mx-auto px-4 py-8">
+        {/* 统计信息 - 移到顶部 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">总话题数</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                </div>
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Hash className="w-4 h-4 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">平台数量</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.platforms}</p>
+                </div>
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">更新时间</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {new Date().toLocaleTimeString('zh-CN')}
+                  </p>
+                </div>
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'notifications')} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -606,12 +764,30 @@ export default function HotTopicsPage() {
                       disabled={refreshing}
                       className="border-red-300 text-red-700 hover:bg-red-100"
                     >
-                      <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`h-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                       重试
                     </Button>
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* 前三热度领奖台 */}
+            {!loading && topThreeTopics.length > 0 && (
+              <div className="mb-6">
+                <TopThreePodium
+                  topThree={topThreeTopics}
+                  onTopicClick={handleTopicClick}
+                  onShare={(topic) => {
+                    // 实现分享功能
+                    console.log('分享话题:', topic.title);
+                  }}
+                  onBookmark={(topic) => {
+                    // 实现收藏功能
+                    console.log('收藏话题:', topic.title);
+                  }}
+                />
+              </div>
             )}
 
             {/* 平台选择 */}
@@ -646,6 +822,26 @@ export default function HotTopicsPage() {
               </CardContent>
             </Card>
 
+            {/* 智能过滤说明 */}
+            <Card className="mb-6 border-blue-200 bg-blue-50">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Star className="w-4 h-4 text-blue-600" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-blue-800 mb-1">智能过滤系统</h3>
+                    <p className="text-sm text-blue-700">
+                      系统会根据您的屏蔽词和偏好关键词自动过滤和排序话题。
+                      <span className="font-medium">[⭐]</span> 标记表示高优先级话题。
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* 兴趣调节 */}
             <InterestFilter onFilterChange={handleInterestFilterChange} />
 
@@ -658,53 +854,6 @@ export default function HotTopicsPage() {
               />
             )}
 
-            {/* 统计信息 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">总话题数</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                    </div>
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Hash className="w-4 h-4 text-blue-600" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">平台数量</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.platforms}</p>
-                    </div>
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <Globe className="w-4 h-4 text-green-600" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">更新时间</p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {new Date().toLocaleTimeString('zh-CN')}
-                      </p>
-                    </div>
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-purple-600" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* 话题列表 */}
             {loading ? (
               <div className="flex items-center justify-center py-12">
@@ -713,67 +862,93 @@ export default function HotTopicsPage() {
               </div>
             ) : (
               <div className="grid gap-4">
-                {currentData.map((item, index) => (
-                  <Card 
-                    key={index} 
-                    className="hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => handleTopicClick(item)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {getPlatformDisplayName(item.platform || '')}
-                            </Badge>
-                            {item.hot && (
-                              <Badge variant="destructive" className="text-xs">
-                                <Flame className="w-3 h-3 mr-1" />
-                                热
+                {currentData.map((item, index) => {
+                  // 检查是否为高优先级话题
+                  const isHighPriority = item.preferenceScore > 0;
+                  
+                  return (
+                    <Card 
+                      key={index} 
+                      className={`hover:shadow-md transition-shadow cursor-pointer ${
+                        isHighPriority ? 'border-blue-300 bg-blue-50' : ''
+                      }`}
+                      onClick={() => handleTopicClick(item)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              {isHighPriority && (
+                                <Badge className="bg-blue-500 text-white text-xs">
+                                  <Star className="w-3 h-3 mr-1" />
+                                  高优先级
+                                </Badge>
+                              )}
+                              <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {getPlatformDisplayName(item.platform || '')}
                               </Badge>
+                              {item.hot && (
+                                <Badge variant="destructive" className="text-xs">
+                                  <Flame className="w-3 h-3 mr-1" />
+                                  热
+                                </Badge>
+                              )}
+                            </div>
+                            <h3 className={`font-medium text-gray-900 mb-2 ${
+                              isHighPriority ? 'flex items-center gap-2' : ''
+                            }`}>
+                              {isHighPriority && <span className="text-blue-600">[⭐]</span>}
+                              {item.title}
+                            </h3>
+                            {item.desc && (
+                              <p className="text-sm text-gray-600 mb-3">{item.desc}</p>
                             )}
+                            {item.content && (
+                              <p className="text-sm text-gray-500 mb-3 line-clamp-2">{item.content}</p>
+                            )}
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <span>热度: {item.hot}</span>
+                              <span>平台: {getPlatformDisplayName(item.platform || '')}</span>
+                              {item.rank && <span>排名: #{item.rank}</span>}
+                              {isHighPriority && item.matchedKeywords && item.matchedKeywords.length > 0 && (
+                                <span className="text-blue-600">
+                                  匹配: {item.matchedKeywords.join(', ')}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-2">{item.title}</h3>
-                          {item.desc && (
-                            <p className="text-sm text-gray-600 mb-3">{item.desc}</p>
-                          )}
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>热度: {item.hot}</span>
-                            <span>平台: {getPlatformDisplayName(item.platform || '')}</span>
-                            <span>序号: {item.index || 'N/A'}</span>
+                          <div className="flex items-center gap-1 ml-4">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTopicClick(item);
+                              }}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (item.url) {
+                                  window.open(item.url, '_blank');
+                                }
+                              }}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-1 ml-4">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleTopicClick(item);
-                            }}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (item.url) {
-                                window.open(item.url, '_blank');
-                              }
-                            }}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -864,9 +1039,10 @@ export default function HotTopicsPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleMonitorTopic(subscription)}
+                            disabled={isMonitoring}
                           >
                             <Eye className="w-4 h-4 mr-2" />
-                            检查
+                            {isMonitoring ? '检查中...' : '检查'}
                           </Button>
                           <Button
                             variant="outline"
@@ -899,30 +1075,9 @@ export default function HotTopicsPage() {
                             variant={subscription.isActive ? "default" : "secondary"}
                             className="ml-2"
                           >
-                            {subscription.isActive ? (
-                              <>
-                                <Play className="w-3 h-3 mr-1" />
-                                监控中
-                              </>
-                            ) : (
-                              <>
-                                <Pause className="w-3 h-3 mr-1" />
-                                已暂停
-                              </>
-                            )}
+                            {subscription.isActive ? "活跃" : "暂停"}
                           </Badge>
                         </div>
-                        
-                        <div>
-                          <span className="text-gray-500">检查间隔:</span>
-                          <span className="ml-2 font-medium">{subscription.checkInterval}分钟</span>
-                        </div>
-                        
-                        <div>
-                          <span className="text-gray-500">搜索源:</span>
-                          <span className="ml-2 font-medium">{subscription.sources.length}个</span>
-                        </div>
-                        
                         <div>
                           <span className="text-gray-500">通知:</span>
                           <Badge 
@@ -932,44 +1087,40 @@ export default function HotTopicsPage() {
                             {subscription.notificationEnabled ? "开启" : "关闭"}
                           </Badge>
                         </div>
+                        <div>
+                          <span className="text-gray-500">检查间隔:</span>
+                          <span className="ml-2">{subscription.checkInterval}分钟</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">热度阈值:</span>
+                          <span className="ml-2">{subscription.minHeatThreshold}-{subscription.maxHeatThreshold}</span>
+                        </div>
                       </div>
-                      
+
                       {/* 监控结果 */}
-                      {monitorResults[subscription.id] && (
-                        <div className="mt-4 pt-4 border-t">
-                          <h4 className="font-medium text-gray-900 mb-2">
-                            最新监控结果 ({monitorResults[subscription.id].length} 条)
-                          </h4>
+                      {monitorResults[subscription.id] && monitorResults[subscription.id].length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">监控结果</h4>
                           <div className="space-y-2">
-                            {monitorResults[subscription.id].slice(0, 3).map((result) => (
-                              <div key={result.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium">{result.title}</p>
-                                  <p className="text-xs text-gray-600">{result.platform} • 热度: {result.heat}</p>
-                                </div>
-                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                  <ExternalLink className="w-3 h-3" />
-                                </Button>
+                            {monitorResults[subscription.id].slice(0, 3).map((result, index) => (
+                              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <span className="text-sm">{result.title}</span>
+                                <Badge variant="outline" className="text-xs">
+                                  {result.platform}
+                                </Badge>
                               </div>
                             ))}
+                            {monitorResults[subscription.id].length > 3 && (
+                              <p className="text-xs text-gray-500">
+                                还有 {monitorResults[subscription.id].length - 3} 个结果...
+                              </p>
+                            )}
                           </div>
                         </div>
                       )}
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-            )}
-            
-            {/* 热度趋势图表 */}
-            {selectedSubscription && heatTrends[selectedSubscription.keyword] && (
-              <div className="mt-6">
-                <TopicHeatChart
-                  keyword={selectedSubscription.keyword}
-                  trends={heatTrends[selectedSubscription.keyword]}
-                  loading={loadingTrends[selectedSubscription.keyword]}
-                  onRefresh={() => loadHeatTrends(selectedSubscription.keyword)}
-                />
               </div>
             )}
           </TabsContent>
@@ -979,6 +1130,130 @@ export default function HotTopicsPage() {
             <NotificationCenter />
           </TabsContent>
         </Tabs>
+
+        {/* 添加订阅对话框 */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>添加话题订阅</DialogTitle>
+              <DialogDescription>
+                设置关键词和监控条件，系统将自动追踪相关话题
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="keyword">关键词 *</Label>
+                <Input
+                  id="keyword"
+                  placeholder="输入要监控的关键词"
+                  value={newSubscription.keyword}
+                  onChange={(e) => setNewSubscription(prev => ({ ...prev, keyword: e.target.value }))}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="name">订阅名称</Label>
+                <Input
+                  id="name"
+                  placeholder="为订阅起个名字"
+                  value={newSubscription.name}
+                  onChange={(e) => setNewSubscription(prev => ({ ...prev, name: e.target.value }))}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="description">描述</Label>
+                <Input
+                  id="description"
+                  placeholder="订阅的详细描述"
+                  value={newSubscription.description}
+                  onChange={(e) => setNewSubscription(prev => ({ ...prev, description: e.target.value }))}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label>监控平台</Label>
+                <div className="flex flex-wrap gap-2">
+                  {supportedPlatforms.map((platform) => (
+                    <Button
+                      key={platform}
+                      variant={newSubscription.platforms.includes(platform) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        const platforms = newSubscription.platforms.includes(platform)
+                          ? newSubscription.platforms.filter(p => p !== platform)
+                          : [...newSubscription.platforms, platform];
+                        setNewSubscription(prev => ({ ...prev, platforms }));
+                      }}
+                    >
+                      {getPlatformIcon(platform)}
+                      {getPlatformDisplayName(platform)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="checkInterval">检查间隔 (分钟)</Label>
+                  <Select
+                    value={newSubscription.checkInterval.toString()}
+                    onValueChange={(value) => setNewSubscription(prev => ({ ...prev, checkInterval: parseInt(value) }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5分钟</SelectItem>
+                      <SelectItem value="15">15分钟</SelectItem>
+                      <SelectItem value="30">30分钟</SelectItem>
+                      <SelectItem value="60">1小时</SelectItem>
+                      <SelectItem value="120">2小时</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="minHeatThreshold">最低热度</Label>
+                  <Input
+                    id="minHeatThreshold"
+                    type="number"
+                    value={newSubscription.minHeatThreshold}
+                    onChange={(e) => setNewSubscription(prev => ({ ...prev, minHeatThreshold: parseInt(e.target.value) || 0 }))}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={newSubscription.isActive}
+                  onCheckedChange={(checked) => setNewSubscription(prev => ({ ...prev, isActive: checked }))}
+                />
+                <Label htmlFor="isActive">立即启用</Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="notificationEnabled"
+                  checked={newSubscription.notificationEnabled}
+                  onCheckedChange={(checked) => setNewSubscription(prev => ({ ...prev, notificationEnabled: checked }))}
+                />
+                <Label htmlFor="notificationEnabled">启用通知</Label>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                取消
+              </Button>
+              <Button onClick={handleAddSubscription}>
+                添加订阅
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

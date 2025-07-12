@@ -134,7 +134,7 @@ const AppContent: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        <Route path="/hot-topics/detail/:id/:platform" element={
+        <Route path="/hot-topics/detail/:platform/:title" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
               <Suspense fallback={<LoadingSpinner />}>

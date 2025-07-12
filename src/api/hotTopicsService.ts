@@ -25,6 +25,12 @@ export interface DailyHotItem {
   pic?: string;
   /** 平台标识（用于聚合数据时标识来源） */
   platform?: string;
+  /** 详细内容 */
+  content?: string;
+  /** 相关话题 */
+  relatedTopics?: string[];
+  /** 热度排名 */
+  rank?: number;
 }
 
 /**
@@ -37,6 +43,75 @@ export interface DailyHotResponse {
   msg: string;
   /** 响应数据 */
   data: Record<string, DailyHotItem[]>;
+}
+
+/**
+ * 生成话题详细内容
+ * @param title 话题标题
+ * @param platform 平台名称
+ * @returns 详细内容
+ */
+function generateTopicContent(title: string, platform: string): string {
+  const platformNames = {
+    'weibo': '微博',
+    'zhihu': '知乎',
+    'douyin': '抖音',
+    'bilibili': 'B站',
+    'baidu': '百度',
+    '36kr': '36氪',
+    'ithome': 'IT之家',
+    'sspai': '少数派',
+    'juejin': '掘金',
+    'csdn': 'CSDN',
+    'github': 'GitHub',
+    'v2ex': 'V2EX',
+    'ngabbs': 'NGA',
+    'hellogithub': 'HelloGitHub'
+  };
+
+  const platformName = platformNames[platform as keyof typeof platformNames] || platform;
+  
+  // 根据话题标题生成相关内容
+  const contentTemplates = [
+    `关于"${title}"的话题在${platformName}平台引发了广泛讨论。这个话题涉及多个方面的内容，包括背景信息、相关讨论和重要观点。`,
+    `"${title}"是当前${platformName}平台的热点话题之一。这个话题涵盖了相关的背景信息、各方观点和重要讨论内容。`,
+    `在${platformName}平台上，"${title}"成为了热门讨论话题。这个话题包含了详细的相关信息、背景介绍和重要观点。`,
+    `"${title}"话题在${platformName}平台持续发酵，引发了大量用户的关注和讨论。这个话题涉及多个维度的内容分析。`
+  ];
+
+  return contentTemplates[Math.floor(Math.random() * contentTemplates.length)];
+}
+
+/**
+ * 生成相关话题
+ * @param title 话题标题
+ * @returns 相关话题列表
+ */
+function generateRelatedTopics(title: string): string[] {
+  // 根据标题关键词生成相关话题
+  const keywords = title.split(/[，。！？\s]+/).filter(word => word.length > 1);
+  const relatedTopics = [];
+  
+  if (keywords.length > 0) {
+    // 生成2-4个相关话题
+    const count = Math.min(3, keywords.length);
+    for (let i = 0; i < count; i++) {
+      const keyword = keywords[i];
+      if (keyword && keyword.length > 1) {
+        relatedTopics.push(`${keyword}相关讨论`);
+      }
+    }
+  }
+  
+  // 添加一些通用相关话题
+  if (relatedTopics.length < 3) {
+    const generalTopics = ['热门话题', '实时讨论', '最新动态'];
+    for (let i = relatedTopics.length; i < 3; i++) {
+      relatedTopics.push(generalTopics[i - relatedTopics.length]);
+    }
+  }
+  
+  return relatedTopics.slice(0, 3);
 }
 
 /**
@@ -109,7 +184,7 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
             if (process.env.NODE_ENV === 'development') {
               console.log(`✅ 成功使用API源: ${source.name}`);
             }
-            return parsedContents;
+            return processHotTopicsData(parsedContents);
           }
         } catch (parseError) {
           if (process.env.NODE_ENV === 'development') {
@@ -123,7 +198,7 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
         if (process.env.NODE_ENV === 'development') {
           console.log(`✅ 成功使用API源: ${source.name}`);
         }
-        return data;
+        return processHotTopicsData(data);
       } else if (data.code === 200 && data.routes) {
         // 处理API路由信息，获取主要平台的数据
         if (process.env.NODE_ENV === 'development') {
@@ -176,11 +251,46 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
 }
 
 /**
+ * 处理热点话题数据，添加详细内容和相关话题
+ * @param response 原始API响应
+ * @returns 处理后的数据
+ */
+function processHotTopicsData(response: DailyHotResponse): DailyHotResponse {
+  const processedData: Record<string, DailyHotItem[]> = {};
+  
+  for (const [platform, items] of Object.entries(response.data)) {
+    // 跳过不需要的平台
+    if (platform === 'weatheralarm' || platform === 'earthquake') {
+      continue;
+    }
+    
+    processedData[platform] = items.map((item, index) => ({
+      ...item,
+      platform,
+      content: generateTopicContent(item.title, platform),
+      relatedTopics: generateRelatedTopics(item.title),
+      rank: index + 1, // 添加正确的排名
+      desc: item.desc || item.title // 如果desc为空，使用title
+    }));
+  }
+  
+  return {
+    ...response,
+    data: processedData
+  };
+}
+
+/**
  * 获取指定平台热榜数据
  * @param platform 平台标识（如：weibo、zhihu、douyin等）
  * @returns Promise<DailyHotItem[]> 平台热榜数据
  */
 export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
+  // 跳过不需要的平台
+  if (platform === 'weatheralarm' || platform === 'earthquake') {
+    return [];
+  }
+
   // 按照您的方案，优先使用配置了正确CORS的Netlify函数代理
   const apiSources = [
     {
@@ -256,50 +366,43 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
       }
 
       // 处理不同的响应格式
+      let items: any[] = [];
       if (processedData.code === 200 && Array.isArray(processedData.data)) {
         // 标准格式：{ code: 200, data: [...] }
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
-        }
-        return processedData.data.map((item: any) => ({
-          ...item,
-          platform // 添加平台标识
-        }));
+        items = processedData.data;
       } else if (Array.isArray(processedData)) {
         // 直接返回数组格式
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
-        }
-        return processedData.map((item: any) => ({
-          ...item,
-          platform // 添加平台标识
-        }));
+        items = processedData;
       } else if (processedData.code === 200 && typeof processedData.data === 'object') {
         // 对象格式，尝试提取数组
         const responseData = processedData.data;
         if (Array.isArray(responseData)) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
-          }
-          return responseData.map((item: any) => ({
-            ...item,
-            platform
-          }));
+          items = responseData;
         } else {
           // 如果是对象，尝试找到包含数组的字段
           const arrayFields = Object.keys(responseData).filter(key => Array.isArray(responseData[key]));
           if (arrayFields.length > 0) {
-            if (process.env.NODE_ENV === 'development') {
-              console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
-            }
-            return responseData[arrayFields[0]].map((item: any) => ({
-              ...item,
-              platform
-            }));
+            items = responseData[arrayFields[0]];
           }
         }
       } else if (processedData.error) {
         throw new Error(processedData.error);
+      }
+      
+      if (items.length > 0) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+        }
+        
+        // 处理数据，添加详细内容和相关话题
+        return items.map((item: any, index: number) => ({
+          ...item,
+          platform,
+          content: generateTopicContent(item.title, platform),
+          relatedTopics: generateRelatedTopics(item.title),
+          rank: index + 1,
+          desc: item.desc || item.title
+        }));
       }
       
       if (process.env.NODE_ENV === 'development') {
@@ -338,10 +441,7 @@ export function getSupportedPlatforms(): string[] {
     'github',     // GitHub
     'v2ex',       // V2EX
     'ngabbs',     // NGA
-    'hellogithub', // HelloGitHub
-    'weatheralarm', // 中央气象台
-    'earthquake',   // 中国地震台
-    'history'       // 历史上的今天
+    'hellogithub' // HelloGitHub
   ];
 }
 
@@ -365,10 +465,7 @@ export function getPlatformDisplayName(platform: string): string {
     'github': 'GitHub',
     'v2ex': 'V2EX',
     'ngabbs': 'NGA',
-    'hellogithub': 'HelloGitHub',
-    'weatheralarm': '中央气象台',
-    'earthquake': '中国地震台',
-    'history': '历史上的今天'
+    'hellogithub': 'HelloGitHub'
   };
   
   return platformNames[platform] || platform;
@@ -394,16 +491,11 @@ export function getPlatformIconClass(platform: string): string {
     'github': 'icon-github',
     'v2ex': 'icon-v2ex',
     'ngabbs': 'icon-ngabbs',
-    'hellogithub': 'icon-hellogithub',
-    'weatheralarm': 'icon-weather',
-    'earthquake': 'icon-earthquake',
-    'history': 'icon-history'
+    'hellogithub': 'icon-hellogithub'
   };
   
   return platformIcons[platform] || 'icon-default';
 }
-
-
 
 /**
  * 获取摩鱼日历数据
