@@ -25,10 +25,11 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       adaptUsageLimit: 10,
       tokenLimit: 100000,
       availableModels: ['GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['我的资料库', '基础模型']
+      availableFeatures: ['AI内容适配器', '全网雷达', '我的资料库', '基础模型']
     },
     features: [
       'AI内容适配器（10次/月）',
+      '全网雷达',
       '我的资料库',
       '基础模型'
     ]
@@ -54,12 +55,13 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       adaptUsageLimit: 30,
       tokenLimit: 200000,
       availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['创意魔方', '我的资料库', '高级模型']
+      availableFeatures: ['AI内容适配器', '创意魔方', '全网雷达', '我的资料库', '高级模型']
     },
     recommended: true,
     features: [
       'AI内容适配器（30次/月）',
       '创意魔方',
+      '全网雷达',
       '我的资料库',
       '高级模型'
     ]
@@ -85,7 +87,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       adaptUsageLimit: -1, // 不限量
       tokenLimit: 500000,
       availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['创意魔方', '全网雷达', '我的资料库', '品牌库', '高级模型及最新模型']
+      availableFeatures: ['AI内容适配器', '创意魔方', '全网雷达', '我的资料库', '品牌库', '高级模型及最新模型']
     },
     features: [
       'AI内容适配器（不限次数）',
@@ -100,11 +102,11 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 
 /**
  * 获取订阅计划
- * @param tier 计划类型
+ * @param id 计划ID
  * @returns 订阅计划
  */
-export function getSubscriptionPlan(tier: string): SubscriptionPlan | undefined {
-  return SUBSCRIPTION_PLANS.find(plan => plan.tier === tier);
+export function getSubscriptionPlan(id: string): SubscriptionPlan | undefined {
+  return SUBSCRIPTION_PLANS.find(plan => plan.id === id);
 }
 
 /**
@@ -113,6 +115,15 @@ export function getSubscriptionPlan(tier: string): SubscriptionPlan | undefined 
  */
 export function getAllSubscriptionPlans(): SubscriptionPlan[] {
   return SUBSCRIPTION_PLANS;
+}
+
+/**
+ * 根据用户类型获取订阅计划
+ * @param userType 用户类型
+ * @returns 订阅计划
+ */
+export function getSubscriptionPlanByUserType(userType: string): SubscriptionPlan | undefined {
+  return SUBSCRIPTION_PLANS.find(plan => plan.tier === userType);
 }
 
 /**

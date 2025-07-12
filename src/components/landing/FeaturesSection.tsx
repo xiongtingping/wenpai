@@ -74,7 +74,7 @@ const mainFeatures = [
     bgColor: 'from-orange-50 to-red-50',
     borderColor: 'border-orange-200',
     hoverColor: 'hover:from-orange-100 hover:to-red-100',
-    badge: '开发中',
+    badge: '免费',
     badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
     features: ['实时热点监控', '趋势分析报告', '竞品内容追踪', '话题预测']
   },
