@@ -540,6 +540,7 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
 
 /**
  * 获取支持的平台列表
+ * 只保留稳定可用平台：微博、知乎、抖音、B站、百度、36氪、IT之家
  * @returns string[] 支持的平台标识列表
  */
 export function getSupportedPlatforms(): string[] {
@@ -550,14 +551,7 @@ export function getSupportedPlatforms(): string[] {
     'bilibili',   // B站
     'baidu',      // 百度
     '36kr',       // 36氪
-    'ithome',     // IT之家
-    'sspai',      // 少数派
-    'juejin',     // 掘金
-    'csdn',       // CSDN
-    'github',     // GitHub
-    'v2ex',       // V2EX
-    'ngabbs',     // NGA
-    'hellogithub' // HelloGitHub
+    'ithome'      // IT之家
   ];
 }
 

@@ -796,19 +796,19 @@ export default function HotTopicsPage() {
                         </CardDescription>
                       </div>
                       <div className="text-sm text-gray-500">
-                        最后更新: {lastUpdateTime.toLocaleString('zh-CN')}
+                        最后更新: {lastUpdateTime.toLocaleString('zh-CN')}（每15分钟自动更新）
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <Tabs defaultValue="all" className="w-full">
-                      <TabsList className="grid w-full grid-cols-6">
+                      <TabsList className="grid w-full grid-cols-7">
                         <TabsTrigger value="all">总榜</TabsTrigger>
-                        <TabsTrigger value="weibo">微博</TabsTrigger>
-                        <TabsTrigger value="zhihu">知乎</TabsTrigger>
-                        <TabsTrigger value="douyin">抖音</TabsTrigger>
-                        <TabsTrigger value="bilibili">B站</TabsTrigger>
-                        <TabsTrigger value="baidu">百度</TabsTrigger>
+                        {supportedPlatforms.map((platform) => (
+                          <TabsTrigger key={platform} value={platform}>
+                            {getPlatformDisplayName(platform)}
+                          </TabsTrigger>
+                        ))}
                       </TabsList>
                       
                       <TabsContent value="all" className="mt-4">
@@ -847,43 +847,46 @@ export default function HotTopicsPage() {
                           ))}
                         </div>
                       </TabsContent>
-                      
-                      {['weibo', 'zhihu', 'douyin', 'bilibili', 'baidu'].map((platform) => (
+                      {supportedPlatforms.map((platform) => (
                         <TabsContent key={platform} value={platform} className="mt-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                            {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
-                              <div
-                                key={index}
-                                className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
-                                  isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
-                                } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
-                                onClick={() => handleTopicClick(topic)}
-                              >
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Badge variant="destructive" className="text-xs">
-                                    #{index + 1}
-                                  </Badge>
-                                  <Badge variant="outline" className="text-xs">
-                                    {getPlatformDisplayName(platform)}
-                                  </Badge>
-                                </div>
-                                <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                                  {topic.title}
-                                </h4>
-                                <div className="flex items-center justify-between text-xs text-gray-500">
-                                  <span>{topic.hot}</span>
-                                  <div className="flex items-center gap-1">
-                                    {isTopicBookmarked(topic) && (
-                                      <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
-                                    )}
-                                    {isTopicRead(topic) && (
-                                      <Eye className="w-3 h-3 text-gray-400" />
-                                    )}
+                          {(allHotData.data[platform] || []).length === 0 ? (
+                            <div className="text-center text-gray-400 py-8">暂无数据</div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                              {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
+                                <div
+                                  key={index}
+                                  className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                                    isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
+                                  } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
+                                  onClick={() => handleTopicClick(topic)}
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Badge variant="destructive" className="text-xs">
+                                      #{index + 1}
+                                    </Badge>
+                                    <Badge variant="outline" className="text-xs">
+                                      {getPlatformDisplayName(platform)}
+                                    </Badge>
+                                  </div>
+                                  <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                                    {topic.title}
+                                  </h4>
+                                  <div className="flex items-center justify-between text-xs text-gray-500">
+                                    <span>{topic.hot}</span>
+                                    <div className="flex items-center gap-1">
+                                      {isTopicBookmarked(topic) && (
+                                        <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
+                                      )}
+                                      {isTopicRead(topic) && (
+                                        <Eye className="w-3 h-3 text-gray-400" />
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
+                          )}
                         </TabsContent>
                       ))}
                     </Tabs>
