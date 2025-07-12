@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
-import { LogOut, Crown } from 'lucide-react';
+import { LogOut, Crown, Copy as CopyIcon } from 'lucide-react';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
 
@@ -116,6 +116,61 @@ export default function ProfilePage() {
               升级专业版
             </button>
           </div>
+        </div>
+
+        {/* 邀请好友模块 */}
+        <div className="mt-10">
+          {/* 顶部Banner */}
+          <div className="rounded-xl bg-gradient-to-r from-orange-400 to-red-500 p-6 text-white shadow-md flex items-center space-x-4">
+            <div className="flex-shrink-0 text-3xl">🎁</div>
+            <div>
+              <div className="text-xl font-bold">邀请好友，轻松得奖励</div>
+              <div className="text-sm opacity-80">每邀请 1 人注册，双方各得 20 次机会</div>
+            </div>
+          </div>
+
+          {/* 中部三项数据 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+            <div className="bg-blue-100 text-blue-700 rounded-lg p-4 text-center">
+              <div className="text-xs">双方各得</div>
+              <div className="text-2xl font-bold">20 次</div>
+            </div>
+            <div className="bg-green-100 text-green-700 rounded-lg p-4 text-center">
+              <div className="text-xs">有效期</div>
+              <div className="text-2xl font-bold">永久</div>
+            </div>
+            <div className="bg-purple-100 text-purple-700 rounded-lg p-4 text-center">
+              <div className="text-xs">成功邀请</div>
+              <div className="text-2xl font-bold">0</div>
+            </div>
+          </div>
+
+          {/* 邀请方式区 */}
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-gray-600 mb-1 block">推荐码</label>
+              <div className="flex items-center border rounded px-2 py-1 bg-white">
+                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value="temp-user-id" />
+                <button className="flex items-center text-blue-600 hover:underline text-xs ml-2">
+                  <CopyIcon className="w-4 h-4 mr-1" />复制
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm text-gray-600 mb-1 block">邀请链接</label>
+              <div className="flex items-center border rounded px-2 py-1 bg-white">
+                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value="https://xxx.netlify.app?ref=xxx" />
+                <button className="flex items-center text-blue-600 hover:underline text-xs ml-2">
+                  <CopyIcon className="w-4 h-4 mr-1" />复制
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 底部按钮 */}
+          <button className="mt-6 w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold shadow-md hover:opacity-90 active:opacity-80 transition-opacity">
+            立即邀请好友
+          </button>
         </div>
       </div>
     </div>
