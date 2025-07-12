@@ -46,15 +46,12 @@ export interface DailyHotResponse {
  */
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
   try {
-    // 通过Netlify函数代理获取数据
-    const response = await fetch('/.netlify/functions/api', {
-      method: 'POST',
+    // 首先尝试直接调用API
+    const response = await fetch('https://api-hot.imsyy.top/all', {
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'hot-topics'
-      })
+        'Accept': 'application/json'
+      }
     });
 
     if (!response.ok) {
@@ -72,8 +69,37 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
       throw new Error('Invalid response format');
     }
   } catch (error) {
-    console.error('获取全网热点数据失败:', error);
-    throw new Error(`获取全网热点数据失败: ${error instanceof Error ? error.message : '网络连接异常'}`);
+    console.error('直接API调用失败，尝试Netlify函数代理:', error);
+    
+    // 如果直接调用失败，尝试Netlify函数代理
+    try {
+      const proxyResponse = await fetch('/.netlify/functions/api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'hot-topics'
+        })
+      });
+
+      if (!proxyResponse.ok) {
+        throw new Error(`HTTP error! status: ${proxyResponse.status}`);
+      }
+
+      const proxyData = await proxyResponse.json();
+      
+      if (proxyData.code === 200 && proxyData.data) {
+        return proxyData;
+      } else if (proxyData.error) {
+        throw new Error(proxyData.error);
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (proxyError) {
+      console.error('Netlify函数代理也失败:', proxyError);
+      throw new Error(`获取全网热点数据失败: ${error instanceof Error ? error.message : '网络连接异常'}`);
+    }
   }
 }
 
@@ -84,16 +110,12 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
  */
 export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
   try {
-    // 通过Netlify函数代理获取数据
-    const response = await fetch('/.netlify/functions/api', {
-      method: 'POST',
+    // 首先尝试直接调用API
+    const response = await fetch(`https://api-hot.imsyy.top/${platform}`, {
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'hot-topics',
-        platform: platform
-      })
+        'Accept': 'application/json'
+      }
     });
 
     if (!response.ok) {
@@ -145,8 +167,68 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
     console.warn(`平台${platform}返回数据格式异常:`, data);
     return [];
   } catch (error) {
-    console.error(`获取${platform}热榜数据失败:`, error);
-    throw error; // 重新抛出错误，让调用方处理
+    console.error(`直接API调用失败，尝试Netlify函数代理:`, error);
+    
+    // 如果直接调用失败，尝试Netlify函数代理
+    try {
+      const proxyResponse = await fetch('/.netlify/functions/api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'hot-topics',
+          platform: platform
+        })
+      });
+
+      if (!proxyResponse.ok) {
+        throw new Error(`HTTP error! status: ${proxyResponse.status}`);
+      }
+
+      const proxyData = await proxyResponse.json();
+      
+      // 处理代理响应数据格式
+      if (!proxyData) {
+        throw new Error('API返回空数据');
+      }
+
+      if (proxyData.code === 200 && Array.isArray(proxyData.data)) {
+        return proxyData.data.map((item: any) => ({
+          ...item,
+          platform
+        }));
+      } else if (Array.isArray(proxyData)) {
+        return proxyData.map((item: any) => ({
+          ...item,
+          platform
+        }));
+      } else if (proxyData.code === 200 && typeof proxyData.data === 'object') {
+        const responseData = proxyData.data;
+        if (Array.isArray(responseData)) {
+          return responseData.map((item: any) => ({
+            ...item,
+            platform
+          }));
+        } else {
+          const arrayFields = Object.keys(responseData).filter(key => Array.isArray(responseData[key]));
+          if (arrayFields.length > 0) {
+            return responseData[arrayFields[0]].map((item: any) => ({
+              ...item,
+              platform
+            }));
+          }
+        }
+      } else if (proxyData.error) {
+        throw new Error(proxyData.error);
+      }
+      
+      console.warn(`平台${platform}代理返回数据格式异常:`, proxyData);
+      return [];
+    } catch (proxyError) {
+      console.error(`Netlify函数代理也失败:`, proxyError);
+      throw error; // 重新抛出原始错误
+    }
   }
 }
 
