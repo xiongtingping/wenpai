@@ -10,7 +10,7 @@ export const HeroSection: React.FC = () => {
       {/* 背景渐变圆形装饰 */}
       <div className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-blue-200/40 to-pink-200/20 blur-3xl z-0" />
       <div className="absolute bottom-0 right-0 w-[320px] h-[320px] rounded-full bg-gradient-to-tr from-pink-100/40 to-blue-100/10 blur-2xl z-0" />
-      <div className="relative z-10 w-full max-w-2xl mx-auto px-6 py-16 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl flex flex-col items-center text-center">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-[5vw] py-16 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl flex flex-col items-center text-center">
         {/* 品牌行 */}
         <div className="flex items-center justify-center gap-3 mb-6">
           <span className="text-5xl md:text-6xl">🎯</span>
