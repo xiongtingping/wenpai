@@ -48,13 +48,14 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
   // 尝试多个API源，确保能够获取到真实数据
   const apiSources = [
     {
-      name: 'netlify-proxy',
-      url: '/.netlify/functions/api',
-      method: 'POST',
+      name: 'cors-proxy',
+      url: 'https://cors-anywhere.herokuapp.com/https://api-hot.imsyy.top/all',
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ action: 'hot-topics' })
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      }
     },
     {
       name: 'direct-api',
@@ -64,6 +65,15 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
+    },
+    {
+      name: 'netlify-proxy',
+      url: '/.netlify/functions/api',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'hot-topics' })
     }
   ];
 
@@ -117,13 +127,14 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
   // 尝试多个API源，确保能够获取到真实数据
   const apiSources = [
     {
-      name: 'netlify-proxy',
-      url: '/.netlify/functions/api',
-      method: 'POST',
+      name: 'cors-proxy',
+      url: `https://cors-anywhere.herokuapp.com/https://api-hot.imsyy.top/${platform}`,
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ action: 'hot-topics', platform })
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      }
     },
     {
       name: 'direct-api',
@@ -133,6 +144,15 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
+    },
+    {
+      name: 'netlify-proxy',
+      url: '/.netlify/functions/api',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'hot-topics', platform })
     }
   ];
 
