@@ -18,17 +18,17 @@ export default defineConfig({
     hmr: {
       overlay: true, // 显示错误覆盖层
     },
-    // 代理Netlify函数到本地开发环境
+    // 代理Netlify函数到生产环境
     proxy: {
       '/.netlify/functions/api': {
-        target: 'http://localhost:8888',
+        target: 'https://wenpai.netlify.app',
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
       '/.netlify/functions/cors-test': {
-        target: 'http://localhost:8888',
+        target: 'https://wenpai.netlify.app',
         changeOrigin: true,
-        secure: false,
+        secure: true,
       }
     }
   },
