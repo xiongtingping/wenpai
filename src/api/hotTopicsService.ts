@@ -45,8 +45,17 @@ export interface DailyHotResponse {
  * @throws Error 当API请求失败时抛出错误
  */
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
-  // 尝试多个API源，确保能够获取到真实数据
+  // 按照您的方案，优先使用配置了正确CORS的Netlify函数代理
   const apiSources = [
+    {
+      name: 'netlify-proxy',
+      url: '/.netlify/functions/api',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'hot-topics' })
+    },
     {
       name: 'allorigins-proxy',
       url: 'https://api.allorigins.win/get?url=https://api-hot.imsyy.top/all',
@@ -65,15 +74,6 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
-    },
-    {
-      name: 'netlify-proxy',
-      url: '/.netlify/functions/api',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ action: 'hot-topics' })
     }
   ];
 
@@ -122,6 +122,12 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
       }
     } catch (error) {
       console.error(`API源 ${source.name} 失败:`, error);
+      
+      // 详细的CORS错误处理
+      if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+        console.warn(`检测到CORS错误，尝试下一个API源: ${source.name}`);
+      }
+      
       // 继续尝试下一个源
       continue;
     }
@@ -137,8 +143,17 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
  * @returns Promise<DailyHotItem[]> 平台热榜数据
  */
 export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
-  // 尝试多个API源，确保能够获取到真实数据
+  // 按照您的方案，优先使用配置了正确CORS的Netlify函数代理
   const apiSources = [
+    {
+      name: 'netlify-proxy',
+      url: '/.netlify/functions/api',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: 'hot-topics', platform })
+    },
     {
       name: 'allorigins-proxy',
       url: `https://api.allorigins.win/get?url=https://api-hot.imsyy.top/${platform}`,
@@ -157,15 +172,6 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
-    },
-    {
-      name: 'netlify-proxy',
-      url: '/.netlify/functions/api',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ action: 'hot-topics', platform })
     }
   ];
 
