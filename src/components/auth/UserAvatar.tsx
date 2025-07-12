@@ -106,9 +106,6 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         <DropdownMenuItem asChild>
           <a href="/profile">个人中心</a>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a href="/settings">设置</a>
-        </DropdownMenuItem>
         {!isPro && !isDevelopment() && (
           <DropdownMenuItem asChild>
             <a href="/payment">升级专业版</a>
