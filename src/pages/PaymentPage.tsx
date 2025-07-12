@@ -13,6 +13,10 @@ import {
 } from "@/config/subscriptionPlans";
 import { SubscriptionPlan, SubscriptionPeriod } from "@/types/subscription";
 
+/**
+ * 订阅页面 - 返回首页按钮优化版
+ * 左对齐、浅灰边框、小字体、hover提示、移动端隐藏、专注转化
+ */
 export default function PaymentPage() {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
@@ -124,13 +128,15 @@ export default function PaymentPage() {
 
   return (
     <div className="container mx-auto py-16 px-4 max-w-6xl">
-      <div className="mb-8">
+      {/* 返回首页按钮 - 优化版 */}
+      <div className="hidden md:block mb-6">
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
+          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
+          title="Return to Home"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3 w-3" />
           返回首页
         </Button>
       </div>
