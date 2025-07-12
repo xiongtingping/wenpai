@@ -2,7 +2,7 @@ import { Book, Video, MessageSquare, Send, Twitter, SquarePlay, Globe, Rss, Zap,
 
 export function TrustSection() {
   return (
-    <section className="py-16 opacity-0 animate-fadeIn" id="trust-section">
+    <section className="py-16 opacity-0 animate-fadeIn bg-[#f9f9f9]" id="trust-section">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">

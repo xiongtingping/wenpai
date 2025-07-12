@@ -1,12 +1,13 @@
 /**
  * 首页主视觉区块（极简大标题风格）
  * 参考用户最新设计，纯白背景，大号主标题，圆润按钮，紧凑留白
+ * 底部添加渐变过渡层，实现与TrustSection的自然过渡
  */
 import React from 'react';
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="bg-white pt-24 pb-20 text-center">
+    <section className="bg-white pt-24 pb-20 text-center relative">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-5xl font-bold leading-tight mb-4">
           让内容创作更 <span className="text-blue-600 font-extrabold">智能</span>、更 <span className="text-pink-500 font-extrabold">高效</span>
@@ -18,6 +19,14 @@ export const HeroSection: React.FC = () => {
           </button>
         </a>
       </div>
+      
+      {/* 渐变过渡层 - 从白色过渡到浅灰色 */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-10"
+        style={{
+          background: 'linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%)'
+        }}
+      />
     </section>
   );
 };
