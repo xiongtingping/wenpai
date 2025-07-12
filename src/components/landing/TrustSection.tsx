@@ -11,7 +11,9 @@ export function TrustSection() {
           <p className="text-gray-600 max-w-2xl mx-auto mb-4">
             覆盖全网主流内容平台，智能适配平台特性，打造多平台一体化内容方案
           </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
+          <div className="w-32 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full relative">
+            <div className="absolute left-1/2 -translate-x-1/2 top-full w-20 h-2 bg-gradient-to-b from-blue-400/30 to-transparent rounded-full -mt-1"></div>
+          </div>
         </div>
 
         {/* 简化的平台图标展示 */}

@@ -13,7 +13,7 @@ export const HeroSection: React.FC = () => {
         </h1>
         <p className="text-lg text-gray-500 mb-8">AI驱动的智能内容适配、创意生成与多平台分发工具</p>
         <a href="/adapt">
-          <button className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-lg rounded-full shadow-xl hover:scale-105 transition">
+          <button className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-lg rounded-full shadow-xl transition transform hover:scale-105 hover:shadow-2xl">
             开始创作
           </button>
         </a>
