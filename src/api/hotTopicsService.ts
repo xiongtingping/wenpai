@@ -317,6 +317,90 @@ export function getPlatformIconClass(platform: string): string {
 }
 
 /**
+ * 获取本地备选热点话题数据
+ * @returns Record<string, DailyHotItem[]> 本地热点话题数据
+ */
+function getLocalHotTopicsData(): Record<string, DailyHotItem[]> {
+  const now = new Date();
+  const timestamp = now.toISOString();
+  
+  return {
+    weibo: [
+      {
+        title: '文派AI内容适配工具上线',
+        hot: '9999',
+        url: 'https://wenpai.netlify.app',
+        desc: 'AI驱动的多平台内容适配工具',
+        platform: 'weibo',
+        index: 1
+      },
+      {
+        title: 'AI技术发展趋势',
+        hot: '8888',
+        url: '#',
+        desc: '人工智能技术的最新发展方向',
+        platform: 'weibo',
+        index: 2
+      }
+    ],
+    zhihu: [
+      {
+        title: '如何提高内容创作效率？',
+        hot: '7777',
+        url: '#',
+        desc: '探讨内容创作的新方法和工具',
+        platform: 'zhihu',
+        index: 1
+      },
+      {
+        title: 'AI辅助写作的实践',
+        hot: '6666',
+        url: '#',
+        desc: 'AI在写作领域的应用案例',
+        platform: 'zhihu',
+        index: 2
+      }
+    ],
+    douyin: [
+      {
+        title: '短视频创作技巧分享',
+        hot: '5555',
+        url: '#',
+        desc: '短视频内容创作的最佳实践',
+        platform: 'douyin',
+        index: 1
+      },
+      {
+        title: 'AI视频生成技术',
+        hot: '4444',
+        url: '#',
+        desc: 'AI在视频创作中的应用',
+        platform: 'douyin',
+        index: 2
+      }
+    ],
+    bilibili: [
+      {
+        title: 'B站UP主创作指南',
+        hot: '3333',
+        url: '#',
+        desc: 'B站内容创作的经验分享',
+        platform: 'bilibili',
+        index: 1
+      },
+      {
+        title: '科技类视频制作',
+        hot: '2222',
+        url: '#',
+        desc: '科技内容视频的制作技巧',
+        platform: 'bilibili',
+        index: 2
+      }
+    ]
+  };
+}
+
+/**
  * 获取摩鱼日历数据
  * @returns Promise<any>
  */
