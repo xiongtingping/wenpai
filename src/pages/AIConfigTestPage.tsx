@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, XCircle, AlertCircle, Info } from 'lucide-react';
 import { callOpenAIProxy } from '@/api/localApiProxy';
-import { callOpenAIDevProxy } from '@/api/devApiProxy';
+import aiService from '@/api/aiService';
 
 /**
  * AI配置测试页面
@@ -68,9 +68,12 @@ const AIConfigTestPage: React.FC = () => {
     }));
 
     try {
-      const response = await callOpenAIDevProxy([
-        { role: 'user', content: '请回复"测试成功"三个字' }
-      ], 'gpt-4o', 0.1, 50);
+      const response = await aiService.generateText({
+        messages: [
+          { role: 'user', content: '请用一句话介绍一下你自己。' }
+        ],
+        provider: 'openai'
+      });
 
       if (response.success) {
         setTestResults(prev => ({

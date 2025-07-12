@@ -56,11 +56,14 @@ const TestNewFeaturesPage: React.FC = () => {
                 <p className="text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
-                <Button asChild className="w-full">
-                  <Link to={feature.path} className="flex items-center justify-center">
+                <Button 
+                  className="w-full"
+                  onClick={() => window.location.href = feature.path}
+                >
+                  <span className="flex items-center justify-center">
                     立即体验
                     <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
+                  </span>
                 </Button>
               </CardContent>
             </Card>

@@ -343,13 +343,24 @@ export class NotoEmojiService {
 
   /**
    * 应用肤色修饰符
+   * @param unicode emoji的unicode字符串
+   * @param modifier 肤色修饰符key
+   * @returns 应用修饰符后的unicode字符串，若无效则返回原unicode
    */
   public applySkinToneModifier(
-    unicode: string, 
+    unicode: string,
     modifier: keyof typeof SKIN_TONE_MODIFIERS
   ): string {
+    if (!unicode) {
+      console.warn('[applySkinToneModifier] unicode参数为空');
+      return '';
+    }
     const emoji = this.getEmojiByUnicode(unicode);
-    if (emoji?.hasSkinTone && modifier) {
+    if (!emoji) {
+      console.warn(`[applySkinToneModifier] 未找到unicode: ${unicode} 对应的emoji`);
+      return unicode;
+    }
+    if (emoji.hasSkinTone && modifier && SKIN_TONE_MODIFIERS[modifier]) {
       return unicode + SKIN_TONE_MODIFIERS[modifier].unicode;
     }
     return unicode;

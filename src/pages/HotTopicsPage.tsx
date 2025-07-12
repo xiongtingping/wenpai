@@ -415,6 +415,7 @@ export default function HotTopicsPage() {
       <PageNavigation
         title="全网雷达"
         description="实时监控各平台热门话题，支持自定义话题订阅和智能追踪"
+        showAdaptButton={false}
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -426,9 +427,6 @@ export default function HotTopicsPage() {
               <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               刷新
             </Button>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              已上线
-            </Badge>
           </div>
         }
       />

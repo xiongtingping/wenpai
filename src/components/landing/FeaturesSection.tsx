@@ -199,59 +199,57 @@ export const FeaturesSection: React.FC = () => {
         <div className="mb-20">
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">主要功能</h3>
-            <p className="text-muted-foreground">专业工具，助力创作</p>
+            <p className="text-muted-foreground">探索文派的核心功能，提升您的内容创作效率</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mainFeatures.map((feature, index) => (
-              <Link key={feature.path} to={feature.path}>
-                <Card className={`group relative overflow-hidden border-2 ${feature.borderColor} bg-gradient-to-br ${feature.bgColor} hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 cursor-pointer h-full`}>
+              <Card 
+                key={index} 
+                variant="interactive" 
+                className="group animate-slideUp"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardHeader className="relative overflow-hidden">
                   {/* 背景装饰 */}
-                  <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feature.color} opacity-10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-500`}></div>
-                  
-                  <CardHeader className="relative z-10">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgColor} opacity-50 group-hover:opacity-75 transition-opacity duration-300`}></div>
+                  <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`p-4 rounded-2xl bg-gradient-to-r ${feature.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        <feature.icon className="w-8 h-8" />
+                      <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-white shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
+                        <feature.icon className="w-6 h-6" />
                       </div>
-                      <Badge className={`${feature.badgeColor} text-white border-0 text-xs`}>
+                      <Badge className={`${feature.badgeColor} text-white border-0 shadow-sm`}>
                         {feature.badge}
                       </Badge>
                     </div>
-                    <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-gray-800 transition-colors mb-2">
+                    <CardTitle className="text-xl font-bold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors duration-300">
                       {feature.title}
                     </CardTitle>
                     <CardDescription className="text-gray-600 leading-relaxed">
                       {feature.description}
                     </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="relative z-10">
-                    {/* 功能列表 */}
-                    <div className="space-y-2 mb-6">
-                      {feature.features.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* 操作按钮 */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
-                        立即体验
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                  </div>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="space-y-3 mb-6">
+                    {feature.features.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <span>{item}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                    ))}
+                  </div>
+                  <Link to={feature.path}>
+                    <Button 
+                      variant="outline" 
+                      className={`w-full border-2 ${feature.borderColor} hover:bg-gradient-to-r ${feature.hoverColor} transition-all duration-300 group-hover:shadow-md`}
+                    >
+                      立即体验
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -260,47 +258,63 @@ export const FeaturesSection: React.FC = () => {
         <div className="mb-20">
           <div className="text-center mb-12">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">快速工具</h3>
-            <p className="text-muted-foreground">常用工具，快速访问</p>
+            <p className="text-muted-foreground">便捷的小工具，让创作更加高效</p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {quickTools.map((tool) => (
-              <Link key={tool.path} to={tool.path}>
-                <Card className="group hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-2 border-gray-100 hover:border-gray-200 h-full">
-                  <CardContent className="p-6 text-center">
-                    <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${tool.color} text-white mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                      <tool.icon className="w-8 h-8" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors">
-                      {tool.title}
-                    </h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {tool.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {quickTools.map((tool, index) => (
+              <Card 
+                key={index} 
+                variant="soft" 
+                className="group text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 animate-zoomIn"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
+                <CardContent className="p-6">
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tool.color} text-white mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
+                    <tool.icon className="w-6 h-6" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors duration-300">
+                    {tool.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                    {tool.description}
+                  </p>
+                  <Link to={tool.path}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full hover:bg-accent/50 transition-colors duration-300"
+                    >
+                      使用工具
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
 
         {/* 平台优势区域 */}
-        <div className="mb-16">
+        <div className="mb-20">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">为什么选择文派？</h3>
-            <p className="text-muted-foreground">专业的AI驱动内容创作平台</p>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">平台优势</h3>
+            <p className="text-muted-foreground">为什么选择文派？我们为您提供最优质的服务</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {advantages.map((advantage, index) => (
-              <div key={index} className="text-center group">
-                <div className={`inline-flex p-6 rounded-2xl ${advantage.bgColor} mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  <advantage.icon className={`w-10 h-10 ${advantage.color}`} />
+              <div 
+                key={index} 
+                className="text-center group animate-slideUp"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${advantage.bgColor} mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <advantage.icon className={`w-8 h-8 ${advantage.color}`} />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors">
+                <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors duration-300">
                   {advantage.title}
                 </h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm text-gray-600 leading-relaxed">
                   {advantage.description}
                 </p>
               </div>
@@ -308,35 +322,7 @@ export const FeaturesSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 行动召唤区域 */}
-        <div className="text-center">
-          <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-purple-600/90"></div>
-            <CardContent className="relative p-12">
-              <div className="mb-6">
-                <Award className="w-16 h-16 mx-auto mb-4 text-yellow-300" />
-                <h3 className="text-3xl font-bold mb-4">开始你的创作之旅</h3>
-                <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-                  加入文派，体验AI驱动的智能内容创作，让创意无限可能
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/register">
-                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 px-8 py-4 text-lg font-semibold">
-                    <Play className="w-5 h-5 mr-2" />
-                    免费开始
-                  </Button>
-                </Link>
-                <Link to="/pricing">
-                  <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-600 transition-all duration-300 px-8 py-4 text-lg font-semibold">
-                    <Crown className="w-5 h-5 mr-2" />
-                    升级专业版
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
       </div>
     </section>
   );

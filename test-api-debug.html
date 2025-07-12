@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API调试测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 3px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API调试测试</h1>
+    
+    <div class="test-section">
+        <h3>1. 测试OpenAI状态检查</h3>
+        <button onclick="testStatus()">检查OpenAI状态</button>
+        <div id="status-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. 测试图像生成（简单）</h3>
+        <button onclick="testSimpleImage()">生成简单图像</button>
+        <div id="simple-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 测试图像生成（复杂提示词）</h3>
+        <textarea id="complex-prompt" rows="3" placeholder="输入复杂的提示词">一个品牌品牌的卡通形象，面带温暖微笑，眼睛弯弯的，表情友好亲切，表情风格为 emoji，扁平卡通风，透明背景，高质量，细节丰富</textarea>
+        <button onclick="testComplexImage()">生成复杂图像</button>
+        <div id="complex-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. 测试批量请求</h3>
+        <button onclick="testBatchRequests()">测试批量请求</button>
+        <div id="batch-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/.netlify/functions/api';
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testStatus() {
+            try {
+                const response = await fetch(`${API_BASE}?provider=openai&action=status`);
+                const data = await response.json();
+                showResult('status-result', data, !data.success);
+            } catch (error) {
+                showResult('status-result', { error: error.message }, true);
+            }
+        }
+
+        async function testSimpleImage() {
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'generate-image',
+                        prompt: '一只可爱的小猫',
+                        n: 1,
+                        size: '512x512'
+                    }),
+                });
+                const data = await response.json();
+                showResult('simple-result', data, !data.success);
+            } catch (error) {
+                showResult('simple-result', { error: error.message }, true);
+            }
+        }
+
+        async function testComplexImage() {
+            try {
+                const prompt = document.getElementById('complex-prompt').value;
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'generate-image',
+                        prompt: prompt,
+                        n: 1,
+                        size: '512x512'
+                    }),
+                });
+                const data = await response.json();
+                showResult('complex-result', data, !data.success);
+            } catch (error) {
+                showResult('complex-result', { error: error.message }, true);
+            }
+        }
+
+        async function testBatchRequests() {
+            try {
+                const results = [];
+                const prompts = [
+                    '开心的小猫',
+                    '悲伤的小狗',
+                    '惊讶的兔子'
+                ];
+
+                for (let i = 0; i < prompts.length; i++) {
+                    console.log(`发送第${i + 1}个请求: ${prompts[i]}`);
+                    
+                    const response = await fetch(API_BASE, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            provider: 'openai',
+                            action: 'generate-image',
+                            prompt: prompts[i],
+                            n: 1,
+                            size: '512x512'
+                        }),
+                    });
+                    
+                    const data = await response.json();
+                    results.push({
+                        prompt: prompts[i],
+                        success: data.success,
+                        error: data.error || null
+                    });
+
+                    // 等待1秒再发送下一个请求
+                    if (i < prompts.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+
+                showResult('batch-result', { batchResults: results });
+            } catch (error) {
+                showResult('batch-result', { error: error.message }, true);
+            }
+        }
+
+        // 页面加载时自动测试状态
+        window.onload = function() {
+            testStatus();
+        };
+    </script>
+</body>
+</html> 

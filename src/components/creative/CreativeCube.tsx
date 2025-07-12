@@ -52,7 +52,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUserStore } from '@/store/userStore';
 import { callOpenAIProxy } from '@/api/apiProxy';
-import { callOpenAIDevProxy } from '@/api/devApiProxy';
+import aiService from '@/api/aiService';
 import { Label as UILabel } from '@/components/ui/label';
 
 /**
@@ -1280,7 +1280,7 @@ ${generateStandardCallToAction()}
       const contentType = isVideo ? 'video' : 'text';
       
       // 调用AI服务生成内容
-      const aiResponse = await callAIForCreativeContent(prompt, contentType);
+      const aiResponse = await callAIForCreativeContent(prompt);
       
       if (aiResponse.success && aiResponse.content) {
         setCurrentContent(aiResponse.content);
@@ -1322,80 +1322,22 @@ ${generateStandardCallToAction()}
   /**
    * 调用AI服务生成创意内容
    */
-  const callAIForCreativeContent = async (prompt: string, contentType: 'text' | 'video'): Promise<{ success: boolean; content?: string; error?: string }> => {
+  const callAIForCreativeContent = async (prompt: string): Promise<{ success: boolean; content?: string; error?: string }> => {
     try {
-      console.log('开始调用AI服务...');
-      
-      // 导入AI服务
-      const { callOpenAIDevProxy } = await import('@/api/devApiProxy');
-      
-      const systemPrompt = `You are an expert social media copywriter and brand storyteller.
+      console.log('开始调用AI生成创意内容...');
+      console.log('提示词:', prompt);
 
-Your job is to generate emotionally resonant and platform-ready marketing content based on user-selected dimensions, using natural human language and realistic storytelling.
-
----
-
-🧭 Writing Rules:
-
-1. You MUST fully integrate all provided dimensions into a **cohesive, vivid, and emotionally realistic** storyline — **no keywords or labels**.
-
-2. Only use dimensions that are explicitly provided. Do not invent or assume any missing information.
-
-3. 🖼 For graphic content (图文):
-   - Start with a strong emotional hook.
-   - Present a realistic pain point within the selected scenario.
-   - Transition naturally into a solution or product tied to the industry.
-   - Close with relatable interaction prompts (e.g. "你也有这种烦恼吗？快来评论！").
-
-4. 🎥 For video content:
-   - Output a structured script with: Scene description, camera movement, dialogue/subtitle, visual cues, BGM suggestion, emotional tone.
-   - Use real-life pacing and emotion fit for TikTok/Xiaohongshu.
-
-5. 💬 Language must:
-   - Match the tone and voice of the selected audience.
-   - Avoid marketing clichés like "提升用户体验" or "打造差异化".
-   - Use conversational, emoji-rich, platform-native expressions.
-
----
-
-🚫 Never:
-- Invent or assume dimensions not provided.
-- Output generic frameworks, bullet points, or headings.
-- Repeat input words mechanically without meaningful transformation.
-- Generate placeholder content.
-
-🎯 Goal:
-Your output must feel like it was written by a real KOC or content strategist — creative, emotionally engaging, and 100% based on the provided input.`;
-
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ];
-
-      console.log('调用OpenAI API，消息数量:', messages.length);
-      console.log('用户提示词长度:', prompt.length);
-
-      const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 1000);
-
-      console.log('AI服务响应:', response);
+      const response = await aiService.generateCreativeContent(prompt, 'text');
 
       if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-        console.log('AI生成成功，内容长度:', response.data.data.choices[0].message.content.length);
+        const content = response.data.data.choices[0].message.content;
+        console.log('AI生成成功，内容长度:', content.length);
         return {
           success: true,
-          content: response.data.data.choices[0].message.content
+          content
         };
       } else {
         console.error('AI服务响应异常:', response);
-        console.error('response.success:', response.success);
-        console.error('response.data:', response.data);
-        console.error('response.data的类型:', typeof response.data);
-        console.error('response.data的键:', response.data ? Object.keys(response.data) : 'data为null/undefined');
-        console.error('response.data的完整内容:', JSON.stringify(response.data, null, 2));
-        console.error('response.data?.choices:', response.data?.choices);
-        console.error('response.data?.choices?.[0]:', response.data?.choices?.[0]);
-        console.error('response.data?.choices?.[0]?.message:', response.data?.choices?.[0]?.message);
-        console.error('response.data?.choices?.[0]?.message?.content:', response.data?.choices?.[0]?.message?.content);
         return {
           success: false,
           error: response.error || 'AI服务响应异常'

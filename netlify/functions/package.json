@@ -1,8 +1,7 @@
 {
-  "type": "module",
   "name": "netlify-functions",
   "version": "1.0.0",
   "description": "Netlify Functions for AI API proxy",
-  "main": "api.js",
+  "main": "api.cjs",
   "dependencies": {}
 } 

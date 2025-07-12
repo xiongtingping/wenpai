@@ -8,59 +8,35 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    /* 默认使用护眼米色主题 */
+    --background: 45 25% 97%;
+    --foreground: 45 15% 15%;
+    --card: 45 25% 97%;
+    --card-foreground: 45 15% 15%;
+    --popover: 45 25% 97%;
+    --popover-foreground: 45 15% 15%;
+    --primary: 45 70% 55%;
+    --primary-foreground: 45 25% 97%;
+    --secondary: 45 20% 92%;
+    --secondary-foreground: 45 15% 15%;
+    --muted: 45 20% 92%;
+    --muted-foreground: 45 10% 35%;
+    --accent: 45 20% 92%;
+    --accent-foreground: 45 15% 15%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --destructive-foreground: 45 25% 97%;
+    --border: 45 15% 88%;
+    --input: 45 15% 88%;
+    --ring: 45 70% 55%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 45 70% 55%;
+    --chart-2: 35 60% 50%;
+    --chart-3: 25 65% 45%;
+    --chart-4: 15 70% 40%;
+    --chart-5: 5 75% 35%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
+  /* 移除Tailwind默认暗色主题，使用自定义主题系统 */
 }
 
 @layer base {
@@ -70,11 +46,60 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* 强制加载 Emoji 字体，确保 emoji 在所有系统上正确显示 */
+    font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* 确保主题样式优先级 */
+  html[data-theme] {
+    color-scheme: light;
+  }
+  
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+  
+  /* 强制应用主题样式 - 使用最高优先级 */
+  html[data-theme] body,
+  html[data-theme] body * {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* 特殊处理卡片和容器背景 */
+  html[data-theme] .card,
+  html[data-theme] [class*="bg-"] {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+  
+  /* 处理边框 */
+  html[data-theme] * {
+    border-color: hsl(var(--border)) !important;
+  }
+  
+  /* 处理按钮和交互元素 */
+  html[data-theme] button,
+  html[data-theme] [class*="btn"] {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
+  
+  /* 覆盖Authing样式 */
+  html[data-theme] [class*="authing-"] {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
   }
 }
 
-/* 主题配置 */
-.theme-bright {
+/* 主题配置 - 使用data-theme属性选择器 */
+[data-theme="light"] {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
@@ -94,9 +119,44 @@
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
   --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
 }
 
-.theme-dark {
+/* 护眼米色主题 - 新增 */
+[data-theme="beige"] {
+  --background: 45 25% 97%;
+  --foreground: 45 15% 15%;
+  --card: 45 25% 97%;
+  --card-foreground: 45 15% 15%;
+  --popover: 45 25% 97%;
+  --popover-foreground: 45 15% 15%;
+  --primary: 45 70% 55%;
+  --primary-foreground: 45 25% 97%;
+  --secondary: 45 20% 92%;
+  --secondary-foreground: 45 15% 15%;
+  --muted: 45 20% 92%;
+  --muted-foreground: 45 10% 35%;
+  --accent: 45 20% 92%;
+  --accent-foreground: 45 15% 15%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 45 25% 97%;
+  --border: 45 15% 88%;
+  --input: 45 15% 88%;
+  --ring: 45 70% 55%;
+  --radius: 0.5rem;
+  --chart-1: 45 70% 55%;
+  --chart-2: 35 60% 50%;
+  --chart-3: 25 65% 45%;
+  --chart-4: 15 70% 40%;
+  --chart-5: 5 75% 35%;
+}
+
+[data-theme="dark"] {
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
   --card: 222.2 84% 4.9%;
@@ -116,9 +176,15 @@
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
   --ring: 224.3 76.3% 94.1%;
+  --radius: 0.5rem;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
 }
 
-.theme-green {
+[data-theme="green"] {
   --background: 120 20% 98%;
   --foreground: 120 10% 10%;
   --card: 120 20% 98%;
@@ -130,7 +196,7 @@
   --secondary: 120 30% 90%;
   --secondary-foreground: 120 10% 10%;
   --muted: 120 30% 90%;
-  --muted-foreground: 120 10% 30%;
+  --muted-foreground: 120 15% 30%;
   --accent: 120 30% 90%;
   --accent-foreground: 120 10% 10%;
   --destructive: 0 84% 60%;
@@ -138,9 +204,15 @@
   --border: 120 20% 85%;
   --input: 120 20% 85%;
   --ring: 142 76% 36%;
+  --radius: 0.5rem;
+  --chart-1: 142 76% 36%;
+  --chart-2: 120 60% 45%;
+  --chart-3: 100 80% 55%;
+  --chart-4: 80 65% 60%;
+  --chart-5: 60 75% 55%;
 }
 
-.theme-blue {
+[data-theme="blue"] {
   --background: 210 40% 98%;
   --foreground: 210 10% 10%;
   --card: 210 40% 98%;
@@ -152,7 +224,7 @@
   --secondary: 210 30% 90%;
   --secondary-foreground: 210 10% 10%;
   --muted: 210 30% 90%;
-  --muted-foreground: 210 10% 30%;
+  --muted-foreground: 210 15% 30%;
   --accent: 210 30% 90%;
   --accent-foreground: 210 10% 10%;
   --destructive: 0 84% 60%;
@@ -160,9 +232,15 @@
   --border: 210 20% 85%;
   --input: 210 20% 85%;
   --ring: 221 83% 53%;
+  --radius: 0.5rem;
+  --chart-1: 221 83% 53%;
+  --chart-2: 200 60% 45%;
+  --chart-3: 180 80% 55%;
+  --chart-4: 160 65% 60%;
+  --chart-5: 140 75% 55%;
 }
 
-.theme-gold {
+[data-theme="gold"] {
   --background: 45 20% 98%;
   --foreground: 45 10% 10%;
   --card: 45 20% 98%;
@@ -174,7 +252,7 @@
   --secondary: 45 30% 90%;
   --secondary-foreground: 45 10% 10%;
   --muted: 45 30% 90%;
-  --muted-foreground: 45 10% 30%;
+  --muted-foreground: 45 15% 30%;
   --accent: 45 30% 90%;
   --accent-foreground: 45 10% 10%;
   --destructive: 0 84% 60%;
@@ -182,9 +260,15 @@
   --border: 45 20% 85%;
   --input: 45 20% 85%;
   --ring: 45 93% 47%;
+  --radius: 0.5rem;
+  --chart-1: 45 93% 47%;
+  --chart-2: 35 60% 45%;
+  --chart-3: 25 80% 55%;
+  --chart-4: 15 65% 60%;
+  --chart-5: 5 75% 55%;
 }
 
-/* 自定义动画 */
+/* 核心动画 - 使用transform和opacity优化性能 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -278,46 +362,172 @@
   }
 }
 
-/* 动画类 */
+@keyframes wave {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-180deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 动画类 - 使用will-change优化性能 */
 .animate-fadeIn {
-  animation: fadeIn 0.6s ease-out;
+  animation: fadeIn 0.6s ease-out forwards;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .animate-slideIn {
   animation: slideIn 0.6s ease-out;
+  will-change: opacity, transform;
 }
 
 .animate-scaleIn {
   animation: scaleIn 0.6s ease-out;
+  will-change: opacity, transform;
 }
 
 .animate-bounce {
   animation: bounce 2s infinite;
+  will-change: transform;
 }
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: opacity;
 }
 
 .animate-spin {
   animation: spin 1s linear infinite;
+  will-change: transform;
 }
 
 .animate-shimmer {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
+  will-change: background-position;
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite alternate;
+  will-change: box-shadow;
 }
 
-/* 渐变背景 */
+.animate-wave {
+  animation: wave 2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.6s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.6s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-zoomIn {
+  animation: zoomIn 0.6s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-rotateIn {
+  animation: rotateIn 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-bounceIn {
+  animation: bounceIn 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+/* Emoji 字体支持 */
+.emoji-font {
+  font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif;
+  font-feature-settings: "liga" 1, "dlig" 1;
+}
+
+/* 确保 emoji 元素使用正确的字体 */
+.emoji,
+[data-emoji],
+.emoji-picker .emoji-item {
+  font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif !important;
+  font-feature-settings: "liga" 1, "dlig" 1;
+}
+
+/* 核心渐变背景 */
 .gradient-bg {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -342,7 +552,7 @@
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
-/* 玻璃效果 */
+/* 核心玻璃效果 */
 .glass {
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(10px);
@@ -355,7 +565,7 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* 阴影效果 */
+/* 核心阴影效果 */
 .shadow-soft {
   box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
 }
@@ -368,23 +578,19 @@
   box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* 边框效果 */
-.border-gradient {
-  border: 2px solid;
-  border-image: linear-gradient(45deg, #667eea, #764ba2) 1;
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
 }
 
-.border-gradient-blue {
-  border: 2px solid;
-  border-image: linear-gradient(45deg, #667eea, #764ba2) 1;
+.shadow-glow-purple {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 0 0 40px rgba(147, 51, 234, 0.1);
 }
 
-.border-gradient-green {
-  border: 2px solid;
-  border-image: linear-gradient(45deg, #11998e, #38ef7d) 1;
+.shadow-glow-green {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
 }
 
-/* 文本渐变 */
+/* 核心文本渐变 */
 .text-gradient {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
@@ -406,7 +612,21 @@
   background-clip: text;
 }
 
-/* 按钮样式增强 */
+.text-gradient-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-orange {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 核心按钮样式 */
 .btn-gradient {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   transition: all 0.3s ease;
@@ -417,7 +637,27 @@
   box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
 }
 
-/* 卡片样式增强 */
+.btn-gradient-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient-green:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(17, 153, 142, 0.4);
+}
+
+.btn-gradient-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient-purple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* 核心卡片样式 */
 .card-hover {
   transition: all 0.3s ease;
 }
@@ -427,18 +667,48 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
+.card-glow {
+  transition: all 0.3s ease;
+}
+
+.card-glow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+}
+
+.card-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.card-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
 /* 响应式工具类 */
 @media (max-width: 640px) {
   .mobile-hidden {
     display: none;
   }
   
-  .mobile-full {
-    width: 100%;
+  .mobile-text-sm {
+    font-size: 0.875rem;
   }
   
-  .mobile-text-center {
-    text-align: center;
+  .mobile-text-xs {
+    font-size: 0.75rem;
+  }
+  
+  .mobile-p-2 {
+    padding: 0.5rem;
+  }
+  
+  .mobile-p-3 {
+    padding: 0.75rem;
   }
 }
 
@@ -446,52 +716,52 @@
   .tablet-hidden {
     display: none;
   }
+  
+  .tablet-text-lg {
+    font-size: 1.125rem;
+  }
+  
+  .tablet-p-4 {
+    padding: 1rem;
+  }
 }
 
-/* 滚动条样式 */
+/* 焦点样式优化 */
+.focus-visible:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* 滚动条美化 */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: hsl(var(--muted));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: hsl(var(--muted-foreground));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: hsl(var(--foreground));
 }
 
 /* 选择文本样式 */
 ::selection {
-  background: rgba(102, 126, 234, 0.3);
-  color: inherit;
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary));
 }
 
-/* 焦点样式 */
-.focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
-}
-
-/* 加载状态 */
-.loading {
-  position: relative;
-  overflow: hidden;
-}
-
-.loading::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+/* 加载状态样式 */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
@@ -500,95 +770,46 @@
   position: relative;
 }
 
-.tooltip::before {
+.tooltip::after {
   content: attr(data-tooltip);
   position: absolute;
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
   padding: 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s;
+  z-index: 50;
 }
 
-.tooltip:hover::before {
+.tooltip:hover::after {
   opacity: 1;
 }
 
-/* 徽章样式增强 */
-.badge-premium {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: white;
-  border: none;
-}
-
-.badge-new {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-}
-
-.badge-hot {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
-}
-
-/* 进度条样式 */
-.progress-bar {
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  height: 4px;
-  border-radius: 2px;
-  transition: width 0.3s ease;
-}
-
-/* 分割线样式 */
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
-}
-
-.divider-vertical {
-  width: 1px;
-  background: linear-gradient(180deg, transparent, #e5e7eb, transparent);
-}
-
-/* 网格背景 */
-.grid-pattern {
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* 波浪效果 */
-.wave {
-  position: relative;
-  overflow: hidden;
-}
-
-.wave::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-  animation: wave 2s ease-in-out infinite;
-}
-
-@keyframes wave {
-  0%, 100% {
-    transform: translateX(-100%);
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
   }
-  50% {
-    transform: translateX(100%);
+  
+  .print-break {
+    page-break-before: always;
+  }
+}
+
+/* 无障碍优化 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

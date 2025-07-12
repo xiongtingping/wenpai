@@ -138,13 +138,8 @@ export default function LoginPage() {
         description: "欢迎回来！"
       });
       
-      // 检查是否有选中的套餐，如果有则跳转到支付页面
-      const selectedPlan = localStorage.getItem("selectedPlan");
-      if (selectedPlan) {
-        navigate('/payment');
-      } else {
-        navigate('/');
-      }
+      // 登录成功后直接跳转到首页
+      navigate('/');
     } catch (error: any) {
       toast({
         title: "登录失败",
@@ -189,13 +184,8 @@ export default function LoginPage() {
         description: "欢迎回来！"
       });
       
-      // 检查是否有选中的套餐，如果有则跳转到支付页面
-      const selectedPlan = localStorage.getItem("selectedPlan");
-      if (selectedPlan) {
-        navigate('/payment');
-      } else {
-        navigate('/');
-      }
+      // 登录成功后直接跳转到首页
+      navigate('/');
     } catch (error: any) {
       toast({
         title: "登录失败",

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简化图像生成API测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">简化图像生成API测试</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">API调用示例</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Prompt:</label>
+                    <input 
+                        type="text" 
+                        id="prompt" 
+                        value="一只可爱的小猫" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">数量 (n):</label>
+                        <input 
+                            type="number" 
+                            id="n" 
+                            value="1" 
+                            min="1" 
+                            max="4"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">尺寸:</label>
+                        <select 
+                            id="size" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="256x256">256x256</option>
+                            <option value="512x512" selected>512x512</option>
+                            <option value="1024x1024">1024x1024</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">格式:</label>
+                        <select 
+                            id="format" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="url" selected>URL</option>
+                            <option value="b64_json">Base64</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button 
+                    onclick="generateImage()" 
+                    id="generateBtn"
+                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    生成图像
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">API响应</h2>
+            <pre id="response" class="bg-gray-100 p-4 rounded-md text-sm overflow-auto max-h-64"></pre>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-semibold mb-4">生成结果</h2>
+            <div id="results" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+        </div>
+    </div>
+
+    <script>
+        async function generateImage() {
+            const prompt = document.getElementById('prompt').value;
+            const n = parseInt(document.getElementById('n').value);
+            const size = document.getElementById('size').value;
+            const response_format = document.getElementById('format').value;
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const responseDiv = document.getElementById('response');
+            const resultsDiv = document.getElementById('results');
+            
+            if (!prompt.trim()) {
+                alert('请输入prompt');
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = '生成中...';
+            responseDiv.textContent = '请求中...';
+            resultsDiv.innerHTML = '';
+            
+            try {
+                const requestBody = {
+                    prompt,
+                    n,
+                    size,
+                    response_format
+                };
+                
+                console.log('发送请求:', requestBody);
+                
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                console.log('API响应:', data);
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (data.success && data.imageUrl) {
+                    // 显示单张图片
+                    resultsDiv.innerHTML = `
+                        <div class="text-center">
+                            <img src="${data.imageUrl}" alt="${prompt}" class="w-full h-48 object-cover rounded-lg border">
+                            <p class="text-sm text-gray-600 mt-2">${prompt}</p>
+                        </div>
+                    `;
+                } else if (data.success && data.images && data.images.length > 0) {
+                    // 显示多张图片
+                    resultsDiv.innerHTML = data.images.map((image, index) => `
+                        <div class="text-center">
+                            <img src="${image.url}" alt="${prompt} ${index + 1}" class="w-full h-48 object-cover rounded-lg border">
+                            <p class="text-sm text-gray-600 mt-2">${prompt} ${index + 1}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="col-span-full text-center text-red-600">
+                            生成失败: ${data.error || '未知错误'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('请求失败:', error);
+                responseDiv.textContent = `请求失败: ${error.message}`;
+                resultsDiv.innerHTML = `
+                    <div class="col-span-full text-center text-red-600">
+                        网络错误: ${error.message}
+                    </div>
+                `;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '生成图像';
+            }
+        }
+        
+        // 页面加载时显示API信息
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/.netlify/functions/api');
+                const data = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `无法连接到API: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html> 

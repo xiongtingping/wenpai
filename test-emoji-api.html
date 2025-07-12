@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji API 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .image-result {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-result img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Emoji API 测试页面</h1>
+        
+        <div class="test-section">
+            <h3>1. 测试API连接</h3>
+            <button onclick="testApiConnection()">测试API连接</button>
+            <div id="connection-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 测试图像生成</h3>
+            <button onclick="testImageGeneration()">生成测试图像</button>
+            <div id="image-result" class="result"></div>
+            <div id="image-display" class="image-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 测试批量生成</h3>
+            <button onclick="testBatchGeneration()">批量生成Emoji</button>
+            <div id="batch-result" class="result"></div>
+            <div id="batch-display" class="image-result"></div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 测试API连接
+         */
+        async function testApiConnection() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.innerHTML = '测试中...';
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'status'
+                    }),
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="success">✅ API连接成功！\n响应时间: ${data.responseTime || 'N/A'}ms\n提供商: ${data.provider || 'unknown'}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ API连接失败: ${data.error || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ 网络错误: ${error.message}</div>`;
+            }
+        }
+
+        /**
+         * 测试图像生成
+         */
+        async function testImageGeneration() {
+            const resultDiv = document.getElementById('image-result');
+            const displayDiv = document.getElementById('image-display');
+            
+            resultDiv.innerHTML = '生成中...';
+            displayDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'generate-image',
+                        prompt: '一只可爱的小猫咪，卡通风格，emoji表情',
+                        n: 1,
+                        size: '512x512',
+                        response_format: 'url'
+                    }),
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data?.images?.[0]?.url) {
+                    resultDiv.innerHTML = `<div class="success">✅ 图像生成成功！\n提供商: ${data.provider}\n时间戳: ${data.timestamp}</div>`;
+                    
+                    const img = document.createElement('img');
+                    img.src = data.data.images[0].url;
+                    img.alt = '生成的图像';
+                    img.onerror = () => {
+                        img.style.display = 'none';
+                        resultDiv.innerHTML += '<div class="error">⚠️ 图像加载失败，但API调用成功</div>';
+                    };
+                    displayDiv.appendChild(img);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ 图像生成失败: ${data.error || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ 网络错误: ${error.message}</div>`;
+            }
+        }
+
+        /**
+         * 测试批量生成
+         */
+        async function testBatchGeneration() {
+            const resultDiv = document.getElementById('batch-result');
+            const displayDiv = document.getElementById('batch-display');
+            
+            resultDiv.innerHTML = '批量生成中...';
+            displayDiv.innerHTML = '';
+            
+            const emotions = ['开心', '生气', '哭泣', '惊讶', '睡觉'];
+            const results = [];
+            
+            for (const emotion of emotions) {
+                try {
+                    const response = await fetch('/.netlify/functions/api', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            provider: 'openai',
+                            action: 'generate-image',
+                            prompt: `一个${emotion}表情的emoji，卡通风格，透明背景`,
+                            n: 1,
+                            size: '512x512',
+                            response_format: 'url'
+                        }),
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success && data.data?.images?.[0]?.url) {
+                        results.push({
+                            emotion,
+                            url: data.data.images[0].url,
+                            success: true
+                        });
+                    } else {
+                        results.push({
+                            emotion,
+                            error: data.error || '生成失败',
+                            success: false
+                        });
+                    }
+                } catch (error) {
+                    results.push({
+                        emotion,
+                        error: error.message,
+                        success: false
+                    });
+                }
+            }
+            
+            const successCount = results.filter(r => r.success).length;
+            resultDiv.innerHTML = `<div class="success">✅ 批量生成完成！\n成功: ${successCount}/${emotions.length}</div>`;
+            
+            results.forEach(result => {
+                if (result.success) {
+                    const img = document.createElement('img');
+                    img.src = result.url;
+                    img.alt = result.emotion;
+                    img.title = result.emotion;
+                    displayDiv.appendChild(img);
+                } else {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.innerHTML = `<div class="error">${result.emotion}: ${result.error}</div>`;
+                    displayDiv.appendChild(errorDiv);
+                }
+            });
+        }
+
+        // 页面加载时自动测试连接
+        window.addEventListener('load', () => {
+            setTimeout(testApiConnection, 1000);
+        });
+    </script>
+</body>
+</html> 

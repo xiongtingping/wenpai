@@ -38,7 +38,7 @@ const DevTools: React.FC = () => {
   }
   
   // 安全地使用 usePermissions hook
-  let permissionData = { hasRole: () => false, loading: false };
+  let permissionData = { hasRole: (role: string) => false, loading: false };
   try {
     const { hasRole, loading: permissionLoading } = usePermissions();
     permissionData = { hasRole, loading: permissionLoading };

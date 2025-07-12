@@ -26,6 +26,12 @@ const buttonVariants = cva(
         success: "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-lg hover:shadow-xl hover:from-green-600 hover:to-emerald-700 transform hover:scale-105",
         warning: "bg-gradient-to-r from-yellow-500 to-orange-600 text-white border-0 shadow-lg hover:shadow-xl hover:from-yellow-600 hover:to-orange-700 transform hover:scale-105",
         info: "bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-cyan-700 transform hover:scale-105",
+        neon: "bg-transparent border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white shadow-lg hover:shadow-glow transform hover:scale-105",
+        neonPurple: "bg-transparent border-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white shadow-lg hover:shadow-glow-purple transform hover:scale-105",
+        neonGreen: "bg-transparent border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white shadow-lg hover:shadow-glow-green transform hover:scale-105",
+        soft: "bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 hover:bg-white hover:shadow-md transform hover:scale-105",
+        dark: "bg-gray-900 text-white hover:bg-gray-800 shadow-lg hover:shadow-xl transform hover:scale-105",
+        light: "bg-gray-100 text-gray-900 hover:bg-gray-200 shadow-sm hover:shadow-md transform hover:scale-105",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -35,6 +41,7 @@ const buttonVariants = cva(
         icon: "h-10 w-10",
         iconSm: "h-8 w-8",
         iconLg: "h-12 w-12",
+        full: "h-10 w-full px-4 py-2",
       },
       animation: {
         none: "",
@@ -44,6 +51,12 @@ const buttonVariants = cva(
         ping: "animate-ping",
         float: "animate-float",
         glow: "animate-glow",
+        wave: "animate-wave",
+        slideUp: "animate-slideUp",
+        slideDown: "animate-slideDown",
+        zoomIn: "animate-zoomIn",
+        rotateIn: "animate-rotateIn",
+        bounceIn: "animate-bounceIn",
       },
     },
     defaultVariants: {

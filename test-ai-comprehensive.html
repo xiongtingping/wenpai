@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI功能全面测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 10px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #007acc;
+            background: #f8f9fa;
+        }
+        .test-result.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .test-result.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .test-result.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .image-result {
+            max-width: 200px;
+            margin: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background: #28a745;
+        }
+        .status-offline {
+            background: #dc3545;
+        }
+        .status-warning {
+            background: #ffc107;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .loading {
+            color: #007acc;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 AI功能全面测试</h1>
+    
+    <div class="test-section">
+        <h2>📡 API连接状态测试</h2>
+        <button onclick="testAPIStatus()">测试API连接状态</button>
+        <div id="api-status-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🖼️ 图像生成测试</h2>
+        <button onclick="testImageGeneration()">测试图像生成</button>
+        <button onclick="testBatchImageGeneration()">测试批量图像生成</button>
+        <div id="image-generation-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 文本生成测试</h2>
+        <button onclick="testTextGeneration()">测试文本生成</button>
+        <button onclick="testContentSummarization()">测试内容摘要</button>
+        <button onclick="testBrandAnalysis()">测试品牌分析</button>
+        <div id="text-generation-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎨 创意内容测试</h2>
+        <button onclick="testEmojiRecommendation()">测试Emoji推荐</button>
+        <button onclick="testCreativeContent()">测试创意内容生成</button>
+        <div id="creative-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔄 内容适配测试</h2>
+        <button onclick="testContentAdaptation()">测试内容适配</button>
+        <div id="adaptation-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 测试总结</h2>
+        <button onclick="runAllTests()">运行所有测试</button>
+        <div id="test-summary"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8888/.netlify/functions/api';
+        let testResults = {};
+
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = `
+                <span class="status-indicator status-${type === 'success' ? 'online' : type === 'error' ? 'offline' : 'warning'}"></span>
+                ${message}
+            `;
+            container.appendChild(resultDiv);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        async function testAPIStatus() {
+            clearResults('api-status-result');
+            addResult('api-status-result', '正在测试API连接状态...', 'info');
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'status'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.available) {
+                    addResult('api-status-result', 
+                        `✅ API连接正常！响应时间: ${data.responseTime}ms`, 'success');
+                    testResults.apiStatus = true;
+                } else {
+                    addResult('api-status-result', 
+                        `❌ API连接失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.apiStatus = false;
+                }
+            } catch (error) {
+                addResult('api-status-result', 
+                    `❌ API连接错误: ${error.message}`, 'error');
+                testResults.apiStatus = false;
+            }
+        }
+
+        async function testImageGeneration() {
+            clearResults('image-generation-result');
+            addResult('image-generation-result', '正在测试图像生成...', 'info');
+
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'generate-image',
+                        prompt: '一只可爱的小猫，卡通风格，透明背景',
+                        n: 1,
+                        size: '512x512'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data?.images?.length > 0) {
+                    addResult('image-generation-result', 
+                        '✅ 图像生成成功！', 'success');
+                    
+                    const imageUrl = data.data.images[0].url;
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.className = 'image-result';
+                    img.alt = '生成的图像';
+                    document.getElementById('image-generation-result').appendChild(img);
+                    
+                    testResults.imageGeneration = true;
+                } else {
+                    addResult('image-generation-result', 
+                        `❌ 图像生成失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.imageGeneration = false;
+                }
+            } catch (error) {
+                addResult('image-generation-result', 
+                    `❌ 图像生成错误: ${error.message}`, 'error');
+                testResults.imageGeneration = false;
+            }
+        }
+
+        async function testBatchImageGeneration() {
+            clearResults('image-generation-result');
+            addResult('image-generation-result', '正在测试批量图像生成...', 'info');
+
+            const prompts = [
+                '一只可爱的小狗',
+                '一朵美丽的花',
+                '一个科技感的机器人'
+            ];
+
+            try {
+                const promises = prompts.map(prompt => 
+                    fetch(API_BASE, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            provider: 'openai',
+                            action: 'generate-image',
+                            prompt: prompt,
+                            n: 1,
+                            size: '256x256'
+                        })
+                    }).then(res => res.json())
+                );
+
+                const results = await Promise.all(promises);
+                const successCount = results.filter(r => r.success).length;
+                
+                if (successCount === prompts.length) {
+                    addResult('image-generation-result', 
+                        `✅ 批量图像生成成功！${successCount}/${prompts.length}`, 'success');
+                    
+                    results.forEach((result, index) => {
+                        if (result.success && result.data?.images?.length > 0) {
+                            const img = document.createElement('img');
+                            img.src = result.data.images[0].url;
+                            img.className = 'image-result';
+                            img.alt = `批量生成图像 ${index + 1}`;
+                            document.getElementById('image-generation-result').appendChild(img);
+                        }
+                    });
+                    
+                    testResults.batchImageGeneration = true;
+                } else {
+                    addResult('image-generation-result', 
+                        `⚠️ 批量图像生成部分成功: ${successCount}/${prompts.length}`, 'warning');
+                    testResults.batchImageGeneration = false;
+                }
+            } catch (error) {
+                addResult('image-generation-result', 
+                    `❌ 批量图像生成错误: ${error.message}`, 'error');
+                testResults.batchImageGeneration = false;
+            }
+        }
+
+        async function testTextGeneration() {
+            clearResults('text-generation-result');
+            addResult('text-generation-result', '正在测试文本生成...', 'info');
+
+            try {
+                // 由于开发API服务器不支持文本生成，我们测试前端AI服务
+                const response = await fetch('/api/ai/generate-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: 'user', content: '请用一句话介绍AI技术' }
+                        ],
+                        model: 'gpt-4o',
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('text-generation-result', 
+                        `✅ 文本生成成功！内容: ${data.data?.content || '无内容'}`, 'success');
+                    testResults.textGeneration = true;
+                } else {
+                    addResult('text-generation-result', 
+                        `❌ 文本生成失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.textGeneration = false;
+                }
+            } catch (error) {
+                addResult('text-generation-result', 
+                    `❌ 文本生成错误: ${error.message}`, 'error');
+                testResults.textGeneration = false;
+            }
+        }
+
+        async function testContentSummarization() {
+            clearResults('text-generation-result');
+            addResult('text-generation-result', '正在测试内容摘要...', 'info');
+
+            const testContent = `
+                AI技术正在快速发展，从机器学习到深度学习，从自然语言处理到计算机视觉，
+                各个领域都取得了重大突破。这些技术正在改变我们的生活方式，从智能手机助手
+                到自动驾驶汽车，从医疗诊断到金融分析，AI的应用无处不在。
+            `;
+
+            try {
+                const response = await fetch('/api/ai/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: testContent
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('text-generation-result', 
+                        `✅ 内容摘要成功！摘要: ${data.data?.summary || '无摘要'}`, 'success');
+                    testResults.contentSummarization = true;
+                } else {
+                    addResult('text-generation-result', 
+                        `❌ 内容摘要失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.contentSummarization = false;
+                }
+            } catch (error) {
+                addResult('text-generation-result', 
+                    `❌ 内容摘要错误: ${error.message}`, 'error');
+                testResults.contentSummarization = false;
+            }
+        }
+
+        async function testBrandAnalysis() {
+            clearResults('text-generation-result');
+            addResult('text-generation-result', '正在测试品牌分析...', 'info');
+
+            const testContent = '我们是一个专注于AI技术的创新公司，致力于为用户提供智能化的解决方案。';
+
+            try {
+                const response = await fetch('/api/ai/analyze-brand', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: testContent
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('text-generation-result', 
+                        `✅ 品牌分析成功！分析结果: ${JSON.stringify(data.data, null, 2)}`, 'success');
+                    testResults.brandAnalysis = true;
+                } else {
+                    addResult('text-generation-result', 
+                        `❌ 品牌分析失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.brandAnalysis = false;
+                }
+            } catch (error) {
+                addResult('text-generation-result', 
+                    `❌ 品牌分析错误: ${error.message}`, 'error');
+                testResults.brandAnalysis = false;
+            }
+        }
+
+        async function testEmojiRecommendation() {
+            clearResults('creative-result');
+            addResult('creative-result', '正在测试Emoji推荐...', 'info');
+
+            const testContext = '今天天气很好，心情愉快';
+
+            try {
+                const response = await fetch('/api/ai/recommend-emojis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        context: testContext
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('creative-result', 
+                        `✅ Emoji推荐成功！推荐: ${data.data?.emojis?.join(' ') || '无推荐'}`, 'success');
+                    testResults.emojiRecommendation = true;
+                } else {
+                    addResult('creative-result', 
+                        `❌ Emoji推荐失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.emojiRecommendation = false;
+                }
+            } catch (error) {
+                addResult('creative-result', 
+                    `❌ Emoji推荐错误: ${error.message}`, 'error');
+                testResults.emojiRecommendation = false;
+            }
+        }
+
+        async function testCreativeContent() {
+            clearResults('creative-result');
+            addResult('creative-result', '正在测试创意内容生成...', 'info');
+
+            try {
+                const response = await fetch('/api/ai/generate-creative', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: '为一家科技公司写一段创意广告文案',
+                        contentType: 'text'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('creative-result', 
+                        `✅ 创意内容生成成功！内容: ${data.data?.content || '无内容'}`, 'success');
+                    testResults.creativeContent = true;
+                } else {
+                    addResult('creative-result', 
+                        `❌ 创意内容生成失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.creativeContent = false;
+                }
+            } catch (error) {
+                addResult('creative-result', 
+                    `❌ 创意内容生成错误: ${error.message}`, 'error');
+                testResults.creativeContent = false;
+            }
+        }
+
+        async function testContentAdaptation() {
+            clearResults('adaptation-result');
+            addResult('adaptation-result', '正在测试内容适配...', 'info');
+
+            const testContent = '我们推出了新的AI产品，功能强大，使用简单。';
+            const targetPlatforms = ['weibo', 'xiaohongshu'];
+
+            try {
+                const response = await fetch('/api/ai/adapt-content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: testContent,
+                        platforms: targetPlatforms
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('adaptation-result', 
+                        `✅ 内容适配成功！适配结果: ${JSON.stringify(data.data, null, 2)}`, 'success');
+                    testResults.contentAdaptation = true;
+                } else {
+                    addResult('adaptation-result', 
+                        `❌ 内容适配失败: ${data.error || '未知错误'}`, 'error');
+                    testResults.contentAdaptation = false;
+                }
+            } catch (error) {
+                addResult('adaptation-result', 
+                    `❌ 内容适配错误: ${error.message}`, 'error');
+                testResults.contentAdaptation = false;
+            }
+        }
+
+        async function runAllTests() {
+            clearResults('test-summary');
+            addResult('test-summary', '🚀 开始运行所有测试...', 'info');
+            
+            testResults = {};
+            
+            // 运行所有测试
+            await testAPIStatus();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testImageGeneration();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testBatchImageGeneration();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testTextGeneration();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testContentSummarization();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testBrandAnalysis();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testEmojiRecommendation();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testCreativeContent();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testContentAdaptation();
+            
+            // 生成测试总结
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(Boolean).length;
+            const failedTests = totalTests - passedTests;
+            
+            addResult('test-summary', 
+                `📊 测试总结: 通过 ${passedTests}/${totalTests} 项测试`, 
+                passedTests === totalTests ? 'success' : 'warning');
+            
+            if (failedTests > 0) {
+                addResult('test-summary', 
+                    `❌ 失败的测试: ${Object.keys(testResults).filter(key => !testResults[key]).join(', ')}`, 
+                    'error');
+            }
+            
+            addResult('test-summary', 
+                `详细结果: ${JSON.stringify(testResults, null, 2)}`, 'info');
+        }
+
+        // 页面加载时自动测试API状态
+        window.addEventListener('load', () => {
+            testAPIStatus();
+        });
+    </script>
+</body>
+</html> 

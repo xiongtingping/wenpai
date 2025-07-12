@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简化版EmojiGallery测试</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-4">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // 简化的EmojiGallery组件
+        function EmojiGallery({ emojis, onDelete, onRegenerate }) {
+            return (
+                <div className="grid grid-cols-5 gap-4">
+                    {emojis.map(({ emotion, url }) => (
+                        <div key={emotion} className="text-center">
+                            <img
+                                src={url}
+                                alt={emotion}
+                                className="w-16 h-16 mx-auto cursor-pointer"
+                                onClick={() => navigator.clipboard.writeText(url)}
+                                title="点击复制链接"
+                            />
+                            <p className="text-xs">{emotion}</p>
+                            <div className="flex justify-center space-x-2 mt-1">
+                                <button 
+                                    className="text-red-500 text-xs" 
+                                    onClick={() => onDelete(emotion)}
+                                >
+                                    删除
+                                </button>
+                                <button 
+                                    className="text-blue-500 text-xs" 
+                                    onClick={() => onRegenerate(emotion)}
+                                >
+                                    重生
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // 测试应用
+        function TestApp() {
+            const [emojis, setEmojis] = useState([
+                { emotion: '开心', url: 'https://picsum.photos/64/64?random=1' },
+                { emotion: '悲伤', url: 'https://picsum.photos/64/64?random=2' },
+                { emotion: '愤怒', url: 'https://picsum.photos/64/64?random=3' },
+                { emotion: '惊讶', url: 'https://picsum.photos/64/64?random=4' },
+                { emotion: '害羞', url: 'https://picsum.photos/64/64?random=5' },
+                { emotion: '兴奋', url: 'https://picsum.photos/64/64?random=6' },
+                { emotion: '困惑', url: 'https://picsum.photos/64/64?random=7' },
+                { emotion: '满足', url: 'https://picsum.photos/64/64?random=8' },
+                { emotion: '担心', url: 'https://picsum.photos/64/64?random=9' },
+                { emotion: '自信', url: 'https://picsum.photos/64/64?random=10' }
+            ]);
+
+            const handleDelete = (emotion) => {
+                setEmojis(prev => prev.filter(emoji => emoji.emotion !== emotion));
+                alert(`已删除 ${emotion} 表情`);
+            };
+
+            const handleRegenerate = (emotion) => {
+                const newUrl = `https://picsum.photos/64/64?random=${Math.floor(Math.random() * 1000)}`;
+                setEmojis(prev => prev.map(emoji => 
+                    emoji.emotion === emotion 
+                        ? { ...emoji, url: newUrl }
+                        : emoji
+                ));
+                alert(`已重新生成 ${emotion} 表情`);
+            };
+
+            const addRandomEmoji = () => {
+                const emotions = ['快乐', '忧郁', '激动', '平静', '好奇', '失望', '感激', '焦虑'];
+                const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+                const randomUrl = `https://picsum.photos/64/64?random=${Math.floor(Math.random() * 1000)}`;
+                
+                setEmojis(prev => [...prev, { emotion: randomEmotion, url: randomUrl }]);
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto space-y-6">
+                    <div className="text-center">
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                            简化版EmojiGallery测试
+                        </h1>
+                        <p className="text-gray-600 mb-4">
+                            测试Emoji展示、删除和重生功能
+                        </p>
+                        <button 
+                            onClick={addRandomEmoji}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                            添加随机Emoji
+                        </button>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-lg font-semibold mb-4">Emoji展示 ({emojis.length}个)</h2>
+                        <EmojiGallery 
+                            emojis={emojis}
+                            onDelete={handleDelete}
+                            onRegenerate={handleRegenerate}
+                        />
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg shadow">
+                        <h3 className="font-semibold mb-2">功能说明：</h3>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                            <li>• 点击图片可复制图片链接到剪贴板</li>
+                            <li>• 点击"删除"按钮可删除对应表情</li>
+                            <li>• 点击"重生"按钮可重新生成对应表情</li>
+                            <li>• 点击"添加随机Emoji"可添加新的表情</li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TestApp />, document.getElementById('root'));
+    </script>
+</body>
+</html> 

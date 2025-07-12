@@ -1,163 +1,286 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+/**
+ * AI智能总结器组件
+ * 使用统一AI服务进行内容总结
+ */
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Copy, Download } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { callOpenAIDevProxy } from '@/api/devApiProxy';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Copy, Check, Download, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
+import aiService from '@/api/aiService';
 
-/**
- * AI总结组件
- */
-export const AISummarizer: React.FC = () => {
-  const [content, setContent] = useState('');
+interface AISummarizerProps {
+  initialContent?: string;
+  onSummaryGenerated?: (summary: string) => void;
+}
+
+export default function AISummarizer({ initialContent = '', onSummaryGenerated }: AISummarizerProps) {
+  const [content, setContent] = useState(initialContent);
   const [summary, setSummary] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const { toast } = useToast();
+  const [isCopied, setIsCopied] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // 计算字数统计
+  useEffect(() => {
+    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+    const chars = content.length;
+    setWordCount(words);
+    setCharCount(chars);
+  }, [content]);
+
+  /**
+   * 生成AI总结
+   */
   const generateSummary = async () => {
     if (!content.trim()) {
-      toast({
-        title: "请输入内容",
-        description: "请先输入需要总结的内容",
-        variant: "destructive",
-      });
+      toast.error('请输入要总结的内容');
+      return;
+    }
+
+    if (content.length < 10) {
+      toast.error('内容太短，无法生成有效总结');
       return;
     }
 
     setIsGenerating(true);
+    setSummary('');
+
     try {
-      // 调用AI API生成总结
-      const messages = [{
-        role: 'user',
-        content: `请为以下内容生成AI智能总结：
-
-${content}
-
-请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
-      }];
-
-      const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 500);
+      console.log('开始生成AI总结，内容长度:', content.length);
+      
+      const response = await aiService.summarizeContent(content);
       
       if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-        setSummary(response.data.data.choices[0].message.content);
-        toast({
-          title: "总结完成",
-          description: "AI已为您生成内容总结",
-        });
+        const generatedSummary = response.data.data.choices[0].message.content;
+        setSummary(generatedSummary);
+        
+        // 调用回调函数
+        if (onSummaryGenerated) {
+          onSummaryGenerated(generatedSummary);
+        }
+        
+        toast.success('AI总结生成成功！');
+        console.log('AI总结生成成功，长度:', generatedSummary.length);
       } else {
-        throw new Error('AI响应格式异常');
+        console.error('AI服务响应异常:', response);
+        throw new Error(response.error || 'AI总结生成失败');
       }
     } catch (error) {
-      console.error('AI总结失败:', error);
-      toast({
-        title: "总结失败",
-        description: "请稍后重试",
-        variant: "destructive",
-      });
+      console.error('AI总结生成失败:', error);
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      toast.error(`总结生成失败: ${errorMessage}`);
     } finally {
       setIsGenerating(false);
     }
   };
 
+  /**
+   * 复制总结内容
+   */
   const copySummary = async () => {
+    if (!summary) return;
+    
     try {
       await navigator.clipboard.writeText(summary);
-      toast({
-        title: "复制成功",
-        description: "总结已复制到剪贴板",
-      });
-    } catch {
-      toast({
-        title: "复制失败",
-        description: "请手动复制",
-        variant: "destructive",
-      });
+      setIsCopied(true);
+      toast.success('总结已复制到剪贴板');
+      
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('复制失败:', error);
+      toast.error('复制失败，请手动复制');
     }
   };
 
+  /**
+   * 下载总结内容
+   */
   const downloadSummary = () => {
-    const blob = new Blob([summary], { type: 'text/plain' });
+    if (!summary) return;
+    
+    const blob = new Blob([summary], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'AI总结.txt';
+    a.download = `AI总结_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
     document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     
-    toast({
-      title: "下载成功",
-      description: "总结已下载到本地",
-    });
+    toast.success('总结已下载');
+  };
+
+  /**
+   * 清空内容
+   */
+  const clearContent = () => {
+    setContent('');
+    setSummary('');
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+    toast.info('内容已清空');
+  };
+
+  /**
+   * 重新生成总结
+   */
+  const regenerateSummary = () => {
+    if (content.trim()) {
+      generateSummary();
+    } else {
+      toast.error('请先输入内容');
+    }
   };
 
   return (
     <div className="space-y-6">
+      {/* 输入区域 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            AI智能总结
+            <RefreshCw className="h-5 w-5" />
+            AI智能总结器
           </CardTitle>
+          <CardDescription>
+            输入任意内容，AI将为您生成简洁有用的智能总结
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">输入内容</label>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="content" className="text-sm font-medium">
+                输入内容
+              </label>
+              <div className="flex gap-2 text-xs text-muted-foreground">
+                <Badge variant="secondary">{wordCount} 字</Badge>
+                <Badge variant="secondary">{charCount} 字符</Badge>
+              </div>
+            </div>
             <Textarea
+              id="content"
+              ref={textareaRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="请输入需要总结的内容..."
-              rows={8}
-              className="mt-2"
+              placeholder="请输入要总结的内容..."
+              className="min-h-[200px] resize-none"
+              disabled={isGenerating}
             />
           </div>
           
-          <Button 
-            onClick={generateSummary} 
-            disabled={isGenerating || !content.trim()}
-            className="w-full"
-          >
-            {isGenerating ? (
-              <>
-                <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                生成中...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                开始总结
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={generateSummary} 
+              disabled={isGenerating || !content.trim()}
+              className="flex-1"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  生成中...
+                </>
+              ) : (
+                '生成AI总结'
+              )}
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={clearContent}
+              disabled={isGenerating}
+            >
+              清空
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
+      {/* 总结结果 */}
       {summary && (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>AI总结结果</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>AI总结结果</span>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={copySummary}>
-                  <Copy className="w-4 h-4 mr-1" />
-                  复制
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copySummary}
+                  disabled={isCopied}
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="mr-1 h-4 w-4" />
+                      已复制
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="mr-1 h-4 w-4" />
+                      复制
+                    </>
+                  )}
                 </Button>
-                <Button variant="outline" size="sm" onClick={downloadSummary}>
-                  <Download className="w-4 h-4 mr-1" />
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadSummary}
+                >
+                  <Download className="mr-1 h-4 w-4" />
                   下载
                 </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={regenerateSummary}
+                  disabled={isGenerating}
+                >
+                  <RefreshCw className="mr-1 h-4 w-4" />
+                  重新生成
+                </Button>
               </div>
-            </div>
+            </CardTitle>
+            <CardDescription>
+              基于输入内容生成的AI智能总结
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="bg-muted p-4 rounded-lg">
-              <pre className="whitespace-pre-wrap text-sm">{summary}</pre>
+            <div className="prose prose-sm max-w-none">
+              <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                {summary}
+              </div>
+            </div>
+            
+            <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+              <span>总结字数: {summary.length}</span>
+              <span>生成时间: {new Date().toLocaleString()}</span>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* 使用提示 */}
+      <Card className="bg-muted/50">
+        <CardHeader>
+          <CardTitle className="text-base">使用提示</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>• 支持任意长度的文本内容总结</li>
+            <li>• AI会自动提取核心观点和关键信息</li>
+            <li>• 总结结果可以复制、下载或重新生成</li>
+            <li>• 建议输入至少10个字符以获得更好的总结效果</li>
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
-}; 
+} 

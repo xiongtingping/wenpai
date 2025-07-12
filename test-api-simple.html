@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试 - 简单版本</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 API测试 - 简单版本</h1>
+        
+        <div>
+            <button onclick="testAPI()">🧪 测试API</button>
+            <button onclick="clearLog()">🗑️ 清空日志</button>
+        </div>
+        
+        <div id="status" class="status">⏳ 等待测试...</div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status warning';
+            statusDiv.textContent = '🔄 正在测试API...';
+            
+            log('开始API测试...');
+            
+            try {
+                log('发送请求到 /.netlify/functions/api');
+                
+                const startTime = Date.now();
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'status'
+                    })
+                });
+                
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                log(`响应状态码: ${response.status}`);
+                log(`响应时间: ${responseTime}ms`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`响应数据: ${JSON.stringify(data, null, 2)}`);
+                    
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ API测试成功 - 响应时间: ${responseTime}ms`;
+                } else {
+                    const errorText = await response.text();
+                    log(`错误响应: ${errorText}`);
+                    
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = `❌ API测试失败 - 状态码: ${response.status}`;
+                }
+            } catch (error) {
+                log(`请求失败: ${error.message}`);
+                log(`错误类型: ${error.name}`);
+                log(`错误详情: ${error.stack}`);
+                
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `💥 请求失败: ${error.message}`;
+            }
+            
+            log('API测试完成');
+        }
+
+        // 页面加载时自动测试
+        window.addEventListener('load', () => {
+            log('页面加载完成，准备测试API');
+        });
+    </script>
+</body>
+</html> 

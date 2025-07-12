@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji 显示测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .emoji-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .emoji-item img {
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .emoji-item p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            color: #666;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Emoji 显示测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 测试模拟图片URL</h3>
+            <button onclick="testMockImages()">测试模拟图片</button>
+            <div id="mock-images" class="emoji-grid"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 测试API调用</h3>
+            <button onclick="testApiCall()">测试API调用</button>
+            <div id="api-status" class="status"></div>
+            <div id="api-images" class="emoji-grid"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 测试图片加载</h3>
+            <button onclick="testImageLoading()">测试图片加载</button>
+            <div id="loading-status" class="status"></div>
+            <div id="loading-images" class="emoji-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟图片URL列表
+        const mockImages = [
+            'https://picsum.photos/512/512?random=1',
+            'https://picsum.photos/512/512?random=2', 
+            'https://picsum.photos/512/512?random=3',
+            'https://picsum.photos/512/512?random=4',
+            'https://picsum.photos/512/512?random=5',
+            'https://picsum.photos/512/512?random=6',
+            'https://picsum.photos/512/512?random=7',
+            'https://picsum.photos/512/512?random=8',
+            'https://picsum.photos/512/512?random=9',
+            'https://picsum.photos/512/512?random=10'
+        ];
+
+        const emotions = ['开心', '悲伤', '愤怒', '惊讶', '恐惧', '厌恶', '信任', '期待', '好奇', '满足'];
+
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function createEmojiItem(url, emotion) {
+            return `
+                <div class="emoji-item">
+                    <img src="${url}" alt="${emotion}" onerror="this.style.border='2px solid red'; this.alt='加载失败';">
+                    <p>${emotion}</p>
+                </div>
+            `;
+        }
+
+        async function testMockImages() {
+            const container = document.getElementById('mock-images');
+            container.innerHTML = '';
+            
+            showStatus('mock-images', '正在测试模拟图片...', 'info');
+            
+            mockImages.forEach((url, index) => {
+                const emotion = emotions[index] || `表情${index + 1}`;
+                container.innerHTML += createEmojiItem(url, emotion);
+            });
+            
+            showStatus('mock-images', `已显示 ${mockImages.length} 个模拟图片`, 'success');
+        }
+
+        async function testApiCall() {
+            showStatus('api-status', '正在调用API...', 'info');
+            
+            try {
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        provider: 'openai',
+                        action: 'generate-image',
+                        prompt: '一只可爱的小猫',
+                        n: 5,
+                        size: '512x512',
+                        response_format: 'url'
+                    }),
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data?.images) {
+                    showStatus('api-status', `API调用成功，返回 ${data.data.images.length} 张图片`, 'success');
+                    
+                    const container = document.getElementById('api-images');
+                    container.innerHTML = '';
+                    
+                    data.data.images.forEach((image, index) => {
+                        const emotion = emotions[index] || `表情${index + 1}`;
+                        container.innerHTML += createEmojiItem(image.url, emotion);
+                    });
+                } else {
+                    showStatus('api-status', `API调用失败: ${data.error || '未知错误'}`, 'error');
+                }
+            } catch (error) {
+                showStatus('api-status', `API调用异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function testImageLoading() {
+            showStatus('loading-status', '正在测试图片加载...', 'info');
+            
+            const container = document.getElementById('loading-images');
+            container.innerHTML = '';
+            
+            let loadedCount = 0;
+            let failedCount = 0;
+            
+            const testImages = mockImages.slice(0, 5);
+            
+            testImages.forEach((url, index) => {
+                const emotion = emotions[index] || `表情${index + 1}`;
+                const img = new Image();
+                
+                img.onload = () => {
+                    loadedCount++;
+                    updateLoadingStatus();
+                };
+                
+                img.onerror = () => {
+                    failedCount++;
+                    updateLoadingStatus();
+                };
+                
+                img.src = url;
+                container.innerHTML += createEmojiItem(url, emotion);
+            });
+            
+            function updateLoadingStatus() {
+                const total = testImages.length;
+                if (loadedCount + failedCount === total) {
+                    const message = `图片加载完成: ${loadedCount} 成功, ${failedCount} 失败`;
+                    const type = failedCount === 0 ? 'success' : failedCount === total ? 'error' : 'info';
+                    showStatus('loading-status', message, type);
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

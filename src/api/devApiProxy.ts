@@ -3,6 +3,13 @@
  * 直接调用OpenAI API，用于开发和测试
  */
 
+// 调试环境变量
+console.log('环境变量调试:', {
+  VITE_OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_KEY ? '已设置' : '未设置',
+  DEV: import.meta.env.DEV,
+  MODE: import.meta.env.MODE
+});
+
 /**
  * API响应接口
  */
@@ -19,32 +26,34 @@ export interface DevProxyResponse<T = any> {
  */
 const OPENAI_CONFIG = {
   endpoint: 'https://api.openai.com/v1/chat/completions',
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY || 'sk-proj-your-api-key-here', // 支持环境变量
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY || '', // 使用环境变量
   model: 'gpt-4o'
 };
 
 /**
  * 调用OpenAI API（开发环境）
- * @param messages 消息数组
- * @param model 模型名称
- * @param temperature 温度参数
- * @param maxTokens 最大token数
+ * @param options 请求选项
  * @returns Promise with response data
  */
-export async function callOpenAIDevProxy(
-  messages: any[],
-  model: string = 'gpt-4o',
-  temperature: number = 0.7,
-  maxTokens: number = 1000
-): Promise<DevProxyResponse> {
+export async function callOpenAIDevProxy(options: {
+  messages: any[];
+  model?: string;
+  temperature?: number;
+  maxTokens?: number;
+}): Promise<DevProxyResponse> {
+  const { messages, model = 'gpt-4o', temperature = 0.7, maxTokens = 1000 } = options;
   try {
     console.log('callOpenAIDevProxy 开始调用...');
     console.log('请求参数:', { messages, model, temperature, maxTokens });
     
     // 检查API Key
-    if (!OPENAI_CONFIG.apiKey || OPENAI_CONFIG.apiKey === 'sk-proj-your-api-key-here') {
-      throw new Error('OpenAI API Key未配置，请在devApiProxy.ts中配置正确的API Key');
+    if (!OPENAI_CONFIG.apiKey) {
+      throw new Error('OpenAI API Key未配置，请在.env.local中设置VITE_OPENAI_API_KEY');
     }
+    
+    // 创建AbortController用于超时控制
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
     
     const response = await fetch(OPENAI_CONFIG.endpoint, {
       method: 'POST',
@@ -58,15 +67,27 @@ export async function callOpenAIDevProxy(
         temperature,
         max_tokens: maxTokens,
         stream: false
-      })
+      }),
+      signal: controller.signal
     });
 
+    clearTimeout(timeoutId);
     console.log('OpenAI API响应状态:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('OpenAI API错误:', errorData);
-      throw new Error(`OpenAI API调用失败: ${errorData.error?.message || `HTTP ${response.status}`}`);
+      
+      // 根据错误类型提供更具体的错误信息
+      if (response.status === 401) {
+        throw new Error('OpenAI API密钥无效，请检查VITE_OPENAI_API_KEY配置');
+      } else if (response.status === 429) {
+        throw new Error('OpenAI API请求频率过高，请稍后重试');
+      } else if (response.status === 500) {
+        throw new Error('OpenAI服务器内部错误，请稍后重试');
+      } else {
+        throw new Error(`OpenAI API调用失败: ${errorData.error?.message || `HTTP ${response.status}`}`);
+      }
     }
 
     const data = await response.json();
@@ -80,11 +101,20 @@ export async function callOpenAIDevProxy(
     };
   } catch (error) {
     console.error('callOpenAIDevProxy 异常:', error);
+    
+    // 处理超时错误
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('OpenAI API请求超时，请检查网络连接或稍后重试');
+    }
+    
+    // 处理网络错误
+    if (error instanceof Error && (error.message.includes('fetch') || error.message.includes('network'))) {
+      throw new Error('网络连接失败，请检查网络设置或配置代理');
+    }
+    
     throw new Error(`OpenAI API连接失败: ${error instanceof Error ? error.message : '未知错误'}`);
   }
 }
-
-
 
 /**
  * 测试API连接性
@@ -94,7 +124,12 @@ export async function testDevApiConnectivity(): Promise<DevProxyResponse> {
   try {
     // 简单的连接测试
     const testMessages = [{ role: 'user', content: 'Hello' }];
-    const response = await callOpenAIDevProxy(testMessages, 'gpt-4o', 0.7, 50);
+    const response = await callOpenAIDevProxy({
+      messages: testMessages,
+      model: 'gpt-4o',
+      temperature: 0.7,
+      maxTokens: 50
+    });
     
     return {
       success: true,

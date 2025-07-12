@@ -966,11 +966,11 @@ export default function BrandLibraryPage() {
       <PageNavigation
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
-        showAdaptButton={true}
+        showAdaptButton={false}
         showUpgradeButton={true}
       />
 
-            <div className="container mx-auto py-6 px-4 max-w-7xl">
+            <div className="container mx-auto px-4 py-8">
 
         {/* 隐藏的文件输入 */}
         <input

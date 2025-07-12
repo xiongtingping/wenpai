@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品牌Emoji生成器 - 数量选择测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #2563eb;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #374151;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            border-left: 4px solid #2563eb;
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .emoji-item {
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+        }
+        .emoji-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+        .emoji-item .emotion {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        .emoji-item .count {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .status.success { background: #dcfce7; color: #166534; }
+        .status.error { background: #fef2f2; color: #dc2626; }
+        .status.generating { background: #dbeafe; color: #1d4ed8; }
+        .status.pending { background: #f3f4f6; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 品牌Emoji生成器 - 数量选择功能测试</h1>
+        
+        <div class="test-section">
+            <h2>📋 测试配置</h2>
+            <div class="form-group">
+                <label for="brand">品牌名称：</label>
+                <input type="text" id="brand" value="测试品牌" placeholder="输入品牌名称">
+            </div>
+            <div class="form-group">
+                <label for="character">角色描述：</label>
+                <textarea id="character" rows="3" placeholder="描述品牌角色特征">可爱的卡通形象，AI科技风格</textarea>
+            </div>
+            <div class="form-group">
+                <label for="emojiCount">每个表情生成数量：</label>
+                <select id="emojiCount">
+                    <option value="1">1个</option>
+                    <option value="2">2个</option>
+                    <option value="3" selected>3个</option>
+                    <option value="4">4个</option>
+                    <option value="5">5个</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="selectedEmotions">选择表情（逗号分隔）：</label>
+                <input type="text" id="selectedEmotions" value="开心微笑,大笑,生气,哭泣,惊讶" placeholder="输入表情名称，用逗号分隔">
+            </div>
+            <button onclick="testEmojiGeneration()">🚀 开始测试生成</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 生成结果</h2>
+            <div id="results">
+                <p>点击上方按钮开始测试...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>💡 功能说明</h2>
+            <ul>
+                <li><strong>数量选择：</strong>用户可以选择每个表情生成1-5个不同的emoji变体</li>
+                <li><strong>批量生成：</strong>支持一次性生成多个表情的多个变体</li>
+                <li><strong>进度显示：</strong>实时显示生成进度和状态</li>
+                <li><strong>单独下载：</strong>每个emoji都可以单独下载</li>
+                <li><strong>批量下载：</strong>支持批量下载所有生成的图片</li>
+                <li><strong>重新生成：</strong>失败的emoji可以单独重新生成</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 模拟API调用
+        async function generateEmojiImage(prompt, count = 1) {
+            // 模拟网络延迟
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+            
+            // 模拟成功或失败
+            if (Math.random() > 0.1) { // 90%成功率
+                const urls = [];
+                for (let i = 0; i < count; i++) {
+                    urls.push(`https://picsum.photos/200/200?random=${Math.floor(Math.random() * 1000)}`);
+                }
+                return { success: true, urls };
+            } else {
+                throw new Error('模拟生成失败');
+            }
+        }
+
+        // 测试emoji生成功能
+        async function testEmojiGeneration() {
+            const brand = document.getElementById('brand').value;
+            const character = document.getElementById('character').value;
+            const emojiCount = parseInt(document.getElementById('emojiCount').value);
+            const selectedEmotions = document.getElementById('selectedEmotions').value.split(',').map(s => s.trim());
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>🔄 正在生成中...</p>';
+            
+            const results = [];
+            const totalCount = selectedEmotions.length;
+            
+            for (let i = 0; i < selectedEmotions.length; i++) {
+                const emotion = selectedEmotions[i];
+                const prompt = `一个${brand}品牌的${character}，正在${emotion}，表情风格为 emoji，扁平卡通风，透明背景`;
+                
+                try {
+                    const result = await generateEmojiImage(prompt, emojiCount);
+                    results.push({
+                        emotion,
+                        urls: result.urls,
+                        status: 'success'
+                    });
+                } catch (error) {
+                    results.push({
+                        emotion,
+                        urls: [],
+                        status: 'error',
+                        error: error.message
+                    });
+                }
+                
+                // 更新进度
+                const progress = ((i + 1) / totalCount) * 100;
+                resultsDiv.innerHTML = `
+                    <p>🔄 生成进度: ${Math.round(progress)}% (${i + 1}/${totalCount})</p>
+                    <div style="width: 100%; height: 20px; background: #e5e7eb; border-radius: 10px; overflow: hidden;">
+                        <div style="width: ${progress}%; height: 100%; background: #2563eb; transition: width 0.3s;"></div>
+                    </div>
+                `;
+            }
+            
+            // 显示结果
+            displayResults(results);
+        }
+
+        // 显示生成结果
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            const totalImages = results.reduce((sum, result) => sum + result.urls.length, 0);
+            const successCount = results.filter(r => r.status === 'success').length;
+            const errorCount = results.filter(r => r.status === 'error').length;
+            
+            let html = `
+                <div class="result">
+                    <h3>📈 生成统计</h3>
+                    <p>✅ 成功: ${successCount} 个表情</p>
+                    <p>❌ 失败: ${errorCount} 个表情</p>
+                    <p>🖼️ 总图片: ${totalImages} 张</p>
+                </div>
+                <div class="emoji-grid">
+            `;
+            
+            results.forEach(result => {
+                const statusClass = result.status;
+                const statusText = result.status === 'success' ? '成功' : 
+                                 result.status === 'error' ? '失败' : 
+                                 result.status === 'generating' ? '生成中' : '等待中';
+                
+                html += `
+                    <div class="emoji-item">
+                        <div class="status ${statusClass}">${statusText}</div>
+                        <div class="emotion">${result.emotion}</div>
+                        <div class="count">${result.urls.length} 个变体</div>
+                `;
+                
+                if (result.urls.length > 0) {
+                    result.urls.forEach((url, index) => {
+                        html += `<img src="${url}" alt="${result.emotion} ${index + 1}">`;
+                    });
+                } else {
+                    html += `<div style="width: 60px; height: 60px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; margin: 0 auto;">❌</div>`;
+                }
+                
+                if (result.error) {
+                    html += `<div style="font-size: 10px; color: #dc2626; margin-top: 5px;">${result.error}</div>`;
+                }
+                
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html> 

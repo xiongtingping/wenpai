@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主题切换测试</title>
+    <style>
+        /* 基础样式 */
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        /* 主题配置 - 使用data-theme属性选择器 */
+        [data-theme="light"] {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --secondary: 210 40% 96%;
+            --muted: 210 40% 96%;
+            --accent: 210 40% 96%;
+            --destructive: 0 84.2% 60.2%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 221.2 83.2% 53.3%;
+        }
+
+        [data-theme="dark"] {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --primary: 217.2 91.2% 59.8%;
+            --secondary: 217.2 32.6% 17.5%;
+            --muted: 217.2 32.6% 17.5%;
+            --accent: 217.2 32.6% 17.5%;
+            --destructive: 0 62.8% 30.6%;
+            --border: 217.2 32.6% 17.5%;
+            --input: 217.2 32.6% 17.5%;
+            --ring: 224.3 76.3% 94.1%;
+        }
+
+        [data-theme="green"] {
+            --background: 120 20% 98%;
+            --foreground: 120 10% 10%;
+            --primary: 142 76% 36%;
+            --secondary: 120 30% 90%;
+            --muted: 120 30% 90%;
+            --accent: 120 30% 90%;
+            --destructive: 0 84% 60%;
+            --border: 120 20% 85%;
+            --input: 120 20% 85%;
+            --ring: 142 76% 36%;
+        }
+
+        [data-theme="blue"] {
+            --background: 210 40% 98%;
+            --foreground: 210 10% 10%;
+            --primary: 221 83% 53%;
+            --secondary: 210 30% 90%;
+            --muted: 210 30% 90%;
+            --accent: 210 30% 90%;
+            --destructive: 0 84% 60%;
+            --border: 210 20% 85%;
+            --input: 210 20% 85%;
+            --ring: 221 83% 53%;
+        }
+
+        [data-theme="gold"] {
+            --background: 45 20% 98%;
+            --foreground: 45 10% 10%;
+            --primary: 45 93% 47%;
+            --secondary: 45 30% 90%;
+            --muted: 45 30% 90%;
+            --accent: 45 30% 90%;
+            --destructive: 0 84% 60%;
+            --border: 45 20% 85%;
+            --input: 45 20% 85%;
+            --ring: 45 93% 47%;
+        }
+        
+        /* 应用CSS变量 */
+        body {
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+        }
+        
+        .card {
+            background-color: hsl(var(--card, var(--background)));
+            border-color: hsl(var(--border));
+        }
+        
+        .button {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground, white));
+        }
+        
+        .button:hover {
+            opacity: 0.9;
+        }
+        
+        .button.outline {
+            background-color: transparent;
+            color: hsl(var(--primary));
+            border: 1px solid hsl(var(--primary));
+        }
+        
+        .button.outline:hover {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground, white));
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <h1>主题切换测试</h1>
+        <p>当前主题: <span id="current-theme">light</span></p>
+        
+        <div class="card">
+            <h2>主题切换按钮</h2>
+            <button class="button" onclick="switchTheme('light')">明亮</button>
+            <button class="button outline" onclick="switchTheme('dark')">暗黑</button>
+            <button class="button outline" onclick="switchTheme('green')">护眼绿</button>
+            <button class="button outline" onclick="switchTheme('blue')">科技蓝</button>
+            <button class="button outline" onclick="switchTheme('gold')">专业黑金</button>
+        </div>
+        
+        <div class="card">
+            <h2>测试内容</h2>
+            <p>这是一个测试卡片，用于验证主题切换效果。</p>
+            <p>背景色、文字色、边框色都应该随着主题切换而改变。</p>
+        </div>
+        
+        <div class="card">
+            <h2>按钮测试</h2>
+            <button class="button">主要按钮</button>
+            <button class="button outline">次要按钮</button>
+        </div>
+    </div>
+
+    <script>
+        const THEME_KEY = 'wenpai_theme';
+        
+        // 获取当前主题
+        function getCurrentTheme() {
+            return localStorage.getItem(THEME_KEY) || 'light';
+        }
+        
+        // 切换主题
+        function switchTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem(THEME_KEY, theme);
+            document.getElementById('current-theme').textContent = theme;
+            
+            // 更新按钮状态
+            updateButtonStates(theme);
+        }
+        
+        // 更新按钮状态
+        function updateButtonStates(currentTheme) {
+            const buttons = document.querySelectorAll('.button');
+            buttons.forEach(button => {
+                const theme = button.getAttribute('onclick')?.match(/switchTheme\('(.+?)'\)/)?.[1];
+                if (theme) {
+                    if (theme === currentTheme) {
+                        button.className = 'button';
+                    } else {
+                        button.className = 'button outline';
+                    }
+                }
+            });
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = getCurrentTheme();
+            switchTheme(savedTheme);
+        });
+    </script>
+</body>
+</html> 

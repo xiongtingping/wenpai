@@ -1,0 +1,947 @@
+[
+  {
+    "unified": "1f600",
+    "short_name": "grinning",
+    "short_names": ["grinning"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "smile", "happy", "joy", ":D", "grin"]
+  },
+  {
+    "unified": "1f603",
+    "short_name": "grin",
+    "short_names": ["grin"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "happy", "smile", "joy", "kawaii", "grin"]
+  },
+  {
+    "unified": "1f604",
+    "short_name": "joy",
+    "short_names": ["joy"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "cry", "tears", "weep", "happy", "happy2", "haha"]
+  },
+  {
+    "unified": "1f601",
+    "short_name": "grin",
+    "short_names": ["grin"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "happy", "smile", "joy", "kawaii", "grin"]
+  },
+  {
+    "unified": "1f606",
+    "short_name": "laughing",
+    "short_names": ["laughing", "satisfied"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "happy", "joy", "lol", "satisfied", "haha", "laugh"]
+  },
+  {
+    "unified": "1f605",
+    "short_name": "sweat_smile",
+    "short_names": ["sweat_smile"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "hot", "happy", "laugh", "sweat", "smile", "relief"]
+  },
+  {
+    "unified": "1f602",
+    "short_name": "joy",
+    "short_names": ["joy"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "cry", "tears", "weep", "happy", "happy2", "haha"]
+  },
+  {
+    "unified": "1f642",
+    "short_name": "slight_smile",
+    "short_names": ["slight_smile"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "smile"]
+  },
+  {
+    "unified": "1f643",
+    "short_name": "upside_down",
+    "short_names": ["upside_down"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "flipped", "silly", "smile"]
+  },
+  {
+    "unified": "1f609",
+    "short_name": "wink",
+    "short_names": ["wink"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "happy", "mischievous", "secret", ";)", "smile", "eye"]
+  },
+  {
+    "unified": "1f60a",
+    "short_name": "blush",
+    "short_names": ["blush"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "smile", "happy", "flushed", "crush", "embarrassed", "shy", "joy"]
+  },
+  {
+    "unified": "1f607",
+    "short_name": "innocent",
+    "short_names": ["innocent"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "angel", "heaven", "halo", "innocent"]
+  },
+  {
+    "unified": "1f60d",
+    "short_name": "heart_eyes",
+    "short_names": ["heart_eyes"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "love", "like", "affection", "valentines", "infatuation", "crush", "heart"]
+  },
+  {
+    "unified": "1f618",
+    "short_name": "kissing_heart",
+    "short_names": ["kissing_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "love", "like", "affection", "valentines", "infatuation", "kiss"]
+  },
+  {
+    "unified": "1f617",
+    "short_name": "kissing",
+    "short_names": ["kissing"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "face", "3", "valentines", "infatuation", "kiss"]
+  },
+  {
+    "unified": "1f619",
+    "short_name": "kissing_smiling_eyes",
+    "short_names": ["kissing_smiling_eyes"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "affection", "valentines", "infatuation", "kiss"]
+  },
+  {
+    "unified": "1f61a",
+    "short_name": "kissing_closed_eyes",
+    "short_names": ["kissing_closed_eyes"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "love", "like", "affection", "valentines", "infatuation", "kiss"]
+  },
+  {
+    "unified": "1f60b",
+    "short_name": "yum",
+    "short_names": ["yum"],
+    "category": "smileys_emotion",
+    "keywords": ["happy", "joy", "tongue", "smile", "face", "silly", "yummy", "nom", "delicious", "savouring"]
+  },
+  {
+    "unified": "1f60c",
+    "short_name": "relieved",
+    "short_names": ["relieved"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "relaxed", "phew", "massage", "happiness"]
+  },
+  {
+    "unified": "1f60f",
+    "short_name": "smirk",
+    "short_names": ["smirk"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "smile", "mean", "prank", "smug", "sarcasm"]
+  },
+  {
+    "unified": "1f636",
+    "short_name": "no_mouth",
+    "short_names": ["no_mouth"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "hellokitty"]
+  },
+  {
+    "unified": "1f60e",
+    "short_name": "sunglasses",
+    "short_names": ["sunglasses"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "cool", "smile", "summer", "beach", "sunglass"]
+  },
+  {
+    "unified": "1f913",
+    "short_name": "nerd",
+    "short_names": ["nerd"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "nerdy", "geek", "dork"]
+  },
+  {
+    "unified": "1f9d0",
+    "short_name": "monocle",
+    "short_names": ["monocle"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "stuffy", "wealthy"]
+  },
+  {
+    "unified": "1f615",
+    "short_name": "confused",
+    "short_names": ["confused"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "indifference", "huh", "weird", "hmmm", ":/"]
+  },
+  {
+    "unified": "1f641",
+    "short_name": "slight_frown",
+    "short_names": ["slight_frown"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "sad", "upset", "down"]
+  },
+  {
+    "unified": "1f62e",
+    "short_name": "open_mouth",
+    "short_names": ["open_mouth"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "surprise", "impressed", "wow", "whoa", ":O"]
+  },
+  {
+    "unified": "1f62f",
+    "short_name": "hushed",
+    "short_names": ["hushed"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "woo", "shh"]
+  },
+  {
+    "unified": "1f632",
+    "short_name": "astonished",
+    "short_names": ["astonished"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "xox", "surprised", "poisoned"]
+  },
+  {
+    "unified": "1f633",
+    "short_name": "flushed",
+    "short_names": ["flushed"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "blush", "shy", "flattered"]
+  },
+  {
+    "unified": "1f97a",
+    "short_name": "pleading",
+    "short_names": ["pleading"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "begging", "mercy", "puppy", "eyes"]
+  },
+  {
+    "unified": "1f979",
+    "short_name": "face_holding_back_tears",
+    "short_names": ["face_holding_back_tears"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "cry", "tears", "sad", "upset"]
+  },
+  {
+    "unified": "1f626",
+    "short_name": "frowning",
+    "short_names": ["frowning"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "aw", "what"]
+  },
+  {
+    "unified": "1f627",
+    "short_name": "anguished",
+    "short_names": ["anguished"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "stunned", "nervous"]
+  },
+  {
+    "unified": "1f628",
+    "short_name": "fearful",
+    "short_names": ["fearful"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "scared", "terrified", "nervous", "oops", "huh"]
+  },
+  {
+    "unified": "1f630",
+    "short_name": "cold_sweat",
+    "short_names": ["cold_sweat"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "nervous", "sweat"]
+  },
+  {
+    "unified": "1f625",
+    "short_name": "disappointed_relieved",
+    "short_names": ["disappointed_relieved"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "phew", "sweat", "nervous"]
+  },
+  {
+    "unified": "1f622",
+    "short_name": "cry",
+    "short_names": ["cry"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "tears", "sad", "depressed", "upset", ":'("]
+  },
+  {
+    "unified": "1f62d",
+    "short_name": "sob",
+    "short_names": ["sob"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "cry", "tears", "sad", "upset", "depressed"]
+  },
+  {
+    "unified": "1f631",
+    "short_name": "scream",
+    "short_names": ["scream"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "munch", "scared", "omg"]
+  },
+  {
+    "unified": "1f616",
+    "short_name": "confounded",
+    "short_names": ["confounded"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "confused", "sick", "unwell", "oops", ":S"]
+  },
+  {
+    "unified": "1f623",
+    "short_name": "persevere",
+    "short_names": ["persevere"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "sick", "no", "upset", "oops"]
+  },
+  {
+    "unified": "1f61e",
+    "short_name": "disappointed",
+    "short_names": ["disappointed"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "sad", "upset", "depressed", ":("]
+  },
+  {
+    "unified": "1f613",
+    "short_name": "sweat",
+    "short_names": ["sweat"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "hot", "sad", "tired", "exercise"]
+  },
+  {
+    "unified": "1f629",
+    "short_name": "weary",
+    "short_names": ["weary"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "tired", "sleepy", "sad", "frustrated", "upset"]
+  },
+  {
+    "unified": "1f62b",
+    "short_name": "tired_face",
+    "short_names": ["tired_face"],
+    "category": "smileys_emotion",
+    "keywords": ["sick", "whine", "upset", "frustrated"]
+  },
+  {
+    "unified": "1f971",
+    "short_name": "yawning_face",
+    "short_names": ["yawning_face"],
+    "category": "smileys_emotion",
+    "keywords": ["tired", "sleepy"]
+  },
+  {
+    "unified": "1f624",
+    "short_name": "triumph",
+    "short_names": ["triumph"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "gas", "phew", "proud", "pride"]
+  },
+  {
+    "unified": "1f621",
+    "short_name": "rage",
+    "short_names": ["rage", "pout"],
+    "category": "smileys_emotion",
+    "keywords": ["angry", "mad", "hate", "despise"]
+  },
+  {
+    "unified": "1f620",
+    "short_name": "angry",
+    "short_names": ["angry"],
+    "category": "smileys_emotion",
+    "keywords": ["mad", "face", "annoyed", "frustrated"]
+  },
+  {
+    "unified": "1f92c",
+    "short_name": "face_with_symbols_on_mouth",
+    "short_names": ["face_with_symbols_on_mouth"],
+    "category": "smileys_emotion",
+    "keywords": ["face", "swearing", "cursing", "cussing", "profanity", "expletive"]
+  },
+  {
+    "unified": "1f608",
+    "short_name": "smiling_imp",
+    "short_names": ["smiling_imp"],
+    "category": "smileys_emotion",
+    "keywords": ["devil", "horns"]
+  },
+  {
+    "unified": "1f47f",
+    "short_name": "imp",
+    "short_names": ["imp"],
+    "category": "smileys_emotion",
+    "keywords": ["devil", "angry", "horns"]
+  },
+  {
+    "unified": "1f480",
+    "short_name": "skull",
+    "short_names": ["skull"],
+    "category": "smileys_emotion",
+    "keywords": ["dead", "skeleton", "creepy", "death"]
+  },
+  {
+    "unified": "2620",
+    "short_name": "skull_crossbones",
+    "short_names": ["skull_crossbones"],
+    "category": "smileys_emotion",
+    "keywords": ["poison", "danger", "deadly", "scary", "death", "pirate", "evil"]
+  },
+  {
+    "unified": "1f4a9",
+    "short_name": "poop",
+    "short_names": ["poop", "shit", "hankey", "poo", "feces"],
+    "category": "smileys_emotion",
+    "keywords": ["hankey", "poop", "shitface", "fail", "turd", "shit"]
+  },
+  {
+    "unified": "1f921",
+    "short_name": "clown",
+    "short_names": ["clown"],
+    "category": "smileys_emotion",
+    "keywords": ["face"]
+  },
+  {
+    "unified": "1f479",
+    "short_name": "japanese_ogre",
+    "short_names": ["japanese_ogre"],
+    "category": "smileys_emotion",
+    "keywords": ["monster", "red", "mask", "halloween", "scary", "creepy", "devil", "demon", "japanese", "ogre"]
+  },
+  {
+    "unified": "1f47a",
+    "short_name": "japanese_goblin",
+    "short_names": ["japanese_goblin"],
+    "category": "smileys_emotion",
+    "keywords": ["red", "evil", "mask", "monster", "scary", "creepy", "japanese", "goblin"]
+  },
+  {
+    "unified": "1f47b",
+    "short_name": "ghost",
+    "short_names": ["ghost"],
+    "category": "smileys_emotion",
+    "keywords": ["halloween", "spooky", "scary"]
+  },
+  {
+    "unified": "1f47d",
+    "short_name": "alien",
+    "short_names": ["alien"],
+    "category": "smileys_emotion",
+    "keywords": ["UFO", "paul", "weird", "outer_space"]
+  },
+  {
+    "unified": "1f47e",
+    "short_name": "space_invader",
+    "short_names": ["space_invader"],
+    "category": "smileys_emotion",
+    "keywords": ["game", "arcade", "play"]
+  },
+  {
+    "unified": "1f916",
+    "short_name": "robot",
+    "short_names": ["robot"],
+    "category": "smileys_emotion",
+    "keywords": ["computer", "machine", "bot"]
+  },
+  {
+    "unified": "1f63a",
+    "short_name": "smiley_cat",
+    "short_names": ["smiley_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "cats", "happy", "smile"]
+  },
+  {
+    "unified": "1f638",
+    "short_name": "smile_cat",
+    "short_names": ["smile_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "cats", "smile"]
+  },
+  {
+    "unified": "1f639",
+    "short_name": "joy_cat",
+    "short_names": ["joy_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "cats", "haha", "happy", "tears"]
+  },
+  {
+    "unified": "1f63b",
+    "short_name": "heart_eyes_cat",
+    "short_names": ["heart_eyes_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "love", "like", "affection", "cats", "valentines", "heart"]
+  },
+  {
+    "unified": "1f63c",
+    "short_name": "smirk_cat",
+    "short_names": ["smirk_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "cats", "smirk"]
+  },
+  {
+    "unified": "1f63d",
+    "short_name": "kissing_cat",
+    "short_names": ["kissing_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "cats", "kiss"]
+  },
+  {
+    "unified": "1f640",
+    "short_name": "scream_cat",
+    "short_names": ["scream_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "cats", "munch", "scared", "scream"]
+  },
+  {
+    "unified": "1f63f",
+    "short_name": "crying_cat_face",
+    "short_names": ["crying_cat_face"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "tears", "weep", "sad", "cats", "upset", "cry"]
+  },
+  {
+    "unified": "1f63e",
+    "short_name": "pouting_cat",
+    "short_names": ["pouting_cat"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "cats"]
+  },
+  {
+    "unified": "1f648",
+    "short_name": "see_no_evil",
+    "short_names": ["see_no_evil"],
+    "category": "smileys_emotion",
+    "keywords": ["monkey", "blind", "ignore", "see"]
+  },
+  {
+    "unified": "1f649",
+    "short_name": "hear_no_evil",
+    "short_names": ["hear_no_evil"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "monkey", "deaf"]
+  },
+  {
+    "unified": "1f64a",
+    "short_name": "speak_no_evil",
+    "short_names": ["speak_no_evil"],
+    "category": "smileys_emotion",
+    "keywords": ["animal", "monkey", "mute", "silence"]
+  },
+  {
+    "unified": "1f48b",
+    "short_name": "kiss",
+    "short_names": ["kiss"],
+    "category": "smileys_emotion",
+    "keywords": ["valentines", "love", "like", "dating", "marriage"]
+  },
+  {
+    "unified": "1f48c",
+    "short_name": "love_letter",
+    "short_names": ["love_letter"],
+    "category": "smileys_emotion",
+    "keywords": ["email", "like", "affection", "envelope", "valentines"]
+  },
+  {
+    "unified": "1f498",
+    "short_name": "heart",
+    "short_names": ["heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "valentines"]
+  },
+  {
+    "unified": "1f49d",
+    "short_name": "heartpulse",
+    "short_names": ["heartpulse"],
+    "category": "smileys_emotion",
+    "keywords": ["like", "love", "affection", "valentines", "pink"]
+  },
+  {
+    "unified": "1f496",
+    "short_name": "sparkling_heart",
+    "short_names": ["sparkling_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f497",
+    "short_name": "heartbeat",
+    "short_names": ["heartbeat"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines", "pink", "heart"]
+  },
+  {
+    "unified": "1f493",
+    "short_name": "heartbeat",
+    "short_names": ["heartbeat"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines", "pink", "heart"]
+  },
+  {
+    "unified": "1f49e",
+    "short_name": "revolving_hearts",
+    "short_names": ["revolving_hearts"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f495",
+    "short_name": "two_hearts",
+    "short_names": ["two_hearts"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines", "heart"]
+  },
+  {
+    "unified": "1f49f",
+    "short_name": "heart_decoration",
+    "short_names": ["heart_decoration"],
+    "category": "smileys_emotion",
+    "keywords": ["purple-square", "love", "like"]
+  },
+  {
+    "unified": "2763",
+    "short_name": "heart_exclamation",
+    "short_names": ["heart_exclamation"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f494",
+    "short_name": "broken_heart",
+    "short_names": ["broken_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["sad", "sorry", "break", "heart", "heartbreak"]
+  },
+  {
+    "unified": "2764",
+    "short_name": "heart",
+    "short_names": ["heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "valentines"]
+  },
+  {
+    "unified": "1f9e1",
+    "short_name": "orange_heart",
+    "short_names": ["orange_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f49b",
+    "short_name": "yellow_heart",
+    "short_names": ["yellow_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f49a",
+    "short_name": "green_heart",
+    "short_names": ["green_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f499",
+    "short_name": "blue_heart",
+    "short_names": ["blue_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f49c",
+    "short_name": "purple_heart",
+    "short_names": ["purple_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f90e",
+    "short_name": "brown_heart",
+    "short_names": ["brown_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f5a4",
+    "short_name": "black_heart",
+    "short_names": ["black_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["evil"]
+  },
+  {
+    "unified": "1f90d",
+    "short_name": "white_heart",
+    "short_names": ["white_heart"],
+    "category": "smileys_emotion",
+    "keywords": ["love", "like", "affection", "valentines"]
+  },
+  {
+    "unified": "1f4af",
+    "short_name": "100",
+    "short_names": ["100"],
+    "category": "smileys_emotion",
+    "keywords": ["score", "perfect", "numbers", "century", "exam", "quiz", "test", "pass", "hundred"]
+  },
+  {
+    "unified": "1f522",
+    "short_name": "1234",
+    "short_names": ["1234"],
+    "category": "smileys_emotion",
+    "keywords": ["numbers", "blue-square"]
+  },
+  {
+    "unified": "1f523",
+    "short_name": "symbols",
+    "short_names": ["symbols"],
+    "category": "smileys_emotion",
+    "keywords": ["blue-square", "music", "note", "ampersand", "percent", "glyphs", "characters"]
+  },
+  {
+    "unified": "1f3b1",
+    "short_name": "8ball",
+    "short_names": ["8ball"],
+    "category": "smileys_emotion",
+    "keywords": ["pool", "hobby", "game", "luck", "magic"]
+  },
+  {
+    "unified": "1f170",
+    "short_name": "a",
+    "short_names": ["a"],
+    "category": "smileys_emotion",
+    "keywords": ["red-square", "alphabet", "letter"]
+  },
+  {
+    "unified": "1f18e",
+    "short_name": "ab",
+    "short_names": ["ab"],
+    "category": "smileys_emotion",
+    "keywords": ["red-square", "alphabet"]
+  },
+  {
+    "unified": "1f171",
+    "short_name": "b",
+    "short_names": ["b"],
+    "category": "smileys_emotion",
+    "keywords": ["red-square", "alphabet", "letter"]
+  },
+  {
+    "unified": "1f191",
+    "short_name": "cl",
+    "short_names": ["cl"],
+    "category": "smileys_emotion",
+    "keywords": ["alphabet", "words", "red-square"]
+  },
+  {
+    "unified": "1f192",
+    "short_name": "cool",
+    "short_names": ["cool"],
+    "category": "smileys_emotion",
+    "keywords": ["words", "blue-square"]
+  },
+  {
+    "unified": "1f193",
+    "short_name": "free",
+    "short_names": ["free"],
+    "category": "smileys_emotion",
+    "keywords": ["blue-square", "words"]
+  },
+  {
+    "unified": "2139",
+    "short_name": "information_source",
+    "short_names": ["information_source"],
+    "category": "smileys_emotion",
+    "keywords": ["blue-square", "alphabet", "letter"]
+  },
+  {
+    "unified": "1f194",
+    "short_name": "id",
+    "short_names": ["id"],
+    "category": "smileys_emotion",
+    "keywords": ["purple-square", "words"]
+  },
+  {
+    "unified": "24c2",
+    "short_name": "m",
+    "short_names": ["m"],
+    "category": "smileys_emotion",
+    "keywords": ["alphabet", "blue-circle", "letter"]
+  },
+  {
+    "unified": "1f195",
+    "short_name": "new",
+    "short_names": ["new"],
+    "category": "smileys_emotion",
+    "keywords": ["blue-square", "words", "start"]
+  },
+  {
+    "unified": "1f196",
+    "short_name": "ng",
+    "short_names": ["ng"],
+    "category": "smileys_emotion",
+    "keywords": ["blue-square", "words", "shape", "icon"]
+  },
+  {
+    "unified": "1f17e",
+    "short_name": "o2",
+    "short_names": ["o2"],
+    "category": "smileys_emotion",
+    "keywords": ["alphabet", "red-square", "letter"]
+  },
+  {
+    "unified": "1f197",
+    "short_name": "ok",
+    "short_names": ["ok"],
+    "category": "smileys_emotion",
+    "keywords": ["good", "agree", "yes", "blue-square"]
+  },
+  {
+    "unified": "1f17f",
+    "short_name": "parking",
+    "short_names": ["parking"],
+    "category": "smileys_emotion",
+    "keywords": ["cars", "blue-square", "alphabet", "letter"]
+  },
+  {
+    "unified": "1f198",
+    "short_name": "sos",
+    "short_names": ["sos"],
+    "category": "smileys_emotion",
+    "keywords": ["help", "red-square", "words", "emergency", "911"]
+  },
+  {
+    "unified": "1f199",
+    "short_name": "up",
+    "short_names": ["up"],
+    "category": "smileys_emotion",
+    "keywords": ["blue-square", "above", "high"]
+  },
+  {
+    "unified": "1f19a",
+    "short_name": "vs",
+    "short_names": ["vs"],
+    "category": "smileys_emotion",
+    "keywords": ["words", "orange-square"]
+  },
+  {
+    "unified": "1f201",
+    "short_name": "koko",
+    "short_names": ["koko"],
+    "category": "smileys_emotion",
+    "keywords": ["blue-square", "here", "katakana", "japanese", "destination"]
+  },
+  {
+    "unified": "1f202",
+    "short_name": "sa",
+    "short_names": ["sa"],
+    "category": "smileys_emotion",
+    "keywords": ["japanese", "blue-square", "katakana"]
+  },
+  {
+    "unified": "1f237",
+    "short_name": "u6708",
+    "short_names": ["u6708"],
+    "category": "smileys_emotion",
+    "keywords": ["chinese", "month", "moon", "japanese", "orange-square", "kanji"]
+  },
+  {
+    "unified": "1f236",
+    "short_name": "u6709",
+    "short_names": ["u6709"],
+    "category": "smileys_emotion",
+    "keywords": ["orange-square", "chinese", "have", "kanji"]
+  },
+  {
+    "unified": "1f22f",
+    "short_name": "u6307",
+    "short_names": ["u6307"],
+    "category": "smileys_emotion",
+    "keywords": ["chinese", "point", "green-square", "kanji"]
+  },
+  {
+    "unified": "1f250",
+    "short_name": "ideograph_advantage",
+    "short_names": ["ideograph_advantage"],
+    "category": "smileys_emotion",
+    "keywords": ["chinese", "kanji", "obtain", "get", "circle"]
+  },
+  {
+    "unified": "1f239",
+    "short_name": "u5272",
+    "short_names": ["u5272"],
+    "category": "smileys_emotion",
+    "keywords": ["cut", "divide", "chinese", "kanji", "pink-square"]
+  },
+  {
+    "unified": "1f21a",
+    "short_name": "u7121",
+    "short_names": ["u7121"],
+    "category": "smileys_emotion",
+    "keywords": ["nothing", "chinese", "kanji", "japanese", "orange-square"]
+  },
+  {
+    "unified": "1f232",
+    "short_name": "u7981",
+    "short_names": ["u7981"],
+    "category": "smileys_emotion",
+    "keywords": ["kanji", "japanese", "chinese", "empty", "circle", "red-square"]
+  },
+  {
+    "unified": "1f251",
+    "short_name": "accept",
+    "short_names": ["accept"],
+    "category": "smileys_emotion",
+    "keywords": ["ok", "good", "chinese", "kanji", "agree", "yes", "orange-circle"]
+  },
+  {
+    "unified": "1f238",
+    "short_name": "u7533",
+    "short_names": ["u7533"],
+    "category": "smileys_emotion",
+    "keywords": ["chinese", "japanese", "kanji", "orange-square"]
+  },
+  {
+    "unified": "1f234",
+    "short_name": "u5408",
+    "short_names": ["u5408"],
+    "category": "smileys_emotion",
+    "keywords": ["japanese", "chinese", "join", "kanji", "red-square"]
+  },
+  {
+    "unified": "1f233",
+    "short_name": "u7a7a",
+    "short_names": ["u7a7a"],
+    "category": "smileys_emotion",
+    "keywords": ["kanji", "japanese", "chinese", "empty", "sky", "blue-square"]
+  },
+  {
+    "unified": "3297",
+    "short_name": "congratulations",
+    "short_names": ["congratulations"],
+    "category": "smileys_emotion",
+    "keywords": ["chinese", "kanji", "japanese", "red-circle"]
+  },
+  {
+    "unified": "3299",
+    "short_name": "secret",
+    "short_names": ["secret"],
+    "category": "smileys_emotion",
+    "keywords": ["privacy", "chinese", "sshh", "kanji", "red-circle"]
+  },
+  {
+    "unified": "1f23a",
+    "short_name": "u55b6",
+    "short_names": ["u55b6"],
+    "category": "smileys_emotion",
+    "keywords": ["japanese", "opening hours", "orange-square"]
+  },
+  {
+    "unified": "1f234",
+    "short_name": "u6e80",
+    "short_names": ["u6e80"],
+    "category": "smileys_emotion",
+    "keywords": ["full", "chinese", "japanese", "red-square", "kanji"]
+  },
+  {
+    "unified": "1f235",
+    "short_name": "u6e80",
+    "short_names": ["u6e80"],
+    "category": "smileys_emotion",
+    "keywords": ["full", "chinese", "japanese", "red-square", "kanji"]
+  }
+]

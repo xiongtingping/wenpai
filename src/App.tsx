@@ -1,45 +1,59 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
-// 页面导入
+// 核心组件 - 立即加载
 import HomePage from '@/pages/HomePage';
 import NotFoundPage from '@/pages/NotFoundPage';
-import AdaptPage from '@/pages/AdaptPage';
-import InvitePage from '@/pages/InvitePage';
-import BrandLibraryPage from '@/pages/BrandLibraryPage';
-import HotTopicsPage from '@/pages/HotTopicsPage';
-import ApiTestPage from '@/pages/ApiTestPage';
-import PaymentPage from '@/pages/PaymentPage';
-import ProfilePage from '@/pages/ProfilePage';
-import SettingsPage from '@/pages/SettingsPage';
-import PrivacyPage from '@/pages/PrivacyPage';
-import TermsPage from '@/pages/TermsPage';
-import ChangelogPage from '@/pages/ChangelogPage';
-import HistoryPage from '@/pages/HistoryPage';
 import LoginPage from '@/pages/LoginPage';
 import LoginRegisterPage from '@/pages/LoginRegisterPage';
 import RegisterPage from '@/pages/RegisterPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import Callback from '@/pages/Callback';
+import ApiTestPage from '@/pages/ApiTestPage';
 import AuthTestPage from '@/pages/AuthTestPage';
 import UserStatusPage from '@/pages/UserStatusPage';
-import BookmarkPage from '@/pages/BookmarkPage';
-import WechatTemplatePage from '@/pages/WechatTemplatePage';
-import TestNewFeaturesPage from '@/pages/TestNewFeaturesPage';
-import ContentExtractorPage from '@/pages/ContentExtractorPage';
-import CreativeStudioPage from '@/pages/CreativeStudioPage';
-import ShareManagerPage from '@/pages/ShareManagerPage';
-import EmojiPage from '@/pages/EmojiPage';
-import AboutPage from '@/pages/AboutPage';
-import TestPage from '@/pages/TestPage';
-import AITestPage from '@/pages/AITestPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import DevTools from '@/components/ui/dev-tools';
+
+// 懒加载组件 - 按需加载
+const AdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
+const InvitePage = React.lazy(() => import('@/pages/InvitePage'));
+const BrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
+const HotTopicsPage = React.lazy(() => import('@/pages/HotTopicsPage'));
+const PaymentPage = React.lazy(() => import('@/pages/PaymentPage'));
+const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
+const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
+const PrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
+const TermsPage = React.lazy(() => import('@/pages/TermsPage'));
+const ChangelogPage = React.lazy(() => import('@/pages/ChangelogPage'));
+const HistoryPage = React.lazy(() => import('@/pages/HistoryPage'));
+const BookmarkPage = React.lazy(() => import('@/pages/BookmarkPage'));
+const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
+const TestNewFeaturesPage = React.lazy(() => import('@/pages/TestNewFeaturesPage'));
+const ContentExtractorPage = React.lazy(() => import('@/pages/ContentExtractorPage'));
+const CreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
+const ShareManagerPage = React.lazy(() => import('@/pages/ShareManagerPage'));
+const EmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
+const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
+const TestPage = React.lazy(() => import('@/pages/TestPage'));
+const AITestPage = React.lazy(() => import('@/pages/AITestPage'));
+
+/**
+ * 加载中组件
+ */
+const LoadingSpinner: React.FC = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-gray-600">加载中...</p>
+    </div>
+  </div>
+);
 
 /**
  * 应用内容组件
@@ -54,9 +68,21 @@ const AppContent: React.FC = () => {
       <Routes>
         {/* 公开页面 */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/changelog" element={<ChangelogPage />} />
+        <Route path="/privacy" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <PrivacyPage />
+          </Suspense>
+        } />
+        <Route path="/terms" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <TermsPage />
+          </Suspense>
+        } />
+        <Route path="/changelog" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <ChangelogPage />
+          </Suspense>
+        } />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/login-register" element={<LoginRegisterPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -70,7 +96,9 @@ const AppContent: React.FC = () => {
         <Route path="/adapt" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <AdaptPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <AdaptPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
@@ -78,7 +106,9 @@ const AppContent: React.FC = () => {
         <Route path="/invite" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <InvitePage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <InvitePage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
@@ -86,7 +116,9 @@ const AppContent: React.FC = () => {
         <Route path="/brand-library" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <BrandLibraryPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <BrandLibraryPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
@@ -94,7 +126,39 @@ const AppContent: React.FC = () => {
         <Route path="/hot-topics" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <HotTopicsPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <HotTopicsPage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/payment" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <PaymentPage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/profile" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <ProfilePage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/settings" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <SettingsPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
@@ -102,35 +166,9 @@ const AppContent: React.FC = () => {
         <Route path="/history" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <HistoryPage />
-            </ToolLayout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/payment" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <PaymentPage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/profile" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <ProfilePage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/settings" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <ToolLayout>
-              <SettingsPage />
-            </ToolLayout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/bookmarks" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <ToolLayout>
-              <BookmarkPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <HistoryPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
@@ -138,21 +176,19 @@ const AppContent: React.FC = () => {
         <Route path="/library" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <BookmarkPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <BookmarkPage />
+              </Suspense>
             </ToolLayout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/share-manager" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <ShareManagerPage />
           </ProtectedRoute>
         } />
         
         <Route path="/wechat-templates" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <WechatTemplatePage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <WechatTemplatePage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
@@ -160,75 +196,99 @@ const AppContent: React.FC = () => {
         <Route path="/test-new-features" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <TestNewFeaturesPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <TestNewFeaturesPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
-
+        
         <Route path="/content-extractor" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <ContentExtractorPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ContentExtractorPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
-
+        
         <Route path="/creative-studio" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <CreativeStudioPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <CreativeStudioPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
-
+        
+        <Route path="/share-manager" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <ShareManagerPage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
         <Route path="/emoji-generator" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <EmojiPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <EmojiPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
-
-        <Route path="/emojis" element={
+        
+        <Route path="/about" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <AboutPage />
+          </Suspense>
+        } />
+        
+        <Route path="/test" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <TestPage />
+          </Suspense>
+        } />
+        
+        <Route path="/ai-test" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
             <ToolLayout>
-              <EmojiPage />
+              <Suspense fallback={<LoadingSpinner />}>
+                <AITestPage />
+              </Suspense>
             </ToolLayout>
           </ProtectedRoute>
         } />
-
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/test" element={<TestPage />} />
-        <Route path="/ai-test" element={<AITestPage />} />
-
-        {/* 404 页面 */}
+        
+        {/* 404页面 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      
+      {/* 开发工具 */}
+      <DevTools />
     </div>
   );
 };
 
 /**
- * 主 App 组件
+ * 主应用组件
  */
-function App() {
+const App: React.FC = () => {
   return (
-    <TooltipProvider>
+    <BrowserRouter>
       <AuthProvider>
-        <BrowserRouter
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true
-          }}
-        >
+        <TooltipProvider>
           <AppContent />
-        </BrowserRouter>
-        {/* 开发工具 - 仅在开发环境下显示 */}
-        <DevTools />
+          <Toaster />
+        </TooltipProvider>
       </AuthProvider>
-      <Toaster />
-    </TooltipProvider>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

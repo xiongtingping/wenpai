@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-	darkMode: ["class"],
+module.exports = {
+	darkMode: ["class", "[data-theme='dark']"],
 	content: [
 		"./index.html",
 		"./src/**/*.{js,ts,jsx,tsx}",
@@ -69,6 +69,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// 护眼米色主题专用颜色
+				beige: {
+					50: 'hsl(45, 25%, 97%)',
+					100: 'hsl(45, 20%, 92%)',
+					200: 'hsl(45, 15%, 88%)',
+					300: 'hsl(45, 10%, 80%)',
+					400: 'hsl(45, 8%, 70%)',
+					500: 'hsl(45, 70%, 55%)',
+					600: 'hsl(45, 60%, 45%)',
+					700: 'hsl(45, 50%, 35%)',
+					800: 'hsl(45, 40%, 25%)',
+					900: 'hsl(45, 30%, 15%)',
+					950: 'hsl(45, 20%, 10%)'
 				}
 			},
 			keyframes: {

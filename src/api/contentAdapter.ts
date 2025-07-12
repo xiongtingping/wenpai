@@ -1,523 +1,348 @@
 /**
  * 内容适配器
- * 提供多平台内容适配功能
+ * 用于将内容适配到不同平台
  */
 
-import { callOpenAIProxy, callDeepSeekProxy, callGeminiProxy } from './apiProxy';
-import { callOpenAIDevProxy } from './devApiProxy';
+import aiService from './aiService';
 
 /**
  * AI API响应接口
  */
 export interface AIApiResponse {
   success: boolean;
-  data?: any;
+  data?: string;
   error?: string;
-  detail?: string;
-  message?: string;
-  content?: string;
-  source?: string;
-  platform?: string;
-  title?: string;
-  hashtags?: string[];
-  suggestions?: string[];
 }
 
 /**
- * 平台设置接口
+ * 平台适配配置
  */
-export interface PlatformSettings {
-  /** 平台名称 */
+export interface PlatformConfig {
   name: string;
-  /** 平台描述 */
   description: string;
-  /** 内容风格 */
-  style: string;
-  /** 字数限制 */
   maxLength?: number;
-  /** 标签要求 */
-  hashtagStyle?: string;
-  /** 特殊要求 */
-  specialRequirements?: string[];
+  hashtagCount?: number;
+  tone?: string;
+  features?: string[];
 }
 
 /**
- * 全局设置接口
+ * 支持的平台配置
  */
-export interface GlobalSettings {
-  /** 是否保持原意 */
-  preserveOriginalMeaning: boolean;
-  /** 是否添加标签 */
-  addHashtags: boolean;
-  /** 是否优化标题 */
-  optimizeTitle: boolean;
-  /** 是否生成多个版本 */
-  generateMultipleVersions: boolean;
-  /** 版本数量 */
-  versionCount: number;
-}
+export const SUPPORTED_PLATFORMS: PlatformConfig[] = [
+  {
+    name: '微信',
+    description: '微信公众号、朋友圈',
+    maxLength: 2000,
+    hashtagCount: 0,
+    tone: '专业、权威',
+    features: ['图文并茂', '深度内容', '专业术语']
+  },
+  {
+    name: '微博',
+    description: '新浪微博',
+    maxLength: 140,
+    hashtagCount: 3,
+    tone: '简洁、热点',
+    features: ['话题标签', '@用户', '转发互动']
+  },
+  {
+    name: '小红书',
+    description: '小红书笔记',
+    maxLength: 1000,
+    hashtagCount: 20,
+    tone: '种草、分享',
+    features: ['个人体验', '图片展示', '标签丰富']
+  },
+  {
+    name: '抖音',
+    description: '抖音短视频',
+    maxLength: 300,
+    hashtagCount: 5,
+    tone: '轻松、有趣',
+    features: ['视频脚本', '音乐配合', '互动引导']
+  },
+  {
+    name: '知乎',
+    description: '知乎问答',
+    maxLength: 5000,
+    hashtagCount: 0,
+    tone: '专业、深度',
+    features: ['详细解答', '专业术语', '引用来源']
+  },
+  {
+    name: 'B站',
+    description: 'B站视频',
+    maxLength: 500,
+    hashtagCount: 10,
+    tone: '年轻、活力',
+    features: ['弹幕互动', '视频标题', '分区标签']
+  }
+];
 
 /**
  * 内容适配请求接口
  */
 export interface ContentAdaptRequest {
-  /** 原始内容 */
   originalContent: string;
-  /** 目标平台 */
   targetPlatforms: string[];
-  /** 平台设置 */
-  platformSettings: Record<string, PlatformSettings>;
-  /** 全局设置 */
-  globalSettings: GlobalSettings;
-  /** 用户偏好 */
-  userPreferences?: {
+  brandProfile?: {
+    name: string;
+    tone: string;
+    keywords: string[];
+    targetAudience: string;
+  };
+  customSettings?: {
+    maxLength?: number;
+    hashtagCount?: number;
     tone?: string;
-    style?: string;
-    keywords?: string[];
   };
 }
 
 /**
- * 内容适配响应接口
+ * 适配结果接口
  */
-export interface ContentAdaptResponse {
-  /** 是否成功 */
+export interface AdaptResult {
+  platform: string;
+  content: string;
   success: boolean;
-  /** 适配结果 */
-  results?: {
-    platform: string;
-    content: string;
-    title?: string;
-    hashtags?: string[];
-    suggestions?: string[];
-  }[];
-  /** 错误信息 */
   error?: string;
-  /** 详细信息 */
-  detail?: string;
-}
-
-// API提供商配置 - 默认使用GPT-4o模型
-let currentApiProvider = 'openai';
-let currentModel = 'gpt-4o';
-
-/**
- * 设置API提供商
- * @param provider 提供商名称
- */
-export function setApiProvider(provider: string): void {
-  currentApiProvider = provider;
-  // 当切换提供商时，自动设置最佳模型
-  if (provider === 'openai') {
-    currentModel = 'gpt-4o'; // 优先使用GPT-4o
-  } else if (provider === 'deepseek') {
-    currentModel = 'deepseek-v3'; // 备选deepseek v3
-  } else if (provider === 'gemini') {
-    currentModel = 'gemini-pro';
-  }
-}
-
-/**
- * 获取当前API提供商
- * @returns 提供商名称
- */
-export function getApiProvider(): string {
-  return currentApiProvider;
-}
-
-/**
- * 设置模型
- * @param model 模型名称
- */
-export function setModel(model: string): void {
-  currentModel = model;
-}
-
-/**
- * 获取当前模型
- * @returns 模型名称
- */
-export function getModel(): string {
-  return currentModel;
-}
-
-/**
- * 获取可用模型列表
- * @returns 模型列表
- */
-export function getAvailableModels(): Record<string, string[]> {
-  return {
-    openai: ['gpt-4o'],
-    deepseek: ['deepseek-v3'],
-    gemini: ['gemini-pro']
-  };
-}
-
-
-
-/**
- * 平台配置
- */
-const PLATFORM_CONFIGS: Record<string, PlatformSettings> = {
-  xiaohongshu: {
-    name: '小红书',
-    description: '生活方式分享平台，注重个人体验和情感表达',
-    style: '亲切、真实、有温度，像朋友间的分享',
-    maxLength: 1000,
-    hashtagStyle: '3-5个相关标签，如 #护肤 #身体乳 #秋冬必备',
-    specialRequirements: ['开头要有吸引力', '多用emoji表情', '结尾要有互动引导']
-  },
-  weibo: {
-    name: '微博',
-    description: '社交媒体平台，信息传播快速',
-    style: '简洁、直接、有话题性',
-    maxLength: 140,
-    hashtagStyle: '2-3个热门标签',
-    specialRequirements: ['开头要有爆点', '内容要有传播性']
-  },
-  wechat: {
-    name: '微信公众号',
-    description: '深度内容平台，注重价值输出',
-    style: '专业、深度、有见解',
-    maxLength: 3000,
-    hashtagStyle: '不需要标签',
-    specialRequirements: ['要有深度分析', '结构要清晰', '要有实用价值']
-  },
-  douyin: {
-    name: '抖音',
-    description: '短视频平台，注重视觉冲击',
-    style: '简短、有力、有节奏感',
-    maxLength: 100,
-    hashtagStyle: '2-3个热门标签',
-    specialRequirements: ['要有画面感', '语言要生动', '适合配音']
-  },
-  zhihu: {
-    name: '知乎',
-    description: '知识分享平台，注重专业性和逻辑性',
-    style: '理性、专业、有深度',
-    maxLength: 5000,
-    hashtagStyle: '不需要标签',
-    specialRequirements: ['要有专业分析', '逻辑要清晰', '要有数据支撑']
-  },
-  bilibili: {
-    name: 'B站',
-    description: '视频内容平台，注重互动和趣味性',
-    style: '有趣、有梗、有互动',
-    maxLength: 500,
-    hashtagStyle: '3-5个相关标签',
-    specialRequirements: ['要有梗', '要有互动性', '要符合B站文化']
-  }
-};
-
-/**
- * 平台样式配置
- */
-export const platformStyles = PLATFORM_CONFIGS;
-
-/**
- * 生成平台特定的提示词
- * @param platform 平台名称
- * @param originalContent 原始内容
- * @param settings 平台设置
- * @returns 提示词
- */
-function generatePlatformPrompt(
-  platform: string,
-  originalContent: string,
-  settings: PlatformSettings
-): string {
-  const config = PLATFORM_CONFIGS[platform] || settings;
-  
-  return `请将以下内容适配为${config.name}平台的内容风格：
-
-原始内容：
-${originalContent}
-
-平台要求：
-- 风格：${config.style}
-- 字数限制：${config.maxLength || '无限制'}
-- 标签风格：${config.hashtagStyle || '不需要标签'}
-${config.specialRequirements ? `- 特殊要求：${config.specialRequirements.join('、')}` : ''}
-
-请生成符合${config.name}平台特点的内容，保持原意的同时，让内容更适合该平台的用户群体和传播特点。`;
-}
-
-/**
- * 生成模拟内容
- * @param platform 平台名称
- * @param originalContent 原始内容
- * @param settings 平台设置
- * @returns 模拟内容
- */
-function generateMockContent(
-  platform: string,
-  originalContent: string,
-  settings: PlatformSettings
-): string {
-  const config = PLATFORM_CONFIGS[platform] || settings;
-  const mockContent = `这是一个模拟内容，用于平台：${config.name}。
-
-原始内容：
-${originalContent}
-
-平台要求：
-- 风格：${config.style}
-- 字数限制：${config.maxLength || '无限制'}
-- 标签风格：${config.hashtagStyle || '不需要标签'}
-${config.specialRequirements ? `- 特殊要求：${config.specialRequirements.join('、')}` : ''}
-
-请生成符合${config.name}平台特点的内容，保持原意的同时，让内容更适合该平台的用户群体和传播特点。`;
-  return mockContent;
-}
-
-/**
- * 生成适配内容
- * @param originalContent 原始内容
- * @param platforms 目标平台
- * @param settings 设置
- * @returns Promise with 适配结果
- */
-export async function generateAdaptedContent(
-  originalContent: string,
-  platforms: string[],
-  settings?: any
-): Promise<ContentAdaptResponse> {
-  const request: ContentAdaptRequest = {
-    originalContent,
-    targetPlatforms: platforms,
-    platformSettings: settings || PLATFORM_CONFIGS,
-    globalSettings: {
-      preserveOriginalMeaning: true,
-      addHashtags: true,
-      optimizeTitle: true,
-      generateMultipleVersions: false,
-      versionCount: 1
-    }
-  };
-  
-  return adaptContent(request);
-}
-
-/**
- * 重新生成平台内容
- * @param platform 平台名称
- * @param originalContent 原始内容
- * @param settings 设置
- * @returns Promise with 适配结果
- */
-export async function regeneratePlatformContent(
-  platform: string,
-  originalContent: string,
-  settings?: any
-): Promise<ContentAdaptResponse> {
-  return generateAdaptedContent(originalContent, [platform], settings);
-}
-
-/**
- * 检查API可用性
- * @returns Promise with API状态
- */
-export async function checkApiAvailability(): Promise<AIApiResponse> {
-  try {
-    const testMessage = [{ role: 'user', content: 'Hello' }];
-    
-    switch (currentApiProvider) {
-      case 'openai':
-        return await callOpenAIDevProxy(testMessage, currentModel);
-      case 'deepseek':
-        return await callDeepSeekProxy(testMessage, currentModel);
-      case 'gemini':
-        return await callGeminiProxy('Hello');
-      default:
-        return { success: false, error: '不支持的API提供商' };
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'API检查失败'
-    };
-  }
-}
-
-/**
- * 获取API状态
- * @returns API状态信息
- */
-export function getApiStatus(): { provider: string; model: string; available: boolean } {
-  return {
-    provider: currentApiProvider,
-            model: currentModel, 
-    available: true // 简化实现
+  metadata?: {
+    wordCount: number;
+    charCount: number;
+    hashtagCount: number;
+    estimatedReadTime: number;
   };
 }
 
 /**
- * 内容适配主函数
+ * 批量适配结果接口
+ */
+export interface BatchAdaptResult {
+  success: boolean;
+  results: AdaptResult[];
+  summary?: {
+    totalPlatforms: number;
+    successCount: number;
+    failureCount: number;
+    averageLength: number;
+  };
+  error?: string;
+}
+
+/**
+ * 将内容适配到指定平台
  * @param request 适配请求
- * @returns Promise with 适配结果
+ * @returns Promise<BatchAdaptResult>
  */
-export async function adaptContent(request: ContentAdaptRequest): Promise<ContentAdaptResponse> {
-  try {
-    const { originalContent, targetPlatforms, platformSettings, globalSettings } = request;
-    
-    if (!originalContent.trim()) {
-          return {
-        success: false,
-        error: '原始内容不能为空'
-      };
-    }
-
-    if (targetPlatforms.length === 0) {
-        return {
-        success: false,
-        error: '请选择至少一个目标平台'
-      };
-    }
-
-    const results = [];
-
-    for (const platform of targetPlatforms) {
-      try {
-        const settings = platformSettings[platform] || PLATFORM_CONFIGS[platform];
-        if (!settings) {
-          results.push({
-            platform,
-            content: `不支持的平台：${platform}`,
-            error: '平台配置不存在'
-          });
-          continue;
-        }
-
-        const prompt = generatePlatformPrompt(platform, originalContent, settings);
-        const messages = [{ role: 'user', content: prompt }];
-        
-        let response: AIApiResponse;
-        
-        switch (currentApiProvider) {
-          case 'openai':
-            // 优先使用开发环境代理
-            response = await callOpenAIDevProxy(messages, currentModel);
-            break;
-          case 'deepseek':
-            response = await callDeepSeekProxy(messages, currentModel);
-            break;
-          case 'gemini':
-            response = await callGeminiProxy(prompt);
-            break;
-          default:
-            response = { success: false, error: '不支持的API提供商' };
-        }
-
-        if (response.success && response.data) {
-          // 提取实际的AI响应内容
-          let actualContent = response.data;
-          
-          // 处理不同API响应格式
-          if (typeof response.data === 'object') {
-            // OpenAI格式：data.choices[0].message.content
-            if (response.data.choices && response.data.choices[0] && response.data.choices[0].message) {
-              actualContent = response.data.choices[0].message.content;
-            }
-            // Gemini格式：data.candidates[0].content.parts[0].text
-            else if (response.data.candidates && response.data.candidates[0] && response.data.candidates[0].content) {
-              actualContent = response.data.candidates[0].content.parts[0].text;
-            }
-            // DeepSeek格式：data.choices[0].message.content
-            else if (response.data.message) {
-              actualContent = response.data.message.content || response.data.message;
-            }
-            // 如果有content字段直接使用
-            else if (response.data.content) {
-              actualContent = response.data.content;
-            }
-            // 如果data是对象但没有预期字段，转为字符串
-            else {
-              actualContent = JSON.stringify(response.data);
-            }
-          }
-          
-          // 确保内容不为空
-          if (!actualContent || actualContent.trim() === '') {
-            console.error(`Platform ${platform} - API返回空内容`, response);
-            results.push({
-              platform,
-              content: `生成失败：API返回空内容`,
-              error: 'API返回的内容为空'
-            });
-          } else {
-            console.log(`Platform ${platform} - 生成成功:`, actualContent.substring(0, 100) + '...');
-            results.push({
-              platform,
-              content: actualContent.trim(),
-              title: settings.name,
-              hashtags: [],
-              suggestions: [],
-              source: 'ai'
-            });
-          }
-        } else {
-          console.error(`Platform ${platform} - API调用失败:`, response);
-          
-          // 如果API调用失败，提供模拟内容作为回退
-          const mockContent = generateMockContent(platform, originalContent, settings);
-          results.push({
-            platform,
-            content: mockContent,
-            title: settings.name,
-            hashtags: [],
-            suggestions: [],
-            source: 'mock',
-            error: response.error || 'API调用失败，使用模拟内容'
-          });
-        }
-      } catch (error) {
-        results.push({
-          platform,
-          content: `处理失败：${error instanceof Error ? error.message : '未知错误'}`,
-          error: error instanceof Error ? error.message : '未知错误'
-        });
-      }
-        }
-        
-        return {
-      success: results.some(r => !r.error),
-      results,
-      error: results.every(r => r.error) ? '所有平台处理失败' : undefined
-    };
-    } catch (error) {
+export async function adaptContentToPlatforms(request: ContentAdaptRequest): Promise<BatchAdaptResult> {
+  const { originalContent, targetPlatforms, brandProfile, customSettings } = request;
+  
+  if (!originalContent.trim()) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : '内容适配失败'
+      results: [],
+      error: '原始内容不能为空'
     };
   }
-}
 
-/**
- * 批量内容适配
- * @param requests 适配请求数组
- * @returns Promise with 适配结果数组
- */
-export async function batchAdaptContent(requests: ContentAdaptRequest[]): Promise<ContentAdaptResponse[]> {
-  const results = [];
-  for (const request of requests) {
-    results.push(await adaptContent(request));
+  if (!targetPlatforms.length) {
+    return {
+      success: false,
+      results: [],
+      error: '请选择至少一个目标平台'
+    };
   }
-  return results;
+
+  const results: AdaptResult[] = [];
+  let successCount = 0;
+  let failureCount = 0;
+  let totalLength = 0;
+
+  for (const platformName of targetPlatforms) {
+    try {
+      const platformConfig = SUPPORTED_PLATFORMS.find(p => p.name === platformName);
+      if (!platformConfig) {
+        results.push({
+          platform: platformName,
+          content: '',
+          success: false,
+          error: `不支持的平台: ${platformName}`
+        });
+        failureCount++;
+        continue;
+      }
+
+      // 构建适配提示词
+      const prompt = buildAdaptPrompt(originalContent, platformConfig, brandProfile, customSettings);
+      
+      // 调用AI服务进行内容适配
+      const response = await aiService.adaptContent(originalContent, [platformName], customSettings);
+      
+      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
+        const adaptedContent = response.data.data.choices[0].message.content;
+        
+        // 计算元数据
+        const metadata = calculateContentMetadata(adaptedContent, platformConfig);
+        
+        results.push({
+          platform: platformName,
+          content: adaptedContent,
+          success: true,
+          metadata
+        });
+        
+        successCount++;
+        totalLength += adaptedContent.length;
+      } else {
+        results.push({
+          platform: platformName,
+          content: '',
+          success: false,
+          error: response.error || 'AI适配失败'
+        });
+        failureCount++;
+      }
+    } catch (error) {
+      results.push({
+        platform: platformName,
+        content: '',
+        success: false,
+        error: error instanceof Error ? error.message : '适配过程出错'
+      });
+      failureCount++;
+    }
+  }
+
+  return {
+    success: successCount > 0,
+    results,
+    summary: {
+      totalPlatforms: targetPlatforms.length,
+      successCount,
+      failureCount,
+      averageLength: successCount > 0 ? Math.round(totalLength / successCount) : 0
+    }
+  };
 }
 
 /**
- * 获取平台配置
- * @returns 平台配置对象
+ * 构建适配提示词
  */
-export function getPlatformConfigs(): Record<string, PlatformSettings> {
-  return PLATFORM_CONFIGS;
+function buildAdaptPrompt(
+  originalContent: string,
+  platformConfig: PlatformConfig,
+  brandProfile?: any,
+  customSettings?: any
+): string {
+  let prompt = `请将以下内容适配为${platformConfig.name}平台的内容风格：
+
+原始内容：
+${originalContent}
+
+平台要求：
+- 平台名称：${platformConfig.name}
+- 平台描述：${platformConfig.description}
+- 最大长度：${platformConfig.maxLength || '无限制'}字符
+- 标签数量：${platformConfig.hashtagCount || 0}个
+- 语气风格：${platformConfig.tone || '自然'}
+- 特色功能：${platformConfig.features?.join('、') || '无'}`;
+
+  if (brandProfile) {
+    prompt += `
+
+品牌要求：
+- 品牌名称：${brandProfile.name}
+- 品牌语气：${brandProfile.tone}
+- 关键词：${brandProfile.keywords?.join('、') || '无'}
+- 目标受众：${brandProfile.targetAudience || '无'}`;
+  }
+
+  if (customSettings) {
+    prompt += `
+
+自定义设置：
+- 最大长度：${customSettings.maxLength || '使用平台默认'}
+- 标签数量：${customSettings.hashtagCount || '使用平台默认'}
+- 语气调整：${customSettings.tone || '使用平台默认'}`;
+  }
+
+  prompt += `
+
+请生成符合${platformConfig.name}平台特点的内容，保持原意的同时，让内容更适合该平台的用户群体和传播特点。`;
+
+  return prompt;
 }
 
 /**
- * 验证平台设置
- * @param settings 平台设置
- * @returns 是否有效
+ * 计算内容元数据
  */
-export function validatePlatformSettings(settings: PlatformSettings): boolean {
-  return !!(settings.name && settings.description && settings.style);
+function calculateContentMetadata(content: string, platformConfig: PlatformConfig) {
+  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const charCount = content.length;
+  const hashtagCount = (content.match(/#[^\s#]+/g) || []).length;
+  const estimatedReadTime = Math.ceil(wordCount / 200); // 假设每分钟阅读200字
+
+  return {
+    wordCount,
+    charCount,
+    hashtagCount,
+    estimatedReadTime
+  };
+}
+
+/**
+ * 检查内容是否符合平台要求
+ */
+export function validateContentForPlatform(content: string, platformConfig: PlatformConfig): {
+  isValid: boolean;
+  issues: string[];
+  suggestions: string[];
+} {
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+
+  // 检查长度
+  if (platformConfig.maxLength && content.length > platformConfig.maxLength) {
+    issues.push(`内容长度(${content.length})超过平台限制(${platformConfig.maxLength})`);
+    suggestions.push(`建议缩短内容至${platformConfig.maxLength}字符以内`);
+  }
+
+  // 检查标签数量
+  const hashtagCount = (content.match(/#[^\s#]+/g) || []).length;
+  if (platformConfig.hashtagCount && hashtagCount > platformConfig.hashtagCount) {
+    issues.push(`标签数量(${hashtagCount})超过平台限制(${platformConfig.hashtagCount})`);
+    suggestions.push(`建议减少标签数量至${platformConfig.hashtagCount}个以内`);
+  }
+
+  // 检查是否包含必要的功能
+  if (platformConfig.features) {
+    if (platformConfig.features.includes('话题标签') && hashtagCount === 0) {
+      suggestions.push('建议添加相关话题标签以提高曝光度');
+    }
+    
+    if (platformConfig.features.includes('@用户') && !content.includes('@')) {
+      suggestions.push('建议@相关用户或账号以增加互动');
+    }
+  }
+
+  return {
+    isValid: issues.length === 0,
+    issues,
+    suggestions
+  };
+}
+
+/**
+ * 获取平台配置信息
+ */
+export function getPlatformConfig(platformName: string): PlatformConfig | null {
+  return SUPPORTED_PLATFORMS.find(p => p.name === platformName) || null;
+}
+
+/**
+ * 获取所有支持的平台
+ */
+export function getAllSupportedPlatforms(): PlatformConfig[] {
+  return [...SUPPORTED_PLATFORMS];
 }

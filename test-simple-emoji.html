@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简化版Emoji生成器测试</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-4">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // 简化的EmojiGenerator组件
+        function EmojiGenerator({ character, brand }) {
+            const [results, setResults] = useState([]);
+            const [isGenerating, setIsGenerating] = useState(false);
+
+            const handleGenerate = async () => {
+                setIsGenerating(true);
+                setResults([]);
+
+                try {
+                    // 模拟API调用
+                    const mockEmotions = ['开心微笑', '大笑', '生气', '哭泣', '惊讶'];
+                    const mockResults = mockEmotions.map((emotion, index) => ({
+                        emotion,
+                        url: `https://picsum.photos/200/200?random=${index + 1}`
+                    }));
+
+                    // 模拟延迟
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    setResults(mockResults);
+                    alert('生成成功！');
+                } catch (error) {
+                    console.error('生成失败:', error);
+                    alert('生成失败，请重试');
+                } finally {
+                    setIsGenerating(false);
+                }
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-2xl font-bold mb-4">Step 3：AI 生成品牌 Emoji</h2>
+                    
+                    <div className="mb-4 p-4 bg-gray-100 rounded">
+                        <p><strong>角色描述:</strong> {character}</p>
+                        <p><strong>品牌名称:</strong> {brand}</p>
+                    </div>
+
+                    <button 
+                        onClick={handleGenerate} 
+                        disabled={isGenerating}
+                        className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                    >
+                        {isGenerating ? '生成中...' : '开始生成'}
+                    </button>
+
+                    {results.length > 0 && (
+                        <div className="mt-6">
+                            <h3 className="text-lg font-semibold mb-4">生成结果</h3>
+                            <div className="grid grid-cols-5 gap-4">
+                                {results.map(({ emotion, url }) => (
+                                    <div key={emotion} className="text-center">
+                                        <img 
+                                            src={url} 
+                                            alt={emotion} 
+                                            className="w-16 h-16 object-cover mx-auto rounded-lg border" 
+                                        />
+                                        <p className="text-sm mt-2">{emotion}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // 主应用组件
+        function App() {
+            const [character, setCharacter] = useState('可爱的卡通猫咪');
+            const [brand, setBrand] = useState('喵星人');
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+                    <div className="container mx-auto py-8">
+                        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+                            简化版Emoji生成器测试
+                        </h1>
+                        
+                        <div className="max-w-2xl mx-auto mb-8 bg-white rounded-lg shadow-md p-6">
+                            <h2 className="text-xl font-semibold mb-4">参数设置</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">角色描述:</label>
+                                    <input
+                                        type="text"
+                                        value={character}
+                                        onChange={(e) => setCharacter(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="请输入角色描述"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">品牌名称:</label>
+                                    <input
+                                        type="text"
+                                        value={brand}
+                                        onChange={(e) => setBrand(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="请输入品牌名称"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <EmojiGenerator character={character} brand={brand} />
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html> 

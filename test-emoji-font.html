@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji 字体测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        
+        .test-section h2 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .emoji-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+        
+        .emoji-display {
+            font-size: 2em;
+            margin-right: 15px;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .emoji-info {
+            flex: 1;
+        }
+        
+        .emoji-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .emoji-code {
+            font-size: 0.8em;
+            color: #666;
+            font-family: monospace;
+        }
+        
+        .font-test {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        
+        .font-label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .emoji-sample {
+            font-size: 1.5em;
+            margin: 5px 0;
+        }
+        
+        .success {
+            color: #28a745;
+        }
+        
+        .warning {
+            color: #ffc107;
+        }
+        
+        .error {
+            color: #dc3545;
+        }
+        
+        .font-stack {
+            font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Emoji 字体测试</h1>
+        
+        <div class="test-section">
+            <h2>📱 字体堆栈测试</h2>
+            <p>测试不同的字体堆栈对emoji显示的影响：</p>
+            
+            <div class="font-test">
+                <div class="font-label">默认字体 (系统默认):</div>
+                <div class="emoji-sample">😀 😃 😄 😁 😆 😅 🤣 😂</div>
+            </div>
+            
+            <div class="font-test">
+                <div class="font-label">Emoji 字体堆栈:</div>
+                <div class="emoji-sample font-stack">😀 😃 😄 😁 😆 😅 🤣 😂</div>
+            </div>
+            
+            <div class="font-test">
+                <div class="font-label">Noto Emoji 字体:</div>
+                <div class="emoji-sample" style="font-family: 'Noto Emoji', sans-serif;">😀 😃 😄 😁 😆 😅 🤣 😂</div>
+            </div>
+            
+            <div class="font-test">
+                <div class="font-label">Apple Color Emoji:</div>
+                <div class="emoji-sample" style="font-family: 'Apple Color Emoji', sans-serif;">😀 😃 😄 😁 😆 😅 🤣 😂</div>
+            </div>
+            
+            <div class="font-test">
+                <div class="font-label">Segoe UI Emoji:</div>
+                <div class="emoji-sample" style="font-family: 'Segoe UI Emoji', sans-serif;">😀 😃 😄 😁 😆 😅 🤣 😂</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎯 常用 Emoji 测试</h2>
+            <div class="emoji-grid">
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">😀</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">笑脸</div>
+                        <div class="emoji-code">U+1F600</div>
+                    </div>
+                </div>
+                
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">😃</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">大笑脸</div>
+                        <div class="emoji-code">U+1F603</div>
+                    </div>
+                </div>
+                
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">😄</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">微笑脸</div>
+                        <div class="emoji-code">U+1F604</div>
+                    </div>
+                </div>
+                
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">❤️</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">红心</div>
+                        <div class="emoji-code">U+2764</div>
+                    </div>
+                </div>
+                
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">🍎</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">红苹果</div>
+                        <div class="emoji-code">U+1F34E</div>
+                    </div>
+                </div>
+                
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">🐶</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">狗脸</div>
+                        <div class="emoji-code">U+1F436</div>
+                    </div>
+                </div>
+                
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">👍</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">点赞</div>
+                        <div class="emoji-code">U+1F44D</div>
+                    </div>
+                </div>
+                
+                <div class="emoji-item">
+                    <div class="emoji-display font-stack">🎉</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">庆祝</div>
+                        <div class="emoji-code">U+1F389</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔍 字体检测</h2>
+            <div id="font-detection">
+                <p>正在检测系统字体支持...</p>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 测试结果</h2>
+            <ul>
+                <li><strong>字体堆栈</strong>: 使用完整的emoji字体堆栈确保跨平台兼容性</li>
+                <li><strong>回退机制</strong>: 如果某个字体不可用，自动回退到下一个字体</li>
+                <li><strong>显示效果</strong>: 不同字体可能显示略有不同的emoji样式</li>
+                <li><strong>兼容性</strong>: 支持Windows、macOS、Linux、Android、iOS等平台</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // 字体检测脚本
+        function detectFonts() {
+            const fonts = [
+                'Noto Emoji',
+                'Apple Color Emoji', 
+                'Segoe UI Emoji',
+                'Noto Color Emoji',
+                'Android Emoji',
+                'EmojiSymbols',
+                'EmojiOne Mozilla',
+                'Twemoji Mozilla',
+                'Segoe UI Symbol'
+            ];
+            
+            const detectionDiv = document.getElementById('font-detection');
+            let results = '<h3>字体支持检测结果:</h3>';
+            
+            fonts.forEach(font => {
+                const testString = '😀';
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                // 测试默认字体
+                context.font = '20px sans-serif';
+                const defaultWidth = context.measureText(testString).width;
+                
+                // 测试目标字体
+                context.font = `20px "${font}", sans-serif`;
+                const targetWidth = context.measureText(testString).width;
+                
+                const isAvailable = targetWidth !== defaultWidth;
+                const status = isAvailable ? 
+                    '<span class="success">✅ 可用</span>' : 
+                    '<span class="warning">⚠️ 不可用</span>';
+                
+                results += `<div><strong>${font}:</strong> ${status}</div>`;
+            });
+            
+            detectionDiv.innerHTML = results;
+        }
+        
+        // 页面加载完成后执行字体检测
+        window.addEventListener('load', () => {
+            setTimeout(detectFonts, 1000);
+        });
+    </script>
+</body>
+</html> 

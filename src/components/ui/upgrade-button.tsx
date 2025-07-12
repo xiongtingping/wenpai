@@ -52,15 +52,13 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
 
   return (
     <Button
-      asChild
       variant={variant}
       size={size}
       className={`bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0 ${className}`}
+      onClick={() => window.location.href = '/payment'}
     >
-      <Link to="/payment">
-        {showIcon && <Crown className="w-4 h-4 mr-2" />}
-        {text}
-      </Link>
+      {showIcon && <Crown className="w-4 h-4 mr-2" />}
+      {text}
     </Button>
   );
 }; 

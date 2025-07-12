@@ -14,10 +14,10 @@ function HomePage() {
   useScrollAnimation()
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main>
+      <main className="flex-1 w-full">
         <HeroSection />
         <TrustSection />
         <HowItWorks />

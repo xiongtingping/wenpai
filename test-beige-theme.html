@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="beige">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>护眼米色主题测试</title>
+    <style>
+        /* 护眼米色主题CSS变量 */
+        :root {
+            --background: 45 25% 97%;
+            --foreground: 45 15% 15%;
+            --card: 45 25% 97%;
+            --card-foreground: 45 15% 15%;
+            --popover: 45 25% 97%;
+            --popover-foreground: 45 15% 15%;
+            --primary: 45 70% 55%;
+            --primary-foreground: 45 25% 97%;
+            --secondary: 45 20% 92%;
+            --secondary-foreground: 45 15% 15%;
+            --muted: 45 20% 92%;
+            --muted-foreground: 45 10% 35%;
+            --accent: 45 20% 92%;
+            --accent-foreground: 45 15% 15%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 45 25% 97%;
+            --border: 45 15% 88%;
+            --input: 45 15% 88%;
+            --ring: 45 70% 55%;
+            --radius: 0.5rem;
+        }
+
+        [data-theme="beige"] {
+            --background: 45 25% 97%;
+            --foreground: 45 15% 15%;
+            --card: 45 25% 97%;
+            --card-foreground: 45 15% 15%;
+            --popover: 45 25% 97%;
+            --popover-foreground: 45 15% 15%;
+            --primary: 45 70% 55%;
+            --primary-foreground: 45 25% 97%;
+            --secondary: 45 20% 92%;
+            --secondary-foreground: 45 15% 15%;
+            --muted: 45 20% 92%;
+            --muted-foreground: 45 10% 35%;
+            --accent: 45 20% 92%;
+            --accent-foreground: 45 15% 15%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 45 25% 97%;
+            --border: 45 15% 88%;
+            --input: 45 15% 88%;
+            --ring: 45 70% 55%;
+            --radius: 0.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: hsl(var(--card));
+            border-radius: 12px;
+            border: 1px solid hsl(var(--border));
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: hsl(var(--primary));
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 2rem;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: hsl(var(--card-foreground));
+            margin-bottom: 1rem;
+        }
+
+        .card-content {
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .btn-destructive {
+            background: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            background: hsl(var(--input));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            font-size: 1rem;
+            color: hsl(var(--foreground));
+            transition: all 0.3s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: hsl(var(--ring));
+            box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .color-swatch {
+            height: 60px;
+            border-radius: 8px;
+            border: 1px solid hsl(var(--border));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: hsl(var(--muted));
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: hsl(var(--primary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: hsl(var(--primary-foreground));
+            font-size: 1.2rem;
+        }
+
+        .feature-text {
+            color: hsl(var(--muted-foreground));
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">护眼米色主题</h1>
+            <p class="subtitle">专为长时间使用设计的护眼配色方案</p>
+            <div class="badge">默认主题</div>
+        </div>
+
+        <div class="theme-grid">
+            <div class="card">
+                <h3 class="card-title">背景色系</h3>
+                <p class="card-content">采用温暖的米色背景，减少视觉疲劳</p>
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: hsl(45, 25%, 97%)">背景</div>
+                    <div class="color-swatch" style="background: hsl(45, 20%, 92%)">次要</div>
+                    <div class="color-swatch" style="background: hsl(45, 15%, 88%)">边框</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">主色调</h3>
+                <p class="card-content">温暖的橙色系主色调，提升视觉舒适度</p>
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: hsl(45, 70%, 55%)">主色</div>
+                    <div class="color-swatch" style="background: hsl(35, 60%, 50%)">辅助</div>
+                    <div class="color-swatch" style="background: hsl(25, 65%, 45%)">强调</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">文字色系</h3>
+                <p class="card-content">深色文字提供良好的对比度和可读性</p>
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: hsl(45, 15%, 15%)">主文字</div>
+                    <div class="color-swatch" style="background: hsl(45, 10%, 35%)">次要文字</div>
+                    <div class="color-swatch" style="background: hsl(45, 25%, 97%)">背景文字</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">交互元素</h3>
+            <p class="card-content">体验护眼米色主题的按钮、输入框等交互元素</p>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                <button class="btn">主要按钮</button>
+                <button class="btn btn-secondary">次要按钮</button>
+                <button class="btn btn-destructive">危险按钮</button>
+            </div>
+            
+            <input type="text" class="input" placeholder="输入框示例" style="margin-bottom: 1rem;">
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <span class="badge">标签1</span>
+                <span class="badge">标签2</span>
+                <span class="badge">标签3</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">护眼特性</h3>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">👁️</div>
+                    <div class="feature-text">减少蓝光刺激</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🌅</div>
+                    <div class="feature-text">温暖色调</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📖</div>
+                    <div class="feature-text">提高可读性</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⏰</div>
+                    <div class="feature-text">长时间使用</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">使用说明</h3>
+            <p class="card-content">
+                护眼米色主题已设置为默认主题，具有以下特点：
+            </p>
+            <ul style="color: hsl(var(--muted-foreground)); margin-left: 1.5rem; margin-top: 1rem;">
+                <li>温暖的米色背景，减少视觉疲劳</li>
+                <li>适中的对比度，保证文字清晰可读</li>
+                <li>橙色系主色调，营造温馨舒适的视觉环境</li>
+                <li>专为长时间使用场景设计</li>
+                <li>支持所有UI组件的主题适配</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 主题切换功能
+        function switchTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('wenpai_theme', theme);
+        }
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('wenpai_theme') || 'beige';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji CDN 测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        .test-section h2 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .emoji-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+        .emoji-display {
+            font-size: 2em;
+            margin-right: 15px;
+            min-width: 60px;
+            text-align: center;
+        }
+        .emoji-info {
+            flex: 1;
+        }
+        .emoji-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .emoji-url {
+            font-size: 0.8em;
+            color: #666;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+        .cdn-label {
+            background: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        .error {
+            color: #dc3545;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Emoji CDN 功能测试</h1>
+        
+        <div class="test-section">
+            <h2>📱 Unicode 显示模式</h2>
+            <div class="emoji-grid">
+
+                <div class="emoji-item">
+                    <div class="emoji-display">😀</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div>Unicode: 😀</div>
+                    </div>
+                </div>
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">😃</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">grinning face with big eyes</div>
+                        <div>Unified: 1f603</div>
+                        <div>Unicode: 😃</div>
+                    </div>
+                </div>
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">😄</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">grinning face with smiling eyes</div>
+                        <div>Unified: 1f604</div>
+                        <div>Unicode: 😄</div>
+                    </div>
+                </div>
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">❤</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">red heart</div>
+                        <div>Unified: 2764</div>
+                        <div>Unicode: ❤</div>
+                    </div>
+                </div>
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">🍎</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">red apple</div>
+                        <div>Unified: 1f34e</div>
+                        <div>Unicode: 🍎</div>
+                    </div>
+                </div>
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">🐶</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">dog face</div>
+                        <div>Unified: 1f436</div>
+                        <div>Unicode: 🐶</div>
+                    </div>
+                </div>
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">👍</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">thumbs up</div>
+                        <div>Unified: 1f44d</div>
+                        <div>Unicode: 👍</div>
+                    </div>
+                </div>
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">😀</div>
+                    <div class="emoji-info">
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div>Unicode: 😀</div>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🌐 CDN 图片显示模式</h2>
+
+            <h3>NOTO-COLOR</h3>
+            <div class="emoji-grid">
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f600.png" alt="grinning face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f600.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f603.png" alt="grinning face with big eyes" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">grinning face with big eyes</div>
+                        <div>Unified: 1f603</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f603.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f604.png" alt="grinning face with smiling eyes" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">grinning face with smiling eyes</div>
+                        <div>Unified: 1f604</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f604.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u2764.png" alt="red heart" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">red heart</div>
+                        <div>Unified: 2764</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u2764.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f34e.png" alt="red apple" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">red apple</div>
+                        <div>Unified: 1f34e</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f34e.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f436.png" alt="dog face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">dog face</div>
+                        <div>Unified: 1f436</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f436.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f44d.png" alt="thumbs up" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">thumbs up</div>
+                        <div>Unified: 1f44d</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f44d.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f600.png" alt="grinning face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">noto-color</div>
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div class="emoji-url">https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f600.png</div>
+                    </div>
+                </div>
+      
+            </div>
+    
+            <h3>TWEMOJI</h3>
+            <div class="emoji-grid">
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f600.png" alt="grinning face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f600.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f603.png" alt="grinning face with big eyes" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">grinning face with big eyes</div>
+                        <div>Unified: 1f603</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f603.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f604.png" alt="grinning face with smiling eyes" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">grinning face with smiling eyes</div>
+                        <div>Unified: 1f604</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f604.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u2764.png" alt="red heart" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">red heart</div>
+                        <div>Unified: 2764</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u2764.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f34e.png" alt="red apple" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">red apple</div>
+                        <div>Unified: 1f34e</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f34e.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f436.png" alt="dog face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">dog face</div>
+                        <div>Unified: 1f436</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f436.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f44d.png" alt="thumbs up" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">thumbs up</div>
+                        <div>Unified: 1f44d</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f44d.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f600.png" alt="grinning face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">twemoji</div>
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/72x72/emoji_u1f600.png</div>
+                    </div>
+                </div>
+      
+            </div>
+    
+            <h3>EMOJIONE</h3>
+            <div class="emoji-grid">
+    
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f600.png" alt="grinning face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f600.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f603.png" alt="grinning face with big eyes" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">grinning face with big eyes</div>
+                        <div>Unified: 1f603</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f603.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f604.png" alt="grinning face with smiling eyes" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">grinning face with smiling eyes</div>
+                        <div>Unified: 1f604</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f604.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u2764.png" alt="red heart" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">red heart</div>
+                        <div>Unified: 2764</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u2764.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f34e.png" alt="red apple" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">red apple</div>
+                        <div>Unified: 1f34e</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f34e.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f436.png" alt="dog face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">dog face</div>
+                        <div>Unified: 1f436</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f436.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f44d.png" alt="thumbs up" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">thumbs up</div>
+                        <div>Unified: 1f44d</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f44d.png</div>
+                    </div>
+                </div>
+      
+                <div class="emoji-item">
+                    <div class="emoji-display">
+                        <img src="https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f600.png" alt="grinning face" style="width: 48px; height: 48px; object-fit: contain;" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; color: #dc3545;">❌</span>
+                    </div>
+                    <div class="emoji-info">
+                        <div class="cdn-label">emojione</div>
+                        <div class="emoji-name">grinning face</div>
+                        <div>Unified: 1f600</div>
+                        <div class="emoji-url">https://cdn.jsdelivr.net/gh/emojione/emojione@latest/assets/png/emoji_u1f600.png</div>
+                    </div>
+                </div>
+      
+            </div>
+    
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 测试说明</h2>
+            <ul>
+                <li><strong>Unicode 模式</strong>: 使用系统字体显示 emoji，依赖系统支持</li>
+                <li><strong>CDN 模式</strong>: 从在线CDN加载图片，显示效果一致</li>
+                <li><strong>错误处理</strong>: 如果图片加载失败，会显示 ❌ 标记</li>
+                <li><strong>兼容性</strong>: Unicode 模式兼容性更好，CDN 模式显示效果更一致</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+  

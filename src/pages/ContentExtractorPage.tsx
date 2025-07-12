@@ -42,7 +42,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import { callOpenAIDevProxy } from '@/api/devApiProxy';
+import aiService from '@/api/aiService';
 
 /**
  * 提取结果接口
@@ -139,7 +139,7 @@ ${mockResult.content}
 请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
           }];
 
-          const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 500);
+          const response = await aiService.summarizeContent(mockResult.content);
           
           if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
             mockResult.summary = response.data.data.choices[0].message.content;
@@ -339,16 +339,8 @@ ${mockResult.content}
     setIsGeneratingSummary(true);
 
     try {
-      const messages = [{
-        role: 'user',
-        content: `请为以下提取的内容生成AI智能总结：
-
-${result.content}
-
-请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
-      }];
-
-      const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 500);
+      const response = await aiService.summarizeContent(result.content);
+          
       
       let summary;
       if (response.success && response.data?.data?.choices?.[0]?.message?.content) {

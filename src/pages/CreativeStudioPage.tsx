@@ -67,12 +67,7 @@ export default function CreativeStudioPage() {
       <PageNavigation
         title="创意魔方"
         description="激发创意灵感，快速生成高质量内容"
-        actions={
-          <Button variant="outline" onClick={() => navigate('/library')}>
-            <FolderOpen className="w-4 h-4 mr-2" />
-            我的资料库
-          </Button>
-        }
+        showAdaptButton={false}
       />
 
       <div className="container mx-auto px-4 py-8">

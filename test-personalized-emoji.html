@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个性化品牌 Emoji 生成器 - 测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        .step.active .step-number {
+            background: #3b82f6;
+            color: white;
+        }
+        .step.completed .step-number {
+            background: #10b981;
+            color: white;
+        }
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .step-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-align: center;
+            max-width: 120px;
+        }
+        .step-line {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+        .step-line-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .upload-icon {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+        .btn-outline:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .style-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .style-option:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        .style-option.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .style-emoji {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .gallery-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .gallery-item:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .gallery-info {
+            padding: 15px;
+        }
+        .gallery-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .gallery-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+        .gallery-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+        .hidden {
+            display: none;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 个性化品牌 Emoji 生成器</h1>
+            <p>基于您的品牌特色，AI智能生成专属Emoji表情</p>
+        </div>
+        
+        <div class="content">
+            <!-- 步骤指示器 -->
+            <div class="step-indicator">
+                <div class="step-line">
+                    <div class="step-line-fill" id="progressLine"></div>
+                </div>
+                <div class="step active" data-step="upload">
+                    <div class="step-number">1</div>
+                    <div class="step-title">上传素材</div>
+                    <div class="step-description">上传品牌图片或输入描述</div>
+                </div>
+                <div class="step" data-step="build">
+                    <div class="step-number">2</div>
+                    <div class="step-title">构建提示词</div>
+                    <div class="step-description">生成个性化生成提示词</div>
+                </div>
+                <div class="step" data-step="generate">
+                    <div class="step-number">3</div>
+                    <div class="step-title">生成Emoji</div>
+                    <div class="step-description">AI生成个性化Emoji</div>
+                </div>
+                <div class="step" data-step="gallery">
+                    <div class="step-number">4</div>
+                    <div class="step-title">作品展示</div>
+                    <div class="step-description">查看和管理生成的Emoji</div>
+                </div>
+            </div>
+
+            <!-- 步骤内容 -->
+            <div id="stepContent">
+                <!-- 步骤1: 上传素材 -->
+                <div id="uploadStep" class="step-content">
+                    <h2>📤 上传品牌素材</h2>
+                    <p class="text-gray-600 mb-6">选择上传品牌图片或输入文字描述来开始个性化Emoji生成</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">选择上传方式</label>
+                        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                            <button class="btn" onclick="setUploadType('image')" id="imageBtn">📷 上传图片</button>
+                            <button class="btn btn-outline" onclick="setUploadType('text')" id="textBtn">📝 文字描述</button>
+                        </div>
+                    </div>
+
+                    <!-- 图片上传区域 -->
+                    <div id="imageUpload" class="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <h3>点击或拖拽上传品牌图片</h3>
+                        <p>支持 JPG、PNG 格式，最大 5MB</p>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                        <button class="btn" onclick="document.getElementById('fileInput').click()">选择文件</button>
+                    </div>
+
+                    <!-- 文字描述区域 -->
+                    <div id="textUpload" class="upload-area hidden">
+                        <div class="upload-icon">✍️</div>
+                        <h3>输入品牌描述</h3>
+                        <p>详细描述您的品牌特点、风格和元素</p>
+                        <textarea 
+                            id="brandDescription" 
+                            class="form-input form-textarea" 
+                            placeholder="例如：我们是一家科技公司，主打蓝色主题，logo是一个简约的几何图形，整体风格现代简洁..."
+                        ></textarea>
+                        <button class="btn" onclick="submitDescription()">提交描述</button>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>💡 提示：</strong>
+                        <ul style="margin: 10px 0 0 20px;">
+                            <li>上传清晰的品牌logo或产品图片效果最佳</li>
+                            <li>文字描述越详细，生成的Emoji越符合品牌特色</li>
+                            <li>可以描述品牌色彩、风格、行业特点等</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 步骤2: 构建提示词 -->
+                <div id="buildStep" class="step-content hidden">
+                    <h2>🔧 构建生成提示词</h2>
+                    <p class="text-gray-600 mb-6">选择风格和复杂度，AI将为您生成个性化的Emoji生成提示词</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">选择风格</label>
+                        <div class="style-grid">
+                            <div class="style-option" data-style="cute">
+                                <div class="style-emoji">🥰</div>
+                                <div>可爱风格</div>
+                            </div>
+                            <div class="style-option" data-style="modern">
+                                <div class="style-emoji">✨</div>
+                                <div>现代简约</div>
+                            </div>
+                            <div class="style-option" data-style="vintage">
+                                <div class="style-emoji">📷</div>
+                                <div>复古经典</div>
+                            </div>
+                            <div class="style-option" data-style="cartoon">
+                                <div class="style-emoji">🎨</div>
+                                <div>卡通动漫</div>
+                            </div>
+                            <div class="style-option" data-style="minimalist">
+                                <div class="style-emoji">⚪</div>
+                                <div>极简主义</div>
+                            </div>
+                            <div class="style-option" data-style="3d">
+                                <div class="style-emoji">🎯</div>
+                                <div>3D立体</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">设计复杂度: <span id="complexityLabel">适中</span></label>
+                        <input type="range" id="complexitySlider" min="1" max="5" value="3" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">生成的提示词</label>
+                        <textarea id="generatedPrompt" class="form-input form-textarea" readonly placeholder="点击下方按钮生成提示词..."></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 15px;">
+                        <button class="btn btn-outline" onclick="goToStep('upload')">← 返回</button>
+                        <button class="btn" onclick="generatePrompt()">✨ 自动生成Prompt</button>
+                        <button class="btn" onclick="goToStep('generate')" id="confirmPromptBtn" disabled>确认使用 →</button>
+                    </div>
+                </div>
+
+                <!-- 步骤3: 生成Emoji -->
+                <div id="generateStep" class="step-content hidden">
+                    <h2>🎨 生成个性化Emoji</h2>
+                    <p class="text-gray-600 mb-6">AI正在根据您的提示词生成个性化Emoji，请耐心等待</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">生成参数</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                            <div>
+                                <label>生成数量</label>
+                                <select id="imageCount" class="form-input">
+                                    <option value="1">1张</option>
+                                    <option value="2">2张</option>
+                                    <option value="3">3张</option>
+                                    <option value="4">4张</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>图片尺寸</label>
+                                <select id="imageSize" class="form-input">
+                                    <option value="256x256">小尺寸 (256x256)</option>
+                                    <option value="512x512">中尺寸 (512x512)</option>
+                                    <option value="1024x1024">大尺寸 (1024x1024)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>图片质量</label>
+                                <select id="imageQuality" class="form-input">
+                                    <option value="standard">标准</option>
+                                    <option value="hd">高清</option>
+                                    <option value="ultra">超高清</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">当前提示词</label>
+                        <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <span id="currentPrompt"></span>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar hidden" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px;">
+                        <button class="btn btn-outline" onclick="goToStep('build')">← 返回</button>
+                        <button class="btn" onclick="generateEmoji()" id="generateBtn">🎨 开始生成</button>
+                    </div>
+                </div>
+
+                <!-- 步骤4: 作品展示 -->
+                <div id="galleryStep" class="step-content hidden">
+                    <h2>🖼️ Emoji 作品集</h2>
+                    <p class="text-gray-600 mb-6">查看和管理您生成的个性化Emoji</p>
+                    
+                    <div id="galleryContainer">
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 3rem; margin-bottom: 20px;">🎨</div>
+                            <h3>暂无生成的Emoji</h3>
+                            <p>请先完成前面的步骤生成Emoji</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                        <button class="btn btn-outline" onclick="goToStep('generate')">← 返回生成</button>
+                        <button class="btn btn-outline" onclick="goToStep('upload')">重新开始</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 'upload';
+        let uploadedData = null;
+        let selectedStyle = 'cute';
+        let complexity = 3;
+        let generatedPrompt = '';
+        let generatedImages = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStepIndicator();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // 文件上传
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+            
+            // 拖拽上传
+            const uploadArea = document.getElementById('imageUpload');
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleDrop);
+            
+            // 风格选择
+            document.querySelectorAll('.style-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.style-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedStyle = this.dataset.style;
+                    updatePrompt();
+                });
+            });
+            
+            // 复杂度滑块
+            document.getElementById('complexitySlider').addEventListener('input', function() {
+                complexity = parseInt(this.value);
+                document.getElementById('complexityLabel').textContent = getComplexityLabel(complexity);
+                updatePrompt();
+            });
+        }
+
+        function setUploadType(type) {
+            const imageBtn = document.getElementById('imageBtn');
+            const textBtn = document.getElementById('textBtn');
+            const imageUpload = document.getElementById('imageUpload');
+            const textUpload = document.getElementById('textUpload');
+            
+            if (type === 'image') {
+                imageBtn.className = 'btn';
+                textBtn.className = 'btn btn-outline';
+                imageUpload.classList.remove('hidden');
+                textUpload.classList.add('hidden');
+            } else {
+                imageBtn.className = 'btn btn-outline';
+                textBtn.className = 'btn';
+                imageUpload.classList.add('hidden');
+                textUpload.classList.remove('hidden');
+            }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadedData = { image: file };
+                showAlert('图片上传成功！', 'success');
+                setTimeout(() => goToStep('build'), 1000);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    uploadedData = { image: file };
+                    showAlert('图片上传成功！', 'success');
+                    setTimeout(() => goToStep('build'), 1000);
+                } else {
+                    showAlert('请上传图片文件', 'error');
+                }
+            }
+        }
+
+        function submitDescription() {
+            const description = document.getElementById('brandDescription').value.trim();
+            if (description) {
+                uploadedData = { description: description };
+                showAlert('描述提交成功！', 'success');
+                setTimeout(() => goToStep('build'), 1000);
+            } else {
+                showAlert('请输入品牌描述', 'error');
+            }
+        }
+
+        function generatePrompt() {
+            const btn = document.querySelector('#buildStep .btn');
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+            
+            setTimeout(() => {
+                const prompt = createPrompt();
+                document.getElementById('generatedPrompt').value = prompt;
+                generatedPrompt = prompt;
+                document.getElementById('confirmPromptBtn').disabled = false;
+                btn.disabled = false;
+                btn.textContent = '✨ 自动生成Prompt';
+                showAlert('提示词生成完成！', 'success');
+            }, 2000);
+        }
+
+        function createPrompt() {
+            let basePrompt = '';
+            
+            if (uploadedData.image) {
+                basePrompt = `基于上传的品牌图片，创建一个${getStyleLabel(selectedStyle)}的Emoji表情`;
+            } else if (uploadedData.description) {
+                basePrompt = `基于描述"${uploadedData.description}"，创建一个${getStyleLabel(selectedStyle)}的Emoji表情`;
+            }
+            
+            const complexityLabel = getComplexityLabel(complexity);
+            let fullPrompt = `${basePrompt}，${complexityLabel}程度的设计，`;
+            
+            // 根据风格添加特定描述
+            switch (selectedStyle) {
+                case 'cute':
+                    fullPrompt += '圆润的线条，温暖的色彩，充满亲和力';
+                    break;
+                case 'modern':
+                    fullPrompt += '简洁的几何形状，清晰的轮廓，现代感十足';
+                    break;
+                case 'vintage':
+                    fullPrompt += '复古色调，经典元素，怀旧风格';
+                    break;
+                case 'cartoon':
+                    fullPrompt += '夸张的表情，鲜艳的色彩，卡通风格';
+                    break;
+                case 'minimalist':
+                    fullPrompt += '极简设计，单一色彩，简洁明了';
+                    break;
+                case '3d':
+                    fullPrompt += '立体效果，光影层次，3D渲染风格';
+                    break;
+            }
+            
+            return fullPrompt;
+        }
+
+        function updatePrompt() {
+            if (uploadedData) {
+                const prompt = createPrompt();
+                document.getElementById('generatedPrompt').value = prompt;
+                generatedPrompt = prompt;
+            }
+        }
+
+        function generateEmoji() {
+            const btn = document.getElementById('generateBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+            progressBar.classList.remove('hidden');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        // 模拟生成结果
+                        const count = parseInt(document.getElementById('imageCount').value);
+                        generatedImages = [];
+                        
+                        for (let i = 0; i < count; i++) {
+                            generatedImages.push({
+                                id: `emoji_${Date.now()}_${i}`,
+                                url: `https://via.placeholder.com/512x512/3b82f6/ffffff?text=Emoji+${i+1}`,
+                                prompt: generatedPrompt,
+                                createdAt: new Date().toISOString(),
+                                size: document.getElementById('imageSize').value,
+                                tags: ['个性化', '品牌', 'Emoji']
+                            });
+                        }
+                        
+                        btn.disabled = false;
+                        btn.textContent = '🎨 开始生成';
+                        progressBar.classList.add('hidden');
+                        showAlert(`成功生成 ${count} 个个性化Emoji！`, 'success');
+                        goToStep('gallery');
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        function goToStep(step) {
+            // 隐藏所有步骤
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // 显示目标步骤
+            document.getElementById(step + 'Step').classList.remove('hidden');
+            
+            // 更新当前步骤
+            currentStep = step;
+            updateStepIndicator();
+            
+            // 特殊处理
+            if (step === 'generate') {
+                document.getElementById('currentPrompt').textContent = generatedPrompt;
+            } else if (step === 'gallery') {
+                updateGallery();
+            }
+        }
+
+        function updateStepIndicator() {
+            const steps = ['upload', 'build', 'generate', 'gallery'];
+            const currentIndex = steps.indexOf(currentStep);
+            
+            // 更新步骤状态
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index < currentIndex) {
+                    step.classList.add('completed');
+                } else if (index === currentIndex) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // 更新进度条
+            const progress = (currentIndex / (steps.length - 1)) * 100;
+            document.getElementById('progressLine').style.width = progress + '%';
+        }
+
+        function updateGallery() {
+            const container = document.getElementById('galleryContainer');
+            
+            if (generatedImages.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 3rem; margin-bottom: 20px;">🎨</div>
+                        <h3>暂无生成的Emoji</h3>
+                        <p>请先完成前面的步骤生成Emoji</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="gallery">
+                        ${generatedImages.map((image, index) => `
+                            <div class="gallery-item">
+                                <img src="${image.url}" alt="Emoji ${index + 1}" class="gallery-image">
+                                <div class="gallery-info">
+                                    <div class="gallery-title">Emoji ${index + 1}</div>
+                                    <div class="gallery-description">${image.size} • ${new Date(image.createdAt).toLocaleDateString()}</div>
+                                    <div class="gallery-actions">
+                                        <button class="btn btn-sm" onclick="downloadImage('${image.url}', ${index})">下载</button>
+                                        <button class="btn btn-sm btn-outline" onclick="shareImage('${image.url}')">分享</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function downloadImage(url, index) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `brand-emoji-${index + 1}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showAlert('下载成功！', 'success');
+        }
+
+        function shareImage(url) {
+            if (navigator.share) {
+                navigator.share({
+                    title: '我的个性化Emoji',
+                    text: '查看我生成的个性化Emoji',
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url);
+                showAlert('链接已复制到剪贴板', 'success');
+            }
+        }
+
+        function getStyleLabel(style) {
+            const labels = {
+                cute: '可爱风格',
+                modern: '现代简约',
+                vintage: '复古经典',
+                cartoon: '卡通动漫',
+                minimalist: '极简主义',
+                '3d': '3D立体'
+            };
+            return labels[style] || '现代';
+        }
+
+        function getComplexityLabel(complexity) {
+            const labels = ['简单', '适中', '复杂', '非常复杂', '极度复杂'];
+            return labels[complexity - 1] || '适中';
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            const content = document.querySelector('.content');
+            content.insertBefore(alert, content.firstChild);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI服务统一测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .test-section h3 {
+            color: #555;
+            margin-top: 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .loading {
+            color: #007bff;
+            font-style: italic;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.loading {
+            background: #cce7ff;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI服务统一测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 服务状态检查</h3>
+            <button onclick="checkStatus()">检查AI服务状态</button>
+            <div id="statusResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 文本生成测试</h3>
+            <textarea id="textPrompt" placeholder="请输入文本生成提示词...">请介绍一下人工智能的发展历程</textarea>
+            <button onclick="testTextGeneration()">测试文本生成</button>
+            <div id="textResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 内容总结测试</h3>
+            <textarea id="summaryContent" placeholder="请输入需要总结的内容...">人工智能（Artificial Intelligence，AI）是计算机科学的一个分支，它企图了解智能的实质，并生产出一种新的能以人类智能相似的方式做出反应的智能机器。该领域的研究包括机器人、语言识别、图像识别、自然语言处理和专家系统等。人工智能从诞生以来，理论和技术日益成熟，应用领域也不断扩大，可以设想，未来人工智能带来的科技产品，将会是人类智慧的"容器"。</textarea>
+            <button onclick="testContentSummarization()">测试内容总结</button>
+            <div id="summaryResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 品牌分析测试</h3>
+            <textarea id="brandContent" placeholder="请输入品牌内容...">我们是一家专注于健康食品的初创公司，主打有机、天然、无添加的产品理念。我们的目标客户是25-40岁的都市白领，他们注重健康生活方式，愿意为优质产品付费。我们的品牌调性是专业、可信、温暖，希望通过优质的产品和服务，成为消费者健康生活的伙伴。</textarea>
+            <button onclick="testBrandAnalysis()">测试品牌分析</button>
+            <div id="brandResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Emoji推荐测试</h3>
+            <textarea id="emojiContext" placeholder="请输入内容场景...">发布一条关于健身成果的朋友圈</textarea>
+            <button onclick="testEmojiRecommendation()">测试Emoji推荐</button>
+            <div id="emojiResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>6. 创意内容生成测试</h3>
+            <textarea id="creativePrompt" placeholder="请输入创意提示词...">行业：健康食品，场景：社交媒体营销，受众：25-40岁都市白领，痛点：工作忙碌没时间准备健康餐，解决方案：即食有机营养餐，语气：专业可信</textarea>
+            <button onclick="testCreativeContent()">测试创意内容生成</button>
+            <div id="creativeResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>7. 内容适配测试</h3>
+            <textarea id="adaptContent" placeholder="请输入原始内容...">我们的新产品采用有机原料，无添加防腐剂，富含多种维生素和矿物质，是都市白领的健康选择。</textarea>
+            <button onclick="testContentAdaptation()">测试内容适配</button>
+            <div id="adaptResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟AI服务调用
+        const mockAIService = {
+            async checkStatus() {
+                return {
+                    success: true,
+                    available: true,
+                    provider: 'openai',
+                    message: 'AI服务正常运行'
+                };
+            },
+
+            async generateText(request) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return {
+                    success: true,
+                    data: {
+                        data: {
+                            choices: [{
+                                message: {
+                                    content: `基于您的提示词"${request.messages[0].content}"，我生成了以下内容：\n\n这是一个模拟的AI文本生成结果。在实际环境中，这里会返回真实的AI生成内容。生成的内容会根据提示词的不同而变化，支持多种格式和风格。`
+                                }
+                            }]
+                        }
+                    },
+                    provider: 'openai',
+                    timestamp: new Date().toISOString()
+                };
+            },
+
+            async summarizeContent(content) {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                return {
+                    success: true,
+                    data: {
+                        data: {
+                            choices: [{
+                                message: {
+                                    content: `内容概要：${content.substring(0, 50)}...\n\n核心观点：这是一个关于AI发展的内容\n\n关键要点：\n1. AI是计算机科学的重要分支\n2. 应用领域广泛\n3. 技术日益成熟\n\n应用价值：为AI技术发展提供参考`
+                                }
+                            }]
+                        }
+                    },
+                    provider: 'openai',
+                    timestamp: new Date().toISOString()
+                };
+            },
+
+            async analyzeBrandContent(content) {
+                await new Promise(resolve => setTimeout(resolve, 1200));
+                return {
+                    success: true,
+                    data: {
+                        data: {
+                            choices: [{
+                                message: {
+                                    content: JSON.stringify({
+                                        brandKeywords: ["健康食品", "有机", "天然", "无添加"],
+                                        productKeywords: ["有机原料", "维生素", "矿物质", "即食"],
+                                        targetAudience: ["25-40岁", "都市白领", "健康意识强"],
+                                        brandStory: ["健康生活伙伴", "优质产品", "专业服务"],
+                                        competitiveAdvantage: ["有机认证", "无添加", "便利性"],
+                                        tone: "专业、可信、温暖",
+                                        suggestions: ["加强社交媒体营销", "突出便利性", "强调健康价值"]
+                                    }, null, 2)
+                                }
+                            }]
+                        }
+                    },
+                    provider: 'openai',
+                    timestamp: new Date().toISOString()
+                };
+            },
+
+            async recommendEmojis(context) {
+                await new Promise(resolve => setTimeout(resolve, 600));
+                return {
+                    success: true,
+                    data: {
+                        data: {
+                            choices: [{
+                                message: {
+                                    content: `推荐emoji: 💪 🏃‍♂️ 🔥 ⭐ 🎯\n\n推荐理由:\n💪 表示力量和坚持，适合健身主题\n🏃‍♂️ 代表运动和活力\n🔥 表示热情和动力\n⭐ 代表成就和亮点\n🎯 表示目标和专注`
+                                }
+                            }]
+                        }
+                    },
+                    provider: 'openai',
+                    timestamp: new Date().toISOString()
+                };
+            },
+
+            async generateCreativeContent(prompt, type = 'text') {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                return {
+                    success: true,
+                    data: {
+                        data: {
+                            choices: [{
+                                message: {
+                                    content: `【健身成果分享】\n\n💪 坚持健身3个月，终于看到成果了！\n\n从最初的"明天再开始"到现在的"每天必练"，这个过程让我明白了一个道理：\n\n🏃‍♂️ 运动不只是为了身材，更是为了更好的自己\n\n🔥 当你真正开始行动，全世界都会为你让路\n\n现在每天精力充沛，工作效率也提高了不少。\n\n你也有类似的经历吗？一起来分享你的健身故事吧！ 👇\n\n#健身 #坚持 #改变 #健康生活`
+                                }
+                            }]
+                        }
+                    },
+                    provider: 'openai',
+                    timestamp: new Date().toISOString()
+                };
+            },
+
+            async adaptContent(content, platforms) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const results = platforms.map(platform => ({
+                    platform,
+                    content: `【${platform}适配版】\n\n${content}\n\n${platform === 'weibo' ? '#健康食品# #有机生活#' : platform === 'wechat' ? '关注我们，获取更多健康资讯' : '了解更多产品信息'}`,
+                    success: true
+                }));
+
+                return {
+                    success: true,
+                    data: { results },
+                    provider: 'openai',
+                    timestamp: new Date().toISOString()
+                };
+            }
+        };
+
+        // 通用结果显示函数
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // 通用加载状态函数
+        function setLoading(elementId, isLoading) {
+            const element = document.getElementById(elementId);
+            if (isLoading) {
+                element.className = 'result loading';
+                element.textContent = '正在处理中...';
+            }
+        }
+
+        // 1. 服务状态检查
+        async function checkStatus() {
+            setLoading('statusResult', true);
+            try {
+                const response = await mockAIService.checkStatus();
+                showResult('statusResult', response);
+            } catch (error) {
+                showResult('statusResult', { error: error.message }, true);
+            }
+        }
+
+        // 2. 文本生成测试
+        async function testTextGeneration() {
+            const prompt = document.getElementById('textPrompt').value;
+            if (!prompt.trim()) {
+                alert('请输入提示词');
+                return;
+            }
+
+            setLoading('textResult', true);
+            try {
+                const response = await mockAIService.generateText({
+                    messages: [{ role: 'user', content: prompt }],
+                    model: 'gpt-4o',
+                    temperature: 0.7,
+                    maxTokens: 1000
+                });
+                showResult('textResult', response);
+            } catch (error) {
+                showResult('textResult', { error: error.message }, true);
+            }
+        }
+
+        // 3. 内容总结测试
+        async function testContentSummarization() {
+            const content = document.getElementById('summaryContent').value;
+            if (!content.trim()) {
+                alert('请输入需要总结的内容');
+                return;
+            }
+
+            setLoading('summaryResult', true);
+            try {
+                const response = await mockAIService.summarizeContent(content);
+                showResult('summaryResult', response);
+            } catch (error) {
+                showResult('summaryResult', { error: error.message }, true);
+            }
+        }
+
+        // 4. 品牌分析测试
+        async function testBrandAnalysis() {
+            const content = document.getElementById('brandContent').value;
+            if (!content.trim()) {
+                alert('请输入品牌内容');
+                return;
+            }
+
+            setLoading('brandResult', true);
+            try {
+                const response = await mockAIService.analyzeBrandContent(content);
+                showResult('brandResult', response);
+            } catch (error) {
+                showResult('brandResult', { error: error.message }, true);
+            }
+        }
+
+        // 5. Emoji推荐测试
+        async function testEmojiRecommendation() {
+            const context = document.getElementById('emojiContext').value;
+            if (!context.trim()) {
+                alert('请输入内容场景');
+                return;
+            }
+
+            setLoading('emojiResult', true);
+            try {
+                const response = await mockAIService.recommendEmojis(context);
+                showResult('emojiResult', response);
+            } catch (error) {
+                showResult('emojiResult', { error: error.message }, true);
+            }
+        }
+
+        // 6. 创意内容生成测试
+        async function testCreativeContent() {
+            const prompt = document.getElementById('creativePrompt').value;
+            if (!prompt.trim()) {
+                alert('请输入创意提示词');
+                return;
+            }
+
+            setLoading('creativeResult', true);
+            try {
+                const response = await mockAIService.generateCreativeContent(prompt, 'text');
+                showResult('creativeResult', response);
+            } catch (error) {
+                showResult('creativeResult', { error: error.message }, true);
+            }
+        }
+
+        // 7. 内容适配测试
+        async function testContentAdaptation() {
+            const content = document.getElementById('adaptContent').value;
+            if (!content.trim()) {
+                alert('请输入原始内容');
+                return;
+            }
+
+            setLoading('adaptResult', true);
+            try {
+                const response = await mockAIService.adaptContent(content, ['weibo', 'wechat', 'douyin']);
+                showResult('adaptResult', response);
+            } catch (error) {
+                showResult('adaptResult', { error: error.message }, true);
+            }
+        }
+
+        // 页面加载时自动检查状态
+        window.onload = function() {
+            checkStatus();
+        };
+    </script>
+</body>
+</html> 

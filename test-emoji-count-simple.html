@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji数量选择测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .image-item {
+            text-align: center;
+        }
+        .image-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Emoji数量选择功能测试</h1>
+        
+        <div class="test-section">
+            <h3>📝 测试配置</h3>
+            <div class="form-group">
+                <label for="prompt">提示词:</label>
+                <textarea id="prompt" rows="3" placeholder="输入emoji生成提示词...">一个可爱的卡通猫咪，面带微笑，眼睛大大的，适合品牌使用</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="emojiCount">生成数量:</label>
+                <select id="emojiCount">
+                    <option value="1">1个</option>
+                    <option value="2">2个</option>
+                    <option value="3">3个</option>
+                    <option value="4">4个</option>
+                    <option value="5">5个</option>
+                </select>
+            </div>
+            
+            <button onclick="testGenerate()" id="generateBtn">🚀 开始生成</button>
+            <button onclick="clearResults()">🗑️ 清除结果</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 生成状态</h3>
+            <div id="status" class="result">等待开始生成...</div>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div id="progressText">0%</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🖼️ 生成结果</h3>
+            <div id="results" class="image-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        let isGenerating = false;
+        
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `result ${type}`;
+        }
+        
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            progressBar.style.width = `${percent}%`;
+            progressText.textContent = `${Math.round(percent)}%`;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            updateStatus('结果已清除', 'success');
+            updateProgress(0);
+        }
+        
+        async function testGenerate() {
+            if (isGenerating) return;
+            
+            const prompt = document.getElementById('prompt').value;
+            const emojiCount = parseInt(document.getElementById('emojiCount').value);
+            
+            if (!prompt.trim()) {
+                updateStatus('请输入提示词', 'error');
+                return;
+            }
+            
+            isGenerating = true;
+            document.getElementById('generateBtn').disabled = true;
+            clearResults();
+            
+            updateStatus('正在生成中...', 'loading');
+            updateProgress(0);
+            
+            try {
+                const requestData = {
+                    provider: 'openai',
+                    action: 'generate-image',
+                    prompt: prompt,
+                    n: emojiCount,
+                    size: '512x512',
+                    response_format: 'url'
+                };
+                
+                console.log('发送请求:', requestData);
+                
+                const response = await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData),
+                });
+                
+                console.log('响应状态:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('响应数据:', data);
+                
+                if (data.success && data.data?.images) {
+                    updateStatus(`成功生成 ${data.data.images.length} 个emoji!`, 'success');
+                    updateProgress(100);
+                    
+                    const resultsContainer = document.getElementById('results');
+                    data.data.images.forEach((image, index) => {
+                        const imageItem = document.createElement('div');
+                        imageItem.className = 'image-item';
+                        imageItem.innerHTML = `
+                            <img src="${image.url}" alt="生成的emoji ${index + 1}" />
+                            <p>Emoji ${index + 1}</p>
+                        `;
+                        resultsContainer.appendChild(imageItem);
+                    });
+                } else {
+                    throw new Error(data.error || data.message || '生成失败');
+                }
+                
+            } catch (error) {
+                console.error('生成失败:', error);
+                updateStatus(`生成失败: ${error.message}`, 'error');
+                updateProgress(0);
+            } finally {
+                isGenerating = false;
+                document.getElementById('generateBtn').disabled = false;
+            }
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('页面已加载，可以开始测试', 'success');
+        });
+    </script>
+</body>
+</html> 

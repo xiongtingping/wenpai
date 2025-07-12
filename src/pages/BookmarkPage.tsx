@@ -597,6 +597,7 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
       <PageNavigation
         title="我的资料库"
         description="统一管理网络收藏、内容提取和文案管理"
+        showAdaptButton={false}
       />
 
       <div className="container mx-auto px-4 py-8">

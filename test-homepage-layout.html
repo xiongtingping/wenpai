@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页布局测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #374151;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 400px;
+        }
+        
+        .footer {
+            background: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <div>视口高度: <span id="viewport-height"></span>px</div>
+        <div>文档高度: <span id="document-height"></span>px</div>
+        <div>滚动位置: <span id="scroll-position"></span>px</div>
+    </div>
+    
+    <div class="test-container">
+        <div class="section hero">
+            英雄区域 (Hero Section)
+        </div>
+        
+        <div class="section">
+            信任区域 (Trust Section)
+        </div>
+        
+        <div class="section">
+            工作原理 (How It Works)
+        </div>
+        
+        <div class="section">
+            功能特性 (Features Section)
+        </div>
+        
+        <div class="section">
+            用户评价 (Testimonials Section)
+        </div>
+        
+        <div class="section">
+            定价方案 (Pricing Section)
+        </div>
+        
+        <div class="section">
+            行动召唤 (CTA Section)
+        </div>
+    </div>
+    
+    <div class="footer">
+        页脚区域 (Footer)
+    </div>
+    
+    <script>
+        function updateDebugInfo() {
+            document.getElementById('viewport-height').textContent = window.innerHeight;
+            document.getElementById('document-height').textContent = document.documentElement.scrollHeight;
+            document.getElementById('scroll-position').textContent = window.scrollY;
+        }
+        
+        window.addEventListener('load', updateDebugInfo);
+        window.addEventListener('resize', updateDebugInfo);
+        window.addEventListener('scroll', updateDebugInfo);
+        
+        // 检查是否有任何元素被隐藏或溢出
+        function checkLayoutIssues() {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                const rect = section.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                const isOverflowing = rect.width > window.innerWidth;
+                
+                if (!isVisible && index < sections.length - 1) {
+                    console.warn(`Section ${index + 1} is not visible`);
+                }
+                
+                if (isOverflowing) {
+                    console.warn(`Section ${index + 1} is overflowing`);
+                }
+            });
+        }
+        
+        setTimeout(checkLayoutIssues, 1000);
+    </script>
+</body>
+</html> 

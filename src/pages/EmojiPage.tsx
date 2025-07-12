@@ -1,5 +1,5 @@
 /**
- * Noto风格Emoji生成器页面
+ * Emoji生成器页面
  * 基于Google Noto Emoji项目的设计理念
  * 支持Unicode标准的emoji分类和生成
  */
@@ -23,10 +23,8 @@ import {
   Search, 
   Filter, 
   Sparkles, 
-  Wand2,
   Grid3X3,
   Shuffle,
-  Package,
   Zap,
   Settings,
   RefreshCw,
@@ -39,26 +37,14 @@ import {
   Upload,
   Share2,
   Info,
-  Trash2
+  Trash2,
+  Building2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { notoEmojiService, UNICODE_EMOJI_GROUPS, SKIN_TONE_MODIFIERS, NOTO_STYLES, type NotoEmojiData } from '@/services/notoEmojiService';
-import { callOpenAIDevProxy } from '@/api/devApiProxy';
-
-/**
- * 生成参数接口
- */
-interface GenerationParams {
-  style: keyof typeof NOTO_STYLES;
-  size: number;
-  format: 'png' | 'svg' | 'webp';
-  skinTone: keyof typeof SKIN_TONE_MODIFIERS | '';
-  background: 'transparent' | 'white' | 'custom';
-  customBg?: string;
-  padding: number;
-  effects: string[];
-}
+import aiService from '@/api/aiService';
+import PersonalizedEmojiGenerator from '@/components/creative/PersonalizedEmojiGenerator';
 
 /**
  * Emoji生成器主组件
@@ -80,17 +66,6 @@ const EmojiPage: React.FC = () => {
   const [isRecommending, setIsRecommending] = useState(false);
   const [recommendedEmojis, setRecommendedEmojis] = useState<string[]>([]);
   const [recommendationReason, setRecommendationReason] = useState('');
-  
-  // 生成参数
-  const [generationParams, setGenerationParams] = useState<GenerationParams>({
-    style: 'color',
-    size: 128,
-    format: 'png',
-    skinTone: '',
-    background: 'transparent',
-    padding: 8,
-    effects: []
-  });
 
   const { toast } = useToast();
 
@@ -136,8 +111,8 @@ const EmojiPage: React.FC = () => {
       let emojiToCopy = emoji.unicode;
       
       // 应用肤色修饰符
-      if (generationParams.skinTone && emoji.hasSkinTone) {
-        emojiToCopy = notoEmojiService.applySkinToneModifier(emoji.unicode, generationParams.skinTone);
+      if (emoji.hasSkinTone) {
+        emojiToCopy = notoEmojiService.applySkinToneModifier(emoji.unicode, 'medium'); // 默认肤色
       }
       
       await navigator.clipboard.writeText(emojiToCopy);
@@ -159,7 +134,7 @@ const EmojiPage: React.FC = () => {
    */
   const downloadEmoji = async (emoji: NotoEmojiData) => {
     try {
-      const imageUrl = notoEmojiService.generateEmojiUrl(emoji.codepoint, generationParams.style, generationParams.size);
+      const imageUrl = notoEmojiService.generateEmojiUrl(emoji.codepoint, 'color', 128); // 默认风格和尺寸
       const response = await fetch(imageUrl);
       
       if (!response.ok) {
@@ -170,7 +145,7 @@ const EmojiPage: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${emoji.name.replace(/\s+/g, '-')}-${emoji.unicode}-noto-${generationParams.style}.${generationParams.format}`;
+      a.download = `${emoji.name.replace(/\s+/g, '-')}-${emoji.unicode}-noto-color.png`; // 默认风格和格式
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -215,11 +190,11 @@ const EmojiPage: React.FC = () => {
       
       // 批量生成URLs
       const codepoints = filteredEmojis.map(emoji => emoji.codepoint);
-      const urls = notoEmojiService.batchGenerateUrls(codepoints, generationParams.style, generationParams.size);
+      const urls = notoEmojiService.batchGenerateUrls(codepoints, 'color', 128); // 默认风格和尺寸
       
       toast({
         title: "批量生成完成",
-        description: `已为 ${urls.length} 个emoji生成 ${NOTO_STYLES[generationParams.style].name} 风格图片`,
+        description: `已为 ${urls.length} 个emoji生成图片`,
       });
     } catch (err) {
       toast({
@@ -236,8 +211,8 @@ const EmojiPage: React.FC = () => {
    * 应用肤色修饰符
    */
   const applyModifier = (emoji: NotoEmojiData) => {
-    if (generationParams.skinTone && emoji.hasSkinTone) {
-      return notoEmojiService.applySkinToneModifier(emoji.unicode, generationParams.skinTone);
+    if (emoji.hasSkinTone) {
+      return notoEmojiService.applySkinToneModifier(emoji.unicode, 'medium'); // 默认肤色
     }
     return emoji.unicode;
   };
@@ -289,7 +264,7 @@ const EmojiPage: React.FC = () => {
 推荐理由: 详细说明每个emoji的使用场景和情感表达效果`
       }];
 
-      const response = await callOpenAIDevProxy(messages, 'gpt-4o', 0.7, 300);
+      const response = await aiService.recommendEmojis(contentContext);
       
       if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
         const content = response.data.data.choices[0].message.content;
@@ -352,7 +327,7 @@ const EmojiPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* 页面导航 */}
       <PageNavigation
-        title="Noto Emoji 生成器"
+        title="Emoji 生成器"
         description="专业emoji生成工具"
         showAdaptButton={false}
         actions={<div></div>}
@@ -388,7 +363,7 @@ const EmojiPage: React.FC = () => {
 
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="gallery" className="flex items-center gap-2">
               <Grid3X3 className="w-4 h-4" />
               Emoji图库
@@ -397,17 +372,9 @@ const EmojiPage: React.FC = () => {
               <Sparkles className="w-4 h-4" />
               AI推荐
             </TabsTrigger>
-            <TabsTrigger value="generator" className="flex items-center gap-2">
-              <Wand2 className="w-4 h-4" />
-              风格生成器
-            </TabsTrigger>
-            <TabsTrigger value="variants" className="flex items-center gap-2">
-              <Palette className="w-4 h-4" />
-              变体浏览器
-            </TabsTrigger>
-            <TabsTrigger value="tools" className="flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              开发工具
+            <TabsTrigger value="brand-emoji" className="flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
+              品牌Emoji生成器
             </TabsTrigger>
           </TabsList>
 
@@ -713,228 +680,20 @@ const EmojiPage: React.FC = () => {
             </Card>
           </TabsContent>
 
-          {/* 风格生成器 */}
-          <TabsContent value="generator" className="space-y-6">
+          {/* 品牌Emoji生成器 */}
+          <TabsContent value="brand-emoji" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Wand2 className="w-5 h-5" />
-                  Noto Emoji 生成器
+                  <Building2 className="w-5 h-5" />
+                  品牌Emoji生成器
                 </CardTitle>
+                <CardDescription>
+                  输入品牌角色和品牌名，AI将为您生成专属的品牌emoji
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">风格选择</Label>
-                    <div className="grid grid-cols-1 gap-2">
-                      {Object.entries(NOTO_STYLES).map(([key, style]) => (
-                        <Button
-                          key={key}
-                          variant={generationParams.style === key ? 'default' : 'outline'}
-                          className="h-auto p-4 text-left"
-                          onClick={() => setGenerationParams(prev => ({ ...prev, style: key as keyof typeof NOTO_STYLES }))}
-                        >
-                          <div>
-                            <div className="font-medium text-sm">{style.name}</div>
-                            <div className="text-xs text-gray-500">{style.description}</div>
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">肤色修饰符</Label>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant={generationParams.skinTone === '' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setGenerationParams(prev => ({ ...prev, skinTone: '' }))}
-                      >
-                        默认
-                      </Button>
-                      {Object.entries(SKIN_TONE_MODIFIERS).map(([key, tone]) => (
-                        <Button
-                          key={key}
-                          variant={generationParams.skinTone === key ? 'default' : 'outline'}
-                          size="sm"
-                          className="flex items-center gap-2"
-                          onClick={() => setGenerationParams(prev => ({ ...prev, skinTone: key as keyof typeof SKIN_TONE_MODIFIERS }))}
-                        >
-                          <div 
-                            className="w-4 h-4 rounded-full border"
-                            style={{ backgroundColor: `#${tone.hex}` }}
-                          />
-                          <span>{tone.name}</span>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">尺寸: {generationParams.size}px</Label>
-                    <Slider
-                      value={[generationParams.size]}
-                      onValueChange={([value]) => setGenerationParams(prev => ({ ...prev, size: value }))}
-                      min={32}
-                      max={512}
-                      step={32}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">格式</Label>
-                    <Select 
-                      value={generationParams.format} 
-                      onValueChange={(value: 'png' | 'svg' | 'webp') => 
-                        setGenerationParams(prev => ({ ...prev, format: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="png">PNG (推荐)</SelectItem>
-                        <SelectItem value="svg">SVG (矢量)</SelectItem>
-                        <SelectItem value="webp">WebP (小尺寸)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">背景</Label>
-                    <Select 
-                      value={generationParams.background} 
-                      onValueChange={(value: 'transparent' | 'white' | 'custom') => 
-                        setGenerationParams(prev => ({ ...prev, background: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="transparent">透明背景</SelectItem>
-                        <SelectItem value="white">白色背景</SelectItem>
-                        <SelectItem value="custom">自定义颜色</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {generationParams.background === 'custom' && (
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">自定义背景色</Label>
-                    <Input
-                      type="color"
-                      value={generationParams.customBg || '#ffffff'}
-                      onChange={(e) => setGenerationParams(prev => ({ ...prev, customBg: e.target.value }))}
-                      className="w-20 h-10"
-                    />
-                  </div>
-                )}
-
-                <div className="flex justify-center">
-                  <Button size="lg" onClick={generateBatchEmojis} disabled={isGenerating}>
-                    {isGenerating ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        生成中...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        批量生成Noto风格Emoji
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 变体浏览器 */}
-          <TabsContent value="variants" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="w-5 h-5" />
-                  Emoji变体浏览器
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🎨</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">肤色和性别变体浏览</h3>
-                  <p className="text-gray-500 mb-4">浏览emoji的所有肤色和性别变体</p>
-                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                    功能开发中
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* 开发工具 */}
-          <TabsContent value="tools" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5" />
-                  开发者工具
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button
-                    variant="outline"
-                    className="h-auto p-4 text-left"
-                    onClick={exportEmojiData}
-                  >
-                    <div>
-                      <div className="font-medium">导出Emoji数据</div>
-                      <div className="text-sm text-gray-500">下载完整的emoji数据集</div>
-                    </div>
-                  </Button>
-                  
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="h-auto p-4 text-left">
-                        <div>
-                          <div className="font-medium">API信息</div>
-                          <div className="text-sm text-gray-500">查看API使用方法</div>
-                        </div>
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Noto Emoji API</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="font-medium mb-2">基础用法</h4>
-                          <code className="text-sm bg-gray-100 p-2 rounded block">
-                            {`import { notoEmojiService } from '@/services/notoEmojiService';`}
-                          </code>
-                        </div>
-                        <div>
-                          <h4 className="font-medium mb-2">获取emoji数据</h4>
-                          <code className="text-sm bg-gray-100 p-2 rounded block">
-                            {`const emojis = notoEmojiService.getAllEmojis();`}
-                          </code>
-                        </div>
-                        <div>
-                          <h4 className="font-medium mb-2">生成图片URL</h4>
-                          <code className="text-sm bg-gray-100 p-2 rounded block">
-                            {`const url = notoEmojiService.generateEmojiUrl('1f600', 'color', 128);`}
-                          </code>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                <PersonalizedEmojiGenerator />
               </CardContent>
             </Card>
           </TabsContent>
