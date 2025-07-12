@@ -48,14 +48,14 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
   // 尝试多个API源，确保能够获取到真实数据
   const apiSources = [
     {
-      name: 'cors-proxy',
-      url: 'https://cors-anywhere.herokuapp.com/https://api-hot.imsyy.top/all',
+      name: 'allorigins-proxy',
+      url: 'https://api.allorigins.win/get?url=https://api-hot.imsyy.top/all',
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      }
+        'Accept': 'application/json'
+      },
+      isAllOrigins: true
     },
     {
       name: 'direct-api',
@@ -98,7 +98,20 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
 
       const data = await response.json();
       
-      // 检查响应格式
+      // 处理allorigins代理的响应格式
+      if (source.isAllOrigins && data.contents) {
+        try {
+          const parsedContents = JSON.parse(data.contents);
+          if (parsedContents.code === 200 && parsedContents.data) {
+            console.log(`✅ 成功使用API源: ${source.name}`);
+            return parsedContents;
+          }
+        } catch (parseError) {
+          console.error('解析allorigins响应失败:', parseError);
+        }
+      }
+      
+      // 检查标准响应格式
       if (data.code === 200 && data.data) {
         console.log(`✅ 成功使用API源: ${source.name}`);
         return data;
@@ -127,14 +140,14 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
   // 尝试多个API源，确保能够获取到真实数据
   const apiSources = [
     {
-      name: 'cors-proxy',
-      url: `https://cors-anywhere.herokuapp.com/https://api-hot.imsyy.top/${platform}`,
+      name: 'allorigins-proxy',
+      url: `https://api.allorigins.win/get?url=https://api-hot.imsyy.top/${platform}`,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      }
+        'Accept': 'application/json'
+      },
+      isAllOrigins: true
     },
     {
       name: 'direct-api',
@@ -182,24 +195,35 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
         throw new Error('API返回空数据');
       }
 
+      // 处理allorigins代理的响应格式
+      let processedData = data;
+      if (source.isAllOrigins && data.contents) {
+        try {
+          processedData = JSON.parse(data.contents);
+        } catch (parseError) {
+          console.error('解析allorigins响应失败:', parseError);
+          continue; // 尝试下一个源
+        }
+      }
+
       // 处理不同的响应格式
-      if (data.code === 200 && Array.isArray(data.data)) {
+      if (processedData.code === 200 && Array.isArray(processedData.data)) {
         // 标准格式：{ code: 200, data: [...] }
         console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
-        return data.data.map((item: any) => ({
+        return processedData.data.map((item: any) => ({
           ...item,
           platform // 添加平台标识
         }));
-      } else if (Array.isArray(data)) {
+      } else if (Array.isArray(processedData)) {
         // 直接返回数组格式
         console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
-        return data.map((item: any) => ({
+        return processedData.map((item: any) => ({
           ...item,
           platform // 添加平台标识
         }));
-      } else if (data.code === 200 && typeof data.data === 'object') {
+      } else if (processedData.code === 200 && typeof processedData.data === 'object') {
         // 对象格式，尝试提取数组
-        const responseData = data.data;
+        const responseData = processedData.data;
         if (Array.isArray(responseData)) {
           console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
           return responseData.map((item: any) => ({
@@ -217,8 +241,8 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
             }));
           }
         }
-      } else if (data.error) {
-        throw new Error(data.error);
+      } else if (processedData.error) {
+        throw new Error(processedData.error);
       }
       
       console.warn(`平台${platform}返回数据格式异常:`, data);
