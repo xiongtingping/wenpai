@@ -6,7 +6,7 @@ import React from 'react';
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="bg-white py-24 text-center">
+    <section className="bg-white py-20 text-center">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-5xl font-bold leading-tight mb-4">
           让内容创作更 <span className="text-blue-600 font-extrabold">智能</span>、更 <span className="text-pink-500 font-extrabold">高效</span>
