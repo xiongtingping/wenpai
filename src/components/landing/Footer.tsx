@@ -72,7 +72,7 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style>{`
         .footer-link {
           @apply text-gray-600 hover:text-blue-600 hover:underline transition-all duration-200 flex items-center;
         }
