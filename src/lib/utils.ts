@@ -25,6 +25,57 @@ export function getOrCreateTempUserId(): string {
 }
 
 /**
+ * 验证推荐人ID格式
+ * @param referrerId 推荐人ID
+ * @returns 是否有效
+ */
+export function validateReferrerId(referrerId: string): boolean {
+  if (!referrerId || typeof referrerId !== 'string') {
+    return false;
+  }
+  
+  // 基本格式验证：6-20位字母数字下划线横线
+  const formatRegex = /^[a-zA-Z0-9_-]{6,20}$/;
+  if (!formatRegex.test(referrerId)) {
+    return false;
+  }
+  
+  // 不能是纯数字
+  if (/^\d+$/.test(referrerId)) {
+    return false;
+  }
+  
+  // 不能包含连续的特殊字符
+  if (/[_-]{2,}/.test(referrerId)) {
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * 检查是否已经处理过推荐奖励
+ * @param referrerId 推荐人ID
+ * @returns 是否已处理
+ */
+export function hasProcessedReferral(referrerId: string): boolean {
+  const processedReferrals = JSON.parse(localStorage.getItem('processed_referrals') || '[]');
+  return processedReferrals.includes(referrerId);
+}
+
+/**
+ * 标记推荐奖励已处理
+ * @param referrerId 推荐人ID
+ */
+export function markReferralProcessed(referrerId: string): void {
+  const processedReferrals = JSON.parse(localStorage.getItem('processed_referrals') || '[]');
+  if (!processedReferrals.includes(referrerId)) {
+    processedReferrals.push(referrerId);
+    localStorage.setItem('processed_referrals', JSON.stringify(processedReferrals));
+  }
+}
+
+/**
  * 从URL参数中保存推荐人ID
  * @description 从URL的ref参数中提取推荐人ID并保存到本地存储
  * @returns 推荐人ID或null
@@ -34,8 +85,19 @@ export function saveReferrerFromURL(): string | null {
   const referrerId = urlParams.get('ref');
 
   if (referrerId && referrerId.trim()) {
-    // 验证推荐人ID格式（可以根据需要调整验证规则）
     const cleanReferrerId = referrerId.trim();
+    
+    // 验证推荐人ID格式
+    if (!validateReferrerId(cleanReferrerId)) {
+      console.warn('无效的推荐人ID格式:', cleanReferrerId);
+      return null;
+    }
+    
+    // 检查是否已处理过
+    if (hasProcessedReferral(cleanReferrerId)) {
+      console.log('推荐奖励已处理过:', cleanReferrerId);
+      return null;
+    }
     
     // 保存到localStorage
     localStorage.setItem('referrer-id', cleanReferrerId);

@@ -9,15 +9,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Copy, ExternalLink, Gift, User } from 'lucide-react';
+import { ArrowLeft, Copy, ExternalLink, Gift, User, TestTube, RefreshCw, Trash2 } from 'lucide-react';
 import { 
   getReferrerId, 
   getReferrerFromURL, 
   hasReferrerInURL, 
   clearReferrerId,
-  getOrCreateTempUserId 
+  getOrCreateTempUserId,
+  validateReferrerId,
+  hasProcessedReferral,
+  markReferralProcessed
 } from '@/lib/utils';
 import { useUserStore } from '@/store/userStore';
+import { Input } from '@/components/ui/input';
 
 /**
  * 推荐人ID测试页面组件
@@ -29,6 +33,9 @@ export default function ReferrerTestPage() {
   const [hasReferrerParam, setHasReferrerParam] = useState(false);
   const [tempUserId, setTempUserId] = useState<string>('');
   const [localStorageData, setLocalStorageData] = useState<Record<string, string>>({});
+  const [testReferrerId, setTestReferrerId] = useState<string>('');
+  const [validationResult, setValidationResult] = useState<boolean | null>(null);
+  const [processedStatus, setProcessedStatus] = useState<boolean | null>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -99,6 +106,71 @@ export default function ReferrerTestPage() {
    */
   const goToRegister = () => {
     navigate('/register');
+  };
+
+  /**
+   * 测试推荐人ID验证
+   */
+  const testValidation = () => {
+    if (!testReferrerId.trim()) {
+      toast({
+        title: "请输入测试ID",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const isValid = validateReferrerId(testReferrerId.trim());
+    setValidationResult(isValid);
+    
+    toast({
+      title: isValid ? "验证通过" : "验证失败",
+      description: isValid ? "推荐人ID格式正确" : "推荐人ID格式不正确",
+      variant: isValid ? "default" : "destructive"
+    });
+  };
+
+  /**
+   * 测试推荐奖励处理状态
+   */
+  const testProcessedStatus = () => {
+    if (!testReferrerId.trim()) {
+      toast({
+        title: "请输入测试ID",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const isProcessed = hasProcessedReferral(testReferrerId.trim());
+    setProcessedStatus(isProcessed);
+    
+    toast({
+      title: isProcessed ? "已处理" : "未处理",
+      description: isProcessed ? "该推荐奖励已处理过" : "该推荐奖励未处理",
+      variant: isProcessed ? "default" : "destructive"
+    });
+  };
+
+  /**
+   * 标记推荐奖励为已处理
+   */
+  const markAsProcessed = () => {
+    if (!testReferrerId.trim()) {
+      toast({
+        title: "请输入测试ID",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    markReferralProcessed(testReferrerId.trim());
+    updateAllData();
+    
+    toast({
+      title: "标记成功",
+      description: "推荐奖励已标记为已处理"
+    });
   };
 
   return (
@@ -202,37 +274,112 @@ export default function ReferrerTestPage() {
                 </CardContent>
               </Card>
 
-              {/* 操作按钮 */}
-              <Card className="border-2 border-green-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">操作</CardTitle>
+              {/* 测试功能区 */}
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TestTube className="h-5 w-5" />
+                    功能测试
+                  </CardTitle>
+                  <CardDescription>
+                    测试推荐人ID验证和处理状态功能
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button 
-                    onClick={updateAllData} 
-                    className="w-full"
-                    variant="outline"
-                  >
-                    刷新数据
-                  </Button>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-600 mb-2 block">测试推荐人ID</label>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        value={testReferrerId}
+                        onChange={(e) => setTestReferrerId(e.target.value)}
+                        placeholder="输入要测试的推荐人ID"
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={testValidation}
+                        size="sm"
+                        variant="outline"
+                      >
+                        验证格式
+                      </Button>
+                      <Button 
+                        onClick={testProcessedStatus}
+                        size="sm"
+                        variant="outline"
+                      >
+                        检查状态
+                      </Button>
+                      <Button 
+                        onClick={markAsProcessed}
+                        size="sm"
+                        variant="outline"
+                      >
+                        标记已处理
+                      </Button>
+                    </div>
+                  </div>
                   
-                  <Button 
-                    onClick={handleClearReferrer} 
-                    className="w-full"
-                    variant="destructive"
-                  >
-                    清除推荐人ID
-                  </Button>
+                  {validationResult !== null && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">验证结果:</span>
+                      <Badge variant={validationResult ? "default" : "destructive"}>
+                        {validationResult ? "有效" : "无效"}
+                      </Badge>
+                    </div>
+                  )}
                   
-                  <Button 
-                    onClick={goToRegister} 
-                    className="w-full"
-                  >
-                    跳转到注册页面
-                  </Button>
+                  {processedStatus !== null && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">处理状态:</span>
+                      <Badge variant={processedStatus ? "default" : "secondary"}>
+                        {processedStatus ? "已处理" : "未处理"}
+                      </Badge>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            </div>
+
+              {/* 操作按钮 */}
+              <div className="flex flex-wrap gap-2 mt-6">
+                <Button 
+                  onClick={updateAllData}
+                  variant="outline"
+                  size="sm"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  刷新数据
+                </Button>
+                <Button 
+                  onClick={() => {
+                    clearReferrer();
+                    updateAllData();
+                    toast({
+                      title: "已清除",
+                      description: "推荐人ID已清除"
+                    });
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  清除推荐人ID
+                </Button>
+                <Button 
+                  onClick={() => {
+                    localStorage.clear();
+                    updateAllData();
+                    toast({
+                      title: "已清除",
+                      description: "所有本地数据已清除"
+                    });
+                  }}
+                  variant="destructive"
+                  size="sm"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  清除所有数据
+                </Button>
+              </div>
 
             {/* 测试链接生成 */}
             <Card className="border-2 border-purple-200">

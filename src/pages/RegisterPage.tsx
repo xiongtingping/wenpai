@@ -51,7 +51,7 @@ export default function RegisterPage() {
   
   const { toast } = useToast();
   const { login } = useAuth();
-  const { processReferralReward } = useUserStore();
+  const { processReferralReward, trackInviteSuccess } = useUserStore();
   const navigate = useNavigate();
 
   /**
@@ -217,6 +217,11 @@ export default function RegisterPage() {
         // 处理推荐奖励
         processReferralReward();
         
+        // 记录邀请成功（如果有推荐人）
+        if (referrerId) {
+          trackInviteSuccess(referrerId, result.user.id || tempUserId);
+        }
+        
         toast({
           title: "注册成功",
           description: referrerId 
@@ -313,6 +318,11 @@ export default function RegisterPage() {
         
         // 处理推荐奖励
         processReferralReward();
+        
+        // 记录邀请成功（如果有推荐人）
+        if (referrerId) {
+          trackInviteSuccess(referrerId, result.user.id || tempUserId);
+        }
         
         toast({
           title: "注册成功",

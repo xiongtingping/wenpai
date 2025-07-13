@@ -5,7 +5,15 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { getOrCreateTempUserId, saveReferrerFromURL, getReferrerId, clearReferrerId } from '@/lib/utils';
+import { 
+  getOrCreateTempUserId, 
+  saveReferrerFromURL, 
+  getReferrerId, 
+  clearReferrerId,
+  validateReferrerId,
+  hasProcessedReferral,
+  markReferralProcessed
+} from '@/lib/utils';
 import UserDataService from '@/services/userDataService';
 import { sendReferralReward } from '@/api/referralService';
 
@@ -80,6 +88,10 @@ interface UserState {
   registerInvite: () => void;
   /** 检查并重置每周限制 */
   checkAndResetWeeklyLimit: () => void;
+  /** 跟踪邀请链接点击 */
+  trackInviteClick: (inviteCode: string) => void;
+  /** 跟踪邀请成功 */
+  trackInviteSuccess: (inviteCode: string, referredUserId: string) => void;
 }
 
 /**
@@ -154,33 +166,51 @@ export const useUserStore = create<UserState>()(
       processReferralReward: () => {
         const { referrerId, addUsageFromInvite, clearReferrer, recordUserAction, notifyReferrerReward } = get();
         
-        if (referrerId) {
-          // 1. 给被推荐人（当前用户）增加20次使用机会
-          addUsageFromInvite(20);
-          
-          // 2. 记录被推荐人奖励
-          recordUserAction('featureUsage', {
-            feature: 'referral_reward_received',
-            metadata: { 
-              referrerId,
-              rewardAmount: 20,
-              rewardType: 'usage_count',
-              role: 'referred_user'
-            }
-          });
-          
-          // 3. 通知后端给推荐人增加20次使用机会
-          notifyReferrerReward(referrerId);
-          
-          // 4. 清除推荐人ID，避免重复奖励
-          clearReferrer();
-          
-          console.log('推荐奖励已发放:', { 
-            referrerId, 
-            referredUserReward: 20,
-            referrerReward: 20 
-          });
+        if (!referrerId) {
+          console.log('没有推荐人ID，跳过奖励处理');
+          return;
         }
+        
+        // 验证推荐人ID格式
+        if (!validateReferrerId(referrerId)) {
+          console.warn('无效的推荐人ID格式:', referrerId);
+          return;
+        }
+        
+        // 检查是否已处理过
+        if (hasProcessedReferral(referrerId)) {
+          console.log('推荐奖励已处理过:', referrerId);
+          return;
+        }
+        
+        // 1. 给被推荐人（当前用户）增加20次使用机会
+        addUsageFromInvite(20);
+        
+        // 2. 记录被推荐人奖励
+        recordUserAction('featureUsage', {
+          feature: 'referral_reward_received',
+          metadata: { 
+            referrerId,
+            rewardAmount: 20,
+            rewardType: 'usage_count',
+            role: 'referred_user'
+          }
+        });
+        
+        // 3. 通知后端给推荐人增加20次使用机会
+        notifyReferrerReward(referrerId);
+        
+        // 4. 标记推荐奖励已处理
+        markReferralProcessed(referrerId);
+        
+        // 5. 清除推荐人ID，避免重复奖励
+        clearReferrer();
+        
+        console.log('推荐奖励已发放:', { 
+          referrerId, 
+          referredUserReward: 20,
+          referrerReward: 20 
+        });
       },
 
       /**
@@ -366,6 +396,65 @@ export const useUserStore = create<UserState>()(
        */
       checkAndResetWeeklyLimit: () => {
         // 暂时不实现每周限制功能
+      },
+
+      /**
+       * 跟踪邀请链接点击
+       * @param inviteCode 邀请码
+       */
+      trackInviteClick: (inviteCode: string) => {
+        const { userInviteStats, recordUserAction } = get();
+        const updatedStats = {
+          ...userInviteStats,
+          totalClicks: userInviteStats.totalClicks + 1
+        };
+        set({ userInviteStats: updatedStats });
+        
+        // 记录点击事件
+        recordUserAction('featureUsage', {
+          feature: 'invite_click',
+          metadata: { 
+            inviteCode,
+            totalClicks: updatedStats.totalClicks,
+            timestamp: new Date().toISOString()
+          }
+        });
+        
+        console.log('邀请链接点击已记录:', { inviteCode, totalClicks: updatedStats.totalClicks });
+      },
+
+      /**
+       * 跟踪邀请成功
+       * @param inviteCode 邀请码
+       * @param referredUserId 被推荐人ID
+       */
+      trackInviteSuccess: (inviteCode: string, referredUserId: string) => {
+        const { userInviteStats, recordUserAction } = get();
+        const updatedStats = {
+          ...userInviteStats,
+          totalRegistrations: userInviteStats.totalRegistrations + 1,
+          totalRewards: userInviteStats.totalRewards + 20
+        };
+        set({ userInviteStats: updatedStats });
+        
+        // 记录邀请成功
+        recordUserAction('featureUsage', {
+          feature: 'invite_success',
+          metadata: { 
+            inviteCode,
+            referredUserId,
+            totalRegistrations: updatedStats.totalRegistrations,
+            totalRewards: updatedStats.totalRewards,
+            timestamp: new Date().toISOString()
+          }
+        });
+        
+        console.log('邀请成功已记录:', { 
+          inviteCode, 
+          referredUserId,
+          totalRegistrations: updatedStats.totalRegistrations,
+          totalRewards: updatedStats.totalRewards
+        });
       },
 
       // 绑定临时用户ID到正式账号

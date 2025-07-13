@@ -15,7 +15,11 @@ import {
   Award, 
   TrendingUp,
   ArrowLeft,
-  Home
+  Home,
+  User,
+  Plus,
+  Calendar,
+  AlertCircle
 } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
@@ -42,6 +46,7 @@ function InvitePage() {
   const generateInviteCode = useUserStore((state) => state.generateInviteCode);
   const userInviteStats = useUserStore((state) => state.userInviteStats);
   const usageRemaining = useUserStore((state) => state.usageRemaining);
+  const trackInviteClick = useUserStore((state) => state.trackInviteClick);
   const navigate = useNavigate();
   
   const [newInviteLink, setNewInviteLink] = useState<any>(null);
@@ -54,6 +59,10 @@ function InvitePage() {
     try {
       const inviteLink = `${window.location.origin}/register?ref=${inviteCode}`;
       await navigator.clipboard.writeText(inviteLink);
+      
+      // 记录邀请链接点击
+      trackInviteClick(inviteCode);
+      
       toast({
         title: "邀请链接已复制",
         description: "邀请链接已复制到剪贴板",
@@ -76,6 +85,7 @@ function InvitePage() {
     const newInvite = {
       code: generateInviteCode(),
       createdAt: now.toISOString(),
+      expirationDate: expirationDate.toISOString(),
       clicks: 0,
       registrations: 0,
     };
@@ -91,130 +101,136 @@ function InvitePage() {
     return userInviteStats.totalRegistrations * 20;
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 简化页面头部 */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => navigate('/profile')} 
-                className="hover:bg-gray-100 text-gray-600"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                返回个人中心
-              </Button>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">邀请好友</h1>
-                <p className="text-sm text-gray-500">邀请朋友注册，双方都能获得免费使用次数奖励</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  // 格式化时间
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('zh-CN');
+  };
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-        <div className="space-y-4">
-          {/* 主邀请卡片 */}
-          <Card className="border-2 border-blue-100 overflow-hidden shadow-lg">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">
-              <h2 className="text-2xl font-bold flex items-center">
-                <Gift className="mr-3 h-6 w-6" /> 邀请好友，双方共同获益
-              </h2>
-              <p className="text-blue-100 mt-2">每邀请1人注册，双方各得20次免费使用机会</p>
-            </div>
-            <CardContent className="p-6">
-              <div className="space-y-6">
-                {/* 邀请链接区域 */}
+  // 检查邀请链接是否过期
+  const isInviteExpired = (expirationDate: string) => {
+    return new Date() > new Date(expirationDate);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* 返回按钮 */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/profile')}
+          className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回个人中心
+        </Button>
+
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">邀请好友</h1>
+            <p className="text-gray-600 text-lg">
+              邀请好友注册，双方各得20次使用机会奖励
+            </p>
+          </div>
+
+          {/* 统计卡片 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <Card className="text-center p-6">
+              <div className="text-2xl font-bold text-blue-600 mb-2">
+                {userInviteStats.totalClicks}
+              </div>
+              <div className="text-gray-600">总点击次数</div>
+            </Card>
+            <Card className="text-center p-6">
+              <div className="text-2xl font-bold text-green-600 mb-2">
+                {userInviteStats.totalRegistrations}
+              </div>
+              <div className="text-gray-600">成功邀请</div>
+            </Card>
+            <Card className="text-center p-6">
+              <div className="text-2xl font-bold text-purple-600 mb-2">
+                {calculateTotalRewards()}
+              </div>
+              <div className="text-gray-600">总奖励次数</div>
+            </Card>
+          </div>
+
+          {/* 邀请方式区 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* 推荐码邀请 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  推荐码邀请
+                </CardTitle>
+                <CardDescription>
+                  分享您的专属推荐码，好友注册时输入即可获得奖励
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800">您的专属邀请链接</h3>
-                  <div className="flex space-x-3">
+                  <label className="text-sm text-gray-600 mb-2 block">您的推荐码</label>
+                  <div className="flex items-center gap-2">
                     <Input 
-                      value={inviteUrl} 
+                      value={userInviteCode} 
                       readOnly 
-                      className="bg-gray-50 font-medium text-blue-800 text-base py-3" 
+                      className="font-mono text-lg" 
                     />
                     <Button 
-                      onClick={() => handleCopyInviteLink(userInviteCode)} 
-                      className="flex-shrink-0 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                      onClick={() => handleCopyInviteLink(userInviteCode)}
+                      size="sm"
                     >
-                      <Copy className="h-5 w-5 mr-2" /> 复制链接
+                      <Copy className="h-4 w-4 mr-2" /> 复制
                     </Button>
                   </div>
                 </div>
-
-                {/* 奖励说明卡片 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
-                    <CardContent className="p-4 text-center">
-                      <div className="text-3xl mb-2">🎁</div>
-                      <p className="text-base font-semibold text-blue-800 mb-2">邀请奖励</p>
-                      <p className="text-2xl font-bold text-blue-900">+20 次</p>
-                      <p className="text-sm text-blue-600 mt-2">每邀请1人注册，双方获得</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
-                    <CardContent className="p-4 text-center">
-                      <div className="text-3xl mb-2">💎</div>
-                      <p className="text-base font-semibold text-green-800 mb-2">当前可用</p>
-                      <p className="text-2xl font-bold text-green-900">{usageRemaining}</p>
-                      <p className="text-sm text-green-600 mt-2">本月剩余使用次数</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* 使用须知 */}
-                <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-xl border border-gray-200">
-                  <h3 className="text-base font-semibold mb-3 text-gray-800 flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                    使用须知
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-start space-x-2">
-                      <span className="text-green-500 text-sm">✓</span> 
-                      <span className="text-gray-700">每次成功邀请好友注册，您和好友各获得 20 次免费生成次数</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <span className="text-green-500 text-sm">✓</span> 
-                      <span className="text-gray-700">邀请链接长期有效，无过期时间</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <span className="text-green-500 text-sm">✓</span> 
-                      <span className="text-gray-700">每月月初自动赠送 10 次免费使用次数</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <span className="text-green-500 text-sm">✓</span> 
-                      <span className="text-gray-700">奖励次数永久有效，可累积使用</span>
-                    </div>
+                
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">邀请链接</label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      value={inviteUrl} 
+                      readOnly 
+                      className="text-sm" 
+                    />
+                    <Button 
+                      onClick={() => handleCopyInviteLink(userInviteCode)}
+                      size="sm"
+                    >
+                      <Copy className="h-4 w-4 mr-2" /> 复制
+                    </Button>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* 操作按钮 */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={createNewInviteLink}
-                    className="flex-1 py-2 text-base border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" /> 创建新链接
-                  </Button>
-                  <Button 
-                    className="flex-1 py-2 text-base bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                  >
-                    <Share2 className="h-4 w-4 mr-2" /> 立即分享
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            {/* 创建新邀请链接 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  创建新邀请链接
+                </CardTitle>
+                <CardDescription>
+                  创建带有7天有效期的专属邀请链接
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={createNewInviteLink}
+                  className="w-full"
+                  disabled={!!newInviteLink}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  创建新邀请链接
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* 新邀请链接创建结果 */}
+          {/* 新创建的邀请链接 */}
           {newInviteLink && (
-            <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+            <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 mt-8">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-green-800 text-lg">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
@@ -225,29 +241,46 @@ function InvitePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex space-x-3">
-                  <Input 
-                    value={`${baseUrl}/register?ref=${newInviteLink.code}`} 
-                    readOnly 
-                    className="bg-white font-medium text-base py-3 border-green-300" 
-                  />
-                  <Button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${baseUrl}/register?ref=${newInviteLink.code}`);
-                      toast({
-                        title: "链接已复制",
-                        description: "新的邀请链接已复制到剪贴板",
-                      });
-                    }}
-                    className="flex-shrink-0 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                  >
-                    <Copy className="h-4 w-4 mr-2" /> 复制
-                  </Button>
+                <div className="space-y-4">
+                  <div className="flex space-x-3">
+                    <Input 
+                      value={`${baseUrl}/register?ref=${newInviteLink.code}`} 
+                      readOnly 
+                      className="bg-white font-medium text-base py-3 border-green-300" 
+                    />
+                    <Button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${baseUrl}/register?ref=${newInviteLink.code}`);
+                        trackInviteClick(newInviteLink.code);
+                        toast({
+                          title: "链接已复制",
+                          description: "新的邀请链接已复制到剪贴板",
+                        });
+                      }}
+                      className="flex-shrink-0 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                    >
+                      <Copy className="h-4 w-4 mr-2" /> 复制
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center text-green-600">
+                      <Clock className="h-4 w-4 mr-2" /> 
+                      创建时间: {formatDate(newInviteLink.createdAt)}
+                    </div>
+                    <div className="flex items-center text-green-600">
+                      <Calendar className="h-4 w-4 mr-2" /> 
+                      过期时间: {formatDate(newInviteLink.expirationDate)}
+                    </div>
+                  </div>
+                  
+                  {isInviteExpired(newInviteLink.expirationDate) && (
+                    <div className="flex items-center text-red-600 text-sm">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      此邀请链接已过期
+                    </div>
+                  )}
                 </div>
-                <p className="mt-3 text-sm text-green-600 flex items-center">
-                  <Clock className="h-4 w-4 mr-2" /> 
-                  邀请链接已创建，可立即使用
-                </p>
               </CardContent>
             </Card>
           )}
