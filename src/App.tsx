@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { useUserStore } from '@/store/userStore';
 
 // 核心组件 - 立即加载
 import HomePage from '@/pages/HomePage';
@@ -29,6 +30,7 @@ const HotTopicDetailPage = React.lazy(() => import('@/pages/HotTopicDetailPage')
 const PaymentPage = React.lazy(() => import('@/pages/PaymentPage'));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
+const UserDataPage = React.lazy(() => import('@/pages/UserDataPage'));
 const PrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
 const TermsPage = React.lazy(() => import('@/pages/TermsPage'));
 const ChangelogPage = React.lazy(() => import('@/pages/ChangelogPage'));
@@ -60,6 +62,13 @@ const LoadingSpinner: React.FC = () => (
  * 应用内容组件
  */
 const AppContent: React.FC = () => {
+  const { initializeUserData } = useUserStore();
+
+  // 在应用启动时初始化用户数据
+  useEffect(() => {
+    initializeUserData();
+  }, [initializeUserData]);
+
   return (
     <div>
       {/* 滚动到顶部组件 */}
@@ -167,6 +176,16 @@ const AppContent: React.FC = () => {
             <ToolLayout>
               <Suspense fallback={<LoadingSpinner />}>
                 <SettingsPage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/user-data" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <UserDataPage />
               </Suspense>
             </ToolLayout>
           </ProtectedRoute>

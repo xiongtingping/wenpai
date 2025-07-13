@@ -186,6 +186,10 @@ export default function ProfilePage() {
     navigate('/invite');
   };
 
+  const handleUserData = () => {
+    navigate('/user-data');
+  };
+
   // 检查表单是否有效
   const isFormValid = () => {
     return editForm.nickname.trim().length > 0 && hasChanges;
@@ -371,12 +375,20 @@ export default function ProfilePage() {
                 <span>2025/7/12</span>
               </div>
             </div>
-            <button 
-              onClick={handleLogout}
-              className="w-full bg-red-100 text-red-600 py-2 rounded-lg font-semibold mt-2 hover:bg-red-200 transition-colors"
-            >
-              退出登录
-            </button>
+            <div className="flex gap-2 mt-2">
+              <button 
+                onClick={handleUserData}
+                className="flex-1 bg-blue-100 text-blue-600 py-2 rounded-lg font-semibold hover:bg-blue-200 transition-colors"
+              >
+                数据管理
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="flex-1 bg-red-100 text-red-600 py-2 rounded-lg font-semibold hover:bg-red-200 transition-colors"
+              >
+                退出登录
+              </button>
+            </div>
           </div>
 
           {/* 使用统计卡片 */}

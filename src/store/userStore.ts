@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getOrCreateTempUserId } from '@/lib/utils';
+import UserDataService from '@/services/userDataService';
 
 /**
  * 用户邀请统计
@@ -46,6 +47,10 @@ interface UserState {
   bindTempUserIdToAccount: (accountId: string) => void;
   /** 获取当前用户ID（临时或正式） */
   getCurrentUserId: () => string;
+  /** 记录用户行为到数据库 */
+  recordUserAction: (actionType: 'pageVisit' | 'featureUsage' | 'contentCreated', actionData: any) => void;
+  /** 初始化用户数据记录 */
+  initializeUserData: (userInfo?: any) => void;
 }
 
 /**
@@ -78,12 +83,50 @@ export const useUserStore = create<UserState>()(
       isTempUserIdBound: false,
 
       /**
+       * 初始化用户数据记录
+       * @param userInfo 用户信息
+       */
+      initializeUserData: async (userInfo?: any) => {
+        const { tempUserId } = get();
+        const userDataService = UserDataService.getInstance();
+        
+        try {
+          await userDataService.createOrUpdateUserData(tempUserId, userInfo || {}, true);
+          console.log('用户数据初始化成功:', tempUserId);
+        } catch (error) {
+          console.error('用户数据初始化失败:', error);
+        }
+      },
+
+      /**
+       * 记录用户行为到数据库
+       * @param actionType 行为类型
+       * @param actionData 行为数据
+       */
+      recordUserAction: async (actionType: 'pageVisit' | 'featureUsage' | 'contentCreated', actionData: any) => {
+        const { tempUserId } = get();
+        const userDataService = UserDataService.getInstance();
+        
+        try {
+          await userDataService.recordUserAction(tempUserId, actionType, actionData);
+        } catch (error) {
+          console.error('记录用户行为失败:', error);
+        }
+      },
+
+      /**
        * 减少使用量
        */
       decrementUsage: () => {
-        const { usageRemaining } = get();
+        const { usageRemaining, recordUserAction } = get();
         if (usageRemaining > 0) {
           set({ usageRemaining: usageRemaining - 1 });
+          
+          // 记录功能使用
+          recordUserAction('featureUsage', {
+            feature: 'usage_decrement',
+            metadata: { remainingUsage: usageRemaining - 1 }
+          });
         }
       },
       
@@ -91,16 +134,28 @@ export const useUserStore = create<UserState>()(
        * 从邀请增加使用量
        */
       addUsageFromInvite: (amount: number) => {
-        const { usageRemaining } = get();
+        const { usageRemaining, recordUserAction } = get();
         set({ usageRemaining: usageRemaining + amount });
+        
+        // 记录邀请奖励
+        recordUserAction('featureUsage', {
+          feature: 'invite_reward',
+          metadata: { amount, newUsage: usageRemaining + amount }
+        });
       },
       
       /**
        * 从点击增加使用量
        */
       addUsageFromClick: () => {
-        const { usageRemaining } = get();
+        const { usageRemaining, recordUserAction } = get();
         set({ usageRemaining: usageRemaining + 1 });
+        
+        // 记录点击奖励
+        recordUserAction('featureUsage', {
+          feature: 'click_reward',
+          metadata: { newUsage: usageRemaining + 1 }
+        });
       },
       
       /**
@@ -112,6 +167,13 @@ export const useUserStore = create<UserState>()(
           usageRemaining: 10, // 重置为默认值
           lastReset: now 
         });
+        
+        // 记录重置操作
+        const { recordUserAction } = get();
+        recordUserAction('featureUsage', {
+          feature: 'monthly_reset',
+          metadata: { resetTime: now, newUsage: 10 }
+        });
       },
       
       /**
@@ -120,6 +182,14 @@ export const useUserStore = create<UserState>()(
       generateInviteCode: () => {
         const newCode = `invite_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
         set({ userInviteCode: newCode });
+        
+        // 记录邀请码生成
+        const { recordUserAction } = get();
+        recordUserAction('featureUsage', {
+          feature: 'generate_invite_code',
+          metadata: { inviteCode: newCode }
+        });
+        
         return newCode;
       },
       
@@ -127,24 +197,36 @@ export const useUserStore = create<UserState>()(
        * 注册点击事件
        */
       registerClick: () => {
-        const { userInviteStats } = get();
+        const { userInviteStats, recordUserAction } = get();
         const updatedStats = {
           ...userInviteStats,
           totalClicks: userInviteStats.totalClicks + 1
         };
         set({ userInviteStats: updatedStats });
+        
+        // 记录点击事件
+        recordUserAction('featureUsage', {
+          feature: 'invite_click',
+          metadata: { totalClicks: updatedStats.totalClicks }
+        });
       },
       
       /**
        * 注册邀请成功
        */
       registerInvite: () => {
-        const { userInviteStats } = get();
+        const { userInviteStats, recordUserAction } = get();
         const updatedStats = {
           ...userInviteStats,
           totalRegistrations: userInviteStats.totalRegistrations + 1
         };
         set({ userInviteStats: updatedStats });
+        
+        // 记录邀请成功
+        recordUserAction('featureUsage', {
+          feature: 'invite_success',
+          metadata: { totalRegistrations: updatedStats.totalRegistrations }
+        });
       },
       
       /**
@@ -155,25 +237,34 @@ export const useUserStore = create<UserState>()(
       },
 
       // 绑定临时用户ID到正式账号
-      bindTempUserIdToAccount: (accountId: string) => {
+      bindTempUserIdToAccount: async (accountId: string) => {
         const { tempUserId } = get();
+        const userDataService = UserDataService.getInstance();
         
-        // 保存绑定关系
-        const bindingData = {
-          tempUserId,
-          accountId,
-          boundAt: new Date().toISOString(),
-        };
-        
-        localStorage.setItem('temp_user_binding', JSON.stringify(bindingData));
-        
-        // 更新状态
-        set({ 
-          isTempUserIdBound: true,
-          tempUserId: accountId // 更新为正式账号ID
-        });
-        
-        console.log('临时用户ID已绑定到正式账号:', bindingData);
+        try {
+          // 保存绑定关系到数据库
+          await userDataService.bindTempUserToRealUser(tempUserId, accountId);
+          
+          // 保存绑定关系
+          const bindingData = {
+            tempUserId,
+            accountId,
+            boundAt: new Date().toISOString(),
+          };
+          
+          localStorage.setItem('temp_user_binding', JSON.stringify(bindingData));
+          
+          // 更新状态
+          set({ 
+            isTempUserIdBound: true,
+            tempUserId: accountId // 更新为正式账号ID
+          });
+          
+          console.log('临时用户ID已绑定到正式账号:', bindingData);
+        } catch (error) {
+          console.error('绑定临时用户ID失败:', error);
+          throw error;
+        }
       },
 
       // 获取当前用户ID（临时或正式）
@@ -204,6 +295,8 @@ export const useUserStore = create<UserState>()(
         lastReset: state.lastReset,
         userInviteCode: state.userInviteCode,
         userInviteStats: state.userInviteStats,
+        tempUserId: state.tempUserId,
+        isTempUserIdBound: state.isTempUserIdBound,
       }),
     }
   )

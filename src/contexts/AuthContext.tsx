@@ -7,6 +7,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { useAuthing } from '@/hooks/useAuthing';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getOrCreateTempUserId } from '@/lib/utils';
+import { useUserStore } from '@/store/userStore';
 
 /**
  * 认证状态类型
@@ -136,6 +137,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // 保存到localStorage
       localStorage.setItem('authing_user', JSON.stringify(userData));
+
+      // 绑定临时用户ID到正式用户ID
+      const userStore = useUserStore.getState();
+      userStore.bindTempUserIdToAccount(userData.id).then(() => {
+        console.log('临时用户ID已成功绑定到正式用户:', userData.id);
+      }).catch((error) => {
+        console.error('绑定临时用户ID失败:', error);
+      });
 
       // 刷新权限信息
       refreshPermissions();

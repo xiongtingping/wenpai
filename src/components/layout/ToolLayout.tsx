@@ -1,17 +1,40 @@
 import React, { ReactNode } from 'react';
 import TopNavigation from './TopNavigation';
+import PageTracker from '@/components/analytics/PageTracker';
 
 interface ToolLayoutProps {
   children: ReactNode;
+  /** 页面标题 */
+  pageTitle?: string;
+  /** 页面描述 */
+  pageDescription?: string;
+  /** 页面元数据 */
+  pageMetadata?: Record<string, unknown>;
 }
 
 /**
  * 工具页面布局组件
  * 提供统一的页面布局结构，支持响应式设计
  */
-export default function ToolLayout({ children }: ToolLayoutProps) {
+export default function ToolLayout({ 
+  children, 
+  pageTitle,
+  pageDescription,
+  pageMetadata = {}
+}: ToolLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* 页面访问记录 */}
+      <PageTracker 
+        title={pageTitle}
+        description={pageDescription}
+        metadata={{
+          ...pageMetadata,
+          layout: 'tool',
+          hasNavigation: true
+        }}
+      />
+      
       {/* 顶部导航栏 */}
       <TopNavigation />
       
