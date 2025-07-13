@@ -644,7 +644,7 @@ class AIService {
       }
 
       // 构建提取请求
-      const extractRequest = {
+      const extractRequest: any = {
         provider: 'openai',
         action: 'extract-content',
         contentType,

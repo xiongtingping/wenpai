@@ -106,20 +106,21 @@ export function ContentExtractor() {
       });
 
       if (response.success && response.data) {
+        const responseData = response.data as any;
         const result: ExtractResult = {
           id: resultId,
           source: url,
           sourceType: 'url',
           contentType: contentType,
-          content: response.data.content || '',
-          metadata: response.data.metadata || {
-            title: response.data.title,
-            description: response.data.description,
-            keywords: response.data.keywords,
-            author: response.data.author,
-            date: response.data.date,
-            wordCount: response.data.wordCount,
-            charCount: response.data.charCount
+          content: responseData.content || '',
+          metadata: responseData.metadata || {
+            title: responseData.title,
+            description: responseData.description,
+            keywords: responseData.keywords,
+            author: responseData.author,
+            date: responseData.date,
+            wordCount: responseData.wordCount,
+            charCount: responseData.charCount
           },
           extractedAt: new Date().toISOString(),
           status: 'success'

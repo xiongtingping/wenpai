@@ -81,6 +81,66 @@ export const SUPPORTED_PLATFORMS: PlatformConfig[] = [
 ];
 
 /**
+ * 平台样式配置
+ */
+export const platformStyles: Record<string, PlatformConfig> = {
+  wechat: {
+    name: '微信',
+    description: '微信公众号、朋友圈',
+    maxLength: 2000,
+    hashtagCount: 0,
+    tone: '专业、权威',
+    features: ['图文并茂', '深度内容', '专业术语']
+  },
+  weibo: {
+    name: '微博',
+    description: '新浪微博',
+    maxLength: 140,
+    hashtagCount: 3,
+    tone: '简洁、热点',
+    features: ['话题标签', '@用户', '转发互动']
+  },
+  xiaohongshu: {
+    name: '小红书',
+    description: '小红书笔记',
+    maxLength: 1000,
+    hashtagCount: 20,
+    tone: '种草、分享',
+    features: ['个人体验', '图片展示', '标签丰富']
+  },
+  douyin: {
+    name: '抖音',
+    description: '抖音短视频',
+    maxLength: 300,
+    hashtagCount: 5,
+    tone: '轻松、有趣',
+    features: ['视频脚本', '音乐配合', '互动引导']
+  },
+  zhihu: {
+    name: '知乎',
+    description: '知乎问答',
+    maxLength: 5000,
+    hashtagCount: 0,
+    tone: '专业、深度',
+    features: ['详细解答', '专业术语', '引用来源']
+  },
+  bilibili: {
+    name: 'B站',
+    description: 'B站视频',
+    maxLength: 500,
+    hashtagCount: 10,
+    tone: '年轻、活力',
+    features: ['弹幕互动', '视频标题', '分区标签']
+  }
+};
+
+// 当前API提供商
+let currentApiProvider = 'openai';
+
+// 当前模型
+let currentModel = 'gpt-4o-mini';
+
+/**
  * 内容适配请求接口
  */
 export interface ContentAdaptRequest {
@@ -347,4 +407,77 @@ export function getPlatformConfig(platformName: string): PlatformConfig | null {
  */
 export function getAllSupportedPlatforms(): PlatformConfig[] {
   return [...SUPPORTED_PLATFORMS];
+}
+
+/**
+ * 生成适配内容
+ */
+export async function generateAdaptedContent(
+  originalContent: string,
+  targetPlatforms: string[],
+  settings?: Record<string, unknown>
+): Promise<AIApiResponse> {
+  try {
+    const response = await aiService.adaptContent(originalContent, targetPlatforms, settings);
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '内容适配失败'
+    };
+  }
+}
+
+/**
+ * 重新生成平台内容
+ */
+export async function regeneratePlatformContent(
+  platformId: string,
+  originalContent: string,
+  settings?: Record<string, unknown>
+): Promise<AIApiResponse> {
+  try {
+    const response = await aiService.adaptContent(originalContent, [platformId], settings);
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '内容重新生成失败'
+    };
+  }
+}
+
+/**
+ * 设置API提供商
+ */
+export function setApiProvider(provider: string): void {
+  currentApiProvider = provider;
+}
+
+/**
+ * 获取API提供商
+ */
+export function getApiProvider(): string {
+  return currentApiProvider;
+}
+
+/**
+ * 设置模型
+ */
+export function setModel(model: string): void {
+  currentModel = model;
+}
+
+/**
+ * 获取模型
+ */
+export function getModel(): string {
+  return currentModel;
+}
+
+/**
+ * 获取可用模型列表
+ */
+export function getAvailableModels(): string[] {
+  return ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo'];
 }

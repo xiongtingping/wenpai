@@ -479,8 +479,8 @@ export function MomentsTextGenerator() {
 
       let generatedContent = '';
       
-      if (response.success && response.content) {
-        generatedContent = response.content;
+      if (response.success && response.data) {
+        generatedContent = response.data as string;
       } else {
         // 如果AI调用失败，使用高质量模拟内容
         generatedContent = `✨ ${aiPrompt}

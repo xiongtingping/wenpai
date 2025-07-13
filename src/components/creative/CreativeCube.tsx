@@ -1387,11 +1387,12 @@ Your output must feel like it was written by a real KOC or content strategist �
 
       console.log('AI服务响应:', response);
 
-      if (response.success && response.data?.content) {
-        console.log('AI生成成功，内容长度:', response.data.content.length);
+      if (response.success && response.data) {
+        const content = response.data as string;
+        console.log('AI生成成功，内容长度:', content.length);
         return {
           success: true,
-          content: response.data.content
+          content: content
         };
       } else {
         console.error('AI服务响应异常:', response);

@@ -140,7 +140,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // 绑定临时用户ID到正式用户ID
       const userStore = useUserStore.getState();
-      userStore.bindTempUserIdToAccount(userData.id).catch((error) => {
+      userStore.bindTempUserIdToAccount(userData.id).then(() => {
+        console.log('临时用户ID绑定成功');
+      }).catch((error) => {
         console.error('绑定临时用户ID失败:', error);
       });
 

@@ -73,8 +73,8 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
         maxTokens: Math.min(1000, Math.floor(content.length * 0.3))
       });
       
-      if (response.success && response.data?.content) {
-        const generatedSummary = response.data.content;
+      if (response.success && response.data) {
+        const generatedSummary = response.data as string;
         setSummary(generatedSummary);
         
         // 调用回调函数

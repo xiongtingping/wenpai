@@ -74,8 +74,8 @@ export default function BrandContentGenerator() {
         maxTokens: 800
       });
 
-      if (response.success && response.content) {
-        setGeneratedContent(response.content);
+      if (response.success && response.data) {
+        setGeneratedContent(response.data as string);
       } else {
         // 如果AI调用失败，使用高质量模拟内容
         const mockContent = `基于"${topic}"主题，我们为您精心打造了符合品牌调性的内容：
