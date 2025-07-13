@@ -44,6 +44,8 @@ interface UserState {
   isTempUserIdBound: boolean;
   /** 推荐人ID */
   referrerId: string | null;
+  /** 最后重置时间 */
+  lastReset?: string;
   /** 生成邀请码 */
   generateInviteCode: () => string;
   /** 绑定临时用户ID到正式账号 */
@@ -64,6 +66,20 @@ interface UserState {
   processReferralReward: () => void;
   /** 通知后端给推荐人发放奖励 */
   notifyReferrerReward: (referrerId: string) => Promise<void>;
+  /** 减少使用量 */
+  decrementUsage: () => void;
+  /** 从邀请增加使用量 */
+  addUsageFromInvite: (amount: number) => void;
+  /** 从点击增加使用量 */
+  addUsageFromClick: () => void;
+  /** 重置月度使用量 */
+  resetMonthlyUsage: () => void;
+  /** 注册点击事件 */
+  registerClick: () => void;
+  /** 注册邀请成功 */
+  registerInvite: () => void;
+  /** 检查并重置每周限制 */
+  checkAndResetWeeklyLimit: () => void;
 }
 
 /**
@@ -136,7 +152,7 @@ export const useUserStore = create<UserState>()(
        * @description 处理推荐人和被推荐人的奖励逻辑
        */
       processReferralReward: () => {
-        const { referrerId, addUsageFromInvite, clearReferrer, recordUserAction } = get();
+        const { referrerId, addUsageFromInvite, clearReferrer, recordUserAction, notifyReferrerReward } = get();
         
         if (referrerId) {
           // 1. 给被推荐人（当前用户）增加20次使用机会

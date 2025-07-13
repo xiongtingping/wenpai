@@ -217,7 +217,7 @@ export default function UserDataPage() {
                             {visit.duration && (
                               <div>停留时间: {formatDuration(visit.duration)}</div>
                             )}
-                            {visit.title && <div>页面标题: {visit.title}</div>}
+                            {visit.page && <div>页面: {visit.page}</div>}
                           </div>
                         </div>
                       ))
