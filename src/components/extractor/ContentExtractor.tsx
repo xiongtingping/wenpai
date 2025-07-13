@@ -92,61 +92,51 @@ export function ContentExtractor() {
     const resultId = Date.now().toString();
 
     try {
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 使用统一的AI服务进行内容提取
+      const aiService = (await import('@/api/aiService')).default;
       
-      // 模拟提取结果
-      const mockResult: ExtractResult = {
-        id: resultId,
-        source: url,
-        sourceType: 'url',
+      const response = await aiService.extractContent({
+        url: url,
         contentType: contentType,
-        content: `# 网页标题
-
-## 主要内容
-
-这是从 ${url} 提取的内容。
-
-### 关键信息
-- 发布日期：2024年2月15日
-- 作者：网站编辑
-- 分类：技术文章
-
-### 文章摘要
-这是一篇关于内容提取技术的文章，介绍了如何从网页中提取有用的信息。
-
-### 技术要点
-1. **网页解析**：使用先进的解析算法
-2. **内容识别**：智能识别主要内容区域
-3. **格式转换**：支持多种输出格式
-
-### 应用场景
-- 内容聚合
-- 信息收集
-- 数据分析
-- 知识管理
-
-> 注意：提取的内容仅供参考，请确保遵守相关法律法规。`,
-        metadata: {
-          title: '网页内容提取示例',
-          description: '从网页中提取结构化内容',
-          keywords: ['内容提取', '网页解析', '数据抓取'],
-          author: '网站编辑',
-          date: '2024-02-15',
-          wordCount: 150,
-          charCount: 800
-        },
-        extractedAt: new Date().toISOString(),
-        status: 'success'
-      };
-
-      setExtractResults(prev => [mockResult, ...prev]);
-      
-      toast({
-        title: "内容提取成功",
-        description: "已成功提取网页内容",
+        options: {
+          includeMetadata: true,
+          extractKeywords: true,
+          summarize: true
+        }
       });
-    } catch {
+
+      if (response.success && response.data) {
+        const result: ExtractResult = {
+          id: resultId,
+          source: url,
+          sourceType: 'url',
+          contentType: contentType,
+          content: response.data.content || '',
+          metadata: response.data.metadata || {
+            title: response.data.title,
+            description: response.data.description,
+            keywords: response.data.keywords,
+            author: response.data.author,
+            date: response.data.date,
+            wordCount: response.data.wordCount,
+            charCount: response.data.charCount
+          },
+          extractedAt: new Date().toISOString(),
+          status: 'success'
+        };
+
+        setExtractResults(prev => [result, ...prev]);
+        
+        toast({
+          title: "内容提取成功",
+          description: "已成功提取网页内容",
+        });
+      } else {
+        throw new Error(response.error || '提取失败');
+      }
+    } catch (error) {
+      console.error('内容提取失败:', error);
+      
       const errorResult: ExtractResult = {
         id: resultId,
         source: url,
@@ -155,14 +145,14 @@ export function ContentExtractor() {
         content: '',
         extractedAt: new Date().toISOString(),
         status: 'error',
-        error: '提取失败，请检查URL是否有效'
+        error: error instanceof Error ? error.message : '提取失败，请检查URL是否有效'
       };
       
       setExtractResults(prev => [errorResult, ...prev]);
       
       toast({
         title: "提取失败",
-        description: "请检查URL是否有效或稍后重试",
+        description: error instanceof Error ? error.message : "请检查URL是否有效或稍后重试",
         variant: "destructive"
       });
     } finally {

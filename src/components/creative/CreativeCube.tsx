@@ -1326,8 +1326,8 @@ ${generateStandardCallToAction()}
     try {
       console.log('开始调用AI服务...');
       
-      // 导入AI服务
-      const { callOpenAIDevProxy } = await import('@/api/devApiProxy');
+      // 使用统一的AI服务层
+      const aiService = (await import('@/api/aiService')).default;
       
       const systemPrompt = `You are an expert social media copywriter and brand storyteller.
 
@@ -1372,35 +1372,29 @@ Your output must feel like it was written by a real KOC or content strategist �
         { role: 'user', content: prompt }
       ];
 
-      console.log('调用OpenAI API，消息数量:', messages.length);
+      console.log('调用AI服务，消息数量:', messages.length);
       console.log('用户提示词长度:', prompt.length);
 
-      const response = await callOpenAIDevProxy({
-        messages,
-        model: 'gpt-4o',
-        temperature: 0.7,
+      const response = await aiService.generateCreativeContent({
+        prompt: prompt,
+        context: {
+          contentType: contentType,
+          systemPrompt: systemPrompt
+        },
+        style: 'creative',
         maxTokens: 1000
       });
 
       console.log('AI服务响应:', response);
 
-      if (response.success && response.data?.data?.choices?.[0]?.message?.content) {
-        console.log('AI生成成功，内容长度:', response.data.data.choices[0].message.content.length);
+      if (response.success && response.data?.content) {
+        console.log('AI生成成功，内容长度:', response.data.content.length);
         return {
           success: true,
-          content: response.data.data.choices[0].message.content
+          content: response.data.content
         };
       } else {
         console.error('AI服务响应异常:', response);
-        console.error('response.success:', response.success);
-        console.error('response.data:', response.data);
-        console.error('response.data的类型:', typeof response.data);
-        console.error('response.data的键:', response.data ? Object.keys(response.data) : 'data为null/undefined');
-        console.error('response.data的完整内容:', JSON.stringify(response.data, null, 2));
-        console.error('response.data?.choices:', response.data?.choices);
-        console.error('response.data?.choices?.[0]:', response.data?.choices?.[0]);
-        console.error('response.data?.choices?.[0]?.message:', response.data?.choices?.[0]?.message);
-        console.error('response.data?.choices?.[0]?.message?.content:', response.data?.choices?.[0]?.message?.content);
         return {
           success: false,
           error: response.error || 'AI服务响应异常'

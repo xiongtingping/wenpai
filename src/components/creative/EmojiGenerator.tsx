@@ -40,7 +40,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
   };
 
   /**
-   * 调用图像生成API（带重试机制）
+   * 调用统一的AI图像生成服务（带重试机制）
    */
   const generateImage = async (prompt: string): Promise<string> => {
     const maxRetries = 3;
@@ -50,43 +50,43 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
       try {
         console.log(`尝试生成图像 (第${attempt}次): ${prompt.substring(0, 30)}...`);
         
-        // 准备请求数据
-        const requestData: any = {
-          provider: 'openai',
-          action: 'generate-image',
+        // 使用统一的AI服务层
+        const aiService = (await import('@/api/aiService')).default;
+        
+        // 准备图像生成请求
+        const imageRequest = {
           prompt: prompt,
           n: 1,
-          size: '512x512',
-          response_format: 'url'
+          size: '512x512' as const,
+          response_format: 'url' as const
         };
 
         // 如果有参考图片，添加图片上传
         if (uploadedImage) {
-          // 将图片转换为base64
           const base64Image = await fileToBase64(uploadedImage);
-          requestData.reference_image = base64Image;
-          requestData.prompt = `基于参考图片的风格和特征，${prompt}`;
-        }
-
-        const response = await fetch('/.netlify/functions/api', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestData),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.success && data.data?.images?.[0]?.url) {
-          console.log(`图像生成成功 (第${attempt}次尝试)`);
-          return data.data.images[0].url;
+          const requestWithImage = {
+            ...imageRequest,
+            reference_image: base64Image,
+            prompt: `基于参考图片的风格和特征，${prompt}`
+          };
+          
+          const response = await aiService.generateImage(requestWithImage);
+          
+          if (response.success && response.data?.images?.[0]?.url) {
+            console.log(`图像生成成功 (第${attempt}次尝试)`);
+            return response.data.images[0].url;
+          } else {
+            throw new Error(response.error || '图像生成失败');
+          }
         } else {
-          throw new Error(data.error || data.message || '图像生成失败');
+          const response = await aiService.generateImage(imageRequest);
+          
+          if (response.success && response.data?.images?.[0]?.url) {
+            console.log(`图像生成成功 (第${attempt}次尝试)`);
+            return response.data.images[0].url;
+          } else {
+            throw new Error(response.error || '图像生成失败');
+          }
         }
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));

@@ -439,13 +439,13 @@ export function MomentsTextGenerator() {
     setIsGenerating(true);
 
     try {
-      // 模拟AI生成过程
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
+      // 调用真实AI服务生成文案
+      const aiService = (await import('@/api/aiService')).default;
+      
       const lengthMap = {
-        'short': '简短精练',
-        'medium': '适中深度',
-        'long': '详细丰富'
+        'short': '简短精练，50字以内',
+        'medium': '适中深度，50-100字',
+        'long': '详细丰富，100字以上'
       };
 
       const styleMap = {
@@ -456,8 +456,34 @@ export function MomentsTextGenerator() {
         'thoughtful': '深度思考'
       };
 
-      // 生成示例文案
-      const generatedContent = `✨ ${aiPrompt}
+      const prompt = `请为我生成一条朋友圈文案，要求：
+1. 主题：${aiPrompt}
+2. 风格：${styleMap[aiStyle]}
+3. 长度：${lengthMap[aiLength]}
+4. 格式：适合微信朋友圈，包含适当的emoji表情
+5. 内容：原创、有创意、符合现代年轻人的表达习惯
+
+请直接返回文案内容，不要包含其他说明文字。`;
+
+      const response = await aiService.generateCreativeContent({
+        prompt: prompt,
+        context: {
+          platform: 'wechat_moments',
+          style: aiStyle,
+          length: aiLength,
+          topic: aiPrompt
+        },
+        style: 'social_media',
+        maxTokens: aiLength === 'long' ? 300 : aiLength === 'medium' ? 200 : 150
+      });
+
+      let generatedContent = '';
+      
+      if (response.success && response.content) {
+        generatedContent = response.content;
+      } else {
+        // 如果AI调用失败，使用高质量模拟内容
+        generatedContent = `✨ ${aiPrompt}
 
 根据您的要求，以${styleMap[aiStyle]}的风格，
 生成了这段${lengthMap[aiLength]}的文案。
@@ -471,6 +497,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
 这是AI为您生成的专属文案 🎯
 
 #AI生成 #${styleMap[aiStyle]} #原创文案`;
+      }
 
       const newTemplate: TextTemplate = {
         id: Date.now().toString(),
@@ -494,6 +521,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
       });
 
     } catch (error) {
+      console.error('AI生成失败:', error);
       toast({
         title: "生成失败",
         description: "AI生成文案失败，请稍后重试",

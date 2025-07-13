@@ -69,42 +69,45 @@ interface BrandEmojiGeneratorProps {
 }
 
 /**
- * 调用真实的AI图像生成API
+ * 调用统一的AI图像生成服务
  */
 async function generateEmojiImage(prompt: string, referenceImage?: File | null, count: number = 1): Promise<string[]> {
   try {
-    // 准备请求数据
-    const requestData: any = {
-      provider: 'openai',
-      action: 'generate-image',
+    // 使用统一的AI服务层
+    const aiService = (await import('@/api/aiService')).default;
+    
+    // 准备图像生成请求
+    const imageRequest = {
       prompt: prompt,
-      n: count, // 使用传入的数量参数
-      size: '512x512',
-      response_format: 'url'
+      n: count,
+      size: '512x512' as const,
+      response_format: 'url' as const
     };
 
     // 如果有参考图片，添加图片上传
     if (referenceImage) {
-      // 将图片转换为base64
       const base64Image = await fileToBase64(referenceImage);
-      requestData.reference_image = base64Image;
-      requestData.prompt = `基于参考图片的风格和特征，${prompt}`;
-    }
-
-    const response = await fetch('/.netlify/functions/api', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    });
-
-    const data = await response.json();
-    
-    if (data.success && data.data?.images) {
-      return data.data.images.map((img: any) => img.url);
+      const requestWithImage = {
+        ...imageRequest,
+        reference_image: base64Image,
+        prompt: `基于参考图片的风格和特征，${prompt}`
+      };
+      
+      const response = await aiService.generateImage(requestWithImage);
+      
+      if (response.success && response.data?.images) {
+        return response.data.images.map((img: any) => img.url);
+      } else {
+        throw new Error(response.error || '图像生成失败');
+      }
     } else {
-      throw new Error(data.error || '图像生成失败');
+      const response = await aiService.generateImage(imageRequest);
+      
+      if (response.success && response.data?.images) {
+        return response.data.images.map((img: any) => img.url);
+      } else {
+        throw new Error(response.error || '图像生成失败');
+      }
     }
   } catch (error) {
     console.error('图像生成API调用失败:', error);

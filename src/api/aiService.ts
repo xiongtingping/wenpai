@@ -549,15 +549,47 @@ class AIService {
 
   /**
    * 生成创意内容
-   * @param prompt 提示词
-   * @param contentType 内容类型
+   * @param options 生成选项
    * @returns Promise<AIResponse>
    */
-  async generateCreativeContent(prompt: string, contentType: 'text' | 'video' = 'text'): Promise<AIResponse> {
+  async generateCreativeContent(options: {
+    prompt: string;
+    context?: Record<string, unknown>;
+    style?: string;
+    maxTokens?: number;
+    contentType?: 'text' | 'video' | 'social_media' | 'brand_consistent';
+  }): Promise<AIResponse> {
     try {
-      const systemPrompt = contentType === 'video' 
-        ? '你是一个专业的视频脚本创作专家，能够生成结构化的视频脚本。'
-        : '你是一个专业的创意内容创作专家，能够生成有创意的文本内容。';
+      const {
+        prompt,
+        context = {},
+        style = 'creative',
+        maxTokens = DEFAULT_CONFIG.maxTokens,
+        contentType = 'text'
+      } = options;
+
+      let systemPrompt = '你是一个专业的创意内容创作专家，能够生成有创意的文本内容。';
+      
+      // 根据内容类型调整系统提示词
+      switch (contentType) {
+        case 'video':
+          systemPrompt = '你是一个专业的视频脚本创作专家，能够生成结构化的视频脚本。';
+          break;
+        case 'social_media':
+          systemPrompt = '你是一个专业的社交媒体内容创作专家，能够生成适合各平台的内容。';
+          break;
+        case 'brand_consistent':
+          systemPrompt = '你是一个专业的品牌内容创作专家，能够生成符合品牌调性的内容。';
+          break;
+        default:
+          systemPrompt = '你是一个专业的创意内容创作专家，能够生成有创意的文本内容。';
+      }
+
+      // 构建上下文信息
+      let contextInfo = '';
+      if (Object.keys(context).length > 0) {
+        contextInfo = `\n\n上下文信息：${JSON.stringify(context, null, 2)}`;
+      }
 
       const messages: Array<{
         role: 'system' | 'user' | 'assistant';
@@ -569,18 +601,95 @@ class AIService {
         },
         {
           role: 'user',
-          content: prompt
+          content: `${prompt}${contextInfo}\n\n请以${style}的风格生成内容。`
         }
       ];
 
       return await this.generateText({
         messages,
+        maxTokens,
         provider: 'openai'
       });
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : '创意内容生成失败'
+      };
+    }
+  }
+
+  /**
+   * 提取内容
+   * @param options 提取选项
+   * @returns Promise<AIResponse>
+   */
+  async extractContent(options: {
+    url?: string;
+    text?: string;
+    contentType: 'markdown' | 'json' | 'html' | 'image' | 'webpage';
+    options?: {
+      includeMetadata?: boolean;
+      extractKeywords?: boolean;
+      summarize?: boolean;
+    };
+  }): Promise<AIResponse> {
+    try {
+      const { url, text, contentType, options: extractOptions = {} } = options;
+
+      if (!url && !text) {
+        return {
+          success: false,
+          error: '请提供URL或文本内容'
+        };
+      }
+
+      // 构建提取请求
+      const extractRequest = {
+        provider: 'openai',
+        action: 'extract-content',
+        contentType,
+        options: extractOptions
+      };
+
+      if (url) {
+        extractRequest.url = url;
+      }
+
+      if (text) {
+        extractRequest.text = text;
+      }
+
+      // 调用Netlify函数
+      const response = await fetch('/.netlify/functions/api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(extractRequest),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        return {
+          success: true,
+          data: data.data
+        };
+      } else {
+        return {
+          success: false,
+          error: data.error || '内容提取失败'
+        };
+      }
+    } catch (error) {
+      console.error('内容提取失败:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '网络请求失败'
       };
     }
   }

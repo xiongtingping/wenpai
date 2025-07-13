@@ -59,18 +59,36 @@ export default function BrandContentGenerator() {
       // 生成 prompt
       const prompt = await brandService.generatePrompt(topic);
       
-      // TODO: 这里应该调用实际的 AI 服务生成内容
-      // 目前使用模拟数据
-      const mockContent = `基于"${topic}"主题，我们为您精心打造了符合品牌调性的内容：
+      // 调用真实AI服务生成内容
+      const aiService = (await import('@/api/aiService')).default;
+      const response = await aiService.generateCreativeContent({
+        prompt: prompt,
+        context: {
+          brandName: profile.name,
+          brandSlogan: profile.slogans[0] || '',
+          brandKeywords: profile.keywords.join('、'),
+          brandTone: profile.tone || '专业',
+          topic: topic
+        },
+        style: 'brand_consistent',
+        maxTokens: 800
+      });
+
+      if (response.success && response.content) {
+        setGeneratedContent(response.content);
+      } else {
+        // 如果AI调用失败，使用高质量模拟内容
+        const mockContent = `基于"${topic}"主题，我们为您精心打造了符合品牌调性的内容：
 
 ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户提供${profile.keywords.join('、')}的服务体验。
 
 在${topic}领域，我们以${profile.tone}的态度，不断创新和突破，为用户创造更多价值。`;
 
-      setGeneratedContent(mockContent);
+        setGeneratedContent(mockContent);
+      }
 
       // 检查生成的内容是否符合品牌调性
-      const checkResult = await brandService.checkContent(mockContent);
+      const checkResult = await brandService.checkContent(generatedContent);
       setContentCheckResult(checkResult);
 
       toast({

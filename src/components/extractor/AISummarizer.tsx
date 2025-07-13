@@ -54,12 +54,27 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
     try {
       console.log('开始生成AI总结，内容长度:', content.length);
       
-      const response = await aiService.summarizeContent(content);
+      // 使用统一的AI服务层
+      const aiService = (await import('@/api/aiService')).default;
       
-      const responseData = response.data as Record<string, unknown>;
-      const choices = responseData?.data as Record<string, unknown>;
-      if (response.success && choices?.choices?.[0]?.message?.content) {
-        const generatedSummary = choices.choices[0].message.content;
+      const response = await aiService.generateCreativeContent({
+        prompt: `请对以下内容进行智能总结，要求：
+1. 提取核心要点和关键信息
+2. 保持逻辑清晰，结构合理
+3. 语言简洁明了，易于理解
+4. 总结长度控制在原文的30%以内
+
+内容：${content}`,
+        context: {
+          task: 'summarize',
+          originalLength: content.length
+        },
+        style: 'concise',
+        maxTokens: Math.min(1000, Math.floor(content.length * 0.3))
+      });
+      
+      if (response.success && response.data?.content) {
+        const generatedSummary = response.data.content;
         setSummary(generatedSummary);
         
         // 调用回调函数
