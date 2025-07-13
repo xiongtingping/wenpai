@@ -160,6 +160,21 @@ export default function HotTopicsPage() {
   const [filteredTopics, setFilteredTopics] = useState<DailyHotItem[]>([]);
 
   /**
+   * 格式化热度值，统一单位为m
+   */
+  const formatHotValue = (hot: string): string => {
+    const num = parseInt(hot);
+    if (isNaN(num)) return hot;
+    
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}m`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}k`;
+    }
+    return hot;
+  };
+
+  /**
    * 智能过滤和排序话题
    * 根据屏蔽词和偏好关键词进行动态过滤与优先推送
    */
@@ -813,7 +828,7 @@ export default function HotTopicsPage() {
                           {aggregateAndSortTopics(allHotData.data).slice(0, 10).map((topic, index) => (
                             <div
                               key={index}
-                              className={`p-3 rounded-lg border transition-all hover:shadow-md ${
+                              className={`p-3 rounded-lg border transition-all hover:shadow-md h-48 flex flex-col ${
                                 isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
                               } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
                             >
@@ -825,11 +840,11 @@ export default function HotTopicsPage() {
                                   {getPlatformDisplayName(topic.platform || '')}
                                 </Badge>
                               </div>
-                              <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                              <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 flex-1">
                                 {topic.title}
                               </h4>
                               <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                                <span>{topic.hot}</span>
+                                <span>{formatHotValue(topic.hot)}</span>
                                 <div className="flex items-center gap-1">
                                   {isTopicBookmarked(topic) && (
                                     <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
@@ -839,7 +854,7 @@ export default function HotTopicsPage() {
                                   )}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 mt-auto">
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -871,7 +886,7 @@ export default function HotTopicsPage() {
                               {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
                                 <div
                                   key={index}
-                                  className={`p-3 rounded-lg border transition-all hover:shadow-md ${
+                                  className={`p-3 rounded-lg border transition-all hover:shadow-md h-48 flex flex-col ${
                                     isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
                                   } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
                                 >
@@ -883,11 +898,11 @@ export default function HotTopicsPage() {
                                       {getPlatformDisplayName(platform)}
                                     </Badge>
                                   </div>
-                                  <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                                  <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 flex-1">
                                     {topic.title}
                                   </h4>
                                   <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                                    <span>{topic.hot}</span>
+                                    <span>{formatHotValue(topic.hot)}</span>
                                     <div className="flex items-center gap-1">
                                       {isTopicBookmarked(topic) && (
                                         <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
@@ -897,7 +912,7 @@ export default function HotTopicsPage() {
                                       )}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2 mt-auto">
                                     <Button
                                       size="sm"
                                       variant="outline"
@@ -1186,7 +1201,7 @@ export default function HotTopicsPage() {
                                 <p className="text-sm text-gray-500 mb-2 line-clamp-2">{topic.content}</p>
                               )}
                               <div className="flex items-center gap-4 text-xs text-gray-500">
-                                <span>热度: {topic.hot}</span>
+                                <span>热度: {formatHotValue(topic.hot)}</span>
                                 <span>平台: {getPlatformDisplayName(topic.platform || '')}</span>
                                 {topic.rank && <span>排名: #{topic.rank}</span>}
                               </div>

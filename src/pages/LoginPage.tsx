@@ -110,27 +110,46 @@ export default function LoginPage() {
   const sendCode = async () => {
     if (countdown > 0) return;
     
-    if (!codeForm.phone) {
-      toast({
-        title: "请输入手机号",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (!/^1[3-9]\d{9}$/.test(codeForm.phone)) {
-      toast({
-        title: "请输入正确的手机号",
-        variant: "destructive"
-      });
-      return;
+    if (codeForm.loginType === 'phone') {
+      if (!codeForm.phone) {
+        toast({
+          title: "请输入手机号",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (!/^1[3-9]\d{9}$/.test(codeForm.phone)) {
+        toast({
+          title: "请输入正确的手机号",
+          variant: "destructive"
+        });
+        return;
+      }
+    } else {
+      if (!codeForm.email) {
+        toast({
+          title: "请输入邮箱",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(codeForm.email)) {
+        toast({
+          title: "请输入正确的邮箱格式",
+          variant: "destructive"
+        });
+        return;
+      }
     }
     
     try {
       // 这里应该调用发送验证码的API
+      const target = codeForm.loginType === 'phone' ? '手机' : '邮箱';
       toast({
         title: "验证码已发送",
-        description: "验证码已发送到您的手机"
+        description: `验证码已发送到您的${target}`
       });
       
       // 开始倒计时
@@ -245,12 +264,22 @@ export default function LoginPage() {
    * 验证码登录
    */
   const handleCodeLogin = async () => {
-    if (!codeForm.phone || !codeForm.code) {
-      toast({
-        title: "请填写完整信息",
-        variant: "destructive"
-      });
-      return;
+    if (codeForm.loginType === 'phone') {
+      if (!codeForm.phone || !codeForm.code) {
+        toast({
+          title: "请填写完整信息",
+          variant: "destructive"
+        });
+        return;
+      }
+    } else {
+      if (!codeForm.email || !codeForm.code) {
+        toast({
+          title: "请填写完整信息",
+          variant: "destructive"
+        });
+        return;
+      }
     }
     
     setIsLoading(true);
@@ -258,9 +287,10 @@ export default function LoginPage() {
       // 模拟登录成功
       const userData = {
         id: 'temp-user-id',
-        phone: codeForm.phone,
-        username: codeForm.phone,
-        nickname: codeForm.phone,
+        phone: codeForm.loginType === 'phone' ? codeForm.phone : '',
+        email: codeForm.loginType === 'email' ? codeForm.email : '',
+        username: codeForm.loginType === 'phone' ? codeForm.phone : codeForm.email,
+        nickname: codeForm.loginType === 'phone' ? codeForm.phone : codeForm.email,
         plan: 'free',
         isProUser: false,
         createdAt: new Date().toISOString(),
@@ -277,9 +307,10 @@ export default function LoginPage() {
       // 登录成功后直接跳转到首页
       navigate('/');
     } catch (error: any) {
+      const target = codeForm.loginType === 'phone' ? '手机号' : '邮箱';
       toast({
         title: "登录失败",
-        description: error.message || "请检查手机号和验证码",
+        description: error.message || `请检查${target}和验证码`,
         variant: "destructive"
       });
     } finally {
@@ -421,16 +452,55 @@ export default function LoginPage() {
               
               {/* 验证码登录 */}
               <TabsContent value="code" className="space-y-4">
+                {/* 登录方式选择 */}
                 <div className="space-y-2">
-                  <Label htmlFor="code-phone">手机号</Label>
+                  <Label>登录方式</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={codeForm.loginType === 'phone' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setCodeForm(prev => ({ ...prev, loginType: 'phone' }))}
+                      className="flex-1"
+                    >
+                      <Phone className="h-4 w-4 mr-1" />
+                      手机号
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={codeForm.loginType === 'email' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setCodeForm(prev => ({ ...prev, loginType: 'email' }))}
+                      className="flex-1"
+                    >
+                      <Mail className="h-4 w-4 mr-1" />
+                      邮箱
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="code-account">
+                    {codeForm.loginType === 'phone' ? '手机号' : '邮箱'}
+                  </Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    {codeForm.loginType === 'phone' ? (
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    )}
                     <Input
-                      id="code-phone"
-                      type="tel"
-                      placeholder="请输入手机号"
-                      value={codeForm.phone}
-                      onChange={(e) => handleCodeFormChange('phone', e.target.value)}
+                      id="code-account"
+                      type={codeForm.loginType === 'phone' ? 'tel' : 'email'}
+                      placeholder={codeForm.loginType === 'phone' ? '请输入手机号' : '请输入邮箱'}
+                      value={codeForm.loginType === 'phone' ? codeForm.phone : codeForm.email}
+                      onChange={(e) => {
+                        if (codeForm.loginType === 'phone') {
+                          handleCodeFormChange('phone', e.target.value);
+                        } else {
+                          handleCodeFormChange('email', e.target.value);
+                        }
+                      }}
                       className="pl-10"
                     />
                   </div>

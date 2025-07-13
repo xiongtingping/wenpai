@@ -1,17 +1,15 @@
-import { SiWechat, SiXiaohongshu, SiZhihu, SiBilibili, SiSinaweibo } from "react-icons/si";
+import { SiWechat, SiXiaohongshu, SiBilibili, SiSinaweibo } from "react-icons/si";
 import { FaTiktok, FaNewspaper, FaYoutube } from "react-icons/fa";
 import { Globe, Smartphone, Monitor, Video, Rss, Zap, Users, BookOpen } from "lucide-react";
 
 export const platformLinks = {
   wechat: 'https://mp.weixin.qq.com/',
   xiaohongshu: 'https://creator.xiaohongshu.com/',
-  zhihu: 'https://zhuanlan.zhihu.com/write',
   bilibili: 'https://member.bilibili.com/platform/upload/text/essay',
   weibo: 'https://weibo.com/newpost',
   douyin: 'https://creator.douyin.com/creator-micro/content/upload',
   toutiao: 'https://mp.toutiao.com/profile_v4/graphic/publish',
   kuaishou: 'https://cp.kuaishou.com/article/publish/video',
-  baijia: 'https://baijiahao.baidu.com/builder/rc/edit',
   wangyi: 'https://mp.163.com/article/publish',
   qutoutiao: 'https://mp.qutoutiao.net/article/publish',
   pengpai: 'https://www.thepaper.cn/newsDetail_forward_1234567',
@@ -26,13 +24,11 @@ export const platformLinks = {
 export const platformIcons = {
   wechat: <SiWechat className="text-green-500" />,
   xiaohongshu: <SiXiaohongshu className="text-red-500" />,
-  zhihu: <SiZhihu className="text-blue-500" />,
   bilibili: <SiBilibili className="text-pink-400" />,
   weibo: <SiSinaweibo className="text-orange-500" />,
   douyin: <FaTiktok className="text-black" />,
   toutiao: <FaNewspaper className="text-red-600" />,
   kuaishou: <Zap className="text-yellow-500" />,
-  baijia: <Globe className="text-blue-600" />,
   wangyi: <Rss className="text-red-500" />,
   qutoutiao: <BookOpen className="text-purple-500" />,
   pengpai: <Monitor className="text-blue-700" />,
@@ -47,13 +43,11 @@ export const platformIcons = {
 export const platformNameMap = {
   wechat: '微信公众号',
   xiaohongshu: '小红书',
-  zhihu: '知乎',
   bilibili: 'B站',
   weibo: '微博',
   douyin: '抖音',
   toutiao: '头条号',
   kuaishou: '快手',
-  baijia: '百家号',
   wangyi: '网易号',
   qutoutiao: '趣头条',
   pengpai: '澎湃号',
@@ -72,7 +66,7 @@ export const platformCategories = {
   },
   content: {
     name: '内容平台',
-    platforms: ['xiaohongshu', 'zhihu', 'bilibili', 'toutiao', 'baijia', 'wangyi', 'qutoutiao', 'pengpai', 'sohu']
+    platforms: ['xiaohongshu', 'bilibili', 'toutiao', 'wangyi', 'qutoutiao', 'pengpai', 'sohu']
   },
   video: {
     name: '视频平台',
@@ -80,7 +74,7 @@ export const platformCategories = {
   },
   news: {
     name: '资讯平台',
-    platforms: ['toutiao', 'baijia', 'wangyi', 'qutoutiao', 'pengpai', 'sohu']
+    platforms: ['toutiao', 'wangyi', 'qutoutiao', 'pengpai', 'sohu']
   }
 };
 
@@ -104,16 +98,6 @@ export const platformSpecs = {
     supportMentions: true,
     optimalLength: [50, 200],
     features: ['图片', '视频', '话题标签', '@用户', '定位', '商品标签']
-  },
-  zhihu: {
-    maxLength: 3000,
-    supportImages: true,
-    supportVideo: true,
-    supportLinks: true,
-    supportHashtags: true,
-    supportMentions: true,
-    optimalLength: [500, 1500],
-    features: ['专栏文章', '问答', '想法', '图片', '视频', '超链接', '数学公式']
   },
   bilibili: {
     maxLength: 500,
@@ -165,16 +149,6 @@ export const platformSpecs = {
     optimalLength: [20, 50],
     features: ['短视频', '直播', '话题', '@用户', '音乐', '特效']
   },
-  baijia: {
-    maxLength: 4000,
-    supportImages: true,
-    supportVideo: true,
-    supportLinks: true,
-    supportHashtags: false,
-    supportMentions: false,
-    optimalLength: [1000, 2500],
-    features: ['图文', '视频', '图集', '原创保护', 'SEO优化', '广告分成']
-  },
   wangyi: {
     maxLength: 3000,
     supportImages: true,
@@ -203,7 +177,7 @@ export const platformSpecs = {
     supportHashtags: false,
     supportMentions: false,
     optimalLength: [1000, 3000],
-    features: ['新闻', '评论', '图片', '视频', '专题', '深度报道']
+    features: ['深度报道', '图文', '视频', '专题', '评论', '数据可视化']
   },
   sohu: {
     maxLength: 3000,
@@ -213,17 +187,17 @@ export const platformSpecs = {
     supportHashtags: false,
     supportMentions: false,
     optimalLength: [800, 1500],
-    features: ['图文', '视频', '图集', '焦点图', '广告分成']
+    features: ['图文', '视频', '音频', '图集', '专题', '互动']
   },
   iqiyi: {
     maxLength: 1000,
     supportImages: true,
     supportVideo: true,
-    supportLinks: false,
+    supportLinks: true,
     supportHashtags: true,
-    supportMentions: false,
+    supportMentions: true,
     optimalLength: [200, 500],
-    features: ['视频', '图文', '话题', '泡泡圈', '弹幕']
+    features: ['视频', '图文', '话题', '@用户', '音乐', '特效']
   },
   youtube: {
     maxLength: 5000,
@@ -231,9 +205,9 @@ export const platformSpecs = {
     supportVideo: true,
     supportLinks: true,
     supportHashtags: true,
-    supportMentions: false,
-    optimalLength: [100, 500],
-    features: ['视频', '直播', '社区', '话题', '字幕', '章节']
+    supportMentions: true,
+    optimalLength: [1000, 3000],
+    features: ['视频', '图文', '话题', '@用户', '音乐', '特效', '字幕']
   },
   twitter: {
     maxLength: 280,
@@ -243,7 +217,7 @@ export const platformSpecs = {
     supportHashtags: true,
     supportMentions: true,
     optimalLength: [50, 200],
-    features: ['推文', '图片', '视频', '话题', '@用户', '投票', '直播']
+    features: ['推文', '图片', '视频', '话题', '@用户', '投票', '空间']
   },
   linkedin: {
     maxLength: 3000,
@@ -252,8 +226,8 @@ export const platformSpecs = {
     supportLinks: true,
     supportHashtags: true,
     supportMentions: true,
-    optimalLength: [200, 600],
-    features: ['文章', '动态', '图片', '视频', '话题', '@用户', '投票']
+    optimalLength: [500, 1500],
+    features: ['文章', '图片', '视频', '话题', '@用户', '投票', '活动']
   },
   facebook: {
     maxLength: 63206,
@@ -262,8 +236,8 @@ export const platformSpecs = {
     supportLinks: true,
     supportHashtags: true,
     supportMentions: true,
-    optimalLength: [100, 400],
-    features: ['帖子', '图片', '视频', '直播', '话题', '@用户', '投票', '活动']
+    optimalLength: [100, 500],
+    features: ['帖子', '图片', '视频', '话题', '@用户', '投票', '活动']
   }
 };
 

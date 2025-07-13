@@ -13,7 +13,7 @@ import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
 import { getOrCreateTempUserId } from '@/lib/utils';
-import { LogOut, Crown, Copy as CopyIcon, Save, Info } from 'lucide-react';
+import { LogOut, Crown, Copy as CopyIcon, Save, Info, Gift } from 'lucide-react';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
 
@@ -184,6 +184,39 @@ export default function ProfilePage() {
 
   const handleInvite = () => {
     navigate('/invite');
+  };
+
+  const handleCopyInviteLink = async () => {
+    try {
+      const inviteUrl = `${window.location.origin}/register?ref=${getCurrentUserId()}`;
+      await navigator.clipboard.writeText(inviteUrl);
+      toast({
+        title: "邀请链接已复制",
+        description: "去发给好友吧！",
+      });
+    } catch (error) {
+      toast({
+        title: "复制失败",
+        description: "请手动复制邀请链接",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCopyInviteCode = async () => {
+    try {
+      await navigator.clipboard.writeText(getCurrentUserId());
+      toast({
+        title: "推荐码已复制",
+        description: "推荐码已复制到剪贴板",
+      });
+    } catch (error) {
+      toast({
+        title: "复制失败",
+        description: "请手动复制推荐码",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleUserData = () => {
@@ -466,7 +499,10 @@ export default function ProfilePage() {
               <label className="text-sm text-gray-600 mb-1 block">推荐码</label>
               <div className="flex items-center border rounded px-2 py-1 bg-white">
                 <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value={getCurrentUserId()} />
-                <button className="flex items-center text-blue-600 hover:underline text-xs ml-2">
+                <button 
+                  onClick={handleCopyInviteCode}
+                  className="flex items-center text-blue-600 hover:underline text-xs ml-2"
+                >
                   <CopyIcon className="w-4 h-4 mr-1" />复制
                 </button>
               </div>
@@ -474,8 +510,11 @@ export default function ProfilePage() {
             <div>
               <label className="text-sm text-gray-600 mb-1 block">邀请链接</label>
               <div className="flex items-center border rounded px-2 py-1 bg-white">
-                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value={`https://xxx.netlify.app?ref=${getCurrentUserId()}`} />
-                <button className="flex items-center text-blue-600 hover:underline text-xs ml-2">
+                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value={`${window.location.origin}/register?ref=${getCurrentUserId()}`} />
+                <button 
+                  onClick={handleCopyInviteLink}
+                  className="flex items-center text-blue-600 hover:underline text-xs ml-2"
+                >
                   <CopyIcon className="w-4 h-4 mr-1" />复制
                 </button>
               </div>
@@ -484,9 +523,10 @@ export default function ProfilePage() {
 
           {/* 底部按钮 */}
           <button 
-            onClick={handleInvite}
-            className="mt-6 w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold shadow-md hover:opacity-90 active:opacity-80 transition-opacity"
+            onClick={handleCopyInviteLink}
+            className="mt-6 w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold shadow-md hover:opacity-90 active:opacity-80 transition-opacity flex items-center justify-center gap-2"
           >
+            <Gift className="w-5 h-5" />
             立即邀请好友
           </button>
         </div>
