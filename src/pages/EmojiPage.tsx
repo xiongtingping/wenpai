@@ -328,33 +328,6 @@ const EmojiPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 space-y-6">
-        {/* Emoji统计信息卡片 */}
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">项目信息</h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">3000+</div>
-                <div className="text-sm text-gray-600">总计Emoji</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{UNICODE_EMOJI_GROUPS.length}</div>
-                <div className="text-sm text-gray-600">Unicode分类</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{Object.keys(SKIN_TONE_MODIFIERS).length}</div>
-                <div className="text-sm text-gray-600">肤色修饰符</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{Object.keys(NOTO_STYLES).length}</div>
-                <div className="text-sm text-gray-600">可用风格</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
