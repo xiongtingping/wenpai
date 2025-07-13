@@ -22,6 +22,8 @@ export interface User {
   createdAt?: string;
   /** 更新时间 */
   updatedAt?: string;
+  /** 推荐人ID */
+  referrerId?: string;
   /** 其他属性 */
   [key: string]: unknown;
 } 

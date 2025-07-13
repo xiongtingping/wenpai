@@ -154,12 +154,16 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
+      // 获取推荐人ID
+      const referrerId = localStorage.getItem('referrer-id');
+      
       // 设置注册时间和优惠开始时间
       const now = Date.now();
       localStorage.setItem('promo_start', now.toString());
       localStorage.setItem('registration_time', now.toString());
       
-      await login({
+      // 构建注册请求体，包含推荐人ID
+      const registrationData = {
         id: 'temp-user-id',
         phone: phoneForm.phone,
         username: phoneForm.nickname,
@@ -167,8 +171,13 @@ export default function RegisterPage() {
         plan: 'free',
         isProUser: false,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+        updatedAt: new Date().toISOString(),
+        referrerId: referrerId // 添加推荐人ID到请求体
+      };
+      
+      console.log('注册请求体:', registrationData);
+      
+      await login(registrationData);
       
       // 处理推荐奖励
       processReferralReward();
@@ -221,12 +230,16 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
+      // 获取推荐人ID
+      const referrerId = localStorage.getItem('referrer-id');
+      
       // 设置注册时间和优惠开始时间
       const now = Date.now();
       localStorage.setItem('promo_start', now.toString());
       localStorage.setItem('registration_time', now.toString());
       
-      await login({
+      // 构建注册请求体，包含推荐人ID
+      const registrationData = {
         id: 'temp-user-id',
         email: emailForm.email,
         username: emailForm.nickname,
@@ -234,8 +247,13 @@ export default function RegisterPage() {
         plan: 'free',
         isProUser: false,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+        updatedAt: new Date().toISOString(),
+        referrerId: referrerId // 添加推荐人ID到请求体
+      };
+      
+      console.log('注册请求体:', registrationData);
+      
+      await login(registrationData);
       
       // 处理推荐奖励
       processReferralReward();
