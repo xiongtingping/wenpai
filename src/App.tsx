@@ -106,11 +106,9 @@ const AppContent: React.FC = () => {
         
         <Route path="/invite" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <ToolLayout>
-              <Suspense fallback={<LoadingSpinner />}>
-                <InvitePage />
-              </Suspense>
-            </ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <InvitePage />
+            </Suspense>
           </ProtectedRoute>
         } />
         
