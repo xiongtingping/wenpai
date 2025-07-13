@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getOrCreateTempUserId } from '@/lib/utils';
 
 /**
  * 用户邀请统计
@@ -22,28 +23,29 @@ interface UserInviteStats {
 }
 
 /**
- * 用户状态接口
+ * 用户存储状态接口
  */
 interface UserState {
-  // 用户使用量
-  usageRemaining: number;
-  lastReset: string | null;
-  
-  // 邀请相关
-  userInviteStats: UserInviteStats;
+  /** 用户邀请码 */
   userInviteCode: string;
-  
-  
-  
-  // 方法
-  decrementUsage: () => void;
-  addUsageFromInvite: (amount: number) => void;
-        addUsageFromClick: () => void;
-      resetMonthlyUsage: () => void;
-      generateInviteCode: () => string;
-      registerClick: () => void;
-      registerInvite: () => void;
-      checkAndResetWeeklyLimit: () => void;
+  /** 用户邀请统计 */
+  userInviteStats: {
+    totalClicks: number;
+    totalRegistrations: number;
+    totalRewards: number;
+  };
+  /** 剩余使用次数 */
+  usageRemaining: number;
+  /** 临时用户ID */
+  tempUserId: string;
+  /** 临时用户ID是否已绑定到正式账号 */
+  isTempUserIdBound: boolean;
+  /** 生成邀请码 */
+  generateInviteCode: () => string;
+  /** 绑定临时用户ID到正式账号 */
+  bindTempUserIdToAccount: (accountId: string) => void;
+  /** 获取当前用户ID（临时或正式） */
+  getCurrentUserId: () => string;
 }
 
 /**
@@ -65,17 +67,16 @@ export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       // 初始状态
-      usageRemaining: 10, // 默认初始使用量
-      lastReset: null,
-      userInviteCode: generateUniqueCode(),
+      userInviteCode: 'temp-invite-code',
       userInviteStats: {
         totalClicks: 0,
         totalRegistrations: 0,
-        totalRewardsClaimed: 0,
-        invitationLinks: []
+        totalRewards: 0,
       },
+      usageRemaining: 10,
+      tempUserId: getOrCreateTempUserId(),
+      isTempUserIdBound: false,
 
-      
       /**
        * 减少使用量
        */
@@ -117,7 +118,7 @@ export const useUserStore = create<UserState>()(
        * 生成新的邀请码
        */
       generateInviteCode: () => {
-        const newCode = generateUniqueCode();
+        const newCode = `invite_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
         set({ userInviteCode: newCode });
         return newCode;
       },
@@ -151,6 +152,49 @@ export const useUserStore = create<UserState>()(
        */
       checkAndResetWeeklyLimit: () => {
         // 暂时不实现每周限制功能
+      },
+
+      // 绑定临时用户ID到正式账号
+      bindTempUserIdToAccount: (accountId: string) => {
+        const { tempUserId } = get();
+        
+        // 保存绑定关系
+        const bindingData = {
+          tempUserId,
+          accountId,
+          boundAt: new Date().toISOString(),
+        };
+        
+        localStorage.setItem('temp_user_binding', JSON.stringify(bindingData));
+        
+        // 更新状态
+        set({ 
+          isTempUserIdBound: true,
+          tempUserId: accountId // 更新为正式账号ID
+        });
+        
+        console.log('临时用户ID已绑定到正式账号:', bindingData);
+      },
+
+      // 获取当前用户ID（临时或正式）
+      getCurrentUserId: () => {
+        const { tempUserId, isTempUserIdBound } = get();
+        
+        // 如果已绑定，返回正式账号ID
+        if (isTempUserIdBound) {
+          const bindingData = localStorage.getItem('temp_user_binding');
+          if (bindingData) {
+            try {
+              const binding = JSON.parse(bindingData);
+              return binding.accountId;
+            } catch (error) {
+              console.error('解析绑定数据失败:', error);
+            }
+          }
+        }
+        
+        // 否则返回临时ID
+        return tempUserId;
       },
     }),
     {

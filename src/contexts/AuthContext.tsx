@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useAuthing } from '@/hooks/useAuthing';
 import { usePermissions } from '@/hooks/usePermissions';
+import { getOrCreateTempUserId } from '@/lib/utils';
 
 /**
  * 认证状态类型
@@ -41,6 +42,10 @@ interface AuthContextType {
   isLoading: boolean;
   /** 错误信息 */
   error: string | null;
+  /** 当前用户ID（包括临时ID） */
+  userId: string;
+  /** 是否为临时用户 */
+  isTempUser: boolean;
   /** 登录方法 */
   login: (userData: User) => void;
   /** 登出方法 */
@@ -88,10 +93,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(userData);
           setStatus('authenticated');
         } else {
+          // 未登录用户自动生成临时ID
+          const tempUserId = getOrCreateTempUserId();
+          console.log('生成临时用户ID:', tempUserId);
           setStatus('unauthenticated');
         }
       } catch (error) {
         console.error('初始化认证状态失败:', error);
+        // 即使出错也生成临时ID
+        const tempUserId = getOrCreateTempUserId();
+        console.log('错误后生成临时用户ID:', tempUserId);
         setStatus('unauthenticated');
       }
     };
@@ -206,12 +217,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const isLoading = status === 'loading' || authingLoading;
 
+  /**
+   * 获取当前用户ID（包括临时ID）
+   */
+  const userId = user?.id || getOrCreateTempUserId();
+
+  /**
+   * 检查是否为临时用户
+   */
+  const isTempUser = !isAuthenticated;
+
   const contextValue: AuthContextType = {
     user,
     status,
     isAuthenticated,
     isLoading,
     error,
+    userId,
+    isTempUser,
     login,
     logout,
     updateUser,

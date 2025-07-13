@@ -20,6 +20,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useUserStore } from "@/store/userStore";
+import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -35,6 +36,7 @@ import { useNavigate } from 'react-router-dom';
 
 function InvitePage() {
   const { toast } = useToast();
+  const { userId, isTempUser } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("invite");
   const userInviteCode = useUserStore((state) => state.userInviteCode);
   const generateInviteCode = useUserStore((state) => state.generateInviteCode);

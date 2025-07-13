@@ -12,14 +12,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
+import { getOrCreateTempUserId } from '@/lib/utils';
 import { LogOut, Crown, Copy as CopyIcon, Save, Info } from 'lucide-react';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { user, isAuthenticated, logout } = useAuth();
-  const { usageRemaining } = useUserStore();
+  const { user, isAuthenticated, logout, userId, isTempUser } = useAuth();
+  const { usageRemaining, getCurrentUserId } = useUserStore();
   const navigate = useNavigate();
 
   // 编辑状态管理
@@ -351,7 +352,7 @@ export default function ProfilePage() {
             <div className="space-y-3 text-sm text-gray-600">
               <div className="flex justify-between items-center">
                 <span className="inline-flex items-center">用户ID</span>
-                <span className="font-mono text-gray-700">temp-user-id</span>
+                <span className="font-mono text-gray-700">{getCurrentUserId()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="inline-flex items-center">账户类型</span>
