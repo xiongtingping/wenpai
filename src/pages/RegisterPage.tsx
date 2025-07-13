@@ -219,7 +219,9 @@ export default function RegisterPage() {
         
         toast({
           title: "注册成功",
-          description: "欢迎加入文派！"
+          description: referrerId 
+            ? "欢迎加入文派！您和推荐人都获得了20次使用机会奖励" 
+            : "欢迎加入文派！"
         });
         
         // 注册成功后跳转到首页
@@ -314,7 +316,9 @@ export default function RegisterPage() {
         
         toast({
           title: "注册成功",
-          description: "欢迎加入文派！"
+          description: referrerId 
+            ? "欢迎加入文派！您和推荐人都获得了20次使用机会奖励" 
+            : "欢迎加入文派！"
         });
         
         // 注册成功后跳转到首页
@@ -358,10 +362,10 @@ export default function RegisterPage() {
               <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
                 <div className="flex items-center justify-center gap-2 text-sm text-green-700">
                   <Gift className="h-4 w-4" />
-                  <span>通过推荐链接注册，注册成功后将获得额外奖励</span>
+                  <span>通过推荐链接注册，注册成功后将获得20次使用机会奖励</span>
                 </div>
                 <div className="text-xs text-gray-500 text-center mt-1">
-                  推荐人ID: {referrerId}
+                  推荐人ID: {referrerId} | 推荐人也将获得20次使用机会奖励
                 </div>
               </div>
             )}

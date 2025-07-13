@@ -93,6 +93,21 @@ module.exports.handler = async (event, context) => {
       return await generateImage(requestBody, headers);
     }
 
+    // 处理推荐奖励请求
+    if (action === 'referral-reward') {
+      return await handleReferralReward(requestBody, headers);
+    }
+
+    // 处理推荐统计请求
+    if (action === 'referral-stats') {
+      return await getReferralStats(requestBody, headers);
+    }
+
+    // 处理推荐人ID验证请求
+    if (action === 'referral-validate') {
+      return await validateReferrerId(requestBody, headers);
+    }
+
     return {
       statusCode: 501,
       headers,

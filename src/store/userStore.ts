@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getOrCreateTempUserId, saveReferrerFromURL, getReferrerId, clearReferrerId } from '@/lib/utils';
 import UserDataService from '@/services/userDataService';
+import { sendReferralReward } from '@/api/referralService';
 
 /**
  * 用户邀请统计
@@ -61,6 +62,8 @@ interface UserState {
   clearReferrer: () => void;
   /** 处理推荐奖励 */
   processReferralReward: () => void;
+  /** 通知后端给推荐人发放奖励 */
+  notifyReferrerReward: (referrerId: string) => Promise<void>;
 }
 
 /**
@@ -130,29 +133,68 @@ export const useUserStore = create<UserState>()(
 
       /**
        * 处理推荐奖励
+       * @description 处理推荐人和被推荐人的奖励逻辑
        */
       processReferralReward: () => {
-        const { referrerId, addUsageFromInvite, clearReferrer } = get();
+        const { referrerId, addUsageFromInvite, clearReferrer, recordUserAction } = get();
         
         if (referrerId) {
-          // 给当前用户增加使用次数
+          // 1. 给被推荐人（当前用户）增加20次使用机会
           addUsageFromInvite(20);
           
-          // 记录推荐奖励
-          const { recordUserAction } = get();
+          // 2. 记录被推荐人奖励
           recordUserAction('featureUsage', {
-            feature: 'referral_reward',
+            feature: 'referral_reward_received',
             metadata: { 
               referrerId,
               rewardAmount: 20,
-              rewardType: 'usage_count'
+              rewardType: 'usage_count',
+              role: 'referred_user'
             }
           });
           
-          // 清除推荐人ID，避免重复奖励
+          // 3. 通知后端给推荐人增加20次使用机会
+          notifyReferrerReward(referrerId);
+          
+          // 4. 清除推荐人ID，避免重复奖励
           clearReferrer();
           
-          console.log('推荐奖励已发放:', { referrerId, rewardAmount: 20 });
+          console.log('推荐奖励已发放:', { 
+            referrerId, 
+            referredUserReward: 20,
+            referrerReward: 20 
+          });
+        }
+      },
+
+      /**
+       * 通知后端给推荐人发放奖励
+       * @param referrerId 推荐人ID
+       */
+      notifyReferrerReward: async (referrerId: string) => {
+        const { tempUserId } = get();
+        
+        try {
+          const result = await sendReferralReward({
+            referrerId,
+            referredUserId: tempUserId,
+            rewardAmount: 20,
+            rewardType: 'usage_count',
+            timestamp: new Date().toISOString()
+          });
+          
+          if (result.success) {
+            console.log('推荐奖励发放成功:', {
+              referrerId,
+              referredUserId: tempUserId,
+              referrerReward: result.referrerReward,
+              referredUserReward: result.referredUserReward
+            });
+          } else {
+            console.error('推荐奖励发放失败:', result.message);
+          }
+        } catch (error) {
+          console.error('推荐奖励发放错误:', error);
         }
       },
 
