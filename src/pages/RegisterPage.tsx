@@ -15,6 +15,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, Phone, Mail, Lock, User, Send } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useUserStore } from '@/store/userStore';
+import { getOrCreateTempUserId } from '@/lib/utils';
 
 /**
  * 注册页面组件
@@ -154,41 +155,64 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      // 获取推荐人ID
+      // 获取推荐人ID和临时用户ID
       const referrerId = localStorage.getItem('referrer-id');
+      const tempUserId = getOrCreateTempUserId();
       
       // 设置注册时间和优惠开始时间
       const now = Date.now();
       localStorage.setItem('promo_start', now.toString());
       localStorage.setItem('registration_time', now.toString());
       
-      // 构建注册请求体，包含推荐人ID
-      const registrationData = {
-        id: 'temp-user-id',
-        phone: phoneForm.phone,
-        username: phoneForm.nickname,
-        nickname: phoneForm.nickname,
-        plan: 'free',
-        isProUser: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        referrerId: referrerId // 添加推荐人ID到请求体
-      };
-      
-      console.log('注册请求体:', registrationData);
-      
-      await login(registrationData);
-      
-      // 处理推荐奖励
-      processReferralReward();
-      
-      toast({
-        title: "注册成功",
-        description: "欢迎加入文派！"
+      // 发送注册请求
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: phoneForm.nickname,
+          password: phoneForm.password,
+          phone: phoneForm.phone,
+          verificationCode: phoneForm.code,
+          tempUserId: tempUserId,
+          referrerId: referrerId, // 添加推荐人ID
+        }),
       });
       
-      // 注册成功后跳转到首页
-      navigate('/');
+      if (!response.ok) {
+        throw new Error(`注册失败: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // 注册成功后，使用返回的用户数据登录
+        await login({
+          id: result.user.id || tempUserId,
+          phone: phoneForm.phone,
+          username: phoneForm.nickname,
+          nickname: phoneForm.nickname,
+          plan: 'free',
+          isProUser: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          referrerId: referrerId
+        });
+        
+        // 处理推荐奖励
+        processReferralReward();
+        
+        toast({
+          title: "注册成功",
+          description: "欢迎加入文派！"
+        });
+        
+        // 注册成功后跳转到首页
+        navigate('/');
+      } else {
+        throw new Error(result.message || '注册失败');
+      }
     } catch (error: any) {
       toast({
         title: "注册失败",
@@ -230,41 +254,64 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      // 获取推荐人ID
+      // 获取推荐人ID和临时用户ID
       const referrerId = localStorage.getItem('referrer-id');
+      const tempUserId = getOrCreateTempUserId();
       
       // 设置注册时间和优惠开始时间
       const now = Date.now();
       localStorage.setItem('promo_start', now.toString());
       localStorage.setItem('registration_time', now.toString());
       
-      // 构建注册请求体，包含推荐人ID
-      const registrationData = {
-        id: 'temp-user-id',
-        email: emailForm.email,
-        username: emailForm.nickname,
-        nickname: emailForm.nickname,
-        plan: 'free',
-        isProUser: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        referrerId: referrerId // 添加推荐人ID到请求体
-      };
-      
-      console.log('注册请求体:', registrationData);
-      
-      await login(registrationData);
-      
-      // 处理推荐奖励
-      processReferralReward();
-      
-      toast({
-        title: "注册成功",
-        description: "欢迎加入文派！"
+      // 发送注册请求
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: emailForm.nickname,
+          password: emailForm.password,
+          email: emailForm.email,
+          verificationCode: emailForm.code,
+          tempUserId: tempUserId,
+          referrerId: referrerId, // 添加推荐人ID
+        }),
       });
       
-      // 注册成功后跳转到首页
-      navigate('/');
+      if (!response.ok) {
+        throw new Error(`注册失败: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // 注册成功后，使用返回的用户数据登录
+        await login({
+          id: result.user.id || tempUserId,
+          email: emailForm.email,
+          username: emailForm.nickname,
+          nickname: emailForm.nickname,
+          plan: 'free',
+          isProUser: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          referrerId: referrerId
+        });
+        
+        // 处理推荐奖励
+        processReferralReward();
+        
+        toast({
+          title: "注册成功",
+          description: "欢迎加入文派！"
+        });
+        
+        // 注册成功后跳转到首页
+        navigate('/');
+      } else {
+        throw new Error(result.message || '注册失败');
+      }
     } catch (error: any) {
       toast({
         title: "注册失败",
