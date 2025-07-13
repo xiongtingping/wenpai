@@ -315,27 +315,28 @@ export default function HotTopicsPage() {
   };
 
   /**
-   * 处理话题点击
+   * 处理话题点击 - 现在只标记为已读，不跳转
    */
   const handleTopicClick = (topic: DailyHotItem) => {
     // 标记为已读
     const topicId = `${topic.platform}-${topic.title}`;
     markAsRead(topicId);
-    
-    // 直接跳转到源网页
+  };
+
+  /**
+   * 处理查看源网页
+   */
+  const handleViewSource = (topic: DailyHotItem) => {
     if (topic.url) {
       window.open(topic.url, '_blank');
+    } else if (topic.mobil_url) {
+      window.open(topic.mobil_url, '_blank');
     } else {
-      // 如果没有URL，尝试使用移动端链接
-      if (topic.mobil_url) {
-        window.open(topic.mobil_url, '_blank');
-      } else {
-        toast({
-          title: "无法打开链接",
-          description: "该话题暂无源链接",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "无法打开链接",
+        description: "该话题暂无源链接",
+        variant: "destructive"
+      });
     }
   };
 
@@ -828,7 +829,7 @@ export default function HotTopicsPage() {
                               <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
                                 {topic.title}
                               </h4>
-                              <div className="flex items-center justify-between text-xs text-gray-500">
+                              <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
                                 <span>{topic.hot}</span>
                                 <div className="flex items-center gap-1">
                                   {isTopicBookmarked(topic) && (
@@ -838,6 +839,31 @@ export default function HotTopicsPage() {
                                     <Eye className="w-3 h-3 text-gray-400" />
                                   )}
                                 </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="flex-1 text-xs h-7"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewSource(topic);
+                                  }}
+                                >
+                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  查看
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant={isTopicBookmarked(topic) ? "default" : "outline"}
+                                  className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleBookmark(topic);
+                                  }}
+                                >
+                                  <Bookmark className="w-3 h-3" />
+                                </Button>
                               </div>
                             </div>
                           ))}
@@ -868,7 +894,7 @@ export default function HotTopicsPage() {
                                   <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
                                     {topic.title}
                                   </h4>
-                                  <div className="flex items-center justify-between text-xs text-gray-500">
+                                  <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
                                     <span>{topic.hot}</span>
                                     <div className="flex items-center gap-1">
                                       {isTopicBookmarked(topic) && (
@@ -878,6 +904,31 @@ export default function HotTopicsPage() {
                                         <Eye className="w-3 h-3 text-gray-400" />
                                       )}
                                     </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="flex-1 text-xs h-7"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleViewSource(topic);
+                                      }}
+                                    >
+                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      查看
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant={isTopicBookmarked(topic) ? "default" : "outline"}
+                                      className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleBookmark(topic);
+                                      }}
+                                    >
+                                      <Bookmark className="w-3 h-3" />
+                                    </Button>
                                   </div>
                                 </div>
                               ))}
@@ -1172,9 +1223,7 @@ export default function HotTopicsPage() {
                                 className="h-8 w-8 p-0"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (topic!.url) {
-                                    window.open(topic!.url, '_blank');
-                                  }
+                                  handleViewSource(topic!);
                                 }}
                               >
                                 <ExternalLink className="w-4 h-4" />

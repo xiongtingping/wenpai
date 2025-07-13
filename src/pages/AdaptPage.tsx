@@ -38,9 +38,14 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { 
-  adaptContentToPlatforms,
-  getAllSupportedPlatforms,
-  getPlatformConfig
+  generateAdaptedContent, 
+  regeneratePlatformContent, 
+  platformStyles,
+  setApiProvider,
+  getApiProvider,
+  setModel,
+  getModel,
+  getAvailableModels
 } from "@/api/contentAdapter";
 import { 
   getAvailableModelsForTier, 
@@ -94,95 +99,66 @@ const platformUrls: Record<string, string> = {
   history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704'
 };
 
-/**
- * 平台样式配置
- */
-const platformStyles: Record<string, { name: string; color: string }> = {
-  weibo: { name: '微博', color: 'text-orange-500' },
-  xiaohongshu: { name: '小红书', color: 'text-rose-500' },
-  zhihu: { name: '知乎', color: 'text-blue-500' },
-  bilibili: { name: 'B站', color: 'text-blue-400' },
-  douyin: { name: '抖音', color: 'text-black' },
-  toutiao: { name: '头条', color: 'text-red-500' },
-  baijiahao: { name: '百家号', color: 'text-blue-600' },
-  kuaishou: { name: '快手', color: 'text-red-600' },
-  wechat: { name: '微信', color: 'text-green-500' },
-  facebook: { name: 'Facebook', color: 'text-blue-600' },
-  twitter: { name: 'Twitter', color: 'text-blue-400' },
-  linkedin: { name: 'LinkedIn', color: 'text-blue-700' },
-  v2ex: { name: 'V2EX', color: 'text-gray-600' },
-  github: { name: 'GitHub', color: 'text-gray-800' },
-  sspai: { name: '少数派', color: 'text-blue-500' },
-  juejin: { name: '掘金', color: 'text-blue-600' },
-  csdn: { name: 'CSDN', color: 'text-red-500' },
-  hellogithub: { name: 'HelloGitHub', color: 'text-green-600' },
-  ithome: { name: 'IT之家', color: 'text-blue-500' },
-  ngabbs: { name: 'NGA', color: 'text-orange-600' },
-  weatheralarm: { name: '天气预警', color: 'text-yellow-600' },
-  earthquake: { name: '地震信息', color: 'text-red-600' },
-  history: { name: '历史上的今天', color: 'text-purple-600' }
-};
-
 // Helper function to get platform icon
 function getPlatformIcon(platformId: string): JSX.Element {
-  // 临时使用硬编码的平台数据，避免编译错误
-  const platformName = platformId;
+  const platformData = platformStyles[platformId as keyof typeof platformStyles];
+  const platformName = platformData?.name || platformId;
   
   switch (platformId) {
     case 'zhihu':
       return (
         <div className="flex items-center">
           <MessageSquare className="h-4 w-4 text-blue-500 mr-1" />
-          <span className="text-xs">知乎</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'weibo':
       return (
         <div className="flex items-center">
           <Send className="h-4 w-4 text-orange-500 mr-1" />
-          <span className="text-xs">微博</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'xiaohongshu':
       return (
         <div className="flex items-center">
           <Book className="h-4 w-4 text-rose-500 mr-1" />
-          <span className="text-xs">小红书</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'wechat':
       return (
         <div className="flex items-center">
           <MessageSquare className="h-4 w-4 text-green-500 mr-1" />
-          <span className="text-xs">微信</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'douyin':
       return (
         <div className="flex items-center">
           <Video className="h-4 w-4 text-black mr-1" />
-          <span className="text-xs">抖音</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'video':
       return (
         <div className="flex items-center">
           <SquarePlay className="h-4 w-4 text-green-600 mr-1" />
-          <span className="text-xs">视频号</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'twitter':
       return (
         <div className="flex items-center">
           <Twitter className="h-4 w-4 text-black mr-1" />
-          <span className="text-xs">Twitter</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'bilibili':
       return (
         <div className="flex items-center">
           <Video className="h-4 w-4 text-blue-400 mr-1" />
-          <span className="text-xs">B站</span>
+          <span className="text-xs">{platformName}</span>
         </div>
       );
     default:
@@ -346,7 +322,7 @@ export default function AdaptPage() {
   
   // AI Model settings
   const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>('openai');
-  const [selectedModel, setSelectedModel] = useState('gpt-4o');
+  const [selectedModel, setSelectedModel] = useState(getModel());
   
   // 订阅等级本地状态，后续可全局提升
   const [userPlan, setUserPlan] = useState<'trial' | 'pro' | 'premium'>('trial');
@@ -361,7 +337,7 @@ export default function AdaptPage() {
   const handleModelSelect = (modelId: string, disabled: boolean) => {
     if (disabled) return;
     setSelectedModel(modelId);
-    setSelectedModel(modelId);
+    setModel(modelId);
     // 自动切换API提供商
     const provider = getModelProvider(modelId);
     if (provider === 'OpenAI') setCurrentApiProvider('openai');
@@ -671,15 +647,12 @@ export default function AdaptPage() {
         platformSettingsForAPI[`${platformId}-brandLibrary`] = useBrandLibrary;
       });
       
-      // 临时使用模拟数据，避免编译错误
-      const generatedContent = {
-        success: true,
-        results: selectedPlatforms.map(platformId => ({
-          platform: platformId,
-          content: `这是为${platformId}平台适配的内容示例。`,
-          success: true
-        }))
-      };
+      // Call API to generate content for all selected platforms
+      const generatedContent = await generateAdaptedContent(
+        originalContent,
+        selectedPlatforms,
+        platformSettingsForAPI
+      );
       
       // Process each platform sequentially for better UX
       for (let i = 0; i < selectedPlatforms.length; i++) {
@@ -718,7 +691,7 @@ export default function AdaptPage() {
         
         // Update content for each platform
         for (const platformId of selectedPlatforms) {
-          const adaptedContent = generatedContent.results.find(r => r.platform === platformId);
+          const adaptedContent = generatedContent[platformId];
           if (adaptedContent && adaptedContent.content) {
             updateStep(3, "completed");
             
@@ -729,8 +702,8 @@ export default function AdaptPage() {
                   ? { 
                       ...result, 
                       content: adaptedContent.content,
-                      source: "ai" as const,
-                      error: adaptedContent.success ? undefined : "生成失败"
+                      source: adaptedContent.source,
+                      error: adaptedContent.error 
                     }
                   : result
               )
@@ -1261,12 +1234,11 @@ export default function AdaptPage() {
       platformSettingsForAPI[`${platformId}-brandLibrary`] = useBrandLibrary;
       
       // Call API to regenerate content for this specific platform
-      // 临时注释掉，使用新的API
-      // const result = await regeneratePlatformContent(
-      //   platformId,
-      //   originalContent,
-      //   platformSettingsForAPI
-      // );
+      const result = await regeneratePlatformContent(
+        platformId,
+        originalContent,
+        platformSettingsForAPI
+      );
       
       // Update steps progressively
       const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error") => {
@@ -1299,13 +1271,8 @@ export default function AdaptPage() {
       updateStep(3, "loading");
       await new Promise(r => setTimeout(r, 300));
       
-      // 临时模拟结果，等待新的API集成
-      const mockResult = {
-        content: `重新生成的内容 - ${platformId}`,
-        source: "ai" as const,
-        error: undefined
-      };
-      
+      // Update content with regenerated result
+      const adaptedContent = result[platformId];
       updateStep(3, "completed");
       
       // Update content in results
@@ -1314,9 +1281,9 @@ export default function AdaptPage() {
           r.platformId === platformId 
             ? { 
                 ...r, 
-                content: mockResult.content,
-                source: mockResult.source,
-                error: mockResult.error 
+                content: adaptedContent.content,
+                source: adaptedContent.source,
+                error: adaptedContent.error 
               }
             : r
         )
@@ -1677,17 +1644,29 @@ export default function AdaptPage() {
       {/* AI Model Selection */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-lg">AI 模型选择</CardTitle>
-          <CardDescription>
-            选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg">AI 模型选择</CardTitle>
+              <CardDescription>
+                选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/payment')}
+              className="text-blue-600 border-blue-200 hover:bg-blue-50"
+            >
+              去解锁
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {allModels.map((model) => {
                 const isAvailable = availableModels.some(m => m.id === model.id);
-                const disabled = !isAvailable;
+                let disabled = !isAvailable;
                 let badge = '';
                 if (model.id === 'gpt-4o' && userPlan === 'trial') badge = '专业版/高级版专属';
                 return (

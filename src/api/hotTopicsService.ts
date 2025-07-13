@@ -323,53 +323,26 @@ function processHotTopicsData(response: DailyHotResponse): DailyHotResponse {
 export function aggregateAndSortTopics(allData: Record<string, DailyHotItem[]>): DailyHotItem[] {
   const allTopics: DailyHotItem[] = [];
   
-  // 收集所有平台的话题
+  // 收集每个平台前三的话题
   for (const [platform, items] of Object.entries(allData)) {
-    items.forEach(item => {
-      allTopics.push({
+    // 按热度值排序，取前三
+    const sortedItems = items
+      .map(item => ({
         ...item,
-        platform
-      });
-    });
+        platform,
+        hotValue: parseInt(item.hot) || 0
+      }))
+      .sort((a, b) => b.hotValue - a.hotValue)
+      .slice(0, 3); // 只取前三
+    
+    allTopics.push(...sortedItems);
   }
   
-  // 计算综合热度分数
-  const topicsWithScore = allTopics.map(topic => {
-    const hotValue = parseInt(topic.hot) || 0;
-    const platform = topic.platform || '';
-    
-    // 平台权重配置（基于平台用户活跃度和影响力）
-    const platformWeights: Record<string, number> = {
-      'weibo': 1.2,    // 微博权重最高，用户基数大
-      'zhihu': 1.1,    // 知乎权重较高，内容质量高
-      'douyin': 1.0,   // 抖音权重中等
-      'bilibili': 0.9, // B站权重稍低
-      'baidu': 0.8,    // 百度权重较低
-      '36kr': 0.7,     // 36氪权重较低
-      'ithome': 0.6,   // IT之家权重较低
-      'sspai': 0.5,    // 少数派权重较低
-      'juejin': 0.4,   // 掘金权重较低
-      'csdn': 0.3,     // CSDN权重较低
-      'github': 0.2    // GitHub权重最低
-    };
-    
-    const platformWeight = platformWeights[platform] || 0.5;
-    
-    // 计算综合热度分数 = 原始热度值 × 平台权重
-    const compositeScore = hotValue * platformWeight;
-    
-    return {
-      ...topic,
-      compositeScore,
-      originalHot: topic.hot // 保存原始热度值
-    };
-  });
-  
-  // 按综合热度分数降序排序
-  const sortedTopics = topicsWithScore.sort((a, b) => {
-    const scoreA = (a as any).compositeScore || 0;
-    const scoreB = (b as any).compositeScore || 0;
-    return scoreB - scoreA;
+  // 按热度值降序排序（以M为单位）
+  const sortedTopics = allTopics.sort((a, b) => {
+    const hotValueA = parseInt(a.hot) || 0;
+    const hotValueB = parseInt(b.hot) || 0;
+    return hotValueB - hotValueA;
   });
   
   // 重新分配排名
@@ -377,7 +350,7 @@ export function aggregateAndSortTopics(allData: Record<string, DailyHotItem[]>):
     ...topic,
     rank: index + 1,
     // 格式化热度显示
-    hot: formatHotValue((topic as any).originalHot || topic.hot)
+    hot: formatHotValue(topic.hot)
   }));
 }
 
