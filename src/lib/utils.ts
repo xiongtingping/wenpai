@@ -23,3 +23,32 @@ export function getOrCreateTempUserId(): string {
 
   return tempId;
 }
+
+/**
+ * 从URL参数中保存推荐人ID
+ * @description 从URL的ref参数中提取推荐人ID并保存到本地存储
+ */
+export function saveReferrerFromURL(): void {
+  const urlParams = new URLSearchParams(window.location.search);
+  const referrerId = urlParams.get('ref');
+
+  if (referrerId) {
+    localStorage.setItem('referrer-id', referrerId);
+    console.log('推荐人ID已保存:', referrerId);
+  }
+}
+
+/**
+ * 获取保存的推荐人ID
+ * @returns 推荐人ID或null
+ */
+export function getReferrerId(): string | null {
+  return localStorage.getItem('referrer-id');
+}
+
+/**
+ * 清除推荐人ID
+ */
+export function clearReferrerId(): void {
+  localStorage.removeItem('referrer-id');
+}

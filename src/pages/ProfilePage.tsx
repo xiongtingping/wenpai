@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function ProfilePage() {
   const { toast } = useToast();
   const { user, isAuthenticated, logout, userId, isTempUser } = useAuth();
-  const { usageRemaining, getCurrentUserId } = useUserStore();
+  const { usageRemaining, getCurrentUserId, getReferrer } = useUserStore();
   const navigate = useNavigate();
 
   // 编辑状态管理
@@ -434,6 +434,22 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* 推荐人信息 */}
+          {getReferrer() && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-blue-600 font-medium">推荐人信息</span>
+                <Badge variant="outline" className="text-blue-600 border-blue-300">已通过推荐注册</Badge>
+              </div>
+              <div className="text-sm text-blue-700">
+                推荐人ID: {getReferrer()}
+              </div>
+              <div className="text-xs text-blue-600 mt-1">
+                您已获得推荐奖励：20次免费使用机会
+              </div>
+            </div>
+          )}
+
           {/* 中部三项数据 */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
             <div className="bg-blue-100 text-blue-700 rounded-lg p-4 text-center">
@@ -455,7 +471,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-sm text-gray-600 mb-1 block">推荐码</label>
               <div className="flex items-center border rounded px-2 py-1 bg-white">
-                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value="temp-user-id" />
+                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value={getCurrentUserId()} />
                 <button className="flex items-center text-blue-600 hover:underline text-xs ml-2">
                   <CopyIcon className="w-4 h-4 mr-1" />复制
                 </button>
@@ -464,7 +480,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-sm text-gray-600 mb-1 block">邀请链接</label>
               <div className="flex items-center border rounded px-2 py-1 bg-white">
-                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value="https://xxx.netlify.app?ref=xxx" />
+                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value={`https://xxx.netlify.app?ref=${getCurrentUserId()}`} />
                 <button className="flex items-center text-blue-600 hover:underline text-xs ml-2">
                   <CopyIcon className="w-4 h-4 mr-1" />复制
                 </button>

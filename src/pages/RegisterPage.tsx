@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, Phone, Mail, Lock, User, Send } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useUserStore } from '@/store/userStore';
 
 /**
  * 注册页面组件
@@ -47,6 +48,7 @@ export default function RegisterPage() {
   
   const { toast } = useToast();
   const { login } = useAuth();
+  const { processReferralReward } = useUserStore();
   const navigate = useNavigate();
 
   /**
@@ -89,7 +91,7 @@ export default function RegisterPage() {
     
     if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       toast({
-        title: "请输入正确的邮箱",
+        title: "请输入正确的邮箱地址",
         variant: "destructive"
       });
       return;
@@ -168,6 +170,9 @@ export default function RegisterPage() {
         updatedAt: new Date().toISOString()
       });
       
+      // 处理推荐奖励
+      processReferralReward();
+      
       toast({
         title: "注册成功",
         description: "欢迎加入文派！"
@@ -231,6 +236,9 @@ export default function RegisterPage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
+      
+      // 处理推荐奖励
+      processReferralReward();
       
       toast({
         title: "注册成功",

@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { getOrCreateTempUserId } from '@/lib/utils';
+import { getOrCreateTempUserId, saveReferrerFromURL, getReferrerId, clearReferrerId } from '@/lib/utils';
 import UserDataService from '@/services/userDataService';
 
 /**
@@ -41,6 +41,8 @@ interface UserState {
   tempUserId: string;
   /** 临时用户ID是否已绑定到正式账号 */
   isTempUserIdBound: boolean;
+  /** 推荐人ID */
+  referrerId: string | null;
   /** 生成邀请码 */
   generateInviteCode: () => string;
   /** 绑定临时用户ID到正式账号 */
@@ -51,6 +53,14 @@ interface UserState {
   recordUserAction: (actionType: 'pageVisit' | 'featureUsage' | 'contentCreated', actionData: any) => void;
   /** 初始化用户数据记录 */
   initializeUserData: (userInfo?: any) => void;
+  /** 保存推荐人ID */
+  saveReferrer: () => void;
+  /** 获取推荐人ID */
+  getReferrer: () => string | null;
+  /** 清除推荐人ID */
+  clearReferrer: () => void;
+  /** 处理推荐奖励 */
+  processReferralReward: () => void;
 }
 
 /**
@@ -81,6 +91,69 @@ export const useUserStore = create<UserState>()(
       usageRemaining: 10,
       tempUserId: getOrCreateTempUserId(),
       isTempUserIdBound: false,
+      referrerId: null,
+
+      /**
+       * 保存推荐人ID
+       */
+      saveReferrer: () => {
+        saveReferrerFromURL();
+        const referrerId = getReferrerId();
+        if (referrerId) {
+          set({ referrerId });
+          
+          // 记录推荐人访问
+          const { recordUserAction } = get();
+          recordUserAction('featureUsage', {
+            feature: 'referral_visit',
+            metadata: { referrerId }
+          });
+        }
+      },
+
+      /**
+       * 获取推荐人ID
+       */
+      getReferrer: () => {
+        const { referrerId } = get();
+        return referrerId || getReferrerId();
+      },
+
+      /**
+       * 清除推荐人ID
+       */
+      clearReferrer: () => {
+        clearReferrerId();
+        set({ referrerId: null });
+      },
+
+      /**
+       * 处理推荐奖励
+       */
+      processReferralReward: () => {
+        const { referrerId, addUsageFromInvite, clearReferrer } = get();
+        
+        if (referrerId) {
+          // 给当前用户增加使用次数
+          addUsageFromInvite(20);
+          
+          // 记录推荐奖励
+          const { recordUserAction } = get();
+          recordUserAction('featureUsage', {
+            feature: 'referral_reward',
+            metadata: { 
+              referrerId,
+              rewardAmount: 20,
+              rewardType: 'usage_count'
+            }
+          });
+          
+          // 清除推荐人ID，避免重复奖励
+          clearReferrer();
+          
+          console.log('推荐奖励已发放:', { referrerId, rewardAmount: 20 });
+        }
+      },
 
       /**
        * 初始化用户数据记录
@@ -297,6 +370,7 @@ export const useUserStore = create<UserState>()(
         userInviteStats: state.userInviteStats,
         tempUserId: state.tempUserId,
         isTempUserIdBound: state.isTempUserIdBound,
+        referrerId: state.referrerId,
       }),
     }
   )

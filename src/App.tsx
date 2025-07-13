@@ -62,12 +62,13 @@ const LoadingSpinner: React.FC = () => (
  * 应用内容组件
  */
 const AppContent: React.FC = () => {
-  const { initializeUserData } = useUserStore();
+  const { initializeUserData, saveReferrer } = useUserStore();
 
-  // 在应用启动时初始化用户数据
+  // 在应用启动时初始化用户数据和保存推荐人ID
   useEffect(() => {
     initializeUserData();
-  }, [initializeUserData]);
+    saveReferrer();
+  }, [initializeUserData, saveReferrer]);
 
   return (
     <div>
