@@ -344,7 +344,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 p-0">
           {/* 账号信息卡片 */}
           <div className="p-6 rounded-xl shadow-sm bg-white flex flex-col gap-4">
             <h3 className="text-lg font-bold mb-2">账号信息</h3>
@@ -363,7 +363,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="inline-flex items-center">Token限制</span>
-                <span className="bg-gray-100 text-blue-600 px-2 py-0.5 rounded font-semibold">100,000 tokens</span>
+                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-semibold">100,000 tokens</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="inline-flex items-center">注册时间</span>
@@ -384,11 +384,11 @@ export default function ProfilePage() {
             <div className="space-y-3 text-sm text-gray-600">
               <div className="flex justify-between items-center">
                 <span className="inline-flex items-center">使用次数</span>
-                <span className="font-bold text-lg text-blue-700">3/10</span>
+                <span className="font-bold text-lg text-blue-600">3/10</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="inline-flex items-center">Token使用量</span>
-                <span className="font-bold text-lg text-purple-700">25,000 / 100,000</span>
+                <span className="font-bold text-lg text-gray-600">25,000 / 100,000</span>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
@@ -403,7 +403,7 @@ export default function ProfilePage() {
             </div>
             <button 
               onClick={handleUpgrade}
-              className="w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold shadow-md hover:opacity-90 active:opacity-80 transition-opacity inline-flex items-center justify-center"
+              className="w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-red-400 text-white font-semibold shadow-md hover:opacity-90 active:opacity-80 transition-opacity inline-flex items-center justify-center"
             >
               立即解锁高级功能
             </button>
