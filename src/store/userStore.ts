@@ -57,7 +57,7 @@ interface UserState {
   /** 生成邀请码 */
   generateInviteCode: () => string;
   /** 绑定临时用户ID到正式账号 */
-  bindTempUserIdToAccount: (accountId: string) => void;
+  bindTempUserIdToAccount: (accountId: string) => Promise<void>;
   /** 获取当前用户ID（临时或正式） */
   getCurrentUserId: () => string;
   /** 记录用户行为到数据库 */

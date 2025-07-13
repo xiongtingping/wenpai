@@ -419,7 +419,11 @@ export async function generateAdaptedContent(
 ): Promise<AIApiResponse> {
   try {
     const response = await aiService.adaptContent(originalContent, targetPlatforms, settings);
-    return response;
+    return {
+      success: response.success,
+      data: response.data as string,
+      error: response.error
+    };
   } catch (error) {
     return {
       success: false,
@@ -438,7 +442,11 @@ export async function regeneratePlatformContent(
 ): Promise<AIApiResponse> {
   try {
     const response = await aiService.adaptContent(originalContent, [platformId], settings);
-    return response;
+    return {
+      success: response.success,
+      data: response.data as string,
+      error: response.error
+    };
   } catch (error) {
     return {
       success: false,
