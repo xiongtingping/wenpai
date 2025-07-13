@@ -8,10 +8,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserStore } from '@/store/userStore';
-import { LogOut, Crown, Copy as CopyIcon, Save } from 'lucide-react';
+import { LogOut, Crown, Copy as CopyIcon, Save, Info } from 'lucide-react';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { useToast } from '@/hooks/use-toast';
 
@@ -184,6 +185,11 @@ export default function ProfilePage() {
     navigate('/invite');
   };
 
+  // 检查表单是否有效
+  const isFormValid = () => {
+    return editForm.nickname.trim().length > 0 && hasChanges;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <PageNavigation title="个人中心" description="管理您的账户信息和使用统计" showAdaptButton={false} />
@@ -215,9 +221,12 @@ export default function ProfilePage() {
                   onAvatarChange={handleAvatarChange}
                   disabled={false}
                 />
+                <p className="text-sm text-gray-500 text-center md:text-left">
+                  点击上传头像，支持 JPG、PNG 格式
+                </p>
               </div>
               {/* 表单区 */}
-              <div className="flex-1 flex flex-col gap-4">
+              <div className="flex-1 flex flex-col space-y-4">
                 {/* 昵称输入框 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">昵称</label>
@@ -276,7 +285,14 @@ export default function ProfilePage() {
                       </Button>
                     )}
                   </div>
-                  <div className="mt-1 text-xs text-yellow-600">首次验证奖励：完成邮箱验证可获10次免费使用</div>
+                  {!user?.email && (
+                    <Alert className="mt-2 border-amber-200 bg-amber-50">
+                      <Info className="h-4 w-4 text-amber-600" />
+                      <AlertDescription className="text-amber-800">
+                        首次验证奖励：完成邮箱验证可获10次免费使用
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
 
                 {/* 验证码输入 */}
@@ -299,10 +315,14 @@ export default function ProfilePage() {
                 )}
 
                 {/* 保存按钮 */}
-                <button 
+                <Button 
                   onClick={handleSaveAll}
-                  disabled={!hasChanges || isSaving}
-                  className="w-full mt-2 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 disabled:bg-gray-300 disabled:text-white disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                  disabled={!isFormValid() || isSaving}
+                  className={`w-full mt-2 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center ${
+                    isFormValid() 
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transform hover:scale-[1.02]' 
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
                 >
                   {isSaving ? (
                     <>
@@ -315,7 +335,7 @@ export default function ProfilePage() {
                       保存所有更改
                     </>
                   )}
-                </button>
+                </Button>
                 {hasChanges && (
                   <p className="text-xs text-amber-600 mt-2 text-center">您有未保存的更改</p>
                 )}
