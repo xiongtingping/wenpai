@@ -29,14 +29,62 @@ export default function LoginPage() {
   // 密码登录表单
   const [passwordForm, setPasswordForm] = useState({
     phone: '',
-    password: ''
+    email: '',
+    password: '',
+    loginType: 'phone' // 'phone' | 'email'
   });
   
   // 验证码登录表单
   const [codeForm, setCodeForm] = useState({
     phone: '',
-    code: ''
+    email: '',
+    code: '',
+    loginType: 'phone' // 'phone' | 'email'
   });
+
+  // 从localStorage加载记住的登录信息
+  React.useEffect(() => {
+    const rememberedLogin = localStorage.getItem('remembered_login');
+    if (rememberedLogin) {
+      try {
+        const loginData = JSON.parse(rememberedLogin);
+        setPasswordForm(prev => ({
+          ...prev,
+          phone: loginData.phone || '',
+          email: loginData.email || '',
+          password: loginData.password || '',
+          loginType: loginData.loginType || 'phone'
+        }));
+        setRememberPassword(true);
+      } catch (error) {
+        console.error('解析记住的登录信息失败:', error);
+      }
+    }
+  }, []);
+
+  /**
+   * 保存记住的登录信息
+   */
+  const saveRememberedLogin = () => {
+    if (rememberPassword) {
+      const loginData = {
+        phone: passwordForm.phone,
+        email: passwordForm.email,
+        password: passwordForm.password,
+        loginType: passwordForm.loginType
+      };
+      localStorage.setItem('remembered_login', JSON.stringify(loginData));
+    } else {
+      localStorage.removeItem('remembered_login');
+    }
+  };
+
+  /**
+   * 清除记住的登录信息
+   */
+  const clearRememberedLogin = () => {
+    localStorage.removeItem('remembered_login');
+  };
   
   const { toast } = useToast();
   const { login } = useAuth();
@@ -109,9 +157,43 @@ export default function LoginPage() {
    * 密码登录
    */
   const handlePasswordLogin = async () => {
-    if (!passwordForm.phone || !passwordForm.password) {
+    const { loginType, phone, email, password } = passwordForm;
+    
+    if (!password) {
       toast({
-        title: "请填写完整信息",
+        title: "请输入密码",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (loginType === 'phone' && !phone) {
+      toast({
+        title: "请输入手机号",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (loginType === 'email' && !email) {
+      toast({
+        title: "请输入邮箱",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (loginType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({
+        title: "请输入正确的邮箱格式",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (loginType === 'phone' && !/^1[3-9]\d{9}$/.test(phone)) {
+      toast({
+        title: "请输入正确的手机号",
         variant: "destructive"
       });
       return;
@@ -122,9 +204,10 @@ export default function LoginPage() {
       // 模拟登录成功
       const userData = {
         id: 'temp-user-id',
-        phone: passwordForm.phone,
-        username: passwordForm.phone,
-        nickname: passwordForm.phone,
+        phone: loginType === 'phone' ? phone : '',
+        email: loginType === 'email' ? email : '',
+        username: loginType === 'phone' ? phone : email,
+        nickname: loginType === 'phone' ? phone : email,
         plan: 'free',
         isProUser: false,
         createdAt: new Date().toISOString(),
@@ -132,6 +215,13 @@ export default function LoginPage() {
       };
       
       await login(userData);
+      
+      // 处理记住密码
+      if (rememberPassword) {
+        saveRememberedLogin();
+      } else {
+        clearRememberedLogin();
+      }
       
       toast({
         title: "登录成功",
@@ -143,7 +233,7 @@ export default function LoginPage() {
     } catch (error: any) {
       toast({
         title: "登录失败",
-        description: error.message || "请检查手机号和密码",
+        description: error.message || "请检查登录信息",
         variant: "destructive"
       });
     } finally {
@@ -226,16 +316,55 @@ export default function LoginPage() {
               
               {/* 密码登录 */}
               <TabsContent value="password" className="space-y-4">
+                {/* 登录方式选择 */}
                 <div className="space-y-2">
-                  <Label htmlFor="password-phone">手机号</Label>
+                  <Label>登录方式</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={passwordForm.loginType === 'phone' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPasswordForm(prev => ({ ...prev, loginType: 'phone' }))}
+                      className="flex-1"
+                    >
+                      <Phone className="h-4 w-4 mr-1" />
+                      手机号
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={passwordForm.loginType === 'email' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPasswordForm(prev => ({ ...prev, loginType: 'email' }))}
+                      className="flex-1"
+                    >
+                      <Mail className="h-4 w-4 mr-1" />
+                      邮箱
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password-account">
+                    {passwordForm.loginType === 'phone' ? '手机号' : '邮箱'}
+                  </Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    {passwordForm.loginType === 'phone' ? (
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    )}
                     <Input
-                      id="password-phone"
-                      type="tel"
-                      placeholder="请输入手机号"
-                      value={passwordForm.phone}
-                      onChange={(e) => handlePasswordFormChange('phone', e.target.value)}
+                      id="password-account"
+                      type={passwordForm.loginType === 'phone' ? 'tel' : 'email'}
+                      placeholder={passwordForm.loginType === 'phone' ? '请输入手机号' : '请输入邮箱'}
+                      value={passwordForm.loginType === 'phone' ? passwordForm.phone : passwordForm.email}
+                      onChange={(e) => {
+                        if (passwordForm.loginType === 'phone') {
+                          handlePasswordFormChange('phone', e.target.value);
+                        } else {
+                          handlePasswordFormChange('email', e.target.value);
+                        }
+                      }}
                       className="pl-10"
                     />
                   </div>

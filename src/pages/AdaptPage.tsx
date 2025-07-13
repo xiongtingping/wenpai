@@ -1668,7 +1668,13 @@ export default function AdaptPage() {
                 const isAvailable = availableModels.some(m => m.id === model.id);
                 let disabled = !isAvailable;
                 let badge = '';
-                if (model.id === 'gpt-4o' && userPlan === 'trial') badge = '专业版/高级版专属';
+                let showUpgradeTip = false;
+                
+                if (model.id === 'gpt-4o' && userPlan === 'trial') {
+                  badge = '专业版/高级版专属';
+                  showUpgradeTip = true;
+                }
+                
                 return (
                   <div
                     key={model.id}
@@ -1699,6 +1705,14 @@ export default function AdaptPage() {
                           )}
                         </div>
                         <p className="text-sm text-gray-600 leading-relaxed">{model.description}</p>
+                        {showUpgradeTip && (
+                          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+                            <p className="text-xs text-yellow-700 flex items-center">
+                              <span className="mr-1">🔒</span>
+                              去解锁高级功能
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

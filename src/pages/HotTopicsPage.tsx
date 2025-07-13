@@ -813,10 +813,9 @@ export default function HotTopicsPage() {
                           {aggregateAndSortTopics(allHotData.data).slice(0, 10).map((topic, index) => (
                             <div
                               key={index}
-                              className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                              className={`p-3 rounded-lg border transition-all hover:shadow-md ${
                                 isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
                               } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
-                              onClick={() => handleTopicClick(topic)}
                             >
                               <div className="flex items-center gap-2 mb-2">
                                 <Badge variant="destructive" className="text-xs">
@@ -845,10 +844,7 @@ export default function HotTopicsPage() {
                                   size="sm"
                                   variant="outline"
                                   className="flex-1 text-xs h-7"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleViewSource(topic);
-                                  }}
+                                  onClick={() => handleViewSource(topic)}
                                 >
                                   <ExternalLink className="w-3 h-3 mr-1" />
                                   查看
@@ -857,10 +853,7 @@ export default function HotTopicsPage() {
                                   size="sm"
                                   variant={isTopicBookmarked(topic) ? "default" : "outline"}
                                   className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleBookmark(topic);
-                                  }}
+                                  onClick={() => toggleBookmark(topic)}
                                 >
                                   <Bookmark className="w-3 h-3" />
                                 </Button>
@@ -878,10 +871,9 @@ export default function HotTopicsPage() {
                               {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
                                 <div
                                   key={index}
-                                  className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                                  className={`p-3 rounded-lg border transition-all hover:shadow-md ${
                                     isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
                                   } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
-                                  onClick={() => handleTopicClick(topic)}
                                 >
                                   <div className="flex items-center gap-2 mb-2">
                                     <Badge variant="destructive" className="text-xs">
@@ -910,10 +902,7 @@ export default function HotTopicsPage() {
                                       size="sm"
                                       variant="outline"
                                       className="flex-1 text-xs h-7"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleViewSource(topic);
-                                      }}
+                                      onClick={() => handleViewSource(topic)}
                                     >
                                       <ExternalLink className="w-3 h-3 mr-1" />
                                       查看
@@ -922,10 +911,7 @@ export default function HotTopicsPage() {
                                       size="sm"
                                       variant={isTopicBookmarked(topic) ? "default" : "outline"}
                                       className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleBookmark(topic);
-                                      }}
+                                      onClick={() => toggleBookmark(topic)}
                                     >
                                       <Bookmark className="w-3 h-3" />
                                     </Button>

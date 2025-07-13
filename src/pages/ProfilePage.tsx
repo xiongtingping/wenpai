@@ -222,12 +222,12 @@ export default function ProfilePage() {
                 <AvatarUpload 
                   currentAvatar={editForm.avatar}
                   nickname={editForm.nickname || user?.nickname || '用户'}
-                  size="lg"
+                  size="md"
                   onAvatarChange={handleAvatarChange}
                   disabled={false}
                 />
-                <p className="text-sm text-gray-500 text-center lg:text-left max-w-full">
-                  点击上传头像，支持 JPG、PNG 格式
+                <p className="text-xs text-gray-500 text-center lg:text-left max-w-full leading-relaxed">
+                  支持 JPG、PNG 格式，最大 5MB
                 </p>
               </div>
               {/* 表单区 */}
@@ -377,14 +377,8 @@ export default function ProfilePage() {
             </div>
             <div className="flex gap-2 mt-2">
               <button 
-                onClick={handleUserData}
-                className="flex-1 bg-blue-100 text-blue-600 py-2 rounded-lg font-semibold hover:bg-blue-200 transition-colors"
-              >
-                数据管理
-              </button>
-              <button 
                 onClick={handleLogout}
-                className="flex-1 bg-red-100 text-red-600 py-2 rounded-lg font-semibold hover:bg-red-200 transition-colors"
+                className="w-full bg-red-100 text-red-600 py-2 rounded-lg font-semibold hover:bg-red-200 transition-colors"
               >
                 退出登录
               </button>

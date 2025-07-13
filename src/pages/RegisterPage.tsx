@@ -518,7 +518,9 @@ export default function RegisterPage() {
               {/* 邮箱注册 */}
               <TabsContent value="email" className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">邮箱</Label>
+                  <Label htmlFor="email">
+                    邮箱 <span className="text-red-500">*</span>
+                  </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -533,7 +535,9 @@ export default function RegisterPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email-code">验证码</Label>
+                  <Label htmlFor="email-code">
+                    验证码 <span className="text-red-500">*</span>
+                  </Label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
                       <Input
@@ -556,7 +560,7 @@ export default function RegisterPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email-nickname">昵称</Label>
+                  <Label htmlFor="email-nickname">昵称（可选）</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -570,7 +574,9 @@ export default function RegisterPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email-password">密码</Label>
+                  <Label htmlFor="email-password">
+                    密码 <span className="text-red-500">*</span>
+                  </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -594,7 +600,9 @@ export default function RegisterPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email-confirm-password">确认密码</Label>
+                  <Label htmlFor="email-confirm-password">
+                    确认密码 <span className="text-red-500">*</span>
+                  </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input

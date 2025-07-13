@@ -95,17 +95,17 @@ function InvitePage() {
     <div className="min-h-screen bg-gray-50">
       {/* 简化页面头部 */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate('/')} 
+                onClick={() => navigate('/profile')} 
                 className="hover:bg-gray-100 text-gray-600"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                返回首页
+                返回个人中心
               </Button>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">邀请好友</h1>
@@ -116,8 +116,8 @@ function InvitePage() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="space-y-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+        <div className="space-y-4">
           {/* 主邀请卡片 */}
           <Card className="border-2 border-blue-100 overflow-hidden shadow-lg">
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">

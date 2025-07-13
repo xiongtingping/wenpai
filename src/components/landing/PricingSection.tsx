@@ -357,7 +357,10 @@ export function PricingSection() {
                       <span className="text-purple-600 font-medium">高级模型</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-yellow-600 font-medium text-sm">高级及最新模型</span>
+                      <div className="text-yellow-600 font-medium text-xs leading-tight">
+                        <div>高级及</div>
+                        <div>最新模型</div>
+                      </div>
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">

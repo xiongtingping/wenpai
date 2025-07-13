@@ -139,22 +139,30 @@ export default function PaymentPage() {
 
   return (
     <div className="container mx-auto py-16 px-4 max-w-6xl">
-      {/* 返回首页按钮 - 优化版 */}
-      <div className="hidden md:block mb-6">
-        <Button
-          variant="outline"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
-          title="Return to Home"
-        >
-          <ArrowLeft className="h-3 w-3" />
-          返回首页
-        </Button>
-      </div>
-
       <div className="mb-12 text-center">
-        <h1 className="text-3xl font-bold mb-2">选择订阅计划</h1>
-        <p className="text-muted-foreground">选择最适合您的计划，开始享受AI创作之旅</p>
+        <div className="flex items-center justify-between mb-6">
+          {/* 返回首页按钮 - 左对齐 */}
+          <div className="hidden md:block">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
+              title="Return to Home"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              返回首页
+            </Button>
+          </div>
+          
+          {/* 标题居中 */}
+          <div className="flex-1 text-center">
+            <h1 className="text-3xl font-bold mb-2">选择订阅计划</h1>
+            <p className="text-muted-foreground">选择最适合您的计划，开始享受AI创作之旅</p>
+          </div>
+          
+          {/* 占位空间，保持标题居中 */}
+          <div className="hidden md:block w-[120px]"></div>
+        </div>
       </div>
 
       {/* 限时优惠倒计时 */}

@@ -11,7 +11,16 @@ export function CTASection() {
         <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-10">
           立即加入，让AI成为你最得力的内容创作伙伴。
         </p>
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center gap-4">
+          <Link to="/login">
+            <Button
+              size="lg"
+              variant="outline"
+              className="font-bold py-6 px-8 rounded-lg text-lg transition-all duration-300"
+            >
+              登录
+            </Button>
+          </Link>
           <Link to="/register">
             <Button
               size="lg"
