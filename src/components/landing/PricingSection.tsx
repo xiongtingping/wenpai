@@ -95,7 +95,7 @@ export function PricingSection() {
   // 渲染features时去掉右上角文案标签
   function renderFeatures(features: string[], plan: any) {
     return features
-      .filter(f => !/免费|专业版|\d+次\/月/.test(f)) // 去掉"免费"、"专业版"、"10次/月"等文案
+      .filter(f => !/免费|专业版/.test(f)) // 只去掉"免费"、"专业版"等文案，保留次数信息
       .map((feature, index) => {
         const text = feature
           .replace(/创意工作室/g, '创意魔方') // 替换
@@ -339,10 +339,10 @@ export function PricingSection() {
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网雷达</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-red-500 font-medium">❌</span>
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-red-500 font-medium">❌</span>
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
                       <span className="text-green-600 font-medium">✅</span>
