@@ -380,7 +380,6 @@ export default function ReferrerTestPage() {
                   清除所有数据
                 </Button>
               </div>
-
             {/* 测试链接生成 */}
             <Card className="border-2 border-purple-200">
               <CardHeader>
