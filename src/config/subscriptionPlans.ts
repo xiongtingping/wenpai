@@ -29,9 +29,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     },
     features: [
       'AI内容适配器（10次/月）',
+      '全网雷达',
       '我的资料库',
-      '基础模型',
-      '全网雷达'
+      '基础模型'
     ]
   },
   {
@@ -61,9 +61,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: [
       'AI内容适配器（30次/月）',
       '创意魔方',
+      '全网雷达',
       '我的资料库',
-      '高级模型',
-      '全网雷达'
+      '高级模型'
     ]
   },
   {
@@ -92,10 +92,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: [
       'AI内容适配器（不限次数）',
       '创意魔方',
+      '全网雷达',
       '我的资料库',
-      '品牌库',
-      '高级模型及最新模型',
-      '全网雷达'
+      '高级及最新模型'
     ]
   }
 ];

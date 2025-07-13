@@ -301,19 +301,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">Token限制</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-gray-600">100,000</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600">200,000</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-yellow-600">500,000</span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">我的资料库</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网雷达</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-green-600 font-medium">✅</span>
                     </td>
@@ -337,7 +325,7 @@ export function PricingSection() {
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网雷达</td>
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">我的资料库</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
                       <span className="text-green-600 font-medium">✅</span>
                     </td>
@@ -348,7 +336,6 @@ export function PricingSection() {
                       <span className="text-green-600 font-medium">✅</span>
                     </td>
                   </tr>
-
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">品牌库</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
@@ -370,7 +357,19 @@ export function PricingSection() {
                       <span className="text-purple-600 font-medium">高级模型</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-yellow-600 font-medium">最新模型</span>
+                      <span className="text-yellow-600 font-medium">高级及最新模型</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
+                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">Token限制</td>
+                    <td className="border border-gray-200 px-4 py-3 text-center">
+                      <span className="text-gray-600">100,000</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
+                      <span className="text-purple-600">200,000</span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
+                      <span className="text-yellow-600">500,000</span>
                     </td>
                   </tr>
                 </tbody>

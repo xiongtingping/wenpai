@@ -211,9 +211,9 @@ export default function ProfilePage() {
             <div className="h-20 bg-gradient-to-r from-purple-500 to-pink-400 flex items-center px-6">
               <span className="text-white text-lg font-bold">个人资料</span>
             </div>
-            <div className="p-6 flex flex-col gap-6 md:flex-row md:gap-8">
+            <div className="p-6 flex flex-col gap-6 lg:flex-row lg:gap-8">
               {/* 上传头像区 */}
-              <div className="flex flex-col items-center md:items-start gap-2 md:w-1/4">
+              <div className="flex flex-col items-center lg:items-start gap-3 lg:w-1/3 lg:max-w-xs">
                 <AvatarUpload 
                   currentAvatar={editForm.avatar}
                   nickname={editForm.nickname || user?.nickname || '用户'}
@@ -221,12 +221,12 @@ export default function ProfilePage() {
                   onAvatarChange={handleAvatarChange}
                   disabled={false}
                 />
-                <p className="text-sm text-gray-500 text-center md:text-left">
+                <p className="text-sm text-gray-500 text-center lg:text-left max-w-full">
                   点击上传头像，支持 JPG、PNG 格式
                 </p>
               </div>
               {/* 表单区 */}
-              <div className="flex-1 flex flex-col space-y-4">
+              <div className="flex-1 flex flex-col space-y-4 min-w-0">
                 {/* 昵称输入框 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">昵称</label>
@@ -240,9 +240,9 @@ export default function ProfilePage() {
                 {/* 手机号输入框 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">手机号</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input 
-                      className="flex-1 border rounded px-3 py-2 text-sm" 
+                      className="flex-1 border rounded px-3 py-2 text-sm min-w-0" 
                       placeholder="请输入手机号" 
                       value={editForm.phone}
                       onChange={e => handlePhoneChange(e.target.value)}
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                         size="sm" 
                         onClick={() => sendVerificationCode('phone', editForm.phone)}
                         disabled={countdown > 0}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap flex-shrink-0"
                       >
                         {countdown > 0 ? `${countdown}s` : '发送验证码'}
                       </Button>
@@ -265,9 +265,9 @@ export default function ProfilePage() {
                 {/* 邮箱输入框及首次验证奖励提示 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input 
-                      className="flex-1 border rounded px-3 py-2 text-sm" 
+                      className="flex-1 border rounded px-3 py-2 text-sm min-w-0" 
                       placeholder="请输入邮箱" 
                       value={editForm.email}
                       onChange={e => handleEmailChange(e.target.value)}
@@ -279,7 +279,7 @@ export default function ProfilePage() {
                         size="sm" 
                         onClick={() => sendVerificationCode('email', editForm.email)}
                         disabled={countdown > 0}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap flex-shrink-0"
                       >
                         {countdown > 0 ? `${countdown}s` : '发送验证码'}
                       </Button>
