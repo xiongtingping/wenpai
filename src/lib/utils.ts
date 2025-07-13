@@ -27,15 +27,29 @@ export function getOrCreateTempUserId(): string {
 /**
  * 从URL参数中保存推荐人ID
  * @description 从URL的ref参数中提取推荐人ID并保存到本地存储
+ * @returns 推荐人ID或null
  */
-export function saveReferrerFromURL(): void {
+export function saveReferrerFromURL(): string | null {
   const urlParams = new URLSearchParams(window.location.search);
   const referrerId = urlParams.get('ref');
 
-  if (referrerId) {
-    localStorage.setItem('referrer-id', referrerId);
-    console.log('推荐人ID已保存:', referrerId);
+  if (referrerId && referrerId.trim()) {
+    // 验证推荐人ID格式（可以根据需要调整验证规则）
+    const cleanReferrerId = referrerId.trim();
+    
+    // 保存到localStorage
+    localStorage.setItem('referrer-id', cleanReferrerId);
+    
+    // 记录到控制台（仅开发环境）
+    if (process.env.NODE_ENV === 'development') {
+      console.log('推荐人ID已保存:', cleanReferrerId);
+      console.log('当前URL:', window.location.href);
+    }
+    
+    return cleanReferrerId;
   }
+  
+  return null;
 }
 
 /**
@@ -51,4 +65,26 @@ export function getReferrerId(): string | null {
  */
 export function clearReferrerId(): void {
   localStorage.removeItem('referrer-id');
+  if (process.env.NODE_ENV === 'development') {
+    console.log('推荐人ID已清除');
+  }
+}
+
+/**
+ * 检查当前URL是否包含推荐人参数
+ * @returns 是否包含推荐人参数
+ */
+export function hasReferrerInURL(): boolean {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.has('ref');
+}
+
+/**
+ * 获取当前URL中的推荐人ID（不保存到localStorage）
+ * @returns 推荐人ID或null
+ */
+export function getReferrerFromURL(): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  const referrerId = urlParams.get('ref');
+  return referrerId && referrerId.trim() ? referrerId.trim() : null;
 }

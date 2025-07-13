@@ -97,8 +97,7 @@ export const useUserStore = create<UserState>()(
        * 保存推荐人ID
        */
       saveReferrer: () => {
-        saveReferrerFromURL();
-        const referrerId = getReferrerId();
+        const referrerId = saveReferrerFromURL();
         if (referrerId) {
           set({ referrerId });
           
@@ -108,6 +107,8 @@ export const useUserStore = create<UserState>()(
             feature: 'referral_visit',
             metadata: { referrerId }
           });
+          
+          console.log('推荐人ID已保存到状态:', referrerId);
         }
       },
 

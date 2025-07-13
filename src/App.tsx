@@ -45,6 +45,7 @@ const EmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const TestPage = React.lazy(() => import('@/pages/TestPage'));
 const AITestPage = React.lazy(() => import('@/pages/AITestPage'));
+const ReferrerTestPage = React.lazy(() => import('@/pages/ReferrerTestPage'));
 
 /**
  * 加载中组件
@@ -102,6 +103,11 @@ const AppContent: React.FC = () => {
         <Route path="/api-test" element={<ApiTestPage />} />
         <Route path="/auth-test" element={<AuthTestPage />} />
         <Route path="/user-status" element={<UserStatusPage />} />
+        <Route path="/referrer-test" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <ReferrerTestPage />
+          </Suspense>
+        } />
 
         {/* 需要登录的受保护页面 */}
         <Route path="/adapt" element={

@@ -3,7 +3,7 @@
  * 支持手机号注册和邮箱注册
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,10 +12,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Eye, EyeOff, Phone, Mail, Lock, User, Send } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Phone, Mail, Lock, User, Send, Gift } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useUserStore } from '@/store/userStore';
-import { getOrCreateTempUserId } from '@/lib/utils';
+import { getOrCreateTempUserId, getReferrerId } from '@/lib/utils';
 
 /**
  * 注册页面组件
@@ -28,6 +28,8 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [referrerId, setReferrerId] = useState<string | null>(null);
+  const [tempUserId, setTempUserId] = useState<string>('');
   
   // 手机号注册表单
   const [phoneForm, setPhoneForm] = useState({
@@ -51,6 +53,22 @@ export default function RegisterPage() {
   const { login } = useAuth();
   const { processReferralReward } = useUserStore();
   const navigate = useNavigate();
+
+  /**
+   * 组件挂载时获取推荐人ID和临时用户ID
+   */
+  useEffect(() => {
+    const refId = getReferrerId();
+    const tempId = getOrCreateTempUserId();
+    
+    setReferrerId(refId);
+    setTempUserId(tempId);
+    
+    if (refId) {
+      console.log('检测到推荐人ID:', refId);
+      console.log('临时用户ID:', tempId);
+    }
+  }, []);
 
   /**
    * 处理手机号表单变化
@@ -155,10 +173,6 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      // 获取推荐人ID和临时用户ID
-      const referrerId = localStorage.getItem('referrer-id');
-      const tempUserId = getOrCreateTempUserId();
-      
       // 设置注册时间和优惠开始时间
       const now = Date.now();
       localStorage.setItem('promo_start', now.toString());
@@ -254,10 +268,6 @@ export default function RegisterPage() {
     
     setIsLoading(true);
     try {
-      // 获取推荐人ID和临时用户ID
-      const referrerId = localStorage.getItem('referrer-id');
-      const tempUserId = getOrCreateTempUserId();
-      
       // 设置注册时间和优惠开始时间
       const now = Date.now();
       localStorage.setItem('promo_start', now.toString());
@@ -342,6 +352,26 @@ export default function RegisterPage() {
             <CardDescription>
               加入文派，开启智能内容创作之旅
             </CardDescription>
+            
+            {/* 推荐人ID显示 */}
+            {referrerId && (
+              <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                <div className="flex items-center justify-center gap-2 text-sm text-green-700">
+                  <Gift className="h-4 w-4" />
+                  <span>通过推荐链接注册，注册成功后将获得额外奖励</span>
+                </div>
+                <div className="text-xs text-gray-500 text-center mt-1">
+                  推荐人ID: {referrerId}
+                </div>
+              </div>
+            )}
+            
+            {/* 临时用户ID显示（仅开发环境） */}
+            {process.env.NODE_ENV === 'development' && tempUserId && (
+              <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-500 text-center">
+                临时用户ID: {tempUserId}
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
