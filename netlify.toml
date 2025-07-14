@@ -9,6 +9,13 @@
   [build.environment]
     NODE_VERSION = "20.16.0"
 
+# 根域名重定向到www子域名
+[[redirects]]
+  from = "https://wenpai.xyz/*"
+  to = "https://www.wenpai.xyz/:splat"
+  status = 301
+  force = true
+
 # API重定向到Netlify函数
 [[redirects]]
   from = "/api/*"
