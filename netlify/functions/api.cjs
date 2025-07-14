@@ -7,9 +7,9 @@
 module.exports.handler = async (event, context) => {
   // 动态CORS配置 - 实现您提到的方案
   const allowedOrigins = [
-    'https://6872271d9e6c090008ffd9d5--wenpai.netlify.app',
-    'https://wenpai.netlify.app',
-    'http://localhost:3000',
+      'https://www.wenpai.xyz',
+  'https://wenpai.netlify.app',
+  'http://localhost:3000',
     'https://www.wenpai.xyz'
   ];
   

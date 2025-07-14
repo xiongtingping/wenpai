@@ -21,12 +21,12 @@ export default defineConfig({
     // 代理Netlify函数到生产环境
     proxy: {
       '/.netlify/functions/api': {
-        target: 'https://wenpai.netlify.app',
+        target: 'https://www.wenpai.xyz',
         changeOrigin: true,
         secure: true,
       },
       '/.netlify/functions/cors-test': {
-        target: 'https://wenpai.netlify.app',
+        target: 'https://www.wenpai.xyz',
         changeOrigin: true,
         secure: true,
       }

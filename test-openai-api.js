@@ -26,11 +26,11 @@ const testOpenAIAPI = async () => {
 
   try {
     console.log('📡 发送请求到Netlify Functions...');
-    console.log('🌐 URL: https://wenpai.netlify.app/.netlify/functions/api');
+    console.log('🌐 URL: https://www.wenpai.xyz/.netlify/functions/api');
     
     const startTime = Date.now();
     
-    const response = await fetch('https://wenpai.netlify.app/.netlify/functions/api', {
+    const response = await fetch('https://www.wenpai.xyz/.netlify/functions/api', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ const runFullTest = async () => {
   if (test1Result) {
     console.log('\n✅ 所有测试通过！OpenAI API配置正确。');
     console.log('\n🎉 现在你可以：');
-    console.log('1. 访问 https://wenpai.netlify.app/ai-test 测试AI功能');
+    console.log('1. 访问 https://www.wenpai.xyz/ai-test 测试AI功能');
     console.log('2. 在品牌资料库页面测试文件上传和分析');
     console.log('3. 使用AI内容适配器生成内容');
   } else {

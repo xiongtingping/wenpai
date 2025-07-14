@@ -9,7 +9,7 @@ const { AuthenticationClient } = require('authing-js-sdk');
 const config = {
   appId: '6867fdc88034eb95ae86167d',
   host: 'https://qutkgzkfaezk-demo.authing.cn',
-  redirectUri: 'http://localhost:3000/callback',
+  redirectUri: 'https://www.wenpai.xyz/callback',
 };
 
 // 创建 Authing 实例

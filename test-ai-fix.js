@@ -43,7 +43,7 @@ const testAIFix = async () => {
     
     const startTime = Date.now();
     
-    const response = await fetch('https://wenpai.netlify.app/.netlify/functions/api', {
+    const response = await fetch('https://www.wenpai.xyz/.netlify/functions/api', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

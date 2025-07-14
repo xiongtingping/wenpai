@@ -20,8 +20,8 @@ import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import UnifiedAuthEntry from '@/components/auth/UnifiedAuthEntry';
-import { QuickAuthButton, LoginButton, RegisterButton } from '@/components/auth/AuthModal';
-import LoginButton as LegacyLoginButton from '@/components/auth/LoginButton';
+import { QuickAuthButton, LoginButton as ModalLoginButton, RegisterButton as ModalRegisterButton } from '@/components/auth/AuthModal';
+import LoginButton from '@/components/auth/LoginButton';
 
 /**
  * 统一认证测试页面
@@ -172,21 +172,21 @@ export default function UnifiedAuthTestPage() {
                 快速登录/注册
               </QuickAuthButton>
 
-              <LoginButton
+              <ModalLoginButton
                 variant="outline"
                 onSuccess={handleLoginSuccess}
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 仅登录
-              </LoginButton>
+              </ModalLoginButton>
 
-              <RegisterButton
+              <ModalRegisterButton
                 variant="outline"
                 onSuccess={handleRegisterSuccess}
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 仅注册
-              </RegisterButton>
+              </ModalRegisterButton>
             </div>
 
             <Separator />
@@ -217,22 +217,12 @@ export default function UnifiedAuthTestPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-4">
-              <LegacyLoginButton
+              <LoginButton
                 variant="default"
-                onSuccess={handleLoginSuccess}
+                redirectTo="/"
               >
                 传统登录按钮
-              </LegacyLoginButton>
-
-              <LegacyLoginButton.QuickLoginButton
-                className="text-sm"
-                onSuccess={handleLoginSuccess}
-              />
-
-              <LegacyLoginButton.RegisterButton
-                className="text-sm"
-                onSuccess={handleRegisterSuccess}
-              />
+              </LoginButton>
             </div>
           </CardContent>
         </Card>
