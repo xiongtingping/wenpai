@@ -329,7 +329,7 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
     }
 
     try {
-      await this.authingClient.sendEmailCode(email, { scene });
+      await this.authingClient.sendEmail(email, { scene });
       securityUtils.secureLog('邮箱验证码发送成功', { email, scene });
     } catch (error) {
       securityUtils.secureLog('邮箱验证码发送失败', { email, scene, error: error instanceof Error ? error.message : '未知错误' }, 'error');

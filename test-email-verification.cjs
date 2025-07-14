@@ -36,7 +36,7 @@ async function testEmailVerification(email) {
     // 1. 测试发送邮箱验证码
     console.log('1. 📤 发送邮箱验证码...');
     try {
-      await authing.sendEmailCode(email, {
+      await authing.sendEmail(email, {
         scene: 'VERIFY_EMAIL'  // 验证邮箱场景
       });
       console.log('   ✅ 验证码发送成功');
@@ -51,7 +51,7 @@ async function testEmailVerification(email) {
     // 2. 测试发送注册验证码
     console.log('2. 📝 发送注册验证码...');
     try {
-      await authing.sendEmailCode(email, {
+      await authing.sendEmail(email, {
         scene: 'REGISTER'  // 注册场景
       });
       console.log('   ✅ 注册验证码发送成功');
@@ -64,7 +64,7 @@ async function testEmailVerification(email) {
     // 3. 测试发送登录验证码
     console.log('3. 🔐 发送登录验证码...');
     try {
-      await authing.sendEmailCode(email, {
+      await authing.sendEmail(email, {
         scene: 'LOGIN'  // 登录场景
       });
       console.log('   ✅ 登录验证码发送成功');
@@ -77,7 +77,7 @@ async function testEmailVerification(email) {
     // 4. 测试发送重置密码验证码
     console.log('4. 🔑 发送重置密码验证码...');
     try {
-      await authing.sendEmailCode(email, {
+      await authing.sendEmail(email, {
         scene: 'RESET_PASSWORD'  // 重置密码场景
       });
       console.log('   ✅ 重置密码验证码发送成功');
