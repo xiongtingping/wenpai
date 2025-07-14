@@ -321,6 +321,40 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
   }
 
   /**
+   * 发送邮箱验证码
+   */
+  async sendEmailCode(email: string, scene: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_EMAIL' = 'LOGIN'): Promise<void> {
+    if (!this.authingClient) {
+      throw new Error('Authing客户端未初始化');
+    }
+
+    try {
+      await this.authingClient.sendEmailCode(email, { scene });
+      securityUtils.secureLog('邮箱验证码发送成功', { email, scene });
+    } catch (error) {
+      securityUtils.secureLog('邮箱验证码发送失败', { email, scene, error: error instanceof Error ? error.message : '未知错误' }, 'error');
+      throw error;
+    }
+  }
+
+  /**
+   * 发送短信验证码
+   */
+  async sendSmsCode(phone: string, scene: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_PHONE' = 'LOGIN'): Promise<void> {
+    if (!this.authingClient) {
+      throw new Error('Authing客户端未初始化');
+    }
+
+    try {
+      await this.authingClient.sendSmsCode(phone, { scene });
+      securityUtils.secureLog('短信验证码发送成功', { phone, scene });
+    } catch (error) {
+      securityUtils.secureLog('短信验证码发送失败', { phone, scene, error: error instanceof Error ? error.message : '未知错误' }, 'error');
+      throw error;
+    }
+  }
+
+  /**
    * 刷新Token
    */
   async refreshToken(): Promise<void> {

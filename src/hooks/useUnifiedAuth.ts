@@ -27,6 +27,8 @@ interface UseUnifiedAuthReturn {
   getUserRoles: () => Promise<string[]>;
   assignRole: (roleCode: string) => Promise<void>;
   refreshToken: () => Promise<void>;
+  sendEmailCode: (email: string, scene?: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_EMAIL') => Promise<void>;
+  sendSmsCode: (phone: string, scene?: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_PHONE') => Promise<void>;
 
   // 自建后台功能
   generateInviteLink: () => Promise<string>;
@@ -236,6 +238,52 @@ export function useUnifiedAuth(): UseUnifiedAuthReturn {
       return [];
     }
   }, [setErrorWithToast, clearError, user?.id]);
+
+  /**
+   * 发送邮箱验证码
+   */
+  const sendEmailCode = useCallback(async (email: string, scene: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_EMAIL' = 'LOGIN') => {
+    try {
+      clearError();
+      
+      await unifiedAuthService.sendEmailCode(email, scene);
+      
+      toast({
+        title: "验证码已发送",
+        description: "请检查邮箱收件箱和垃圾邮件文件夹"
+      });
+      
+      securityUtils.secureLog('邮箱验证码发送成功', { email, scene });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '验证码发送失败';
+      setErrorWithToast(errorMessage);
+      securityUtils.secureLog('邮箱验证码发送失败', { email, scene, error: errorMessage }, 'error');
+      throw error;
+    }
+  }, [setErrorWithToast, clearError, toast]);
+
+  /**
+   * 发送短信验证码
+   */
+  const sendSmsCode = useCallback(async (phone: string, scene: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_PHONE' = 'LOGIN') => {
+    try {
+      clearError();
+      
+      await unifiedAuthService.sendSmsCode(phone, scene);
+      
+      toast({
+        title: "验证码已发送",
+        description: "请查看手机短信"
+      });
+      
+      securityUtils.secureLog('短信验证码发送成功', { phone, scene });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '验证码发送失败';
+      setErrorWithToast(errorMessage);
+      securityUtils.secureLog('短信验证码发送失败', { phone, scene, error: errorMessage }, 'error');
+      throw error;
+    }
+  }, [setErrorWithToast, clearError, toast]);
 
   /**
    * 分配角色
@@ -497,6 +545,8 @@ export function useUnifiedAuth(): UseUnifiedAuthReturn {
     getUserRoles,
     assignRole,
     refreshToken,
+    sendEmailCode,
+    sendSmsCode,
 
     // 自建后台功能
     generateInviteLink,
