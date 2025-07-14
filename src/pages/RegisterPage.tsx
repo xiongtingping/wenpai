@@ -414,7 +414,9 @@ export default function RegisterPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="phone-code">验证码</Label>
+                  <Label htmlFor="phone-code" className="flex items-center">
+                    验证码 <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
                       <Input

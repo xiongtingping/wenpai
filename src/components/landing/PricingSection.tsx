@@ -254,7 +254,7 @@ export function PricingSection() {
                       ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90' 
                       : ''
                   }`}
-                  onClick={() => isTrial ? window.location.href = '/login' : handlePlanClick(plan.id)}
+                  onClick={() => isTrial ? window.location.href = '/register' : handlePlanClick(plan.id)}
                 >
                   {isTrial ? (
                     <>

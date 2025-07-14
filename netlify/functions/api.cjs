@@ -10,7 +10,7 @@ module.exports.handler = async (event, context) => {
     'https://6872271d9e6c090008ffd9d5--wenpai.netlify.app',
     'https://wenpai.netlify.app',
     'http://localhost:3000',
-    'http://localhost:5173'
+    'https://www.wenpai.xyz'
   ];
   
   const origin = event.headers.origin || event.headers.Origin;

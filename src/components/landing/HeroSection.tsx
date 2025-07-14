@@ -21,7 +21,7 @@ export const HeroSection: React.FC = () => {
 
         {/* 按钮区域 */}
         <div className="mb-16">
-          <a href="/adapt">
+          <a href="/register">
             <button className="px-12 py-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xl font-semibold rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-3xl hover:from-blue-600 hover:via-purple-600 hover:to-pink-600">
               🚀 开始创作
             </button>

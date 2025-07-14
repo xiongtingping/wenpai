@@ -259,9 +259,7 @@ export default function ProfilePage() {
                   onAvatarChange={handleAvatarChange}
                   disabled={false}
                 />
-                <p className="text-xs text-gray-500 text-center lg:text-left max-w-full leading-relaxed">
-                  支持 JPG、PNG 格式，最大 5MB
-                </p>
+
               </div>
               {/* 表单区 */}
               <div className="flex-1 flex flex-col space-y-4 min-w-0">
@@ -408,7 +406,7 @@ export default function ProfilePage() {
                 <span>2025/7/12</span>
               </div>
             </div>
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-2 mt-auto">
               <button 
                 onClick={handleLogout}
                 className="w-full bg-red-100 text-red-600 py-2 rounded-lg font-semibold hover:bg-red-200 transition-colors"
@@ -443,7 +441,7 @@ export default function ProfilePage() {
             </div>
             <button 
               onClick={handleUpgrade}
-              className="w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-red-400 text-white font-semibold shadow-md hover:opacity-90 active:opacity-80 transition-opacity inline-flex items-center justify-center"
+              className="w-full mt-auto py-2 rounded-lg bg-gradient-to-r from-orange-400 to-red-400 text-white font-semibold shadow-md hover:opacity-90 active:opacity-80 transition-opacity inline-flex items-center justify-center"
             >
               立即解锁高级功能
             </button>
@@ -494,19 +492,7 @@ export default function ProfilePage() {
           </div>
 
           {/* 邀请方式区 */}
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-600 mb-1 block">推荐码</label>
-              <div className="flex items-center border rounded px-2 py-1 bg-white">
-                <input readOnly className="flex-1 text-sm truncate bg-transparent outline-none" value={getCurrentUserId()} />
-                <button 
-                  onClick={handleCopyInviteCode}
-                  className="flex items-center text-blue-600 hover:underline text-xs ml-2"
-                >
-                  <CopyIcon className="w-4 h-4 mr-1" />复制
-                </button>
-              </div>
-            </div>
+          <div className="mt-6">
             <div>
               <label className="text-sm text-gray-600 mb-1 block">邀请链接</label>
               <div className="flex items-center border rounded px-2 py-1 bg-white">

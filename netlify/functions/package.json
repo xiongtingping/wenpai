@@ -1,7 +1,25 @@
 {
-  "name": "netlify-functions",
+  "name": "wenpai-netlify-functions",
   "version": "1.0.0",
-  "description": "Netlify Functions for AI API proxy",
-  "main": "api.cjs",
-  "dependencies": {}
+  "description": "Netlify Functions for Wenpai AI",
+  "main": "index.js",
+  "dependencies": {
+    "authing-js-sdk": "^4.23.50",
+    "mongodb": "^6.3.0",
+    "crypto": "^1.0.1",
+    "querystring": "^0.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "netlify",
+    "functions",
+    "authing",
+    "payment",
+    "mongodb"
+  ],
+  "author": "Wenpai AI Team",
+  "license": "MIT"
 } 

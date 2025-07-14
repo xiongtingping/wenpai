@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { secureStorage, securityUtils } from '@/lib/security';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -13,12 +14,12 @@ export function getOrCreateTempUserId(): string {
   const key = 'temp-user-id';
 
   // 检查本地是否已有
-  let tempId = localStorage.getItem(key);
+  let tempId = secureStorage.getItem<string>(key, false);
 
   if (!tempId) {
-    // 随机生成一个（也可以使用 uuid）
-    tempId = `temp_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-    localStorage.setItem(key, tempId);
+    // 使用安全工具生成临时ID
+    tempId = securityUtils.generateTempId();
+    secureStorage.setItem(key, tempId, false); // 临时ID不需要加密
   }
 
   return tempId;
@@ -59,7 +60,7 @@ export function validateReferrerId(referrerId: string): boolean {
  * @returns 是否已处理
  */
 export function hasProcessedReferral(referrerId: string): boolean {
-  const processedReferrals = JSON.parse(localStorage.getItem('processed_referrals') || '[]');
+  const processedReferrals = secureStorage.getItem<string[]>('processed_referrals', false) || [];
   return processedReferrals.includes(referrerId);
 }
 
@@ -68,10 +69,10 @@ export function hasProcessedReferral(referrerId: string): boolean {
  * @param referrerId 推荐人ID
  */
 export function markReferralProcessed(referrerId: string): void {
-  const processedReferrals = JSON.parse(localStorage.getItem('processed_referrals') || '[]');
+  const processedReferrals = secureStorage.getItem<string[]>('processed_referrals', false) || [];
   if (!processedReferrals.includes(referrerId)) {
     processedReferrals.push(referrerId);
-    localStorage.setItem('processed_referrals', JSON.stringify(processedReferrals));
+    secureStorage.setItem('processed_referrals', processedReferrals, false);
   }
 }
 
@@ -99,14 +100,11 @@ export function saveReferrerFromURL(): string | null {
       return null;
     }
     
-    // 保存到localStorage
-    localStorage.setItem('referrer-id', cleanReferrerId);
+    // 安全保存推荐人ID
+    secureStorage.setItem('referrer-id', cleanReferrerId, false);
     
-    // 记录到控制台（仅开发环境）
-    if (process.env.NODE_ENV === 'development') {
-      console.log('推荐人ID已保存:', cleanReferrerId);
-      console.log('当前URL:', window.location.href);
-    }
+    // 安全日志记录（仅开发环境）
+    securityUtils.secureLog('推荐人ID已保存', { referrerId: cleanReferrerId, url: window.location.href });
     
     return cleanReferrerId;
   }
@@ -119,17 +117,15 @@ export function saveReferrerFromURL(): string | null {
  * @returns 推荐人ID或null
  */
 export function getReferrerId(): string | null {
-  return localStorage.getItem('referrer-id');
+  return secureStorage.getItem<string>('referrer-id', false);
 }
 
 /**
  * 清除推荐人ID
  */
 export function clearReferrerId(): void {
-  localStorage.removeItem('referrer-id');
-  if (process.env.NODE_ENV === 'development') {
-    console.log('推荐人ID已清除');
-  }
+  secureStorage.removeItem('referrer-id');
+  securityUtils.secureLog('推荐人ID已清除');
 }
 
 /**

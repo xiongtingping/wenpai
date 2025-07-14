@@ -95,19 +95,19 @@ export function Header() {
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/adapt" className="text-gray-600 hover:text-blue-600 transition">
+            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
               AI内容适配器
             </Link>
-            <Link to="/creative-studio" className="text-gray-600 hover:text-blue-600 transition">
+            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
               创意魔方
             </Link>
-            <Link to="/hot-topics" className="text-gray-600 hover:text-blue-600 transition">
+            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
               全网雷达
             </Link>
-            <Link to="/library" className="text-gray-600 hover:text-blue-600 transition">
+            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
               我的资料库
             </Link>
-            <Link to="/brand-library" className="text-gray-600 hover:text-blue-600 transition">
+            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
               品牌库
             </Link>
             <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">定价方案</a>
@@ -118,7 +118,7 @@ export function Header() {
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
             <Button 
-              onClick={() => navigate('/payment')}
+              onClick={() => navigate('/register')}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
             >
               立即解锁高级功能
@@ -164,25 +164,25 @@ export function Header() {
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
                 <Button 
-                  onClick={() => navigate('/payment')}
+                  onClick={() => navigate('/register')}
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
                 >
                   立即解锁高级功能
                 </Button>
                 
-                <Link to="/adapt" className="text-lg font-medium py-2">
+                <Link to="/register" className="text-lg font-medium py-2">
                   AI内容适配器
                 </Link>
-                <Link to="/creative-studio" className="text-lg font-medium py-2">
+                <Link to="/register" className="text-lg font-medium py-2">
                   创意魔方
                 </Link>
-                <Link to="/hot-topics" className="text-lg font-medium py-2">
+                <Link to="/register" className="text-lg font-medium py-2">
                   全网雷达
                 </Link>
-                <Link to="/library" className="text-lg font-medium py-2">
+                <Link to="/register" className="text-lg font-medium py-2">
                   我的资料库
                 </Link>
-                <Link to="/brand-library" className="text-lg font-medium py-2">
+                <Link to="/register" className="text-lg font-medium py-2">
                   品牌库
                 </Link>
                 <a href="#pricing" className="text-lg font-medium py-2">定价方案</a>

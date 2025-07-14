@@ -8,6 +8,7 @@ import { useAuthing } from '@/hooks/useAuthing';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getOrCreateTempUserId } from '@/lib/utils';
 import { useUserStore } from '@/store/userStore';
+import { secureStorage, dataMasking, securityUtils } from '@/lib/security';
 
 /**
  * 认证状态类型
@@ -88,22 +89,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuth = () => {
       try {
-        const storedUser = localStorage.getItem('authing_user');
+        const storedUser = secureStorage.getItem('authing_user');
         if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
+          setUser(storedUser);
           setStatus('authenticated');
+          securityUtils.secureLog('用户认证状态初始化成功', { userId: storedUser.id });
         } else {
           // 未登录用户自动生成临时ID
           const tempUserId = getOrCreateTempUserId();
-          console.log('生成临时用户ID:', tempUserId);
+          securityUtils.secureLog('生成临时用户ID', { tempUserId });
           setStatus('unauthenticated');
         }
       } catch (error) {
         console.error('初始化认证状态失败:', error);
         // 即使出错也生成临时ID
         const tempUserId = getOrCreateTempUserId();
-        console.log('错误后生成临时用户ID:', tempUserId);
+        securityUtils.secureLog('错误后生成临时用户ID', { tempUserId, error: error instanceof Error ? error.message : '未知错误' });
         setStatus('unauthenticated');
       }
     };
@@ -135,8 +136,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setStatus('authenticated');
       setError(null);
 
-      // 保存到localStorage
-      localStorage.setItem('authing_user', JSON.stringify(userData));
+      // 安全保存用户数据
+      secureStorage.setItem('authing_user', userData);
+      securityUtils.secureLog('用户数据已安全保存', { userId: userData.id });
 
       // 绑定临时用户ID到正式用户ID
       const userStore = useUserStore.getState();
@@ -151,7 +153,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else if (!isLoggedIn) {
       setUser(null);
       setStatus('unauthenticated');
-      localStorage.removeItem('authing_user');
+      secureStorage.removeItem('authing_user');
+      securityUtils.secureLog('用户已登出，数据已清理');
     }
   }, [isLoggedIn, authingUser, authingLoading, refreshPermissions]);
 
@@ -161,10 +164,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const login = useCallback((userData: User) => {
     try {
-      localStorage.setItem('authing_user', JSON.stringify(userData));
+      secureStorage.setItem('authing_user', userData);
       setUser(userData);
       setStatus('authenticated');
       setError(null);
+      
+      securityUtils.secureLog('用户登录成功', { userId: userData.id });
       
       // 刷新权限信息
       refreshPermissions();
@@ -179,10 +184,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const logout = useCallback(() => {
     try {
-      localStorage.removeItem('authing_user');
+      secureStorage.removeItem('authing_user');
       setUser(null);
       setStatus('unauthenticated');
       setError(null);
+      
+      securityUtils.secureLog('用户登出成功');
       
       // 刷新权限信息
       refreshPermissions();
@@ -199,8 +206,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateUser = useCallback((updates: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...updates };
-      localStorage.setItem('authing_user', JSON.stringify(updatedUser));
+      secureStorage.setItem('authing_user', updatedUser);
       setUser(updatedUser);
+      securityUtils.secureLog('用户信息已更新', { userId: updatedUser.id });
     }
   }, [user]);
 

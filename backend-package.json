@@ -1,0 +1,34 @@
+{
+  "name": "wenpai-backend-api",
+  "version": "1.0.0",
+  "description": "问派后端API服务器 - 处理业务逻辑，使用Authing身份认证",
+  "main": "backend-api-server.js",
+  "scripts": {
+    "start": "node backend-api-server.js",
+    "dev": "nodemon backend-api-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "api",
+    "authing",
+    "authentication",
+    "business-logic"
+  ],
+  "author": "问派团队",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "jsonwebtoken": "^9.0.2",
+    "authing-js-sdk": "^5.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 

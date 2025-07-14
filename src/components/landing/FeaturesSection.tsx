@@ -239,7 +239,7 @@ export const FeaturesSection: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                  <Link to={feature.path}>
+                  <Link to="/register">
                     <Button 
                       variant="outline" 
                       className={`w-full border-2 ${feature.borderColor} hover:bg-gradient-to-r ${feature.hoverColor} transition-all duration-300 group-hover:shadow-md`}

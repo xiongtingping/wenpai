@@ -1651,14 +1651,16 @@ export default function AdaptPage() {
                 选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o
               </CardDescription>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/payment')}
-              className="text-blue-600 border-blue-200 hover:bg-blue-50"
-            >
-              去解锁
-            </Button>
+            {userPlan === 'trial' && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/payment')}
+                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+              >
+                去解锁
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>

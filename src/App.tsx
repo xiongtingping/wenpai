@@ -20,6 +20,9 @@ import UserStatusPage from '@/pages/UserStatusPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import DevTools from '@/components/ui/dev-tools';
+import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
+import VIPPage from '@/pages/VIPPage';
+import VIPTestPage from '@/pages/VIPTestPage';
 
 // 懒加载组件 - 按需加载
 const AdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
@@ -31,6 +34,12 @@ const PaymentPage = React.lazy(() => import('@/pages/PaymentPage'));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
 const UserDataPage = React.lazy(() => import('@/pages/UserDataPage'));
+const UserProfilePage = React.lazy(() => import('@/pages/UserProfilePage'));
+const UserProfileTestPage = React.lazy(() => import('@/pages/UserProfileTestPage'));
+const LoginButtonTestPage = React.lazy(() => import('@/pages/LoginButtonTestPage'));
+const AuthingStatusTestPage = React.lazy(() => import('@/pages/AuthingStatusTestPage'));
+const LogoutButtonTestPage = React.lazy(() => import('@/pages/LogoutButtonTestPage'));
+const UserEditFormTestPage = React.lazy(() => import('@/pages/UserEditFormTestPage'));
 const PrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
 const TermsPage = React.lazy(() => import('@/pages/TermsPage'));
 const ChangelogPage = React.lazy(() => import('@/pages/ChangelogPage'));
@@ -46,6 +55,9 @@ const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const TestPage = React.lazy(() => import('@/pages/TestPage'));
 const AITestPage = React.lazy(() => import('@/pages/AITestPage'));
 const ReferrerTestPage = React.lazy(() => import('@/pages/ReferrerTestPage'));
+import UnifiedAuthTestPage from '@/pages/UnifiedAuthTestPage';
+const ArchitectureTestPage = React.lazy(() => import('@/pages/ArchitectureTestPage'));
+const AuthingSystemTestPage = React.lazy(() => import('@/pages/AuthingSystemTestPage'));
 
 /**
  * 加载中组件
@@ -158,15 +170,13 @@ const AppContent: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        <Route path="/payment" element={
-          <ProtectedRoute requireAuth={true} redirectTo="/login">
-            <ToolLayout>
-              <Suspense fallback={<LoadingSpinner />}>
-                <PaymentPage />
-              </Suspense>
-            </ToolLayout>
-          </ProtectedRoute>
-        } />
+        {/* VIP页面 */}
+        <Route path="/vip" element={<VIPPage />} />
+        <Route path="/vip-test" element={<VIPTestPage />} />
+        
+        {/* 支付相关页面 */}
+        <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/payment-success" element={<PaymentSuccessPage />} />
         
         <Route path="/profile" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
@@ -176,6 +186,83 @@ const AppContent: React.FC = () => {
               </Suspense>
             </ToolLayout>
           </ProtectedRoute>
+        } />
+        
+        <Route path="/user-profile" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <UserProfilePage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/user-profile-test" element={
+          <ProtectedRoute requireAuth={true} redirectTo="/login">
+            <ToolLayout>
+              <Suspense fallback={<LoadingSpinner />}>
+                <UserProfileTestPage />
+              </Suspense>
+            </ToolLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/login-button-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <LoginButtonTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        <Route path="/authing-status-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AuthingStatusTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        <Route path="/logout-button-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <LogoutButtonTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        <Route path="/user-edit-form-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <UserEditFormTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 统一认证测试页面 */}
+        <Route path="/unified-auth-test" element={
+          <ToolLayout>
+            <UnifiedAuthTestPage />
+          </ToolLayout>
+        } />
+        
+        {/* 架构测试页面 */}
+        <Route path="/architecture-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ArchitectureTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* Authing系统测试页面 */}
+        <Route path="/authing-system-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AuthingSystemTestPage />
+            </Suspense>
+          </ToolLayout>
         } />
         
         <Route path="/settings" element={

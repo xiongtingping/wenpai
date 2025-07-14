@@ -224,7 +224,6 @@ export function AvatarUpload({
 
       {/* 提示信息 */}
       <div className="text-xs text-gray-500 text-center">
-        <p>支持 JPG、PNG 格式，最大 5MB</p>
         <p>或点击"随机头像"生成个性化头像</p>
       </div>
     </div>
