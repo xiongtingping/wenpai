@@ -55,7 +55,7 @@ const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const TestPage = React.lazy(() => import('@/pages/TestPage'));
 const AITestPage = React.lazy(() => import('@/pages/AITestPage'));
 const ReferrerTestPage = React.lazy(() => import('@/pages/ReferrerTestPage'));
-import UnifiedAuthTestPage from '@/pages/UnifiedAuthTestPage';
+const UnifiedAuthTestPage = React.lazy(() => import('@/pages/UnifiedAuthTestPage'));
 const ArchitectureTestPage = React.lazy(() => import('@/pages/ArchitectureTestPage'));
 const AuthingSystemTestPage = React.lazy(() => import('@/pages/AuthingSystemTestPage'));
 const AuthingLoginTestPage = React.lazy(() => import('@/pages/AuthingLoginTestPage'));
@@ -244,7 +244,9 @@ const AppContent: React.FC = () => {
         {/* 统一认证测试页面 */}
         <Route path="/unified-auth-test" element={
           <ToolLayout>
-            <UnifiedAuthTestPage />
+            <Suspense fallback={<LoadingSpinner />}>
+              <UnifiedAuthTestPage />
+            </Suspense>
           </ToolLayout>
         } />
         

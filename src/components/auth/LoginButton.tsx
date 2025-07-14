@@ -1,6 +1,7 @@
 /**
  * 登录按钮组件
  * 提供登录/注册功能的按钮组件
+ * 使用统一认证入口，优先使用Authing SDK
  */
 
 import React, { useState } from 'react';
@@ -15,9 +16,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAuthing } from '@/hooks/useAuthing';
+import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 import { securityUtils } from '@/lib/security';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { QuickAuthButton, LoginButton as AuthLoginButton, RegisterButton as AuthRegisterButton } from './AuthModal';
 
 /**
  * 登录按钮组件属性
@@ -53,52 +56,13 @@ export default function LoginButton({
   redirectTo = '/',
   children
 }: LoginButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const { isAuthenticated, user } = useAuth();
-  const { showLogin } = useAuthing();
-  const { toast } = useToast();
+  const { user: unifiedUser, isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
   const navigate = useNavigate();
 
-  /**
-   * 处理登录点击
-   */
-  const handleLogin = async () => {
-    try {
-      setIsLoading(true);
-      
-      // 安全日志记录
-      securityUtils.secureLog('用户点击登录按钮', {
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        redirectTo
-      });
-
-      // 调用Authing登录
-      showLogin();
-
-      toast({
-        title: "正在跳转到登录页面",
-        description: "请完成登录以继续使用",
-      });
-
-    } catch (error) {
-      console.error('登录失败:', error);
-      
-      // 安全日志记录错误
-      securityUtils.secureLog('登录按钮点击失败', {
-        error: error instanceof Error ? error.message : '未知错误',
-        timestamp: new Date().toISOString()
-      }, 'error');
-
-      toast({
-        title: "登录失败",
-        description: "请稍后重试或联系客服",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // 优先使用统一认证状态
+  const currentUser = unifiedUser || user;
+  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
 
   /**
    * 处理用户中心点击
@@ -108,7 +72,7 @@ export default function LoginButton({
   };
 
   // 如果用户已登录且显示用户状态
-  if (isAuthenticated && showUserStatus) {
+  if (currentIsAuthenticated && showUserStatus && currentUser) {
     return (
       <div className="flex items-center gap-2">
         <Badge variant="outline" className="flex items-center gap-1">
@@ -122,28 +86,27 @@ export default function LoginButton({
           className={`flex items-center gap-2 ${className}`}
         >
           <Shield className="w-4 h-4" />
-          {user?.nickname || user?.username || '用户中心'}
+          {currentUser?.nickname || currentUser?.username || '用户中心'}
         </Button>
       </div>
     );
   }
 
-  // 登录按钮
+  // 使用新的统一认证按钮
   return (
-    <Button
+    <QuickAuthButton
       variant={variant}
       size={size}
-      onClick={handleLogin}
-      disabled={isLoading}
-      className={`flex items-center gap-2 ${className}`}
+      className={className}
+      onSuccess={(user) => {
+        // 登录成功后的处理
+        if (redirectTo) {
+          navigate(redirectTo);
+        }
+      }}
     >
-      {isLoading && showLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <LogIn className="w-4 h-4" />
-      )}
-      {children || (isLoading ? '跳转中...' : '登录 / 注册')}
-    </Button>
+      {children || '登录 / 注册'}
+    </QuickAuthButton>
   );
 }
 
@@ -159,41 +122,29 @@ export function QuickLoginButton({
   redirectTo?: string;
 }) {
   const { isAuthenticated } = useAuth();
-  const { showLogin } = useAuthing();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
+  const navigate = useNavigate();
 
-  const handleQuickLogin = async () => {
-    if (isAuthenticated) return;
-    
-    try {
-      setIsLoading(true);
-      showLogin();
-    } catch (error) {
-      console.error('快速登录失败:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // 优先使用统一认证状态
+  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
 
-  if (isAuthenticated) {
+  if (currentIsAuthenticated) {
     return null; // 已登录时不显示
   }
 
   return (
-    <Button
+    <AuthLoginButton
       variant="ghost"
       size="sm"
-      onClick={handleQuickLogin}
-      disabled={isLoading}
       className={`text-sm ${className}`}
+      onSuccess={(user) => {
+        if (redirectTo) {
+          navigate(redirectTo);
+        }
+      }}
     >
-      {isLoading ? (
-        <Loader2 className="w-3 h-3 animate-spin mr-1" />
-      ) : (
-        <LogIn className="w-3 h-3 mr-1" />
-      )}
       登录
-    </Button>
+    </AuthLoginButton>
   );
 }
 
@@ -209,51 +160,28 @@ export function RegisterButton({
   redirectTo?: string;
 }) {
   const { isAuthenticated } = useAuth();
-  const { showLogin } = useAuthing();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
+  const navigate = useNavigate();
 
-  const handleRegister = async () => {
-    if (isAuthenticated) return;
-    
-    try {
-      setIsLoading(true);
-      
-      // 安全日志记录
-      securityUtils.secureLog('用户点击注册按钮', {
-        timestamp: new Date().toISOString(),
-        redirectTo
-      });
+  // 优先使用统一认证状态
+  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
 
-      showLogin();
-    } catch (error) {
-      console.error('注册失败:', error);
-      
-      securityUtils.secureLog('注册按钮点击失败', {
-        error: error instanceof Error ? error.message : '未知错误'
-      }, 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isAuthenticated) {
+  if (currentIsAuthenticated) {
     return null; // 已登录时不显示
   }
 
   return (
-    <Button
+    <AuthRegisterButton
       variant="outline"
       size="sm"
-      onClick={handleRegister}
-      disabled={isLoading}
       className={`flex items-center gap-1 ${className}`}
+      onSuccess={(user) => {
+        if (redirectTo) {
+          navigate(redirectTo);
+        }
+      }}
     >
-      {isLoading ? (
-        <Loader2 className="w-3 h-3 animate-spin" />
-      ) : (
-        <UserPlus className="w-3 h-3" />
-      )}
       注册
-    </Button>
+    </AuthRegisterButton>
   );
 } 
