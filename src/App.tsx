@@ -58,6 +58,7 @@ const ReferrerTestPage = React.lazy(() => import('@/pages/ReferrerTestPage'));
 import UnifiedAuthTestPage from '@/pages/UnifiedAuthTestPage';
 const ArchitectureTestPage = React.lazy(() => import('@/pages/ArchitectureTestPage'));
 const AuthingSystemTestPage = React.lazy(() => import('@/pages/AuthingSystemTestPage'));
+const AuthingLoginTestPage = React.lazy(() => import('@/pages/AuthingLoginTestPage'));
 
 /**
  * 加载中组件
@@ -261,6 +262,15 @@ const AppContent: React.FC = () => {
           <ToolLayout>
             <Suspense fallback={<LoadingSpinner />}>
               <AuthingSystemTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* Authing登录测试页面 */}
+        <Route path="/authing-login-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AuthingLoginTestPage />
             </Suspense>
           </ToolLayout>
         } />

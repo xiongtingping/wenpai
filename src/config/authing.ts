@@ -25,7 +25,7 @@ export interface AuthingConfig {
 const devConfig: AuthingConfig = {
   appId: import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d',
   host: import.meta.env.VITE_AUTHING_HOST || 'https://qutkgzkfaezk-demo.authing.cn',
-  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI || `${window.location.origin}/callback`,
+  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || `${window.location.origin}/callback`,
   mode: 'normal',
   defaultScene: 'login',
 };
@@ -36,7 +36,7 @@ const devConfig: AuthingConfig = {
 const prodConfig: AuthingConfig = {
   appId: import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d',
   host: import.meta.env.VITE_AUTHING_HOST || 'https://qutkgzkfaezk-demo.authing.cn',
-  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI || `${window.location.origin}/callback`,
+  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || `${window.location.origin}/callback`,
   mode: 'normal',
   defaultScene: 'login',
 };
