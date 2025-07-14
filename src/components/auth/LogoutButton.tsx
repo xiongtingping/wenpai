@@ -106,9 +106,7 @@ export function LogoutButton({
       }
 
       // 执行退出登录
-      await authingLogout({
-        redirectUri
-      });
+      await authingLogout();
 
       // 记录退出成功
       logSecurity('用户退出登录成功', {

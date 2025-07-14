@@ -71,7 +71,7 @@ export function useAuthingStatus(options: {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { checkLoginStatus, getCurrentUser, loginWithRedirect, logout: authingLogout } = useAuthing();
+  const { checkLoginStatus, getCurrentUser, showLogin, logout: authingLogout } = useAuthing();
   const { toast } = useToast();
 
   /**
@@ -82,47 +82,6 @@ export function useAuthingStatus(options: {
       securityUtils.secureLog(message, data, level);
     }
   }, [enableSecurityLog]);
-
-  /**
-   * 检查登录状态
-   */
-  const checkStatus = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      logSecurity('开始检查Authing登录状态');
-
-      const isLoggedIn = await checkLoginStatus();
-      setIsLoggedIn(isLoggedIn);
-
-      if (isLoggedIn) {
-        logSecurity('用户已登录，获取用户信息');
-        await getUserInfo();
-      } else {
-        logSecurity('用户未登录');
-        setUser(null);
-      }
-
-    } catch (err) {
-      console.error('检查登录状态失败:', err);
-      const errorMessage = err instanceof Error ? err.message : '检查登录状态失败';
-      setError(errorMessage);
-      
-      logSecurity('检查登录状态失败', {
-        error: errorMessage,
-        timestamp: new Date().toISOString()
-      }, 'error');
-
-      toast({
-        title: "状态检查失败",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [checkLoginStatus, getUserInfo, logSecurity, toast]);
 
   /**
    * 获取用户信息
@@ -145,8 +104,8 @@ export function useAuthingStatus(options: {
           email: String(userData.email || ''),
           phone: String(userData.phone || ''),
           photo: String(userData.photo || userData.avatar || ''),
-          createdAt: userData.createdAt || new Date().toISOString(),
-          updatedAt: userData.updatedAt || new Date().toISOString(),
+          createdAt: String(userData.createdAt || new Date().toISOString()),
+          updatedAt: String(userData.updatedAt || new Date().toISOString()),
           ...userData
         };
 
@@ -190,6 +149,47 @@ export function useAuthingStatus(options: {
   }, [getCurrentUser, logSecurity, toast]);
 
   /**
+   * 检查登录状态
+   */
+  const checkStatus = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      logSecurity('开始检查Authing登录状态');
+
+      const isLoggedIn = await checkLoginStatus();
+      setIsLoggedIn(isLoggedIn);
+
+      if (isLoggedIn) {
+        logSecurity('用户已登录，获取用户信息');
+        await getUserInfo();
+      } else {
+        logSecurity('用户未登录');
+        setUser(null);
+      }
+
+    } catch (err) {
+      console.error('检查登录状态失败:', err);
+      const errorMessage = err instanceof Error ? err.message : '检查登录状态失败';
+      setError(errorMessage);
+      
+      logSecurity('检查登录状态失败', {
+        error: errorMessage,
+        timestamp: new Date().toISOString()
+      }, 'error');
+
+      toast({
+        title: "状态检查失败",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [checkLoginStatus, getUserInfo, logSecurity, toast]);
+
+  /**
    * 登录
    */
   const login = useCallback(async (customRedirectUri?: string) => {
@@ -204,9 +204,7 @@ export function useAuthingStatus(options: {
         timestamp: new Date().toISOString()
       });
 
-      await loginWithRedirect({
-        redirectUri: targetRedirectUri
-      });
+      showLogin();
 
       toast({
         title: "正在跳转到登录页面",
@@ -231,7 +229,7 @@ export function useAuthingStatus(options: {
     } finally {
       setLoading(false);
     }
-  }, [loginWithRedirect, redirectUri, logSecurity, toast]);
+  }, [showLogin, redirectUri, logSecurity, toast]);
 
   /**
    * 登出
@@ -316,7 +314,7 @@ export function useSimpleAuthingStatus() {
   const [user, setUser] = useState<AuthingUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { checkLoginStatus, getCurrentUser, loginWithRedirect } = useAuthing();
+  const { checkLoginStatus, getCurrentUser, showLogin } = useAuthing();
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -332,8 +330,8 @@ export function useSimpleAuthingStatus() {
             setUser(userData as AuthingUser);
           }
         } else {
-          // 未登录时自动跳转到登录页面
-          await loginWithRedirect();
+          // 未登录时显示登录界面
+          showLogin();
         }
       } catch (error) {
         console.error('Authing状态检查失败:', error);
@@ -345,7 +343,7 @@ export function useSimpleAuthingStatus() {
     };
 
     checkAuthStatus();
-  }, [checkLoginStatus, getCurrentUser, loginWithRedirect]);
+  }, [checkLoginStatus, getCurrentUser, showLogin]);
 
   return {
     isLoggedIn,

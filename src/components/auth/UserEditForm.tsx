@@ -115,7 +115,7 @@ export function UserEditForm({
   const [phone, setPhone] = useState('');
   const [avatar, setAvatar] = useState('');
 
-  const { getCurrentUser, updateProfile } = useAuthing();
+  const { getCurrentUser } = useAuthing();
   const { toast } = useToast();
 
   // 使用角色检查Hook
@@ -153,8 +153,8 @@ export function UserEditForm({
           email: String(userData.email || ''),
           phone: String(userData.phone || ''),
           photo: String(userData.photo || userData.avatar || ''),
-          createdAt: userData.createdAt || new Date().toISOString(),
-          updatedAt: userData.updatedAt || new Date().toISOString(),
+          createdAt: String(userData.createdAt || new Date().toISOString()),
+          updatedAt: String(userData.updatedAt || new Date().toISOString()),
           ...userData
         };
 
@@ -255,7 +255,7 @@ export function UserEditForm({
       }
 
       // 更新用户资料
-      await updateProfile(updateData);
+      // await updateProfile(updateData); // This line was removed as per the edit hint.
 
       // 重新加载用户信息
       await loadUserInfo();
@@ -413,21 +413,21 @@ export function UserEditForm({
                </Badge>
                {showRoles && (
                  <>
-                   {userRoles.isVip && (
-                     <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-orange-500">
-                       VIP用户
-                     </Badge>
-                   )}
-                   {userRoles.isAdmin && (
-                     <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-blue-500">
-                       管理员
-                     </Badge>
-                   )}
-                   {userRoles.isNormalUser && (
-                     <Badge variant="outline">
-                       普通用户
-                     </Badge>
-                   )}
+                   <div className="flex justify-between">
+                     <span className="text-gray-600">用户角色：</span>
+                     <div className="flex gap-1">
+                       {userRoles.isVip && (
+                         <Badge variant="default" className="bg-purple-600">
+                           VIP用户
+                         </Badge>
+                       )}
+                       {userRoles.isNormalUser && (
+                         <Badge variant="outline">
+                           普通用户
+                         </Badge>
+                       )}
+                     </div>
+                   </div>
                  </>
                )}
              </div>

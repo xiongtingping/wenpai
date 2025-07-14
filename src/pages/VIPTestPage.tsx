@@ -59,8 +59,9 @@ export default function VIPTestPage() {
    */
   const testVIPAccess = () => {
     try {
-      const result = checkVIPAccess(roles, 'vip');
-      addTestResult('VIP权限检查', result, { roles, expectedRole: 'vip' });
+      const roleCodes = roles.map(role => typeof role === 'string' ? role : role.code);
+      const result = checkVIPAccess(roleCodes, 'vip');
+      addTestResult('VIP权限检查', result, { roles: roleCodes, expectedRole: 'vip' });
       
       toast({
         title: result ? "权限检查通过" : "权限检查失败",
@@ -195,7 +196,7 @@ export default function VIPTestPage() {
                   <div className="flex gap-1">
                     {roles.map((role, index) => (
                       <Badge key={index} variant="outline" className="text-xs">
-                        {role}
+                        {typeof role === 'string' ? role : role.name || role.code}
                       </Badge>
                     ))}
                   </div>

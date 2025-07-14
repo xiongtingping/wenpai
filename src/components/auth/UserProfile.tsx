@@ -100,10 +100,9 @@ export default function UserProfile({
           email: String(userData.email || ''),
           phone: String(userData.phone || ''),
           photo: String(userData.photo || userData.avatar || ''),
-          createdAt: userData.createdAt || new Date().toISOString(),
-          updatedAt: userData.updatedAt || new Date().toISOString(),
-          plan: (userData as any).plan || 'trial',
-          isProUser: (userData as any).isProUser || false,
+          createdAt: String(userData.createdAt || new Date().toISOString()),
+          updatedAt: String(userData.updatedAt || new Date().toISOString()),
+          ...userData
         };
 
         setUser(processedUser);

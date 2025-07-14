@@ -91,9 +91,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const storedUser = secureStorage.getItem('authing_user');
         if (storedUser) {
-          setUser(storedUser);
+          const userData = storedUser as User;
+          setUser(userData);
           setStatus('authenticated');
-          securityUtils.secureLog('用户认证状态初始化成功', { userId: storedUser.id });
+          securityUtils.secureLog('用户认证状态初始化成功', { userId: userData.id });
         } else {
           // 未登录用户自动生成临时ID
           const tempUserId = getOrCreateTempUserId();

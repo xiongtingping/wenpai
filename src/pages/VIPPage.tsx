@@ -373,7 +373,7 @@ export default function VIPPage() {
                   <div className="flex gap-1">
                     {roles.map((role, index) => (
                       <Badge key={index} variant="outline" className="text-xs">
-                        {role}
+                        {typeof role === 'string' ? role : role.name || role.code}
                       </Badge>
                     ))}
                   </div>

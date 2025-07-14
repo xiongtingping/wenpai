@@ -422,7 +422,4 @@ export const secureStorage = new SecureStorage();
 export const dataEncryption = new DataEncryption();
 export const dataMasking = DataMasking;
 export const dataValidation = DataValidation;
-export const securityUtils = SecurityUtils;
-
-// 导出类型
-export type { DataEncryption, DataMasking, DataValidation, SecureStorage, SecurityUtils }; 
+export const securityUtils = SecurityUtils; 

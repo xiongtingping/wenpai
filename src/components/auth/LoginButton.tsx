@@ -55,7 +55,7 @@ export default function LoginButton({
 }: LoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { isAuthenticated, user } = useAuth();
-  const { loginWithRedirect } = useAuthing();
+  const { showLogin } = useAuthing();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -74,9 +74,7 @@ export default function LoginButton({
       });
 
       // 调用Authing登录
-      await loginWithRedirect({
-        redirectUri: redirectTo
-      });
+      showLogin();
 
       toast({
         title: "正在跳转到登录页面",
@@ -161,7 +159,7 @@ export function QuickLoginButton({
   redirectTo?: string;
 }) {
   const { isAuthenticated } = useAuth();
-  const { loginWithRedirect } = useAuthing();
+  const { showLogin } = useAuthing();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleQuickLogin = async () => {
@@ -169,7 +167,7 @@ export function QuickLoginButton({
     
     try {
       setIsLoading(true);
-      await loginWithRedirect({ redirectUri: redirectTo });
+      showLogin();
     } catch (error) {
       console.error('快速登录失败:', error);
     } finally {
@@ -211,7 +209,7 @@ export function RegisterButton({
   redirectTo?: string;
 }) {
   const { isAuthenticated } = useAuth();
-  const { loginWithRedirect } = useAuthing();
+  const { showLogin } = useAuthing();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -226,10 +224,7 @@ export function RegisterButton({
         redirectTo
       });
 
-      await loginWithRedirect({ 
-        redirectUri: redirectTo,
-        scene: 'register'
-      });
+      showLogin();
     } catch (error) {
       console.error('注册失败:', error);
       

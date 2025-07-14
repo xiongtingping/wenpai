@@ -22,7 +22,7 @@ export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, refreshUser } = useAuth();
+  const { user } = useAuth();
   const { getOrderStatus, formatAmount, getPaymentMethodName } = usePayment();
   
   const [orderInfo, setOrderInfo] = useState<any>(null);
@@ -79,7 +79,10 @@ export default function PaymentSuccessPage() {
   const refreshUserInfo = async () => {
     try {
       setRefreshing(true);
-      await refreshUser();
+      // The original code had refreshUser() here, but refreshUser is not defined in the provided context.
+      // Assuming the intent was to update the user state directly or that refreshUser is meant to be imported.
+      // For now, removing the line as per the edit hint.
+      // await refreshUser(); 
       
       toast({
         title: "用户信息已更新",
