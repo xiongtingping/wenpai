@@ -1,34 +1,26 @@
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AuthTestPage() {
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    error,
-    login,
-    logout,
-    updateUser,
-  } = useAuth();
+  const { user, isAuthenticated, loading, error, login, logout } = useUnifiedAuthContext();
 
   const handleShowLogin = async () => {
     console.log('AuthTestPage: showLogin called');
     try {
-      await login({
-        id: 'test-user-id',
-        username: 'testuser',
-        email: 'test@example.com',
-        nickname: '测试用户',
-        plan: 'free',
-        isProUser: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+      login();
     } catch (error) {
       console.error('AuthTestPage: showLogin failed:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    console.log('AuthTestPage: logout called');
+    try {
+      await logout();
+    } catch (error) {
+      console.error('AuthTestPage: logout failed:', error);
     }
   };
 
@@ -47,7 +39,7 @@ export default function AuthTestPage() {
               <strong>是否已认证:</strong> {isAuthenticated ? '是' : '否'}
             </div>
             <div>
-              <strong>是否加载中:</strong> {isLoading ? '是' : '否'}
+              <strong>是否加载中:</strong> {loading ? '是' : '否'}
             </div>
             <div>
               <strong>按钮状态:</strong> 已启用
@@ -64,13 +56,11 @@ export default function AuthTestPage() {
           )}
 
           <div className="flex space-x-4">
-            <Button
-              onClick={handleShowLogin}
-            >
+            <Button onClick={handleShowLogin}>
               显示登录窗口
             </Button>
             {isAuthenticated && (
-              <Button onClick={logout} variant="outline">
+              <Button onClick={handleLogout} variant="outline">
                 退出登录
               </Button>
             )}

@@ -132,7 +132,9 @@ const DEV_ROLES: Role[] = [
  * 检查是否为开发环境
  */
 const isDevelopment = () => {
-  return import.meta.env.DEV || process.env.NODE_ENV === 'development';
+  return import.meta.env.DEV || 
+         process.env.NODE_ENV === 'development' || 
+         import.meta.env.VITE_DEV_MODE === 'true';
 };
 
 /**

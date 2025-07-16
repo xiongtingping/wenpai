@@ -1,3 +1,5 @@
+import { useAuthing } from "@/hooks/useAuthing";
+import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
 /**
  * VIP页面组件
  * 仅限VIP用户访问，集成Authing角色检查和权限验证
@@ -25,6 +27,7 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 
 /**
  * VIP页面组件
@@ -33,7 +36,13 @@ import {
 export default function VIPPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, login } = useUnifiedAuthContext();
+  const { user: unifiedUser, isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
+  const { showLogin } = useAuthing();
+  
+  // 优先使用统一认证状态
+  const currentUser = unifiedUser || user;
+  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
   const { isVip, isAdmin, roles, loading, error, refreshRoles } = useUserRoles({
     autoCheck: true,
     enableSecurityLog: true,
@@ -51,14 +60,14 @@ export default function VIPPage() {
         securityUtils.secureLog('开始检查VIP访问权限');
 
         // 检查用户是否已登录
-        if (!isAuthenticated || !user) {
+        if (!currentIsAuthenticated || !currentUser) {
           securityUtils.secureLog('用户未登录，重定向到登录页面');
           toast({
             title: "需要登录",
             description: "请先登录后再访问VIP页面",
             variant: "destructive"
           });
-          navigate('/login');
+          showLogin();
           return;
         }
 
@@ -70,7 +79,7 @@ export default function VIPPage() {
         // 检查VIP权限
         if (!isVip && !isAdmin) {
           securityUtils.secureLog('非VIP用户尝试访问VIP页面', {
-            userId: user.id,
+            userId: currentUser.id,
             roles: roles
           }, 'error');
           
@@ -90,7 +99,7 @@ export default function VIPPage() {
         // 权限验证通过
         setAccessGranted(true);
         securityUtils.secureLog('VIP用户访问权限验证通过', {
-          userId: user.id,
+          userId: currentUser.id,
           roles: roles,
           isVip,
           isAdmin
@@ -103,10 +112,10 @@ export default function VIPPage() {
 
       } catch (error) {
         console.error('VIP权限检查失败:', error);
-        securityUtils.secureLog('VIP权限检查失败', {
-          error: error instanceof Error ? error.message : '未知错误',
-          userId: user?.id
-        }, 'error');
+              securityUtils.secureLog('VIP权限检查失败', {
+        error: error instanceof Error ? error.message : '未知错误',
+        userId: currentUser?.id
+      }, 'error');
         
         toast({
           title: "权限检查失败",

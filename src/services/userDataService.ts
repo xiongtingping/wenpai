@@ -51,7 +51,7 @@ interface UserDataRecord {
 class UserDataService {
   private static instance: UserDataService;
   private dbName = 'UserDataDB';
-  private version = 1;
+  private version = 2; // 增加版本号，强制升级数据库结构
 
   private constructor() {
     this.initDatabase();
@@ -119,62 +119,70 @@ class UserDataService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(new Error('数据库连接失败'));
+      request.onerror = () => {
+        console.warn('数据库连接失败，跳过用户数据保存');
+        resolve(); // 不抛出错误，只是跳过保存
+      };
 
       request.onsuccess = () => {
-        const db = request.result;
-        const transaction = db.transaction(['userData'], 'readwrite');
-        const store = transaction.objectStore('userData');
+        try {
+          const db = request.result;
+          const transaction = db.transaction(['userData'], 'readwrite');
+          const store = transaction.objectStore('userData');
 
-        // 先尝试获取现有记录
-        const getRequest = store.get(userId);
+          // 先尝试获取现有记录
+          const getRequest = store.get(userId);
 
-        getRequest.onsuccess = () => {
-          const existingRecord = getRequest.result;
-          const now = new Date().toISOString();
+          getRequest.onsuccess = () => {
+            const existingRecord = getRequest.result;
+            const now = new Date().toISOString();
 
-          let userDataRecord: UserDataRecord;
+            let userDataRecord: UserDataRecord;
 
-          if (existingRecord) {
-            // 更新现有记录
-            userDataRecord = {
-              ...existingRecord,
-              userInfo: { ...existingRecord.userInfo, ...userInfo },
-              updatedAt: now
+            if (existingRecord) {
+              // 更新现有记录
+              userDataRecord = {
+                ...existingRecord,
+                userInfo: { ...existingRecord.userInfo, ...userInfo },
+                updatedAt: now
+              };
+            } else {
+              // 创建新记录
+              userDataRecord = {
+                userId,
+                isTempUser,
+                userInfo,
+                userActions: {
+                  pageVisits: [],
+                  featureUsage: [],
+                  contentCreated: []
+                },
+                createdAt: now,
+                updatedAt: now
+              };
+            }
+
+            const saveRequest = store.put(userDataRecord);
+
+            saveRequest.onsuccess = () => {
+              console.log('用户数据保存成功:', userId);
+              resolve();
             };
-          } else {
-            // 创建新记录
-            userDataRecord = {
-              userId,
-              isTempUser,
-              userInfo,
-              userActions: {
-                pageVisits: [],
-                featureUsage: [],
-                contentCreated: []
-              },
-              createdAt: now,
-              updatedAt: now
+
+            saveRequest.onerror = () => {
+              console.warn('用户数据保存失败，跳过');
+              resolve(); // 不抛出错误，只是跳过保存
             };
-          }
-
-          const saveRequest = store.put(userDataRecord);
-
-          saveRequest.onsuccess = () => {
-            console.log('用户数据保存成功:', userId);
-            resolve();
           };
 
-          saveRequest.onerror = () => {
-            console.error('用户数据保存失败');
-            reject(new Error('用户数据保存失败'));
+          getRequest.onerror = () => {
+            console.warn('获取用户数据失败，跳过');
+            resolve(); // 不抛出错误，只是跳过保存
           };
-        };
-
-        getRequest.onerror = () => {
-          console.error('获取用户数据失败');
-          reject(new Error('获取用户数据失败'));
-        };
+        } catch (error) {
+          console.warn('数据库操作失败，跳过用户数据保存:', error);
+          resolve(); // 不抛出错误，只是跳过保存
+        }
       };
     });
   }
@@ -187,23 +195,31 @@ class UserDataService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(new Error('数据库连接失败'));
+      request.onerror = () => {
+        console.warn('数据库连接失败，返回null');
+        resolve(null); // 不抛出错误，返回null
+      };
 
       request.onsuccess = () => {
-        const db = request.result;
-        const transaction = db.transaction(['userData'], 'readonly');
-        const store = transaction.objectStore('userData');
+        try {
+          const db = request.result;
+          const transaction = db.transaction(['userData'], 'readonly');
+          const store = transaction.objectStore('userData');
 
-        const getRequest = store.get(userId);
+          const getRequest = store.get(userId);
 
-        getRequest.onsuccess = () => {
-          resolve(getRequest.result || null);
-        };
+          getRequest.onsuccess = () => {
+            resolve(getRequest.result || null);
+          };
 
-        getRequest.onerror = () => {
-          console.error('获取用户数据失败');
-          reject(new Error('获取用户数据失败'));
-        };
+          getRequest.onerror = () => {
+            console.warn('获取用户数据失败，返回null');
+            resolve(null); // 不抛出错误，返回null
+          };
+        } catch (error) {
+          console.warn('数据库操作失败，返回null:', error);
+          resolve(null); // 不抛出错误，返回null
+        }
       };
     });
   }
@@ -229,62 +245,71 @@ class UserDataService {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open(this.dbName, this.version);
 
-        request.onerror = () => reject(new Error('数据库连接失败'));
+        request.onerror = () => {
+          console.warn('数据库连接失败，跳过行为记录');
+          resolve(); // 不抛出错误，只是跳过记录
+        };
 
         request.onsuccess = () => {
-          const db = request.result;
-          const transaction = db.transaction(['userData'], 'readwrite');
-          const store = transaction.objectStore('userData');
+          try {
+            const db = request.result;
+            const transaction = db.transaction(['userData'], 'readwrite');
+            const store = transaction.objectStore('userData');
 
-          const getRequest = store.get(userId);
+            const getRequest = store.get(userId);
 
-          getRequest.onsuccess = () => {
-            const userData = getRequest.result;
-            if (!userData) {
-              reject(new Error('用户数据不存在'));
-              return;
-            }
-
-            const now = new Date().toISOString();
-            const updatedUserData = {
-              ...userData,
-              updatedAt: now,
-              userActions: {
-                ...userData.userActions,
-                [actionType === 'pageVisit' ? 'pageVisits' : 
-                 actionType === 'featureUsage' ? 'featureUsage' : 'contentCreated']: [
-                  ...userData.userActions[actionType === 'pageVisit' ? 'pageVisits' : 
-                                         actionType === 'featureUsage' ? 'featureUsage' : 'contentCreated'],
-                  {
-                    ...actionData,
-                    timestamp: now
-                  }
-                ]
+            getRequest.onsuccess = () => {
+              const userData = getRequest.result;
+              if (!userData) {
+                console.warn('用户数据不存在，跳过行为记录');
+                resolve(); // 不抛出错误，只是跳过记录
+                return;
               }
+
+              const now = new Date().toISOString();
+              const updatedUserData = {
+                ...userData,
+                updatedAt: now,
+                userActions: {
+                  ...userData.userActions,
+                  [actionType === 'pageVisit' ? 'pageVisits' : 
+                   actionType === 'featureUsage' ? 'featureUsage' : 'contentCreated']: [
+                    ...userData.userActions[actionType === 'pageVisit' ? 'pageVisits' : 
+                                           actionType === 'featureUsage' ? 'featureUsage' : 'contentCreated'],
+                    {
+                      ...actionData,
+                      timestamp: now
+                    }
+                  ]
+                }
+              };
+
+              const saveRequest = store.put(updatedUserData);
+
+              saveRequest.onsuccess = () => {
+                console.log('用户行为记录成功:', actionType);
+                resolve();
+              };
+
+              saveRequest.onerror = () => {
+                console.warn('用户行为记录失败，跳过');
+                resolve(); // 不抛出错误，只是跳过记录
+              };
             };
 
-            const saveRequest = store.put(updatedUserData);
-
-            saveRequest.onsuccess = () => {
-              console.log('用户行为记录成功:', actionType);
-              resolve();
+            getRequest.onerror = () => {
+              console.warn('获取用户数据失败，跳过行为记录');
+              resolve(); // 不抛出错误，只是跳过记录
             };
-
-            saveRequest.onerror = () => {
-              console.error('用户行为记录失败');
-              reject(new Error('用户行为记录失败'));
-            };
-          };
-
-          getRequest.onerror = () => {
-            console.error('获取用户数据失败');
-            reject(new Error('获取用户数据失败'));
-          };
+          } catch (error) {
+            console.warn('数据库操作失败，跳过行为记录:', error);
+            resolve(); // 不抛出错误，只是跳过记录
+          }
         };
       });
     } catch (error) {
-      console.error('记录用户行为失败:', error);
-      throw error;
+      console.warn('记录用户行为失败，跳过:', error);
+      // 不抛出错误，只是跳过记录
     }
   }
 
@@ -297,58 +322,65 @@ class UserDataService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(new Error('数据库连接失败'));
+      request.onerror = () => {
+        console.warn('数据库连接失败，跳过临时用户绑定');
+        resolve(); // 不抛出错误，只是跳过绑定
+      };
 
       request.onsuccess = () => {
-        const db = request.result;
-        const transaction = db.transaction(['userData', 'userBindings'], 'readwrite');
-        const userDataStore = transaction.objectStore('userData');
-        const bindingsStore = transaction.objectStore('userBindings');
+        try {
+          const db = request.result;
+          const transaction = db.transaction(['userData', 'userBindings'], 'readwrite');
+          const userDataStore = transaction.objectStore('userData');
+          const bindingsStore = transaction.objectStore('userBindings');
 
-        // 1. 更新用户数据记录
-        const getUserDataRequest = userDataStore.get(tempUserId);
+          // 1. 更新用户数据记录
+          const getUserDataRequest = userDataStore.get(tempUserId);
 
-        getUserDataRequest.onsuccess = () => {
-          const tempUserData = getUserDataRequest.result;
-          if (tempUserData) {
-            // 更新临时用户数据，标记为已绑定
-            const updatedTempUserData = {
-              ...tempUserData,
+          getUserDataRequest.onsuccess = () => {
+            const tempUserData = getUserDataRequest.result;
+            if (tempUserData) {
+              // 更新临时用户数据，标记为已绑定
+              const updatedTempUserData = {
+                ...tempUserData,
+                realUserId,
+                updatedAt: new Date().toISOString()
+              };
+
+              const updateTempUserRequest = userDataStore.put(updatedTempUserData);
+              updateTempUserRequest.onerror = () => {
+                console.warn('更新临时用户数据失败，跳过');
+              };
+            }
+
+            // 2. 创建绑定关系记录
+            const bindingRecord = {
+              tempUserId,
               realUserId,
-              updatedAt: new Date().toISOString()
+              boundAt: new Date().toISOString()
             };
 
-            const updateTempUserRequest = userDataStore.put(updatedTempUserData);
-            updateTempUserRequest.onerror = () => {
-              console.error('更新临时用户数据失败');
-              reject(new Error('更新临时用户数据失败'));
+            const saveBindingRequest = bindingsStore.put(bindingRecord);
+
+            saveBindingRequest.onsuccess = () => {
+              console.log('临时用户绑定成功:', { tempUserId, realUserId });
+              resolve();
             };
-          }
 
-          // 2. 创建绑定关系记录
-          const bindingRecord = {
-            tempUserId,
-            realUserId,
-            boundAt: new Date().toISOString()
+            saveBindingRequest.onerror = () => {
+              console.warn('保存绑定关系失败，跳过');
+              resolve(); // 不抛出错误，只是跳过绑定
+            };
           };
 
-          const saveBindingRequest = bindingsStore.put(bindingRecord);
-
-          saveBindingRequest.onsuccess = () => {
-            console.log('临时用户绑定成功:', { tempUserId, realUserId });
-            resolve();
+          getUserDataRequest.onerror = () => {
+            console.warn('获取临时用户数据失败，跳过绑定');
+            resolve(); // 不抛出错误，只是跳过绑定
           };
-
-          saveBindingRequest.onerror = () => {
-            console.error('保存绑定关系失败');
-            reject(new Error('保存绑定关系失败'));
-          };
-        };
-
-        getUserDataRequest.onerror = () => {
-          console.error('获取临时用户数据失败');
-          reject(new Error('获取临时用户数据失败'));
-        };
+        } catch (error) {
+          console.warn('数据库操作失败，跳过临时用户绑定:', error);
+          resolve(); // 不抛出错误，只是跳过绑定
+        }
       };
     });
   }

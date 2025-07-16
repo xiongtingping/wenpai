@@ -29,6 +29,12 @@ export default defineConfig({
         target: 'https://www.wenpai.xyz',
         changeOrigin: true,
         secure: true,
+      },
+      // 开发环境代理到本地Netlify CLI
+      '/api/creem': {
+        target: 'http://localhost:8888',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/.netlify/functions/api'),
       }
     }
   },

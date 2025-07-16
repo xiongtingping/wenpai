@@ -24,9 +24,9 @@ const AuthCallbackPage = () => {
         if (error) {
           console.error('认证失败:', error, errorDescription);
           setStatus('error');
-          // 3秒后跳转到登录页面
+          // 3秒后跳转到主页
           setTimeout(() => {
-            navigate('/authing-login');
+            navigate('/');
           }, 3000);
           return;
         }
@@ -47,14 +47,14 @@ const AuthCallbackPage = () => {
           console.error('未收到认证码');
           setStatus('error');
           setTimeout(() => {
-            navigate('/authing-login');
+            navigate('/');
           }, 3000);
         }
       } catch (error) {
         console.error('处理回调时出错:', error);
         setStatus('error');
         setTimeout(() => {
-          navigate('/authing-login');
+          navigate('/');
         }, 3000);
       }
     };

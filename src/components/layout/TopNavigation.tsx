@@ -8,35 +8,24 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { UserAvatar } from '@/components/auth/UserAvatar';
-import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { 
-  Menu, 
-  X, 
-  ChevronDown,
+  Home, 
+  FileText, 
+  Sparkles, 
+  TrendingUp, 
+  FolderOpen, 
+  Users, 
+  Menu,
   Settings,
-  Home,
-  FileText,
-  Sparkles,
-  TrendingUp,
-  FolderOpen,
-  Users
+  LogOut,
+  User,
+  Crown
 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 
 /**
  * 检查是否为开发环境
@@ -50,8 +39,8 @@ const isDevelopment = () => {
  */
 export const TopNavigation: React.FC = () => {
   const location = useLocation();
-  const { user, isAuthenticated } = useAuth();
-  const { hasRole, loading: permissionLoading } = usePermissions();
+  const { user, isAuthenticated, login } = useUnifiedAuthContext();
+  const { loading: permissionLoading } = usePermissions();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // 功能导航菜单项
@@ -65,7 +54,7 @@ export const TopNavigation: React.FC = () => {
   ];
 
   // 开发环境下跳过权限检查
-  const isPro = isDevelopment() || hasRole('premium') || hasRole('pro') || hasRole('admin');
+  const isPro = isDevelopment();
 
   /**
    * 检查当前路径是否激活
@@ -190,16 +179,21 @@ export const TopNavigation: React.FC = () => {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login">
-                  <Button variant="outline" size="sm" className="hidden sm:inline-flex hover:bg-accent/50 text-sm font-medium">
-                    登录
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button size="sm" className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-md text-sm font-medium">
-                    注册
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="hidden sm:inline-flex hover:bg-accent/50 text-sm font-medium"
+                  onClick={() => login()}
+                >
+                  登录
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-md text-sm font-medium"
+                  onClick={() => login()}
+                >
+                  注册
+                </Button>
               </div>
             )}
 
@@ -240,43 +234,61 @@ export const TopNavigation: React.FC = () => {
                   <div className="pt-4 border-t border-border/50">
                     {isAuthenticated ? (
                       <div className="space-y-2">
-                        <div className="flex items-center space-x-2 px-4 py-2">
-                          <UserAvatar user={user} />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{user?.nickname || user?.username}</p>
-                            {isPro && (
-                              <Badge variant="premium" className="text-xs mt-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
-                                {isDevelopment() ? 'DEV' : 'PRO'}
-                              </Badge>
-                            )}
+                        <div className="flex items-center space-x-3 p-3 bg-accent/50 rounded-lg">
+                          <UserAvatar user={user} size="sm" showDropdown={false} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {user?.nickname || user?.username || '用户'}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {user?.email || ''}
+                            </p>
                           </div>
+                          {isPro && (
+                            <Crown className="w-4 h-4 text-yellow-500" />
+                          )}
                         </div>
                         
-                        <Link
-                          to="/profile"
-                          className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <Settings className="w-5 h-5" />
-                          <span>个人中心</span>
-                        </Link>
+                        <div className="space-y-1">
+                          <Link
+                            to="/profile"
+                            className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <User className="w-4 h-4" />
+                            <span>个人中心</span>
+                          </Link>
+                          <Link
+                            to="/settings"
+                            className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <Settings className="w-4 h-4" />
+                            <span>设置</span>
+                          </Link>
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <Link
-                          to="/login"
-                          className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
-                          onClick={() => setMobileMenuOpen(false)}
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start"
+                          onClick={() => {
+                            login();
+                            setMobileMenuOpen(false);
+                          }}
                         >
-                          <span>登录</span>
-                        </Link>
-                        <Link
-                          to="/register"
-                          className="flex items-center space-x-3 px-4 py-3 text-sm font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all duration-200 shadow-md"
-                          onClick={() => setMobileMenuOpen(false)}
+                          登录
+                        </Button>
+                        <Button 
+                          className="w-full justify-start bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
+                          onClick={() => {
+                            login();
+                            setMobileMenuOpen(false);
+                          }}
                         >
-                          <span>注册</span>
-                        </Link>
+                          注册
+                        </Button>
                       </div>
                     )}
                   </div>

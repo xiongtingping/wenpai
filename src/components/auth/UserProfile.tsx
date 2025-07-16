@@ -21,7 +21,7 @@ import {
   Crown,
   Sparkles
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { useAuthing } from '@/hooks/useAuthing';
 import { secureStorage, dataMasking, securityUtils } from '@/lib/security';
 import { useToast } from '@/hooks/use-toast';
@@ -66,8 +66,8 @@ export default function UserProfile({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const { isAuthenticated, logout } = useAuth();
-  const { checkLoginStatus, getCurrentUser } = useAuthing();
+  const { isAuthenticated, logout } = useUnifiedAuthContext();
+  const { checkLoginStatus, getCurrentUser, showLogin } = useAuthing();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -206,7 +206,7 @@ export default function UserProfile({
                 variant="outline" 
                 size="sm" 
                 className="mt-4"
-                onClick={() => navigate('/login')}
+                onClick={() => showLogin()}
               >
                 去登录
               </Button>

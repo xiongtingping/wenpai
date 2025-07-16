@@ -84,16 +84,27 @@ export function useUnifiedAuth(): UseUnifiedAuthReturn {
   const refreshUser = useCallback(async () => {
     try {
       setLoading(true);
+      securityUtils.secureLog('开始刷新用户信息');
+      
       const currentUser = await unifiedAuthService.getCurrentUser();
+      securityUtils.secureLog('getCurrentUser结果', { 
+        hasUser: !!currentUser,
+        userId: currentUser?.id,
+        username: currentUser?.username
+      });
       
       if (currentUser) {
         setUser(currentUser);
         setIsAuthenticated(true);
-        securityUtils.secureLog('用户信息刷新成功', { userId: currentUser.id });
+        securityUtils.secureLog('用户信息刷新成功', { 
+          userId: currentUser.id,
+          username: currentUser.username,
+          isAuthenticated: true
+        });
       } else {
         setUser(null);
         setIsAuthenticated(false);
-        securityUtils.secureLog('用户未登录');
+        securityUtils.secureLog('用户未登录，状态已重置');
       }
     } catch (error) {
       console.error('刷新用户信息失败:', error);

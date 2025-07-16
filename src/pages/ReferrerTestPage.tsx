@@ -1,3 +1,4 @@
+import { useAuthing } from "@/hooks/useAuthing";
 /**
  * 推荐人ID测试页面
  * @description 用于测试推荐人ID的识别和处理功能
@@ -28,6 +29,7 @@ import { Input } from '@/components/ui/input';
  * @returns React 组件
  */
 export default function ReferrerTestPage() {
+  const { showLogin } = useAuthing();
   const [currentReferrerId, setCurrentReferrerId] = useState<string | null>(null);
   const [urlReferrerId, setUrlReferrerId] = useState<string | null>(null);
   const [hasReferrerParam, setHasReferrerParam] = useState(false);
@@ -105,7 +107,7 @@ export default function ReferrerTestPage() {
    * 跳转到注册页面
    */
   const goToRegister = () => {
-    navigate('/register');
+    showLogin();
   };
 
   /**

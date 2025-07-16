@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录跳转功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px 0;
+        }
+        .log-entry.success { color: #28a745; }
+        .log-entry.error { color: #dc3545; }
+        .log-entry.info { color: #17a2b8; }
+        .log-entry.warning { color: #ffc107; }
+        .debug-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .debug-info h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .debug-info p {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+        .clear-btn {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+        .clear-btn:hover {
+            background: #545b62;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .feature-card p {
+            margin: 0 0 15px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .feature-card button {
+            width: 100%;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 登录跳转功能测试</h1>
+        
+        <div class="test-section">
+            <h3>📋 测试说明</h3>
+            <p>此页面用于测试登录成功后是否能正确跳转到对应的功能页面。修复后的系统应该具备以下功能：</p>
+            <ul>
+                <li>✅ 点击功能按钮时保存跳转目标</li>
+                <li>✅ 登录成功后自动跳转到指定页面</li>
+                <li>✅ 支持多种登录方式（密码、验证码、注册）</li>
+                <li>✅ 正确处理跳转逻辑，避免重复跳转</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 功能测试</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🚀 AI内容适配器</h4>
+                    <p>智能分析内容，一键适配多平台格式</p>
+                    <button onclick="testLoginRedirect('/adapt')">测试跳转</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>✨ 创意魔方</h4>
+                    <p>AI驱动的创意生成工具，激发灵感</p>
+                    <button onclick="testLoginRedirect('/creative-studio')">测试跳转</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📊 全网雷达</h4>
+                    <p>实时监控热点话题，把握趋势</p>
+                    <button onclick="testLoginRedirect('/hot-topics')">测试跳转</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📁 我的资料库</h4>
+                    <p>管理您的创作素材和参考资料</p>
+                    <button onclick="testLoginRedirect('/library')">测试跳转</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🏢 品牌库</h4>
+                    <p>品牌信息管理和内容模板</p>
+                    <button onclick="testLoginRedirect('/brand-library')">测试跳转</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>💎 VIP页面</h4>
+                    <p>VIP用户专属功能和特权</p>
+                    <button onclick="testLoginRedirect('/vip')">测试跳转</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 调试操作</h3>
+            <button onclick="checkRedirectTarget()">检查跳转目标</button>
+            <button onclick="clearRedirectTarget()">清除跳转目标</button>
+            <button onclick="showLogin()">显示登录弹窗</button>
+            <button onclick="clearLog()" class="clear-btn">清空日志</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 当前状态</h3>
+            <div id="currentStatus" class="status info">等待测试...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 调试信息</h3>
+            <div id="debugInfo" class="debug-info">
+                <h4>系统状态</h4>
+                <p>Guard 初始化: <span id="guardStatus">未初始化</span></p>
+                <p>弹窗状态: <span id="modalStatus">未打开</span></p>
+                <p>登录状态: <span id="loginStatus">未登录</span></p>
+                <p>用户信息: <span id="userInfo">无</span></p>
+                <p>跳转目标: <span id="redirectTarget">无</span></p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 操作日志</h3>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.authing.co/packages/web/latest/index.min.js"></script>
+    <script>
+        let guard = null;
+        let isModalOpen = false;
+        let isLoggedIn = false;
+        let currentUser = null;
+
+        // 日志函数
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // 更新状态显示
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('currentStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        // 更新调试信息
+        function updateDebugInfo() {
+            document.getElementById('guardStatus').textContent = guard ? '已初始化' : '未初始化';
+            document.getElementById('modalStatus').textContent = isModalOpen ? '已打开' : '未打开';
+            document.getElementById('loginStatus').textContent = isLoggedIn ? '已登录' : '未登录';
+            document.getElementById('userInfo').textContent = currentUser ? 
+                `${currentUser.username || currentUser.email || '未知用户'}` : '无';
+            
+            const redirectTarget = localStorage.getItem('login_redirect_to');
+            document.getElementById('redirectTarget').textContent = redirectTarget || '无';
+        }
+
+        // 测试登录跳转
+        function testLoginRedirect(targetPath) {
+            log(`🎯 测试跳转到: ${targetPath}`, 'info');
+            
+            // 保存跳转目标
+            localStorage.setItem('login_redirect_to', targetPath);
+            log(`✅ 已保存跳转目标: ${targetPath}`, 'success');
+            
+            updateStatus(`准备跳转到: ${targetPath}`, 'info');
+            updateDebugInfo();
+            
+            // 显示登录弹窗
+            showLogin();
+        }
+
+        // 检查跳转目标
+        function checkRedirectTarget() {
+            const redirectTarget = localStorage.getItem('login_redirect_to');
+            if (redirectTarget) {
+                log(`📋 当前跳转目标: ${redirectTarget}`, 'info');
+                updateStatus(`当前跳转目标: ${redirectTarget}`, 'info');
+            } else {
+                log('📋 当前没有跳转目标', 'info');
+                updateStatus('当前没有跳转目标', 'info');
+            }
+            updateDebugInfo();
+        }
+
+        // 清除跳转目标
+        function clearRedirectTarget() {
+            localStorage.removeItem('login_redirect_to');
+            log('🧹 已清除跳转目标', 'warning');
+            updateStatus('已清除跳转目标', 'warning');
+            updateDebugInfo();
+        }
+
+        // 初始化 Guard
+        async function initGuard() {
+            try {
+                log('🚀 开始初始化 Authing Guard...', 'info');
+                
+                // 等待 GuardFactory 加载
+                let retries = 0;
+                const maxRetries = 10;
+                
+                while (typeof window.GuardFactory === 'undefined' && retries < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    retries++;
+                }
+                
+                if (typeof window.GuardFactory === 'undefined') {
+                    throw new Error('GuardFactory 未加载');
+                }
+
+                const config = {
+                    appId: '6867fdc88034eb95ae86167d',
+                    host: 'https://qutkgzkfaezk-demo.authing.cn',
+                    redirectUri: window.location.origin + '/callback',
+                    mode: 'modal',
+                    // 官方推荐的事件回调配置
+                    onLogin: async (user) => {
+                        log('✅ 官方 onLogin 回调触发', 'success');
+                        isLoggedIn = true;
+                        currentUser = user;
+                        updateStatus('官方回调：登录成功！', 'success');
+                        
+                        // 立即关闭弹窗
+                        setTimeout(() => {
+                            if (guard && isModalOpen) {
+                                guard.hide();
+                                isModalOpen = false;
+                                log('✅ 官方回调：弹窗已关闭', 'success');
+                                updateDebugInfo();
+                            }
+                        }, 500);
+                        
+                        // 处理登录成功后的跳转
+                        const redirectTo = localStorage.getItem('login_redirect_to');
+                        if (redirectTo) {
+                            localStorage.removeItem('login_redirect_to'); // 清除存储的跳转目标
+                            log(`🚀 官方回调：登录成功后跳转到指定页面: ${redirectTo}`, 'success');
+                            updateStatus(`准备跳转到: ${redirectTo}`, 'success');
+                            // 延迟跳转，确保状态更新完成
+                            setTimeout(() => {
+                                log(`🔄 开始跳转到: ${redirectTo}`, 'info');
+                                window.location.href = redirectTo;
+                            }, 1000);
+                        } else {
+                            log('ℹ️ 官方回调：没有跳转目标，登录完成', 'info');
+                        }
+                    },
+                    onLoginError: (error) => {
+                        log(`❌ 官方 onLoginError 回调触发: ${JSON.stringify(error)}`, 'error');
+                        updateStatus('官方回调：登录失败', 'error');
+                    },
+                    onRegister: async (user) => {
+                        log('✅ 官方 onRegister 回调触发', 'success');
+                        isLoggedIn = true;
+                        currentUser = user;
+                        updateStatus('官方回调：注册成功！', 'success');
+                        
+                        // 立即关闭弹窗
+                        setTimeout(() => {
+                            if (guard && isModalOpen) {
+                                guard.hide();
+                                isModalOpen = false;
+                                log('✅ 官方回调：弹窗已关闭', 'success');
+                                updateDebugInfo();
+                            }
+                        }, 500);
+                        
+                        // 处理注册成功后的跳转
+                        const redirectTo = localStorage.getItem('login_redirect_to');
+                        if (redirectTo) {
+                            localStorage.removeItem('login_redirect_to'); // 清除存储的跳转目标
+                            log(`🚀 官方回调：注册成功后跳转到指定页面: ${redirectTo}`, 'success');
+                            updateStatus(`准备跳转到: ${redirectTo}`, 'success');
+                            // 延迟跳转，确保状态更新完成
+                            setTimeout(() => {
+                                log(`🔄 开始跳转到: ${redirectTo}`, 'info');
+                                window.location.href = redirectTo;
+                            }, 1000);
+                        } else {
+                            log('ℹ️ 官方回调：没有跳转目标，注册完成', 'info');
+                        }
+                    },
+                    onRegisterError: (error) => {
+                        log(`❌ 官方 onRegisterError 回调触发: ${JSON.stringify(error)}`, 'error');
+                        updateStatus('官方回调：注册失败', 'error');
+                    },
+                    onClose: () => {
+                        log('ℹ️ 官方 onClose 回调触发', 'info');
+                        isModalOpen = false;
+                        updateDebugInfo();
+                    }
+                };
+
+                guard = new window.GuardFactory.Guard(config);
+                
+                // 添加事件监听器作为备用方案
+                try {
+                    // 监听登录成功事件（备用）
+                    guard.on('login', async (user) => {
+                        log('✅ 事件监听器 login 触发', 'success');
+                        isLoggedIn = true;
+                        currentUser = user;
+                        updateStatus('事件监听器：登录成功！', 'success');
+                        
+                        // 安全关闭弹窗
+                        setTimeout(() => {
+                            if (guard && isModalOpen) {
+                                guard.hide();
+                                isModalOpen = false;
+                                log('✅ 事件监听器：弹窗已关闭', 'success');
+                                updateDebugInfo();
+                            }
+                        }, 500);
+                        
+                        // 处理登录成功后的跳转
+                        const redirectTo = localStorage.getItem('login_redirect_to');
+                        if (redirectTo) {
+                            localStorage.removeItem('login_redirect_to'); // 清除存储的跳转目标
+                            log(`🚀 事件监听器：登录成功后跳转到指定页面: ${redirectTo}`, 'success');
+                            updateStatus(`准备跳转到: ${redirectTo}`, 'success');
+                            // 延迟跳转，确保状态更新完成
+                            setTimeout(() => {
+                                log(`🔄 开始跳转到: ${redirectTo}`, 'info');
+                                window.location.href = redirectTo;
+                            }, 1000);
+                        } else {
+                            log('ℹ️ 事件监听器：没有跳转目标，登录完成', 'info');
+                        }
+                    });
+
+                    // 监听登录失败事件
+                    guard.on('login-error', (error) => {
+                        log(`❌ 事件监听器 login-error 触发: ${JSON.stringify(error)}`, 'error');
+                        updateStatus('事件监听器：登录失败', 'error');
+                    });
+
+                    // 监听注册成功事件
+                    guard.on('register', async (user) => {
+                        log('✅ 事件监听器 register 触发', 'success');
+                        isLoggedIn = true;
+                        currentUser = user;
+                        updateStatus('事件监听器：注册成功！', 'success');
+                        
+                        // 安全关闭弹窗
+                        setTimeout(() => {
+                            if (guard && isModalOpen) {
+                                guard.hide();
+                                isModalOpen = false;
+                                log('✅ 事件监听器：弹窗已关闭', 'success');
+                                updateDebugInfo();
+                            }
+                        }, 500);
+                        
+                        // 处理注册成功后的跳转
+                        const redirectTo = localStorage.getItem('login_redirect_to');
+                        if (redirectTo) {
+                            localStorage.removeItem('login_redirect_to'); // 清除存储的跳转目标
+                            log(`🚀 事件监听器：注册成功后跳转到指定页面: ${redirectTo}`, 'success');
+                            updateStatus(`准备跳转到: ${redirectTo}`, 'success');
+                            // 延迟跳转，确保状态更新完成
+                            setTimeout(() => {
+                                log(`🔄 开始跳转到: ${redirectTo}`, 'info');
+                                window.location.href = redirectTo;
+                            }, 1000);
+                        } else {
+                            log('ℹ️ 事件监听器：没有跳转目标，注册完成', 'info');
+                        }
+                    });
+
+                    // 监听注册失败事件
+                    guard.on('register-error', (error) => {
+                        log(`❌ 事件监听器 register-error 触发: ${JSON.stringify(error)}`, 'error');
+                        updateStatus('事件监听器：注册失败', 'error');
+                    });
+
+                    log('✅ 事件监听器设置成功', 'success');
+                } catch (error) {
+                    log(`⚠️ 设置事件监听器失败: ${error.message}`, 'warning');
+                }
+
+                // 检查初始登录状态
+                const status = await guard.checkLoginStatus();
+                isLoggedIn = Boolean(status);
+                
+                if (isLoggedIn) {
+                    const userInfo = await guard.trackSession();
+                    if (userInfo) {
+                        currentUser = userInfo;
+                        log(`✅ 检测到已登录用户: ${userInfo.username || userInfo.email || '未知用户'}`, 'success');
+                    }
+                }
+
+                updateStatus('✅ Authing Guard 初始化成功！', 'success');
+                log('✅ Authing Guard 初始化完成', 'success');
+                updateDebugInfo();
+
+            } catch (error) {
+                log(`❌ 初始化 Guard 失败: ${error.message}`, 'error');
+                updateStatus(`❌ 初始化失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 显示登录弹窗
+        function showLogin() {
+            if (!guard) {
+                updateStatus('❌ Guard 未初始化，请等待加载完成', 'error');
+                log('❌ Guard 未初始化，无法显示登录弹窗', 'error');
+                return;
+            }
+
+            try {
+                log('🚀 显示登录弹窗', 'info');
+                guard.show();
+                isModalOpen = true;
+                updateStatus('🔄 正在显示登录弹窗...', 'info');
+                updateDebugInfo();
+                
+            } catch (error) {
+                log(`❌ 显示登录弹窗失败: ${error.message}`, 'error');
+                updateStatus(`❌ 显示失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 清空日志
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('🧹 日志已清空', 'info');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initGuard);
+        
+        // 定期更新调试信息
+        setInterval(updateDebugInfo, 1000);
+    </script>
+</body>
+</html> 

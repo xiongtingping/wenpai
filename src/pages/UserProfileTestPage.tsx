@@ -1,3 +1,4 @@
+import { useAuthing } from "@/hooks/useAuthing";
 /**
  * 用户信息展示组件测试页面
  * 展示UserProfile组件的不同使用模式
@@ -15,7 +16,7 @@ import {
   Settings
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import UserProfile from '@/components/auth/UserProfile';
 
 /**
@@ -23,8 +24,9 @@ import UserProfile from '@/components/auth/UserProfile';
  * @returns React 组件
  */
 export default function UserProfileTestPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, login, logout } = useUnifiedAuthContext();
   const navigate = useNavigate();
+  const { showLogin } = useAuthing();
 
   /**
    * 返回上一页
@@ -60,10 +62,10 @@ export default function UserProfileTestPage() {
                 您需要先登录才能测试用户信息展示组件
               </p>
               <div className="space-x-4">
-                <Button onClick={() => navigate('/login')}>
+                <Button onClick={() => showLogin()}>
                   去登录
                 </Button>
-                <Button variant="outline" onClick={() => navigate('/register')}>
+                <Button variant="outline" onClick={() => showLogin()}>
                   去注册
                 </Button>
               </div>

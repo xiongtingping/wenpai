@@ -19,7 +19,7 @@ import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 import { useAuthing } from '@/hooks/useAuthing';
 import { useToast } from '@/hooks/use-toast';
 import { securityUtils } from '@/lib/security';
-import UnifiedAuthEntry from './UnifiedAuthEntry';
+
 
 /**
  * 认证弹窗组件属性
@@ -128,12 +128,31 @@ export default function AuthModal({
               </Button>
             </div>
           ) : (
-            <UnifiedAuthEntry
-              defaultTab={defaultTab}
-              modal={true}
-              onSuccess={handleSuccess}
-              onClose={handleClose}
-            />
+            <div className="text-center space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-2">欢迎使用文派</h3>
+                <p className="text-sm text-muted-foreground">
+                  使用Authing进行安全登录和注册
+                </p>
+              </div>
+              
+              <Button 
+                onClick={handleAuthingLogin}
+                className="w-full h-12 text-base"
+                disabled={authLoading}
+              >
+                {authLoading ? (
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                ) : (
+                  <Shield className="w-5 h-5 mr-2" />
+                )}
+                使用Authing安全登录
+              </Button>
+              
+              <div className="text-xs text-muted-foreground">
+                支持邮箱、手机号、社交账号等多种登录方式
+              </div>
+            </div>
           )}
         </div>
       </DialogContent>

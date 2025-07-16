@@ -11,12 +11,14 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useUserStore } from "@/store/userStore";
-import { useAuth } from "@/contexts/AuthContext";
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { useNavigate } from 'react-router-dom';
 
 function InvitePage() {
   const { toast } = useToast();
-  const { userId, isTempUser } = useAuth();
+  const { user } = useUnifiedAuthContext();
+  const userId = user?.id;
+  const isTempUser = !user?.email; // 如果没有邮箱，认为是临时用户
   const userInviteCode = useUserStore((state) => state.userInviteCode);
   const trackInviteClick = useUserStore((state) => state.trackInviteClick);
   const navigate = useNavigate();

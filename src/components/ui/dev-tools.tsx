@@ -18,7 +18,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 
 /**
@@ -26,12 +26,12 @@ import { usePermissions } from '@/hooks/usePermissions';
  */
 const DevTools: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'auth' | 'permissions' | 'storage' | 'network'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'auth' | 'permissions' | 'storage' | 'network' | 'tests'>('info');
   
   // 安全地使用 useAuth hook
   let authData = { user: null, isAuthenticated: false };
   try {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated } = useUnifiedAuthContext();
     authData = { user, isAuthenticated };
   } catch (error) {
     console.warn('DevTools: useAuth hook not available, auth data will be empty');
@@ -156,6 +156,7 @@ const DevTools: React.FC = () => {
                 { key: 'permissions', label: '权限', icon: Settings },
                 { key: 'storage', label: '存储', icon: Database },
                 { key: 'network', label: '网络', icon: Network },
+                { key: 'tests', label: '测试', icon: Zap },
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -297,6 +298,80 @@ const DevTools: React.FC = () => {
                     <Badge variant={networkInfo.cookieEnabled ? "default" : "secondary"} className="text-xs">
                       {networkInfo.cookieEnabled ? '启用' : '禁用'}
                     </Badge>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'tests' && (
+                <div className="space-y-2 text-xs">
+                  <div className="font-medium text-gray-700 mb-2">测试页面:</div>
+                  <div className="space-y-1">
+                    <a 
+                      href="/functionality-test" 
+                      className="block px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                    >
+                      🧪 功能测试
+                    </a>
+                    <a 
+                      href="/api-config-test" 
+                      className="block px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors"
+                    >
+                      ⚙️ API配置测试
+                    </a>
+                    <a 
+                      href="/creem-api-test" 
+                      className="block px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+                    >
+                      💳 Creem支付测试
+                    </a>
+                    <a 
+                      href="/qrcode-test" 
+                      className="block px-2 py-1 bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition-colors"
+                    >
+                      📱 二维码生成测试
+                    </a>
+                    <a 
+                      href="/checkout-test" 
+                      className="block px-2 py-1 bg-emerald-50 text-emerald-700 rounded hover:bg-emerald-100 transition-colors"
+                    >
+                      💳 完整支付流程测试
+                    </a>
+                    <a 
+                      href="/direct-link-qrcode-test" 
+                      className="block px-2 py-1 bg-cyan-50 text-cyan-700 rounded hover:bg-cyan-100 transition-colors"
+                    >
+                      🔗 直接链接二维码测试
+                    </a>
+                    <a 
+                      href="/simple-qrcode" 
+                      className="block px-2 py-1 bg-teal-50 text-teal-700 rounded hover:bg-teal-100 transition-colors"
+                    >
+                      📱 简单二维码页面
+                    </a>
+                    <a 
+                      href="/creem-api-fix-test" 
+                      className="block px-2 py-1 bg-amber-50 text-amber-700 rounded hover:bg-amber-100 transition-colors"
+                    >
+                      🔧 Creem API修复测试
+                    </a>
+                    <a 
+                      href="/simple-creem-test" 
+                      className="block px-2 py-1 bg-lime-50 text-lime-700 rounded hover:bg-lime-100 transition-colors"
+                    >
+                      🧪 简单Creem API测试
+                    </a>
+                    <a 
+                      href="/creem-debug" 
+                      className="block px-2 py-1 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+                    >
+                      🐛 Creem API调试
+                    </a>
+                    <a 
+                      href="/authing-system-test" 
+                      className="block px-2 py-1 bg-orange-50 text-orange-700 rounded hover:bg-orange-100 transition-colors"
+                    >
+                      🔐 Authing系统测试
+                    </a>
                   </div>
                 </div>
               )}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing Guard UMD 测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authing Guard UMD 测试</h1>
+        
+        <div style="margin: 20px 0;">
+            <h2>测试说明</h2>
+            <p>此页面测试 Authing Guard 弹窗功能，使用 UMD 版本：</p>
+            <ul>
+                <li>点击"显示登录弹窗"按钮</li>
+                <li>测试密码框焦点是否正常</li>
+                <li>尝试登录</li>
+                <li>观察弹窗是否正常关闭</li>
+            </ul>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="showLogin()">显示登录弹窗</button>
+            <button class="test-button" onclick="hideLogin()">隐藏登录弹窗</button>
+            <button class="test-button" onclick="checkStatus()">检查状态</button>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <h2>状态信息</h2>
+            <div id="status" class="status">等待操作...</div>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <h2>调试信息</h2>
+            <div id="debug" class="status warning">等待调试信息...</div>
+        </div>
+    </div>
+
+    <!-- 加载 Authing Guard UMD 版本 -->
+    <script src="https://unpkg.com/@authing/guard-react@5.1.11/dist/umd/index.js"></script>
+    
+    <script>
+        // 全局变量
+        let guard = null;
+        let statusCheckInterval = null;
+
+        // 更新状态显示
+        function updateStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        // 更新调试信息
+        function updateDebug(message) {
+            const debugDiv = document.getElementById('debug');
+            debugDiv.textContent = message;
+            debugDiv.className = 'status warning';
+        }
+
+        // Authing 配置
+        const config = {
+            appId: '6867fdc88034eb95ae86167d',
+            host: 'https://qutkgzkfaezk-demo.authing.cn',
+            redirectUri: `${window.location.origin}/callback`,
+            mode: 'modal',
+            defaultScene: 'login',
+            // 弹窗模式额外配置
+            autoRegister: false,
+            skipComplateFileds: false,
+            skipComplateFiledsPlace: 'modal',
+            closeable: true,
+            clickCloseableMask: true,
+            // 登录配置
+            loginMethodList: ['password', 'phone-code', 'email-code'],
+            // 注册配置
+            registerMethodList: ['phone', 'email'],
+            // 界面配置
+            logo: 'https://cdn.authing.co/authing-console/logo.png',
+            title: '文派',
+            // 国际化
+            lang: 'zh-CN',
+        };
+
+        // 开始定期检查状态
+        function startStatusCheck() {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+            }
+            
+            statusCheckInterval = setInterval(async () => {
+                try {
+                    if (guard) {
+                        const status = await guard.checkLoginStatus();
+                        if (status) {
+                            updateStatus('检测到登录成功，正在处理...', 'success');
+                            guard.hide();
+                            stopStatusCheck();
+                        }
+                    }
+                } catch (error) {
+                    console.error('定期检查状态失败:', error);
+                }
+            }, 2000);
+        }
+
+        // 停止定期检查状态
+        function stopStatusCheck() {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
+
+        // 显示登录弹窗
+        async function showLogin() {
+            try {
+                updateDebug('正在初始化 Guard...');
+                
+                if (!guard) {
+                    // 检查 AuthingGuard 是否可用
+                    if (typeof AuthingGuard !== 'undefined') {
+                        guard = new AuthingGuard.Guard(config);
+                        updateDebug('Guard 初始化成功（UMD 版本）');
+                    } else {
+                        throw new Error('AuthingGuard 未加载');
+                    }
+                }
+                
+                guard.show();
+                updateStatus('登录弹窗已显示', 'success');
+                updateDebug('弹窗显示成功');
+                
+                // 开始定期检查登录状态
+                startStatusCheck();
+            } catch (error) {
+                updateStatus(`显示登录弹窗失败: ${error.message}`, 'error');
+                updateDebug(`错误详情: ${error.message}`);
+                console.error('错误详情:', error);
+            }
+        }
+
+        // 隐藏登录弹窗
+        function hideLogin() {
+            try {
+                if (guard) {
+                    guard.hide();
+                    updateStatus('登录弹窗已隐藏', 'success');
+                    updateDebug('弹窗隐藏成功');
+                    stopStatusCheck();
+                } else {
+                    updateStatus('Guard 未初始化', 'error');
+                    updateDebug('Guard 未初始化');
+                }
+            } catch (error) {
+                updateStatus(`隐藏登录弹窗失败: ${error.message}`, 'error');
+                updateDebug(`隐藏错误: ${error.message}`);
+            }
+        }
+
+        // 检查登录状态
+        async function checkStatus() {
+            try {
+                if (guard) {
+                    const status = await guard.checkLoginStatus();
+                    const isLoggedIn = Boolean(status);
+                    
+                    if (isLoggedIn) {
+                        updateStatus('用户已登录', 'success');
+                        updateDebug('登录状态检查: 已登录');
+                    } else {
+                        updateStatus('用户未登录', 'error');
+                        updateDebug('登录状态检查: 未登录');
+                    }
+                } else {
+                    updateStatus('Guard 未初始化', 'error');
+                    updateDebug('Guard 未初始化，无法检查状态');
+                }
+            } catch (error) {
+                updateStatus(`检查登录状态失败: ${error.message}`, 'error');
+                updateDebug(`状态检查错误: ${error.message}`);
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus('页面加载完成，可以开始测试', 'success');
+            updateDebug('页面初始化完成，等待 AuthingGuard 加载...');
+            
+            // 检查 AuthingGuard 是否加载成功
+            setTimeout(() => {
+                if (typeof AuthingGuard !== 'undefined') {
+                    updateDebug('AuthingGuard 加载成功');
+                } else {
+                    updateDebug('AuthingGuard 加载失败');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

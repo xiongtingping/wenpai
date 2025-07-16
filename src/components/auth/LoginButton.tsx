@@ -1,26 +1,14 @@
-/**
- * 登录按钮组件
- * 提供登录/注册功能的按钮组件
- * 使用统一认证入口，优先使用Authing SDK
- */
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   LogIn, 
-  UserPlus, 
   Loader2,
   Shield,
   CheckCircle
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useAuthing } from '@/hooks/useAuthing';
-import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
-import { securityUtils } from '@/lib/security';
-import { useToast } from '@/hooks/use-toast';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { useNavigate } from 'react-router-dom';
-import { QuickAuthButton, LoginButton as AuthLoginButton, RegisterButton as AuthRegisterButton } from './AuthModal';
 
 /**
  * 登录按钮组件属性
@@ -56,13 +44,8 @@ export default function LoginButton({
   redirectTo = '/',
   children
 }: LoginButtonProps) {
-  const { isAuthenticated, user } = useAuth();
-  const { user: unifiedUser, isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated, loading, login } = useUnifiedAuthContext();
   const navigate = useNavigate();
-
-  // 优先使用统一认证状态
-  const currentUser = unifiedUser || user;
-  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
 
   /**
    * 处理用户中心点击
@@ -71,8 +54,22 @@ export default function LoginButton({
     navigate('/user-profile');
   };
 
+  /**
+   * 处理登录点击
+   */
+  const handleLogin = () => {
+    login();
+    // 登录成功后跳转
+    if (redirectTo) {
+      // 延迟跳转，等待登录完成
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 1000);
+    }
+  };
+
   // 如果用户已登录且显示用户状态
-  if (currentIsAuthenticated && showUserStatus && currentUser) {
+  if (isAuthenticated && showUserStatus && user) {
     return (
       <div className="flex items-center gap-2">
         <Badge variant="outline" className="flex items-center gap-1">
@@ -86,27 +83,28 @@ export default function LoginButton({
           className={`flex items-center gap-2 ${className}`}
         >
           <Shield className="w-4 h-4" />
-          {currentUser?.nickname || currentUser?.username || '用户中心'}
+          {user?.nickname || user?.username || '用户中心'}
         </Button>
       </div>
     );
   }
 
-  // 使用新的统一认证按钮
+  // 显示登录按钮
   return (
-    <QuickAuthButton
+    <Button
       variant={variant}
       size={size}
-      className={className}
-      onSuccess={(user) => {
-        // 登录成功后的处理
-        if (redirectTo) {
-          navigate(redirectTo);
-        }
-      }}
+      onClick={handleLogin}
+      disabled={loading}
+      className={`flex items-center gap-2 ${className}`}
     >
+      {loading && showLoading ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : (
+        <LogIn className="w-4 h-4" />
+      )}
       {children || '登录 / 注册'}
-    </QuickAuthButton>
+    </Button>
   );
 }
 
@@ -121,30 +119,37 @@ export function QuickLoginButton({
   className?: string;
   redirectTo?: string;
 }) {
-  const { isAuthenticated } = useAuth();
-  const { isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
+  const { isAuthenticated, loading, login } = useUnifiedAuthContext();
   const navigate = useNavigate();
 
-  // 优先使用统一认证状态
-  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
-
-  if (currentIsAuthenticated) {
+  if (isAuthenticated) {
     return null; // 已登录时不显示
   }
 
+  const handleLogin = () => {
+    login();
+    if (redirectTo) {
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 1000);
+    }
+  };
+
   return (
-    <AuthLoginButton
+    <Button
       variant="ghost"
       size="sm"
+      onClick={handleLogin}
+      disabled={loading}
       className={`text-sm ${className}`}
-      onSuccess={(user) => {
-        if (redirectTo) {
-          navigate(redirectTo);
-        }
-      }}
     >
+      {loading ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : (
+        <LogIn className="w-4 h-4" />
+      )}
       登录
-    </AuthLoginButton>
+    </Button>
   );
 }
 
@@ -154,34 +159,41 @@ export function QuickLoginButton({
  */
 export function RegisterButton({ 
   className = '',
-  redirectTo = '/register'
+  redirectTo = '/'
 }: {
   className?: string;
   redirectTo?: string;
 }) {
-  const { isAuthenticated } = useAuth();
-  const { isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
+  const { isAuthenticated, loading, login } = useUnifiedAuthContext();
   const navigate = useNavigate();
 
-  // 优先使用统一认证状态
-  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
-
-  if (currentIsAuthenticated) {
+  if (isAuthenticated) {
     return null; // 已登录时不显示
   }
 
+  const handleLogin = () => {
+    login();
+    if (redirectTo) {
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 1000);
+    }
+  };
+
   return (
-    <AuthRegisterButton
+    <Button
       variant="outline"
       size="sm"
+      onClick={handleLogin}
+      disabled={loading}
       className={`flex items-center gap-1 ${className}`}
-      onSuccess={(user) => {
-        if (redirectTo) {
-          navigate(redirectTo);
-        }
-      }}
     >
+      {loading ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : (
+        <LogIn className="w-4 h-4" />
+      )}
       注册
-    </AuthRegisterButton>
+    </Button>
   );
 } 

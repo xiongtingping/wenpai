@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing Guard 简化测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authing Guard 简化测试</h1>
+        
+        <div class="status" id="status">
+            正在初始化...
+        </div>
+        
+        <div>
+            <button class="button" onclick="showLogin()">显示登录</button>
+            <button class="button" onclick="showRegister()">显示注册</button>
+            <button class="button" onclick="checkStatus()">检查状态</button>
+            <button class="button" onclick="logout()">登出</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <!-- Authing Guard -->
+    <script src="https://cdn.authing.co/packages/web/latest/index.js"></script>
+    <link href="https://cdn.authing.co/packages/web/latest/index.css" rel="stylesheet">
+
+    <script>
+        let guard = null;
+        let isLoggedIn = false;
+        let currentUser = null;
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        async function initGuard() {
+            try {
+                log('开始初始化 Guard...');
+                
+                // 等待 GuardFactory 加载
+                let retries = 0;
+                const maxRetries = 10;
+                
+                while (typeof window.GuardFactory === 'undefined' && retries < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    retries++;
+                    log(`等待 GuardFactory 加载... (${retries}/${maxRetries})`);
+                }
+                
+                if (typeof window.GuardFactory === 'undefined') {
+                    throw new Error('GuardFactory 未加载');
+                }
+                
+                log('GuardFactory 已加载');
+                
+                // 简化的配置
+                const config = {
+                    appId: '64f8b8b8b8b8b8b8b8b8b8b8',
+                    host: 'https://wenpai.authing.cn',
+                    redirectUri: window.location.origin,
+                    mode: 'modal'
+                };
+                
+                log('创建 Guard 实例...');
+                
+                // 创建 Guard 实例，不使用事件监听器
+                guard = new window.GuardFactory.Guard({
+                    ...config,
+                    config: {
+                        ...config,
+                        onLogin: async (user) => {
+                            log('登录成功回调触发');
+                            isLoggedIn = true;
+                            currentUser = user;
+                            updateStatus('登录成功！', 'success');
+                            
+                            // 自动关闭弹窗
+                            setTimeout(() => {
+                                if (guard) {
+                                    guard.hide();
+                                    log('弹窗已自动关闭');
+                                }
+                            }, 1000);
+                        },
+                        onLoginError: (error) => {
+                            log(`登录失败: ${JSON.stringify(error)}`);
+                            updateStatus('登录失败', 'error');
+                        },
+                        onRegister: (user) => {
+                            log('注册成功回调触发');
+                            isLoggedIn = true;
+                            currentUser = user;
+                            updateStatus('注册成功！', 'success');
+                            
+                            // 自动关闭弹窗
+                            setTimeout(() => {
+                                if (guard) {
+                                    guard.hide();
+                                    log('弹窗已自动关闭');
+                                }
+                            }, 1000);
+                        },
+                        onRegisterError: (error) => {
+                            log(`注册失败: ${JSON.stringify(error)}`);
+                            updateStatus('注册失败', 'error');
+                        },
+                        onClose: () => {
+                            log('弹窗关闭回调触发');
+                            updateStatus('弹窗已关闭');
+                        }
+                    }
+                });
+                
+                log('Guard 实例创建成功');
+                
+                // 检查初始登录状态
+                try {
+                    const status = await guard.checkLoginStatus();
+                    isLoggedIn = Boolean(status);
+                    log(`初始登录状态: ${isLoggedIn}`);
+                    
+                    if (isLoggedIn) {
+                        const userInfo = await guard.trackSession();
+                        currentUser = userInfo;
+                        log(`当前用户: ${JSON.stringify(userInfo)}`);
+                        updateStatus('已登录', 'success');
+                    } else {
+                        updateStatus('未登录');
+                    }
+                } catch (error) {
+                    log(`检查登录状态失败: ${error.message}`);
+                    updateStatus('检查登录状态失败', 'error');
+                }
+                
+            } catch (error) {
+                log(`初始化失败: ${error.message}`);
+                updateStatus(`初始化失败: ${error.message}`, 'error');
+            }
+        }
+
+        function showLogin() {
+            if (!guard) {
+                log('Guard 未初始化');
+                return;
+            }
+            
+            try {
+                log('显示登录弹窗');
+                guard.show();
+                updateStatus('登录弹窗已显示');
+            } catch (error) {
+                log(`显示登录失败: ${error.message}`);
+                updateStatus('显示登录失败', 'error');
+            }
+        }
+
+        function showRegister() {
+            if (!guard) {
+                log('Guard 未初始化');
+                return;
+            }
+            
+            try {
+                log('显示注册弹窗');
+                guard.show('register');
+                updateStatus('注册弹窗已显示');
+            } catch (error) {
+                log(`显示注册失败: ${error.message}`);
+                updateStatus('显示注册失败', 'error');
+            }
+        }
+
+        async function checkStatus() {
+            if (!guard) {
+                log('Guard 未初始化');
+                return;
+            }
+            
+            try {
+                const status = await guard.checkLoginStatus();
+                isLoggedIn = Boolean(status);
+                log(`当前登录状态: ${isLoggedIn}`);
+                
+                if (isLoggedIn) {
+                    const userInfo = await guard.trackSession();
+                    currentUser = userInfo;
+                    log(`当前用户: ${JSON.stringify(userInfo)}`);
+                    updateStatus('已登录', 'success');
+                } else {
+                    updateStatus('未登录');
+                }
+            } catch (error) {
+                log(`检查状态失败: ${error.message}`);
+                updateStatus('检查状态失败', 'error');
+            }
+        }
+
+        async function logout() {
+            if (!guard) {
+                log('Guard 未初始化');
+                return;
+            }
+            
+            try {
+                await guard.logout();
+                isLoggedIn = false;
+                currentUser = null;
+                log('登出成功');
+                updateStatus('已登出');
+            } catch (error) {
+                log(`登出失败: ${error.message}`);
+                updateStatus('登出失败', 'error');
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            log('页面加载完成，开始初始化...');
+            initGuard();
+        });
+    </script>
+</body>
+</html> 

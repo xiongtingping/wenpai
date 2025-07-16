@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing 官方配置测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+        }
+        .config-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+    </style>
+    <link rel="stylesheet" href="/public/authing-guard.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Authing 官方配置测试</h1>
+        
+        <div class="status info">
+            <strong>基于 Authing 控制台官方配置的测试</strong>
+        </div>
+
+        <div class="config-info">
+            <strong>当前配置：</strong><br>
+            • App ID: 6867fdc88034eb95ae86167d<br>
+            • Host: https://qutkgzkfaezk-demo.authing.cn<br>
+            • Mode: modal<br>
+            • 回调 URL: 当前域名/callback
+        </div>
+
+        <div>
+            <button onclick="showLogin()">🚀 显示登录弹窗</button>
+            <button onclick="showRegister()">📝 显示注册弹窗</button>
+            <button onclick="checkStatus()">🔍 检查状态</button>
+            <button onclick="clearLog()">🗑️ 清空日志</button>
+        </div>
+
+        <div id="status" class="status info">等待测试...</div>
+
+        <div>
+            <strong>事件日志：</strong>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script src="/public/authing-guard.min.js"></script>
+
+    <script>
+        let guard = null;
+        let logs = [];
+        let isModalOpen = false;
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logEntry);
+            if (logs.length > 50) logs.shift();
+            document.getElementById('log').innerHTML = logs.join('<br>');
+            document.getElementById('log').scrollTop = document.getElementById('log').scrollHeight;
+            console.log(logEntry);
+        }
+
+        function clearLog() {
+            logs = [];
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        // 初始化 Guard - 使用官方推荐配置
+        async function initGuard() {
+            try {
+                addLog('开始初始化 Guard（官方配置）...', 'info');
+                
+                // 基于 Authing 控制台的官方配置
+                guard = new GuardFactory.Guard({
+                    appId: '6867fdc88034eb95ae86167d',
+                    host: 'https://qutkgzkfaezk-demo.authing.cn',
+                    requestHostname: 'https://qutkgzkfaezk-demo.authing.cn',
+                    redirectUri: `${window.location.origin}/callback`,
+                    mode: 'modal',
+                    config: {
+                        mode: 'modal',
+                        defaultScenes: 'login',
+                        // 官方推荐的弹窗配置
+                        autoRegister: false,
+                        skipComplateFileds: false,
+                        skipComplateFiledsPlace: 'modal',
+                        closeable: true,
+                        clickCloseableMask: true,
+                        // 登录方式配置
+                        loginMethodList: ['password', 'phone-code', 'email-code'],
+                        registerMethodList: ['phone', 'email'],
+                        // 界面配置
+                        logo: 'https://cdn.authing.co/authing-console/logo.png',
+                        title: '文派',
+                        lang: 'zh-CN',
+                        // 官方推荐的事件配置
+                        onLogin: (user) => {
+                            addLog(`官方 onLogin 回调: ${user.username || user.email || '未知用户'}`, 'success');
+                            handleOfficialLogin(user);
+                        },
+                        onLoginError: (error) => {
+                            addLog(`官方 onLoginError 回调: ${error.message || '未知错误'}`, 'error');
+                        },
+                        onRegister: (user) => {
+                            addLog(`官方 onRegister 回调: ${user.username || user.email || '未知用户'}`, 'success');
+                        },
+                        onRegisterError: (error) => {
+                            addLog(`官方 onRegisterError 回调: ${error.message || '未知错误'}`, 'error');
+                        },
+                        onClose: () => {
+                            addLog('官方 onClose 回调', 'info');
+                            isModalOpen = false;
+                            updateStatus('ℹ️ 弹窗已关闭', 'info');
+                        }
+                    }
+                });
+
+                addLog('Guard 实例创建成功（官方配置）', 'success');
+
+                // 同时使用事件监听器（双重保障）
+                guard.on('open', () => {
+                    addLog('事件监听器: open 事件触发', 'event');
+                    isModalOpen = true;
+                    updateStatus('🔄 弹窗已打开，等待登录...', 'info');
+                });
+
+                guard.on('close', () => {
+                    addLog('事件监听器: close 事件触发', 'event');
+                    isModalOpen = false;
+                    updateStatus('ℹ️ 弹窗已关闭', 'info');
+                });
+
+                guard.on('login', (user) => {
+                    addLog(`事件监听器: login 事件触发 - ${user.username || user.email || '未知用户'}`, 'event');
+                    handleEventLogin(user);
+                });
+
+                guard.on('login-error', (error) => {
+                    addLog(`事件监听器: login-error 事件触发 - ${error.message || '未知错误'}`, 'event');
+                });
+
+                guard.on('register', (user) => {
+                    addLog(`事件监听器: register 事件触发 - ${user.username || user.email || '未知用户'}`, 'event');
+                });
+
+                guard.on('register-error', (error) => {
+                    addLog(`事件监听器: register-error 事件触发 - ${error.message || '未知错误'}`, 'event');
+                });
+
+                updateStatus('✅ AuthingGuard 初始化成功（官方配置）！', 'success');
+                addLog('AuthingGuard 初始化完成（官方配置）', 'success');
+
+            } catch (error) {
+                addLog(`初始化 Guard 失败: ${error.message}`, 'error');
+                updateStatus(`❌ 初始化 Guard 失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 处理官方配置的登录回调
+        async function handleOfficialLogin(user) {
+            addLog(`处理官方登录回调: ${user.username || user.email || '未知用户'}`, 'success');
+            updateStatus(`✅ 官方回调：登录成功！用户: ${user.username || user.email || '未知用户'}`, 'success');
+            
+            try {
+                // 获取用户信息
+                const userInfo = await guard.trackSession();
+                if (userInfo) {
+                    addLog(`获取到用户信息: ${userInfo.username || userInfo.email || '未知用户'}`, 'info');
+                }
+                
+                // 官方配置会自动处理弹窗关闭
+                addLog('官方配置将自动处理弹窗关闭', 'info');
+                
+            } catch (error) {
+                addLog(`处理官方登录回调失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 处理事件监听器的登录回调
+        async function handleEventLogin(user) {
+            addLog(`处理事件监听器登录: ${user.username || user.email || '未知用户'}`, 'success');
+            updateStatus(`✅ 事件监听器：登录成功！用户: ${user.username || user.email || '未知用户'}`, 'success');
+            
+            try {
+                // 获取用户信息
+                const userInfo = await guard.trackSession();
+                if (userInfo) {
+                    addLog(`获取到用户信息: ${userInfo.username || userInfo.email || '未知用户'}`, 'info');
+                }
+                
+                // 如果弹窗还在打开状态，手动关闭
+                if (isModalOpen) {
+                    addLog('手动关闭弹窗（事件监听器）', 'info');
+                    guard.hide();
+                    isModalOpen = false;
+                }
+                
+            } catch (error) {
+                addLog(`处理事件监听器登录失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 显示登录弹窗
+        function showLogin() {
+            if (!guard) {
+                updateStatus('❌ Guard 未初始化，请等待加载完成', 'error');
+                addLog('Guard 未初始化，无法显示登录弹窗', 'error');
+                return;
+            }
+
+            try {
+                addLog('显示登录弹窗（官方配置）', 'info');
+                guard.show();
+                isModalOpen = true;
+                updateStatus('🔄 正在显示登录弹窗...', 'info');
+                
+            } catch (error) {
+                addLog(`显示登录弹窗失败: ${error.message}`, 'error');
+                updateStatus(`❌ 显示登录弹窗失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 显示注册弹窗
+        function showRegister() {
+            if (!guard) {
+                updateStatus('❌ Guard 未初始化，请等待加载完成', 'error');
+                addLog('Guard 未初始化，无法显示注册弹窗', 'error');
+                return;
+            }
+
+            try {
+                addLog('显示注册弹窗（官方配置）', 'info');
+                guard.startRegister();
+                isModalOpen = true;
+                updateStatus('🔄 正在显示注册弹窗...', 'info');
+                
+            } catch (error) {
+                addLog(`显示注册弹窗失败: ${error.message}`, 'error');
+                updateStatus(`❌ 显示注册弹窗失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 检查状态
+        async function checkStatus() {
+            if (!guard) {
+                addLog('Guard 未初始化，无法检查状态', 'error');
+                return;
+            }
+
+            try {
+                const status = await guard.checkLoginStatus();
+                addLog(`当前登录状态: ${status}`, 'info');
+                
+                if (status) {
+                    const userInfo = await guard.trackSession();
+                    if (userInfo) {
+                        addLog(`当前用户: ${userInfo.username || userInfo.email || '未知用户'}`, 'info');
+                        updateStatus(`✅ 已登录: ${userInfo.username || userInfo.email || '未知用户'}`, 'success');
+                    }
+                } else {
+                    updateStatus('❌ 未登录', 'error');
+                }
+                
+            } catch (error) {
+                addLog(`检查状态失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            addLog('页面加载完成', 'info');
+            updateStatus('🔄 页面加载完成，等待初始化...', 'info');
+            setTimeout(initGuard, 1000);
+        });
+    </script>
+</body>
+</html> 

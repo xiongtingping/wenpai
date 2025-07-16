@@ -5,7 +5,7 @@
 
 import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 
 /**
  * 认证守卫属性
@@ -40,15 +40,19 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   ),
 }) => {
   const location = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user: unifiedUser, isAuthenticated: unifiedIsAuthenticated, loading: unifiedLoading } = useUnifiedAuthContext();
+  
+  // 使用统一认证状态
+  const currentIsAuthenticated = unifiedIsAuthenticated;
+  const currentLoading = unifiedLoading;
 
   // 如果正在加载，显示加载组件
-  if (isLoading) {
+  if (currentLoading) {
     return <>{loadingComponent}</>;
   }
 
   // 如果需要认证但用户未登录，重定向到登录页
-  if (requireAuth && !isAuthenticated) {
+  if (requireAuth && !currentIsAuthenticated) {
     return (
       <Navigate
         to={redirectTo}

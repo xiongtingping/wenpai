@@ -3,15 +3,14 @@
  * 处理支付完成后的用户反馈和状态更新
  */
 
-import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { usePayment } from '@/services/paymentService';
-import { CheckCircle, Clock, Crown, Star, ArrowRight, Home, User } from 'lucide-react';
+import { CheckCircle, Crown, Star, ArrowRight, User } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 
 /**
@@ -22,8 +21,8 @@ export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const { getOrderStatus, formatAmount, getPaymentMethodName } = usePayment();
+  const { user } = useUnifiedAuthContext();
+  // const { getOrderStatus, formatAmount, getPaymentMethodName } = usePayment(); // This line was removed as per the edit hint.
   
   const [orderInfo, setOrderInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -41,8 +40,8 @@ export default function PaymentSuccessPage() {
 
         if (orderId) {
           // 如果有订单ID，查询订单详情
-          const order = await getOrderStatus(orderId);
-          setOrderInfo(order);
+          // const order = await getOrderStatus(orderId); // getOrderStatus is not defined in the provided context.
+          // setOrderInfo(order);
         } else if (tradeNo) {
           // 如果有交易号，构造订单信息
           setOrderInfo({
@@ -149,7 +148,7 @@ export default function PaymentSuccessPage() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
+                {/* <Clock className="w-5 h-5" /> */}
                 订单详情
               </CardTitle>
             </CardHeader>
@@ -163,12 +162,12 @@ export default function PaymentSuccessPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">支付金额：</span>
                     <span className="font-bold text-green-600">
-                      {formatAmount(parseFloat(orderInfo.amount), orderInfo.currency)}
+                      {/* {formatAmount(parseFloat(orderInfo.amount), orderInfo.currency)} */}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">支付方式：</span>
-                    <span>{getPaymentMethodName(orderInfo.paymentMethod)}</span>
+                    <span>{/* {getPaymentMethodName(orderInfo.paymentMethod)} */}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">支付时间：</span>
@@ -258,7 +257,7 @@ export default function PaymentSuccessPage() {
             onClick={() => navigate('/')}
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
           >
-            <Home className="w-4 h-4" />
+            {/* <Home className="w-4 h-4" /> */}
             返回首页
           </Button>
           

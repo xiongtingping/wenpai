@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { Eye, EyeOff, Mail, Phone } from 'lucide-react';
 
 interface LoginFormProps {
@@ -14,7 +14,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login } = useUnifiedAuthContext();
   
   // 表单状态
   const [isLoading, setIsLoading] = useState(false);
@@ -132,7 +132,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       };
       
       // 登录
-      await login(userData);
+      await login();
       
       toast({
         title: '登录成功',
@@ -189,7 +189,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       };
       
       // 登录
-      await login(userData);
+      await login();
       
       toast({
         title: '登录成功',

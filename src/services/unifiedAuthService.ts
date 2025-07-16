@@ -109,8 +109,8 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 登录 - 只处理身份认证
    */
   async login(method: 'password' | 'code' | 'social', credentials: any): Promise<User> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
@@ -118,10 +118,17 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
 
       switch (method) {
         case 'password':
-          userInfo = await this.authingClient.loginByEmail(credentials.email, credentials.password);
+          // 使用Guard的登录方法，确保会话状态正确设置
+          userInfo = await this.guard.loginByPassword({
+            password: credentials.password,
+            email: credentials.email
+          });
           break;
         case 'code':
-          userInfo = await this.authingClient.loginByPhoneCode(credentials.phone, credentials.code);
+          userInfo = await this.guard.loginByPhoneCode({
+            phone: credentials.phone,
+            code: credentials.code
+          });
           break;
         case 'social':
           throw new Error('社交登录暂不支持');
@@ -146,25 +153,25 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 注册 - 只处理身份认证
    */
   async register(method: 'email' | 'phone', userInfo: any): Promise<User> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
       let authingUser: any;
 
       if (method === 'email') {
-        authingUser = await this.authingClient.registerByEmailCode(
-          userInfo.email,
-          userInfo.code,
-          userInfo.nickname
-        );
+        authingUser = await this.guard.registerByEmailCode({
+          email: userInfo.email,
+          code: userInfo.code,
+          nickname: userInfo.nickname
+        });
       } else if (method === 'phone') {
-        authingUser = await this.authingClient.registerByPhoneCode(
-          userInfo.phone,
-          userInfo.code,
-          userInfo.nickname
-        );
+        authingUser = await this.guard.registerByPhoneCode({
+          phone: userInfo.phone,
+          code: userInfo.code,
+          nickname: userInfo.nickname
+        });
       }
 
       const user = this.convertAuthingUser(authingUser);
@@ -185,16 +192,35 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    */
   async getCurrentUser(): Promise<User | null> {
     if (!this.guard) {
+      securityUtils.secureLog('Guard未初始化，无法获取用户');
       return null;
     }
 
     try {
+      // 先检查登录状态
+      const loginStatus = await this.guard.checkLoginStatus();
+      securityUtils.secureLog('检查登录状态', { loginStatus });
+      
+      if (!loginStatus) {
+        securityUtils.secureLog('用户未登录，无法获取用户信息');
+        return null;
+      }
+
       const userInfo = await this.guard.trackSession();
+      securityUtils.secureLog('trackSession结果', { userInfo: userInfo ? '有用户信息' : '无用户信息' });
+      
       if (userInfo) {
         const user = this.convertAuthingUser(userInfo);
-        securityUtils.secureLog('获取当前用户成功', { userId: user.id });
+        securityUtils.secureLog('获取当前用户成功', { 
+          userId: user.id,
+          username: user.username,
+          email: user.email,
+          isAuthenticated: true
+        });
         return user;
       }
+      
+      securityUtils.secureLog('trackSession返回空值');
       return null;
     } catch (error) {
       securityUtils.secureLog('获取当前用户失败', { error: error instanceof Error ? error.message : '未知错误' }, 'error');
@@ -206,8 +232,8 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 更新用户信息 - 只更新Authing中的身份信息
    */
   async updateUserInfo(updates: Partial<User>): Promise<User> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
@@ -217,7 +243,7 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
       }
 
       // 只更新Authing中的身份信息
-      const updatedUser = await this.authingClient.updateProfile({
+      const updatedUser = await this.guard.updateProfile({
         nickname: updates.nickname,
         photo: updates.avatar,
       });
@@ -258,7 +284,7 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 获取用户角色 - 从Authing获取基础角色
    */
   async getUserRoles(): Promise<string[]> {
-    if (!this.authingClient) {
+    if (!this.guard) {
       return [];
     }
 
@@ -284,8 +310,8 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 分配角色 - 在Authing中分配基础角色
    */
   async assignRole(roleCode: string): Promise<void> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
@@ -324,12 +350,15 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 发送邮箱验证码
    */
   async sendEmailCode(email: string, scene: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_EMAIL' = 'LOGIN'): Promise<void> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
-      await this.authingClient.sendEmail(email, { scene });
+      await this.guard.sendEmailCode({
+        email,
+        scene
+      });
       securityUtils.secureLog('邮箱验证码发送成功', { email, scene });
     } catch (error) {
       securityUtils.secureLog('邮箱验证码发送失败', { email, scene, error: error instanceof Error ? error.message : '未知错误' }, 'error');
@@ -341,12 +370,15 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 发送短信验证码
    */
   async sendSmsCode(phone: string, scene: 'LOGIN' | 'REGISTER' | 'RESET_PASSWORD' | 'VERIFY_PHONE' = 'LOGIN'): Promise<void> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
-      await this.authingClient.sendSmsCode(phone, { scene });
+      await this.guard.sendSmsCode({
+        phone,
+        scene
+      });
       securityUtils.secureLog('短信验证码发送成功', { phone, scene });
     } catch (error) {
       securityUtils.secureLog('短信验证码发送失败', { phone, scene, error: error instanceof Error ? error.message : '未知错误' }, 'error');
@@ -358,12 +390,12 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 刷新Token
    */
   async refreshToken(): Promise<void> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
-      await this.authingClient.refreshToken();
+      await this.guard.refreshToken();
       securityUtils.secureLog('Token刷新成功');
     } catch (error) {
       securityUtils.secureLog('Token刷新失败', { error: error instanceof Error ? error.message : '未知错误' }, 'error');
@@ -831,15 +863,15 @@ class UnifiedAuthService implements AuthingIdentityFeatures, BackendBusinessFeat
    * 获取认证Token
    */
   private async getAuthToken(): Promise<string> {
-    if (!this.authingClient) {
-      throw new Error('Authing客户端未初始化');
+    if (!this.guard) {
+      throw new Error('Authing Guard未初始化');
     }
 
     try {
-      // 由于Authing SDK没有直接的getAccessToken方法，我们返回空字符串
-      // 在实际项目中，这里应该从Guard或用户会话中获取token
-      const token = '';
-      securityUtils.secureLog('获取认证Token成功');
+      // 从Guard获取当前用户的token
+      const userInfo = await this.guard.trackSession();
+      const token = userInfo?.token || '';
+      securityUtils.secureLog('获取认证Token成功', { hasToken: !!token });
       return token;
     } catch (error) {
       securityUtils.secureLog('获取认证Token失败', { error: error instanceof Error ? error.message : '未知错误' }, 'error');

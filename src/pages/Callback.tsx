@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { AuthenticationClient } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -16,7 +16,7 @@ import { getAuthingConfig } from '@/config/authing';
 const Callback: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useAuth();
+  const { login } = useUnifiedAuthContext();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('正在处理认证回调...');
 

@@ -21,14 +21,12 @@ export interface DevProxyResponse<T = any> {
   message?: string;
 }
 
+import { getOpenAIConfig, isValidAPIKey } from '@/config/apiConfig';
+
 /**
  * OpenAI API配置
  */
-const OPENAI_CONFIG = {
-  endpoint: 'https://api.openai.com/v1/chat/completions',
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY || '', // 使用环境变量
-  model: 'gpt-4o'
-};
+const OPENAI_CONFIG = getOpenAIConfig();
 
 /**
  * 调用OpenAI API（开发环境）
@@ -47,7 +45,7 @@ export async function callOpenAIDevProxy(options: {
     console.log('请求参数:', { messages, model, temperature, maxTokens });
     
     // 检查API Key
-    if (!OPENAI_CONFIG.apiKey) {
+    if (!isValidAPIKey(OPENAI_CONFIG.apiKey, 'openai')) {
       throw new Error('OpenAI API Key未配置，请在.env.local中设置VITE_OPENAI_API_KEY');
     }
     

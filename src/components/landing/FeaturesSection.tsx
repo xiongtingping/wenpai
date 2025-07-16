@@ -7,7 +7,8 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { 
   Zap,
   Sparkles,
@@ -178,6 +179,9 @@ const advantages = [
  * 功能特性展示区域组件
  */
 export const FeaturesSection: React.FC = () => {
+  const { login, isAuthenticated } = useUnifiedAuthContext();
+  const navigate = useNavigate();
+
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
       <div className="container mx-auto px-4">
@@ -239,15 +243,24 @@ export const FeaturesSection: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                  <Link to="/register">
-                    <Button 
-                      variant="outline" 
-                      className={`w-full border-2 ${feature.borderColor} hover:bg-gradient-to-r ${feature.hoverColor} transition-all duration-300 group-hover:shadow-md`}
-                    >
-                      立即体验
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="outline" 
+                    className={`w-full border-2 ${feature.borderColor} hover:bg-gradient-to-r ${feature.hoverColor} transition-all duration-300 group-hover:shadow-md`}
+                    onClick={() => {
+                      // 优化跳转逻辑，减少延迟
+                      if (isAuthenticated) {
+                        // 已登录用户直接跳转，不使用window.location.href
+                        navigate(feature.path);
+                      } else {
+                        // 未登录用户先登录再跳转
+                        localStorage.setItem('login_redirect_to', feature.path);
+                        login();
+                      }
+                    }}
+                  >
+                    立即体验
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                  </Button>
                 </CardContent>
               </Card>
             ))}

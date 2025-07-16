@@ -86,7 +86,7 @@ export default function UnifiedAuthEntry({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Hooks
-  const { user, isAuthenticated, login, register, loading: authLoading } = useUnifiedAuth();
+  const { user, isAuthenticated, login, register, loading: authLoading, refreshUser } = useUnifiedAuth();
   const { showLogin, guard } = useAuthing();
   const { toast } = useToast();
 
@@ -178,6 +178,9 @@ export default function UnifiedAuthEntry({
         password: loginForm.password
       });
 
+      // 登录成功后强制刷新用户信息
+      await refreshUser();
+
       toast({
         title: "登录成功",
         description: "欢迎回来！"
@@ -234,6 +237,9 @@ export default function UnifiedAuthEntry({
         nickname: registerForm.nickname
       });
 
+      // 注册成功后强制刷新用户信息
+      await refreshUser();
+
       toast({
         title: "注册成功",
         description: "欢迎加入文派！"
@@ -246,7 +252,7 @@ export default function UnifiedAuthEntry({
     } finally {
       setIsLoading(false);
     }
-  }, [registerForm, register, user, onSuccess, onClose, toast]);
+  }, [registerForm, register, refreshUser, user, onSuccess, onClose, toast]);
 
   /**
    * 使用Authing Guard登录
@@ -264,6 +270,24 @@ export default function UnifiedAuthEntry({
       });
     }
   }, [showLogin, toast]);
+
+  /**
+   * 临时开发按钮：强制唤起 Authing Guard 登录框
+   * 仅在开发环境下显示，便于调试云端认证
+   * @returns {JSX.Element | null}
+   */
+  const DevAuthingButton = () => {
+    if (import.meta.env.MODE !== 'development') return null;
+    return (
+      <Button
+        style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}
+        variant="destructive"
+        onClick={() => showLogin()}
+      >
+        强制唤起 Authing Guard
+      </Button>
+    );
+  };
 
   // 如果用户已登录，显示用户信息
   if (isAuthenticated && user) {
@@ -299,306 +323,309 @@ export default function UnifiedAuthEntry({
   }
 
   return (
-    <Card className={cn("w-full max-w-md", className)}>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">
-          {modal ? '登录 / 注册' : '欢迎使用文派'}
-        </CardTitle>
-        <CardDescription>
-          选择您喜欢的登录方式
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="space-y-6">
-        {/* Authing登录按钮 */}
-        <div className="space-y-4">
-          <Button 
-            onClick={handleAuthingLogin}
-            className="w-full h-12 text-base"
-            disabled={authLoading}
-          >
-            {authLoading ? (
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            ) : (
-              <Shield className="w-5 h-5 mr-2" />
-            )}
-            使用Authing安全登录
-          </Button>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator className="w-full" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                或使用其他方式
-              </span>
+    <>
+      <DevAuthingButton />
+      <Card className={cn("w-full max-w-md", className)}>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">
+            {modal ? '登录 / 注册' : '欢迎使用文派'}
+          </CardTitle>
+          <CardDescription>
+            选择您喜欢的登录方式
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {/* Authing登录按钮 */}
+          <div className="space-y-4">
+            <Button 
+              onClick={handleAuthingLogin}
+              className="w-full h-12 text-base"
+              disabled={authLoading}
+            >
+              {authLoading ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Shield className="w-5 h-5 mr-2" />
+              )}
+              使用Authing安全登录
+            </Button>
+            
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  或使用其他方式
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* 传统登录/注册表单 */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'login' | 'register')}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">登录</TabsTrigger>
-            <TabsTrigger value="register">注册</TabsTrigger>
-          </TabsList>
+          {/* 传统登录/注册表单 */}
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'login' | 'register')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">登录</TabsTrigger>
+              <TabsTrigger value="register">注册</TabsTrigger>
+            </TabsList>
 
-          {/* 登录表单 */}
-          <TabsContent value="login" className="space-y-4">
-            <form onSubmit={handlePasswordLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login-email">邮箱</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="请输入邮箱"
-                    value={loginForm.email}
-                    onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="login-password">密码</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="login-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="请输入密码"
-                    value={loginForm.password}
-                    onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="remember-me"
-                    checked={loginForm.rememberMe}
-                    onChange={(e) => setLoginForm(prev => ({ ...prev, rememberMe: e.target.checked }))}
-                    className="rounded"
-                  />
-                  <Label htmlFor="remember-me" className="text-sm">
-                    记住我
-                  </Label>
-                </div>
-                <Button type="button" variant="link" className="text-sm">
-                  忘记密码？
-                </Button>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <LogIn className="w-4 h-4 mr-2" />
-                )}
-                登录
-              </Button>
-            </form>
-          </TabsContent>
-
-          {/* 注册表单 */}
-          <TabsContent value="register" className="space-y-4">
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="register-nickname">昵称</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="register-nickname"
-                    type="text"
-                    placeholder="请输入昵称"
-                    value={registerForm.nickname}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, nickname: e.target.value }))}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="register-email">邮箱</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="register-email"
-                    type="email"
-                    placeholder="请输入邮箱"
-                    value={registerForm.email}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="register-code">验证码</Label>
-                <div className="flex space-x-2">
-                  <div className="relative flex-1">
-                    <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            {/* 登录表单 */}
+            <TabsContent value="login" className="space-y-4">
+              <form onSubmit={handlePasswordLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">邮箱</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="register-code"
-                      type="text"
-                      placeholder="请输入验证码"
-                      value={registerForm.code}
-                      onChange={(e) => setRegisterForm(prev => ({ ...prev, code: e.target.value }))}
+                      id="login-email"
+                      type="email"
+                      placeholder="请输入邮箱"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
                       className="pl-10"
                       required
                     />
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => sendVerificationCode(registerForm.email)}
-                    disabled={isSendingCode || countdown > 0}
-                    className="whitespace-nowrap"
-                  >
-                    {isSendingCode ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : countdown > 0 ? (
-                      `${countdown}s`
-                    ) : (
-                      "发送验证码"
-                    )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">密码</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="请输入密码"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                      className="pl-10 pr-10"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="remember-me"
+                      checked={loginForm.rememberMe}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, rememberMe: e.target.checked }))}
+                      className="rounded"
+                    />
+                    <Label htmlFor="remember-me" className="text-sm">
+                      记住我
+                    </Label>
+                  </div>
+                  <Button type="button" variant="link" className="text-sm">
+                    忘记密码？
                   </Button>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="register-password">密码</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="register-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="请输入密码"
-                    value={registerForm.password}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
-                    className="pl-10 pr-10"
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <LogIn className="w-4 h-4 mr-2" />
+                  )}
+                  登录
+                </Button>
+              </form>
+            </TabsContent>
+
+            {/* 注册表单 */}
+            <TabsContent value="register" className="space-y-4">
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="register-nickname">昵称</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="register-nickname"
+                      type="text"
+                      placeholder="请输入昵称"
+                      value={registerForm.nickname}
+                      onChange={(e) => setRegisterForm(prev => ({ ...prev, nickname: e.target.value }))}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="register-email">邮箱</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="register-email"
+                      type="email"
+                      placeholder="请输入邮箱"
+                      value={registerForm.email}
+                      onChange={(e) => setRegisterForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="register-code">验证码</Label>
+                  <div className="flex space-x-2">
+                    <div className="relative flex-1">
+                      <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-code"
+                        type="text"
+                        placeholder="请输入验证码"
+                        value={registerForm.code}
+                        onChange={(e) => setRegisterForm(prev => ({ ...prev, code: e.target.value }))}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => sendVerificationCode(registerForm.email)}
+                      disabled={isSendingCode || countdown > 0}
+                      className="whitespace-nowrap"
+                    >
+                      {isSendingCode ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : countdown > 0 ? (
+                        `${countdown}s`
+                      ) : (
+                        "发送验证码"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="register-password">密码</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="register-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="请输入密码"
+                      value={registerForm.password}
+                      onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
+                      className="pl-10 pr-10"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="register-confirm-password">确认密码</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="register-confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="请再次输入密码"
+                      value={registerForm.confirmPassword}
+                      onChange={(e) => setRegisterForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="pl-10 pr-10"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="agree-terms"
+                    checked={registerForm.agreeTerms}
+                    onChange={(e) => setRegisterForm(prev => ({ ...prev, agreeTerms: e.target.checked }))}
+                    className="rounded"
                     required
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
+                  <Label htmlFor="agree-terms" className="text-sm">
+                    我已阅读并同意
+                    <Button type="button" variant="link" className="text-sm p-0 h-auto">
+                      用户协议
+                    </Button>
+                    和
+                    <Button type="button" variant="link" className="text-sm p-0 h-auto">
+                      隐私政策
+                    </Button>
+                  </Label>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="register-confirm-password">确认密码</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="register-confirm-password"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="请再次输入密码"
-                    value={registerForm.confirmPassword}
-                    onChange={(e) => setRegisterForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <UserPlus className="w-4 h-4 mr-2" />
+                  )}
+                  注册
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="agree-terms"
-                  checked={registerForm.agreeTerms}
-                  onChange={(e) => setRegisterForm(prev => ({ ...prev, agreeTerms: e.target.checked }))}
-                  className="rounded"
-                  required
-                />
-                <Label htmlFor="agree-terms" className="text-sm">
-                  我已阅读并同意
-                  <Button type="button" variant="link" className="text-sm p-0 h-auto">
-                    用户协议
-                  </Button>
-                  和
-                  <Button type="button" variant="link" className="text-sm p-0 h-auto">
-                    隐私政策
-                  </Button>
-                </Label>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <UserPlus className="w-4 h-4 mr-2" />
-                )}
-                注册
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
-
-        {/* 关闭按钮（弹窗模式） */}
-        {modal && onClose && (
-          <Button 
-            variant="ghost" 
-            onClick={onClose}
-            className="w-full"
-          >
-            取消
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+          {/* 关闭按钮（弹窗模式） */}
+          {modal && onClose && (
+            <Button 
+              variant="ghost" 
+              onClick={onClose}
+              className="w-full"
+            >
+              取消
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </>
   );
 } 

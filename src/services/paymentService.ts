@@ -1,433 +1,339 @@
 /**
  * 支付服务
- * 处理支付相关的API调用和状态管理
+ * 处理支付相关的API调用和业务逻辑
  */
 
-import axios from 'axios';
-import { useToast } from '@/hooks/use-toast';
 import { securityUtils } from '@/lib/security';
 
-/**
- * 支付方式类型
- */
-export type PaymentMethod = 'alipay' | 'wechat' | 'card';
-
-/**
- * 支付状态类型
- */
-export type PaymentStatus = 'pending' | 'success' | 'failed' | 'cancelled';
-
-/**
- * 支付订单接口
- */
 export interface PaymentOrder {
-  orderId: string;
+  id: string;
   userId: string;
   planId: string;
+  planTier: string;
+  planPeriod: string;
   amount: number;
   currency: string;
-  paymentMethod: PaymentMethod;
-  status: PaymentStatus;
+  status: 'pending' | 'paid' | 'failed' | 'cancelled';
+  paymentMethod: string;
+  paymentData: any;
   createdAt: string;
   updatedAt: string;
-  callbackUrl?: string;
-  returnUrl?: string;
+  paidAt?: string;
 }
 
-/**
- * 创建支付订单参数
- */
-export interface CreateOrderParams {
-  planId: string;
-  period: 'monthly' | 'yearly';
-  paymentMethod: PaymentMethod;
-  userId: string;
-  amount: number;
-  currency?: string;
-  returnUrl?: string;
+export interface UpgradeMembershipRequest {
+  planTier: string;
+  planPeriod: string;
+  paymentData: any;
 }
 
-/**
- * 支付回调数据
- */
-export interface PaymentCallbackData {
-  out_trade_no: string;
-  trade_status: string;
-  total_amount: string;
-  user_id: string;
-  plan_id: string;
-  payment_method: string;
-  platform: string;
-  currency?: string;
-  [key: string]: any;
+export interface UpgradeMembershipResponse {
+  success: boolean;
+  subscription: any;
+  message?: string;
+  error?: string;
 }
 
-/**
- * 支付服务类
- */
-class PaymentService {
-  private baseURL: string;
+export class PaymentService {
+  private static instance: PaymentService;
+  private apiBaseUrl: string;
 
-  constructor() {
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || '/.netlify/functions';
+  private constructor() {
+    this.apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+  }
+
+  public static getInstance(): PaymentService {
+    if (!PaymentService.instance) {
+      PaymentService.instance = new PaymentService();
+    }
+    return PaymentService.instance;
   }
 
   /**
    * 创建支付订单
-   * @param params 订单参数
-   * @returns Promise<PaymentOrder>
    */
-  async createOrder(params: CreateOrderParams): Promise<PaymentOrder> {
+  async createPaymentOrder(
+    userId: string,
+    planId: string,
+    amount: number,
+    paymentMethod: string = 'alipay'
+  ): Promise<PaymentOrder> {
     try {
-      securityUtils.secureLog('创建支付订单', {
-        planId: params.planId,
-        amount: params.amount,
-        paymentMethod: params.paymentMethod
+      const response = await fetch(`${this.apiBaseUrl}/payment/create-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
+        body: JSON.stringify({
+          userId,
+          planId,
+          amount,
+          paymentMethod,
+        }),
       });
 
-      const response = await axios.post(`${this.baseURL}/payment-create`, {
-        planId: params.planId,
-        period: params.period,
-        paymentMethod: params.paymentMethod,
-        userId: params.userId,
-        amount: params.amount,
-        currency: params.currency || 'CNY',
-        returnUrl: params.returnUrl || window.location.origin + '/payment-success'
-      });
-
-      if (response.data.success) {
-        securityUtils.secureLog('支付订单创建成功', {
-          orderId: response.data.order.orderId
-        });
-        return response.data.order;
-      } else {
-        throw new Error(response.data.message || '创建订单失败');
+      if (!response.ok) {
+        throw new Error('创建支付订单失败');
       }
-    } catch (error) {
-      securityUtils.secureLog('创建支付订单失败', {
-        error: error instanceof Error ? error.message : '未知错误'
-      }, 'error');
+
+      const order = await response.json();
+      securityUtils.secureLog('支付订单创建成功', { orderId: order.id, amount });
+      return order;
+    } catch (error: any) {
+      securityUtils.secureLog('创建支付订单失败', { error: error.message }, 'error');
       throw error;
     }
   }
 
   /**
-   * 查询支付订单状态
-   * @param orderId 订单ID
-   * @returns Promise<PaymentOrder>
+   * 验证支付结果
    */
-  async getOrderStatus(orderId: string): Promise<PaymentOrder> {
+  async verifyPayment(orderId: string, paymentData: any): Promise<boolean> {
     try {
-      const response = await axios.get(`${this.baseURL}/payment-status`, {
-        params: { orderId }
+      const response = await fetch(`${this.apiBaseUrl}/payment/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
+        body: JSON.stringify({
+          orderId,
+          paymentData,
+        }),
       });
 
-      if (response.data.success) {
-        return response.data.order;
-      } else {
-        throw new Error(response.data.message || '查询订单状态失败');
+      if (!response.ok) {
+        throw new Error('验证支付失败');
       }
-    } catch (error) {
-      securityUtils.secureLog('查询支付订单状态失败', {
-        orderId,
-        error: error instanceof Error ? error.message : '未知错误'
-      }, 'error');
+
+      const result = await response.json();
+      securityUtils.secureLog('支付验证结果', { orderId, success: result.success });
+      return result.success;
+    } catch (error: any) {
+      securityUtils.secureLog('验证支付失败', { orderId, error: error.message }, 'error');
       throw error;
     }
   }
 
   /**
-   * 取消支付订单
-   * @param orderId 订单ID
-   * @returns Promise<void>
+   * 升级用户会员
    */
-  async cancelOrder(orderId: string): Promise<void> {
+  async upgradeMembership(request: UpgradeMembershipRequest): Promise<UpgradeMembershipResponse> {
     try {
-      securityUtils.secureLog('取消支付订单', { orderId });
-
-      const response = await axios.post(`${this.baseURL}/payment-cancel`, {
-        orderId
+      const response = await fetch(`${this.apiBaseUrl}/user/upgrade-membership`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
+        body: JSON.stringify(request),
       });
 
-      if (!response.data.success) {
-        throw new Error(response.data.message || '取消订单失败');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '升级会员失败');
       }
 
-      securityUtils.secureLog('支付订单取消成功', { orderId });
-    } catch (error) {
-      securityUtils.secureLog('取消支付订单失败', {
-        orderId,
-        error: error instanceof Error ? error.message : '未知错误'
+      const result = await response.json();
+      securityUtils.secureLog('会员升级成功', { 
+        planTier: request.planTier, 
+        planPeriod: request.planPeriod 
+      });
+      
+      return {
+        success: true,
+        subscription: result.subscription,
+        message: '会员升级成功',
+      };
+    } catch (error: any) {
+      securityUtils.secureLog('升级会员失败', { 
+        planTier: request.planTier, 
+        error: error.message 
       }, 'error');
-      throw error;
+      
+      return {
+        success: false,
+        subscription: null,
+        error: error.message,
+        message: '升级会员失败',
+      };
     }
   }
 
   /**
-   * 获取支付二维码
-   * @param orderId 订单ID
-   * @param paymentMethod 支付方式
-   * @returns Promise<{ qrCode: string; qrCodeUrl: string }>
+   * 获取支付订单状态
    */
-  async getPaymentQRCode(orderId: string, paymentMethod: PaymentMethod): Promise<{ qrCode: string; qrCodeUrl: string }> {
+  async getPaymentOrderStatus(orderId: string): Promise<PaymentOrder> {
     try {
-      const response = await axios.post(`${this.baseURL}/payment-qrcode`, {
-        orderId,
-        paymentMethod
+      const response = await fetch(`${this.apiBaseUrl}/payment/order/${orderId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
       });
 
-      if (response.data.success) {
-        return {
-          qrCode: response.data.qrCode,
-          qrCodeUrl: response.data.qrCodeUrl
-        };
-      } else {
-        throw new Error(response.data.message || '获取支付二维码失败');
+      if (!response.ok) {
+        throw new Error('获取订单状态失败');
       }
-    } catch (error) {
-      securityUtils.secureLog('获取支付二维码失败', {
-        orderId,
-        paymentMethod,
-        error: error instanceof Error ? error.message : '未知错误'
-      }, 'error');
+
+      const order = await response.json();
+      return order;
+    } catch (error: any) {
+      securityUtils.secureLog('获取订单状态失败', { orderId, error: error.message }, 'error');
       throw error;
-    }
-  }
-
-  /**
-   * 验证支付回调
-   * @param callbackData 回调数据
-   * @returns Promise<boolean>
-   */
-  async verifyPaymentCallback(callbackData: PaymentCallbackData): Promise<boolean> {
-    try {
-      const response = await axios.post(`${this.baseURL}/payment-verify`, callbackData);
-
-      return response.data.success;
-    } catch (error) {
-      securityUtils.secureLog('验证支付回调失败', {
-        orderId: callbackData.out_trade_no,
-        error: error instanceof Error ? error.message : '未知错误'
-      }, 'error');
-      return false;
     }
   }
 
   /**
    * 获取用户支付历史
-   * @param userId 用户ID
-   * @param page 页码
-   * @param limit 每页数量
-   * @returns Promise<{ orders: PaymentOrder[]; total: number }>
    */
-  async getPaymentHistory(userId: string, page: number = 1, limit: number = 10): Promise<{ orders: PaymentOrder[]; total: number }> {
+  async getUserPaymentHistory(userId: string, limit: number = 10): Promise<PaymentOrder[]> {
     try {
-      const response = await axios.get(`${this.baseURL}/payment-history`, {
-        params: { userId, page, limit }
+      const response = await fetch(`${this.apiBaseUrl}/payment/history?userId=${userId}&limit=${limit}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+        },
       });
 
-      if (response.data.success) {
-        return {
-          orders: response.data.orders,
-          total: response.data.total
-        };
-      } else {
-        throw new Error(response.data.message || '获取支付历史失败');
+      if (!response.ok) {
+        throw new Error('获取支付历史失败');
       }
-    } catch (error) {
-      securityUtils.secureLog('获取支付历史失败', {
-        userId,
-        error: error instanceof Error ? error.message : '未知错误'
-      }, 'error');
+
+      const history = await response.json();
+      return history;
+    } catch (error: any) {
+      securityUtils.secureLog('获取支付历史失败', { userId, error: error.message }, 'error');
       throw error;
     }
   }
 
   /**
-   * 检查支付状态（轮询）
-   * @param orderId 订单ID
-   * @param maxAttempts 最大尝试次数
-   * @param interval 轮询间隔（毫秒）
-   * @returns Promise<PaymentOrder>
+   * 处理支付成功回调
    */
-  async pollPaymentStatus(orderId: string, maxAttempts: number = 30, interval: number = 2000): Promise<PaymentOrder> {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
+  async handlePaymentSuccess(orderId: string, paymentData: any): Promise<void> {
+    try {
+      // 1. 验证支付
+      const isPaymentValid = await this.verifyPayment(orderId, paymentData);
+      if (!isPaymentValid) {
+        throw new Error('支付验证失败');
+      }
 
-      const poll = async () => {
-        try {
-          attempts++;
-          const order = await this.getOrderStatus(orderId);
+      // 2. 获取订单信息
+      const order = await this.getPaymentOrderStatus(orderId);
+      
+      // 3. 升级会员
+      await this.upgradeMembership({
+        planTier: order.planTier,
+        planPeriod: order.planPeriod,
+        paymentData: paymentData,
+      });
 
-          if (order.status === 'success') {
-            securityUtils.secureLog('支付成功', { orderId });
-            resolve(order);
-            return;
-          }
-
-          if (order.status === 'failed' || order.status === 'cancelled') {
-            securityUtils.secureLog('支付失败或取消', { orderId, status: order.status });
-            reject(new Error(`支付${order.status === 'failed' ? '失败' : '已取消'}`));
-            return;
-          }
-
-          if (attempts >= maxAttempts) {
-            securityUtils.secureLog('支付状态轮询超时', { orderId, attempts });
-            reject(new Error('支付状态查询超时'));
-            return;
-          }
-
-          // 继续轮询
-          setTimeout(poll, interval);
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      poll();
-    });
+      securityUtils.secureLog('支付成功处理完成', { orderId });
+    } catch (error: any) {
+      securityUtils.secureLog('处理支付成功失败', { orderId, error: error.message }, 'error');
+      throw error;
+    }
   }
 
   /**
-   * 格式化支付金额
-   * @param amount 金额
-   * @param currency 货币
-   * @returns string
+   * 获取认证Token
    */
-  formatAmount(amount: number, currency: string = 'CNY'): string {
-    return new Intl.NumberFormat('zh-CN', {
-      style: 'currency',
-      currency: currency
-    }).format(amount);
+  private getAuthToken(): string {
+    return localStorage.getItem('auth_token') || 
+           localStorage.getItem('authing_token') || 
+           '';
   }
 
   /**
-   * 获取支付方式显示名称
-   * @param method 支付方式
-   * @returns string
+   * 模拟支付成功处理（用于测试）
    */
-  getPaymentMethodName(method: PaymentMethod): string {
-    const methodNames = {
-      alipay: '支付宝',
-      wechat: '微信支付',
-      card: '银行卡'
+  async simulatePaymentSuccess(paymentData: any): Promise<UpgradeMembershipResponse> {
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 解析支付数据，确定套餐
+    const planInfo = this.parsePlanFromPayment(paymentData);
+    
+    // 模拟升级成功
+    const subscription = {
+      id: `sub_${Date.now()}`,
+      userId: paymentData.userId || 'user_123',
+      planTier: planInfo.tier,
+      planPeriod: planInfo.period,
+      status: 'active',
+      startDate: new Date().toISOString(),
+      endDate: this.calculateEndDate(planInfo.period),
+      features: this.getPlanFeatures(planInfo.tier),
     };
-    return methodNames[method] || method;
+
+    securityUtils.secureLog('模拟支付成功', { planInfo, subscription });
+    
+    return {
+      success: true,
+      subscription,
+      message: '会员升级成功',
+    };
   }
 
   /**
-   * 获取支付状态显示名称
-   * @param status 支付状态
-   * @returns string
+   * 解析支付数据，确定套餐
    */
-  getPaymentStatusName(status: PaymentStatus): string {
-    const statusNames = {
-      pending: '待支付',
-      success: '支付成功',
-      failed: '支付失败',
-      cancelled: '已取消'
-    };
-    return statusNames[status] || status;
+  private parsePlanFromPayment(paymentData: any) {
+    const productId = paymentData.productId;
+    const amount = paymentData.amount;
+
+    // 根据产品ID确定套餐
+    if (productId.includes('pro') && productId.includes('monthly')) {
+      return { tier: 'pro', name: '专业版', period: 'monthly' };
+    } else if (productId.includes('pro') && productId.includes('yearly')) {
+      return { tier: 'pro', name: '专业版', period: 'yearly' };
+    } else if (productId.includes('premium') && productId.includes('monthly')) {
+      return { tier: 'premium', name: '高级版', period: 'monthly' };
+    } else if (productId.includes('premium') && productId.includes('yearly')) {
+      return { tier: 'premium', name: '高级版', period: 'yearly' };
+    }
+
+    // 根据金额判断（备用方案）
+    const amountInYuan = amount / 100;
+    if (amountInYuan >= 99) {
+      return { tier: 'premium', name: '高级版', period: 'yearly' };
+    } else if (amountInYuan >= 29) {
+      return { tier: 'pro', name: '专业版', period: 'monthly' };
+    }
+
+    return { tier: 'pro', name: '专业版', period: 'monthly' };
+  }
+
+  /**
+   * 计算套餐结束日期
+   */
+  private calculateEndDate(period: string): string {
+    const now = new Date();
+    if (period === 'yearly') {
+      now.setFullYear(now.getFullYear() + 1);
+    } else {
+      now.setMonth(now.getMonth() + 1);
+    }
+    return now.toISOString();
+  }
+
+  /**
+   * 获取套餐功能列表
+   */
+  private getPlanFeatures(tier: string): string[] {
+    const baseFeatures = ['基础功能', '客服支持'];
+    
+    if (tier === 'pro') {
+      return [...baseFeatures, '高级功能', '优先客服', '数据分析'];
+    } else if (tier === 'premium') {
+      return [...baseFeatures, '高级功能', '优先客服', '数据分析', '专属功能', '一对一服务'];
+    }
+    
+    return baseFeatures;
   }
 }
 
-/**
- * 支付服务实例
- */
-export const paymentService = new PaymentService();
-
-/**
- * 支付Hook
- * @returns 支付相关的方法和状态
- */
-export function usePayment() {
-  const { toast } = useToast();
-
-  /**
-   * 创建支付订单
-   */
-  const createOrder = async (params: CreateOrderParams): Promise<PaymentOrder> => {
-    try {
-      const order = await paymentService.createOrder(params);
-      
-      toast({
-        title: "订单创建成功",
-        description: `订单号: ${order.orderId}`,
-      });
-
-      return order;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '创建订单失败';
-      
-      toast({
-        title: "创建订单失败",
-        description: message,
-        variant: "destructive"
-      });
-
-      throw error;
-    }
-  };
-
-  /**
-   * 轮询支付状态
-   */
-  const pollPaymentStatus = async (orderId: string): Promise<PaymentOrder> => {
-    try {
-      const order = await paymentService.pollPaymentStatus(orderId);
-      
-      toast({
-        title: "支付成功",
-        description: "您的订阅已激活，请刷新页面查看最新状态",
-      });
-
-      return order;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '支付状态查询失败';
-      
-      toast({
-        title: "支付状态查询失败",
-        description: message,
-        variant: "destructive"
-      });
-
-      throw error;
-    }
-  };
-
-  /**
-   * 取消支付订单
-   */
-  const cancelOrder = async (orderId: string): Promise<void> => {
-    try {
-      await paymentService.cancelOrder(orderId);
-      
-      toast({
-        title: "订单已取消",
-        description: "支付订单已成功取消",
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '取消订单失败';
-      
-      toast({
-        title: "取消订单失败",
-        description: message,
-        variant: "destructive"
-      });
-
-      throw error;
-    }
-  };
-
-  return {
-    createOrder,
-    pollPaymentStatus,
-    cancelOrder,
-    getOrderStatus: paymentService.getOrderStatus.bind(paymentService),
-    getPaymentQRCode: paymentService.getPaymentQRCode.bind(paymentService),
-    getPaymentHistory: paymentService.getPaymentHistory.bind(paymentService),
-    formatAmount: paymentService.formatAmount.bind(paymentService),
-    getPaymentMethodName: paymentService.getPaymentMethodName.bind(paymentService),
-    getPaymentStatusName: paymentService.getPaymentStatusName.bind(paymentService)
-  };
-} 
+// 导出单例实例
+export const paymentService = PaymentService.getInstance(); 

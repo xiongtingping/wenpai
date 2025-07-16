@@ -1,98 +1,152 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, Calendar, ArrowLeft, Check, Crown, Star } from "lucide-react";
+import { Clock, Calendar, ArrowLeft, Check, Crown, Star, CreditCard, Percent, Zap, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { 
   SUBSCRIPTION_PLANS, 
   calculateDiscountCountdown, 
   isInDiscountPeriod 
 } from "@/config/subscriptionPlans";
 import { SubscriptionPlan, SubscriptionPeriod } from "@/types/subscription";
+import { getAlipayQRCode } from "@/api/creemClientService";
+import AlipayQRCode from "@/components/payment/AlipayQRCode";
 
 /**
- * 订阅页面 - 返回首页按钮优化版
- * 左对齐、浅灰边框、小字体、hover提示、移动端隐藏、专注转化
+ * Creem 支付宝二维码组件
+ * @param priceId Creem价格ID
+ * @param planName 计划名称
+ * @param price 支付金额
+ */
+const CreemAlipayQRCode: React.FC<{ 
+  priceId: string;
+  planName: string;
+  price: number;
+}> = ({
+  priceId,
+  planName,
+  price,
+}) => {
+  return (
+    <AlipayQRCode 
+      priceId={priceId}
+      title={`${planName} - 扫码支付`}
+      showPrice={true}
+    />
+  );
+};
+
+// Creem价格ID映射函数
+function getCreemPriceId(plan, period) {
+  if (!plan || !period) return "";
+  if (plan.tier === "pro" && period === "monthly") return "prod_3nJOuQeVStqkp6JaDcrKHf";
+  if (plan.tier === "pro" && period === "yearly") return "prod_5qBlDTLpD3h9gvOZFd4Rgu";
+  if (plan.tier === "premium" && period === "monthly") return "prod_4HYBfvrcbXYnbxjlswMj28";
+  if (plan.tier === "premium" && period === "yearly") return "prod_6OfIoVnRg2pXsuYceVKOYk";
+  return "";
+}
+
+/**
+ * 支付中心页面
+ * 1. 套餐选择在上，卡片高亮、推荐角标更明显，内容更紧凑
+ * 2. 支付信息区块金额、优惠、倒计时更聚焦，按钮更突出
+ * 3. 二维码区块更大，扫码指引更明显，支付摘要更简洁
+ * 4. 优惠倒计时样式更醒目，移动端适配
+ * 5. 套餐/周期切换后自动滚动到支付信息区
+ * 6. 增强优惠信息展示：折扣标签、节省金额、年付优惠等
+ * @returns {JSX.Element}
  */
 export default function PaymentPage() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useUnifiedAuthContext();
+  
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');
-  const [timeLeft, setTimeLeft] = useState(0);
   const [showQRCode, setShowQRCode] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const [timeLeft, setTimeLeft] = useState(0);
+  const paymentInfoRef = useRef<HTMLDivElement>(null);
 
-  // 限时优惠倒计时逻辑（30分钟）
-  useEffect(() => {
-    // 获取用户注册时间
-    const promoStart = localStorage.getItem('promo_start');
-    if (!promoStart) return;
+  // 获取用户注册时间
+  const getUserRegistrationTime = (): Date | undefined => {
+    if (!currentUser) return undefined;
     
-    const startTime = parseInt(promoStart, 10);
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const remaining = Math.max(0, 30 * 60 * 1000 - (now - startTime));
+    // 从localStorage获取注册时间，如果没有则使用当前时间
+    const registrationTime = localStorage.getItem('user_registration_time');
+    if (registrationTime) {
+      return new Date(parseInt(registrationTime, 10));
+    }
+    
+    // 如果没有存储的注册时间，创建一个（用于演示）
+    const now = new Date();
+    localStorage.setItem('user_registration_time', now.getTime().toString());
+    return now;
+  };
+
+  // 格式化倒计时显示
+  const formatTimeLeft = () => {
+    if (timeLeft <= 0) return '已结束';
+    
+    const seconds = Math.floor(timeLeft / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    
+    if (hours > 0) {
+      return `${hours}小时${minutes % 60}分钟${seconds % 60}秒`;
+    } else if (minutes > 0) {
+      return `${minutes}分钟${seconds % 60}秒`;
+    } else {
+      return `${seconds}秒`;
+    }
+  };
+
+  // 检查是否在优惠期内
+  const isInPromoPeriod = () => {
+    if (!currentIsAuthenticated) return false;
+    
+    const registrationTime = getUserRegistrationTime();
+    if (!registrationTime) return false;
+    
+    return isInDiscountPeriod(registrationTime);
+  };
+
+  // 更新倒计时
+  useEffect(() => {
+    if (!currentIsAuthenticated) return;
+
+    const registrationTime = getUserRegistrationTime();
+    if (!registrationTime) return;
+
+    const updateCountdown = () => {
+      const remaining = calculateDiscountCountdown(registrationTime);
       setTimeLeft(remaining);
-      
-      if (remaining <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, []);
-
-  // 格式化倒计时
-  const formatTimeLeft = () => {
-    const minutes = Math.floor(timeLeft / 60000);
-    const seconds = Math.floor((timeLeft % 60000) / 1000);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  // 检查是否在限时优惠期内
-  const isInPromoPeriod = () => {
-    const promoStart = localStorage.getItem('promo_start');
-    if (!promoStart) return false;
-    
-    const startTime = parseInt(promoStart, 10);
-    const now = Date.now();
-    return (now - startTime) < 30 * 60 * 1000; // 30分钟
-  };
+  }, [currentIsAuthenticated]);
 
   // 处理计划选择
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
-    if (plan.tier !== 'trial') {
-      setShowQRCode(true);
-      toast({
-        title: "支付二维码已显示",
-        description: "请使用手机扫码完成支付",
-      });
-      
-      // 自动滚动到二维码区域
-      setTimeout(() => {
-        const qrCodeElement = document.querySelector('[data-qr-code]');
-        if (qrCodeElement) {
-          qrCodeElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-          });
-        }
-      }, 100);
-    }
+    setShowQRCode(false);
+    setTimeout(() => {
+      paymentInfoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   // 处理周期选择
   const handlePeriodSelect = (period: SubscriptionPeriod) => {
     setSelectedPeriod(period);
-    // 如果已选择计划且不是体验版，重新显示支付二维码
-    if (selectedPlan && selectedPlan.tier !== 'trial') {
-      setShowQRCode(true);
-    }
+    setShowQRCode(false);
+    setTimeout(() => {
+      paymentInfoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   // 获取当前价格
@@ -100,9 +154,14 @@ export default function PaymentPage() {
     if (!selectedPlan) return 0;
     
     const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
-    const isInDiscount = isInPromoPeriod();
+    const originalPrice = pricing.originalPrice;
     
-    return isInDiscount ? pricing.discountPrice : pricing.originalPrice;
+    // 如果在优惠期内，应用折扣
+    if (isInPromoPeriod()) {
+      return pricing.discountPrice || originalPrice;
+    }
+    
+    return originalPrice;
   };
 
   // 获取原价
@@ -114,9 +173,16 @@ export default function PaymentPage() {
 
   // 获取节省金额
   const getSavedAmount = () => {
-    if (!selectedPlan) return 0;
-    const pricing = selectedPeriod === 'monthly' ? selectedPlan.monthly : selectedPlan.yearly;
-    return pricing.savedAmount;
+    const originalPrice = getOriginalPrice();
+    const currentPrice = getCurrentPrice();
+    return originalPrice - currentPrice;
+  };
+
+  // 获取年付节省金额（相比月付）
+  const getYearlySavings = (plan: SubscriptionPlan) => {
+    const monthlyTotal = plan.monthly.originalPrice * 12;
+    const yearlyPrice = plan.yearly.originalPrice;
+    return monthlyTotal - yearlyPrice;
   };
 
   // 处理支付
@@ -138,110 +204,127 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="container mx-auto py-16 px-4 max-w-6xl">
-      <div className="mb-12 text-center">
-        <div className="flex items-center justify-between mb-6">
-          {/* 返回首页按钮 - 左对齐 */}
-          <div className="hidden md:block">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      {/* 顶部导航栏 */}
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <Button
-              variant="outline"
+              variant="ghost"
+              size="sm"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
-              title="Return to Home"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             >
-              <ArrowLeft className="h-3 w-3" />
+              <ArrowLeft className="h-4 w-4" />
               返回首页
             </Button>
+            <div className="h-6 w-px bg-gray-300"></div>
+            <h1 className="text-lg font-semibold text-gray-900">支付中心</h1>
           </div>
-          
-          {/* 标题居中 */}
-          <div className="flex-1 text-center">
-            <h1 className="text-3xl font-bold mb-2">选择订阅计划</h1>
-            <p className="text-muted-foreground">选择最适合您的计划，开始享受AI创作之旅</p>
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-gray-500">
+              {currentIsAuthenticated ? '已登录' : '未登录'}
+            </div>
           </div>
-          
-          {/* 占位空间，保持标题居中 */}
-          <div className="hidden md:block w-[120px]"></div>
         </div>
       </div>
 
-      {/* 限时优惠倒计时 */}
+      <div className="container mx-auto py-8 px-4 max-w-6xl md:py-16 md:px-6">
+      {/* 标题区 */}
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">选择订阅计划</h1>
+        <p className="text-muted-foreground">选择最适合您的计划，开启AI创作之旅</p>
+      </div>
+
+      {/* 优惠倒计时 */}
       {timeLeft > 0 && (
-        <div className="mb-8 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
-          <div className="flex flex-col items-center gap-2">
-            <div className="text-lg font-bold text-red-600">
-              仅首次注册用户可享，注册后30分钟内享受25%折扣优惠，倒计时结束后恢复原价
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xl font-bold text-red-600">限时优惠倒计时：</span>
-              <span className="text-2xl font-bold bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
-                {formatTimeLeft()}
-              </span>
-            </div>
+        <div className="mb-8 p-4 bg-gradient-to-r from-red-100 to-orange-50 border-2 border-red-200 rounded-xl shadow flex flex-col md:flex-row items-center justify-center gap-4">
+          <div className="flex items-center gap-2">
+            <Gift className="w-6 h-6 text-red-500" />
+            <span className="text-lg md:text-xl font-bold text-red-600">新用户限时优惠：30分钟</span>
           </div>
+          <span className="flex items-center gap-2 text-xl md:text-2xl font-bold bg-red-50 px-4 py-2 rounded-lg border-2 border-red-300">
+            <Clock className="w-5 h-5 text-red-400" />
+            {formatTimeLeft()}
+          </span>
         </div>
       )}
 
       {/* 订阅周期选择 */}
-      <div className="mb-8">
-        <div className="flex justify-center gap-4">
-          <Button
-            variant={selectedPeriod === 'monthly' ? 'default' : 'outline'}
-            onClick={() => handlePeriodSelect('monthly')}
-            className="min-w-[120px]"
-          >
-            按月订阅
-          </Button>
-          <Button
-            variant={selectedPeriod === 'yearly' ? 'default' : 'outline'}
-            onClick={() => handlePeriodSelect('yearly')}
-            className={`min-w-[120px] transition-all duration-300 ${
-              selectedPeriod === 'yearly' 
-                ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90' 
-                : 'bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200'
-            }`}
-          >
-            按年订阅
-            <Badge variant="secondary" className="ml-2">更优惠</Badge>
-          </Button>
-
-        </div>
+      <div className="mb-8 flex justify-center gap-4">
+        <Button
+          variant={selectedPeriod === 'monthly' ? 'default' : 'outline'}
+          onClick={() => handlePeriodSelect('monthly')}
+          className="min-w-[120px]"
+        >
+          按月订阅
+        </Button>
+        <Button
+          variant={selectedPeriod === 'yearly' ? 'default' : 'outline'}
+          onClick={() => handlePeriodSelect('yearly')}
+          className={`min-w-[120px] transition-all duration-300 ${selectedPeriod === 'yearly' ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white' : 'bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200'}`}
+        >
+          按年订阅
+          <Badge variant="secondary" className="ml-2">更优惠</Badge>
+        </Button>
       </div>
 
-      {/* 订阅计划选择 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* 订阅计划选择 - 上方 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 max-w-6xl mx-auto">
         {SUBSCRIPTION_PLANS.map((plan) => {
           const pricing = selectedPeriod === 'monthly' ? plan.monthly : plan.yearly;
+          const originalPrice = pricing.originalPrice;
           const isInDiscount = isInPromoPeriod();
-          const currentPrice = isInDiscount ? pricing.discountPrice : pricing.originalPrice;
+          // 修复：为每个计划计算正确的价格
+          const currentPrice = plan.tier === 'trial' ? 0 : (isInDiscount ? pricing.discountPrice : originalPrice);
+          const savedAmount = plan.tier === 'trial' ? 0 : (originalPrice - currentPrice);
           const isSelected = selectedPlan?.id === plan.id;
+          const yearlySavings = getYearlySavings(plan);
 
           return (
             <Card 
               key={plan.id}
-              className={`cursor-pointer transition-all relative ${
-                isSelected ? "border-blue-500 shadow-lg" : "hover:shadow-md"
-              } ${plan.recommended ? "ring-2 ring-blue-200" : ""}`}
+              className={`cursor-pointer transition-all relative group ${isSelected ? "border-4 border-blue-500 shadow-2xl scale-105" : "hover:shadow-lg hover:scale-105"} ${plan.recommended ? "ring-2 ring-blue-200" : ""}`}
               onClick={() => handlePlanSelect(plan)}
             >
+              {/* 推荐标签 */}
               {plan.recommended && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-blue-500 text-white">
-                    <Star className="h-3 w-3 mr-1" />
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg px-4 py-1 text-base">
+                    <Star className="h-4 w-4 mr-1" />
                     推荐
                   </Badge>
                 </div>
               )}
-              
-              <CardHeader className="text-center">
+
+              {/* 限时优惠标签 */}
+              {isInDiscount && timeLeft > 0 && plan.tier !== 'trial' && (
+                <div className="absolute -top-4 -right-2 z-10">
+                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg px-3 py-1 text-sm animate-pulse">
+                    <Zap className="h-3 w-3 mr-1" />
+                    限时
+                  </Badge>
+                </div>
+              )}
+
+              {/* 年付优惠标签 */}
+              {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
+                <div className="absolute -top-4 -left-2 z-10">
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg px-3 py-1 text-sm">
+                    <Percent className="h-3 w-3 mr-1" />
+                    年付省¥{yearlySavings}
+                  </Badge>
+                </div>
+              )}
+
+              <CardHeader className="text-center pb-2">
                 <CardTitle className="text-xl flex items-center justify-center gap-2">
                   {plan.tier === 'premium' && <Crown className="h-5 w-5 text-yellow-500" />}
                   {plan.name}
                 </CardTitle>
-                <p className="text-muted-foreground text-sm">{plan.description}</p>
+                <p className="text-muted-foreground text-xs md:text-sm mt-1">{plan.description}</p>
               </CardHeader>
-              
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 pb-4 px-6">
                 {/* 价格显示 */}
                 <div className="text-center">
                   {plan.tier === 'trial' ? (
@@ -249,50 +332,41 @@ export default function PaymentPage() {
                   ) : (
                     <div className="space-y-2">
                       {isInDiscount && timeLeft > 0 ? (
-                        <div className="space-y-1">
-                          <div className="text-3xl font-bold text-red-600">
-                            ¥{currentPrice}
+                        <div className="space-y-2">
+                          <div className="text-3xl font-bold text-red-600">¥{currentPrice}</div>
+                          <div className="text-sm text-red-500 font-semibold">
+                            <Zap className="h-3 w-3 inline mr-1" />
+                            限时特惠价 省¥{savedAmount.toFixed(2)}
                           </div>
-                          <div className="text-sm text-red-500">
-                            限时特惠价 省¥{pricing.savedAmount}
-                          </div>
-                          <div className="text-sm text-gray-400 line-through">
-                            ¥{pricing.originalPrice} 原价
-                          </div>
+                          <div className="text-sm text-gray-400 line-through">¥{originalPrice} 原价</div>
                         </div>
                       ) : (
-                        <div className="text-3xl font-bold text-gray-900">
-                          ¥{currentPrice}
+                        <div className="text-3xl font-bold text-gray-900">¥{currentPrice}</div>
+                      )}
+                      <div className="text-sm text-gray-500">/{selectedPeriod === 'monthly' ? '月' : '年'}</div>
+                      
+                      {/* 年付月均价格显示 */}
+                      {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
+                        <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                          月均¥{(currentPrice / 12).toFixed(1)}，比月付省¥{yearlySavings}
                         </div>
-                      )}
-                      <div className="text-sm text-gray-500">
-                        /{selectedPeriod === 'monthly' ? '月' : '年'}
-                      </div>
-                      {/* 年付优惠文案 - 仅在非限时优惠期间显示 */}
-                      {selectedPeriod === 'yearly' && !isInDiscount && plan.tier === 'pro' && (
-                        <div className="text-xs text-green-600">年付省120元</div>
-                      )}
-                      {selectedPeriod === 'yearly' && !isInDiscount && plan.tier === 'premium' && (
-                        <div className="text-xs text-green-600">年付省300元</div>
                       )}
                     </div>
                   )}
                 </div>
-
                 {/* 功能列表 */}
-                <div className="space-y-2">
+                <div className="space-y-1.5 mt-3">
                   {plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm">
+                    <div key={index} className="flex items-center gap-3 text-sm">
                       <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
                       <span>{feature}</span>
                     </div>
                   ))}
                 </div>
-
                 {/* 选择按钮 */}
                 <Button 
                   variant={isSelected ? "default" : "outline"}
-                  className="w-full"
+                  className="w-full mt-3 text-base py-2.5"
                   disabled={plan.tier === 'trial'}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -307,101 +381,133 @@ export default function PaymentPage() {
         })}
       </div>
 
-
-
-      {/* 支付二维码 */}
-      {showQRCode && selectedPlan && selectedPlan.tier !== 'trial' && (
-        <Card data-qr-code>
-          <CardHeader>
-            <CardTitle>支付方式</CardTitle>
-            <p className="text-muted-foreground text-sm">选择您喜欢的支付方式</p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* 支付宝二维码 */}
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold mb-4 text-blue-600">支付宝支付</h3>
-                  <div className="bg-white p-6 rounded-lg border-2 border-blue-200 shadow-lg">
-                    <div className="w-48 h-48 mx-auto bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">📱</div>
-                        <div className="text-sm text-gray-600">支付宝二维码</div>
-                        <div className="text-xs text-gray-500 mt-1">请使用支付宝扫码</div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-blue-600 mb-2">¥{getCurrentPrice()}</div>
-                    <p className="text-sm text-gray-600">扫码完成支付</p>
+      {/* 支付信息和二维码 - 下方 */}
+      <div ref={paymentInfoRef} className="space-y-4 max-w-3xl mx-auto">
+        {/* 支付按钮 */}
+        {selectedPlan && selectedPlan.tier !== 'trial' && !showQRCode && (
+          <Card className="border-green-100 bg-gradient-to-br from-green-50 to-white shadow-lg">
+            <CardContent className="p-6">
+              {/* 标题和支付信息行 */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+                    <CreditCard className="h-3 w-3 text-white" />
                   </div>
+                  <h3 className="font-semibold text-green-900">支付信息</h3>
                 </div>
-
-                {/* 微信支付二维码 */}
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold mb-4 text-green-600">微信支付</h3>
-                  <div className="bg-white p-6 rounded-lg border-2 border-green-200 shadow-lg">
-                    <div className="w-48 h-48 mx-auto bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">📱</div>
-                        <div className="text-sm text-gray-600">微信二维码</div>
-                        <div className="text-xs text-gray-500 mt-1">请使用微信扫码</div>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-green-600 mb-2">¥{getCurrentPrice()}</div>
-                    <p className="text-sm text-gray-600">扫码完成支付</p>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-green-600">¥{getCurrentPrice()}</div>
+                  <div className="text-xs text-green-600">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
+                </div>
+              </div>
+              
+              {/* 套餐信息 */}
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-semibold text-green-900">{selectedPlan.name}</span>
+                    <span className="text-xs text-green-700 ml-2">{selectedPlan.description}</span>
                   </div>
                 </div>
               </div>
+              
+              {/* 优惠信息行 */}
+              {(isInPromoPeriod() && timeLeft > 0) || selectedPeriod === 'yearly' ? (
+                <div className="flex gap-2 mb-4">
+                  {isInPromoPeriod() && timeLeft > 0 && (
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                      <Zap className="h-3 w-3 inline mr-1" />
+                      限时优惠中，节省 ¥{getSavedAmount().toFixed(2)}
+                    </span>
+                  )}
+                  {selectedPeriod === 'yearly' && (
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                      <Percent className="h-3 w-3 inline mr-1" />
+                      年付优惠，比月付省 ¥{getYearlySavings(selectedPlan)}
+                    </span>
+                  )}
+                </div>
+              ) : null}
+              
+              <Button 
+                onClick={handlePayment}
+                className="w-full bg-green-500 hover:bg-green-600 text-base py-2"
+              >
+                立即支付
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  支付二维码已显示，请使用手机扫码完成支付
-                </p>
-                <div className="flex justify-center gap-4">
-                  <Button 
-                    variant="outline"
-                    onClick={() => {
-                      toast({
-                        title: "支付说明",
-                        description: "请使用手机支付宝或微信扫码完成支付",
-                      });
-                    }}
-                  >
-                    支付说明
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => {
-                      toast({
-                        title: "联系客服",
-                        description: "如有支付问题，请联系客服",
-                      });
-                    }}
-                  >
-                    联系客服
-                  </Button>
+        {/* 支付二维码 */}
+        {showQRCode && selectedPlan && selectedPlan.tier !== 'trial' && (
+          <Card data-qr-code className="border-blue-100 bg-gradient-to-br from-blue-50 to-white shadow-xl">
+            <CardContent className="p-6">
+              {/* 标题和支付信息行 */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">支</span>
+                  </div>
+                  <h3 className="font-semibold text-blue-900">支付宝扫码支付</h3>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-blue-600">¥{getCurrentPrice()}</div>
+                  <div className="text-xs text-blue-600">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              
+              {/* 优惠信息行 */}
+              {(isInPromoPeriod() && timeLeft > 0) || selectedPeriod === 'yearly' ? (
+                <div className="flex gap-2 mb-4">
+                  {isInPromoPeriod() && timeLeft > 0 && (
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                      <Zap className="h-3 w-3 inline mr-1" />
+                      限时优惠中
+                    </span>
+                  )}
+                  {selectedPeriod === 'yearly' && (
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                      <Percent className="h-3 w-3 inline mr-1" />
+                      年付优惠
+                    </span>
+                  )}
+                </div>
+              ) : null}
+              
+              {/* 支付宝二维码组件 */}
+              <div className="flex justify-center items-center py-2">
+                {(() => {
+                  const pid = getCreemPriceId(selectedPlan, selectedPeriod);
+                  return pid ? (
+                    <CreemAlipayQRCode
+                      priceId={pid}
+                      planName={selectedPlan.name}
+                      price={getCurrentPrice()}
+                    />
+                  ) : (
+                    <div style={{ color: 'red' }}>请先选择有效的套餐和周期</div>
+                  );
+                })()}
+              </div>
+              
+              <div className="text-center text-blue-700 text-sm mt-2">请使用支付宝App扫码完成支付</div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
-
-
-      <div className="mt-8 text-center text-sm text-muted-foreground">
+      <div className="mt-6 text-center text-xs md:text-sm text-muted-foreground">
         <p className="text-green-600 font-medium mb-2">💡 随时可取消</p>
         <p>订阅会在期满后自动续费，您可以随时取消</p>
         <p className="mt-2">
-          点击"立即支付"，表示您同意我们的
-          <a href="#" className="text-blue-500 hover:underline mx-1">
-            服务条款
-          </a>
+          点击立即支付即表示您同意我们的
+          <a href="/terms" className="text-blue-500 hover:underline mx-1">服务条款</a>
           和
-          <a href="#" className="text-blue-500 hover:underline mx-1">
-            隐私政策
-          </a>
+          <a href="/privacy" className="text-blue-500 hover:underline mx-1">隐私政策</a>
         </p>
       </div>
+    </div>
     </div>
   );
 }

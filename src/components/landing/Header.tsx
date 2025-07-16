@@ -1,3 +1,4 @@
+import { useAuthing } from "@/hooks/useAuthing";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -5,7 +6,7 @@ import { Menu, HelpCircle } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useAuth } from "@/contexts/AuthContext"
+import { useUnifiedAuthContext } from "@/contexts/UnifiedAuthContext"
 import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 
@@ -80,7 +81,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, login } = useUnifiedAuthContext()
   const navigate = useNavigate()
   
   return (
@@ -95,22 +96,66 @@ export function Header() {
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
+            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/adapt');
+              } else {
+                localStorage.setItem('login_redirect_to', '/adapt');
+                login();
+              }
+            }}>
               AI内容适配器
-            </Link>
-            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
+            </Button>
+            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/creative-studio');
+              } else {
+                localStorage.setItem('login_redirect_to', '/creative-studio');
+                login();
+              }
+            }}>
               创意魔方
-            </Link>
-            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
+            </Button>
+            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/hot-topics');
+              } else {
+                localStorage.setItem('login_redirect_to', '/hot-topics');
+                login();
+              }
+            }}>
               全网雷达
-            </Link>
-            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
+            </Button>
+            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/library');
+              } else {
+                localStorage.setItem('login_redirect_to', '/library');
+                login();
+              }
+            }}>
               我的资料库
-            </Link>
-            <Link to="/register" className="text-gray-600 hover:text-blue-600 transition">
+            </Button>
+            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/brand-library');
+              } else {
+                localStorage.setItem('login_redirect_to', '/brand-library');
+                login();
+              }
+            }}>
               品牌库
-            </Link>
-            <a href="#pricing" className="text-gray-600 hover:text-blue-600 transition">定价方案</a>
+            </Button>
+            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+            }}>
+              定价方案
+            </Button>
+            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              navigate('/test-navigation');
+            }}>
+              测试导航
+            </Button>
           </div>
         )}
         
@@ -118,7 +163,7 @@ export function Header() {
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
             <Button 
-              onClick={() => navigate('/register')}
+              onClick={() => login('/payment')}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
             >
               立即解锁高级功能
@@ -142,10 +187,10 @@ export function Header() {
               />
             ) : (
               <div className="flex items-center space-x-2">
-                <Button variant="outline" onClick={() => navigate('/login')}>
+                <Button variant="outline" onClick={() => login()}>
                   登录
                 </Button>
-                <Button onClick={() => navigate('/register')} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={() => login()} className="bg-blue-600 hover:bg-blue-700">
                   注册
                 </Button>
               </div>
@@ -164,28 +209,62 @@ export function Header() {
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
                 <Button 
-                  onClick={() => navigate('/register')}
+                  onClick={() => login('/payment')}
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
                 >
                   立即解锁高级功能
                 </Button>
                 
-                <Link to="/register" className="text-lg font-medium py-2">
+                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  if (isAuthenticated) {
+                    window.location.href = '/adapt';
+                  } else {
+                    login('/adapt');
+                  }
+                }}>
                   AI内容适配器
-                </Link>
-                <Link to="/register" className="text-lg font-medium py-2">
+                </Button>
+                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  if (isAuthenticated) {
+                    window.location.href = '/creative-studio';
+                  } else {
+                    login('/creative-studio');
+                  }
+                }}>
                   创意魔方
-                </Link>
-                <Link to="/register" className="text-lg font-medium py-2">
+                </Button>
+                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  if (isAuthenticated) {
+                    window.location.href = '/hot-topics';
+                  } else {
+                    login('/hot-topics');
+                  }
+                }}>
                   全网雷达
-                </Link>
-                <Link to="/register" className="text-lg font-medium py-2">
+                </Button>
+                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  if (isAuthenticated) {
+                    window.location.href = '/library';
+                  } else {
+                    login('/library');
+                  }
+                }}>
                   我的资料库
-                </Link>
-                <Link to="/register" className="text-lg font-medium py-2">
+                </Button>
+                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  if (isAuthenticated) {
+                    window.location.href = '/brand-library';
+                  } else {
+                    login('/brand-library');
+                  }
+                }}>
                   品牌库
-                </Link>
-                <a href="#pricing" className="text-lg font-medium py-2">定价方案</a>
+                </Button>
+                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                }}>
+                  定价方案
+                </Button>
 
                 <Button variant="ghost" className="flex items-center justify-start px-2 gap-1">
                   <HelpCircle className="h-4 w-4 mr-1" />
@@ -201,10 +280,10 @@ export function Header() {
                   />
                 ) : (
                   <div className="flex flex-col space-y-2">
-                    <Button variant="outline" onClick={() => navigate('/login')}>
+                    <Button variant="outline" onClick={() => login()}>
                       登录
                     </Button>
-                    <Button onClick={() => navigate('/register')} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={() => login()}>
                       注册
                     </Button>
                   </div>

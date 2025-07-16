@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { useAuthing } from '@/hooks/useAuthing';
 import { getAuthingConfig } from '@/config/authing';
 import { secureStorage, securityUtils } from '@/lib/security';
@@ -43,7 +43,7 @@ interface TestResult {
  */
 export default function AuthingSystemTestPage() {
   const { toast } = useToast();
-  const { user, isAuthenticated, status, login, logout } = useAuth();
+  const { user, isAuthenticated, status, login, logout } = useUnifiedAuthContext();
   const { 
     user: authingUser, 
     isLoggedIn, 
@@ -378,7 +378,7 @@ export default function AuthingSystemTestPage() {
     try {
       const userInfo = await getCurrentUser();
       if (userInfo) {
-        login(userInfo);
+        login();
         toast({
           title: '用户信息已刷新',
           description: '用户信息已更新'

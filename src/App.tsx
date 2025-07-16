@@ -1,10 +1,11 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, startTransition } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useUserStore } from '@/store/userStore';
+import { logEnvCheckResults } from '@/utils/envChecker';
 
 // 核心组件 - 立即加载
 import HomePage from '@/pages/HomePage';
@@ -17,6 +18,7 @@ import Callback from '@/pages/Callback';
 import ApiTestPage from '@/pages/ApiTestPage';
 import AuthTestPage from '@/pages/AuthTestPage';
 import UserStatusPage from '@/pages/UserStatusPage';
+import AuthStatusTestPage from '@/pages/AuthStatusTestPage';
 import ToolLayout from '@/components/layout/ToolLayout';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import DevTools from '@/components/ui/dev-tools';
@@ -59,6 +61,24 @@ const UnifiedAuthTestPage = React.lazy(() => import('@/pages/UnifiedAuthTestPage
 const ArchitectureTestPage = React.lazy(() => import('@/pages/ArchitectureTestPage'));
 const AuthingSystemTestPage = React.lazy(() => import('@/pages/AuthingSystemTestPage'));
 const AuthingLoginTestPage = React.lazy(() => import('@/pages/AuthingLoginTestPage'));
+const AuthingSDKTestPage = React.lazy(() => import('@/pages/AuthingSDKTestPage'));
+const FunctionalityTestPage = React.lazy(() => import('@/pages/FunctionalityTestPage'));
+const APIConfigTestPage = React.lazy(() => import('@/pages/APIConfigTestPage'));
+const CreemAPITestPage = React.lazy(() => import('@/pages/CreemAPITestPage'));
+const QRCodeTestPage = React.lazy(() => import('@/pages/QRCodeTestPage'));
+const SimpleQRTestPage = React.lazy(() => import('@/pages/SimpleQRTestPage'));
+const CheckoutTestPage = React.lazy(() => import('@/pages/CheckoutTestPage'));
+const DirectLinkQRCodeTestPage = React.lazy(() => import('@/pages/DirectLinkQRCodeTestPage'));
+const SimpleQRCodePage = React.lazy(() => import('@/pages/SimpleQRCodePage'));
+const CreemAPIFixTestPage = React.lazy(() => import('@/pages/CreemAPIFixTestPage'));
+const SimpleCreemTestPage = React.lazy(() => import('@/pages/SimpleCreemTestPage'));
+const CreemDebugPage = React.lazy(() => import('@/pages/CreemDebugPage'));
+const AlipayQRCodeDemoPage = React.lazy(() => import('@/pages/AlipayQRCodeDemoPage'));
+const PaymentPlanDemoPage = React.lazy(() => import('@/pages/PaymentPlanDemoPage'));
+const PaymentFlowTestPage = React.lazy(() => import('@/pages/PaymentFlowTestPage'));
+const PaymentTestPage = React.lazy(() => import('@/pages/PaymentTestPage'));
+const TestNavigationPage = React.lazy(() => import('@/pages/TestNavigationPage'));
+
 
 /**
  * 加载中组件
@@ -82,6 +102,17 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     initializeUserData();
     saveReferrer();
+    
+    // 检查环境变量配置（仅在开发环境且未检查过时执行）
+    if (import.meta.env.DEV && !(window as any).__envCheckInitialized) {
+      // 延迟执行，确保环境变量已加载
+      setTimeout(() => {
+        logEnvCheckResults();
+      }, 1000);
+      
+      // 标记已初始化
+      (window as any).__envCheckInitialized = true;
+    }
   }, [initializeUserData, saveReferrer]);
 
   return (
@@ -116,6 +147,7 @@ const AppContent: React.FC = () => {
         <Route path="/api-test" element={<ApiTestPage />} />
         <Route path="/auth-test" element={<AuthTestPage />} />
         <Route path="/user-status" element={<UserStatusPage />} />
+        <Route path="/auth-status-test" element={<AuthStatusTestPage />} />
         <Route path="/referrer-test" element={
           <Suspense fallback={<LoadingSpinner />}>
             <ReferrerTestPage />
@@ -178,6 +210,11 @@ const AppContent: React.FC = () => {
         {/* 支付相关页面 */}
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment-success" element={<PaymentSuccessPage />} />
+        <Route path="/payment-test" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <PaymentTestPage />
+          </Suspense>
+        } />
         
         <Route path="/profile" element={
           <ProtectedRoute requireAuth={true} redirectTo="/login">
@@ -273,6 +310,159 @@ const AppContent: React.FC = () => {
           <ToolLayout>
             <Suspense fallback={<LoadingSpinner />}>
               <AuthingLoginTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* Authing SDK统一登录测试页面 */}
+        <Route path="/authing-sdk-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AuthingSDKTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 功能测试页面 */}
+        <Route path="/functionality-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <FunctionalityTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* API配置测试页面 */}
+        <Route path="/api-config-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <APIConfigTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* Creem API测试页面 */}
+        <Route path="/creem-api-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CreemAPITestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 二维码测试页面 */}
+        <Route path="/qrcode-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <QRCodeTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 简单二维码测试页面 */}
+        <Route path="/simple-qr-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SimpleQRTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 完整支付流程测试页面 */}
+        <Route path="/checkout-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CheckoutTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 直接链接二维码测试页面 */}
+        <Route path="/direct-link-qrcode-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <DirectLinkQRCodeTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 简单二维码页面 */}
+        <Route path="/simple-qrcode" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SimpleQRCodePage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* Creem API修复测试页面 */}
+        <Route path="/creem-api-fix-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CreemAPIFixTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 简单Creem API测试页面 */}
+        <Route path="/simple-creem-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SimpleCreemTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* Creem API调试页面 */}
+        <Route path="/creem-debug" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CreemDebugPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 支付宝二维码演示页面 */}
+        <Route path="/alipay-qrcode-demo" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AlipayQRCodeDemoPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 支付计划演示页面 */}
+        <Route path="/payment-plan-demo" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <PaymentPlanDemoPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 服务条款页面 */}
+        <Route path="/terms" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <TermsPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 隐私政策页面 */}
+        <Route path="/privacy" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <PrivacyPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 支付流程测试页面 */}
+        <Route path="/payment-flow-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <PaymentFlowTestPage />
             </Suspense>
           </ToolLayout>
         } />
@@ -399,6 +589,13 @@ const AppContent: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        {/* 导航测试页面 */}
+        <Route path="/test-navigation" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <TestNavigationPage />
+          </Suspense>
+        } />
+        
         {/* 404页面 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
@@ -415,12 +612,12 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <AuthProvider>
+      <UnifiedAuthProvider>
         <TooltipProvider>
           <AppContent />
           <Toaster />
         </TooltipProvider>
-      </AuthProvider>
+      </UnifiedAuthProvider>
     </BrowserRouter>
   );
 };

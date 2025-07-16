@@ -4,20 +4,12 @@
  */
 
 import React, { useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function UserStatusPage() {
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    error,
-    login,
-    logout,
-    updateUser,
-  } = useAuth();
+  const { user, isAuthenticated, loading, error } = useUnifiedAuthContext();
 
   useEffect(() => {
     console.log('UserStatusPage mounted');
@@ -57,7 +49,7 @@ export default function UserStatusPage() {
               <strong>是否已认证:</strong> {isAuthenticated ? '是' : '否'}
             </div>
             <div>
-              <strong>是否加载中:</strong> {isLoading ? '是' : '否'}
+              <strong>是否加载中:</strong> {loading ? '是' : '否'}
             </div>
 
           </div>

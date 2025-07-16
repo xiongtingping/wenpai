@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing Guard 本地 ESM 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authing Guard 本地 ESM 测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 加载状态检查</h3>
+            <div id="loadStatus" class="status info">正在检查 Authing Guard 加载状态...</div>
+            <button onclick="checkLoadStatus()">重新检查加载状态</button>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 登录弹窗测试</h3>
+            <button onclick="showLogin()">显示登录弹窗</button>
+            <button onclick="showRegister()">显示注册弹窗</button>
+            <div id="loginStatus" class="status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 调试信息</h3>
+            <div id="debugInfo" class="status info">
+                <strong>调试信息：</strong><br>
+                <div id="debugContent"></div>
+            </div>
+            <button onclick="updateDebugInfo()">更新调试信息</button>
+        </div>
+    </div>
+
+    <script type="module">
+        let guard = null;
+        let loadAttempts = 0;
+        const maxLoadAttempts = 10;
+
+        // 检查加载状态
+        async function checkLoadStatus() {
+            const statusDiv = document.getElementById('loadStatus');
+            
+            try {
+                // 尝试导入本地模块
+                const { Guard } = await import('./node_modules/@authing/guard/dist/esm/guard.min.js');
+                
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '✅ Guard 已成功加载！';
+                initializeGuard(Guard);
+            } catch (error) {
+                loadAttempts++;
+                if (loadAttempts < maxLoadAttempts) {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `❌ Guard 加载失败 (尝试 ${loadAttempts}/${maxLoadAttempts})，正在重试...<br>错误: ${error.message}`;
+                    setTimeout(checkLoadStatus, 1000);
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `❌ Guard 加载失败 (${maxLoadAttempts} 次尝试后)。<br>
+                    错误: ${error.message}<br>
+                    可能的原因：<br>
+                    1. 本地文件路径不正确<br>
+                    2. 模块格式不兼容<br>
+                    3. 浏览器不支持 ES 模块`;
+                }
+            }
+        }
+
+        // 初始化 Guard
+        function initializeGuard(GuardClass) {
+            try {
+                guard = new GuardClass({
+                    appId: '64c8c8c8c8c8c8c8c8c8c8c8', // 测试用的 App ID
+                    mode: 'modal',
+                    config: {
+                        mode: 'modal',
+                        defaultScenes: 'login'
+                    }
+                });
+
+                // 监听登录成功事件
+                guard.on('login', (user) => {
+                    console.log('登录成功:', user);
+                    document.getElementById('loginStatus').className = 'status success';
+                    document.getElementById('loginStatus').innerHTML = `✅ 登录成功！用户: ${user.username || user.email || '未知用户'}`;
+                });
+
+                // 监听登录失败事件
+                guard.on('login-error', (error) => {
+                    console.log('登录失败:', error);
+                    document.getElementById('loginStatus').className = 'status error';
+                    document.getElementById('loginStatus').innerHTML = `❌ 登录失败: ${error.message || '未知错误'}`;
+                });
+
+                // 监听关闭事件
+                guard.on('close', () => {
+                    console.log('弹窗已关闭');
+                    document.getElementById('loginStatus').className = 'status info';
+                    document.getElementById('loginStatus').innerHTML = 'ℹ️ 登录弹窗已关闭';
+                });
+
+                updateDebugInfo();
+            } catch (error) {
+                console.error('初始化 Guard 失败:', error);
+                document.getElementById('loadStatus').className = 'status error';
+                document.getElementById('loadStatus').innerHTML = `❌ 初始化 Guard 失败: ${error.message}`;
+            }
+        }
+
+        // 显示登录弹窗
+        function showLogin() {
+            if (!guard) {
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = '❌ Guard 未初始化，请先等待加载完成';
+                return;
+            }
+
+            try {
+                guard.show();
+                document.getElementById('loginStatus').className = 'status info';
+                document.getElementById('loginStatus').innerHTML = 'ℹ️ 正在显示登录弹窗...';
+            } catch (error) {
+                console.error('显示登录弹窗失败:', error);
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = `❌ 显示登录弹窗失败: ${error.message}`;
+            }
+        }
+
+        // 显示注册弹窗
+        function showRegister() {
+            if (!guard) {
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = '❌ Guard 未初始化，请先等待加载完成';
+                return;
+            }
+
+            try {
+                guard.startRegister();
+                document.getElementById('loginStatus').className = 'status info';
+                document.getElementById('loginStatus').innerHTML = 'ℹ️ 正在显示注册弹窗...';
+            } catch (error) {
+                console.error('显示注册弹窗失败:', error);
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = `❌ 显示注册弹窗失败: ${error.message}`;
+            }
+        }
+
+        // 更新调试信息
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debugContent');
+            const info = {
+                timestamp: new Date().toLocaleString(),
+                guardInstance: guard ? '已初始化' : '未初始化',
+                windowObjects: Object.keys(window).filter(key => 
+                    key.toLowerCase().includes('authing') || 
+                    key.toLowerCase().includes('guard')
+                ),
+                userAgent: navigator.userAgent
+            };
+
+            debugContent.innerHTML = `<pre>${JSON.stringify(info, null, 2)}</pre>`;
+        }
+
+        // 将函数暴露到全局作用域
+        window.checkLoadStatus = checkLoadStatus;
+        window.showLogin = showLogin;
+        window.showRegister = showRegister;
+        window.updateDebugInfo = updateDebugInfo;
+
+        // 页面加载完成后开始检查
+        window.addEventListener('load', () => {
+            setTimeout(checkLoadStatus, 500);
+        });
+
+        // 定期更新调试信息
+        setInterval(updateDebugInfo, 5000);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing 登录弹窗修复测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .modal-status {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+    </style>
+    
+    <!-- AuthingGuard -->
+    <link rel="stylesheet" href="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authing 登录弹窗修复测试</h1>
+        <p>此页面专门测试登录弹窗的自动关闭功能</p>
+        
+        <div class="status info">
+            <strong>测试目标：</strong> 验证登录成功后弹窗是否自动关闭
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 登录弹窗测试</h3>
+            <div class="modal-status" id="modalStatus">
+                弹窗状态: 未打开
+            </div>
+            <button id="testLoginBtn" onclick="testLoginModal()">测试登录弹窗</button>
+            <button id="checkStatusBtn" onclick="checkLoginStatus()">检查登录状态</button>
+            <button id="clearLogBtn" onclick="clearLog()">清空日志</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 当前状态</h3>
+            <div id="currentStatus">
+                <div class="status info">等待初始化...</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 详细日志</h3>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+    
+    <!-- AuthingGuard Script -->
+    <script src="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.js"></script>
+    
+    <script>
+        // 全局变量
+        let guard = null;
+        let isModalOpen = false;
+        let checkInterval = null;
+        
+        // 日志函数
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        // 更新弹窗状态
+        function updateModalStatus(status) {
+            isModalOpen = status;
+            const statusElement = document.getElementById('modalStatus');
+            statusElement.textContent = `弹窗状态: ${status ? '已打开' : '已关闭'}`;
+            statusElement.style.background = status ? '#d4edda' : '#e9ecef';
+        }
+        
+        // 更新当前状态
+        async function updateCurrentStatus() {
+            const statusElement = document.getElementById('currentStatus');
+            if (!guard) {
+                statusElement.innerHTML = '<div class="status error">❌ Guard 未初始化</div>';
+                return;
+            }
+            
+            try {
+                const status = await guard.checkLoginStatus();
+                log(`检查登录状态结果: ${JSON.stringify(status)}`);
+                
+                // 支持多种返回格式
+                let isLoggedIn = false;
+                if (typeof status === 'boolean') {
+                    isLoggedIn = status;
+                } else if (status && typeof status === 'object') {
+                    isLoggedIn = Boolean(status.status || status.isLoggedIn);
+                }
+                
+                let userInfo = null;
+                if (isLoggedIn) {
+                    try {
+                        userInfo = await guard.trackSession();
+                    } catch (error) {
+                        log(`获取用户信息失败: ${error.message}`, 'error');
+                    }
+                }
+                
+                statusElement.innerHTML = `
+                    <div class="status ${isLoggedIn ? 'success' : 'warning'}">
+                        <strong>登录状态：</strong> ${isLoggedIn ? '已登录' : '未登录'}
+                    </div>
+                    ${userInfo ? `
+                        <div class="status success">
+                            <strong>用户信息：</strong> ${userInfo.phone || userInfo.email || userInfo.username || '未知用户'}
+                        </div>
+                    ` : ''}
+                    <div class="status info">
+                        <strong>弹窗状态：</strong> ${isModalOpen ? '已打开' : '已关闭'}
+                    </div>
+                `;
+            } catch (error) {
+                statusElement.innerHTML = `<div class="status error">❌ 状态检查失败: ${error.message}</div>`;
+            }
+        }
+        
+        // 初始化 Guard
+        async function initGuard() {
+            log('🚀 开始初始化 Authing Guard...');
+            
+            try {
+                // 检查 CDN 是否加载
+                let retries = 0;
+                const maxRetries = 10;
+                
+                while (typeof window.GuardFactory === 'undefined' && retries < maxRetries) {
+                    log(`⏳ 等待 GuardFactory 加载... (${retries + 1}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    retries++;
+                }
+                
+                if (typeof window.GuardFactory === 'undefined') {
+                    throw new Error('GuardFactory 未加载');
+                }
+                
+                log('✅ CDN 加载成功');
+                
+                // 创建 Guard 实例
+                const config = {
+                    appId: '6867fdc88034eb95ae86167d',
+                    host: 'https://qutkgzkfaezk-demo.authing.cn',
+                    redirectUri: window.location.origin + '/callback',
+                    mode: 'modal',
+                    defaultScene: 'login',
+                    autoRegister: false,
+                    closeable: true,
+                    clickCloseableMask: true,
+                    loginMethodList: ['password', 'phone-code', 'email-code'],
+                    registerMethodList: ['phone', 'email'],
+                    lang: 'zh-CN',
+                    onLogin: (user) => {
+                        log('🎉 官方 onLogin 回调触发', 'success');
+                        updateCurrentStatus();
+                    },
+                    onLoginError: (error) => {
+                        log(`❌ 登录错误: ${error.message}`, 'error');
+                    },
+                    onRegister: (user) => {
+                        log('🎉 官方 onRegister 回调触发', 'success');
+                        updateCurrentStatus();
+                    },
+                    onRegisterError: (error) => {
+                        log(`❌ 注册错误: ${error.message}`, 'error');
+                    },
+                    onClose: () => {
+                        log('🔒 弹窗关闭回调触发');
+                        updateModalStatus(false);
+                        updateCurrentStatus();
+                    }
+                };
+                
+                guard = new window.GuardFactory.Guard(config);
+                log('✅ Guard 实例创建成功');
+                
+                // 检查初始状态
+                await updateCurrentStatus();
+                
+                log('🎉 Authing Guard 初始化完成！');
+                
+            } catch (error) {
+                log(`❌ 初始化失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 测试登录弹窗
+        async function testLoginModal() {
+            if (!guard) {
+                log('❌ Guard 未初始化，无法测试登录', 'error');
+                return;
+            }
+            
+            try {
+                log('🔓 显示登录弹窗...');
+                guard.show();
+                updateModalStatus(true);
+                
+                // 启动备用检查机制
+                let checkCount = 0;
+                const maxChecks = 60; // 30秒
+                
+                checkInterval = setInterval(async () => {
+                    checkCount++;
+                    try {
+                        const status = await guard.checkLoginStatus();
+                        log(`备用检查 ${checkCount}: ${JSON.stringify(status)}`);
+                        
+                        // 支持多种返回格式
+                        let isLoggedIn = false;
+                        if (typeof status === 'boolean') {
+                            isLoggedIn = status;
+                        } else if (status && typeof status === 'object') {
+                            isLoggedIn = Boolean(status.status || status.isLoggedIn);
+                        }
+                        
+                        if (isLoggedIn && isModalOpen) {
+                            log('🎉 备用检查：检测到登录成功，自动关闭弹窗', 'success');
+                            
+                            // 获取用户信息
+                            const userInfo = await guard.trackSession();
+                            if (userInfo) {
+                                log(`✅ 用户信息: ${JSON.stringify(userInfo, null, 2)}`);
+                            }
+                            
+                            // 关闭弹窗
+                            guard.hide();
+                            updateModalStatus(false);
+                            
+                            // 停止检查
+                            clearInterval(checkInterval);
+                            checkInterval = null;
+                            log('✅ 登录成功，弹窗已关闭，停止检查');
+                            
+                            // 更新状态
+                            updateCurrentStatus();
+                        } else if (checkCount >= maxChecks) {
+                            log('⏰ 备用检查超时，停止检查');
+                            clearInterval(checkInterval);
+                            checkInterval = null;
+                        }
+                    } catch (error) {
+                        log(`❌ 备用检查失败: ${error.message}`, 'error');
+                        clearInterval(checkInterval);
+                        checkInterval = null;
+                    }
+                }, 500);
+                
+            } catch (error) {
+                log(`❌ 显示登录弹窗失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 检查登录状态
+        async function checkLoginStatus() {
+            if (!guard) {
+                log('❌ Guard 未初始化，无法检查状态', 'error');
+                return;
+            }
+            
+            try {
+                log('🔍 手动检查登录状态...');
+                await updateCurrentStatus();
+            } catch (error) {
+                log(`❌ 状态检查失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 清空日志
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('🧹 日志已清空');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateModalStatus(false);
+            initGuard();
+        });
+        
+        // 页面卸载时清理定时器
+        window.addEventListener('beforeunload', function() {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+            }
+        });
+    </script>
+</body>
+</html> 

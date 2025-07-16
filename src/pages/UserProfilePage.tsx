@@ -1,3 +1,4 @@
+import { useAuthing } from "@/hooks/useAuthing";
 /**
  * 用户信息展示页面
  * 展示当前登录用户的详细信息
@@ -15,10 +16,11 @@ import {
   Settings, 
   Crown,
   ArrowLeft,
-  RefreshCw
+  RefreshCw,
+  LogIn
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import UserProfile from '@/components/auth/UserProfile';
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
  * @returns React 组件
  */
 export default function UserProfilePage() {
-  const { isAuthenticated, user } = useAuth();
+  const { user, isAuthenticated, login } = useUnifiedAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -76,10 +78,11 @@ export default function UserProfilePage() {
                 您需要先登录才能查看用户信息
               </p>
               <div className="space-x-4">
-                <Button onClick={() => navigate('/login')}>
-                  去登录
+                <Button onClick={() => login()}>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  登录
                 </Button>
-                <Button variant="outline" onClick={() => navigate('/register')}>
+                <Button variant="outline" onClick={() => login()}>
                   去注册
                 </Button>
               </div>

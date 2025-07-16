@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing Guard 工作测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+    <!-- 使用本地文件 -->
+    <link rel="stylesheet" href="/public/authing-guard.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Authing Guard 工作测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 初始化状态</h3>
+            <div id="initStatus" class="status info">正在初始化 AuthingGuard...</div>
+            <button onclick="checkInitStatus()">检查初始化状态</button>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 登录弹窗测试</h3>
+            <button onclick="showLogin()">显示登录弹窗</button>
+            <button onclick="showRegister()">显示注册弹窗</button>
+            <div id="loginStatus" class="status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 调试信息</h3>
+            <div id="debugInfo" class="status info">
+                <strong>调试信息：</strong><br>
+                <div id="debugContent"></div>
+            </div>
+            <button onclick="updateDebugInfo()">更新调试信息</button>
+        </div>
+    </div>
+
+    <!-- 使用本地文件 -->
+    <script src="/public/authing-guard.min.js"></script>
+
+    <script>
+        let guard = null;
+
+        // 检查初始化状态
+        function checkInitStatus() {
+            const statusDiv = document.getElementById('initStatus');
+            
+            if (typeof GuardFactory === 'undefined') {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ GuardFactory 未加载';
+                return;
+            }
+
+            if (typeof GuardFactory.Guard === 'undefined') {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ GuardFactory.Guard 未找到';
+                return;
+            }
+
+            if (typeof GuardFactory.Guard !== 'function') {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ GuardFactory.Guard 不是函数';
+                return;
+            }
+
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = '✅ GuardFactory.Guard 构造函数已找到！';
+            
+            if (!guard) {
+                initializeGuard();
+            }
+        }
+
+        // 初始化 Guard
+        function initializeGuard() {
+            try {
+                console.log('使用 GuardFactory.Guard 初始化...');
+                
+                guard = new GuardFactory.Guard({
+                    appId: '6867fdc88034eb95ae86167d', // 真实的 App ID
+                    host: 'https://qutkgzkfaezk-demo.authing.cn', // Authing 应用域名
+                    requestHostname: 'https://qutkgzkfaezk-demo.authing.cn', // 请求域名
+                    redirectUri: `${window.location.origin}/callback`, // 重定向 URI
+                    mode: 'modal',
+                    config: {
+                        mode: 'modal',
+                        defaultScenes: 'login',
+                        // 弹窗模式额外配置
+                        autoRegister: false,
+                        skipComplateFileds: false,
+                        skipComplateFiledsPlace: 'modal',
+                        closeable: true,
+                        clickCloseableMask: true,
+                        // 登录配置
+                        loginMethodList: ['password', 'phone-code', 'email-code'],
+                        // 注册配置
+                        registerMethodList: ['phone', 'email'],
+                        // 界面配置
+                        logo: 'https://cdn.authing.co/authing-console/logo.png',
+                        title: '文派',
+                        // 国际化
+                        lang: 'zh-CN',
+                    }
+                });
+
+                console.log('Guard 实例创建成功:', guard);
+
+                // 监听登录成功事件
+                guard.on('login', (user) => {
+                    console.log('登录成功:', user);
+                    document.getElementById('loginStatus').className = 'status success';
+                    document.getElementById('loginStatus').innerHTML = `✅ 登录成功！用户: ${user.username || user.email || '未知用户'}`;
+                    
+                    // 登录成功后自动关闭弹窗
+                    setTimeout(() => {
+                        guard.hide();
+                        document.getElementById('loginStatus').innerHTML += '<br>🔄 正在自动关闭弹窗...';
+                    }, 1000);
+                });
+
+                // 监听登录失败事件
+                guard.on('login-error', (error) => {
+                    console.log('登录失败:', error);
+                    document.getElementById('loginStatus').className = 'status error';
+                    document.getElementById('loginStatus').innerHTML = `❌ 登录失败: ${error.message || '未知错误'}`;
+                });
+
+                // 监听关闭事件
+                guard.on('close', () => {
+                    console.log('弹窗已关闭');
+                    document.getElementById('loginStatus').className = 'status info';
+                    document.getElementById('loginStatus').innerHTML = 'ℹ️ 登录弹窗已关闭';
+                });
+
+                document.getElementById('initStatus').className = 'status success';
+                document.getElementById('initStatus').innerHTML = '✅ AuthingGuard 初始化成功！';
+
+                updateDebugInfo();
+            } catch (error) {
+                console.error('初始化 Guard 失败:', error);
+                document.getElementById('initStatus').className = 'status error';
+                document.getElementById('initStatus').innerHTML = `❌ 初始化 Guard 失败: ${error.message}`;
+            }
+        }
+
+        // 显示登录弹窗
+        function showLogin() {
+            if (!guard) {
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = '❌ Guard 未初始化，请先等待加载完成';
+                return;
+            }
+
+            try {
+                guard.show();
+                document.getElementById('loginStatus').className = 'status info';
+                document.getElementById('loginStatus').innerHTML = 'ℹ️ 正在显示登录弹窗...';
+            } catch (error) {
+                console.error('显示登录弹窗失败:', error);
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = `❌ 显示登录弹窗失败: ${error.message}`;
+            }
+        }
+
+        // 显示注册弹窗
+        function showRegister() {
+            if (!guard) {
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = '❌ Guard 未初始化，请先等待加载完成';
+                return;
+            }
+
+            try {
+                guard.startRegister();
+                document.getElementById('loginStatus').className = 'status info';
+                document.getElementById('loginStatus').innerHTML = 'ℹ️ 正在显示注册弹窗...';
+            } catch (error) {
+                console.error('显示注册弹窗失败:', error);
+                document.getElementById('loginStatus').className = 'status error';
+                document.getElementById('loginStatus').innerHTML = `❌ 显示注册弹窗失败: ${error.message}`;
+            }
+        }
+
+        // 更新调试信息
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debugContent');
+            const info = {
+                timestamp: new Date().toLocaleString(),
+                guardFactoryLoaded: typeof GuardFactory !== 'undefined',
+                guardConstructorLoaded: typeof GuardFactory?.Guard === 'function',
+                guardInstance: guard ? '已初始化' : '未初始化',
+                windowObjects: Object.keys(window).filter(key => 
+                    key.toLowerCase().includes('authing') || 
+                    key.toLowerCase().includes('guard') ||
+                    key.toLowerCase().includes('factory')
+                ),
+                userAgent: navigator.userAgent,
+                localFiles: {
+                    js: '/public/authing-guard.min.js',
+                    css: '/public/authing-guard.min.css'
+                }
+            };
+
+            debugContent.innerHTML = `<pre>${JSON.stringify(info, null, 2)}</pre>`;
+        }
+
+        // 页面加载完成后开始检查
+        window.addEventListener('load', () => {
+            setTimeout(checkInitStatus, 1000);
+        });
+
+        // 定期更新调试信息
+        setInterval(updateDebugInfo, 5000);
+    </script>
+</body>
+</html> 

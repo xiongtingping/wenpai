@@ -1,7 +1,9 @@
 /**
  * Authing 配置文件
- * 包含 Authing 应用的配置信息
+ * 使用统一的API配置管理
  */
+
+import { getAuthingConfig as getUnifiedAuthingConfig } from '@/config/apiConfig';
 
 /**
  * Authing 应用配置接口
@@ -20,34 +22,19 @@ export interface AuthingConfig {
 }
 
 /**
- * 开发环境配置
- */
-const devConfig: AuthingConfig = {
-  appId: import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d',
-  host: import.meta.env.VITE_AUTHING_HOST || 'https://qutkgzkfaezk-demo.authing.cn',
-  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || `${window.location.origin}/callback`,
-  mode: 'normal',
-  defaultScene: 'login',
-};
-
-/**
- * 生产环境配置
- */
-const prodConfig: AuthingConfig = {
-  appId: import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d',
-  host: import.meta.env.VITE_AUTHING_HOST || 'https://qutkgzkfaezk-demo.authing.cn',
-  redirectUri: import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || `${window.location.origin}/callback`,
-  mode: 'normal',
-  defaultScene: 'login',
-};
-
-/**
  * 根据环境获取配置
  * @returns Authing 配置对象
  */
 export const getAuthingConfig = (): AuthingConfig => {
-  const isDevelopment = import.meta.env.DEV;
-  return isDevelopment ? devConfig : prodConfig;
+  const unifiedConfig = getUnifiedAuthingConfig();
+  
+  return {
+    appId: unifiedConfig.appId,
+    host: unifiedConfig.host,
+    redirectUri: unifiedConfig.redirectUri,
+    mode: 'modal',
+    defaultScene: 'login',
+  };
 };
 
 /**
@@ -70,5 +57,20 @@ export const getGuardConfig = () => {
     redirectUri: config.redirectUri,
     mode: config.mode,
     defaultScene: config.defaultScene,
+    // 弹窗模式额外配置
+    autoRegister: false, // 禁用自动注册
+    skipComplateFileds: false, // 不跳过必填字段
+    skipComplateFiledsPlace: 'modal', // 在弹窗中完成字段
+    closeable: true, // 允许关闭弹窗
+    clickCloseableMask: true, // 点击遮罩关闭
+    // 登录配置
+    loginMethodList: ['password', 'phone-code', 'email-code'], // 支持的登录方式
+    // 注册配置
+    registerMethodList: ['phone', 'email'], // 支持的注册方式
+    // 界面配置
+    logo: 'https://cdn.authing.co/authing-console/logo.png', // 默认 logo
+    title: '文派', // 应用标题
+    // 国际化
+    lang: 'zh-CN', // 中文
   };
 }; 

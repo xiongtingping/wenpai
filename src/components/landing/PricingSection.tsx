@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/contexts/AuthContext"
+import { useUnifiedAuthContext } from "@/contexts/UnifiedAuthContext"
 import { Crown, Sparkles, Check, X, Star } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
@@ -13,13 +13,16 @@ import { SubscriptionPeriod } from "@/types/subscription"
 export function PricingSection() {
   const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
   const { toast } = useToast()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, login } = useUnifiedAuthContext()
+  
+  // 使用统一认证状态
+  const currentIsAuthenticated = isAuthenticated
   const navigate = useNavigate()
   const [timeLeft, setTimeLeft] = useState(0);
 
   // 限时优惠倒计时逻辑（30分钟）
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!currentIsAuthenticated) return;
     
     // 获取用户注册时间
     const promoStart = localStorage.getItem('promo_start');
@@ -37,7 +40,7 @@ export function PricingSection() {
     }, 1000);
     
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [currentIsAuthenticated]);
 
   // 格式化倒计时
   const formatTimeLeft = () => {
@@ -48,7 +51,7 @@ export function PricingSection() {
 
   // 检查是否在限时优惠期内
   const isInPromoPeriod = () => {
-    if (!isAuthenticated) return false;
+    if (!currentIsAuthenticated) return false;
     const promoStart = localStorage.getItem('promo_start');
     if (!promoStart) return false;
     
@@ -59,7 +62,7 @@ export function PricingSection() {
 
   // Handle plan selection
   const handlePlanClick = (planId: string) => {
-    if (isAuthenticated) {
+    if (currentIsAuthenticated) {
       // User is logged in, go directly to payment
       localStorage.setItem("selectedPlan", planId);
       navigate("/payment");
@@ -71,7 +74,7 @@ export function PricingSection() {
     } else {
       // User is not logged in, redirect to login/register choice page
       localStorage.setItem("selectedPlan", planId);
-      navigate("/register");
+      login("/payment");
     
       toast({
         title: "正在为您跳转到登录页面",
@@ -105,10 +108,11 @@ export function PricingSection() {
           .replace(/热点话题/g, m => m.replace('免费', '')) // 去除热点话题下免费
           .replace(/\s+/g, ' ') // 清理多余空格
           .trim();
+        
         return (
-          <li key={index} className={`flex items-start space-x-3`}>
+          <li key={index} className="flex items-start space-x-3">
             <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-purple-500' : 'text-green-500'}`} />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1">
               <span className="font-medium">{text}</span>
             </div>
           </li>
@@ -123,7 +127,7 @@ export function PricingSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">选择适合您的方案</h2>
           <p className="mt-4 text-lg text-gray-600">从免费体验到高级版，全方位赋能新媒体创意工作者</p>
           {/* 登录用户显示倒计时 */}
-          {isAuthenticated && isInPromoPeriod() && (
+          {currentIsAuthenticated && isInPromoPeriod() && (
             <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
               <div className="flex flex-col items-center gap-2">
                 <div className="text-lg font-bold text-red-600">
@@ -254,7 +258,7 @@ export function PricingSection() {
                       ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90' 
                       : ''
                   }`}
-                  onClick={() => isTrial ? window.location.href = '/register' : handlePlanClick(plan.id)}
+                  onClick={() => isTrial ? login() : handlePlanClick(plan.id)}
                 >
                   {isTrial ? (
                     <>
@@ -342,7 +346,7 @@ export function PricingSection() {
                       <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-red-500 font-medium">❌</span>
+                      <span className="text-green-600 font-medium">✅</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
                       <span className="text-green-600 font-medium">✅</span>

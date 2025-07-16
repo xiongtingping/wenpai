@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing 调试测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+        }
+        .debug-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+    </style>
+    <link rel="stylesheet" href="/public/authing-guard.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Authing 调试测试</h1>
+        
+        <div class="status info">
+            <strong>调试目标：</strong>详细诊断登录成功后弹窗不关闭的问题
+        </div>
+
+        <div>
+            <button onclick="showLogin()">🚀 显示登录弹窗</button>
+            <button onclick="checkLoginStatus()">🔍 检查登录状态</button>
+            <button onclick="forceClose()">❌ 强制关闭弹窗</button>
+            <button onclick="clearLog()">🗑️ 清空日志</button>
+        </div>
+
+        <div id="status" class="status info">等待测试...</div>
+
+        <div class="debug-info">
+            <strong>调试信息：</strong><br>
+            <div id="debugInfo">初始化中...</div>
+        </div>
+
+        <div>
+            <strong>详细日志：</strong>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script src="/public/authing-guard.min.js"></script>
+
+    <script>
+        let guard = null;
+        let logs = [];
+        let isModalOpen = false;
+        let loginCheckInterval = null;
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logEntry);
+            if (logs.length > 100) logs.shift();
+            document.getElementById('log').innerHTML = logs.join('<br>');
+            document.getElementById('log').scrollTop = document.getElementById('log').scrollHeight;
+            console.log(logEntry);
+        }
+
+        function clearLog() {
+            logs = [];
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        function updateDebugInfo() {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.innerHTML = `
+                Guard 实例: ${guard ? '✅ 已创建' : '❌ 未创建'}<br>
+                弹窗状态: ${isModalOpen ? '🟢 打开' : '🔴 关闭'}<br>
+                检查间隔: ${loginCheckInterval ? '🟢 运行中' : '🔴 已停止'}<br>
+                当前时间: ${new Date().toLocaleTimeString()}
+            `;
+        }
+
+        // 初始化 Guard
+        async function initGuard() {
+            try {
+                addLog('开始初始化 Guard...', 'info');
+                
+                guard = new GuardFactory.Guard({
+                    appId: '6867fdc88034eb95ae86167d',
+                    host: 'https://qutkgzkfaezk-demo.authing.cn',
+                    requestHostname: 'https://qutkgzkfaezk-demo.authing.cn',
+                    redirectUri: `${window.location.origin}/callback`,
+                    mode: 'modal',
+                    config: {
+                        mode: 'modal',
+                        defaultScenes: 'login',
+                        autoRegister: false,
+                        skipComplateFileds: false,
+                        skipComplateFiledsPlace: 'modal',
+                        closeable: true,
+                        clickCloseableMask: true,
+                        loginMethodList: ['password', 'phone-code', 'email-code'],
+                        registerMethodList: ['phone', 'email'],
+                        logo: 'https://cdn.authing.co/authing-console/logo.png',
+                        title: '文派',
+                        lang: 'zh-CN',
+                    }
+                });
+
+                addLog('Guard 实例创建成功', 'success');
+
+                // 监听所有可能的事件
+                const events = ['open', 'close', 'login', 'login-error', 'register', 'register-error', 'logout'];
+                events.forEach(event => {
+                    guard.on(event, (data) => {
+                        addLog(`事件触发: ${event}`, 'event');
+                        if (data) {
+                            addLog(`事件数据: ${JSON.stringify(data, null, 2)}`, 'data');
+                        }
+                        
+                        // 特殊处理登录成功事件
+                        if (event === 'login') {
+                            handleLoginSuccess(data);
+                        }
+                        
+                        // 特殊处理弹窗状态
+                        if (event === 'open') {
+                            isModalOpen = true;
+                            updateStatus('🔄 弹窗已打开，等待登录...', 'info');
+                        } else if (event === 'close') {
+                            isModalOpen = false;
+                            updateStatus('ℹ️ 弹窗已关闭', 'info');
+                        }
+                        
+                        updateDebugInfo();
+                    });
+                });
+
+                updateStatus('✅ AuthingGuard 初始化成功！', 'success');
+                addLog('AuthingGuard 初始化完成', 'success');
+                updateDebugInfo();
+
+            } catch (error) {
+                addLog(`初始化 Guard 失败: ${error.message}`, 'error');
+                updateStatus(`❌ 初始化 Guard 失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 处理登录成功
+        async function handleLoginSuccess(user) {
+            addLog(`处理登录成功事件: ${user.username || user.email || '未知用户'}`, 'success');
+            updateStatus(`✅ 登录成功！用户: ${user.username || user.email || '未知用户'}`, 'success');
+            
+            try {
+                // 立即尝试关闭弹窗
+                addLog('准备立即关闭弹窗...', 'info');
+                
+                if (guard && isModalOpen) {
+                    guard.hide();
+                    isModalOpen = false;
+                    addLog('弹窗关闭命令已发送', 'success');
+                    
+                    // 获取用户信息
+                    const userInfo = await guard.trackSession();
+                    if (userInfo) {
+                        addLog(`获取到用户信息: ${userInfo.username || userInfo.email || '未知用户'}`, 'info');
+                    }
+                    
+                    updateStatus('✅ 登录成功，弹窗已关闭', 'success');
+                } else {
+                    addLog('弹窗状态异常，无法关闭', 'warning');
+                }
+                
+            } catch (error) {
+                addLog(`处理登录成功事件失败: ${error.message}`, 'error');
+            }
+            
+            updateDebugInfo();
+        }
+
+        // 显示登录弹窗
+        function showLogin() {
+            if (!guard) {
+                updateStatus('❌ Guard 未初始化，请等待加载完成', 'error');
+                addLog('Guard 未初始化，无法显示登录弹窗', 'error');
+                return;
+            }
+
+            try {
+                addLog('显示登录弹窗', 'info');
+                guard.show();
+                isModalOpen = true;
+                updateStatus('🔄 正在显示登录弹窗...', 'info');
+                
+                // 启动备用检查机制
+                startLoginCheck();
+                
+            } catch (error) {
+                addLog(`显示登录弹窗失败: ${error.message}`, 'error');
+                updateStatus(`❌ 显示登录弹窗失败: ${error.message}`, 'error');
+            }
+            
+            updateDebugInfo();
+        }
+
+        // 检查登录状态
+        async function checkLoginStatus() {
+            if (!guard) {
+                addLog('Guard 未初始化，无法检查登录状态', 'error');
+                return;
+            }
+
+            try {
+                const status = await guard.checkLoginStatus();
+                addLog(`当前登录状态: ${status}`, 'info');
+                
+                if (status && isModalOpen) {
+                    addLog('检测到已登录但弹窗仍打开，尝试关闭', 'warning');
+                    guard.hide();
+                    isModalOpen = false;
+                    updateStatus('✅ 检测到登录状态，已关闭弹窗', 'success');
+                }
+                
+            } catch (error) {
+                addLog(`检查登录状态失败: ${error.message}`, 'error');
+            }
+            
+            updateDebugInfo();
+        }
+
+        // 强制关闭弹窗
+        function forceClose() {
+            if (guard && isModalOpen) {
+                addLog('强制关闭弹窗', 'warning');
+                guard.hide();
+                isModalOpen = false;
+                updateStatus('⚠️ 强制关闭弹窗', 'warning');
+            } else {
+                addLog('弹窗未打开或 Guard 未初始化', 'info');
+            }
+            updateDebugInfo();
+        }
+
+        // 启动登录状态检查
+        function startLoginCheck() {
+            if (loginCheckInterval) {
+                clearInterval(loginCheckInterval);
+            }
+            
+            addLog('启动登录状态检查（备用方案）', 'info');
+            
+            loginCheckInterval = setInterval(async () => {
+                try {
+                    const status = await guard.checkLoginStatus();
+                    if (status && isModalOpen) {
+                        addLog('备用方案：检测到登录成功，自动关闭弹窗', 'success');
+                        guard.hide();
+                        isModalOpen = false;
+                        updateStatus('✅ 备用方案：登录成功，自动关闭弹窗', 'success');
+                        clearInterval(loginCheckInterval);
+                        loginCheckInterval = null;
+                    }
+                } catch (error) {
+                    addLog(`备用方案检查失败: ${error.message}`, 'error');
+                }
+                updateDebugInfo();
+            }, 500);
+            
+            // 30秒后停止检查
+            setTimeout(() => {
+                if (loginCheckInterval) {
+                    clearInterval(loginCheckInterval);
+                    loginCheckInterval = null;
+                    addLog('停止登录状态检查', 'info');
+                    updateDebugInfo();
+                }
+            }, 30000);
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            addLog('页面加载完成', 'info');
+            updateStatus('🔄 页面加载完成，等待初始化...', 'info');
+            setTimeout(initGuard, 1000);
+        });
+
+        // 定期更新调试信息
+        setInterval(updateDebugInfo, 1000);
+    </script>
+</body>
+</html> 

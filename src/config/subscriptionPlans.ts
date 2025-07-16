@@ -31,6 +31,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'AI内容适配器（10次/月）',
       '全网雷达',
       '我的资料库',
+      'Token额度：10万/月',
       '基础模型'
     ]
   },
@@ -63,6 +64,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '创意魔方',
       '全网雷达',
       '我的资料库',
+      '品牌库',
+      'Token额度：20万/月',
       '高级模型'
     ]
   },
@@ -94,6 +97,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '创意魔方',
       '全网雷达',
       '我的资料库',
+      '品牌库',
+      'Token额度：50万/月',
       '高级及最新模型'
     ]
   }

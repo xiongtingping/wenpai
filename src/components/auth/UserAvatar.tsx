@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { User } from '@/types/user';
 
@@ -31,7 +31,7 @@ const isDevelopment = () => {
  */
 interface UserAvatarProps {
   /** 用户信息 */
-  user: User | null;
+  user?: User | null;
   /** 是否显示下拉菜单 */
   showDropdown?: boolean;
   /** 头像大小 */
@@ -44,14 +44,17 @@ interface UserAvatarProps {
  * @returns React 组件
  */
 export const UserAvatar: React.FC<UserAvatarProps> = ({
-  user,
+  user: userProp,
   showDropdown = true,
   size = 'md'
 }) => {
-  const { logout } = useAuth();
+  const { user, logout } = useUnifiedAuthContext();
   const { hasRole } = usePermissions();
 
-  if (!user) {
+  // 优先使用传入的user，如果没有则使用context中的user
+  const displayUser = userProp || user;
+
+  if (!displayUser) {
     return (
       <Avatar className={`${size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'}`}>
         <AvatarFallback>?</AvatarFallback>
@@ -60,7 +63,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   }
 
   // 获取用户显示名称
-  const displayName = user.nickname || user.username || user.email || '用户';
+  const displayName = displayUser.nickname || displayUser.username || displayUser.email || '用户';
   
   // 获取头像首字母
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -70,7 +73,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
   const avatarContent = (
     <Avatar className={`${size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'}`}>
-      <AvatarImage src={user.avatar} alt={displayName} />
+      <AvatarImage src={displayUser.avatar} alt={displayName} />
       <AvatarFallback className="bg-primary text-primary-foreground">
         {initials}
       </AvatarFallback>
@@ -93,7 +96,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              {displayUser.email}
             </p>
             {isPro && (
               <p className="text-xs leading-none text-primary font-medium">

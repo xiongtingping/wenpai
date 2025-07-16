@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { useAuthing } from '@/hooks/useAuthing';
 import { getAuthingConfig } from '@/config/authing';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +31,7 @@ import {
  * @returns React 组件
  */
 export default function AuthingLoginTestPage() {
-  const { user, isAuthenticated, status, login, logout } = useAuth();
+  const { user, isAuthenticated, status, login, logout } = useUnifiedAuthContext();
   const { user: authingUser, isLoggedIn, loading, guard, showLogin, hideLogin } = useAuthing();
   const { toast } = useToast();
   const [config, setConfig] = useState<any>(null);

@@ -4,8 +4,13 @@
  * 底部添加渐变过渡层，实现与TrustSection的自然过渡
  */
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 
 export const HeroSection: React.FC = () => {
+  const { login, isAuthenticated } = useUnifiedAuthContext();
+  const navigate = useNavigate();
+  
   return (
     <section className="bg-white pt-32 pb-32 text-center relative">
       <div className="max-w-6xl mx-auto px-6">
@@ -21,11 +26,22 @@ export const HeroSection: React.FC = () => {
 
         {/* 按钮区域 */}
         <div className="mb-16">
-          <a href="/register">
-            <button className="px-12 py-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xl font-semibold rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-3xl hover:from-blue-600 hover:via-purple-600 hover:to-pink-600">
-              🚀 开始创作
-            </button>
-          </a>
+          <button 
+            onClick={() => {
+              // 优化跳转逻辑，减少延迟
+              if (isAuthenticated) {
+                // 已登录用户直接跳转，使用navigate而不是window.location.href
+                navigate('/adapt');
+              } else {
+                // 未登录用户先登录再跳转
+                localStorage.setItem('login_redirect_to', '/adapt');
+                login();
+              }
+            }}
+            className="px-12 py-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xl font-semibold rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-3xl hover:from-blue-600 hover:via-purple-600 hover:to-pink-600"
+          >
+            🚀 开始创作
+          </button>
         </div>
 
         {/* 图标区域 */}

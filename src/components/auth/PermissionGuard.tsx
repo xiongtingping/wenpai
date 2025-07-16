@@ -5,7 +5,7 @@
 
 import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 
 /**
@@ -60,7 +60,12 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   ),
 }) => {
   const location = useLocation();
-  const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { loading: authLoading, isAuthenticated } = useUnifiedAuthContext();
+  const { user: unifiedUser, isAuthenticated: unifiedIsAuthenticated, loading: unifiedLoading } = useUnifiedAuthContext();
+  
+  // 优先使用统一认证状态
+  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
+  const currentLoading = unifiedLoading || authLoading;
   const { 
     loading: permissionLoading, 
     hasAllPermissions, 
@@ -69,12 +74,12 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   } = usePermissions();
 
   // 如果正在加载认证或权限信息，显示加载组件
-  if (authLoading || permissionLoading) {
+  if (currentLoading || permissionLoading) {
     return <>{loadingComponent}</>;
   }
 
   // 如果用户未登录，重定向到登录页
-  if (!isAuthenticated) {
+  if (!currentIsAuthenticated) {
     return (
       <Navigate
         to="/login"

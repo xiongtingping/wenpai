@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单登录修复测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+    
+    <!-- AuthingGuard -->
+    <link rel="stylesheet" href="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 简单登录修复测试</h1>
+        <p>测试登录弹窗自动关闭功能</p>
+        
+        <div class="status info">
+            <strong>测试目标：</strong> 验证登录成功后弹窗是否自动关闭
+        </div>
+        
+        <button onclick="testLogin()">测试登录弹窗</button>
+        <button onclick="clearLog()">清空日志</button>
+        
+        <div class="status info">
+            <strong>当前状态：</strong> <span id="currentStatus">等待初始化...</span>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+    
+    <!-- AuthingGuard Script -->
+    <script src="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.js"></script>
+    
+    <script>
+        let guard = null;
+        let isModalOpen = false;
+        let checkInterval = null;
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('currentStatus').textContent = message;
+        }
+        
+        async function initGuard() {
+            log('🚀 开始初始化...');
+            
+            try {
+                // 等待 GuardFactory 加载
+                let retries = 0;
+                while (typeof window.GuardFactory === 'undefined' && retries < 10) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    retries++;
+                }
+                
+                if (typeof window.GuardFactory === 'undefined') {
+                    throw new Error('GuardFactory 未加载');
+                }
+                
+                log('✅ CDN 加载成功');
+                
+                guard = new window.GuardFactory.Guard({
+                    appId: '6867fdc88034eb95ae86167d',
+                    host: 'https://qutkgzkfaezk-demo.authing.cn',
+                    redirectUri: window.location.origin + '/callback',
+                    mode: 'modal',
+                    onLogin: (user) => {
+                        log('🎉 官方 onLogin 回调触发');
+                    },
+                    onClose: () => {
+                        log('🔒 弹窗关闭回调触发');
+                        isModalOpen = false;
+                        updateStatus('弹窗已关闭');
+                    }
+                });
+                
+                log('✅ Guard 实例创建成功');
+                updateStatus('初始化完成');
+                
+            } catch (error) {
+                log(`❌ 初始化失败: ${error.message}`);
+                updateStatus('初始化失败');
+            }
+        }
+        
+        async function testLogin() {
+            if (!guard) {
+                log('❌ Guard 未初始化');
+                return;
+            }
+            
+            try {
+                log('🔓 显示登录弹窗...');
+                guard.show();
+                isModalOpen = true;
+                updateStatus('弹窗已打开');
+                
+                // 启动备用检查机制
+                let checkCount = 0;
+                const maxChecks = 60;
+                
+                checkInterval = setInterval(async () => {
+                    checkCount++;
+                    try {
+                        const status = await guard.checkLoginStatus();
+                        log(`检查 ${checkCount}: ${JSON.stringify(status)}`);
+                        
+                        // 检查登录状态
+                        let isLoggedIn = false;
+                        if (typeof status === 'boolean') {
+                            isLoggedIn = status;
+                        } else if (status && typeof status === 'object') {
+                            isLoggedIn = Boolean(status.status || status.isLoggedIn);
+                        }
+                        
+                        log(`检查结果: isLoggedIn=${isLoggedIn}, isModalOpen=${isModalOpen}`);
+                        
+                        if (isLoggedIn && isModalOpen) {
+                            log('🎉 检测到登录成功，自动关闭弹窗');
+                            
+                            // 获取用户信息
+                            const userInfo = await guard.trackSession();
+                            if (userInfo) {
+                                log(`✅ 用户: ${userInfo.phone || userInfo.email || '未知用户'}`);
+                            }
+                            
+                            // 关闭弹窗
+                            guard.hide();
+                            isModalOpen = false;
+                            
+                            // 停止检查
+                            clearInterval(checkInterval);
+                            checkInterval = null;
+                            log('✅ 弹窗已关闭，停止检查');
+                            updateStatus('登录成功，弹窗已关闭');
+                        } else if (checkCount >= maxChecks) {
+                            log('⏰ 检查超时，停止检查');
+                            clearInterval(checkInterval);
+                            checkInterval = null;
+                        }
+                    } catch (error) {
+                        log(`❌ 检查失败: ${error.message}`);
+                        clearInterval(checkInterval);
+                        checkInterval = null;
+                    }
+                }, 500);
+                
+            } catch (error) {
+                log(`❌ 显示弹窗失败: ${error.message}`);
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('🧹 日志已清空');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initGuard);
+        
+        // 页面卸载时清理定时器
+        window.addEventListener('beforeunload', function() {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+            }
+        });
+    </script>
+</body>
+</html> 
