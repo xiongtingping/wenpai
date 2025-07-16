@@ -440,23 +440,7 @@ const AppContent: React.FC = () => {
           </ToolLayout>
         } />
         
-        {/* 服务条款页面 */}
-        <Route path="/terms" element={
-          <ToolLayout>
-            <Suspense fallback={<LoadingSpinner />}>
-              <TermsPage />
-            </Suspense>
-          </ToolLayout>
-        } />
-        
-        {/* 隐私政策页面 */}
-        <Route path="/privacy" element={
-          <ToolLayout>
-            <Suspense fallback={<LoadingSpinner />}>
-              <PrivacyPage />
-            </Suspense>
-          </ToolLayout>
-        } />
+
         
         {/* 支付流程测试页面 */}
         <Route path="/payment-flow-test" element={

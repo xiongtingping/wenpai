@@ -101,7 +101,12 @@ export function Header() {
                 navigate('/adapt');
               } else {
                 localStorage.setItem('login_redirect_to', '/adapt');
-                login();
+                try {
+                  login();
+                } catch (error) {
+                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
+                  navigate('/login');
+                }
               }
             }}>
               AI内容适配器
@@ -111,7 +116,12 @@ export function Header() {
                 navigate('/creative-studio');
               } else {
                 localStorage.setItem('login_redirect_to', '/creative-studio');
-                login();
+                try {
+                  login();
+                } catch (error) {
+                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
+                  navigate('/login');
+                }
               }
             }}>
               创意魔方
@@ -121,7 +131,12 @@ export function Header() {
                 navigate('/hot-topics');
               } else {
                 localStorage.setItem('login_redirect_to', '/hot-topics');
-                login();
+                try {
+                  login();
+                } catch (error) {
+                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
+                  navigate('/login');
+                }
               }
             }}>
               全网雷达
@@ -131,7 +146,12 @@ export function Header() {
                 navigate('/library');
               } else {
                 localStorage.setItem('login_redirect_to', '/library');
-                login();
+                try {
+                  login();
+                } catch (error) {
+                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
+                  navigate('/login');
+                }
               }
             }}>
               我的资料库
@@ -141,7 +161,12 @@ export function Header() {
                 navigate('/brand-library');
               } else {
                 localStorage.setItem('login_redirect_to', '/brand-library');
-                login();
+                try {
+                  login();
+                } catch (error) {
+                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
+                  navigate('/login');
+                }
               }
             }}>
               品牌库

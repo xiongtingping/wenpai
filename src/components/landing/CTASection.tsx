@@ -25,7 +25,12 @@ export function CTASection() {
                 navigate('/adapt');
               } else {
                 localStorage.setItem('login_redirect_to', '/adapt');
-                login();
+                try {
+                  login();
+                } catch (error) {
+                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
+                  navigate('/login');
+                }
               }
             }}
           >

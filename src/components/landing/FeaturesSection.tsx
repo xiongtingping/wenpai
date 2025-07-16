@@ -254,7 +254,13 @@ export const FeaturesSection: React.FC = () => {
                       } else {
                         // 未登录用户先登录再跳转
                         localStorage.setItem('login_redirect_to', feature.path);
-                        login();
+                        // 临时修复：如果Authing服务不可用，直接跳转到登录页面
+                        try {
+                          login();
+                        } catch (error) {
+                          console.warn('Authing登录服务不可用，直接跳转到登录页面');
+                          navigate('/login');
+                        }
                       }
                     }}
                   >

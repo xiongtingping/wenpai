@@ -120,9 +120,21 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
       }
     };
 
+    // 临时修复：如果Authing服务不可用，设置一个较短的超时时间
+    const timeout = setTimeout(() => {
+      if (authingLoading) {
+        console.warn('Authing服务响应超时，设置为未认证状态');
+        setUser(null);
+        setStatus('unauthenticated');
+      }
+    }, 5000); // 5秒超时
+
     if (!authingLoading) {
+      clearTimeout(timeout);
       initAuth();
     }
+
+    return () => clearTimeout(timeout);
   }, [authingUser, isLoggedIn, authingLoading]);
 
   // 登录方法

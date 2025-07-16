@@ -48,8 +48,9 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
-import WechatTemplatePage from '@/pages/WechatTemplatePage';
-import EmojiPage from '@/pages/EmojiPage';
+// 使用懒加载避免循环依赖
+const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
+const EmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
 import PageNavigation from '@/components/layout/PageNavigation';
 
 /**
@@ -110,13 +111,17 @@ export default function CreativeStudioPage() {
 
           {/* 朋友圈文案 */}
           <TabsContent value="wechat" className="mt-6">
-            <WechatTemplatePage />
+            <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+              <WechatTemplatePage />
+            </React.Suspense>
           </TabsContent>
 
           {/* Emoji生成器 */}
           <TabsContent value="emoji" className="mt-6">
             <div className="bg-white rounded-lg">
-              <EmojiPage />
+              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+                <EmojiPage />
+              </React.Suspense>
             </div>
           </TabsContent>
         </Tabs>

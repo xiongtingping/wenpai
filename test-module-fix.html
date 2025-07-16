@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块初始化错误修复测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        .success {
+            color: #059669;
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        .error {
+            color: #dc2626;
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        .info {
+            color: #1d4ed8;
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .console {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 模块初始化错误修复测试</h1>
+    
+    <div class="test-section info">
+        <h2>📋 测试说明</h2>
+        <p>此页面用于测试之前出现的 <code>Cannot access 'Kt' before initialization</code> 错误是否已修复。</p>
+        <p>错误原因：在 <code>CreativeStudioPage.tsx</code> 中直接导入了 <code>WechatTemplatePage</code> 和 <code>EmojiPage</code>，导致循环依赖。</p>
+        <p>修复方案：使用 <code>React.lazy()</code> 进行懒加载，避免循环依赖。</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 测试步骤</h2>
+        <ol>
+            <li>点击下面的按钮测试各个页面</li>
+            <li>观察浏览器控制台是否有错误</li>
+            <li>检查页面是否正常加载</li>
+        </ol>
+        
+        <button onclick="testHomePage()">🏠 测试首页</button>
+        <button onclick="testCreativeStudio()">🎨 测试创意工作室</button>
+        <button onclick="testEmojiPage()">😊 测试Emoji页面</button>
+        <button onclick="testWechatTemplate()">💬 测试朋友圈模板</button>
+        <button onclick="clearConsole()">🧹 清空控制台</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 测试结果</h2>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 控制台输出</h2>
+        <div id="console" class="console"></div>
+    </div>
+
+    <script>
+        // 重写console.log来捕获输出
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleDiv = document.getElementById('console');
+        const resultsDiv = document.getElementById('results');
+
+        function logToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
+            consoleDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logToConsole(args.join(' '), 'log');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            logToConsole(args.join(' '), 'error');
+        };
+
+        console.warn = function(...args) {
+            logToConsole(args.join(' '), 'warn');
+        };
+
+        function addResult(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `test-section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            resultsDiv.appendChild(div);
+        }
+
+        function testHomePage() {
+            try {
+                console.log('🧪 测试首页加载...');
+                window.open('http://localhost:5173/', '_blank');
+                addResult('✅ 首页测试完成 - 页面已在新标签页中打开');
+            } catch (error) {
+                console.error('❌ 首页测试失败:', error);
+                addResult('❌ 首页测试失败: ' + error.message, 'error');
+            }
+        }
+
+        function testCreativeStudio() {
+            try {
+                console.log('🧪 测试创意工作室页面...');
+                window.open('http://localhost:5173/creative-studio', '_blank');
+                addResult('✅ 创意工作室测试完成 - 页面已在新标签页中打开');
+            } catch (error) {
+                console.error('❌ 创意工作室测试失败:', error);
+                addResult('❌ 创意工作室测试失败: ' + error.message, 'error');
+            }
+        }
+
+        function testEmojiPage() {
+            try {
+                console.log('🧪 测试Emoji页面...');
+                window.open('http://localhost:5173/emoji-generator', '_blank');
+                addResult('✅ Emoji页面测试完成 - 页面已在新标签页中打开');
+            } catch (error) {
+                console.error('❌ Emoji页面测试失败:', error);
+                addResult('❌ Emoji页面测试失败: ' + error.message, 'error');
+            }
+        }
+
+        function testWechatTemplate() {
+            try {
+                console.log('🧪 测试朋友圈模板页面...');
+                window.open('http://localhost:5173/wechat-templates', '_blank');
+                addResult('✅ 朋友圈模板测试完成 - 页面已在新标签页中打开');
+            } catch (error) {
+                console.error('❌ 朋友圈模板测试失败:', error);
+                addResult('❌ 朋友圈模板测试失败: ' + error.message, 'error');
+            }
+        }
+
+        function clearConsole() {
+            consoleDiv.innerHTML = '';
+            resultsDiv.innerHTML = '';
+            console.log('🧹 控制台已清空');
+        }
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', function() {
+            console.log('🚀 模块初始化错误修复测试页面已加载');
+            console.log('📋 准备开始测试...');
+            addResult('✅ 测试页面初始化完成');
+        });
+
+        // 监听错误
+        window.addEventListener('error', function(event) {
+            console.error('❌ 页面错误:', event.error);
+            addResult('❌ 页面错误: ' + event.error.message, 'error');
+        });
+
+        // 监听未处理的Promise拒绝
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('❌ 未处理的Promise拒绝:', event.reason);
+            addResult('❌ 未处理的Promise拒绝: ' + event.reason, 'error');
+        });
+    </script>
+</body>
+</html> 

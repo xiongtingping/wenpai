@@ -4,9 +4,16 @@
   "description": "Netlify functions for Wenpai app",
   "main": "index.js",
   "dependencies": {
-    "creem": "^0.3.37"
+    "creem": "^0.3.37",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.1"
-  }
-} 
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

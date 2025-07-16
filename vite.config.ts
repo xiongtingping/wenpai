@@ -42,98 +42,98 @@ export default defineConfig({
     // 构建优化
     rollupOptions: {
       output: {
-        manualChunks: {
-          // 核心库
-          'react-vendor': ['react', 'react-dom'],
-          'router': ['react-router-dom'],
+        // manualChunks: {
+        //   // 核心库
+        //   'react-vendor': ['react', 'react-dom'],
+        //   'router': ['react-router-dom'],
           
-          // UI组件库（只保留真实存在的Radix UI包）
-          'ui-core': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-select',
-            '@radix-ui/react-checkbox',
-            '@radix-ui/react-switch',
-            '@radix-ui/react-progress',
-            '@radix-ui/react-separator',
-            '@radix-ui/react-scroll-area',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-alert-dialog',
-            '@radix-ui/react-accordion',
-            '@radix-ui/react-aspect-ratio',
-            '@radix-ui/react-avatar',
-            '@radix-ui/react-collapsible',
-            '@radix-ui/react-context-menu',
-            '@radix-ui/react-hover-card',
-            '@radix-ui/react-label',
-            '@radix-ui/react-menubar',
-            '@radix-ui/react-navigation-menu',
-            '@radix-ui/react-radio-group',
-            '@radix-ui/react-slider',
-            '@radix-ui/react-toggle',
-            '@radix-ui/react-toggle-group',
-            '@radix-ui/react-tooltip',
-          ],
+        //   // UI组件库（只保留真实存在的Radix UI包）
+        //   'ui-core': [
+        //     '@radix-ui/react-dialog',
+        //     '@radix-ui/react-dropdown-menu',
+        //     '@radix-ui/react-tabs',
+        //     '@radix-ui/react-select',
+        //     '@radix-ui/react-checkbox',
+        //     '@radix-ui/react-switch',
+        //     '@radix-ui/react-progress',
+        //     '@radix-ui/react-separator',
+        //     '@radix-ui/react-scroll-area',
+        //     '@radix-ui/react-popover',
+        //     '@radix-ui/react-alert-dialog',
+        //     '@radix-ui/react-accordion',
+        //     '@radix-ui/react-aspect-ratio',
+        //     '@radix-ui/react-avatar',
+        //     '@radix-ui/react-collapsible',
+        //     '@radix-ui/react-context-menu',
+        //     '@radix-ui/react-hover-card',
+        //     '@radix-ui/react-label',
+        //     '@radix-ui/react-menubar',
+        //     '@radix-ui/react-navigation-menu',
+        //     '@radix-ui/react-radio-group',
+        //     '@radix-ui/react-slider',
+        //     '@radix-ui/react-toggle',
+        //     '@radix-ui/react-toggle-group',
+        //     '@radix-ui/react-tooltip',
+        //   ],
           
-          // 工具库
-          'utils': [
-            'lucide-react',
-            'class-variance-authority',
-            'clsx',
-            'tailwind-merge',
-            'date-fns',
-            'react-hook-form',
-            '@hookform/resolvers',
-            'zod',
-            'zustand',
-          ],
+        //   // 工具库
+        //   'utils': [
+        //     'lucide-react',
+        //     'class-variance-authority',
+        //     'clsx',
+        //     'tailwind-merge',
+        //     'date-fns',
+        //     'react-hook-form',
+        //     '@hookform/resolvers',
+        //     'zod',
+        //     'zustand',
+        //   ],
           
-          // 页面分割
-          'pages-home': ['./src/pages/HomePage.tsx'],
-          'pages-adapt': ['./src/pages/AdaptPage.tsx'],
-          'pages-creative': ['./src/pages/CreativeStudioPage.tsx'],
-          'pages-hot-topics': ['./src/pages/HotTopicsPage.tsx'],
-          'pages-library': ['./src/pages/BookmarkPage.tsx'],
-          'pages-brand': ['./src/pages/BrandLibraryPage.tsx'],
-          'pages-content-extractor': ['./src/pages/ContentExtractorPage.tsx'],
-          'pages-emoji': ['./src/pages/EmojiPage.tsx'],
-          'pages-share': ['./src/pages/ShareManagerPage.tsx'],
+        //   // 页面分割
+        //   'pages-home': ['./src/pages/HomePage.tsx'],
+        //   'pages-adapt': ['./src/pages/AdaptPage.tsx'],
+        //   'pages-creative': ['./src/pages/CreativeStudioPage.tsx'],
+        //   'pages-hot-topics': ['./src/pages/HotTopicsPage.tsx'],
+        //   'pages-library': ['./src/pages/BookmarkPage.tsx'],
+        //   'pages-brand': ['./src/pages/BrandLibraryPage.tsx'],
+        //   'pages-content-extractor': ['./src/pages/ContentExtractorPage.tsx'],
+        //   'pages-emoji': ['./src/pages/EmojiPage.tsx'],
+        //   'pages-share': ['./src/pages/ShareManagerPage.tsx'],
           
-          // 组件分割
-          'components-layout': [
-            './src/components/layout/PageNavigation.tsx',
-            './src/components/layout/ToolLayout.tsx',
-            './src/components/layout/TopNavigation.tsx',
-            './src/components/layout/ScrollToTop.tsx',
-          ],
-          'components-landing': [
-            './src/components/landing/HeroSection.tsx',
-            './src/components/landing/FeaturesSection.tsx',
-            './src/components/landing/Header.tsx',
-            './src/components/landing/Footer.tsx',
-          ],
-          'components-creative': [
-            './src/components/creative/CreativeCube.tsx',
-            './src/components/creative/MarketingCalendar.tsx',
-            './src/components/creative/BrandContentGenerator.tsx',
-            './src/components/creative/BrandProfileGenerator.tsx',
-          ],
-          'components-auth': [
-            './src/components/auth/UserAvatar.tsx',
-            './src/components/auth/LoginForm.tsx',
-            './src/components/auth/ProtectedRoute.tsx',
-          ],
+        //   // 组件分割
+        //   'components-layout': [
+        //     './src/components/layout/PageNavigation.tsx',
+        //     './src/components/layout/ToolLayout.tsx',
+        //     './src/components/layout/TopNavigation.tsx',
+        //     './src/components/layout/ScrollToTop.tsx',
+        //   ],
+        //   'components-landing': [
+        //     './src/components/landing/HeroSection.tsx',
+        //     './src/components/landing/FeaturesSection.tsx',
+        //     './src/components/landing/Header.tsx',
+        //     './src/components/landing/Footer.tsx',
+        //   ],
+        //   'components-creative': [
+        //     './src/components/creative/CreativeCube.tsx',
+        //     './src/components/creative/MarketingCalendar.tsx',
+        //     './src/components/creative/BrandContentGenerator.tsx',
+        //     './src/components/creative/BrandProfileGenerator.tsx',
+        //   ],
+        //   'components-auth': [
+        //     './src/components/auth/UserAvatar.tsx',
+        //     './src/components/auth/LoginForm.tsx',
+        //     './src/components/auth/ProtectedRoute.tsx',
+        //   ],
           
-          // API和服务
-          'api-services': [
-            './src/api/contentAdapter.ts',
-            './src/api/hotTopicsService.ts',
-            './src/api/topicSubscriptionService.ts',
-            './src/services/aiAnalysisService.ts',
-            './src/services/notoEmojiService.ts',
-          ],
-        },
+        //   // API和服务
+        //   'api-services': [
+        //     './src/api/contentAdapter.ts',
+        //     './src/api/hotTopicsService.ts',
+        //     './src/api/topicSubscriptionService.ts',
+        //     './src/services/aiAnalysisService.ts',
+        //     './src/services/notoEmojiService.ts',
+        //   ],
+        // },
       },
     },
     // 压缩配置

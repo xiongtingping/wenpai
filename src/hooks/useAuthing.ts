@@ -145,128 +145,11 @@ export const useAuthing = (): UseAuthingReturn => {
           return;
         }
         
+        /**
+         * 初始化 Authing Guard 组件，统一通过 getGuardConfig() 获取配置，避免硬编码。
+         */
         const config = getGuardConfig();
-        
-        // 使用与成功测试页面相同的配置
-        const newGuard = new window.GuardFactory.Guard({
-            appId: '6867fdc88034eb95ae86167d',
-            host: 'https://qutkgzkfaezk-demo.authing.cn',
-            redirectUri: window.location.origin + '/callback',
-            mode: 'modal',
-            // 官方推荐的事件回调配置
-            onLogin: async (user) => {
-                console.log('官方 onLogin 回调触发:', user);
-                try {
-                    // 立即更新登录状态
-                    setIsLoggedIn(true);
-                    // 获取用户信息
-                    const userInfo = await newGuard.trackSession();
-                    if (userInfo) {
-                        const userInfoRecord = userInfo as unknown as Record<string, unknown>;
-                        const userData: User = {
-                            id: String(userInfoRecord.id || userInfoRecord.userId || ''),
-                            username: String(userInfoRecord.username || userInfoRecord.nickname || ''),
-                            email: String(userInfoRecord.email || ''),
-                            phone: String(userInfoRecord.phone || ''),
-                            nickname: String(userInfoRecord.nickname || userInfoRecord.username || ''),
-                            avatar: String(userInfoRecord.photo || userInfoRecord.avatar || ''),
-                            ...userInfo // 保留其他属性
-                        };
-                        setUser(userData);
-                    }
-                    // 立即关闭弹窗
-                    setTimeout(() => {
-                        cleanupFocusConflicts();
-                        newGuard.hide();
-                        setIsModalOpen(false);
-                        setTimeout(() => {
-                            restoreFocus();
-                            cleanupFocusConflicts();
-                        }, 100);
-                    }, 300); // 减少延迟
-                    
-                    // 处理登录成功后的跳转
-                    const redirectTo = localStorage.getItem('login_redirect_to');
-                    if (redirectTo) {
-                        localStorage.removeItem('login_redirect_to');
-                        console.log('登录成功后跳转到指定页面:', redirectTo);
-                        
-                        // 立即跳转，不使用延迟
-                        try {
-                            const url = new URL(redirectTo, window.location.origin);
-                            if (url.origin === window.location.origin) {
-                                window.location.href = redirectTo;
-                            } else {
-                                console.warn('跳转目标不在同一域名下，已阻止跳转');
-                            }
-                        } catch (error) {
-                            console.error('跳转URL格式错误:', error);
-                        }
-                    }
-                } catch (error) {
-                    console.error('处理登录成功回调失败:', error);
-                }
-            },
-            onRegister: async (user) => {
-                console.log('官方 onRegister 回调触发:', user);
-                try {
-                    // 立即更新登录状态
-                    setIsLoggedIn(true);
-                    // 获取用户信息
-                    const userInfo = await newGuard.trackSession();
-                    if (userInfo) {
-                        const userInfoRecord = userInfo as unknown as Record<string, unknown>;
-                        const userData: User = {
-                            id: String(userInfoRecord.id || userInfoRecord.userId || ''),
-                            username: String(userInfoRecord.username || userInfoRecord.nickname || ''),
-                            email: String(userInfoRecord.email || ''),
-                            phone: String(userInfoRecord.phone || ''),
-                            nickname: String(userInfoRecord.nickname || userInfoRecord.username || ''),
-                            avatar: String(userInfoRecord.photo || userInfoRecord.avatar || ''),
-                            ...userInfo // 保留其他属性
-                        };
-                        setUser(userData);
-                    }
-                    // 立即关闭弹窗
-                    setTimeout(() => {
-                        cleanupFocusConflicts();
-                        newGuard.hide();
-                        setIsModalOpen(false);
-                        setTimeout(() => {
-                            restoreFocus();
-                            cleanupFocusConflicts();
-                        }, 100);
-                    }, 300); // 减少延迟
-                    
-                    // 处理注册成功后的跳转
-                    const redirectTo = localStorage.getItem('login_redirect_to');
-                    if (redirectTo) {
-                        localStorage.removeItem('login_redirect_to');
-                        console.log('注册成功后跳转到指定页面:', redirectTo);
-                        
-                        // 立即跳转，不使用延迟
-                        try {
-                            const url = new URL(redirectTo, window.location.origin);
-                            if (url.origin === window.location.origin) {
-                                window.location.href = redirectTo;
-                            } else {
-                                console.warn('跳转目标不在同一域名下，已阻止跳转');
-                            }
-                        } catch (error) {
-                            console.error('跳转URL格式错误:', error);
-                        }
-                    }
-                } catch (error) {
-                    console.error('处理注册成功回调失败:', error);
-                }
-            },
-            onClose: () => {
-                console.log('官方 onClose 回调触发');
-                setIsModalOpen(false);
-                restoreFocus();
-                cleanupFocusConflicts();
-            }
-        });
+        const newGuard = new window.GuardFactory.Guard(config);
         
         setGuard(newGuard);
         
@@ -435,13 +318,28 @@ export const useAuthing = (): UseAuthingReturn => {
   }, [restoreFocus, cleanupFocusConflicts]);
 
   /**
-   * 检查登录状态
+   * 检查登录状态（添加防抖和错误处理）
    */
   const checkLoginStatus = useCallback(async (): Promise<boolean> => {
     if (!guard) return false;
     
+    // 添加防抖机制
+    if (loading) {
+      console.log('跳过登录状态检查：正在加载中');
+      return isLoggedIn;
+    }
+    
     try {
-      const status = await guard.checkLoginStatus();
+      setLoading(true);
+      
+      // 添加超时处理
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('检查登录状态超时')), 10000);
+      });
+      
+      const statusPromise = guard.checkLoginStatus();
+      const status = await Promise.race([statusPromise, timeoutPromise]);
+      
       console.log('检查登录状态结果:', status);
       
       // 支持多种返回格式
@@ -460,18 +358,36 @@ export const useAuthing = (): UseAuthingReturn => {
       console.error('检查登录状态失败:', error);
       // 不更新状态，保持当前状态
       setLoading(false);
+      
+      // 如果是网络错误，返回当前状态
+      if (error instanceof Error && error.message.includes('网络')) {
+        return isLoggedIn;
+      }
+      
       return false;
     }
-  }, [guard]);
+  }, [guard, loading, isLoggedIn]);
 
   /**
-   * 获取当前用户
+   * 获取当前用户（添加错误处理和缓存）
    */
   const getCurrentUser = useCallback(async (): Promise<User | null> => {
     if (!guard) return null;
     
+    // 如果已经有用户信息且正在加载，直接返回
+    if (user && loading) {
+      return user;
+    }
+    
     try {
-      const userInfo = await guard.trackSession();
+      // 添加超时处理
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('获取用户信息超时')), 10000);
+      });
+      
+      const userInfoPromise = guard.trackSession();
+      const userInfo = await Promise.race([userInfoPromise, timeoutPromise]);
+      
       if (userInfo) {
         // 转换 Authing SDK 的用户类型到我们的 User 类型
         const userInfoRecord = userInfo as unknown as Record<string, unknown>;
@@ -491,9 +407,15 @@ export const useAuthing = (): UseAuthingReturn => {
       return null;
     } catch (error) {
       console.error('获取用户信息失败:', error);
+      
+      // 如果是网络错误，返回缓存的用户信息
+      if (error instanceof Error && error.message.includes('网络')) {
+        return user;
+      }
+      
       return null;
     }
-  }, [guard]);
+  }, [guard, user, loading]);
 
   /**
    * 登出
@@ -578,23 +500,52 @@ export const useAuthing = (): UseAuthingReturn => {
   }, [guard, safeCloseModal]);
 
   /**
-   * 定期检查用户状态（减少频率）
+   * 定期检查用户状态（优化频率和错误处理）
    */
   useEffect(() => {
     if (!guard) return;
 
-    // 减少检查频率，从500ms改为5秒
+    // 只在开发环境或用户未登录时进行定期检查
+    const shouldCheckPeriodically = import.meta.env.DEV || !isLoggedIn;
+    
+    if (!shouldCheckPeriodically) {
+      return;
+    }
+
+    // 进一步减少检查频率，改为30秒
     const interval = setInterval(async () => {
       try {
+        // 添加防抖机制，避免重复请求
+        if (loading) {
+          console.log('跳过定期检查：正在加载中');
+          return;
+        }
+        
         await checkLoginStatus();
       } catch (error) {
         console.warn('定期检查用户状态失败:', error);
-        // 不中断检查，继续运行
+        // 如果连续失败，增加检查间隔
+        clearInterval(interval);
+        setTimeout(() => {
+          // 重新启动检查，但间隔更长
+          const retryInterval = setInterval(async () => {
+            try {
+              await checkLoginStatus();
+            } catch (retryError) {
+              console.warn('重试检查用户状态失败:', retryError);
+            }
+          }, 60000); // 1分钟
+          
+          // 5分钟后停止重试
+          setTimeout(() => {
+            clearInterval(retryInterval);
+          }, 300000);
+        }, 10000); // 10秒后重试
       }
-    }, 5000); // 改为5秒
+    }, 30000); // 改为30秒
 
     return () => clearInterval(interval);
-  }, [guard, checkLoginStatus]);
+  }, [guard, checkLoginStatus, loading, isLoggedIn]);
 
   return {
     user,

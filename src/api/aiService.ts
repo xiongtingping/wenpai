@@ -794,4 +794,4 @@ const aiService = new AIService();
 
 // 导出实例和类
 export default aiService;
-export { AIService, aiService }; 
+export { AIService }; 

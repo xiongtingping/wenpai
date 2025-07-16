@@ -12,7 +12,7 @@ import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useUserStore } from '@/store/userStore';
 import { EnvChecker } from '@/utils/envChecker';
-import { aiService } from '@/api/aiService';
+import aiService from '@/api/aiService';
 import { creemOptimizer } from '@/utils/creemOptimizer';
 import { 
   CheckCircle, 

@@ -42,7 +42,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import aiService from '@/api/aiService';
 
 /**
  * 提取结果接口
@@ -277,7 +276,7 @@ ${mockResult.content}
 请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
           }];
 
-          const response = await aiService.summarizeContent(mockResult.content);
+          const response = await import('@/api/aiService').then(module => module.default.summarizeContent(mockResult.content));
           
           const responseData = response.data as Record<string, unknown>;
           const choices = responseData?.data as Record<string, unknown>;
@@ -479,7 +478,7 @@ ${mockResult.content}
     setIsGeneratingSummary(true);
     
     try {
-      const response = await aiService.summarizeContent(result.content);
+      const response = await import('@/api/aiService').then(module => module.default.summarizeContent(result.content));
       
       const responseData = response.data as Record<string, unknown>;
       const choices = responseData?.data as Record<string, unknown>;
