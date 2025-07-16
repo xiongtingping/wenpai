@@ -149,6 +149,63 @@ const generateAISummary = (content: string) => {
 };
 
 /**
+ * 读取文件内容
+ */
+const readFileContent = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      resolve(content);
+    };
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+};
+
+/**
+ * 复制内容到剪贴板
+ */
+const copyContent = async (content: string) => {
+  try {
+    await navigator.clipboard.writeText(content);
+    return true;
+  } catch (error) {
+    console.error('复制失败:', error);
+    return false;
+  }
+};
+
+/**
+ * 下载内容为文件
+ */
+const downloadContent = (content: string, filename: string) => {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * 格式化时间
+ */
+const formatTime = (timeString: string) => {
+  const date = new Date(timeString);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+/**
  * 内容提取与AI总结工具页面组件
  * @returns React 组件
  */
@@ -397,14 +454,14 @@ ${mockResult.content}
         content: '',
         extractedAt: new Date().toISOString(),
         status: 'error',
-        error: '文本处理失败'
+        error: '文本处理失败，请检查内容格式'
       };
       
       setExtractResults(prev => [errorResult, ...prev]);
       
       toast({
         title: "文本处理失败",
-        description: "请稍后重试",
+        description: "请检查内容格式或稍后重试",
         variant: "destructive"
       });
     } finally {
@@ -413,47 +470,41 @@ ${mockResult.content}
   };
 
   /**
-   * 为已有结果生成AI总结
+   * 为指定结果生成AI总结
    */
   const generateSummaryForResult = async (resultId: string) => {
     const result = extractResults.find(r => r.id === resultId);
-    if (!result || result.status !== 'success') return;
+    if (!result) return;
 
     setIsGeneratingSummary(true);
-
+    
     try {
       const response = await aiService.summarizeContent(result.content);
-          
       
-      let summary;
       const responseData = response.data as Record<string, unknown>;
       const choices = responseData?.data as Record<string, unknown>;
-      if (response.success && choices?.choices?.[0]?.message?.content) {
-        summary = choices.choices[0].message.content;
-      } else {
-        summary = generateAISummary(result.content); // 回退到模拟
-      }
       
-      setExtractResults(prev => prev.map(r => 
-        r.id === resultId ? { ...r, summary } : r
-      ));
-
-      toast({
-        title: "AI总结完成",
-        description: "已为您生成智能内容总结",
-      });
+      if (response.success && choices?.choices?.[0]?.message?.content) {
+        setExtractResults(prev => 
+          prev.map(r => 
+            r.id === resultId 
+              ? { ...r, summary: choices.choices[0].message.content }
+              : r
+          )
+        );
+        
+        toast({
+          title: "AI总结生成成功",
+          description: "已为内容生成智能总结",
+        });
+      } else {
+        throw new Error('AI总结生成失败');
+      }
     } catch (error) {
       console.error('AI总结失败:', error);
-      
-      // 回退到模拟总结
-      const summary = generateAISummary(result.content);
-      setExtractResults(prev => prev.map(r => 
-        r.id === resultId ? { ...r, summary } : r
-      ));
-      
       toast({
-        title: "总结失败",
-        description: "请稍后重试AI总结功能",
+        title: "AI总结失败",
+        description: "请稍后重试或检查网络连接",
         variant: "destructive"
       });
     } finally {
@@ -462,21 +513,18 @@ ${mockResult.content}
   };
 
   /**
-   * 保存到资料库
+   * 保存到内容库
    */
   const saveToLibrary = async (result: ExtractResult) => {
     try {
-      // 模拟保存到资料库
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 这里可以调用API保存到内容库
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       toast({
         title: "保存成功",
-        description: "内容已保存到我的资料库",
+        description: "内容已保存到个人库",
       });
-      
-      // 可以选择跳转到资料库页面
-      // navigate('/library');
-    } catch {
+    } catch (error) {
       toast({
         title: "保存失败",
         description: "请稍后重试",
@@ -486,71 +534,13 @@ ${mockResult.content}
   };
 
   /**
-   * 读取文件内容
-   */
-  const readFileContent = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        if (content) {
-          resolve(content);
-        } else {
-          reject(new Error('无法读取文件内容'));
-        }
-      };
-      reader.onerror = () => reject(new Error('文件读取失败'));
-      reader.readAsText(file);
-    });
-  };
-
-  /**
-   * 复制内容到剪贴板
-   */
-  const copyContent = async (content: string) => {
-    try {
-      await navigator.clipboard.writeText(content);
-      toast({
-        title: "复制成功",
-        description: "内容已复制到剪贴板",
-      });
-    } catch {
-      toast({
-        title: "复制失败",
-        description: "请手动复制",
-        variant: "destructive"
-      });
-    }
-  };
-
-  /**
-   * 下载内容
-   */
-  const downloadContent = (content: string, filename: string) => {
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-    
-    toast({
-      title: "下载成功",
-      description: "内容已下载到本地",
-    });
-  };
-
-  /**
    * 删除结果
    */
   const deleteResult = (id: string) => {
     setExtractResults(prev => prev.filter(r => r.id !== id));
     toast({
-      title: "已删除",
-      description: "提取结果已删除",
+      title: "删除成功",
+      description: "已删除该提取结果",
     });
   };
 
@@ -558,16 +548,12 @@ ${mockResult.content}
    * 重试提取
    */
   const retryExtract = () => {
-    switch (activeTab) {
-      case 'url':
-        extractFromUrl();
-        break;
-      case 'file':
-        extractFromFile();
-        break;
-      case 'text':
-        extractFromText();
-        break;
+    if (activeTab === 'url' && url) {
+      extractFromUrl();
+    } else if (activeTab === 'file' && selectedFile) {
+      extractFromFile();
+    } else if (activeTab === 'text' && textContent) {
+      extractFromText();
     }
   };
 
@@ -579,18 +565,6 @@ ${mockResult.content}
     if (file) {
       setSelectedFile(file);
     }
-  };
-
-  /**
-   * 格式化时间
-   */
-  const formatTime = (timeString: string) => {
-    return new Date(timeString).toLocaleString('zh-CN', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   return (
