@@ -56,22 +56,23 @@ export default function AlipayQRCode({
       setLoading(true);
       setError(null);
       
-      console.log('生成支付宝二维码:', { priceId, customerEmail });
-      
+      // 检查网络连接
+      if (!navigator.onLine) {
+        throw new Error('网络连接不可用，请检查网络设置');
+      }
+
       const result = await generateAlipayQRCode(priceId, customerEmail);
       
-      if (result.success) {
+      if (result.success && result.qrCodeDataURL) {
         setQrCodeDataURL(result.qrCodeDataURL);
         setPrice(result.price);
-        console.log('二维码生成成功:', result);
       } else {
         throw new Error('二维码生成失败');
       }
-    } catch (err: any) {
-      console.error('生成二维码失败:', err);
-      setError(err?.message || "二维码生成失败");
-      setQrCodeDataURL("");
-      setPrice(null);
+    } catch (error: any) {
+      // 简化错误处理
+      console.log('二维码生成失败，请稍后重试');
+      setError('二维码生成失败，请稍后重试');
     } finally {
       setLoading(false);
     }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, CreditCard } from "lucide-react";
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { calculateDiscountCountdown, isInDiscountPeriod } from "@/config/subscriptionPlans";
 import AlipayQRCode from "@/components/payment/AlipayQRCode";
 
@@ -13,7 +13,7 @@ import AlipayQRCode from "@/components/payment/AlipayQRCode";
  */
 export default function PaymentTestPage() {
   const { toast } = useToast();
-  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useUnifiedAuthContext();
+  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useUnifiedAuth();
   
   const [timeLeft, setTimeLeft] = useState(0);
   const [showQRCode, setShowQRCode] = useState(false);

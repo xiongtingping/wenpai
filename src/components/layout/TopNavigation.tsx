@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { UserAvatar } from '@/components/auth/UserAvatar';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { 
   Home, 
@@ -39,7 +39,7 @@ const isDevelopment = () => {
  */
 export const TopNavigation: React.FC = () => {
   const location = useLocation();
-  const { user, isAuthenticated, login } = useUnifiedAuthContext();
+  const { user, isAuthenticated, login } = useUnifiedAuth();
   const { loading: permissionLoading } = usePermissions();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

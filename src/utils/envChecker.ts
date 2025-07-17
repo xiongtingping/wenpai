@@ -263,26 +263,87 @@ export class EnvChecker {
 }
 
 /**
- * 在控制台输出配置检查结果
+ * 检查环境变量配置
+ * @returns {EnvCheckResult} 检查结果
  */
-export function logEnvCheckResults(): void {
-  // 检查是否已经输出过
-  if ((window as any).__envCheckLogged) {
-    return;
+export const checkEnvironmentVariables = (): EnvCheckResult => {
+  const results: EnvCheckResult = {
+    total: 0,
+    valid: 0,
+    invalid: 0,
+    required: 0,
+    requiredValid: 0,
+    details: [],
+    hasErrors: false,
+    hasWarnings: false
+  };
+
+  // 简化检查，只检查关键配置
+  const configs = [
+    {
+      key: 'VITE_OPENAI_API_KEY',
+      value: import.meta.env.VITE_OPENAI_API_KEY,
+      required: true,
+      description: 'OpenAI API密钥'
+    },
+    {
+      key: 'VITE_AUTHING_APP_ID',
+      value: import.meta.env.VITE_AUTHING_APP_ID,
+      required: true,
+      description: 'Authing应用ID'
+    },
+    {
+      key: 'VITE_AUTHING_HOST',
+      value: import.meta.env.VITE_AUTHING_HOST,
+      required: true,
+      description: 'Authing域名'
+    }
+  ];
+
+  configs.forEach(config => {
+    results.total++;
+    if (config.required) results.required++;
+    
+    const isValid = config.value && config.value !== 'your-' + config.key.toLowerCase().replace('vite_', '') + '-key';
+    
+    if (isValid) {
+      results.valid++;
+      if (config.required) results.requiredValid++;
+    } else {
+      results.invalid++;
+      if (config.required) results.hasErrors = true;
+    }
+    
+    results.details.push({
+      key: config.key,
+      value: config.value,
+      required: config.required,
+      valid: isValid,
+      description: config.description
+    });
+  });
+
+  return results;
+};
+
+/**
+ * 记录环境检查结果
+ * @param results 检查结果
+ */
+export const logEnvCheckResults = (results: EnvCheckResult): void => {
+  // 只在有错误时输出日志
+  if (results.hasErrors) {
+    console.warn('⚠️ 发现配置错误，请检查.env.local文件');
   }
-  
-  console.log('🔍 开始检查环境变量配置...');
-  console.log(EnvChecker.generateReport());
-  
-  if (EnvChecker.hasCriticalErrors()) {
-    console.error('❌ 发现严重配置错误，请检查.env.local文件');
-  } else {
-    console.log('✅ 环境变量配置检查完成');
-  }
-  
-  // 标记已输出
-  (window as any).__envCheckLogged = true;
-}
+};
+
+/**
+ * 执行环境检查并记录结果
+ */
+export const performEnvCheck = (): void => {
+  const results = checkEnvironmentVariables();
+  logEnvCheckResults(results);
+};
 
 /**
  * 在开发环境下自动检查配置（仅执行一次）
@@ -290,7 +351,7 @@ export function logEnvCheckResults(): void {
 if (import.meta.env.DEV && !(window as any).__envCheckInitialized) {
   // 延迟执行，确保环境变量已加载
   setTimeout(() => {
-    logEnvCheckResults();
+    performEnvCheck();
   }, 1000);
   
   // 标记已初始化

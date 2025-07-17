@@ -15,7 +15,7 @@ export default function CreemSDKTestPage() {
   const [testResults, setTestResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [customProductId, setCustomProductId] = useState('prod_3nJOuQeVStqkp6JaDcrKHf');
-  const [customApiKey, setCustomApiKey] = useState('creem_EGDvCS72OYrsU8ho7aJ1C');
+  const [customApiKey, setCustomApiKey] = useState(import.meta.env.VITE_CREEM_API_KEY || '');
 
   // 测试产品ID和API Key
   const testConfigs = [

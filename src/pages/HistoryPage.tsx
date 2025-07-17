@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Clock, Copy, Trash2 } from 'lucide-react';
 
 /**
@@ -28,7 +28,7 @@ export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { user, isAuthenticated } = useUnifiedAuthContext();
+  const { user, isAuthenticated } = useUnifiedAuth();
 
   // 加载历史记录
   useEffect(() => {

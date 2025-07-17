@@ -7,7 +7,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { 
   Palette,
@@ -30,7 +30,7 @@ const isDevelopment = () => {
  * 设置页面组件
  */
 const SettingsPage: React.FC = () => {
-  const { user } = useUnifiedAuthContext();
+  const { user } = useUnifiedAuth();
   const { hasRole } = usePermissions();
 
   // 开发环境下跳过权限检查

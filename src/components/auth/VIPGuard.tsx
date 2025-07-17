@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuthContext } from '../../contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '../../contexts/UnifiedAuthContext';
 import { useAuthing } from '../../hooks/useAuthing';
 
 /**
@@ -47,8 +47,8 @@ function VIPGuard({
   vipRoleCode = 'vip'
 }: VIPGuardProps) {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useUnifiedAuthContext();
-  const { showLogin } = useAuthing();
+  const { user, isAuthenticated } = useUnifiedAuth();
+  const { login } = useUnifiedAuth();
   
   // 简化的角色检查逻辑
   const isVip = user && (user as any).roles?.includes(vipRoleCode);
@@ -79,7 +79,7 @@ function VIPGuard({
           }
           
           console.log('需要登录，请先登录后再访问此功能');
-          showLogin();
+          login();
           return;
         }
 
@@ -227,7 +227,7 @@ export { VIPGuard };
  * @returns VIP权限状态
  */
 function useVIPAccess(vipRoleCode: string = 'vip') {
-  const { user, isAuthenticated } = useUnifiedAuthContext();
+  const { user, isAuthenticated } = useUnifiedAuth();
   
   const isVip = user && (user as any).roles?.includes(vipRoleCode);
   const isAdmin = user && (user as any).roles?.includes('admin');

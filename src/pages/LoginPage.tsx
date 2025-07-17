@@ -1,33 +1,157 @@
 /**
- * 只用 Authing Guard 的登录页面
+ * 登录页面 - 支持 Authing 和备用登录方式
  */
 
 import { useAuthing } from '@/hooks/useAuthing';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LogIn, AlertCircle } from 'lucide-react';
 
 /**
- * 只用 Authing Guard 的登录页面
+ * 登录页面组件
  */
 export default function LoginPage() {
-  const { showLogin, isLoggedIn } = useAuthing();
+  const { showLogin, isAuthenticated,  } = useAuthing();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [showFallback, setShowFallback] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 页面加载自动弹出 Authing Guard
-  useEffect(() => {
-    showLogin();
-  }, [showLogin]);
+  // 获取重定向地址
+  const redirectTo = searchParams.get('redirect') || '/';
 
-  // 登录成功后自动跳转首页
+  // 页面加载时尝试使用 Authing
   useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/');
+    if () {
+      // Authing 可用，使用 Authing 登录
+      login();
+    } else {
+      // Authing 不可用，显示备用登录界面
+      setTimeout(() => {
+        setShowFallback(true);
+      }, 1000);
     }
-  }, [isLoggedIn, navigate]);
+  }, [, showLogin]);
 
+  // 登录成功后自动跳转
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(redirectTo);
+    }
+  }, [isAuthenticated, navigate, redirectTo]);
+
+  // 备用登录处理
+  const handleFallbackLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      // 模拟登录过程
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // 创建模拟用户数据
+      const mockUser = {
+        id: `user_${Date.now()}`,
+        username: 'demo_user',
+        email: 'demo@example.com',
+        nickname: '演示用户',
+        avatar: ''
+      };
+      
+      // 保存到 localStorage
+      localStorage.setItem('authing_user', JSON.stringify(mockUser));
+      
+      // 跳转到目标页面
+      navigate(redirectTo);
+    } catch (error) {
+      console.error('备用登录失败:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 如果 Authing 可用且正在加载，显示加载状态
+  if ( && !showFallback) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">正在加载登录界面...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 备用登录界面
   return (
-    <div style={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <h2>请使用 Authing Guard 登录</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2">
+            <LogIn className="h-6 w-6" />
+            登录文派
+          </CardTitle>
+          <CardDescription>
+            由于认证服务暂时不可用，请使用演示模式登录
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              当前使用演示模式，登录后将获得完整的应用体验
+            </AlertDescription>
+          </Alert>
+          
+          <form onSubmit={handleFallbackLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">用户名</Label>
+              <Input 
+                id="username" 
+                type="text" 
+                placeholder="demo_user" 
+                defaultValue="demo_user"
+                disabled
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">密码</Label>
+              <Input 
+                id="password" 
+                type="password" 
+                placeholder="任意密码" 
+                defaultValue="demo123"
+                disabled
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  登录中...
+                </>
+              ) : (
+                '演示登录'
+              )}
+            </Button>
+          </form>
+          
+          <div className="mt-4 text-center text-sm text-gray-500">
+            <p>登录后将跳转到: {redirectTo}</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 } 

@@ -1,4 +1,4 @@
-import { useAuthing } from "@/hooks/useAuthing";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -6,7 +6,6 @@ import { Menu, HelpCircle } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useUnifiedAuthContext } from "@/contexts/UnifiedAuthContext"
 import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 
@@ -81,7 +80,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, login } = useUnifiedAuthContext()
+  const { user, isAuthenticated, login } = useUnifiedAuth()
   const navigate = useNavigate()
   
   return (

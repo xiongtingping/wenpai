@@ -5,14 +5,14 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 
 /**
  * 注册页面
  * 使用Authing SDK进行统一认证
  */
 export default function RegisterPage() {
-  const { login, isAuthenticated } = useUnifiedAuthContext();
+  const { login, isAuthenticated } = useUnifiedAuth();
   const navigate = useNavigate();
 
   // 页面加载自动弹出 Authing Guard

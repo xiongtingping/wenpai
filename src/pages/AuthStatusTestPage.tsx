@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedUnifiedAuth';
 import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 import { useAuthing } from '@/hooks/useAuthing';
 import { RefreshCw, User, Shield, AlertCircle } from 'lucide-react';
@@ -15,8 +15,8 @@ export default function AuthStatusTestPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   
   // 获取各种认证状态
-  const unifiedAuth = useUnifiedAuthContext();
-  const authing = useAuthing();
+  const unifiedAuth = useUnifiedAuth();
+  const { isAuthenticated, user } = useUnifiedAuth();
 
   const refreshData = () => {
     setRefreshKey(prev => prev + 1);
@@ -33,12 +33,12 @@ export default function AuthStatusTestPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* AuthContext 状态 */}
+        {/* UnifiedAuth状态 */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="w-5 h-5" />
-              AuthContext 状态
+              UnifiedAuth状态
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -115,8 +115,8 @@ export default function AuthStatusTestPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
-              <Badge variant={authing.isLoggedIn ? "default" : "secondary"}>
-                {authing.isLoggedIn ? "已登录" : "未登录"}
+              <Badge variant={authing.isAuthenticated ? "default" : "secondary"}>
+                {authing.isAuthenticated ? "已登录" : "未登录"}
               </Badge>
               {authing.loading && <Badge variant="outline">加载中</Badge>}
             </div>
@@ -151,7 +151,7 @@ export default function AuthStatusTestPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-4 gap-4 text-sm">
               <div className="font-medium">状态类型</div>
-              <div className="font-medium">AuthContext</div>
+              <div className="font-medium">UnifiedAuth</div>
               <div className="font-medium">UnifiedAuth</div>
               <div className="font-medium">Authing</div>
             </div>
@@ -160,7 +160,7 @@ export default function AuthStatusTestPage() {
               <div>认证状态</div>
               <div>{unifiedAuth.isAuthenticated ? "✅" : "❌"}</div>
               <div>{unifiedAuth.isAuthenticated ? "✅" : "❌"}</div>
-              <div>{authing.isLoggedIn ? "✅" : "❌"}</div>
+              <div>{authing.isAuthenticated ? "✅" : "❌"}</div>
             </div>
             
             <div className="grid grid-cols-4 gap-4 text-sm">
@@ -182,7 +182,7 @@ export default function AuthStatusTestPage() {
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <h3 className="font-medium text-yellow-800 mb-2">问题诊断</h3>
             <div className="space-y-1 text-sm text-yellow-700">
-              {unifiedAuth.isAuthenticated !== authing.isLoggedIn && (
+              {unifiedAuth.isAuthenticated !== authing.isAuthenticated && (
                 <div>⚠️ UnifiedAuth 和 Authing 认证状态不一致</div>
               )}
               {unifiedAuth.user?.id !== authing.user?.id && (
@@ -191,10 +191,10 @@ export default function AuthStatusTestPage() {
               {unifiedAuth.user?.id === 'temp-user-id' && (
                 <div>⚠️ 正在使用临时用户ID，可能未正确登录</div>
               )}
-              {!unifiedAuth.isAuthenticated && !authing.isLoggedIn && (
+              {!unifiedAuth.isAuthenticated && !authing.isAuthenticated && (
                 <div>✅ 所有认证状态一致：用户未登录</div>
               )}
-              {unifiedAuth.isAuthenticated && authing.isLoggedIn && 
+              {unifiedAuth.isAuthenticated && authing.isAuthenticated && 
                unifiedAuth.user?.id === authing.user?.id && (
                 <div>✅ 所有认证状态一致：用户已正确登录</div>
               )}

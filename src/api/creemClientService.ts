@@ -13,7 +13,10 @@ import QRCode from "qrcode";
  */
 export async function createCreemCheckout(priceId: string, customerEmail?: string) {
   try {
-    console.log('创建Creem支付检查点:', { priceId, customerEmail });
+    // 检查网络连接
+    if (!navigator.onLine) {
+      throw new Error('网络连接不可用');
+    }
 
     // 调用后端API创建支付检查点
     const response = await fetch('http://localhost:8888/.netlify/functions/checkout', {
@@ -33,8 +36,6 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
     }
 
     const data = await response.json();
-    console.log('Creem API响应:', data);
-
     return {
       success: true,
       checkout: data.checkout,
@@ -44,8 +45,9 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       price: data.price
     };
   } catch (error: any) {
-    console.error('Creem API调用失败:', error);
-    throw new Error(error.message || '创建支付失败');
+    // 简化错误处理，减少日志输出
+    console.log('支付服务暂时不可用，请稍后重试');
+    throw new Error('支付服务暂时不可用');
   }
 }
 
@@ -78,7 +80,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
       price: result.price
     };
   } catch (error: any) {
-    console.error('获取支付宝二维码失败:', error);
+    console.log('获取支付宝二维码失败，请稍后重试');
     throw error;
   }
 }
@@ -127,7 +129,7 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
       originalUrl: qrResult.qrUrl
     };
   } catch (error: any) {
-    console.error('生成二维码失败:', error);
+    console.log('生成二维码失败，请稍后重试');
     throw error;
   }
 }
@@ -140,7 +142,10 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
  */
 export async function startCheckout(priceId: string, customerEmail?: string) {
   try {
-    console.log('开始支付流程:', { priceId, customerEmail });
+    // 检查网络连接
+    if (!navigator.onLine) {
+      throw new Error('网络连接不可用');
+    }
 
     // 调用后端API创建支付检查点
     const response = await fetch('http://localhost:8888/.netlify/functions/checkout', {
@@ -160,7 +165,6 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
     }
 
     const data = await response.json();
-    console.log('支付检查点创建成功:', data);
 
     if (!data.success || !data.url) {
       throw new Error('无法获取支付页面URL');
@@ -172,7 +176,7 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
       checkout: data.checkout
     };
   } catch (error: any) {
-    console.error('创建支付检查点失败:', error);
+    console.log('创建支付检查点失败，请稍后重试');
     throw error;
   }
 }
@@ -193,7 +197,7 @@ export async function redirectToCheckout(priceId: string, customerEmail?: string
       throw new Error('无法获取支付页面URL');
     }
   } catch (error: any) {
-    console.error('跳转到支付页面失败:', error);
+    console.log('跳转到支付页面失败，请稍后重试');
     throw error;
   }
 } 

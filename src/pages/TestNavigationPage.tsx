@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { 
   Zap, 
   Sparkles, 
@@ -65,7 +65,7 @@ const testFeatures = [
  */
 const TestNavigationPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, login } = useUnifiedAuthContext();
+  const { isAuthenticated, login } = useUnifiedAuth();
 
   /**
    * 处理功能跳转

@@ -4,12 +4,12 @@
  */
 
 import React, { useEffect } from 'react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function UserStatusPage() {
-  const { user, isAuthenticated, loading, error } = useUnifiedAuthContext();
+  const { user, isAuthenticated, loading, error } = useUnifiedAuth();
 
   useEffect(() => {
     console.log('UserStatusPage mounted');

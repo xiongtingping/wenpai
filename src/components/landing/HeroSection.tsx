@@ -1,78 +1,110 @@
 /**
- * 首页主视觉区块（极简大标题风格）
- * 参考用户最新设计，纯白背景，大号主标题，圆润按钮，紧凑留白
- * 底部添加渐变过渡层，实现与TrustSection的自然过渡
+ * Hero区域组件
+ * 简化按钮点击逻辑
  */
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { Button } from '@/components/ui/button';
 
-export const HeroSection: React.FC = () => {
-  const { login, isAuthenticated } = useUnifiedAuthContext();
+/**
+ * Hero区域组件
+ * @returns React组件
+ */
+const HeroSection: React.FC = () => {
   const navigate = useNavigate();
-  
+  const { isAuthenticated, login } = useUnifiedAuth();
+
+  /**
+   * 处理按钮点击事件
+   */
+  const handleButtonClick = () => {
+    console.log('=== Hero按钮点击事件开始 ===');
+    console.log('Hero开始创作按钮被点击');
+    console.log('当前认证状态:', isAuthenticated);
+    console.log('login函数类型:', typeof login);
+    console.log('navigate函数类型:', typeof navigate);
+
+    if (isAuthenticated) {
+      console.log('用户已登录，直接跳转到创作页面');
+      navigate('/creative');
+    } else {
+      console.log('用户未登录，直接跳转到Authing登录页面');
+      // 直接调用登录方法，不进行复杂的网络检查
+      login('/creative');
+    }
+
+    console.log('=== Hero按钮点击事件完成 ===');
+  };
+
   return (
-    <section className="bg-white pt-32 pb-32 text-center relative">
-      <div className="max-w-6xl mx-auto px-6">
-        {/* 主标题区域 */}
-        <div className="mb-12">
-          <h1 className="text-6xl md:text-7xl font-bold leading-tight mb-6">
-            让内容创作更 <span className="text-blue-600 font-extrabold">智能</span>、更 <span className="text-pink-500 font-extrabold">高效</span>
+    <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            文派
+            <span className="text-blue-600">AI创作平台</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            AI驱动的智能内容适配、创意生成与多平台分发工具
+          
+          <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            让AI为您的品牌创作独特内容，提升营销效果，节省创作时间
           </p>
-        </div>
-
-        {/* 按钮区域 */}
-        <div className="mb-16">
-          <button 
-            onClick={() => {
-              console.log('Hero开始创作按钮被点击');
-              console.log('当前认证状态:', isAuthenticated);
-              
-              // 修复跳转逻辑：直接使用login方法
-              if (isAuthenticated) {
-                console.log('用户已登录，跳转到适配页面');
-                navigate('/adapt');
-              } else {
-                console.log('用户未登录，直接弹出Authing Guard弹窗');
-                login('/adapt');
-              }
-            }}
-            className="px-12 py-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xl font-semibold rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-3xl hover:from-blue-600 hover:via-purple-600 hover:to-pink-600"
-          >
-            🚀 开始创作
-          </button>
-        </div>
-
-        {/* 图标区域 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div className="p-8 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
-            <div className="text-4xl mb-4">🤖</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">AI智能适配</h3>
-            <p className="text-gray-600">一键适配多平台内容格式</p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button
+              onClick={handleButtonClick}
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg transition-colors"
+            >
+              开始创作
+            </Button>
+            
+            <Button
+              onClick={() => navigate('/features')}
+              variant="outline"
+              size="lg"
+              className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold rounded-lg transition-colors"
+            >
+              了解更多
+            </Button>
           </div>
-          <div className="p-8 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200">
-            <div className="text-4xl mb-4">✨</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">创意生成</h3>
-            <p className="text-gray-600">智能生成高质量创意内容</p>
-          </div>
-          <div className="p-8 bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl border border-pink-200">
-            <div className="text-4xl mb-4">📱</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">多平台分发</h3>
-            <p className="text-gray-600">一键发布到各大社交平台</p>
+          
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">快速生成</h3>
+              <p className="text-gray-600">AI秒级生成高质量内容</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">品牌一致</h3>
+              <p className="text-gray-600">保持品牌调性统一</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">成本节省</h3>
+              <p className="text-gray-600">大幅降低创作成本</p>
+            </div>
           </div>
         </div>
       </div>
-      
-      {/* 渐变过渡层 - 从白色过渡到浅灰色 */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-16"
-        style={{
-          background: 'linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%)'
-        }}
-      />
     </section>
   );
 };
+
+export default HeroSection;

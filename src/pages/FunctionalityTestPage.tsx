@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useUserStore } from '@/store/userStore';
 import { EnvChecker } from '@/utils/envChecker';
@@ -38,7 +38,7 @@ export default function FunctionalityTestPage() {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const { toast } = useToast();
-  const { user, isAuthenticated, login, logout } = useUnifiedAuthContext();
+  const { user, isAuthenticated, login, logout } = useUnifiedAuth();
   const { hasPermission, hasRole, roles, permissions } = usePermissions();
   const { tempUserId, usageRemaining, userInviteStats } = useUserStore();
 

@@ -1,9 +1,7 @@
 /**
  * Authing 配置文件
- * 使用统一的API配置管理
+ * 直接从环境变量读取配置
  */
-
-import { getAuthingConfig as getUnifiedAuthingConfig } from '@/config/apiConfig';
 
 /**
  * Authing 应用配置接口
@@ -26,12 +24,21 @@ export interface AuthingConfig {
  * @returns Authing 配置对象
  */
 export const getAuthingConfig = (): AuthingConfig => {
-  const unifiedConfig = getUnifiedAuthingConfig();
+  const appId = import.meta.env.VITE_AUTHING_APP_ID || '';
+  const host = (import.meta.env.VITE_AUTHING_HOST || '').replace(/^https?:\/\//, '');
+  
+  // 根据环境设置回调地址
+  let redirectUri = '';
+  if (import.meta.env.DEV) {
+    redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback';
+  } else {
+    redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
+  }
   
   return {
-    appId: unifiedConfig.appId,
-    host: unifiedConfig.host,
-    redirectUri: unifiedConfig.redirectUri,
+    appId,
+    host,
+    redirectUri,
     mode: 'modal',
     defaultScene: 'login',
   };

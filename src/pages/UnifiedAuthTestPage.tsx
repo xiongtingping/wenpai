@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,7 @@ export default function UnifiedAuthTestPage() {
     getUserData,
     updateUserData,
     bindTempUserId
-  } = useUnifiedAuthContext();
+  } = useUnifiedAuth();
 
   const handleTestLogin = () => {
     console.log('测试登录功能');

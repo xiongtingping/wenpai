@@ -23,7 +23,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthing } from '@/hooks/useAuthing';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useUserRoles, useSimpleUserRoles } from '@/hooks/useUserRoles';
 import { securityUtils } from '@/lib/security';
 import { 
@@ -115,7 +115,7 @@ export function UserEditForm({
   const [phone, setPhone] = useState('');
   const [avatar, setAvatar] = useState('');
 
-  const { getCurrentUser } = useAuthing();
+  const { user: authUser } = useUnifiedAuth();
   const { toast } = useToast();
 
   // 使用角色检查Hook
@@ -143,7 +143,7 @@ export function UserEditForm({
 
       logSecurity('开始加载用户信息');
 
-      const userData = await getCurrentUser();
+      const userData = await authUser;
       
       if (userData) {
         const processedUser: UserInfo = {
@@ -240,7 +240,7 @@ export function UserEditForm({
 
       // 记录保存操作
       logSecurity('用户开始保存资料', {
-        userId: user?.id,
+        userId: authUser?.id,
         changes: updateData,
         timestamp: new Date().toISOString()
       });
@@ -262,14 +262,14 @@ export function UserEditForm({
 
       // 记录保存成功
       logSecurity('用户资料保存成功', {
-        userId: user?.id,
+        userId: authUser?.id,
         changes: updateData,
         timestamp: new Date().toISOString()
       });
 
       // 执行保存后回调
-      if (onSave && user) {
-        onSave(user);
+      if (onSave && authUser) {
+        onSave(authUser);
       }
 
       // 显示成功提示
@@ -285,7 +285,7 @@ export function UserEditForm({
       
       logSecurity('保存用户信息失败', {
         error: errorMessage,
-        userId: user?.id,
+        userId: authUser?.id,
         timestamp: new Date().toISOString()
       }, 'error');
 

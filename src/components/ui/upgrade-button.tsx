@@ -6,7 +6,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Crown } from 'lucide-react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 
 /**
  * 升级专业版按钮属性
@@ -34,7 +34,7 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
   text = '立即解锁高级功能',
   className = '',
 }) => {
-  const { user } = useUnifiedAuthContext();
+  const { user } = useUnifiedAuth();
 
   /**
    * 检查用户是否是免费版

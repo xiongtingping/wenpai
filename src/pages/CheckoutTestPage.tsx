@@ -13,13 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import AlipayQRCode from '@/components/payment/AlipayQRCode';
 import CheckoutButton from '@/components/payment/CheckoutButton';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 
 export default function CheckoutTestPage() {
   const [selectedPriceId, setSelectedPriceId] = useState('prod_3nJOuQeVStqkp6JaDcrKHf');
   const [customerEmail, setCustomerEmail] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
-  const { user } = useUnifiedAuthContext();
+  const { user } = useUnifiedAuth();
 
   const testProducts = [
     {

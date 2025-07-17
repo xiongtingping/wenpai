@@ -31,7 +31,9 @@ if (import.meta.env.DEV) {
     if (args[0] && typeof args[0] === 'string' && 
         (args[0].includes('未找到Authing弹窗元素') || 
          args[0].includes('Authing服务响应超时') ||
-         args[0].includes('检查初始登录状态失败'))) {
+         args[0].includes('检查初始登录状态失败') ||
+         args[0].includes('从guard检查登录状态失败') ||
+         args[0].includes('备用检查：从guard检查登录状态失败'))) {
       return;
     }
     

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { VIPGuard, useVIPAccess, checkVIPAccess } from '@/components/auth/VIPGuard';
 import { securityUtils } from '@/lib/security';
@@ -32,7 +32,7 @@ import {
  */
 export default function VIPTestPage() {
   const { toast } = useToast();
-  const { user, isAuthenticated } = useUnifiedAuthContext();
+  const { user, isAuthenticated } = useUnifiedAuth();
   const { isVip, isAdmin, roles, loading, error, refreshRoles } = useUserRoles({
     autoCheck: true,
     enableSecurityLog: true
@@ -207,15 +207,15 @@ export default function VIPTestPage() {
         </Card>
 
         {/* 功能测试区域 */}
-        <Tabs defaultValue="vip-guard" className="mb-8">
+        <Tabs defaultValue="vip-" className="mb-8">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="vip-guard">VIP权限保护</TabsTrigger>
+            <TabsTrigger value="vip-">VIP权限保护</TabsTrigger>
             <TabsTrigger value="role-test">角色测试</TabsTrigger>
             <TabsTrigger value="security-test">安全测试</TabsTrigger>
           </TabsList>
 
           {/* VIP权限保护测试 */}
-          <TabsContent value="vip-guard" className="space-y-6">
+          <TabsContent value="vip-" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

@@ -18,7 +18,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 
 /**
@@ -31,7 +31,7 @@ const DevTools: React.FC = () => {
   // 安全地使用 useAuth hook
   let authData = { user: null, isAuthenticated: false };
   try {
-    const { user, isAuthenticated } = useUnifiedAuthContext();
+    const { user, isAuthenticated } = useUnifiedAuth();
     authData = { user, isAuthenticated };
   } catch (error) {
     console.warn('DevTools: useAuth hook not available, auth data will be empty');

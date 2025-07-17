@@ -63,4 +63,5 @@ const PageTracker: React.FC<PageTrackerProps> = ({
   return null; // 这是一个纯记录组件，不渲染任何内容
 };
 
+export { PageTracker };
 export default PageTracker; 

@@ -15,8 +15,7 @@ import {
   CheckCircle,
   X
 } from 'lucide-react';
-import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
-import { useAuthing } from '@/hooks/useAuthing';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { securityUtils } from '@/lib/security';
 
@@ -47,8 +46,7 @@ export default function AuthModal({
   onSuccess,
   className = ''
 }: AuthModalProps) {
-  const { user, isAuthenticated, loading: authLoading } = useUnifiedAuth();
-  const { showLogin } = useAuthing();
+  const { user, isAuthenticated, loading: authLoading, login } = useUnifiedAuth();
   const { toast } = useToast();
 
   /**
@@ -64,7 +62,7 @@ export default function AuthModal({
   const handleAuthingLogin = () => {
     try {
       securityUtils.secureLog('用户通过弹窗选择Authing登录');
-      showLogin();
+      login();
       handleClose(); // 关闭弹窗，让Authing Guard接管
     } catch (error) {
       console.error('Authing登录失败:', error);

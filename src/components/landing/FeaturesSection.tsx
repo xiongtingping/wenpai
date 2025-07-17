@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { 
   Zap,
   Sparkles,
@@ -179,7 +179,7 @@ const advantages = [
  * 功能特性展示区域组件
  */
 export const FeaturesSection: React.FC = () => {
-  const { login, isAuthenticated } = useUnifiedAuthContext();
+  const { login, isAuthenticated } = useUnifiedAuth();
   const navigate = useNavigate();
 
   return (

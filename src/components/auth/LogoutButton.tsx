@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthing } from '@/hooks/useAuthing';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { securityUtils } from '@/lib/security';
 import { LogOut, Shield, AlertTriangle } from 'lucide-react';
 
@@ -71,7 +71,7 @@ export function LogoutButton({
   onBeforeLogout
 }: LogoutButtonProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { logout: authingLogout } = useAuthing();
+  const { logout } = useUnifiedAuth();
   const { toast } = useToast();
 
   /**
@@ -106,7 +106,7 @@ export function LogoutButton({
       }
 
       // 执行退出登录
-      await authingLogout();
+      await logout();
 
       // 记录退出成功
       logSecurity('用户退出登录成功', {

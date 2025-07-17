@@ -1,114 +1,89 @@
 /**
- * Authing SDK 集成测试脚本
- * 测试 Authing SDK 的各项功能
+ * Authing SDK测试脚本
+ * 验证Authing配置和功能
  */
 
 const { AuthenticationClient } = require('authing-js-sdk');
 
-// Authing 配置
-const config = {
-  appId: '6867fdc88034eb95ae86167d',
-  host: 'https://qutkgzkfaezk-demo.authing.cn',
-  redirectUri: 'https://www.wenpai.xyz/callback',
+// 模拟环境变量
+const env = {
+  VITE_AUTHING_APP_ID: '6867fdc88034eb95ae86167d',
+  VITE_AUTHING_HOST: 'https://qutkgzkfaezk-demo.authing.cn',
+  VITE_AUTHING_REDIRECT_URI_DEV: 'http://localhost:5173/callback',
+  VITE_AUTHING_REDIRECT_URI_PROD: 'https://www.wenpai.xyz/callback',
+  DEV: true
 };
 
-// 创建 Authing 实例
-const authing = new AuthenticationClient({
-  appId: config.appId,
-  appHost: config.host,
-});
+// 模拟getAuthingConfig函数
+function getAuthingConfig() {
+  const appId = env.VITE_AUTHING_APP_ID || '';
+  const host = (env.VITE_AUTHING_HOST || '').replace(/^https?:\/\//, '');
+  
+  // 根据环境设置回调地址
+  let redirectUri = '';
+  if (env.DEV) {
+    redirectUri = env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback';
+  } else {
+    redirectUri = env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
+  }
+  
+  return {
+    appId,
+    host,
+    redirectUri,
+    mode: 'modal',
+    defaultScene: 'login',
+  };
+}
 
-/**
- * 测试 Authing SDK 基本功能
- */
+// 测试Authing SDK
 async function testAuthingSDK() {
-  console.log('🔐 Authing SDK 集成测试');
-  console.log('========================');
-  console.log('');
+  console.log('🧪 Authing SDK测试');
+  console.log('==================================');
+
+  const config = getAuthingConfig();
+  
+  console.log('📋 配置信息:');
+  console.log(`应用ID: ${config.appId}`);
+  console.log(`域名: ${config.host}`);
+  console.log(`回调地址: ${config.redirectUri}`);
+  console.log(`环境: ${env.DEV ? '开发环境' : '生产环境'}`);
 
   try {
-    // 1. 测试配置
-    console.log('1. 📋 测试配置信息');
-    console.log(`   App ID: ${config.appId}`);
-    console.log(`   Host: ${config.host}`);
-    console.log(`   重定向 URI: ${config.redirectUri}`);
-    console.log('   ✅ 配置信息正确');
-    console.log('');
+    // 创建Authing实例
+    const authing = new AuthenticationClient({
+      appId: config.appId,
+      appHost: config.host,
+    });
 
-    // 2. 测试 Authing 实例创建
-    console.log('2. 🔧 测试 Authing 实例创建');
-    console.log(`   Authing 实例: ${authing ? '创建成功' : '创建失败'}`);
-    console.log(`   实例类型: ${typeof authing}`);
-    console.log('   ✅ Authing 实例创建成功');
-    console.log('');
+    console.log('✅ Authing实例创建成功');
 
-    // 3. 测试获取当前用户
-    console.log('3. 👤 测试获取当前用户');
-    try {
-      const user = await authing.getCurrentUser();
-      if (user) {
-        console.log(`   用户信息: ${JSON.stringify(user, null, 2)}`);
-        console.log('   ✅ 获取用户信息成功');
-      } else {
-        console.log('   当前无用户登录');
-        console.log('   ✅ 用户状态检查正常');
-      }
-    } catch (error) {
-      console.log(`   ❌ 获取用户信息失败: ${error.message}`);
-    }
-    console.log('');
+    // 构建授权URL
+    const authorizeUrl = authing.buildAuthorizeUrl({
+      redirectUri: config.redirectUri,
+      scope: 'openid profile email phone',
+      state: '/creative',
+    });
 
-    // 4. 测试发送验证码
-    console.log('4. 📱 测试发送验证码');
-    try {
-      await authing.sendSmsCode('13800138000');
-      console.log('   ✅ 验证码发送成功');
-    } catch (error) {
-      console.log(`   ❌ 验证码发送失败: ${error.message}`);
-    }
     console.log('');
+    console.log('🔗 生成的授权URL:');
+    console.log(authorizeUrl);
 
-    console.log('🎉 Authing SDK 集成测试完成！');
     console.log('');
-    console.log('📋 测试总结:');
-    console.log('   ✅ 基本配置和实例创建正常');
-    console.log('   ✅ 用户状态检查功能正常');
-    console.log('   ✅ 验证码发送功能正常');
+    console.log('✅ Authing SDK测试完成');
+    console.log('==================================');
+
     console.log('');
-    console.log('🚀 Authing SDK 已成功集成到项目中！');
+    console.log('💡 使用说明:');
+    console.log('1. 复制上面的授权URL到浏览器');
+    console.log('2. 完成登录流程');
+    console.log('3. 检查是否能正确跳转回应用');
+    console.log('4. 验证用户信息是否正确获取');
 
   } catch (error) {
-    console.error('❌ 测试过程中发生错误:', error);
-    console.log('');
-    console.log('🔧 建议检查:');
-    console.log('   1. Authing 配置是否正确');
-    console.log('   2. 网络连接是否正常');
-    console.log('   3. Authing 服务是否可用');
-    console.log('   4. 应用权限是否配置正确');
+    console.error('❌ Authing SDK测试失败:', error);
   }
 }
 
-/**
- * 测试环境检查
- */
-function checkEnvironment() {
-  console.log('🔍 环境检查');
-  console.log('==========');
-  console.log(`Node.js 版本: ${process.version}`);
-  console.log(`当前目录: ${process.cwd()}`);
-  console.log(`环境变量 NODE_ENV: ${process.env.NODE_ENV || '未设置'}`);
-  console.log('');
-}
-
 // 运行测试
-if (require.main === module) {
-  checkEnvironment();
-  testAuthingSDK();
-}
-
-module.exports = {
-  testAuthingSDK,
-  checkEnvironment,
-  authing,
-  config,
-}; 
+testAuthingSDK(); 

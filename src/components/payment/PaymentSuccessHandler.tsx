@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { CheckCircle, Crown, Star, ArrowRight, User } from 'lucide-react';
 import { paymentService } from '@/services/paymentService';
 
@@ -25,7 +25,7 @@ export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
   const [upgradeResult, setUpgradeResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { user, updateUser } = useUnifiedAuthContext();
+  const { user, updateUser } = useUnifiedAuth();
 
   // 处理支付成功后的业务逻辑
   useEffect(() => {

@@ -1,6 +1,7 @@
 /**
  * 统一API配置管理
  * 所有API配置都从环境变量中读取，支持开发和生产环境
+ * 确保没有硬编码的API密钥
  */
 
 /**
@@ -10,7 +11,7 @@ export interface APIConfig {
   // OpenAI配置
   openai: {
     apiKey: string;
-    endpoint: string;
+    baseURL: string;
     model: string;
     timeout: number;
   };
@@ -18,7 +19,7 @@ export interface APIConfig {
   // DeepSeek配置
   deepseek: {
     apiKey: string;
-    endpoint: string;
+    baseURL: string;
     model: string;
     timeout: number;
   };
@@ -26,7 +27,7 @@ export interface APIConfig {
   // Gemini配置
   gemini: {
     apiKey: string;
-    endpoint: string;
+    baseURL: string;
     model: string;
     timeout: number;
   };
@@ -37,6 +38,13 @@ export interface APIConfig {
     secret: string;
     host: string;
     redirectUri: string;
+  };
+  
+  // Creem支付配置
+  creem: {
+    apiKey: string;
+    baseURL: string;
+    timeout: number;
   };
   
   // 后端API配置
@@ -66,6 +74,7 @@ export interface APIConfig {
     isProd: boolean;
     debugMode: boolean;
     logLevel: string;
+    nodeEnv: string;
   };
   
   // 功能开关
@@ -74,205 +83,123 @@ export interface APIConfig {
     enableImageGeneration: boolean;
     enableContentAdaptation: boolean;
     enableSecurityLogging: boolean;
+    enablePayment: boolean;
   };
 }
 
 /**
- * 默认API配置
+ * 获取API配置
+ * @returns {APIConfig} API配置对象
  */
-const DEFAULT_CONFIG: APIConfig = {
-  openai: {
-    apiKey: '',
-    endpoint: 'https://api.openai.com/v1/chat/completions',
-    model: 'gpt-4o',
-    timeout: 30000
-  },
-  deepseek: {
-    apiKey: '',
-    endpoint: 'https://api.deepseek.com/v1/chat/completions',
-    model: 'deepseek-chat',
-    timeout: 30000
-  },
-  gemini: {
-    apiKey: '',
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
-    model: 'gemini-pro',
-    timeout: 30000
-  },
-  authing: {
-    appId: '',
-    secret: '',
-    host: '',
-    redirectUri: ''
-  },
-  backend: {
-    baseUrl: '',
-    port: 3001,
-    timeout: 30000
-  },
-  payment: {
-    alipay: {
-      appId: '',
-      publicKey: '',
-      privateKey: ''
+export const getAPIConfig = (): APIConfig => {
+  const config: APIConfig = {
+    openai: {
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
+      baseURL: 'https://api.openai.com/v1',
+      model: 'gpt-4o-mini',
+      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
     },
-    wechat: {
-      appId: '',
-      mchId: '',
-      apiKey: ''
+    deepseek: {
+      apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || '',
+      baseURL: 'https://api.deepseek.com/v1',
+      model: 'deepseek-chat',
+      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+    },
+    gemini: {
+      apiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
+      baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+      model: 'gemini-pro',
+      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+    },
+    authing: {
+      appId: import.meta.env.VITE_AUTHING_APP_ID || '',
+      secret: import.meta.env.VITE_AUTHING_SECRET || '',
+      host: import.meta.env.VITE_AUTHING_HOST || '',
+      redirectUri: import.meta.env.DEV 
+        ? (import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5174/callback')
+        : (import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback'),
+    },
+    creem: {
+      apiKey: import.meta.env.VITE_CREEM_API_KEY || '',
+      baseURL: 'https://api.creem.com',
+      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+    },
+    backend: {
+      baseUrl: import.meta.env.VITE_API_BASE_URL || '',
+      port: parseInt(import.meta.env.BACKEND_PORT || '3001'),
+      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+    },
+    payment: {
+      alipay: {
+        appId: import.meta.env.VITE_ALIPAY_APP_ID || '',
+        publicKey: import.meta.env.VITE_ALIPAY_PUBLIC_KEY || '',
+        privateKey: import.meta.env.VITE_ALIPAY_PRIVATE_KEY || '',
+      },
+      wechat: {
+        appId: import.meta.env.VITE_WECHAT_APP_ID || '',
+        mchId: import.meta.env.VITE_WECHAT_MCH_ID || '',
+        apiKey: import.meta.env.VITE_WECHAT_API_KEY || '',
+      },
+    },
+    environment: {
+      isDev: import.meta.env.DEV || false,
+      isProd: import.meta.env.PROD || false,
+      debugMode: import.meta.env.VITE_DEBUG_MODE === 'true',
+      logLevel: import.meta.env.VITE_LOG_LEVEL || 'info',
+      nodeEnv: import.meta.env.MODE || 'development',
+    },
+    features: {
+      enableAI: import.meta.env.VITE_ENABLE_AI_FEATURES !== 'false',
+      enableImageGeneration: import.meta.env.VITE_ENABLE_IMAGE_GENERATION !== 'false',
+      enableContentAdaptation: import.meta.env.VITE_ENABLE_CONTENT_ADAPTATION !== 'false',
+      enableSecurityLogging: import.meta.env.VITE_ENABLE_SECURITY_LOGGING === 'true',
+      enablePayment: import.meta.env.VITE_ENABLE_PAYMENT !== 'false',
+    },
+  };
+
+  // 简化验证，只在开发模式下显示警告
+  if (import.meta.env.DEV) {
+    const invalidConfigs = Object.entries(config).filter(([key, value]) => {
+      if (key === 'authing') {
+        return !value.appId || !value.host;
+      }
+      if (key === 'creem' || key === 'openai' || key === 'deepseek' || key === 'gemini') {
+        return !value.apiKey || value.apiKey === 'your-' + key + '-api-key';
+      }
+      return false;
+    });
+    
+    if (invalidConfigs.length > 0) {
+      console.log(`⚠️ 部分API配置未设置: ${invalidConfigs.map(([key]) => key).join(', ')}`);
     }
-  },
-  environment: {
-    isDev: import.meta.env.DEV || false,
-    isProd: import.meta.env.PROD || false,
-    debugMode: import.meta.env.VITE_DEBUG_MODE === 'true',
-    logLevel: import.meta.env.VITE_LOG_LEVEL || 'info'
-  },
-  features: {
-    enableAI: import.meta.env.VITE_ENABLE_AI_FEATURES !== 'false',
-    enableImageGeneration: import.meta.env.VITE_ENABLE_IMAGE_GENERATION !== 'false',
-    enableContentAdaptation: import.meta.env.VITE_ENABLE_CONTENT_ADAPTATION !== 'false',
-    enableSecurityLogging: import.meta.env.VITE_ENABLE_SECURITY_LOGGING === 'true'
   }
+
+  return config;
 };
 
 /**
- * 从环境变量加载API配置
- */
-function loadConfigFromEnv(): APIConfig {
-  const config = { ...DEFAULT_CONFIG };
-  
-  // OpenAI配置
-  config.openai.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-  config.openai.endpoint = import.meta.env.VITE_OPENAI_ENDPOINT || config.openai.endpoint;
-  config.openai.model = import.meta.env.VITE_OPENAI_MODEL || config.openai.model;
-  config.openai.timeout = parseInt(import.meta.env.VITE_OPENAI_TIMEOUT || '30000');
-  
-  // DeepSeek配置
-  config.deepseek.apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
-  config.deepseek.endpoint = import.meta.env.VITE_DEEPSEEK_ENDPOINT || config.deepseek.endpoint;
-  config.deepseek.model = import.meta.env.VITE_DEEPSEEK_MODEL || config.deepseek.model;
-  config.deepseek.timeout = parseInt(import.meta.env.VITE_DEEPSEEK_TIMEOUT || '30000');
-  
-  // Gemini配置
-  config.gemini.apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-  config.gemini.endpoint = import.meta.env.VITE_GEMINI_ENDPOINT || config.gemini.endpoint;
-  config.gemini.model = import.meta.env.VITE_GEMINI_MODEL || config.gemini.model;
-  config.gemini.timeout = parseInt(import.meta.env.VITE_GEMINI_TIMEOUT || '30000');
-  
-  // Authing配置
-  config.authing.appId = import.meta.env.VITE_AUTHING_APP_ID || '';
-  config.authing.secret = import.meta.env.VITE_AUTHING_SECRET || '';
-  config.authing.host = import.meta.env.VITE_AUTHING_HOST || '';
-  
-  // 根据环境设置回调地址
-  if (config.environment.isDev) {
-    config.authing.redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback';
-  } else {
-    config.authing.redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
-  }
-  
-  // 后端API配置
-  config.backend.baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-  config.backend.port = parseInt(import.meta.env.BACKEND_PORT || '3001');
-  config.backend.timeout = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
-  
-  // 支付配置
-  config.payment.alipay.appId = import.meta.env.VITE_ALIPAY_APP_ID || '';
-  config.payment.alipay.publicKey = import.meta.env.VITE_ALIPAY_PUBLIC_KEY || '';
-  config.payment.alipay.privateKey = import.meta.env.VITE_ALIPAY_PRIVATE_KEY || '';
-  
-  config.payment.wechat.appId = import.meta.env.VITE_WECHAT_APP_ID || '';
-  config.payment.wechat.mchId = import.meta.env.VITE_WECHAT_MCH_ID || '';
-  config.payment.wechat.apiKey = import.meta.env.VITE_WECHAT_API_KEY || '';
-  
-  return config;
-}
-
-/**
- * 验证API配置
- */
-function validateConfig(config: APIConfig): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  
-  // 检查必需的配置
-  if (!config.openai.apiKey && config.features.enableAI) {
-    errors.push('OpenAI API密钥未配置 (VITE_OPENAI_API_KEY)');
-  }
-  
-  if (!config.authing.appId) {
-    errors.push('Authing应用ID未配置 (VITE_AUTHING_APP_ID)');
-  }
-  
-  if (!config.authing.host) {
-    errors.push('Authing域名未配置 (VITE_AUTHING_HOST)');
-  }
-  
-  if (!config.backend.baseUrl) {
-    errors.push('后端API基础URL未配置 (VITE_API_BASE_URL)');
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
-
-/**
- * 获取API配置实例
- */
-let configInstance: APIConfig | null = null;
-
-export function getAPIConfig(): APIConfig {
-  if (!configInstance) {
-    configInstance = loadConfigFromEnv();
-    
-    // 验证配置
-    const validation = validateConfig(configInstance);
-    if (!validation.isValid) {
-      console.warn('⚠️ API配置验证失败:', validation.errors);
-    }
-    
-    // 开发环境输出配置信息
-    if (configInstance.environment.isDev && configInstance.environment.debugMode) {
-      console.log('🔧 API配置已加载:', {
-        openai: { ...configInstance.openai, apiKey: configInstance.openai.apiKey ? '已设置' : '未设置' },
-        authing: { ...configInstance.authing, secret: configInstance.authing.secret ? '已设置' : '未设置' },
-        backend: configInstance.backend,
-        environment: configInstance.environment,
-        features: configInstance.features
-      });
-    }
-  }
-  
-  return configInstance;
-}
-
-/**
- * 重新加载配置（用于热重载）
+ * 重新加载API配置
  */
 export function reloadAPIConfig(): APIConfig {
-  configInstance = null;
   return getAPIConfig();
 }
 
-/**
- * 获取特定API配置的辅助函数
- */
+// 便捷的配置获取函数
 export const getOpenAIConfig = () => getAPIConfig().openai;
 export const getDeepSeekConfig = () => getAPIConfig().deepseek;
 export const getGeminiConfig = () => getAPIConfig().gemini;
 export const getAuthingConfig = () => getAPIConfig().authing;
+export const getCreemConfig = () => getAPIConfig().creem;
 export const getBackendConfig = () => getAPIConfig().backend;
 export const getPaymentConfig = () => getAPIConfig().payment;
 export const getEnvironmentConfig = () => getAPIConfig().environment;
 export const getFeaturesConfig = () => getAPIConfig().features;
 
 /**
- * 检查API密钥是否有效
+ * 验证API密钥格式
  */
-export function isValidAPIKey(apiKey: string, provider: 'openai' | 'deepseek' | 'gemini'): boolean {
-  if (!apiKey || apiKey === 'sk-your-openai-api-key-here') {
+export function isValidAPIKey(apiKey: string, provider: 'openai' | 'deepseek' | 'gemini' | 'creem'): boolean {
+  if (!apiKey || apiKey === 'sk-your-openai-api-key-here' || apiKey === 'your-gemini-api-key-here') {
     return false;
   }
   
@@ -282,35 +209,106 @@ export function isValidAPIKey(apiKey: string, provider: 'openai' | 'deepseek' | 
     case 'deepseek':
       return apiKey.startsWith('sk-') && apiKey.length >= 30;
     case 'gemini':
-      return apiKey.length >= 20; // Gemini API密钥没有特定前缀
+      return apiKey.length >= 20;
+    case 'creem':
+      return apiKey.startsWith('creem_') && apiKey.length >= 10;
     default:
       return false;
   }
 }
 
 /**
- * 获取API端点URL
+ * 获取API端点
  */
-export function getAPIEndpoint(type: 'netlify' | 'dev' | 'openai' | 'deepseek' | 'gemini'): string {
+export function getAPIEndpoint(type: 'netlify' | 'dev' | 'openai' | 'deepseek' | 'gemini' | 'creem'): string {
   const config = getAPIConfig();
   
   switch (type) {
     case 'netlify':
       return '/.netlify/functions/api';
     case 'dev':
-      return config.openai.endpoint;
+      return 'http://localhost:8888/.netlify/functions/api';
     case 'openai':
-      return config.openai.endpoint;
+      return config.openai.baseURL;
     case 'deepseek':
-      return config.deepseek.endpoint;
+      return config.deepseek.baseURL;
     case 'gemini':
-      return config.gemini.endpoint;
+      return config.gemini.baseURL;
+    case 'creem':
+      return config.creem.baseURL;
     default:
-      return '/.netlify/functions/api';
+      return '';
   }
 }
 
 /**
- * 导出默认配置实例
+ * 获取配置摘要
  */
-export default getAPIConfig(); 
+export function getConfigSummary(): {
+  totalConfigs: number;
+  validConfigs: number;
+  requiredConfigs: number;
+  requiredValid: number;
+  details: Array<{
+    name: string;
+    status: 'valid' | 'invalid' | 'missing' | 'optional';
+    description: string;
+  }>;
+} {
+  const config = getAPIConfig();
+  const details = [];
+  
+  // OpenAI配置
+  details.push({
+    name: 'OpenAI API',
+    status: config.openai.apiKey && isValidAPIKey(config.openai.apiKey, 'openai') ? 'valid' : 'missing',
+    description: '用于AI内容生成和分析'
+  });
+  
+  // DeepSeek配置
+  details.push({
+    name: 'DeepSeek API',
+    status: config.deepseek.apiKey && isValidAPIKey(config.deepseek.apiKey, 'deepseek') ? 'valid' : 'optional',
+    description: 'AI内容生成的备选方案'
+  });
+  
+  // Gemini配置
+  details.push({
+    name: 'Gemini API',
+    status: config.gemini.apiKey && isValidAPIKey(config.gemini.apiKey, 'gemini') ? 'valid' : 'optional',
+    description: 'Google AI服务'
+  });
+  
+  // Authing配置
+  details.push({
+    name: 'Authing认证',
+    status: config.authing.appId && config.authing.host ? 'valid' : 'missing',
+    description: '用户认证和授权'
+  });
+  
+  // Creem配置
+  details.push({
+    name: 'Creem支付',
+    status: config.creem.apiKey && isValidAPIKey(config.creem.apiKey, 'creem') ? 'valid' : 'optional',
+    description: '支付处理服务'
+  });
+  
+  // 后端API配置
+  details.push({
+    name: '后端API',
+    status: config.backend.baseUrl ? 'valid' : 'optional',
+    description: '后端服务接口'
+  });
+  
+  const validConfigs = details.filter(d => d.status === 'valid').length;
+  const requiredConfigs = details.filter(d => d.status === 'missing' || d.status === 'valid').length;
+  const requiredValid = details.filter(d => d.status === 'valid').length;
+  
+  return {
+    totalConfigs: details.length,
+    validConfigs,
+    requiredConfigs,
+    requiredValid,
+    details
+  };
+} 

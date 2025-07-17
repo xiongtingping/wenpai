@@ -1,11 +1,10 @@
 /**
  * 认证回调页面
- * 处理 Authing 认证回调
+ * 使用Authing SDK处理回调
  */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useNavigate } from 'react-router-dom';
 import { AuthenticationClient } from 'authing-js-sdk';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -15,8 +14,6 @@ import { getAuthingConfig } from '@/config/authing';
  */
 const Callback: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { login } = useUnifiedAuthContext();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('正在处理认证回调...');
 
@@ -26,78 +23,59 @@ const Callback: React.FC = () => {
         setStatus('loading');
         setMessage('正在验证认证信息...');
 
-        // 检查是否有错误参数
-        const error = searchParams.get('error');
-        const errorDescription = searchParams.get('error_description');
-
-        if (error) {
-          setStatus('error');
-          setMessage(`认证失败: ${errorDescription || error}`);
-          return;
-        }
-
-        // 获取授权码
-        const code = searchParams.get('code');
-        const state = searchParams.get('state');
-
-        if (!code) {
-          setStatus('error');
-          setMessage('缺少授权码');
-          return;
-        }
-
-        // 创建临时的 AuthenticationClient 来处理回调
+        // 创建Authing实例
         const config = getAuthingConfig();
-        const authingClient = new AuthenticationClient({
+        const authing = new AuthenticationClient({
           appId: config.appId,
           appHost: config.host,
         });
 
-        try {
-                // 处理授权码和状态
+        // 处理重定向回调
+        await authing.handleRedirectCallback();
+        
+        // 获取用户信息
+        const userInfo = await authing.getUserInfo();
+        
+        if (userInfo) {
+          console.log("登录成功，用户信息：", userInfo);
           
           setStatus('success');
           setMessage('认证成功！正在获取用户信息...');
           
-          // 使用授权码直接获取用户信息
-          try {
-            // 使用授权码获取用户信息
-            
-            // 构建的用户信息
-            const userInfo = {
-              id: code, // 使用授权码作为临时ID
-              username: '用户',
-              email: '',
-              phone: '',
-              nickname: '用户',
-              avatar: '',
-              authCode: code,
-              state: state,
-              loginTime: new Date().toISOString()
-            };
-            
-            // 保存用户信息到本地存储
-            localStorage.setItem('authing_user', JSON.stringify(userInfo));
-            localStorage.setItem('authing_code', code);
-            localStorage.setItem('authing_state', state);
-            
-            setMessage('用户信息获取成功！正在跳转...');
-            
-          } catch (tokenError) {
-            console.error('处理用户信息失败:', tokenError);
-            // 即使处理失败，也继续跳转
-            setMessage('认证成功！正在跳转...');
-          }
+          // 转换用户信息格式
+          const user = {
+            id: userInfo.id || userInfo.userId || `user_${Date.now()}`,
+            username: userInfo.username || userInfo.nickname || '用户',
+            email: userInfo.email || '',
+            phone: userInfo.phone || '',
+            nickname: userInfo.nickname || userInfo.username || '用户',
+            avatar: userInfo.avatar || '',
+            loginTime: new Date().toISOString()
+          };
+          
+          // 保存用户信息到本地存储
+          localStorage.setItem('authing_user', JSON.stringify(user));
+          
+          setMessage('用户信息获取成功！正在跳转...');
+          
+          // 检查是否有保存的跳转目标
+          const redirectTo = localStorage.getItem('login_redirect_to');
           
           // 延迟跳转
           setTimeout(() => {
-            navigate('/', { replace: true });
+            if (redirectTo) {
+              console.log('🎯 跳转到保存的目标:', redirectTo);
+              localStorage.removeItem('login_redirect_to');
+              navigate(redirectTo, { replace: true });
+            } else {
+              console.log('🏠 跳转到首页');
+              navigate('/', { replace: true });
+            }
           }, 1500);
 
-        } catch (tokenError) {
-          console.error('获取访问令牌失败:', tokenError);
+        } else {
           setStatus('error');
-          setMessage(`获取访问令牌失败: ${tokenError instanceof Error ? tokenError.message : '未知错误'}`);
+          setMessage('获取用户信息失败');
         }
 
       } catch (error) {
@@ -108,7 +86,7 @@ const Callback: React.FC = () => {
     };
 
     handleCallback();
-  }, [searchParams, login, navigate]);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

@@ -16,7 +16,7 @@ interface ToolLayoutProps {
  * 工具页面布局组件
  * 提供统一的页面布局结构，支持响应式设计
  */
-export default function ToolLayout({ 
+function ToolLayout({ 
   children, 
   pageTitle,
   pageDescription,
@@ -71,3 +71,6 @@ export default function ToolLayout({
     </div>
   );
 }
+
+export { ToolLayout };
+export default ToolLayout;

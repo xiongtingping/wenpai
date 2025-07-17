@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, ArrowLeft, RefreshCw, QrCode, Smartphone, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { 
   SUBSCRIPTION_PLANS, 
   calculateDiscountCountdown, 
@@ -174,7 +174,7 @@ export default function EnhancedPaymentPage() {
   const [showRecovery, setShowRecovery] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useUnifiedAuthContext();
+  const { user } = useUnifiedAuth();
 
   // 限时优惠倒计时逻辑
   useEffect(() => {
@@ -500,7 +500,7 @@ export default function EnhancedPaymentPage() {
 
                   <EnhancedCreemAlipayQRCode
                     productId={getCreemProductId(selectedPlan, selectedPeriod)}
-                    apiKey={import.meta.env.VITE_CREEM_API_KEY || 'creem_EGDvCS72OYrsU8ho7aJ1C'}
+                    apiKey={import.meta.env.VITE_CREEM_API_KEY || ''}
                     onCheckoutCreated={handleCheckoutCreated}
                   />
                 </CardContent>

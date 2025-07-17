@@ -1,4 +1,4 @@
-import { useAuthing } from "@/hooks/useAuthing";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 /**
  * 个人中心页面 - 完整功能版
  * 包含头像上传、表单编辑、验证码功能、保存按钮等
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useUserStore } from '@/store/userStore';
 import { getOrCreateTempUserId } from '@/lib/utils';
 import { LogOut, Crown, Copy as CopyIcon, Save, Info, Gift } from 'lucide-react';
@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { user, isAuthenticated, logout, login } = useUnifiedAuthContext();
+  const { user, isAuthenticated, logout, login } = useUnifiedAuth();
   const userId = user?.id;
   const isTempUser = !user?.email; // 如果没有邮箱，认为是临时用户
   const { usageRemaining, getCurrentUserId, getReferrer } = useUserStore();

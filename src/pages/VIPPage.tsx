@@ -1,4 +1,4 @@
-import { useAuthing } from "@/hooks/useAuthing";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { useUnifiedAuth } from "@/hooks/useUnifiedAuth";
 /**
  * VIP页面组件
@@ -27,7 +27,7 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 
 /**
  * VIP页面组件
@@ -36,9 +36,9 @@ import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 export default function VIPPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isAuthenticated, login } = useUnifiedAuthContext();
+  const { user, isAuthenticated, login } = useUnifiedAuth();
   const { user: unifiedUser, isAuthenticated: unifiedIsAuthenticated } = useUnifiedAuth();
-  const { showLogin } = useAuthing();
+  const { login } = useUnifiedAuth();
   
   // 优先使用统一认证状态
   const currentUser = unifiedUser || user;
@@ -67,7 +67,7 @@ export default function VIPPage() {
             description: "请先登录后再访问VIP页面",
             variant: "destructive"
           });
-          showLogin();
+          login();
           return;
         }
 

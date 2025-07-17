@@ -99,7 +99,8 @@ export default function CreemFinalValidationPage() {
       setProgress(25);
       addResult('API Key验证', 'info', '验证API Key配置');
       
-      const apiKey = 'creem_EGDvCS72OYrsU8ho7aJ1C';
+      // 使用环境变量中的API密钥
+      const apiKey = import.meta.env.VITE_CREEM_API_KEY || '';
       if (apiKey && apiKey.startsWith('creem_')) {
         addResult('API Key验证', 'success', 'API Key格式正确', { length: apiKey.length });
       } else {

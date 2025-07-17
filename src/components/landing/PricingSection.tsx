@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
-import { useUnifiedAuthContext } from "@/contexts/UnifiedAuthContext"
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext"
 import { Crown, Sparkles, Check, X, Star } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
@@ -19,7 +19,7 @@ export function PricingSection() {
   const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
   const [timeLeft, setTimeLeft] = useState(0);
   const { toast } = useToast()
-  const { user: currentUser, isAuthenticated } = useUnifiedAuthContext();
+  const { user: currentUser, isAuthenticated } = useUnifiedAuth();
   
   // 使用统一认证状态
   const inPromo = isInPromoPeriod(currentUser?.id);

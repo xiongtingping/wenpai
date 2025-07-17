@@ -89,27 +89,57 @@ npm run preview
 
 ## 🔧 配置
 
-### Authing 配置
+### 快速配置
 
-1. 在 [Authing 控制台](https://console.authing.cn) 创建应用
-2. 复制应用 ID 和域名
-3. 在 `src/config/authing.ts` 中配置:
+我们提供了便捷的配置工具来帮助您快速设置项目：
 
-```typescript
-export const getAuthingConfig = () => ({
-  appId: import.meta.env.VITE_AUTHING_APP_ID || 'your-app-id',
-  host: import.meta.env.VITE_AUTHING_HOST || 'https://your-domain.authing.cn'
-});
+```bash
+# 检查当前配置状态
+./check-deployment-config.sh
+
+# 快速配置环境变量
+./setup-deployment-config.sh
 ```
 
-### 环境变量
+### 必需配置
 
-创建 `.env.local` 文件:
+项目需要以下必需的环境变量：
 
 ```env
-VITE_AUTHING_APP_ID=your-authing-app-id
-VITE_AUTHING_HOST=https://your-domain.authing.cn
+# OpenAI API配置（必需）
+VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
+
+# Authing认证配置（必需）
+VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
+VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
+VITE_AUTHING_REDIRECT_URI_PROD=https://your-domain.com/callback
 ```
+
+### 可选配置
+
+```env
+# DeepSeek API配置（可选）
+VITE_DEEPSEEK_API_KEY=sk-your-actual-deepseek-api-key
+
+# Gemini API配置（可选）
+VITE_GEMINI_API_KEY=your-actual-gemini-api-key
+
+# Creem支付API配置（可选）
+VITE_CREEM_API_KEY=creem_your-actual-creem-api-key
+
+# 后端API配置（可选）
+VITE_API_BASE_URL=https://your-domain.com/api
+```
+
+### 配置验证
+
+部署完成后，访问 `/api-config-test` 页面验证配置是否正确。
+
+### 详细配置指南
+
+查看以下文档获取详细配置说明：
+- [部署环境API配置指南](DEPLOYMENT_API_CONFIG_GUIDE.md)
+- [API配置最终总结](API_CONFIG_FINAL_SUMMARY.md)
 
 ## 📱 功能页面
 
@@ -123,6 +153,18 @@ VITE_AUTHING_HOST=https://your-domain.authing.cn
 - **创意工作室**: `/creative-studio` - 综合创意管理工具
 - **内容抓取**: `/content-extractor` - 内容提取和AI总结
 - **个人中心**: `/profile` - 用户信息和设置
+- **配置测试**: `/api-config-test` - API配置状态验证
+
+## 🛠️ 配置工具
+
+### 自动化脚本
+- **`setup-deployment-config.sh`** - 交互式配置脚本，支持多种部署平台
+- **`check-deployment-config.sh`** - 配置状态检查脚本
+
+### 配置文档
+- **`DEPLOYMENT_API_CONFIG_GUIDE.md`** - 详细部署配置指南
+- **`API_CONFIG_FINAL_SUMMARY.md`** - API配置系统总结
+- **`API_KEYS_CONFIG.md`** - API密钥配置说明
 
 ## 🤝 贡献
 

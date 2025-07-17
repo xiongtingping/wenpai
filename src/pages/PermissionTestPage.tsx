@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import AuthGuard from '@/components/auth/AuthGuard';
 import PermissionGuard from '@/components/auth/PermissionGuard';
@@ -19,7 +19,7 @@ const isDevelopment = () => {
  * @returns React 组件
  */
 const PermissionTestPage: React.FC = () => {
-  const { user, isAuthenticated, error } = useUnifiedAuthContext();
+  const { user, isAuthenticated, error } = useUnifiedAuth();
   const { roles, permissions, hasPermission, hasRole, checkPermissions } = usePermissions();
   const [testResults, setTestResults] = useState<string[]>([]);
 

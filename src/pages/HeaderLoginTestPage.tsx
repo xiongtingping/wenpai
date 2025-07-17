@@ -5,14 +5,14 @@
 
 import React from 'react';
 import { Header } from '@/components/landing/Header';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 export default function HeaderLoginTestPage() {
-  const { user, isAuthenticated, login } = useUnifiedAuthContext();
+  const { user, isAuthenticated, login } = useUnifiedAuth();
 
   const handleTestLogin = () => {
     console.log('测试登录按钮点击');

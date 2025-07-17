@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Clock, Gift, RefreshCw, Trash2, User, Calendar } from 'lucide-react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { 
   getPromoStatus, 
   resetPaymentCenterAccessTime, 
@@ -17,7 +17,7 @@ import {
 } from '@/utils/paymentTimer';
 
 export default function PaymentTimerTestPage() {
-  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useUnifiedAuthContext();
+  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useUnifiedAuth();
   const [promoStatus, setPromoStatus] = useState(getPromoStatus(currentUser?.id));
   const [currentTime, setCurrentTime] = useState(new Date());
 

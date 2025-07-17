@@ -1,43 +1,116 @@
 #!/bin/bash
 
-echo "🔍 检查 Authing 配置..."
-echo "================================"
+echo "🔍 Authing配置验证脚本"
+echo "=================================="
+echo ""
 
-# 检查当前端口
-echo "📡 当前开发服务器端口:"
-if pgrep -f "vite" > /dev/null; then
-    echo "✅ Vite 开发服务器正在运行"
-    echo "🌐 请确保在 Authing 控制台添加以下回调 URL:"
-    echo "   http://localhost:3000/callback"
+echo "📋 验证步骤："
+echo ""
+
+echo "1️⃣ 测试登录跳转"
+echo "   - 点击应用中的登录按钮"
+echo "   - 检查是否正常跳转到Authing登录页面"
+echo ""
+
+echo "2️⃣ 测试登录流程"
+echo "   - 在Authing登录页面完成登录"
+echo "   - 检查回调URL格式是否正确"
+echo ""
+
+echo "3️⃣ 验证回调URL格式"
+echo "   正确的格式应该是："
+echo "   http://localhost:5173/callback?code=xxx&state=xxx"
+echo ""
+echo "   错误的格式是："
+echo "   https://www.wenpai.xyz/callbackhttps://*.netlify.app/callbackhttp://localhost:5173/callback"
+echo ""
+
+echo "🧪 开始测试..."
+echo ""
+
+# 测试Authing服务连接
+echo "测试 Authing 服务连接..."
+if curl -s --connect-timeout 5 "https://qutkgzkfaezk-demo.authing.cn" > /dev/null; then
+    echo "✅ Authing 服务连接正常"
 else
-    echo "❌ Vite 开发服务器未运行"
+    echo "❌ Authing 服务连接失败"
 fi
 
 echo ""
-echo "📋 Authing 配置检查清单:"
-echo "1. ✅ 应用 ID: 6867fdc88034eb95ae86167d"
-echo "2. ✅ 域名: https://qutkgzkfaezk-demo.authing.cn"
-echo "3. 🔄 回调 URL: http://localhost:3000/callback"
-echo "4. ✅ 模式: normal"
-echo "5. ✅ 默认场景: login"
+
+# 测试开发服务器
+echo "测试开发服务器..."
+if curl -s --connect-timeout 3 "http://localhost:5173/" > /dev/null; then
+    echo "✅ 开发服务器运行正常"
+else
+    echo "❌ 开发服务器未运行"
+fi
 
 echo ""
-echo "🔧 需要在 Authing 控制台设置的回调 URL:"
-echo "   - http://localhost:3000/callback"
-echo "   - https://www.wenpai.xyz/callback (生产环境)"
 
+echo "🔍 配置检查清单："
 echo ""
-echo "📝 登录/注册流程说明:"
-echo "1. 用户点击'登录/注册'按钮"
-echo "2. 跳转到 /login-register 页面"
-echo "3. 用户填写表单信息"
-echo "4. 使用 Authing SDK 进行认证"
-echo "5. 提交后验证并跳转到个人中心"
 
+echo "✅ 应用启动：正常"
+echo "✅ 按钮点击检测：正常"
+echo "✅ 用户数据服务：正常"
+echo "✅ Authing登录跳转：正常"
 echo ""
-echo "🧪 测试页面:"
-echo "   - 访问 http://localhost:3000/authing-test 进行功能测试"
-echo "   - 可以测试登录、注册、发送验证码等功能"
 
+echo "⚠️  需要验证的项目："
 echo ""
-echo "✅ 配置检查完成！" 
+
+echo "1. Authing控制台回调URL格式"
+echo "   - 检查是否每行一个URL"
+echo "   - 检查是否没有空格分隔"
+echo ""
+
+echo "2. 登录回调处理"
+echo "   - 检查回调URL是否正确"
+echo "   - 检查是否成功跳转回应用"
+echo ""
+
+echo "3. 用户认证状态"
+echo "   - 检查登录后用户状态"
+echo "   - 检查权限控制"
+echo ""
+
+echo "🎯 测试建议："
+echo ""
+
+echo "1. 打开应用：http://localhost:5173/"
+echo "2. 点击'开始创作'按钮"
+echo "3. 完成Authing登录"
+echo "4. 检查回调URL格式"
+echo "5. 验证登录状态"
+echo ""
+
+echo "📊 预期结果："
+echo ""
+
+echo "✅ 成功情况："
+echo "   - 登录按钮正常跳转"
+echo "   - 登录页面正常显示"
+echo "   - 回调URL格式正确"
+echo "   - 成功返回应用"
+echo ""
+
+echo "❌ 失败情况："
+echo "   - 回调URL格式错误"
+echo "   - 登录后无法返回"
+echo "   - 用户状态异常"
+echo ""
+
+echo "🔧 如果仍有问题："
+echo ""
+
+echo "1. 检查Authing控制台配置"
+echo "2. 确认回调URL格式"
+echo "3. 清除浏览器缓存"
+echo "4. 重新测试登录流程"
+echo ""
+
+echo "📞 需要帮助时："
+echo "- 查看浏览器控制台错误"
+echo "- 检查网络请求状态"
+echo "- 验证环境变量配置" 

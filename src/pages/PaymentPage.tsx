@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, Calendar, ArrowLeft, Check, Crown, Star, CreditCard, Percent, Zap, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { 
   SUBSCRIPTION_PLANS
 } from "@/config/subscriptionPlans";
@@ -71,7 +71,7 @@ function getCreemPriceId(plan: SubscriptionPlan, period: SubscriptionPeriod): st
 export default function PaymentPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useUnifiedAuthContext();
+  const { user: currentUser, isAuthenticated: currentIsAuthenticated } = useUnifiedAuth();
   
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<SubscriptionPeriod>('monthly');

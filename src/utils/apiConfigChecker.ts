@@ -1,243 +1,336 @@
 /**
  * API配置检查工具
- * 用于验证所有API配置是否正确设置
+ * 用于验证部署环境的API配置是否正确
  */
 
-import { getAPIConfig, isValidAPIKey } from '@/config/apiConfig';
+import { getAPIConfig, getConfigSummary, isValidAPIKey } from '@/config/apiConfig';
 
 /**
- * 配置检查结果接口
+ * API配置检查结果
  */
-export interface ConfigCheckResult {
+export interface APIConfigCheckResult {
   isValid: boolean;
   errors: string[];
   warnings: string[];
-  config: {
-    openai: { configured: boolean; valid: boolean };
-    deepseek: { configured: boolean; valid: boolean };
-    gemini: { configured: boolean; valid: boolean };
-    authing: { configured: boolean; valid: boolean };
-    backend: { configured: boolean; valid: boolean };
-    payment: { configured: boolean; valid: boolean };
+  summary: {
+    totalConfigs: number;
+    validConfigs: number;
+    requiredConfigs: number;
+    requiredValid: number;
   };
+  details: Array<{
+    name: string;
+    status: 'valid' | 'invalid' | 'missing' | 'optional';
+    description: string;
+    value?: string;
+  }>;
+  recommendations: string[];
 }
 
 /**
  * 检查API配置
- * @returns 配置检查结果
  */
-export function checkAPIConfig(): ConfigCheckResult {
+export function checkAPIConfig(): APIConfigCheckResult {
   const config = getAPIConfig();
+  const summary = getConfigSummary();
   const errors: string[] = [];
   const warnings: string[] = [];
-  
-  // 检查OpenAI配置
-  const openaiConfigured = !!config.openai.apiKey;
-  const openaiValid = isValidAPIKey(config.openai.apiKey, 'openai');
-  
-  if (!openaiConfigured && config.features.enableAI) {
-    errors.push('OpenAI API密钥未配置 (VITE_OPENAI_API_KEY)');
-  } else if (openaiConfigured && !openaiValid) {
-    errors.push('OpenAI API密钥格式无效');
+  const recommendations: string[] = [];
+
+  // 检查环境变量
+  const envVars = {
+    'VITE_OPENAI_API_KEY': import.meta.env.VITE_OPENAI_API_KEY,
+    'VITE_DEEPSEEK_API_KEY': import.meta.env.VITE_DEEPSEEK_API_KEY,
+    'VITE_GEMINI_API_KEY': import.meta.env.VITE_GEMINI_API_KEY,
+    'VITE_AUTHING_APP_ID': import.meta.env.VITE_AUTHING_APP_ID,
+    'VITE_AUTHING_HOST': import.meta.env.VITE_AUTHING_HOST,
+    'VITE_CREEM_API_KEY': import.meta.env.VITE_CREEM_API_KEY,
+    'VITE_API_BASE_URL': import.meta.env.VITE_API_BASE_URL,
+  };
+
+  // 检查必需的环境变量
+  if (!envVars['VITE_OPENAI_API_KEY']) {
+    errors.push('VITE_OPENAI_API_KEY 未设置');
+    recommendations.push('请在部署环境变量中设置 VITE_OPENAI_API_KEY');
   }
-  
-  // 检查DeepSeek配置
-  const deepseekConfigured = !!config.deepseek.apiKey;
-  const deepseekValid = isValidAPIKey(config.deepseek.apiKey, 'deepseek');
-  
-  if (deepseekConfigured && !deepseekValid) {
-    warnings.push('DeepSeek API密钥格式可能无效');
+
+  if (!envVars['VITE_AUTHING_APP_ID']) {
+    errors.push('VITE_AUTHING_APP_ID 未设置');
+    recommendations.push('请在部署环境变量中设置 VITE_AUTHING_APP_ID');
   }
-  
-  // 检查Gemini配置
-  const geminiConfigured = !!config.gemini.apiKey;
-  const geminiValid = isValidAPIKey(config.gemini.apiKey, 'gemini');
-  
-  if (geminiConfigured && !geminiValid) {
-    warnings.push('Gemini API密钥格式可能无效');
+
+  if (!envVars['VITE_AUTHING_HOST']) {
+    errors.push('VITE_AUTHING_HOST 未设置');
+    recommendations.push('请在部署环境变量中设置 VITE_AUTHING_HOST');
   }
-  
-  // 检查Authing配置
-  const authingConfigured = !!(config.authing.appId && config.authing.host);
-  const authingValid = authingConfigured && !!config.authing.redirectUri;
-  
-  if (!authingConfigured) {
-    errors.push('Authing配置不完整 (需要VITE_AUTHING_APP_ID和VITE_AUTHING_HOST)');
-  } else if (!authingValid) {
-    errors.push('Authing回调地址未配置');
+
+  // 检查可选的环境变量
+  if (!envVars['VITE_DEEPSEEK_API_KEY']) {
+    warnings.push('VITE_DEEPSEEK_API_KEY 未设置 - 将仅使用OpenAI');
+    recommendations.push('建议设置 VITE_DEEPSEEK_API_KEY 作为备选AI服务');
   }
-  
-  // 检查后端API配置
-  const backendConfigured = !!config.backend.baseUrl;
-  const backendValid = backendConfigured && config.backend.baseUrl.startsWith('http');
-  
-  if (!backendConfigured) {
-    errors.push('后端API基础URL未配置 (VITE_API_BASE_URL)');
-  } else if (!backendValid) {
-    errors.push('后端API基础URL格式无效');
+
+  if (!envVars['VITE_GEMINI_API_KEY']) {
+    warnings.push('VITE_GEMINI_API_KEY 未设置 - 将仅使用OpenAI');
+    recommendations.push('建议设置 VITE_GEMINI_API_KEY 作为备选AI服务');
   }
-  
-  // 检查支付配置
-  const alipayConfigured = !!(config.payment.alipay.appId && config.payment.alipay.publicKey);
-  const wechatConfigured = !!(config.payment.wechat.appId && config.payment.wechat.mchId);
-  const paymentConfigured = alipayConfigured || wechatConfigured;
-  
-  if (!paymentConfigured) {
-    warnings.push('支付配置未设置 (支付宝或微信支付)');
+
+  if (!envVars['VITE_CREEM_API_KEY']) {
+    warnings.push('VITE_CREEM_API_KEY 未设置 - 支付功能将不可用');
+    recommendations.push('如需支付功能，请设置 VITE_CREEM_API_KEY');
   }
-  
+
+  if (!envVars['VITE_API_BASE_URL']) {
+    warnings.push('VITE_API_BASE_URL 未设置 - 某些功能可能不可用');
+    recommendations.push('建议设置 VITE_API_BASE_URL 指向后端API服务');
+  }
+
+  // 检查API密钥格式
+  if (envVars['VITE_OPENAI_API_KEY'] && !isValidAPIKey(envVars['VITE_OPENAI_API_KEY'], 'openai')) {
+    errors.push('VITE_OPENAI_API_KEY 格式无效');
+    recommendations.push('OpenAI API密钥应以 sk- 开头，长度至少20个字符');
+  }
+
+  if (envVars['VITE_DEEPSEEK_API_KEY'] && !isValidAPIKey(envVars['VITE_DEEPSEEK_API_KEY'], 'deepseek')) {
+    errors.push('VITE_DEEPSEEK_API_KEY 格式无效');
+    recommendations.push('DeepSeek API密钥应以 sk- 开头，长度至少30个字符');
+  }
+
+  if (envVars['VITE_GEMINI_API_KEY'] && !isValidAPIKey(envVars['VITE_GEMINI_API_KEY'], 'gemini')) {
+    errors.push('VITE_GEMINI_API_KEY 格式无效');
+    recommendations.push('Gemini API密钥长度至少20个字符');
+  }
+
+  if (envVars['VITE_CREEM_API_KEY'] && !isValidAPIKey(envVars['VITE_CREEM_API_KEY'], 'creem')) {
+    errors.push('VITE_CREEM_API_KEY 格式无效');
+    recommendations.push('Creem API密钥应以 creem_ 开头');
+  }
+
+  // 检查环境配置
+  if (config.environment.isProd && !config.backend.baseUrl) {
+    warnings.push('生产环境缺少后端API配置');
+    recommendations.push('生产环境建议配置完整的后端API服务');
+  }
+
+  // 生成详细配置信息
+  const details = summary.details.map(detail => ({
+    ...detail,
+    value: getConfigValue(detail.name, config)
+  }));
+
   return {
     isValid: errors.length === 0,
     errors,
     warnings,
-    config: {
-      openai: { configured: openaiConfigured, valid: openaiValid },
-      deepseek: { configured: deepseekConfigured, valid: deepseekValid },
-      gemini: { configured: geminiConfigured, valid: geminiValid },
-      authing: { configured: authingConfigured, valid: authingValid },
-      backend: { configured: backendConfigured, valid: backendValid },
-      payment: { configured: paymentConfigured, valid: paymentConfigured }
-    }
+    summary,
+    details,
+    recommendations
   };
 }
 
 /**
- * 获取配置状态摘要
- * @returns 配置状态摘要
+ * 获取配置值（隐藏敏感信息）
  */
-export function getConfigSummary(): string {
-  const result = checkAPIConfig();
-  const config = getAPIConfig();
-  
-  let summary = '🔧 API配置状态:\n';
-  
-  // 环境信息
-  summary += `\n🌍 环境: ${config.environment.isDev ? '开发' : '生产'}`;
-  summary += `\n🔍 调试模式: ${config.environment.debugMode ? '开启' : '关闭'}`;
-  
-  // AI服务状态
-  summary += '\n\n🤖 AI服务:';
-  summary += `\n  OpenAI: ${result.config.openai.configured ? (result.config.openai.valid ? '✅ 已配置' : '⚠️ 格式错误') : '❌ 未配置'}`;
-  summary += `\n  DeepSeek: ${result.config.deepseek.configured ? (result.config.deepseek.valid ? '✅ 已配置' : '⚠️ 格式错误') : '❌ 未配置'}`;
-  summary += `\n  Gemini: ${result.config.gemini.configured ? (result.config.gemini.valid ? '✅ 已配置' : '⚠️ 格式错误') : '❌ 未配置'}`;
-  
-  // 认证服务状态
-  summary += '\n\n🔐 认证服务:';
-  summary += `\n  Authing: ${result.config.authing.configured ? (result.config.authing.valid ? '✅ 已配置' : '⚠️ 回调地址缺失') : '❌ 未配置'}`;
-  
-  // 后端服务状态
-  summary += '\n\n🔧 后端服务:';
-  summary += `\n  API: ${result.config.backend.configured ? (result.config.backend.valid ? '✅ 已配置' : '⚠️ 格式错误') : '❌ 未配置'}`;
-  
-  // 支付服务状态
-  summary += '\n\n💳 支付服务:';
-  summary += `\n  支付: ${result.config.payment.configured ? '✅ 已配置' : '❌ 未配置'}`;
-  
-  // 错误和警告
-  if (result.errors.length > 0) {
-    summary += '\n\n❌ 错误:';
-    result.errors.forEach(error => {
-      summary += `\n  - ${error}`;
-    });
-  }
-  
-  if (result.warnings.length > 0) {
-    summary += '\n\n⚠️ 警告:';
-    result.warnings.forEach(warning => {
-      summary += `\n  - ${warning}`;
-    });
-  }
-  
-  return summary;
-}
-
-/**
- * 验证特定API配置
- * @param provider API提供商
- * @returns 验证结果
- */
-export function validateAPIProvider(provider: 'openai' | 'deepseek' | 'gemini'): {
-  configured: boolean;
-  valid: boolean;
-  message: string;
-} {
-  const config = getAPIConfig();
-  
-  switch (provider) {
-    case 'openai':
-      const openaiConfigured = !!config.openai.apiKey;
-      const openaiValid = isValidAPIKey(config.openai.apiKey, 'openai');
-      return {
-        configured: openaiConfigured,
-        valid: openaiValid,
-        message: openaiConfigured 
-          ? (openaiValid ? 'OpenAI API已正确配置' : 'OpenAI API密钥格式无效')
-          : 'OpenAI API密钥未配置'
-      };
-      
-    case 'deepseek':
-      const deepseekConfigured = !!config.deepseek.apiKey;
-      const deepseekValid = isValidAPIKey(config.deepseek.apiKey, 'deepseek');
-      return {
-        configured: deepseekConfigured,
-        valid: deepseekValid,
-        message: deepseekConfigured 
-          ? (deepseekValid ? 'DeepSeek API已正确配置' : 'DeepSeek API密钥格式无效')
-          : 'DeepSeek API密钥未配置'
-      };
-      
-    case 'gemini':
-      const geminiConfigured = !!config.gemini.apiKey;
-      const geminiValid = isValidAPIKey(config.gemini.apiKey, 'gemini');
-      return {
-        configured: geminiConfigured,
-        valid: geminiValid,
-        message: geminiConfigured 
-          ? (geminiValid ? 'Gemini API已正确配置' : 'Gemini API密钥格式无效')
-          : 'Gemini API密钥未配置'
-      };
-      
+function getConfigValue(name: string, config: any): string {
+  switch (name) {
+    case 'OpenAI API':
+      return config.openai.apiKey ? `${config.openai.apiKey.substring(0, 8)}...` : '未设置';
+    case 'DeepSeek API':
+      return config.deepseek.apiKey ? `${config.deepseek.apiKey.substring(0, 8)}...` : '未设置';
+    case 'Gemini API':
+      return config.gemini.apiKey ? `${config.gemini.apiKey.substring(0, 8)}...` : '未设置';
+    case 'Authing认证':
+      return config.authing.appId ? `${config.authing.appId.substring(0, 8)}...` : '未设置';
+    case 'Creem支付':
+      return config.creem.apiKey ? `${config.creem.apiKey.substring(0, 8)}...` : '未设置';
+    case '后端API':
+      return config.backend.baseUrl || '未设置';
     default:
-      return {
-        configured: false,
-        valid: false,
-        message: '未知的API提供商'
-      };
+      return '未知';
   }
 }
 
 /**
- * 获取配置建议
- * @returns 配置建议列表
+ * 生成配置状态摘要
  */
-export function getConfigSuggestions(): string[] {
+export function getConfigStatusSummary(): {
+  status: 'success' | 'warning' | 'error';
+  message: string;
+  details: string[];
+} {
   const result = checkAPIConfig();
-  const suggestions: string[] = [];
   
-  if (!result.config.openai.configured) {
-    suggestions.push('配置OpenAI API密钥以启用AI功能');
+  if (result.isValid && result.warnings.length === 0) {
+    return {
+      status: 'success',
+      message: '✅ 所有API配置正确',
+      details: ['所有必需的API配置已正确设置', '系统可以正常运行']
+    };
+  } else if (result.isValid && result.warnings.length > 0) {
+    return {
+      status: 'warning',
+      message: '⚠️ API配置基本正确，但有一些警告',
+      details: [
+        '必需的API配置已设置',
+        '系统可以正常运行',
+        `但有 ${result.warnings.length} 个警告需要注意`
+      ]
+    };
+  } else {
+    return {
+      status: 'error',
+      message: '❌ API配置存在问题',
+      details: [
+        `发现 ${result.errors.length} 个错误`,
+        `发现 ${result.warnings.length} 个警告`,
+        '请修复配置问题后重新部署'
+      ]
+    };
   }
-  
-  if (!result.config.authing.configured) {
-    suggestions.push('配置Authing认证服务以启用用户登录');
-  }
-  
-  if (!result.config.backend.configured) {
-    suggestions.push('配置后端API地址以启用完整功能');
-  }
-  
-  if (!result.config.payment.configured) {
-    suggestions.push('配置支付服务以启用付费功能');
-  }
-  
-  if (result.config.openai.configured && !result.config.deepseek.configured) {
-    suggestions.push('考虑配置DeepSeek API作为备用AI服务');
-  }
-  
-  return suggestions;
 }
 
 /**
- * 导出默认检查函数
+ * 生成部署环境配置建议
  */
-export default checkAPIConfig; 
+export function getDeploymentRecommendations(): {
+  platform: string;
+  variables: Array<{
+    name: string;
+    value: string;
+    required: boolean;
+    description: string;
+  }>;
+  instructions: string[];
+}[] {
+  return [
+    {
+      platform: 'Netlify',
+      variables: [
+        {
+          name: 'VITE_OPENAI_API_KEY',
+          value: 'sk-your-openai-api-key',
+          required: true,
+          description: 'OpenAI API密钥'
+        },
+        {
+          name: 'VITE_AUTHING_APP_ID',
+          value: '6867fdc88034eb95ae86167d',
+          required: true,
+          description: 'Authing应用ID'
+        },
+        {
+          name: 'VITE_AUTHING_HOST',
+          value: 'https://qutkgzkfaezk-demo.authing.cn',
+          required: true,
+          description: 'Authing域名'
+        },
+        {
+          name: 'VITE_DEEPSEEK_API_KEY',
+          value: 'sk-your-deepseek-api-key',
+          required: false,
+          description: 'DeepSeek API密钥（可选）'
+        },
+        {
+          name: 'VITE_GEMINI_API_KEY',
+          value: 'your-gemini-api-key',
+          required: false,
+          description: 'Gemini API密钥（可选）'
+        },
+        {
+          name: 'VITE_CREEM_API_KEY',
+          value: 'creem_your-creem-api-key',
+          required: false,
+          description: 'Creem支付API密钥（可选）'
+        },
+        {
+          name: 'VITE_API_BASE_URL',
+          value: 'https://www.wenpai.xyz/api',
+          required: false,
+          description: '后端API基础URL（可选）'
+        }
+      ],
+      instructions: [
+        '1. 登录Netlify控制台',
+        '2. 进入项目设置 → Environment variables',
+        '3. 添加上述环境变量',
+        '4. 重新部署项目'
+      ]
+    },
+    {
+      platform: 'Vercel',
+      variables: [
+        {
+          name: 'VITE_OPENAI_API_KEY',
+          value: 'sk-your-openai-api-key',
+          required: true,
+          description: 'OpenAI API密钥'
+        },
+        {
+          name: 'VITE_AUTHING_APP_ID',
+          value: '6867fdc88034eb95ae86167d',
+          required: true,
+          description: 'Authing应用ID'
+        },
+        {
+          name: 'VITE_AUTHING_HOST',
+          value: 'https://qutkgzkfaezk-demo.authing.cn',
+          required: true,
+          description: 'Authing域名'
+        }
+      ],
+      instructions: [
+        '1. 登录Vercel控制台',
+        '2. 进入项目设置 → Environment Variables',
+        '3. 添加上述环境变量',
+        '4. 重新部署项目'
+      ]
+    }
+  ];
+}
+
+/**
+ * 验证单个API密钥
+ */
+export function validateAPIKey(apiKey: string, provider: 'openai' | 'deepseek' | 'gemini' | 'creem'): {
+  isValid: boolean;
+  error?: string;
+} {
+  if (!apiKey) {
+    return {
+      isValid: false,
+      error: 'API密钥不能为空'
+    };
+  }
+
+  if (!isValidAPIKey(apiKey, provider)) {
+    switch (provider) {
+      case 'openai':
+        return {
+          isValid: false,
+          error: 'OpenAI API密钥应以 sk- 开头，长度至少20个字符'
+        };
+      case 'deepseek':
+        return {
+          isValid: false,
+          error: 'DeepSeek API密钥应以 sk- 开头，长度至少30个字符'
+        };
+      case 'gemini':
+        return {
+          isValid: false,
+          error: 'Gemini API密钥长度至少20个字符'
+        };
+      case 'creem':
+        return {
+          isValid: false,
+          error: 'Creem API密钥应以 creem_ 开头'
+        };
+      default:
+        return {
+          isValid: false,
+          error: 'API密钥格式无效'
+        };
+    }
+  }
+
+  return { isValid: true };
+} 

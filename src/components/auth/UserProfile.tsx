@@ -21,8 +21,7 @@ import {
   Crown,
   Sparkles
 } from 'lucide-react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
-import { useAuthing } from '@/hooks/useAuthing';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { secureStorage, dataMasking, securityUtils } from '@/lib/security';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -66,8 +65,7 @@ export default function UserProfile({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const { isAuthenticated, logout } = useUnifiedAuthContext();
-  const { checkLoginStatus, getCurrentUser, showLogin } = useAuthing();
+  const { isAuthenticated, user: authUser, login, logout } = useUnifiedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -80,29 +78,25 @@ export default function UserProfile({
       setError(null);
 
       // 检查登录状态
-      const isLoggedIn = await checkLoginStatus();
-      
-      if (!isLoggedIn) {
+      if (!isAuthenticated) {
         setError('用户未登录');
         setLoading(false);
         return;
       }
 
       // 获取用户信息
-      const userData = await getCurrentUser();
-      
-      if (userData) {
+      if (authUser) {
         // 使用安全工具处理用户数据
         const processedUser: UserInfo = {
-          id: String(userData.id || userData.userId || ''),
-          username: String(userData.username || ''),
-          nickname: String(userData.nickname || userData.username || '用户'),
-          email: String(userData.email || ''),
-          phone: String(userData.phone || ''),
-          photo: String(userData.photo || userData.avatar || ''),
-          createdAt: String(userData.createdAt || new Date().toISOString()),
-          updatedAt: String(userData.updatedAt || new Date().toISOString()),
-          ...userData
+          id: String(authUser.id || authUser.userId || ''),
+          username: String(authUser.username || ''),
+          nickname: String(authUser.nickname || authUser.username || '用户'),
+          email: String(authUser.email || ''),
+          phone: String(authUser.phone || ''),
+          photo: String(authUser.photo || authUser.avatar || ''),
+          createdAt: String(authUser.createdAt || new Date().toISOString()),
+          updatedAt: String(authUser.updatedAt || new Date().toISOString()),
+          ...authUser
         };
 
         setUser(processedUser);
@@ -206,7 +200,7 @@ export default function UserProfile({
                 variant="outline" 
                 size="sm" 
                 className="mt-4"
-                onClick={() => showLogin()}
+                onClick={() => login()}
               >
                 去登录
               </Button>

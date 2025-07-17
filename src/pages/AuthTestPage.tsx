@@ -1,10 +1,10 @@
 import React from 'react';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AuthTestPage() {
-  const { user, isAuthenticated, loading, error, login, logout } = useUnifiedAuthContext();
+  const { user, isAuthenticated, loading, error, login, logout } = useUnifiedAuth();
 
   const handleShowLogin = async () => {
     console.log('AuthTestPage: showLogin called');

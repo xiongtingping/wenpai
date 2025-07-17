@@ -1,72 +1,63 @@
 #!/bin/bash
 
-# Authing 配置检查和修复脚本
-
-echo "🔍 检查 Authing 配置..."
-
-# 检查当前运行的开发服务器端口
-echo "📡 检查开发服务器端口..."
-PORTS=$(lsof -i -P | grep LISTEN | grep -E ":(3000|3001|3002|3003|3004|3005)" | awk '{print $9}' | sed 's/.*://' | sort -u)
-
-if [ -z "$PORTS" ]; then
-    echo "❌ 未检测到开发服务器运行"
-    echo "请先启动开发服务器：npm run dev"
-    exit 1
-fi
-
-echo "✅ 检测到开发服务器运行在端口: $PORTS"
-
-# 检查 Authing 配置文件
-echo "📋 检查 Authing 配置文件..."
-if [ -f "src/config/authing.ts" ]; then
-    echo "✅ 找到 Authing 配置文件"
-    
-    # 提取当前配置的 redirectUri
-    CURRENT_REDIRECT=$(grep -o "redirectUri: '[^']*'" src/config/authing.ts | head -1 | sed "s/redirectUri: '//" | sed "s/'//")
-    echo "📝 当前配置的 redirectUri: $CURRENT_REDIRECT"
-    
-    # 检查是否需要更新配置
-    NEED_UPDATE=false
-    for PORT in $PORTS; do
-        if [[ "$CURRENT_REDIRECT" == *":$PORT"* ]]; then
-            echo "✅ 配置端口 $PORT 匹配当前运行端口"
-        else
-            echo "⚠️  配置端口不匹配，需要更新"
-            NEED_UPDATE=true
-        fi
-    done
-    
-    if [ "$NEED_UPDATE" = true ]; then
-        echo ""
-        echo "🔧 需要更新 Authing 配置..."
-        echo "请在 Authing 控制台添加以下回调 URL："
-        for PORT in $PORTS; do
-            echo "   http://localhost:$PORT/callback"
-        done
-        echo ""
-        echo "📝 或者更新 src/config/authing.ts 文件中的 redirectUri"
-    fi
-else
-    echo "❌ 未找到 Authing 配置文件"
-fi
-
+echo "🔧 Authing控制台配置修复指南"
+echo "=================================="
 echo ""
-echo "🔗 Authing 控制台配置步骤："
-echo "1. 登录 Authing 控制台"
-echo "2. 进入应用管理"
-echo "3. 选择你的应用"
-echo "4. 进入 '应用配置' -> '登录回调 URL'"
-echo "5. 添加以下回调 URL："
-for PORT in $PORTS; do
-    echo "   http://localhost:$PORT/callback"
-done
-echo ""
-echo "6. 保存配置"
-echo ""
-echo "💡 提示：如果仍然出现 redirect_uri_mismatch 错误，请确保："
-echo "   - Authing 控制台中的回调 URL 与代码中的 redirectUri 完全一致"
-echo "   - 包含协议（http://）、域名（localhost）、端口号和路径（/callback）"
-echo "   - 没有多余的空格或特殊字符"
 
+echo "📋 问题诊断："
+echo "从日志可以看到回调URL格式错误，多个URL被连在一起"
 echo ""
-echo "✅ 检查完成！" 
+
+echo "🎯 解决方案："
+echo "1. 登录Authing控制台：https://console.authing.cn"
+echo "2. 进入应用管理 -> 找到您的应用"
+echo "3. 点击'应用配置' -> '登录配置'"
+echo "4. 找到'回调地址'字段"
+echo ""
+
+echo "⚠️  重要：清除错误的回调URL配置"
+echo "当前错误的配置可能是："
+echo "https://www.wenpai.xyz/callback;https://*.netlify.app/callback;http://localhost:5173/callback"
+echo ""
+
+echo "✅ 正确的配置方法："
+echo "1. 删除所有现有的回调URL"
+echo "2. 逐个添加正确的回调URL（每行一个）："
+echo ""
+echo "   http://localhost:5173/callback"
+echo "   https://www.wenpai.xyz/callback"
+echo "   https://*.netlify.app/callback"
+echo ""
+
+echo "📝 操作步骤："
+echo "1. 在回调地址输入框中，确保每个URL独占一行"
+echo "2. 不要用分号(;)或空格分隔"
+echo "3. 点击'保存'按钮"
+echo "4. 等待配置生效（通常需要1-2分钟）"
+echo ""
+
+echo "🔍 验证方法："
+echo "1. 保存配置后，等待1-2分钟"
+echo "2. 重新测试登录功能"
+echo "3. 检查回调URL是否正确"
+echo ""
+
+echo "💡 提示："
+echo "- 开发环境使用：http://localhost:5173/callback"
+echo "- 生产环境使用：https://www.wenpai.xyz/callback"
+echo "- 确保URL格式完全正确，包括协议、域名和路径"
+echo ""
+
+echo "🚀 快速修复命令："
+echo "运行以下命令重启开发服务器："
+echo "pkill -f 'vite' && sleep 2 && npm run dev"
+echo ""
+
+echo "📞 如果问题仍然存在："
+echo "1. 检查Authing应用ID和密钥是否正确"
+echo "2. 确认域名配置是否匹配"
+echo "3. 清除浏览器缓存和本地存储"
+echo ""
+
+echo "✅ 配置完成后，重新测试登录功能"
+echo "==================================" 

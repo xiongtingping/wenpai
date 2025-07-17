@@ -1,4 +1,4 @@
-import { useAuthing } from "@/hooks/useAuthing";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 /**
  * 用户信息展示页面
  * 展示当前登录用户的详细信息
@@ -20,7 +20,7 @@ import {
   LogIn
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import UserProfile from '@/components/auth/UserProfile';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
  * @returns React 组件
  */
 export default function UserProfilePage() {
-  const { user, isAuthenticated, login } = useUnifiedAuthContext();
+  const { user, isAuthenticated, login } = useUnifiedAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 

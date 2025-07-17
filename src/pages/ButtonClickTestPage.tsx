@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +21,7 @@ const testButtons: TestButton[] = [
 ];
 
 export default function ButtonClickTestPage() {
-  const { user, isAuthenticated, login } = useUnifiedAuthContext();
+  const { user, isAuthenticated, login } = useUnifiedAuth();
   const navigate = useNavigate();
 
   const handleTestButtonClick = (button: TestButton) => {

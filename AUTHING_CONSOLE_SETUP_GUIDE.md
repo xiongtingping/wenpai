@@ -1,190 +1,121 @@
-# 🔐 Authing控制台配置指南
+# Authing控制台配置完整指南
 
-## 📋 配置概览
+## 当前问题分析
 
-**配置时间**: 2025-01-05  
-**应用名称**: 文派AI  
-**配置状态**: ✅ **已完成环境变量配置**
+从您的截图可以看到，Authing控制台中的"登录回调 URL"字段存在配置错误：
 
-## 🔧 环境变量配置
+**问题：**
+- 登录回调URL字段包含了多个URL，用空格分隔
+- 这会导致Authing无法正确处理登录回调
 
-### 已配置的环境变量
-
-```bash
-# Authing 应用配置
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
-VITE_AUTHING_APP_SECRET=1b367e317a66d623ab35f89a3e853e43
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
-
-# 回调地址配置
-VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
-VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
-VITE_AUTHING_REDIRECT_URI_NETLIFY=https://*.netlify.app/callback
+**当前错误配置：**
 ```
-
-## 🌐 Authing控制台配置步骤
-
-### 1. 登录Authing控制台
-访问: https://console.authing.cn/
-
-### 2. 进入应用管理
-1. 在左侧菜单找到"应用管理"
-2. 点击进入应用列表
-3. 找到应用ID为 `6867fdc88034eb95ae86167d` 的应用
-
-### 3. 配置登录回调URL
-在应用详情页面，找到"应用配置"标签，添加以下回调URL：
-
-#### 开发环境
-```
+https://www.wenpai.xyz/callback
+https://*.netlify.app/callback  
 http://localhost:5173/callback
 ```
 
-#### 生产环境
+## 修复步骤
+
+### 1. 清除错误配置
+
+1. 在Authing控制台中，找到"登录回调 URL"字段
+2. **完全删除**当前的所有内容
+3. 点击"重置"按钮清除所有配置
+
+### 2. 添加正确的回调URL
+
+**方法一：逐个添加（推荐）**
+
+1. 点击"登录回调 URL"字段
+2. 添加第一个URL：`https://www.wenpai.xyz/callback`
+3. 按回车键确认
+4. 添加第二个URL：`https://*.netlify.app/callback`
+5. 按回车键确认
+6. 添加第三个URL：`http://localhost:5173/callback`
+7. 按回车键确认
+
+**方法二：使用换行符分隔**
+
+如果支持多行输入，可以这样输入：
 ```
 https://www.wenpai.xyz/callback
-```
-
-#### Netlify部署环境
-```
 https://*.netlify.app/callback
+http://localhost:5173/callback
 ```
 
-### 4. 配置登出回调URL
-添加以下登出回调URL：
+### 3. 验证其他配置
 
-#### 开发环境
-```
-http://localhost:5173
-```
+确保以下配置正确：
 
-#### 生产环境
+**认证地址：**
 ```
-https://www.wenpai.xyz
+https://qutkgzkfaezk-demo.authing.cn
 ```
 
-### 5. 配置允许的Web起源
-在"安全配置"中添加：
-
-#### 开发环境
+**登出回调 URL：**
 ```
-http://localhost:5173
+https://www.wenpai.xyz/
+http://localhost:5173/
 ```
 
-#### 生产环境
+**发起登录 URL：**
 ```
-https://www.wenpai.xyz
-```
-
-#### Netlify部署环境
-```
-https://*.netlify.app
+https://www.wenpai.xyz/
 ```
 
-### 6. 配置CORS起源
-在"跨域配置"中添加：
+### 4. 保存配置
 
-#### 开发环境
-```
-http://localhost:5173
-```
+1. 点击"保存"按钮
+2. 等待配置生效（通常需要1-2分钟）
+3. 检查是否有成功提示
 
-#### 生产环境
-```
-https://www.wenpai.xyz
-```
+### 5. 测试配置
 
-#### Netlify部署环境
-```
-https://*.netlify.app
-```
+配置完成后，测试登录流程：
 
-## 🔍 配置验证清单
+1. 访问您的应用：`http://localhost:5173/`
+2. 点击登录按钮
+3. 应该跳转到Authing登录页面
+4. 登录成功后应该正确跳转回应用
 
-### 基础配置验证
-- [ ] 应用状态：已启用
-- [ ] 应用类型：单页应用 (SPA)
-- [ ] 应用域名：https://qutkgzkfaezk-demo.authing.cn
+## 常见问题解决
 
-### 回调地址验证
-- [ ] 登录回调URL：已添加所有环境
-- [ ] 登出回调URL：已添加所有环境
-- [ ] 回调地址格式：正确（不包含协议前缀）
+### 问题1：回调URL格式错误
+**症状：** 登录后无法正确跳转
+**解决：** 确保每个URL都是完整的，包含协议（http/https）
 
-### 安全配置验证
-- [ ] 允许的Web起源：已配置
-- [ ] CORS起源：已配置
-- [ ] 域名白名单：已包含所有域名
+### 问题2：域名不匹配
+**症状：** 登录失败或回调错误
+**解决：** 确保回调URL的域名与您的应用域名一致
 
-## 🧪 功能测试
+### 问题3：端口配置错误
+**症状：** 本地开发环境登录失败
+**解决：** 确保本地回调URL包含正确的端口号（如5173）
 
-### 1. 开发环境测试
-1. 访问: http://localhost:5173/authing-login-test
-2. 点击"运行所有测试"
-3. 验证配置状态
-4. 测试登录功能
+## 配置验证清单
 
-### 2. 生产环境测试
-1. 部署到生产环境
-2. 访问: https://www.wenpai.xyz/authing-login-test
-3. 验证配置状态
-4. 测试登录功能
+- [ ] 登录回调URL格式正确（每行一个URL）
+- [ ] 所有URL都包含正确的协议
+- [ ] 域名和端口配置正确
+- [ ] 配置已保存
+- [ ] 等待配置生效
+- [ ] 测试登录流程
 
-### 3. Netlify部署测试
-1. 部署到Netlify
-2. 访问对应的Netlify域名
-3. 验证配置状态
-4. 测试登录功能
+## 重要提醒
 
-## 🐛 常见问题解决
+1. **配置生效时间：** Authing配置更改后需要1-2分钟才能生效
+2. **本地开发：** 确保本地开发服务器正在运行
+3. **网络连接：** 确保能够访问Authing服务器
+4. **浏览器缓存：** 如果测试失败，请清除浏览器缓存
 
-### 问题1: redirect_uri_mismatch 错误
-**原因**: 回调URL配置不正确
-**解决**: 
-1. 检查Authing控制台的回调URL配置
-2. 确保URL格式完全正确（包括协议、端口、路径）
-3. 确保没有多余的空格或特殊字符
+## 联系支持
 
-### 问题2: 登录页面无法加载
-**原因**: 网络连接或配置问题
-**解决**:
-1. 检查网络连接
-2. 验证Authing服务状态
-3. 检查浏览器控制台错误信息
+如果按照以上步骤配置后仍有问题，请：
+1. 检查Authing控制台的错误日志
+2. 确认应用ID和密钥配置正确
+3. 联系Authing技术支持
 
-### 问题3: 回调处理失败
-**原因**: 回调页面路由配置问题
-**解决**:
-1. 检查前端路由配置
-2. 验证回调页面组件
-3. 检查URL参数处理
+---
 
-## 📝 配置完成确认
-
-### 环境变量配置 ✅
-- [x] App ID: 6867fdc88034eb95ae86167d
-- [x] App Secret: 1b367e317a66d623ab35f89a3e853e43
-- [x] Host: https://qutkgzkfaezk-demo.authing.cn
-- [x] 开发环境回调: http://localhost:5173/callback
-- [x] 生产环境回调: https://www.wenpai.xyz/callback
-- [x] Netlify回调: https://*.netlify.app/callback
-
-### 代码配置 ✅
-- [x] 配置文件更新: src/config/authing.ts
-- [x] 环境变量支持: 开发和生产环境
-- [x] 测试页面: /authing-login-test
-- [x] 路由配置: App.tsx
-
-### 下一步操作
-1. **Authing控制台配置**: 按照上述步骤配置回调URL
-2. **功能测试**: 访问测试页面验证配置
-3. **生产部署**: 部署到生产环境并测试
-4. **监控设置**: 设置用户行为监控
-
-## 🎯 配置状态
-
-**当前状态**: ✅ **环境变量配置完成**  
-**下一步**: 🔧 **需要在Authing控制台配置回调URL**  
-**预计完成时间**: 5-10分钟
-
-配置完成后，Authing登录系统将完全正常工作，支持开发、生产和Netlify部署环境。 
+**配置完成后，您的登录流程应该能够正常工作！** 

@@ -1,10 +1,10 @@
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 /**
  * 权限管理 Hook
  * 提供细粒度的权限控制功能
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuthing } from './useAuthing';
 import authingService from '@/services/authingService';
 
 /**
@@ -142,7 +142,7 @@ const isDevelopment = () => {
  * @returns UsePermissionsReturn
  */
 export function usePermissions(): UsePermissionsReturn {
-  const { user, isLoggedIn } = useAuthing();
+  const { user, isAuthenticated } = useUnifiedAuth();
   const [state, setState] = useState<PermissionState>({
     roles: [],
     permissions: [],
@@ -165,7 +165,7 @@ export function usePermissions(): UsePermissionsReturn {
       return;
     }
 
-    if (!isLoggedIn || !user) {
+    if (!isAuthenticated || !user) {
       setState({
         roles: [],
         permissions: [],
@@ -206,24 +206,21 @@ export function usePermissions(): UsePermissionsReturn {
       });
     } catch (error) {
       console.error('加载权限信息失败:', error);
-      setState(prev => ({
-        ...prev,
+      setState({
+        roles: [],
+        permissions: [],
         loading: false,
         error: '加载权限信息失败',
-      }));
+      });
     }
-  }, [isLoggedIn, user]);
+  }, [isAuthenticated, user]);
 
   /**
    * 检查是否有指定权限
    */
   const hasPermission = useCallback((resource: string, action: string): boolean => {
-    // 开发环境下返回true
-    if (isDevelopment()) {
-      return true;
-    }
     return state.permissions.some(
-      permission => permission.resource === resource && permission.action === action
+      perm => perm.resource === resource && perm.action === action
     );
   }, [state.permissions]);
 
@@ -231,43 +228,27 @@ export function usePermissions(): UsePermissionsReturn {
    * 检查是否有指定角色
    */
   const hasRole = useCallback((roleName: string): boolean => {
-    // 开发环境下返回true
-    if (isDevelopment()) {
-      return true;
-    }
-    return state.roles.some(role => role.name === roleName || role.code === roleName);
+    return state.roles.some(role => role.code === roleName || role.name === roleName);
   }, [state.roles]);
 
   /**
    * 检查是否有任意指定权限
    */
   const hasAnyPermission = useCallback((permissions: Permission[]): boolean => {
-    // 开发环境下返回true
-    if (isDevelopment()) {
-      return true;
-    }
-    return permissions.some(permission => hasPermission(permission.resource, permission.action));
+    return permissions.some(perm => hasPermission(perm.resource, perm.action));
   }, [hasPermission]);
 
   /**
    * 检查是否有所有指定权限
    */
   const hasAllPermissions = useCallback((permissions: Permission[]): boolean => {
-    // 开发环境下返回true
-    if (isDevelopment()) {
-      return true;
-    }
-    return permissions.every(permission => hasPermission(permission.resource, permission.action));
+    return permissions.every(perm => hasPermission(perm.resource, perm.action));
   }, [hasPermission]);
 
   /**
    * 检查是否有任意指定角色
    */
   const hasAnyRole = useCallback((roleNames: string[]): boolean => {
-    // 开发环境下返回true
-    if (isDevelopment()) {
-      return true;
-    }
     return roleNames.some(roleName => hasRole(roleName));
   }, [hasRole]);
 
@@ -275,10 +256,6 @@ export function usePermissions(): UsePermissionsReturn {
    * 检查是否有所有指定角色
    */
   const hasAllRoles = useCallback((roleNames: string[]): boolean => {
-    // 开发环境下返回true
-    if (isDevelopment()) {
-      return true;
-    }
     return roleNames.every(roleName => hasRole(roleName));
   }, [hasRole]);
 
@@ -286,29 +263,19 @@ export function usePermissions(): UsePermissionsReturn {
    * 详细权限检查
    */
   const checkPermissions = useCallback((
-    requiredPermissions: Permission[],
+    requiredPermissions: Permission[], 
     requiredRoles: string[]
   ): PermissionCheckResult => {
-    // 开发环境下返回全部通过
-    if (isDevelopment()) {
-      return {
-        hasPermission: true,
-        missingPermissions: [],
-        missingRoles: [],
-      };
-    }
-
     const missingPermissions = requiredPermissions.filter(
-      permission => !hasPermission(permission.resource, permission.action)
+      perm => !hasPermission(perm.resource, perm.action)
     );
     
     const missingRoles = requiredRoles.filter(roleName => !hasRole(roleName));
     
-    const hasPermission = missingPermissions.length === 0;
-    const hasRole = missingRoles.length === 0;
+    const hasPermission = missingPermissions.length === 0 && missingRoles.length === 0;
     
     return {
-      hasPermission: hasPermission && hasRole,
+      hasPermission,
       missingPermissions,
       missingRoles,
     };
@@ -321,7 +288,7 @@ export function usePermissions(): UsePermissionsReturn {
     await loadPermissions();
   }, [loadPermissions]);
 
-  // 当用户登录状态改变时，重新加载权限
+  // 监听认证状态变化
   useEffect(() => {
     loadPermissions();
   }, [loadPermissions]);
@@ -337,4 +304,4 @@ export function usePermissions(): UsePermissionsReturn {
     checkPermissions,
     refreshPermissions,
   };
-} 
+}
