@@ -4,7 +4,7 @@ import { useAuthing } from "@/hooks/useAuthing";
  * 包含头像上传、表单编辑、验证码功能、保存按钮等
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, startTransition } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,11 +40,23 @@ export default function ProfilePage() {
   const [verificationCode, setVerificationCode] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [pendingValue, setPendingValue] = useState('');
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
-  if (!isAuthenticated || !user) {
-    login();
-    return null;
-  }
+  // 检查认证状态，如果需要重定向则设置标志
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      setShouldRedirect(true);
+    }
+  }, [isAuthenticated, user]);
+
+  // 如果需要重定向，则调用登录
+  useEffect(() => {
+    if (shouldRedirect) {
+      startTransition(() => {
+        login();
+      });
+    }
+  }, [shouldRedirect, login]);
 
   useEffect(() => {
     if (user) {
@@ -64,6 +76,11 @@ export default function ProfilePage() {
       setHasChanges(false);
     }
   }, [editForm, user]);
+
+  // 如果未认证或需要重定向，返回null
+  if (!isAuthenticated || !user || shouldRedirect) {
+    return null;
+  }
 
   // 处理表单变更
   const handleAvatarChange = (newAvatar: string) => {
@@ -175,18 +192,24 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try { 
       await logout(); 
-      navigate('/'); 
+      startTransition(() => {
+        navigate('/'); 
+      });
     } catch (err) {
       toast({ title: "登出失败", description: "请重试", variant: "destructive" });
     }
   };
 
   const handleUpgrade = () => {
-    navigate('/payment');
+    startTransition(() => {
+      navigate('/payment');
+    });
   };
 
   const handleInvite = () => {
-    navigate('/invite');
+    startTransition(() => {
+      navigate('/invite');
+    });
   };
 
   const handleCopyInviteLink = async () => {
@@ -223,7 +246,9 @@ export default function ProfilePage() {
   };
 
   const handleUserData = () => {
-    navigate('/user-data');
+    startTransition(() => {
+      navigate('/user-data');
+    });
   };
 
   // 检查表单是否有效
@@ -239,7 +264,7 @@ export default function ProfilePage() {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate('/')} 
+            onClick={() => startTransition(() => navigate('/'))} 
             className="hover:bg-gray-100 text-gray-600 -ml-2"
           >
             返回首页

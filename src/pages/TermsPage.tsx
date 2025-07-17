@@ -94,8 +94,8 @@ export default function TermsPage() {
                 <h4 className="font-medium mb-2">3.1 订阅计划</h4>
                 <ul className="list-disc pl-6 space-y-1">
                   <li><strong>体验版：</strong>免费使用，有使用次数限制</li>
-                  <li><strong>专业版：</strong>月付29元/年付349元，适合个人创作者</li>
-                  <li><strong>高级版：</strong>月付69元/年付828元，适合团队和企业</li>
+                  <li><strong>专业版：</strong>月付29元/年付288元（年付比月付省80元），适合个人创作者</li>
+                  <li><strong>高级版：</strong>月付79元/年付788元（年付比月付省202元），适合团队和企业</li>
                 </ul>
               </div>
               <div>

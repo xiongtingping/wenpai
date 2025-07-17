@@ -9,60 +9,52 @@ import { useUnifiedAuthContext } from "@/contexts/UnifiedAuthContext"
 import { Crown, Sparkles, Check, X, Star } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
+import { 
+  isInPromoPeriod, 
+  calculateRemainingTime, 
+  formatTimeLeft 
+} from "@/utils/paymentTimer";
 
 export function PricingSection() {
   const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
+  const [timeLeft, setTimeLeft] = useState(0);
   const { toast } = useToast()
-  const { isAuthenticated, login } = useUnifiedAuthContext()
+  const { user: currentUser, isAuthenticated } = useUnifiedAuthContext();
   
   // 使用统一认证状态
-  const currentIsAuthenticated = isAuthenticated
+  const inPromo = isInPromoPeriod(currentUser?.id);
+  const formattedTime = formatTimeLeft(timeLeft);
   const navigate = useNavigate()
-  const [timeLeft, setTimeLeft] = useState(0);
 
   // 限时优惠倒计时逻辑（30分钟）
   useEffect(() => {
-    if (!currentIsAuthenticated) return;
-    
-    // 获取用户注册时间
-    const promoStart = localStorage.getItem('promo_start');
-    if (!promoStart) return;
-    
-    const startTime = parseInt(promoStart, 10);
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const timeLeft = Math.max(0, 30 * 60 * 1000 - (now - startTime));
-      setTimeLeft(timeLeft);
-      
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-    
+    if (!isAuthenticated) return;
+    const updateCountdown = () => {
+      const remaining = calculateRemainingTime(currentUser?.id);
+      setTimeLeft(remaining);
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [currentIsAuthenticated]);
+  }, [isAuthenticated, currentUser?.id]);
 
   // 格式化倒计时
-  const formatTimeLeft = () => {
-    const minutes = Math.floor(timeLeft / 60000);
-    const seconds = Math.floor((timeLeft % 60000) / 1000);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
+  // const inPromo = isInPromoPeriod(currentUser?.id); // This line is removed as per the edit hint
 
   // 检查是否在限时优惠期内
-  const isInPromoPeriod = () => {
-    if (!currentIsAuthenticated) return false;
-    const promoStart = localStorage.getItem('promo_start');
-    if (!promoStart) return false;
+  // const isInPromoPeriod = () => { // This line is removed as per the edit hint
+  //   if (!isAuthenticated) return false;
+  //   const promoStart = localStorage.getItem('promo_start');
+  //   if (!promoStart) return false;
     
-    const startTime = parseInt(promoStart, 10);
-    const now = Date.now();
-    return (now - startTime) < 30 * 60 * 1000; // 30分钟
-  };
+  //   const startTime = parseInt(promoStart, 10);
+  //   const now = Date.now();
+  //   return (now - startTime) < 30 * 60 * 1000; // 30分钟
+  // };
 
   // Handle plan selection
   const handlePlanClick = (planId: string) => {
-    if (currentIsAuthenticated) {
+    if (isAuthenticated) {
       // User is logged in, go directly to payment
       localStorage.setItem("selectedPlan", planId);
       navigate("/payment");
@@ -74,7 +66,7 @@ export function PricingSection() {
     } else {
       // User is not logged in, redirect to login/register choice page
       localStorage.setItem("selectedPlan", planId);
-      login("/payment");
+      // login("/payment"); // This line is removed as per the edit hint
     
       toast({
         title: "正在为您跳转到登录页面",
@@ -127,16 +119,14 @@ export function PricingSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">选择适合您的方案</h2>
           <p className="mt-4 text-lg text-gray-600">从免费体验到高级版，全方位赋能新媒体创意工作者</p>
           {/* 登录用户显示倒计时 */}
-          {currentIsAuthenticated && isInPromoPeriod() && (
+          {isAuthenticated && inPromo && (
             <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
               <div className="flex flex-col items-center gap-2">
-                <div className="text-lg font-bold text-red-600">
-                  仅首次注册用户可享，注册后30分钟内享受25%折扣优惠，倒计时结束后恢复原价
-                </div>
+                <div className="text-lg md:text-xl font-bold text-red-600">新用户限时优惠</div>
                 <div className="flex items-center gap-3">
                   <span className="text-xl font-bold text-red-600">限时优惠倒计时：</span>
                   <span className="text-2xl font-bold bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
-                    {formatTimeLeft()}
+                    {formattedTime}
                   </span>
                 </div>
               </div>
@@ -169,7 +159,7 @@ export function PricingSection() {
                   : "bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200"
               }`}
             >
-              按年订阅 <span className="text-xs ml-1">(更优惠)</span>
+              按年订阅 <span className="text-xs ml-1">(省80-202元)</span>
             </Button>
           </div>
 
@@ -218,7 +208,7 @@ export function PricingSection() {
                     </div>
                   ) : (
                     <div className="text-center">
-                      {isAuthenticated && isInPromoPeriod() ? (
+                      {isAuthenticated && inPromo ? (
                         <div className="flex items-center justify-center gap-2">
                           <p className={`text-5xl font-extrabold ${
                             isRecommended ? 'text-purple-600' : 'text-gray-900'
@@ -240,7 +230,7 @@ export function PricingSection() {
                         </div>
                       )}
                       <p className="text-gray-500">/{billing === "monthly" ? "月" : "年"}</p>
-                      {isAuthenticated && isInPromoPeriod() && (
+                      {isAuthenticated && inPromo && (
                         <p className="text-xs text-red-500 mt-1">省¥{pricing.savedAmount}</p>
                       )}
                     </div>
@@ -258,7 +248,7 @@ export function PricingSection() {
                       ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90' 
                       : ''
                   }`}
-                  onClick={() => isTrial ? login() : handlePlanClick(plan.id)}
+                  onClick={() => isTrial ? handlePlanClick(plan.id) : handlePlanClick(plan.id)}
                 >
                   {isTrial ? (
                     <>

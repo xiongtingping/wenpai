@@ -61,11 +61,6 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
 }) => {
   const location = useLocation();
   const { loading: authLoading, isAuthenticated } = useUnifiedAuthContext();
-  const { user: unifiedUser, isAuthenticated: unifiedIsAuthenticated, loading: unifiedLoading } = useUnifiedAuthContext();
-  
-  // 优先使用统一认证状态
-  const currentIsAuthenticated = unifiedIsAuthenticated || isAuthenticated;
-  const currentLoading = unifiedLoading || authLoading;
   const { 
     loading: permissionLoading, 
     hasAllPermissions, 
@@ -74,12 +69,12 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   } = usePermissions();
 
   // 如果正在加载认证或权限信息，显示加载组件
-  if (currentLoading || permissionLoading) {
+  if (authLoading || permissionLoading) {
     return <>{loadingComponent}</>;
   }
 
   // 如果用户未登录，重定向到登录页
-  if (!currentIsAuthenticated) {
+  if (!isAuthenticated) {
     return (
       <Navigate
         to="/login"

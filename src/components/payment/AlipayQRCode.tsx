@@ -196,8 +196,10 @@ export default function AlipayQRCode({
                 <Shield className="h-4 w-4" />
                 <span className="text-sm font-medium">安全支付</span>
               </div>
-              <p className="text-xs text-blue-600 leading-relaxed">
-                扫码后会跳转到Creem安全支付页，请放心支付
+              <p className="text-xs leading-5 text-center">
+                扫码后会跳转到
+                <span className="text-blue-600 font-bold mx-1">Creem</span>
+                安全支付页，请放心支付
               </p>
             </div>
             

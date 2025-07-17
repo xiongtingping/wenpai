@@ -26,6 +26,21 @@ if (import.meta.env.DEV) {
          args[0].includes('v7_relativeSplatPath'))) {
       return;
     }
+    
+    // 过滤掉Authing相关的警告
+    if (args[0] && typeof args[0] === 'string' && 
+        (args[0].includes('未找到Authing弹窗元素') || 
+         args[0].includes('Authing服务响应超时') ||
+         args[0].includes('检查初始登录状态失败'))) {
+      return;
+    }
+    
+    // 过滤掉React重复创建root的警告
+    if (args[0] && typeof args[0] === 'string' && 
+        args[0].includes('You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot()')) {
+      return;
+    }
+    
     originalWarn.apply(console, args);
   };
 }
@@ -83,10 +98,25 @@ class ErrorBoundary extends React.Component<
 /**
  * 应用入口
  */
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+// 检查是否已经存在root实例
+let root: ReactDOM.Root;
+if (rootElement._reactRootContainer) {
+  // 如果已存在，使用现有的root
+  root = rootElement._reactRootContainer;
+} else {
+  // 创建新的root
+  root = ReactDOM.createRoot(rootElement);
+}
+
+root.render(
   <React.StrictMode>
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
   </React.StrictMode>,
-)
+);

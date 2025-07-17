@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付计时器功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #ffd700;
+            font-size: 1.5em;
+        }
+        .button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .button:active {
+            transform: translateY(0);
+        }
+        .status {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .timer {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 20px 0;
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #ffd700;
+        }
+        .success {
+            color: #2ecc71;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .warning {
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 新用户限时优惠功能测试</h1>
+        
+        <div class="test-section">
+            <h2>📊 当前状态</h2>
+            <div class="timer" id="timer">--:--</div>
+            <div class="status" id="status">正在检查状态...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎮 测试操作</h2>
+            <button class="button" onclick="simulateAccess()">🚀 模拟访问支付中心</button>
+            <button class="button" onclick="resetTimer()">🔄 重置计时器</button>
+            <button class="button" onclick="checkStatus()">📋 检查状态</button>
+            <button class="button" onclick="clearStorage()">🗑️ 清除存储</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 测试说明</h2>
+            <div class="info">
+                <p><strong>功能说明：</strong></p>
+                <ul>
+                    <li>新用户限时优惠从访问支付中心页面开始计时30分钟</li>
+                    <li>使用localStorage存储访问时间</li>
+                    <li>每个用户独立计时，互不影响</li>
+                    <li>实时倒计时显示剩余时间</li>
+                </ul>
+            </div>
+            <div class="info">
+                <p><strong>测试步骤：</strong></p>
+                <ol>
+                    <li>点击"模拟访问支付中心"开始计时</li>
+                    <li>观察倒计时变化</li>
+                    <li>等待30分钟或点击"重置计时器"测试结束状态</li>
+                    <li>使用"检查状态"查看详细信息</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 相关链接</h2>
+            <div class="info">
+                <p><strong>实际页面测试：</strong></p>
+                <ul>
+                    <li><a href="http://localhost:5173/payment" target="_blank" style="color: #ffd700;">支付中心页面</a></li>
+                    <li><a href="http://localhost:5173/payment-timer-test" target="_blank" style="color: #ffd700;">支付计时器测试页面</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟用户ID
+        const TEST_USER_ID = 'test_user_123';
+        const PROMO_DURATION = 30 * 60 * 1000; // 30分钟
+        let timerInterval;
+
+        // 获取支付中心访问时间
+        function getPaymentCenterAccessTime(userId) {
+            const accessTimeKey = `payment_center_access_time_${userId}`;
+            const accessTime = localStorage.getItem(accessTimeKey);
+            
+            if (accessTime) {
+                return new Date(parseInt(accessTime, 10));
+            }
+            
+            return null;
+        }
+
+        // 计算剩余时间
+        function calculateRemainingTime(userId) {
+            const accessTime = getPaymentCenterAccessTime(userId);
+            if (!accessTime) return 0;
+            
+            const now = new Date();
+            const timeDiff = now.getTime() - accessTime.getTime();
+            return Math.max(0, PROMO_DURATION - timeDiff);
+        }
+
+        // 格式化时间
+        function formatTimeLeft(timeLeft) {
+            if (timeLeft <= 0) return '已结束';
+            
+            const minutes = Math.floor(timeLeft / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 更新显示
+        function updateDisplay() {
+            const remaining = calculateRemainingTime(TEST_USER_ID);
+            const accessTime = getPaymentCenterAccessTime(TEST_USER_ID);
+            
+            document.getElementById('timer').textContent = formatTimeLeft(remaining);
+            
+            let statusText = '';
+            if (accessTime) {
+                statusText += `访问时间: ${accessTime.toLocaleString()}\n`;
+                statusText += `当前时间: ${new Date().toLocaleString()}\n`;
+                statusText += `剩余时间: ${formatTimeLeft(remaining)}\n`;
+                statusText += `优惠状态: ${remaining > 0 ? '进行中' : '已结束'}\n`;
+                statusText += `存储键名: payment_center_access_time_${TEST_USER_ID}`;
+            } else {
+                statusText = '未开始计时';
+            }
+            
+            document.getElementById('status').textContent = statusText;
+        }
+
+        // 模拟访问支付中心
+        function simulateAccess() {
+            const accessTimeKey = `payment_center_access_time_${TEST_USER_ID}`;
+            const now = new Date();
+            localStorage.setItem(accessTimeKey, now.getTime().toString());
+            
+            console.log('🎉 新用户限时优惠开始计时！', now.toLocaleString());
+            updateDisplay();
+            
+            // 开始定时器
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateDisplay, 1000);
+        }
+
+        // 重置计时器
+        function resetTimer() {
+            const accessTimeKey = `payment_center_access_time_${TEST_USER_ID}`;
+            localStorage.removeItem(accessTimeKey);
+            console.log('🔄 支付中心访问时间已重置');
+            updateDisplay();
+        }
+
+        // 检查状态
+        function checkStatus() {
+            updateDisplay();
+            console.log('📋 状态检查完成');
+        }
+
+        // 清除存储
+        function clearStorage() {
+            localStorage.clear();
+            console.log('🗑️ 所有localStorage数据已清除');
+            updateDisplay();
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDisplay();
+            timerInterval = setInterval(updateDisplay, 1000);
+        });
+    </script>
+</body>
+</html> 

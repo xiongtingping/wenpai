@@ -77,6 +77,7 @@ const AlipayQRCodeDemoPage = React.lazy(() => import('@/pages/AlipayQRCodeDemoPa
 const PaymentPlanDemoPage = React.lazy(() => import('@/pages/PaymentPlanDemoPage'));
 const PaymentFlowTestPage = React.lazy(() => import('@/pages/PaymentFlowTestPage'));
 const PaymentTestPage = React.lazy(() => import('@/pages/PaymentTestPage'));
+const PaymentTimerTestPage = React.lazy(() => import('@/pages/PaymentTimerTestPage'));
 const TestNavigationPage = React.lazy(() => import('@/pages/TestNavigationPage'));
 
 
@@ -447,6 +448,15 @@ const AppContent: React.FC = () => {
           <ToolLayout>
             <Suspense fallback={<LoadingSpinner />}>
               <PaymentFlowTestPage />
+            </Suspense>
+          </ToolLayout>
+        } />
+        
+        {/* 支付计时器测试页面 */}
+        <Route path="/payment-timer-test" element={
+          <ToolLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <PaymentTimerTestPage />
             </Suspense>
           </ToolLayout>
         } />

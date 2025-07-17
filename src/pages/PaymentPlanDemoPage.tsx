@@ -37,7 +37,7 @@ export default function PaymentPlanDemoPage() {
       tier: 'pro',
       description: '适合个人创作者和中小企业',
       monthly: { price: 29, originalPrice: 39 },
-      yearly: { price: 349, originalPrice: 468 },
+      yearly: { price: 288, originalPrice: 388 },
       creemProductId: {
         monthly: 'prod_3nJOuQeVStqkp6JaDcrKHf',
         yearly: 'prod_5qBlDTLpD3h9gvOZFd4Rgu'
@@ -56,8 +56,8 @@ export default function PaymentPlanDemoPage() {
       name: '高级版',
       tier: 'premium',
       description: '适合专业团队和企业用户',
-      monthly: { price: 69, originalPrice: 99 },
-      yearly: { price: 828, originalPrice: 1188 },
+      monthly: { price: 79, originalPrice: 99 },
+      yearly: { price: 788, originalPrice: 986 },
       creemProductId: {
         monthly: 'prod_4HYBfvrcbXYnbxjlswMj28',
         yearly: 'prod_6OfIoVnRg2pXsuYceVKOYk'
@@ -230,15 +230,15 @@ export default function PaymentPlanDemoPage() {
               </div>
               <div className="flex items-start gap-2">
                 <span className="font-medium">专业版年付:</span>
-                <span>prod_5qBlDTLpD3h9gvOZFd4Rgu (¥349)</span>
+                <span>prod_5qBlDTLpD3h9gvOZFd4Rgu (¥288)</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="font-medium">高级版月付:</span>
-                <span>prod_4HYBfvrcbXYnbxjlswMj28 (¥69)</span>
+                <span>prod_4HYBfvrcbXYnbxjlswMj28 (¥79)</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="font-medium">高级版年付:</span>
-                <span>prod_6OfIoVnRg2pXsuYceVKOYk (¥828)</span>
+                <span>prod_6OfIoVnRg2pXsuYceVKOYk (¥788)</span>
               </div>
             </div>
           </div>

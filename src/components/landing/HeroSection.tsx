@@ -28,13 +28,19 @@ export const HeroSection: React.FC = () => {
         <div className="mb-16">
           <button 
             onClick={() => {
+              console.log('Hero开始创作按钮被点击');
+              console.log('当前认证状态:', isAuthenticated);
+              
               // 优化跳转逻辑，减少延迟
               if (isAuthenticated) {
                 // 已登录用户直接跳转，使用navigate而不是window.location.href
+                console.log('用户已登录，跳转到适配页面');
                 navigate('/adapt');
               } else {
                 // 未登录用户先登录再跳转
+                console.log('用户未登录，保存跳转目标并尝试登录');
                 localStorage.setItem('login_redirect_to', '/adapt');
+                console.log('尝试调用登录方法');
                 login();
               }
             }}

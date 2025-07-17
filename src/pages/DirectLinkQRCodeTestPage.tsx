@@ -16,32 +16,33 @@ export default function DirectLinkQRCodeTestPage() {
 
   const creemProducts = [
     {
+      id: 'pro-monthly',
       name: '专业版月付',
       productId: 'prod_3nJOuQeVStqkp6JaDcrKHf',
       url: 'https://www.creem.io/payment/prod_3nJOuQeVStqkp6JaDcrKHf',
-      price: '¥29.00',
+      price: 29,
       description: '适合个人用户使用'
     },
     {
+      id: 'pro-yearly',
       name: '专业版年付',
-      productId: 'prod_5qBlDTLpD3h9gvOZFd4Rgu',
-      url: 'https://www.creem.io/payment/prod_5qBlDTLpD3h9gvOZFd4Rgu',
-      price: '¥299.00',
-      description: '年付享受更多优惠'
+      priceId: 'prod_5qBlDTLpD3h9gvOZFd4Rgu',
+      price: 288,
+      description: '年付享受更多优惠，比月付省80元'
     },
     {
+      id: 'premium-monthly',
       name: '高级版月付',
-      productId: 'prod_4HYBfvrcbXYnbxjlswMj28',
-      url: 'https://www.creem.io/payment/prod_4HYBfvrcbXYnbxjlswMj28',
-      price: '¥59.00',
-      description: '适合团队使用'
+      priceId: 'prod_4HYBfvrcbXYnbxjlswMj28',
+      price: 79,
+      description: '高级版月付订阅'
     },
     {
+      id: 'premium-yearly',
       name: '高级版年付',
-      productId: 'prod_6OfIoVnRg2pXsuYceVKOYk',
-      url: 'https://www.creem.io/payment/prod_6OfIoVnRg2pXsuYceVKOYk',
-      price: '¥599.00',
-      description: '年付享受更多优惠'
+      priceId: 'prod_6OfIoVnRg2pXsuYceVKOYk',
+      price: 788,
+      description: '年付享受更多优惠，比月付省202元'
     }
   ];
 

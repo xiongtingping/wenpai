@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心页面Suspense错误修复测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        .test-description {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .test-steps {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .test-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .test-steps li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .expected-result {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .expected-result h4 {
+            color: #90EE90;
+            margin-bottom: 10px;
+        }
+        .error-info {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .error-info h4 {
+            color: #ffcccb;
+            margin-bottom: 10px;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.fixed {
+            background: rgba(0, 255, 0, 0.2);
+            color: #90EE90;
+        }
+        .status.testing {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 个人中心页面Suspense错误修复测试</h1>
+        
+        <div class="test-section">
+            <div class="test-title">
+                🚨 问题描述 <span class="status fixed">已修复</span>
+            </div>
+            <div class="test-description">
+                在个人中心页面的"使用统计"部分点击"立即解锁高级功能"按钮时，出现React Suspense错误：
+            </div>
+            <div class="error-info">
+                <h4>错误信息：</h4>
+                <div class="code-block">
+Error: A component suspended while responding to synchronous input. 
+This will cause the UI to be replaced with a loading indicator. 
+To fix, updates that suspend should be wrapped with startTransition.
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                🔧 修复方案 <span class="status fixed">已实施</span>
+            </div>
+            <div class="test-description">
+                使用React的startTransition API包装所有可能导致组件挂起的导航操作：
+            </div>
+            <div class="code-block">
+// 修复前
+const handleUpgrade = () => {
+  navigate('/payment');
+};
+
+// 修复后
+const handleUpgrade = () => {
+  startTransition(() => {
+    navigate('/payment');
+  });
+};
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                🧪 测试步骤 <span class="status testing">需要测试</span>
+            </div>
+            <div class="test-steps">
+                <ol>
+                    <li>启动开发服务器：<code>npm run dev</code></li>
+                    <li>访问个人中心页面：<code>http://localhost:5173/profile</code></li>
+                    <li>在"使用统计"卡片中找到"立即解锁高级功能"按钮</li>
+                    <li>点击该按钮</li>
+                    <li>观察是否出现Suspense错误</li>
+                    <li>检查是否正常跳转到支付页面</li>
+                </ol>
+            </div>
+            <div class="expected-result">
+                <h4>✅ 预期结果：</h4>
+                <ul>
+                    <li>点击按钮后不再出现Suspense错误</li>
+                    <li>页面正常跳转到支付中心</li>
+                    <li>控制台没有相关错误信息</li>
+                    <li>用户体验流畅，没有加载指示器闪烁</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                🔍 修复范围
+            </div>
+            <div class="test-description">
+                以下所有导航操作都已使用startTransition包装：
+            </div>
+            <div class="code-block">
+✅ handleUpgrade() - 立即解锁高级功能
+✅ handleLogout() - 退出登录
+✅ handleInvite() - 邀请好友
+✅ handleUserData() - 用户数据
+✅ 返回首页按钮
+✅ useEffect中的登录重定向
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                📝 技术说明
+            </div>
+            <div class="test-description">
+                <strong>startTransition</strong> 是React 18引入的API，用于标记非紧急的更新。
+                当用户进行交互（如点击按钮）时，React会优先处理紧急更新，
+                而将startTransition包装的更新标记为非紧急，避免阻塞用户界面。
+            </div>
+            <div class="code-block">
+import { startTransition } from 'react';
+
+// 使用方式
+startTransition(() => {
+  // 非紧急的更新操作
+  navigate('/some-page');
+  setState(newValue);
+});
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">
+                🎯 验证清单
+            </div>
+            <div class="test-steps">
+                <ol>
+                    <li>✅ 导入startTransition</li>
+                    <li>✅ 包装handleUpgrade函数</li>
+                    <li>✅ 包装其他导航函数</li>
+                    <li>✅ 包装useEffect中的登录逻辑</li>
+                    <li>🔄 测试点击"立即解锁高级功能"按钮</li>
+                    <li>🔄 测试其他导航操作</li>
+                    <li>🔄 验证无Suspense错误</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🔧 个人中心页面Suspense错误修复测试页面已加载');
+        console.log('📋 请按照测试步骤进行验证');
+        
+        // 添加一些交互功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusElements = document.querySelectorAll('.status');
+            statusElements.forEach(element => {
+                element.addEventListener('click', function() {
+                    const status = this.textContent;
+                    console.log(`状态: ${status}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

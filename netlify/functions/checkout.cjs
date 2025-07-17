@@ -33,8 +33,12 @@ exports.handler = async function(event) {
   // 调试环境变量
   console.log('CREEM_API_KEY:', process.env.CREEM_API_KEY);
 
+  // 临时硬编码 API Key 用于测试
+  const creemApiKey = process.env.CREEM_API_KEY || 'creem_EGDvCS72OYrsU8ho7aJ1C';
+  console.log('使用的 CREEM_API_KEY:', creemApiKey);
+
   // 检查 API Key 是否存在
-  if (!process.env.CREEM_API_KEY) {
+  if (!creemApiKey) {
     console.error('CREEM_API_KEY 未配置');
     return {
       statusCode: 500,
@@ -55,7 +59,7 @@ exports.handler = async function(event) {
         productId: productId,
         customerEmail: customerEmail || undefined
       },
-      xApiKey: process.env.CREEM_API_KEY
+      xApiKey: creemApiKey
     });
     
     console.log('Creem checkout 响应:', checkout);

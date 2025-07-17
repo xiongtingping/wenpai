@@ -41,8 +41,11 @@
 [dev]
   command = "npm run dev"
   port = 8888
-  targetPort = 5178
+  targetPort = 5173
   publish = "dist"
+  
+  [dev.environment]
+    CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
 
 [[headers]]
   for = "/*"

@@ -7,13 +7,17 @@ import { Clock, Calendar, ArrowLeft, Check, Crown, Star, CreditCard, Percent, Za
 import { useNavigate } from "react-router-dom";
 import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { 
-  SUBSCRIPTION_PLANS, 
-  calculateDiscountCountdown, 
-  isInDiscountPeriod 
+  SUBSCRIPTION_PLANS
 } from "@/config/subscriptionPlans";
 import { SubscriptionPlan, SubscriptionPeriod } from "@/types/subscription";
 import { getAlipayQRCode } from "@/api/creemClientService";
 import AlipayQRCode from "@/components/payment/AlipayQRCode";
+import { 
+  getPaymentCenterAccessTime, 
+  isInPromoPeriod, 
+  calculateRemainingTime, 
+  formatTimeLeft as formatTimeLeftUtil 
+} from "@/utils/paymentTimer";
 
 /**
  * Creem 支付宝二维码组件
@@ -39,9 +43,13 @@ const CreemAlipayQRCode: React.FC<{
   );
 };
 
-// Creem价格ID映射函数
-function getCreemPriceId(plan, period) {
-  if (!plan || !period) return "";
+/**
+ * 获取Creem价格ID
+ * @param plan 订阅计划
+ * @param period 订阅周期
+ * @returns Creem价格ID
+ */
+function getCreemPriceId(plan: SubscriptionPlan, period: SubscriptionPeriod): string {
   if (plan.tier === "pro" && period === "monthly") return "prod_3nJOuQeVStqkp6JaDcrKHf";
   if (plan.tier === "pro" && period === "yearly") return "prod_5qBlDTLpD3h9gvOZFd4Rgu";
   if (plan.tier === "premium" && period === "monthly") return "prod_4HYBfvrcbXYnbxjlswMj28";
@@ -57,6 +65,7 @@ function getCreemPriceId(plan, period) {
  * 4. 优惠倒计时样式更醒目，移动端适配
  * 5. 套餐/周期切换后自动滚动到支付信息区
  * 6. 增强优惠信息展示：折扣标签、节省金额、年付优惠等
+ * 7. 新用户限时优惠：从点击到支付中心页面开始计时30分钟
  * @returns {JSX.Element}
  */
 export default function PaymentPage() {
@@ -70,66 +79,40 @@ export default function PaymentPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const paymentInfoRef = useRef<HTMLDivElement>(null);
 
-  // 获取用户注册时间
-  const getUserRegistrationTime = (): Date | undefined => {
-    if (!currentUser) return undefined;
-    
-    // 从localStorage获取注册时间，如果没有则使用当前时间
-    const registrationTime = localStorage.getItem('user_registration_time');
-    if (registrationTime) {
-      return new Date(parseInt(registrationTime, 10));
-    }
-    
-    // 如果没有存储的注册时间，创建一个（用于演示）
-    const now = new Date();
-    localStorage.setItem('user_registration_time', now.getTime().toString());
-    return now;
-  };
-
-  // 格式化倒计时显示
+  /**
+   * 格式化倒计时显示
+   * @returns {string} 格式化的倒计时字符串
+   */
   const formatTimeLeft = () => {
-    if (timeLeft <= 0) return '已结束';
-    
-    const seconds = Math.floor(timeLeft / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    
-    if (hours > 0) {
-      return `${hours}小时${minutes % 60}分钟${seconds % 60}秒`;
-    } else if (minutes > 0) {
-      return `${minutes}分钟${seconds % 60}秒`;
-    } else {
-      return `${seconds}秒`;
-    }
+    return formatTimeLeftUtil(timeLeft);
   };
 
-  // 检查是否在优惠期内
-  const isInPromoPeriod = () => {
-    if (!currentIsAuthenticated) return false;
-    
-    const registrationTime = getUserRegistrationTime();
-    if (!registrationTime) return false;
-    
-    return isInDiscountPeriod(registrationTime);
-  };
-
-  // 更新倒计时
+  /**
+   * 更新倒计时
+   */
   useEffect(() => {
     if (!currentIsAuthenticated) return;
 
-    const registrationTime = getUserRegistrationTime();
-    if (!registrationTime) return;
-
     const updateCountdown = () => {
-      const remaining = calculateDiscountCountdown(registrationTime);
+      const remaining = calculateRemainingTime(currentUser?.id);
+      const previousTimeLeft = timeLeft;
       setTimeLeft(remaining);
+      
+      // 如果优惠期结束，显示提示
+      if (remaining <= 0 && previousTimeLeft > 0) {
+        toast({
+          title: "限时优惠已结束",
+          description: "优惠期已结束，价格已恢复原价",
+          variant: "destructive"
+        });
+      }
     };
 
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, [currentIsAuthenticated]);
+  }, [currentIsAuthenticated, currentUser?.id, toast]);
 
   // 处理计划选择
   const handlePlanSelect = (plan: SubscriptionPlan) => {
@@ -157,7 +140,7 @@ export default function PaymentPage() {
     const originalPrice = pricing.originalPrice;
     
     // 如果在优惠期内，应用折扣
-    if (isInPromoPeriod()) {
+    if (isInPromoPeriod(currentUser?.id)) {
       return pricing.discountPrice || originalPrice;
     }
     
@@ -241,7 +224,7 @@ export default function PaymentPage() {
         <div className="mb-8 p-4 bg-gradient-to-r from-red-100 to-orange-50 border-2 border-red-200 rounded-xl shadow flex flex-col md:flex-row items-center justify-center gap-4">
           <div className="flex items-center gap-2">
             <Gift className="w-6 h-6 text-red-500" />
-            <span className="text-lg md:text-xl font-bold text-red-600">新用户限时优惠：30分钟</span>
+            <span className="text-lg md:text-xl font-bold text-red-600">新用户限时优惠</span>
           </div>
           <span className="flex items-center gap-2 text-xl md:text-2xl font-bold bg-red-50 px-4 py-2 rounded-lg border-2 border-red-300">
             <Clock className="w-5 h-5 text-red-400" />
@@ -265,7 +248,7 @@ export default function PaymentPage() {
           className={`min-w-[120px] transition-all duration-300 ${selectedPeriod === 'yearly' ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white' : 'bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200'}`}
         >
           按年订阅
-          <Badge variant="secondary" className="ml-2">更优惠</Badge>
+          <Badge variant="secondary" className="ml-2">省80-202元</Badge>
         </Button>
       </div>
 
@@ -274,7 +257,7 @@ export default function PaymentPage() {
         {SUBSCRIPTION_PLANS.map((plan) => {
           const pricing = selectedPeriod === 'monthly' ? plan.monthly : plan.yearly;
           const originalPrice = pricing.originalPrice;
-          const isInDiscount = isInPromoPeriod();
+          const isInDiscount = isInPromoPeriod(currentUser?.id);
           // 修复：为每个计划计算正确的价格
           const currentPrice = plan.tier === 'trial' ? 0 : (isInDiscount ? pricing.discountPrice : originalPrice);
           const savedAmount = plan.tier === 'trial' ? 0 : (originalPrice - currentPrice);
@@ -412,9 +395,9 @@ export default function PaymentPage() {
               </div>
               
               {/* 优惠信息行 */}
-              {(isInPromoPeriod() && timeLeft > 0) || selectedPeriod === 'yearly' ? (
+              {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (
                 <div className="flex gap-2 mb-4">
-                  {isInPromoPeriod() && timeLeft > 0 && (
+                  {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
                     <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
                       <Zap className="h-3 w-3 inline mr-1" />
                       限时优惠中，节省 ¥{getSavedAmount().toFixed(2)}
@@ -458,9 +441,9 @@ export default function PaymentPage() {
               </div>
               
               {/* 优惠信息行 */}
-              {(isInPromoPeriod() && timeLeft > 0) || selectedPeriod === 'yearly' ? (
+              {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (
                 <div className="flex gap-2 mb-4">
-                  {isInPromoPeriod() && timeLeft > 0 && (
+                  {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
                     <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
                       <Zap className="h-3 w-3 inline mr-1" />
                       限时优惠中

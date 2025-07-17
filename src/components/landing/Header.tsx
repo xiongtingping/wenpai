@@ -97,11 +97,17 @@ export function Header() {
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
             <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              console.log('Header AI内容适配器按钮被点击');
+              console.log('当前认证状态:', isAuthenticated);
+              
               if (isAuthenticated) {
+                console.log('用户已登录，跳转到适配页面');
                 navigate('/adapt');
               } else {
+                console.log('用户未登录，保存跳转目标并尝试登录');
                 localStorage.setItem('login_redirect_to', '/adapt');
                 try {
+                  console.log('尝试调用登录方法');
                   login();
                 } catch (error) {
                   console.warn('Authing登录服务不可用，直接跳转到登录页面');
@@ -112,11 +118,17 @@ export function Header() {
               AI内容适配器
             </Button>
             <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+              console.log('Header 创意魔方按钮被点击');
+              console.log('当前认证状态:', isAuthenticated);
+              
               if (isAuthenticated) {
+                console.log('用户已登录，跳转到创意魔方页面');
                 navigate('/creative-studio');
               } else {
+                console.log('用户未登录，保存跳转目标并尝试登录');
                 localStorage.setItem('login_redirect_to', '/creative-studio');
                 try {
+                  console.log('尝试调用登录方法');
                   login();
                 } catch (error) {
                   console.warn('Authing登录服务不可用，直接跳转到登录页面');
@@ -176,11 +188,6 @@ export function Header() {
             }}>
               定价方案
             </Button>
-            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
-              navigate('/test-navigation');
-            }}>
-              测试导航
-            </Button>
           </div>
         )}
         
@@ -188,7 +195,15 @@ export function Header() {
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
             <Button 
-              onClick={() => login('/payment')}
+              onClick={() => {
+                if (isAuthenticated) {
+                  // 已登录用户直接跳转到支付页面
+                  navigate('/payment');
+                } else {
+                  // 未登录用户先登录再跳转
+                  login('/payment');
+                }
+              }}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
             >
               立即解锁高级功能
@@ -234,7 +249,15 @@ export function Header() {
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
                 <Button 
-                  onClick={() => login('/payment')}
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      // 已登录用户直接跳转到支付页面
+                      navigate('/payment');
+                    } else {
+                      // 未登录用户先登录再跳转
+                      login('/payment');
+                    }
+                  }}
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
                 >
                   立即解锁高级功能

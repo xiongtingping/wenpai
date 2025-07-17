@@ -297,8 +297,12 @@ export class PaymentService {
 
     // 根据金额判断（备用方案）
     const amountInYuan = amount / 100;
-    if (amountInYuan >= 99) {
+    if (amountInYuan >= 788) {
       return { tier: 'premium', name: '高级版', period: 'yearly' };
+    } else if (amountInYuan >= 288) {
+      return { tier: 'pro', name: '专业版', period: 'yearly' };
+    } else if (amountInYuan >= 79) {
+      return { tier: 'premium', name: '高级版', period: 'monthly' };
     } else if (amountInYuan >= 29) {
       return { tier: 'pro', name: '专业版', period: 'monthly' };
     }
