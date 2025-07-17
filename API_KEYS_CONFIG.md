@@ -1,21 +1,15 @@
-# 🔑 API密钥配置指南
+# AI API 密钥配置
 
-## ✅ 已配置的API密钥
+## 必需配置
 
-### OpenAI API密钥
-```
-OPENAI_API_KEY = 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
-```
+### OpenAI API
+OPENAI_API_KEY = sk-***[已隐藏]***
 
-### DeepSeek API密钥
-```
-DEEPSEEK_API_KEY = sk-c195bdaf589f41978ec7322bffc6dd88
-```
+### DeepSeek API  
+DEEPSEEK_API_KEY = sk-c195bdaf58941978ec7322fc6dd88
 
-### Gemini API密钥
-```
+### Gemini API
 GEMINI_API_KEY = your-gemini-api-key
-```
 
 ## 🧪 API功能测试
 

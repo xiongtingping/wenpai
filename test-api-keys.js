@@ -4,8 +4,9 @@
  */
 
 const API_KEYS = {
-  OPENAI: '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',
-  DEEPSEEK: 'sk-c195bdaf589f41978ec7322bffc6dd88'
+  OPENAI: sk-***[已隐藏]***,
+  DEEPSEEK: 'sk-c195bdaf58941978ec7322fc6dd88,
+  GEMINI: 'your-gemini-api-key'
 };
 
 /**

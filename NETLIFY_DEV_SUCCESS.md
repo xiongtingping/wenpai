@@ -42,8 +42,8 @@
 
 ### 环境变量
 ```env
-VITE_OPENAI_API_KEY=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
-VITE_CREEM_API_KEY=creem_EGDvCS72OYrsU8ho7aJ1C
+VITE_OPENAI_API_KEY=sk-***[已隐藏]***
+VITE_CREEM_API_KEY=creem_***[已隐藏]***
 ```
 
 ### Netlify 配置
@@ -55,7 +55,7 @@ VITE_CREEM_API_KEY=creem_EGDvCS72OYrsU8ho7aJ1C
   publish = "dist"
   
   [dev.environment]
-    CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+    CREEM_API_KEY = creem_***[已隐藏]***"
 ```
 
 ## 🚀 下一步操作
