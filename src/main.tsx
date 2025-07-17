@@ -103,15 +103,7 @@ if (!rootElement) {
   throw new Error('Root element not found');
 }
 
-// 检查是否已经存在root实例
-let root: ReactDOM.Root;
-if (rootElement._reactRootContainer) {
-  // 如果已存在，使用现有的root
-  root = rootElement._reactRootContainer;
-} else {
-  // 创建新的root
-  root = ReactDOM.createRoot(rootElement);
-}
+const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>

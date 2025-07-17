@@ -38,7 +38,7 @@ export default function VIPTestPage() {
     enableSecurityLog: true
   });
 
-  const { hasVIPAccess } = useVIPAccess();
+  const { hasAccess } = useVIPAccess();
   const [testResults, setTestResults] = useState<any[]>([]);
 
   /**
@@ -187,8 +187,8 @@ export default function VIPTestPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">VIP权限：</span>
-                  <Badge variant={hasVIPAccess ? "default" : "secondary"}>
-                    {hasVIPAccess ? "有权限" : "无权限"}
+                  <Badge variant={hasAccess ? "default" : "secondary"}>
+                    {hasAccess ? "有权限" : "无权限"}
                   </Badge>
                 </div>
                 <div className="flex justify-between">

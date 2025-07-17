@@ -133,14 +133,15 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
   }, []);
 
   // 记录用户行为
-  const recordUserAction = useCallback((action: string, metadata?: any) => {
+  const recordUserAction = useCallback((actionType: string, actionData: any) => {
     try {
+      if (!user) return;
       const userDataService = UserDataService.getInstance();
-      userDataService.recordUserAction(action, metadata);
+      userDataService.recordUserAction(user.id, actionType, actionData);
     } catch (error) {
       console.error('记录用户行为失败:', error);
     }
-  }, []);
+  }, [user]);
 
   // 初始化认证状态
   useEffect(() => {

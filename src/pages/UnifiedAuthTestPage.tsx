@@ -114,7 +114,7 @@ export default function UnifiedAuthTestPage() {
                 <p><strong>用户名:</strong> {user.username}</p>
                 <p><strong>邮箱:</strong> {user.email}</p>
                 <p><strong>昵称:</strong> {user.nickname}</p>
-                <p><strong>计划:</strong> {user.plan}</p>
+                <p><strong>计划:</strong> {String(user.plan ?? '')}</p>
                 <p><strong>专业用户:</strong> {user.isProUser ? '是' : '否'}</p>
               </div>
             </CardContent>
