@@ -79,6 +79,7 @@ const PaymentFlowTestPage = React.lazy(() => import('@/pages/PaymentFlowTestPage
 const PaymentTestPage = React.lazy(() => import('@/pages/PaymentTestPage'));
 const PaymentTimerTestPage = React.lazy(() => import('@/pages/PaymentTimerTestPage'));
 const TestNavigationPage = React.lazy(() => import('@/pages/TestNavigationPage'));
+const ButtonClickTestPage = React.lazy(() => import('@/pages/ButtonClickTestPage'));
 
 
 /**
@@ -587,6 +588,13 @@ const AppContent: React.FC = () => {
         <Route path="/test-navigation" element={
           <Suspense fallback={<LoadingSpinner />}>
             <TestNavigationPage />
+          </Suspense>
+        } />
+        
+        {/* 按钮点击测试页面 */}
+        <Route path="/button-click-test" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <ButtonClickTestPage />
           </Suspense>
         } />
         
