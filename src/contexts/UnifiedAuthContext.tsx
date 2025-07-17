@@ -133,7 +133,10 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
   }, []);
 
   // 记录用户行为
-  const recordUserAction = useCallback((actionType: string, actionData: any) => {
+  const recordUserAction = useCallback((
+    actionType: 'pageVisit' | 'featureUsage' | 'contentCreated', 
+    actionData: any
+  ) => {
     try {
       if (!user) return;
       const userDataService = UserDataService.getInstance();
