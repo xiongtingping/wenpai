@@ -1,6 +1,13 @@
 /**
- * 统一认证上下文
- * 使用官方Authing SDK
+ * ✅ 项目全局统一使用 UnifiedAuthContext 作为登录认证上下文。
+ *
+ * ❌ 禁止使用 useAuthing（SDK裸调用会造成状态不一致）
+ * ❌ 禁止使用旧版 AuthContext（已废弃）
+ *
+ * 所有组件请通过以下方式获取用户信息与登录状态：
+ *   import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+ *
+ * 如需扩展登录逻辑，请统一在 UnifiedAuthContext.tsx 文件中维护。
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -11,26 +18,41 @@ import { getAuthingConfig } from '@/config/authing';
 /**
  * 用户信息接口
  */
-interface UserInfo {
+export interface UserInfo {
   id: string;
   username: string;
   email?: string;
   phone?: string;
   nickname: string;
   avatar?: string;
-  loginTime: string;
+  loginTime?: string;
+  roles?: string[];
+  permissions?: string[];
+  isProUser?: boolean;
+  plan?: string;
+  photo?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: any;
 }
 
 /**
  * 认证上下文接口
  */
-interface AuthContextType {
+export interface AuthContextType {
   user: UserInfo | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
+  loading: boolean;
+  error?: string | null;
   login: (redirectTo?: string) => void;
   logout: () => void;
   checkAuth: () => void;
+  hasPermission?: (permission: string) => boolean;
+  hasRole?: (role: string) => boolean;
+  updateUser?: (updates: Partial<UserInfo>) => Promise<void>;
+  updateUserData?: (updates: Partial<UserInfo>) => Promise<void>;
+  getUserData?: () => UserInfo | null;
+  bindTempUserId?: () => Promise<void>;
 }
 
 /**
@@ -241,7 +263,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
-    isLoading,
+    loading: isLoading,
     login,
     logout,
     checkAuth,

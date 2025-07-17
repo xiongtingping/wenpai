@@ -1,8 +1,8 @@
 /**
- * 登录页面 - 支持 Authing 和备用登录方式
+ * 登录页面 - 使用统一认证系统
  */
 
-import { useAuthing } from '@/hooks/useAuthing';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,27 +16,14 @@ import { LogIn, AlertCircle } from 'lucide-react';
  * 登录页面组件
  */
 export default function LoginPage() {
-  const { showLogin, isAuthenticated,  } = useAuthing();
+  const { isAuthenticated, login, isLoading } = useUnifiedAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showFallback, setShowFallback] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFallbackLoading, setIsFallbackLoading] = useState(false);
 
   // 获取重定向地址
   const redirectTo = searchParams.get('redirect') || '/';
-
-  // 页面加载时尝试使用 Authing
-  useEffect(() => {
-    if () {
-      // Authing 可用，使用 Authing 登录
-      login();
-    } else {
-      // Authing 不可用，显示备用登录界面
-      setTimeout(() => {
-        setShowFallback(true);
-      }, 1000);
-    }
-  }, [, showLogin]);
 
   // 登录成功后自动跳转
   useEffect(() => {
@@ -48,7 +35,7 @@ export default function LoginPage() {
   // 备用登录处理
   const handleFallbackLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsFallbackLoading(true);
     
     try {
       // 模拟登录过程
@@ -71,12 +58,12 @@ export default function LoginPage() {
     } catch (error) {
       console.error('备用登录失败:', error);
     } finally {
-      setIsLoading(false);
+      setIsFallbackLoading(false);
     }
   };
 
-  // 如果 Authing 可用且正在加载，显示加载状态
-  if ( && !showFallback) {
+  // 如果正在加载，显示加载状态
+  if (isLoading && !showFallback) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -134,9 +121,9 @@ export default function LoginPage() {
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isLoading}
+              disabled={isFallbackLoading}
             >
-              {isLoading ? (
+              {isFallbackLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   登录中...

@@ -1,12 +1,13 @@
 /**
- * 用户角色检查Hook
- * 提供Authing用户角色管理和检查功能
+ * 用户角色管理Hook
+ * 提供用户角色检查和管理的功能
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuthing } from '@/hooks/useAuthing';
-import { securityUtils } from '@/lib/security';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { securityUtils } from '@/lib/security';
+import { isDevelopment } from '@/utils/envChecker';
 
 /**
  * 角色信息接口
@@ -14,18 +15,15 @@ import { useToast } from '@/hooks/use-toast';
 interface Role {
   id: string;
   name: string;
-  description?: string;
   code: string;
-  createdAt: string;
-  updatedAt: string;
-  [key: string]: any;
+  description?: string;
 }
 
 /**
  * 用户角色Hook返回值
  */
 interface UseUserRolesReturn {
-  /** 用户角色列表 */
+  /** 角色列表 */
   roles: Role[];
   /** 角色代码列表 */
   roleCodes: string[];
@@ -33,23 +31,45 @@ interface UseUserRolesReturn {
   loading: boolean;
   /** 错误信息 */
   error: string | null;
-  /** 检查用户是否有指定角色 */
+  /** 检查是否有指定角色 */
   hasRole: (roleCode: string) => boolean;
-  /** 检查用户是否有指定角色组中的任意一个 */
+  /** 检查是否有指定角色组中的任意一个 */
   hasAnyRole: (roleCodes: string[]) => boolean;
-  /** 检查用户是否有指定角色组中的所有角色 */
+  /** 检查是否有指定角色组中的所有角色 */
   hasAllRoles: (roleCodes: string[]) => boolean;
-  /** 刷新用户角色 */
-  refreshRoles: () => Promise<void>;
   /** 获取角色信息 */
   getRoleInfo: (roleCode: string) => Role | undefined;
+  /** 刷新角色信息 */
+  refreshRoles: () => Promise<void>;
   /** 是否为VIP用户 */
   isVip: boolean;
   /** 是否为管理员 */
   isAdmin: boolean;
-  /** 是否为普通用户 */
-  isNormalUser: boolean;
 }
+
+/**
+ * 开发环境角色配置
+ */
+const DEV_ROLES: Role[] = [
+  {
+    id: 'dev-admin',
+    name: '开发管理员',
+    code: 'admin',
+    description: '开发环境管理员角色'
+  },
+  {
+    id: 'dev-vip',
+    name: '开发VIP用户',
+    code: 'vip',
+    description: '开发环境VIP用户角色'
+  },
+  {
+    id: 'dev-premium',
+    name: '开发高级用户',
+    code: 'premium',
+    description: '开发环境高级用户角色'
+  }
+];
 
 /**
  * 用户角色检查Hook
@@ -78,7 +98,7 @@ export function useUserRoles(options: {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { getCurrentUser } = useAuthing();
+  const { user, isAuthenticated } = useUnifiedAuth();
   const { toast } = useToast();
 
   /**
@@ -119,89 +139,85 @@ export function useUserRoles(options: {
   }, [roles]);
 
   /**
-   * 刷新用户角色
+   * 加载用户角色信息
    */
-  const refreshRoles = useCallback(async () => {
+  const loadRoles = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      logSecurity('开始刷新用户角色');
+      logSecurity('开始加载用户角色信息');
 
-      // 获取当前用户
-      const user = await getCurrentUser();
-      if (!user) {
-        throw new Error('用户未登录');
+      // 开发环境下使用模拟角色
+      if (isDevelopment()) {
+        setRoles(DEV_ROLES);
+        setRoleCodes(DEV_ROLES.map(role => role.code));
+        logSecurity('开发环境：使用模拟角色', { roles: DEV_ROLES.map(r => r.code) });
+        return;
       }
 
-      // 由于Authing SDK没有直接的getRoles方法，我们返回空数组
-      // 在实际项目中，这里应该调用后端API获取用户角色
-      const userRoles: any[] = [];
-      
-      if (userRoles && Array.isArray(userRoles)) {
-        // 处理角色数据
-        const processedRoles: Role[] = userRoles.map((role: any) => ({
-          id: String(role.id || ''),
-          name: String(role.name || ''),
-          description: String(role.description || ''),
-          code: String(role.code || ''),
-          createdAt: role.createdAt || new Date().toISOString(),
-          updatedAt: role.updatedAt || new Date().toISOString(),
-          ...role
-        }));
-
-        const codes = processedRoles.map(role => role.code);
-
-        setRoles(processedRoles);
-        setRoleCodes(codes);
-
-        logSecurity('用户角色刷新成功', {
-          userId: user.id,
-          roleCount: processedRoles.length,
-          roleCodes: codes
-        });
-
-        toast({
-          title: "角色信息已更新",
-          description: `您当前拥有 ${processedRoles.length} 个角色`,
-        });
-      } else {
+      // 检查用户登录状态
+      if (!isAuthenticated || !user) {
         setRoles([]);
         setRoleCodes([]);
-        logSecurity('用户无角色信息');
+        logSecurity('用户未登录，角色信息已清空');
+        return;
       }
 
-    } catch (err) {
-      console.error('刷新用户角色失败:', err);
-      const errorMessage = err instanceof Error ? err.message : '刷新角色失败';
-      setError(errorMessage);
+      // 从用户信息中获取角色
+      const userRoles = user.roles || [];
+      const roleList: Role[] = userRoles.map((roleCode: string) => ({
+        id: roleCode,
+        name: roleCode,
+        code: roleCode,
+        description: `用户角色：${roleCode}`
+      }));
+
+      setRoles(roleList);
+      setRoleCodes(userRoles);
+
+      logSecurity('用户角色信息加载成功', {
+        userId: user.id,
+        roles: userRoles,
+        roleCount: userRoles.length
+      });
+
+    } catch (error) {
+      console.error('加载用户角色信息失败:', error);
+      setError(error instanceof Error ? error.message : '加载角色信息失败');
       
-      logSecurity('刷新用户角色失败', {
-        error: errorMessage,
-        timestamp: new Date().toISOString()
+      logSecurity('加载用户角色信息失败', {
+        error: error instanceof Error ? error.message : '未知错误',
+        userId: user?.id
       }, 'error');
 
       toast({
-        title: "角色刷新失败",
-        description: errorMessage,
+        title: "角色信息加载失败",
+        description: "请稍后重试",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  }, [getCurrentUser, logSecurity, toast]);
+  }, [isAuthenticated, user, logSecurity, toast]);
 
-  // 计算角色状态
-  const isVip = hasRole(vipRoleCode);
-  const isAdmin = hasRole(adminRoleCode);
-  const isNormalUser = !isVip && !isAdmin;
+  /**
+   * 刷新角色信息
+   */
+  const refreshRoles = useCallback(async () => {
+    await loadRoles();
+  }, [loadRoles]);
 
   // 自动检查角色
   useEffect(() => {
     if (autoCheck) {
-      refreshRoles();
+      loadRoles();
     }
-  }, [autoCheck, refreshRoles]);
+  }, [autoCheck, loadRoles]);
+
+  // 计算VIP和管理员状态
+  const isVip = hasRole(vipRoleCode) || hasRole('premium') || hasRole('pro');
+  const isAdmin = hasRole(adminRoleCode) || hasRole('super_admin');
 
   return {
     roles,
@@ -211,11 +227,10 @@ export function useUserRoles(options: {
     hasRole,
     hasAnyRole,
     hasAllRoles,
-    refreshRoles,
     getRoleInfo,
+    refreshRoles,
     isVip,
-    isAdmin,
-    isNormalUser
+    isAdmin
   };
 }
 
@@ -229,24 +244,22 @@ export function useSimpleUserRoles() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { getCurrentUser } = useAuthing();
+  const { user, isAuthenticated } = useUnifiedAuth();
 
   useEffect(() => {
     const checkUserRoles = async () => {
       try {
         setLoading(true);
         
-        const user = await getCurrentUser();
-        if (!user) {
+        if (!isAuthenticated || !user) {
           throw new Error('用户未登录');
         }
 
-        // 由于Authing SDK没有直接的getRoles方法，我们返回空数组
-        // 在实际项目中，这里应该调用后端API获取用户角色
-        const roles: any[] = [];
+        // 从用户信息中获取角色
+        const roles = user.roles || [];
         
         if (roles && Array.isArray(roles)) {
-          const roleCodes = roles.map((role: any) => String(role.code || ''));
+          const roleCodes = roles.map((role: any) => String(role.code || role || ''));
           
           if (roleCodes.includes('vip')) {
             console.log('是 VIP 用户');
@@ -272,7 +285,7 @@ export function useSimpleUserRoles() {
     };
 
     checkUserRoles();
-  }, [getCurrentUser]);
+  }, [isAuthenticated, user]);
 
   return {
     isVip,

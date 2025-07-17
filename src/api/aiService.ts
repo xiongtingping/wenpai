@@ -4,6 +4,7 @@
  */
 
 import { getAPIConfig, getAPIEndpoint, isValidAPIKey } from '@/config/apiConfig';
+import { callAI, callAIWithRetry, generateImage, AIModel, ImageModel } from './ai';
 
 // 默认配置
 const DEFAULT_CONFIG = {
@@ -134,130 +135,115 @@ class AIService {
   }
 
   /**
-   * 生成文本内容（带重试机制）
+   * 生成文本内容（使用统一AI API）
    * @param request 文本生成请求
    * @returns Promise<AIResponse>
    */
   async generateText(request: TextGenerationRequest): Promise<AIResponse> {
     const { messages, model = DEFAULT_CONFIG.model, temperature = DEFAULT_CONFIG.temperature, maxTokens = DEFAULT_CONFIG.maxTokens, provider = 'openai' } = request;
 
-    for (let attempt = 1; attempt <= DEFAULT_CONFIG.maxRetries; attempt++) {
-      try {
-        // 优先使用真实API调用，确保不使用模拟服务
-        if (provider === 'openai' && isValidAPIKey(this.config.openai.apiKey, 'openai')) {
-          // 直接调用OpenAI API
-          return await this.callOpenAIDevProxy({
-            messages,
-            model,
-            temperature,
-            maxTokens
-          });
-        } else {
-          // 通过Netlify函数代理调用
-          return await this.callNetlifyProxy({
-            provider,
-            action: 'generate',
-            messages,
-            model,
-            temperature,
-            maxTokens
-          });
-        }
-      } catch (error) {
-        console.error(`AI文本生成失败 (尝试 ${attempt}/${DEFAULT_CONFIG.maxRetries}):`, error);
-        
-        if (attempt === DEFAULT_CONFIG.maxRetries) {
-          return {
-            success: false,
-            error: error instanceof Error ? error.message : '文本生成失败',
-            message: `经过${DEFAULT_CONFIG.maxRetries}次尝试后仍然失败`
-          };
-        }
-        
-        // 等待后重试
-        await new Promise(resolve => setTimeout(resolve, DEFAULT_CONFIG.retryDelay * attempt));
-      }
-    }
+    try {
+      // 构建提示词
+      const prompt = messages
+        .filter(msg => msg.role === 'user')
+        .map(msg => msg.content)
+        .join('\n\n');
 
-    return {
-      success: false,
-      error: '文本生成失败'
-    };
+      // 获取系统提示词
+      const systemPrompt = messages
+        .find(msg => msg.role === 'system')?.content;
+
+      // 使用统一的AI API调用
+      const result = await callAIWithRetry({
+        prompt,
+        model: model as AIModel,
+        temperature,
+        maxTokens,
+        systemPrompt,
+        extraParams: { provider }
+      }, DEFAULT_CONFIG.maxRetries);
+
+      if (result.success) {
+        return {
+          success: true,
+          data: {
+            data: {
+              choices: [{
+                message: {
+                  content: result.content
+                }
+              }],
+              usage: result.usage
+            }
+          },
+          provider,
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || '文本生成失败',
+          provider,
+          timestamp: new Date().toISOString()
+        };
+      }
+    } catch (error) {
+      console.error('AI文本生成失败:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '文本生成失败',
+        provider,
+        timestamp: new Date().toISOString()
+      };
+    }
   }
 
   /**
-   * 生成图像（带重试机制）
+   * 生成图像（使用统一AI API）
    * @param request 图像生成请求
    * @returns Promise<ImageGenerationResponse>
    */
   async generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
     const { prompt, n = 1, size = '512x512', response_format = 'url', reference_image } = request;
 
-    // 检查API密钥配置
-    if (!isValidAPIKey(this.config.openai.apiKey, 'openai')) {
+    try {
+      // 使用统一的图像生成API
+      const result = await generateImage({
+        prompt,
+        model: 'dall-e-3' as ImageModel,
+        n,
+        size,
+        responseFormat: response_format,
+        referenceImage: reference_image
+      });
+
+      if (result.success) {
+        return {
+          success: true,
+          data: {
+            images: result.images,
+            created: result.created
+          },
+          provider: 'openai',
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || '图像生成失败',
+          provider: 'openai',
+          timestamp: new Date().toISOString()
+        };
+      }
+    } catch (error) {
+      console.error('AI图像生成失败:', error);
       return {
         success: false,
-        error: 'OpenAI API密钥未配置，请在.env.local文件中设置VITE_OPENAI_API_KEY'
+        error: error instanceof Error ? error.message : '图像生成失败',
+        provider: 'openai',
+        timestamp: new Date().toISOString()
       };
     }
-
-    for (let attempt = 1; attempt <= DEFAULT_CONFIG.maxRetries; attempt++) {
-      try {
-        // 优先使用真实API调用
-        if (isValidAPIKey(this.config.openai.apiKey, 'openai')) {
-          // 直接调用OpenAI DALL-E API
-          return await this.callOpenAIImageAPI({
-            prompt,
-            n,
-            size,
-            response_format,
-            reference_image
-          });
-        } else {
-          // 通过Netlify函数代理调用
-          const response = await fetch(getAPIEndpoint('netlify'), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              provider: 'openai',
-              action: 'generate-image',
-              prompt,
-              n,
-              size,
-              response_format,
-              reference_image
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP错误: ${response.status}`);
-          }
-
-          const data = await response.json();
-          return data;
-        }
-      } catch (error) {
-        console.error(`AI图像生成失败 (尝试 ${attempt}/${DEFAULT_CONFIG.maxRetries}):`, error);
-        
-        if (attempt === DEFAULT_CONFIG.maxRetries) {
-          return {
-            success: false,
-            error: error instanceof Error ? error.message : '图像生成失败',
-            message: `经过${DEFAULT_CONFIG.maxRetries}次尝试后仍然失败`
-          };
-        }
-        
-        // 等待后重试
-        await new Promise(resolve => setTimeout(resolve, DEFAULT_CONFIG.retryDelay * attempt));
-      }
-    }
-
-    return {
-      success: false,
-      error: '图像生成失败'
-    };
   }
 
   /**
@@ -290,183 +276,6 @@ class AIService {
     }
     
     return results;
-  }
-
-  /**
-   * 调用开发环境OpenAI代理
-   * @param options 请求选项
-   * @returns Promise<AIResponse>
-   */
-  private async callOpenAIDevProxy(options: {
-    messages: Array<{
-      role: 'system' | 'user' | 'assistant';
-      content: string;
-    }>;
-    model?: string;
-    temperature?: number;
-    maxTokens?: number;
-  }): Promise<AIResponse> {
-    const { messages, model = 'gpt-4o', temperature = 0.7, maxTokens = 1000 } = options;
-    
-    try {
-      if (!isValidAPIKey(this.config.openai.apiKey, 'openai')) {
-        throw new Error('OpenAI API Key未配置，请在.env.local中设置VITE_OPENAI_API_KEY');
-      }
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), DEFAULT_CONFIG.timeout);
-      
-      const response = await fetch(getAPIEndpoint('openai'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.openai.apiKey}`
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          temperature,
-          max_tokens: maxTokens,
-          stream: false
-        }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`OpenAI API调用失败: ${errorData.error?.message || `HTTP ${response.status}`}`);
-      }
-
-      const data = await response.json();
-      
-      return {
-        success: true,
-        data: {
-          data: data
-        },
-        provider: 'openai',
-        timestamp: new Date().toISOString()
-      };
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('OpenAI API请求超时，请检查网络连接或稍后重试');
-      }
-      throw new Error(`OpenAI API连接失败: ${error instanceof Error ? error.message : '未知错误'}`);
-    }
-  }
-
-  /**
-   * 直接调用OpenAI图像生成API
-   * @param options 图像生成选项
-   * @returns Promise<ImageGenerationResponse>
-   */
-  private async callOpenAIImageAPI(options: {
-    prompt: string;
-    n?: number;
-    size?: string;
-    response_format?: string;
-    reference_image?: string;
-  }): Promise<ImageGenerationResponse> {
-    const { prompt, n = 1, size = '512x512', response_format = 'url', reference_image } = options;
-    
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), DEFAULT_CONFIG.timeout);
-      
-      const requestBody: any = {
-        model: 'dall-e-3',
-        prompt,
-        n,
-        size,
-        response_format
-      };
-
-      // 如果有参考图像，使用DALL-E 3的变体功能
-      if (reference_image) {
-        requestBody.image = reference_image;
-        requestBody.model = 'dall-e-3';
-      }
-      
-      const response = await fetch(getAPIEndpoint('openai').replace('/chat/completions', '/images/generations'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.openai.apiKey}`
-        },
-        body: JSON.stringify(requestBody),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`OpenAI图像生成API调用失败: ${errorData.error?.message || `HTTP ${response.status}`}`);
-      }
-
-      const data = await response.json();
-      
-      return {
-        success: true,
-        data: {
-          images: data.data.map((item: any) => ({
-            url: item.url,
-            revised_prompt: item.revised_prompt
-          })),
-          created: data.created
-        },
-        provider: 'openai',
-        timestamp: new Date().toISOString()
-      };
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('OpenAI图像生成API请求超时，请检查网络连接或稍后重试');
-      }
-      throw new Error(`OpenAI图像生成API连接失败: ${error instanceof Error ? error.message : '未知错误'}`);
-    }
-  }
-
-  /**
-   * 调用Netlify代理
-   * @param request 请求参数
-   * @returns Promise<AIResponse>
-   */
-  private async callNetlifyProxy(request: Record<string, unknown>): Promise<AIResponse> {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), DEFAULT_CONFIG.timeout);
-      
-      const response = await fetch(getAPIEndpoint('netlify'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`HTTP错误: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      return {
-        success: true,
-        data,
-        provider: request.provider as string,
-        timestamp: new Date().toISOString()
-      };
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Netlify代理请求超时，请检查网络连接');
-      }
-      throw new Error(`Netlify代理调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
-    }
   }
 
   /**

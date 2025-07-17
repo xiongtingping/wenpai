@@ -1,276 +1,192 @@
 /**
- * VIP权限保护组件
- * 用于保护需要VIP权限的页面和功能
- * @module VIPGuard
+ * VIP权限守卫组件
+ * 检查用户是否具有VIP权限
  */
 
-import { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '../../contexts/UnifiedAuthContext';
-import { useAuthing } from '../../hooks/useAuthing';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Crown, Lock, AlertCircle, ArrowRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 /**
- * VIP权限保护组件属性
+ * VIP守卫属性
  */
 interface VIPGuardProps {
   /** 子组件 */
-  children: React.ReactNode;
-  /** 重定向路径 */
-  redirectTo?: string;
+  children: ReactNode;
+  /** 无权限时显示的组件 */
+  fallback?: ReactNode;
   /** 是否显示升级提示 */
   showUpgradePrompt?: boolean;
-  /** 自定义权限检查逻辑 */
-  customCheck?: (isVip: boolean, isAdmin: boolean) => boolean;
-  /** 权限检查失败时的回调 */
-  onAccessDenied?: () => void;
-  /** 权限检查成功时的回调 */
-  onAccessGranted?: () => void;
-  /** 是否启用安全日志 */
-  enableSecurityLog?: boolean;
-  /** VIP角色代码 */
-  vipRoleCode?: string;
+  /** 重定向路径 */
+  redirectTo?: string;
 }
 
 /**
- * VIP权限保护组件
+ * VIP权限守卫组件
  * @param props 组件属性
  * @returns React 组件
  */
-function VIPGuard({
+const VIPGuard: React.FC<VIPGuardProps> = ({
   children,
-  redirectTo = '/payment',
+  fallback,
   showUpgradePrompt = true,
-  customCheck,
-  onAccessDenied,
-  onAccessGranted,
-  enableSecurityLog = true,
-  vipRoleCode = 'vip'
-}: VIPGuardProps) {
+  redirectTo = '/vip'
+}) => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useUnifiedAuth();
-  const { login } = useUnifiedAuth();
+  const { toast } = useToast();
+  const { user, isAuthenticated, login } = useUnifiedAuth();
+  const { hasRole, loading: permissionLoading } = usePermissions();
   
-  // 简化的角色检查逻辑
-  const isVip = user && (user as any).roles?.includes(vipRoleCode);
-  const isAdmin = user && (user as any).roles?.includes('admin');
-  const loading = false;
-  const error = null;
+  const [isVip, setIsVip] = useState(false);
+  const [checking, setChecking] = useState(true);
 
-  const [accessGranted, setAccessGranted] = useState(false);
-  const [checkingAccess, setCheckingAccess] = useState(true);
-
-  // VIP权限检查
+  // 检查VIP权限
   useEffect(() => {
-    const checkVIPAccess = async () => {
+    const checkVIPStatus = async () => {
       try {
-        setCheckingAccess(true);
-
-        if (enableSecurityLog) {
-          // securityUtils.secureLog('开始VIP权限检查', {
-          //   userId: user?.id,
-          //   isAuthenticated
-          // });
-        }
-
-        // 检查用户是否已登录
-        if (!isAuthenticated || !user) {
-          if (enableSecurityLog) {
-            // securityUtils.secureLog('用户未登录，重定向到登录页面');
-          }
-          
-          console.log('需要登录，请先登录后再访问此功能');
-          login();
-          return;
-        }
-
-        // 等待角色检查完成
-        if (loading) {
-          return;
-        }
-
-        // 使用自定义检查逻辑或默认逻辑
-        const hasAccess = customCheck 
-          ? customCheck(isVip, isAdmin)
-          : (isVip || isAdmin);
-
-        if (!hasAccess) {
-          if (enableSecurityLog) {
-            // securityUtils.secureLog('非VIP用户尝试访问VIP功能', {
-            //   userId: user.id,
-            //   roles: (user as any).roles || [],
-            //   isVip,
-            //   isAdmin
-            // }, 'error');
-          }
-
-          // 调用权限被拒绝回调
-          onAccessDenied?.();
-
-          if (showUpgradePrompt) {
-            console.log('需要VIP权限，此功能仅限VIP用户使用，请升级您的账户');
-
-            // 延迟跳转，让用户看到提示
-            setTimeout(() => {
-              navigate(redirectTo);
-            }, 2000);
-          } else {
-            navigate(redirectTo);
-          }
-          return;
-        }
-
-        // 权限验证通过
-        setAccessGranted(true);
+        setChecking(true);
         
-        if (enableSecurityLog) {
-          // securityUtils.secureLog('VIP权限检查通过', {
-          //   userId: user.id,
-          //   roles: (user as any).roles || [],
-          //   isVip,
-          //   isAdmin
-          // });
+        if (!isAuthenticated) {
+          setIsVip(false);
+          return;
         }
 
-        // 调用权限通过回调
-        onAccessGranted?.();
-
+        // 检查VIP角色
+        const hasVIPRole = hasRole('vip') || hasRole('premium') || hasRole('pro');
+        setIsVip(hasVIPRole);
+        
+        console.log('VIP权限检查结果:', { 
+          userId: user?.id, 
+          isVip: hasVIPRole,
+          roles: user?.roles 
+        });
+        
       } catch (error) {
-        console.error('VIP权限检查失败:', error);
-        
-        if (enableSecurityLog) {
-          // securityUtils.secureLog('VIP权限检查失败', {
-          //   error: error instanceof Error ? error.message : '未知错误',
-          //   userId: user?.id
-          // }, 'error');
-        }
-        
-        console.log('权限检查失败，请稍后重试或联系客服');
+        console.error('检查VIP权限失败:', error);
+        setIsVip(false);
       } finally {
-        setCheckingAccess(false);
+        setChecking(false);
       }
     };
 
-    checkVIPAccess();
-  }, [
-    isAuthenticated, 
-    user, 
-    isVip, 
-    isAdmin, 
-    loading, 
-    navigate, 
-    redirectTo, 
-    showUpgradePrompt, 
-    customCheck, 
-    onAccessDenied, 
-    onAccessGranted, 
-    enableSecurityLog,
-    showLogin
-  ]);
+    checkVIPStatus();
+  }, [isAuthenticated, user, hasRole]);
 
-  // 加载状态
-  if (checkingAccess || loading) {
+  // 如果正在检查权限，显示加载状态
+  if (checking || permissionLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">正在验证VIP权限...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">检查VIP权限中...</p>
         </div>
       </div>
     );
   }
 
-  // 错误状态
-  if (error) {
+  // 如果用户未登录，显示登录提示
+  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-50">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 text-red-500">
-            <svg fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">权限检查失败</h3>
-          <p className="text-gray-600 mb-4">请稍后重试或联系客服</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            重新加载
-          </button>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+              <Lock className="h-6 w-6 text-blue-600" />
+            </div>
+            <CardTitle>需要登录</CardTitle>
+            <CardDescription>
+              请先登录以访问VIP功能
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={() => login()} 
+              className="w-full"
+            >
+              立即登录
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // 权限验证通过，渲染子组件
-  if (accessGranted) {
+  // 如果用户有VIP权限，显示子组件
+  if (isVip) {
     return <>{children}</>;
   }
 
-  // 默认显示加载状态
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">正在验证权限...</p>
+  // 如果用户没有VIP权限，显示升级提示或自定义fallback
+  if (fallback) {
+    return <>{fallback}</>;
+  }
+
+  // 默认VIP升级提示
+  if (showUpgradePrompt) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+              <Crown className="h-6 w-6 text-yellow-600" />
+            </div>
+            <CardTitle>VIP专属功能</CardTitle>
+            <CardDescription>
+              此功能仅对VIP用户开放，升级即可享受
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">当前用户</span>
+                <Badge variant="secondary">{user?.nickname || user?.username || '用户'}</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">会员状态</span>
+                <Badge variant="outline">普通用户</Badge>
+              </div>
+            </div>
+            
+            <div className="rounded-lg bg-blue-50 p-3">
+              <div className="flex items-start space-x-2">
+                <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium">升级VIP享受更多特权</p>
+                  <p className="text-blue-600">• 无限制使用所有功能</p>
+                  <p className="text-blue-600">• 优先客服支持</p>
+                  <p className="text-blue-600">• 专属功能体验</p>
+                </div>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={() => navigate(redirectTo)} 
+              className="w-full"
+            >
+              立即升级
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')} 
+              className="w-full"
+            >
+              返回首页
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-// 导出组件，确保HMR兼容
-export { VIPGuard };
+  return null;
+};
 
-/**
- * VIP权限Hook
- * @param vipRoleCode VIP角色代码
- * @returns VIP权限状态
- */
-function useVIPAccess(vipRoleCode: string = 'vip') {
-  const { user, isAuthenticated } = useUnifiedAuth();
-  
-  const isVip = user && (user as any).roles?.includes(vipRoleCode);
-  const isAdmin = user && (user as any).roles?.includes('admin');
-  const hasAccess = isVip || isAdmin;
-  
-  return {
-    isVip,
-    isAdmin,
-    hasAccess,
-    isAuthenticated,
-    user
-  };
-}
-
-// 导出Hook
-export { useVIPAccess };
-
-/**
- * 检查VIP权限
- * @param roles 用户角色列表
- * @param vipRoleCode VIP角色代码
- * @returns 是否有VIP权限
- */
-function checkVIPAccess(roles: string[], vipRoleCode: string = 'vip'): boolean {
-  return roles.includes(vipRoleCode) || roles.includes('admin');
-}
-
-// 导出函数
-export { checkVIPAccess };
-
-/**
- * 简化版VIP保护组件
- */
-function SimpleVIPGuard({ children, redirectTo = '/payment' }: {
-  children: React.ReactNode;
-  redirectTo?: string;
-}) {
-  return (
-    <VIPGuard redirectTo={redirectTo} showUpgradePrompt={false}>
-      {children}
-    </VIPGuard>
-  );
-}
-
-// 导出简化组件
-export { SimpleVIPGuard }; 
+export default VIPGuard; 

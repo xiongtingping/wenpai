@@ -1,6 +1,6 @@
 /**
  * 受保护路由组件
- * 基于统一认证上下文的简化路由保护
+ * 基于统一认证上下文的路由保护
  */
 
 import React, { ReactNode } from 'react';
@@ -13,8 +13,6 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 interface ProtectedRouteProps {
   /** 子组件 */
   children: ReactNode;
-  /** 是否需要认证 */
-  requireAuth?: boolean;
   /** 未认证时重定向的路径 */
   redirectTo?: string;
   /** 加载时显示的组件 */
@@ -28,7 +26,6 @@ interface ProtectedRouteProps {
  */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requireAuth = true,
   redirectTo = '/login',
   loadingComponent = (
     <div className="min-h-screen flex items-center justify-center">
@@ -47,8 +44,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <>{loadingComponent}</>;
   }
 
-  // 如果需要认证但用户未登录，重定向到登录页
-  if (requireAuth && !isAuthenticated) {
+  // 如果用户未登录，重定向到登录页
+  if (!isAuthenticated) {
     return (
       <Navigate
         to={redirectTo}
