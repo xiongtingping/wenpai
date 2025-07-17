@@ -8,6 +8,8 @@ import { Header } from '@/components/landing/Header';
 import { useUnifiedAuthContext } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 export default function HeaderLoginTestPage() {
   const { user, isAuthenticated, login } = useUnifiedAuthContext();
@@ -22,69 +24,130 @@ export default function HeaderLoginTestPage() {
     login('/profile');
   };
 
+  const testFeatureButtons = [
+    { name: 'AI内容适配器', path: '/adapt'},
+    { name: '创意魔方', path: '/creative-studio'},
+    { name: '全网雷达', path: '/hot-topics'},
+    { name: '我的资料库', path: '/library'},
+    { name: '品牌库', path: '/brand-library' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-2xl mx-auto">
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-center">Header登录按钮测试</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-blue-600" />
+              Header登录逻辑测试页面
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            
-            {/* 当前状态 */}
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-semibold text-blue-800 mb-2">当前状态</h3>
-              <div className="text-sm text-blue-700 space-y-1">
-                <p>认证状态: {isAuthenticated ? '已登录' : '未登录'}</p>
-                {user && (
-                  <p>用户信息: {user.nickname || user.username || user.email || '未知用户'}</p>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">当前用户状态:</span>
+                {isAuthenticated ? (
+                  <Badge className="bg-green-100 text-green-800 border-green-200">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    已登录
+                  </Badge>
+                ) : (
+                  <Badge className="bg-red-100 text-red-800 border-red-200">
+                    <XCircle className="w-3 h-3 mr-1" />
+                    未登录
+                  </Badge>
                 )}
               </div>
-            </div>
-
-            {/* 测试按钮 */}
-            <div className="space-y-4">
-              <h3 className="font-semibold">测试按钮</h3>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={handleTestLogin}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  测试登录（无跳转）
-                </Button>
-                
-                <Button 
-                  onClick={handleTestLoginWithRedirect}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  测试登录（跳转到个人中心）
-                </Button>
+              {user && (
+                <div className="text-sm text-gray-600">
+                  用户信息: {user.nickname || user.username || user.email || '未知用户'}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>基础登录测试</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button onClick={handleTestLogin} className="w-full">
+                测试基础登录
+              </Button>
+              <Button onClick={handleTestLoginWithRedirect} variant="outline" className="w-full">
+                测试登录并跳转到个人中心
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>功能区按钮测试</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600 mb-4">
+                  测试Header中的功能区按钮，验证登录逻辑是否正确：
+                </p>
+                {testFeatureButtons.map((feature) => (
+                  <Button
+                    key={feature.path}
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      console.log(`测试${feature.name}按钮`);
+                      if (isAuthenticated) {
+                        console.log('用户已登录，应该直接跳转到:', feature.path);
+                      } else {
+                        console.log('用户未登录，应该弹出Authing Guard弹窗');
+                      }
+                      login(feature.path);
+                    }}
+                  >
+                    {feature.name}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>测试说明</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 text-sm text-gray-600">
+              <div className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-50 mt-0.5 flex-shrink-0" />
+                <div>
+                  <strong>已登录用户:</strong> 点击功能区按钮应该直接跳转到对应页面，不会弹出登录弹窗
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-50 mt-0.5 flex-shrink-0" />
+                <div>
+                  <strong>未登录用户:</strong> 点击功能区按钮应该直接弹出Authing Guard登录弹窗，而不是跳转到登录页面
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-50 mt-0.5 flex-shrink-0" />
+                <div>
+                  <strong>登录成功:</strong> 登录成功后应该自动跳转到用户之前点击的功能区页面
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-orange-50 mt-0.5 flex-shrink-0" />
+                <div>
+                  <strong>注意:</strong> 请打开浏览器控制台查看详细的日志输出，验证登录逻辑是否正确执行
+                </div>
               </div>
             </div>
-
-            {/* 说明 */}
-            <div className="p-4 bg-yellow-50 rounded-lg">
-              <h3 className="font-semibold text-yellow-800 mb-2">测试说明</h3>
-              <div className="text-sm text-yellow-700 space-y-2">
-                <p>1. 点击上方测试按钮应该显示 Authing Guard 登录弹窗</p>
-                <p>2. 登录成功后弹窗应该自动关闭</p>
-                <p>3. 如果带跳转参数，登录成功后应该跳转到指定页面</p>
-                <p>4. 右上角的登录/注册按钮应该与测试按钮行为一致</p>
-              </div>
-            </div>
-
-            {/* 调试信息 */}
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold text-gray-800 mb-2">调试信息</h3>
-              <div className="text-sm text-gray-600">
-                <p>请打开浏览器控制台查看详细日志</p>
-                <p>检查是否有 Authing Guard 相关的错误信息</p>
-              </div>
-            </div>
-
           </CardContent>
         </Card>
       </div>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useUnifiedAuthContext } from "@/contexts/UnifiedAuthContext"
 
 export function CTASection() {
-  const { isAuthenticated } = useUnifiedAuthContext();
+  const { isAuthenticated, login } = useUnifiedAuthContext();
   const navigate = useNavigate();
 
   return (
@@ -23,14 +23,13 @@ export function CTASection() {
               console.log('CTA按钮被点击');
               console.log('当前认证状态:', isAuthenticated);
               
-              // 简化跳转逻辑
+              // 修复跳转逻辑：直接使用login方法
               if (isAuthenticated) {
                 console.log('用户已登录，跳转到适配页面');
                 navigate('/adapt');
               } else {
-                console.log('用户未登录，保存跳转目标并跳转到登录页面');
-                localStorage.setItem('login_redirect_to', '/adapt');
-                navigate('/login');
+                console.log('用户未登录，直接弹出Authing Guard弹窗');
+                login('/adapt');
               }
             }}
           >

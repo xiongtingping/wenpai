@@ -104,9 +104,8 @@ export function Header() {
                 console.log('用户已登录，跳转到适配页面');
                 navigate('/adapt');
               } else {
-                console.log('用户未登录，保存跳转目标并跳转到登录页面');
-                localStorage.setItem('login_redirect_to', '/adapt');
-                navigate('/login');
+                console.log('用户未登录，直接弹出Authing Guard弹窗');
+                login('/adapt');
               }
             }}>
               AI内容适配器
@@ -119,9 +118,8 @@ export function Header() {
                 console.log('用户已登录，跳转到创意魔方页面');
                 navigate('/creative-studio');
               } else {
-                console.log('用户未登录，保存跳转目标并跳转到登录页面');
-                localStorage.setItem('login_redirect_to', '/creative-studio');
-                navigate('/login');
+                console.log('用户未登录，直接弹出Authing Guard弹窗');
+                login('/creative-studio');
               }
             }}>
               创意魔方
@@ -130,8 +128,7 @@ export function Header() {
               if (isAuthenticated) {
                 navigate('/hot-topics');
               } else {
-                localStorage.setItem('login_redirect_to', '/hot-topics');
-                navigate('/login');
+                login('/hot-topics');
               }
             }}>
               全网雷达
@@ -140,8 +137,7 @@ export function Header() {
               if (isAuthenticated) {
                 navigate('/library');
               } else {
-                localStorage.setItem('login_redirect_to', '/library');
-                navigate('/login');
+                login('/library');
               }
             }}>
               我的资料库
@@ -150,8 +146,7 @@ export function Header() {
               if (isAuthenticated) {
                 navigate('/brand-library');
               } else {
-                localStorage.setItem('login_redirect_to', '/brand-library');
-                navigate('/login');
+                login('/brand-library');
               }
             }}>
               品牌库
@@ -238,7 +233,7 @@ export function Header() {
                 
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {
-                    window.location.href = '/adapt';
+                    navigate('/adapt');
                   } else {
                     login('/adapt');
                   }
@@ -247,7 +242,7 @@ export function Header() {
                 </Button>
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {
-                    window.location.href = '/creative-studio';
+                    navigate('/creative-studio');
                   } else {
                     login('/creative-studio');
                   }
@@ -256,7 +251,7 @@ export function Header() {
                 </Button>
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {
-                    window.location.href = '/hot-topics';
+                    navigate('/hot-topics');
                   } else {
                     login('/hot-topics');
                   }
@@ -265,7 +260,7 @@ export function Header() {
                 </Button>
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {
-                    window.location.href = '/library';
+                    navigate('/library');
                   } else {
                     login('/library');
                   }
@@ -274,7 +269,7 @@ export function Header() {
                 </Button>
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {
-                    window.location.href = '/brand-library';
+                    navigate('/brand-library');
                   } else {
                     login('/brand-library');
                   }
