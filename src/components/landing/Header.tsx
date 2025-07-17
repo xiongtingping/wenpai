@@ -104,15 +104,9 @@ export function Header() {
                 console.log('用户已登录，跳转到适配页面');
                 navigate('/adapt');
               } else {
-                console.log('用户未登录，保存跳转目标并尝试登录');
+                console.log('用户未登录，保存跳转目标并跳转到登录页面');
                 localStorage.setItem('login_redirect_to', '/adapt');
-                try {
-                  console.log('尝试调用登录方法');
-                  login();
-                } catch (error) {
-                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
-                  navigate('/login');
-                }
+                navigate('/login');
               }
             }}>
               AI内容适配器
@@ -125,15 +119,9 @@ export function Header() {
                 console.log('用户已登录，跳转到创意魔方页面');
                 navigate('/creative-studio');
               } else {
-                console.log('用户未登录，保存跳转目标并尝试登录');
+                console.log('用户未登录，保存跳转目标并跳转到登录页面');
                 localStorage.setItem('login_redirect_to', '/creative-studio');
-                try {
-                  console.log('尝试调用登录方法');
-                  login();
-                } catch (error) {
-                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
-                  navigate('/login');
-                }
+                navigate('/login');
               }
             }}>
               创意魔方
@@ -143,12 +131,7 @@ export function Header() {
                 navigate('/hot-topics');
               } else {
                 localStorage.setItem('login_redirect_to', '/hot-topics');
-                try {
-                  login();
-                } catch (error) {
-                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
-                  navigate('/login');
-                }
+                navigate('/login');
               }
             }}>
               全网雷达
@@ -158,12 +141,7 @@ export function Header() {
                 navigate('/library');
               } else {
                 localStorage.setItem('login_redirect_to', '/library');
-                try {
-                  login();
-                } catch (error) {
-                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
-                  navigate('/login');
-                }
+                navigate('/login');
               }
             }}>
               我的资料库
@@ -173,12 +151,7 @@ export function Header() {
                 navigate('/brand-library');
               } else {
                 localStorage.setItem('login_redirect_to', '/brand-library');
-                try {
-                  login();
-                } catch (error) {
-                  console.warn('Authing登录服务不可用，直接跳转到登录页面');
-                  navigate('/login');
-                }
+                navigate('/login');
               }
             }}>
               品牌库

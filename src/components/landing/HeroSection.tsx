@@ -31,17 +31,14 @@ export const HeroSection: React.FC = () => {
               console.log('Hero开始创作按钮被点击');
               console.log('当前认证状态:', isAuthenticated);
               
-              // 优化跳转逻辑，减少延迟
+              // 简化跳转逻辑
               if (isAuthenticated) {
-                // 已登录用户直接跳转，使用navigate而不是window.location.href
                 console.log('用户已登录，跳转到适配页面');
                 navigate('/adapt');
               } else {
-                // 未登录用户先登录再跳转
-                console.log('用户未登录，保存跳转目标并尝试登录');
+                console.log('用户未登录，保存跳转目标并跳转到登录页面');
                 localStorage.setItem('login_redirect_to', '/adapt');
-                console.log('尝试调用登录方法');
-                login();
+                navigate('/login');
               }
             }}
             className="px-12 py-6 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white text-xl font-semibold rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-3xl hover:from-blue-600 hover:via-purple-600 hover:to-pink-600"

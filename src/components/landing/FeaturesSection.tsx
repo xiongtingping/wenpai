@@ -250,23 +250,12 @@ export const FeaturesSection: React.FC = () => {
                       console.log('功能区按钮被点击:', feature.title, feature.path);
                       console.log('当前认证状态:', isAuthenticated);
                       
-                      // 优化跳转逻辑，减少延迟
+                      // 简化跳转逻辑，直接使用 navigate
                       if (isAuthenticated) {
-                        // 已登录用户直接跳转，不使用window.location.href
-                        console.log('用户已登录，直接跳转到:', feature.path);
-                        navigate(feature.path);
+                        console.log('用户已登录，直接跳转到:', feature.path);                   navigate(feature.path);
                       } else {
-                        // 未登录用户先登录再跳转
-                        console.log('用户未登录，保存跳转目标:', feature.path);
-                        localStorage.setItem('login_redirect_to', feature.path);
-                        // 临时修复：如果Authing服务不可用，直接跳转到登录页面
-                        try {
-                          console.log('尝试调用登录方法');
-                          login();
-                        } catch (error) {
-                          console.warn('Authing登录服务不可用，直接跳转到登录页面');
-                          navigate('/login');
-                        }
+                        console.log('用户未登录，保存跳转目标并跳转到登录页面');
+                        localStorage.setItem('login_redirect_to', feature.path);                   navigate('/login');
                       }
                     }}
                   >
