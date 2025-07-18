@@ -3,7 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check
 } from "lucide-react";
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
