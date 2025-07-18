@@ -53,8 +53,14 @@ const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
       document.documentElement.style.overflow = '';
       document.body.classList.remove('authing-guard-open');
       document.documentElement.classList.remove('authing-guard-open');
+      
+      // 修复滚动恢复逻辑，确保不会滚动到底部
       if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        const scrollPosition = parseInt(scrollY.replace('-', '') || '0');
+        // 使用requestAnimationFrame确保DOM更新完成后再滚动
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollPosition);
+        });
       }
     };
 
@@ -119,8 +125,14 @@ const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
     document.documentElement.style.overflow = '';
     document.body.classList.remove('authing-guard-open');
     document.documentElement.classList.remove('authing-guard-open');
+    
+    // 修复滚动恢复逻辑，确保不会滚动到底部
     if (scrollY) {
-      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      const scrollPosition = parseInt(scrollY.replace('-', '') || '0');
+      // 使用requestAnimationFrame确保DOM更新完成后再滚动
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPosition);
+      });
     }
     onClose();
   };

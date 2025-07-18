@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -39,18 +39,19 @@ const isDevelopment = () => {
  */
 export const TopNavigation: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAuthenticated, login } = useUnifiedAuth();
   const { loading: permissionLoading } = usePermissions();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // 功能导航菜单项
   const navItems = [
-    { path: '/', label: '首页', icon: Home },
-    { path: '/adapt', label: 'AI内容适配器', icon: FileText },
-    { path: '/creative-studio', label: '创意魔方', icon: Sparkles },
-    { path: '/hot-topics', label: '全网雷达', icon: TrendingUp },
-    { path: '/library', label: '我的资料库', icon: FolderOpen },
-    { path: '/brand-library', label: '品牌库', icon: Users },
+    { path: '/', label: '首页', icon: Home, requiresAuth: false },
+    { path: '/adapt', label: 'AI内容适配器', icon: FileText, requiresAuth: true },
+    { path: '/creative-studio', label: '创意魔方', icon: Sparkles, requiresAuth: true },
+    { path: '/hot-topics', label: '全网雷达', icon: TrendingUp, requiresAuth: true },
+    { path: '/library', label: '我的资料库', icon: FolderOpen, requiresAuth: true },
+    { path: '/brand-library', label: '品牌库', icon: Users, requiresAuth: true },
   ];
 
   // 开发环境下跳过权限检查
@@ -67,21 +68,36 @@ export const TopNavigation: React.FC = () => {
   };
 
   /**
+   * 处理导航点击
+   */
+  const handleNavigation = (item: typeof navItems[0]) => {
+    if (item.requiresAuth && !isAuthenticated) {
+      // 未登录用户，弹出登录弹窗
+      login(item.path);
+    } else {
+      // 已登录用户或不需要认证的页面，直接跳转
+      navigate(item.path);
+    }
+  };
+
+  /**
    * 移动端导航项组件
    */
   const MobileNavItem = ({ item }: { item: typeof navItems[0] }) => (
-    <Link
-      to={item.path}
-      className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+    <button
+      onClick={() => {
+        handleNavigation(item);
+        setMobileMenuOpen(false);
+      }}
+      className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 w-full text-left ${
         isActivePath(item.path)
           ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
           : 'text-gray-700 hover:text-blue-600 hover:bg-accent/50'
       }`}
-      onClick={() => setMobileMenuOpen(false)}
     >
       <item.icon className="w-5 h-5" />
       <span>{item.label}</span>
-    </Link>
+    </button>
   );
 
   return (
@@ -109,9 +125,9 @@ export const TopNavigation: React.FC = () => {
             {/* 桌面端功能导航菜单 */}
             <nav className="hidden lg:flex items-center space-x-1">
               {navItems.map((item) => (
-                <Link
+                <button
                   key={item.path}
-                  to={item.path}
+                  onClick={() => handleNavigation(item)}
                   className={`flex items-center space-x-2 px-4 py-2 text-base font-medium rounded-md transition-all duration-200 relative group ${
                     isActivePath(item.path)
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
@@ -125,7 +141,7 @@ export const TopNavigation: React.FC = () => {
                   {isActivePath(item.path) && (
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
                   )}
-                </Link>
+                </button>
               ))}
             </nav>
 
@@ -139,15 +155,15 @@ export const TopNavigation: React.FC = () => {
               <DropdownMenuContent align="start" className="w-56">
                 {navItems.map((item) => (
                   <DropdownMenuItem key={item.path} asChild>
-                    <Link
-                      to={item.path}
-                      className={`flex items-center space-x-2 text-sm font-medium ${
+                    <button
+                      onClick={() => handleNavigation(item)}
+                      className={`flex items-center space-x-2 text-sm font-medium w-full text-left ${
                         isActivePath(item.path) ? 'bg-accent text-accent-foreground' : 'text-gray-700'
                       }`}
                     >
                       <item.icon className="w-4 h-4" />
                       <span>{item.label}</span>
-                    </Link>
+                    </button>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

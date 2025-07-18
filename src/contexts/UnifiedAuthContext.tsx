@@ -217,7 +217,12 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
               document.documentElement.style.overflow = '';
               document.body.classList.remove('authing-guard-open');
               document.documentElement.classList.remove('authing-guard-open');
-              window.scrollTo(0, parseInt(scrollY || '0') * -1);
+              
+              // 修复滚动恢复逻辑，确保不会滚动到底部
+              const scrollPosition = parseInt(scrollY.replace('-', '') || '0');
+              requestAnimationFrame(() => {
+                window.scrollTo(0, scrollPosition);
+              });
             }
             
             // 如果有跳转目标，进行跳转
@@ -241,7 +246,12 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
               document.documentElement.style.overflow = '';
               document.body.classList.remove('authing-guard-open');
               document.documentElement.classList.remove('authing-guard-open');
-              window.scrollTo(0, parseInt(scrollY || '0') * -1);
+              
+              // 修复滚动恢复逻辑，确保不会滚动到底部
+              const scrollPosition = parseInt(scrollY.replace('-', '') || '0');
+              requestAnimationFrame(() => {
+                window.scrollTo(0, scrollPosition);
+              });
             }
           }}
           onLoginError={(error) => {

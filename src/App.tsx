@@ -19,6 +19,9 @@ import CreemPaymentTestPage from '@/pages/CreemPaymentTestPage';
 import CheckoutTestPage from '@/pages/CheckoutTestPage';
 import PaymentStatusPage from '@/pages/PaymentStatusPage';
 import AdaptPage from '@/pages/AdaptPage';
+import CreativeStudioPage from '@/pages/CreativeStudioPage';
+import HotTopicsPage from '@/pages/HotTopicsPage';
+import BookmarkPage from '@/pages/BookmarkPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
@@ -105,6 +108,24 @@ export default function App() {
           <Route path="/adapt" element={
             <AuthGuard>
               <AdaptPage />
+            </AuthGuard>
+          } />
+          
+          <Route path="/creative-studio" element={
+            <AuthGuard>
+              <CreativeStudioPage />
+            </AuthGuard>
+          } />
+          
+          <Route path="/hot-topics" element={
+            <AuthGuard>
+              <HotTopicsPage />
+            </AuthGuard>
+          } />
+          
+          <Route path="/library" element={
+            <AuthGuard>
+              <BookmarkPage />
             </AuthGuard>
           } />
           
