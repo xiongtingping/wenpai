@@ -20,6 +20,7 @@ import AdaptPage from '@/pages/AdaptPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
+import ConfigStatusPage from '@/pages/ConfigStatusPage';
 
 // 组件导入
 import AuthGuard from '@/components/auth/AuthGuard';
@@ -108,6 +109,7 @@ export default function App() {
           {/* 测试页面 */}
           <Route path="/ai-config-test" element={<AIConfigTestPage />} />
           <Route path="/permission-test" element={<PermissionTestPage />} />
+          <Route path="/config-status" element={<ConfigStatusPage />} />
         </Routes>
       </div>
       <Toaster />
