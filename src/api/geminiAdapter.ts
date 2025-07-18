@@ -4,7 +4,15 @@
  */
 
 import { callAI, AIModel } from './ai';
-import { AIApiResponse } from './contentAdapter';
+
+/**
+ * AI API响应接口
+ */
+export interface AIApiResponse {
+  success: boolean;
+  data?: string;
+  error?: string;
+}
 
 /**
  * 调用 Gemini API（通过统一AI接口）

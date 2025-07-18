@@ -39,14 +39,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { 
   generateAdaptedContent, 
-  regeneratePlatformContent, 
-  platformStyles,
-  setApiProvider,
-  getApiProvider,
-  setModel,
-  getModel,
-  getAvailableModels,
-  getAvailableSchemes
+  regenerateAdaptedContent,
+  getAvailablePlatforms,
+  getAvailableStyles,
+  type ContentAdaptationRequest
 } from "@/api/contentAdapter";
 import SchemeSelector from '@/components/creative/SchemeSelector';
 import { 
@@ -70,6 +66,7 @@ import {
   type PublishContent,
   type PublishResult
 } from '@/api/platformApiService';
+import { type StyleType } from '@/config/contentSchemes';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -302,6 +299,67 @@ type ShareHistoryItem = {
   time: string;
 };
 
+// 添加缺失的函数
+function getModel(): string {
+  return localStorage.getItem('selectedModel') || 'gpt-4o-mini';
+}
+
+function setModel(modelId: string): void {
+  localStorage.setItem('selectedModel', modelId);
+}
+
+// 平台样式配置
+const platformStyles: Record<string, { name: string; description: string; maxLength?: number; hashtagCount?: number; tone?: string; features?: string[] }> = {
+  wechat: {
+    name: '微信',
+    description: '微信公众号、朋友圈',
+    maxLength: 2000,
+    hashtagCount: 0,
+    tone: '专业、权威',
+    features: ['图文并茂', '深度内容', '专业术语']
+  },
+  weibo: {
+    name: '微博',
+    description: '新浪微博',
+    maxLength: 140,
+    hashtagCount: 3,
+    tone: '简洁、热点',
+    features: ['话题标签', '@用户', '转发互动']
+  },
+  xiaohongshu: {
+    name: '小红书',
+    description: '小红书笔记',
+    maxLength: 1000,
+    hashtagCount: 20,
+    tone: '种草、分享',
+    features: ['个人体验', '图片展示', '标签丰富']
+  },
+  douyin: {
+    name: '抖音',
+    description: '抖音短视频',
+    maxLength: 300,
+    hashtagCount: 5,
+    tone: '轻松、有趣',
+    features: ['视频脚本', '音乐配合', '互动引导']
+  },
+  zhihu: {
+    name: '知乎',
+    description: '知乎问答',
+    maxLength: 5000,
+    hashtagCount: 0,
+    tone: '专业、深度',
+    features: ['详细解答', '专业术语', '引用来源']
+  },
+  bilibili: {
+    name: 'B站',
+    description: 'B站视频',
+    maxLength: 500,
+    hashtagCount: 10,
+    tone: '年轻、活力',
+    features: ['弹幕互动', '视频标题', '分区标签']
+  }
+};
+
 export default function AdaptPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -328,6 +386,10 @@ export default function AdaptPage() {
   
   // 订阅等级本地状态，后续可全局提升
   const [userPlan, setUserPlan] = useState<'trial' | 'pro' | 'premium'>('trial');
+  
+  // 内容方案和风格选择
+  const [selectedSchemeId, setSelectedSchemeId] = useState('global-adaptation');
+  const [selectedStyle, setSelectedStyle] = useState<StyleType>('professional');
   
   // 获取可用模型
   const availableModels = getAvailableModelsForTier(userPlan);
@@ -609,153 +671,161 @@ export default function AdaptPage() {
 
   // 修改generateContent，在内容生成成功后调用saveToHistory
   const generateContent = async () => {
-    if (!canGenerate) return;
+    if (!checkUsageAndShowReminder()) return;
     
-    // 检查使用次数并显示提醒
-    if (!checkUsageAndShowReminder()) {
-      return;
-    }
-    
-    if (usageRemaining <= 0) {
+    if (!originalContent.trim()) {
       toast({
-        title: "使用次数已用完",
-        description: "请通过邀请好友获取更多使用机会",
+        title: "请输入内容",
+        description: "请先输入要适配的原始内容",
         variant: "destructive"
       });
       return;
     }
-    setGenerating(true);
-    applyGlobalSettings();
-    const initialResults: PlatformResult[] = selectedPlatforms.map(platformId => ({
-      platformId,
-      content: "",
-      steps: [
-        { status: "loading", message: "分析原始内容..." },
-        { status: "waiting", message: "提取核心信息..." },
-        { status: "waiting", message: "进行平台适配..." },
-        { status: "waiting", message: "优化输出结果..." }
-      ]
-    }));
-    setResults(initialResults);
-    try {
-      // Prepare the settings for each platform
-      const platformSettingsForAPI: Record<string, unknown> = {};
-      selectedPlatforms.forEach(platformId => {
-        const settings = platformSettings[platformId];
-        platformSettingsForAPI[`${platformId}-charCount`] = settings?.charCount || getCharCountMax(platformId) * 0.6;
-        platformSettingsForAPI[`${platformId}-emoji`] = settings?.useEmoji || false;
-        platformSettingsForAPI[`${platformId}-mdFormat`] = settings?.useMdFormat || false;
-        platformSettingsForAPI[`${platformId}-autoFormat`] = settings?.useAutoFormat || false;
-        platformSettingsForAPI[`${platformId}-brandLibrary`] = useBrandLibrary;
+
+    if (selectedPlatforms.length === 0) {
+      toast({
+        title: "请选择平台",
+        description: "请至少选择一个目标平台",
+        variant: "destructive"
       });
+      return;
+    }
+
+    setGenerating(true);
+    setResults([]);
+
+    try {
+      // 为每个选中的平台生成内容
+      const newResults: PlatformResult[] = [];
       
-      // Call API to generate content for all selected platforms
-      const generatedContent = await generateAdaptedContent(
-        originalContent,
-        selectedPlatforms,
-        platformSettingsForAPI,
-        selectedSchemeId
-      );
-      
-      // Process each platform sequentially for better UX
-      for (let i = 0; i < selectedPlatforms.length; i++) {
-        const platformId = selectedPlatforms[i];
-        
-        // Update steps progressively
-        const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error") => {
-          setResults(current => 
-            current.map(result => 
-              result.platformId === platformId 
-                ? {
-                    ...result,
-                    steps: result.steps.map((step, idx) => 
-                      idx === stepIndex ? { ...step, status } : step
-                    )
-                  }
-                : result
-            )
-          );
+      for (const platformId of selectedPlatforms) {
+        const platformResult: PlatformResult = {
+          platformId,
+          content: '',
+          steps: [
+            { status: 'waiting', message: '等待生成...' },
+            { status: 'waiting', message: '构建提示词...' },
+            { status: 'waiting', message: '调用AI服务...' },
+            { status: 'waiting', message: '处理响应...' }
+          ]
         };
         
-        // Simulate progressive steps (in real app, these would map to actual processing stages)
-        updateStep(0, "completed");
-        await new Promise(r => setTimeout(r, 300));
-        
-        updateStep(1, "loading");
-        await new Promise(r => setTimeout(r, 300));
-        updateStep(1, "completed");
-        
-        updateStep(2, "loading");
-        await new Promise(r => setTimeout(r, 300));
-        updateStep(2, "completed");
-        
-        updateStep(3, "loading");
-        await new Promise(r => setTimeout(r, 300));
-        
-        // Update content for each platform
-        for (const platformId of selectedPlatforms) {
-          const adaptedContent = generatedContent[platformId];
-          if (adaptedContent && adaptedContent.content) {
-            updateStep(3, "completed");
-            
-            // Update content in results
-            setResults(current => 
-              current.map(result => 
-                result.platformId === platformId 
-                  ? { 
-                      ...result, 
-                      content: adaptedContent.content,
-                      source: adaptedContent.source,
-                      error: adaptedContent.error 
-                    }
-                  : result
-              )
-            );
-          } else {
-            // Handle case where adaptedContent is undefined or has no content
-            updateStep(3, "error");
-            setResults(current => 
-              current.map(result => 
-                result.platformId === platformId 
-                  ? { 
-                      ...result, 
-                      error: "生成失败：无法获取适配内容"
-                    }
-                  : result
-              )
-            );
+        newResults.push(platformResult);
+        setResults([...newResults]);
+
+        const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error") => {
+          const updatedResults = [...newResults];
+          if (updatedResults[updatedResults.length - 1]) {
+            updatedResults[updatedResults.length - 1].steps[stepIndex].status = status;
+            setResults([...updatedResults]);
           }
+        };
+
+        try {
+          // 步骤1: 开始生成
+          updateStep(0, 'loading');
+          
+          // 步骤2: 构建提示词
+          updateStep(1, 'loading');
+          
+          // 调用新的内容适配API
+          const request: ContentAdaptationRequest = {
+            originalContent: originalContent.trim(),
+            platform: platformId,
+            schemeId: selectedSchemeId,
+            style: selectedStyle
+          };
+          
+          const response = await generateAdaptedContent(request);
+          
+          // 步骤3: 调用AI服务
+          updateStep(2, 'completed');
+          
+          // 步骤4: 处理响应
+          updateStep(3, 'loading');
+          
+          if (response.success && response.data) {
+            // 使用AI服务生成最终内容
+            const aiResponse = await fetch('/api/ai/generate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                messages: [
+                  {
+                    role: 'system',
+                    content: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。'
+                  },
+                  {
+                    role: 'user',
+                    content: response.data.prompt
+                  }
+                ],
+                model: selectedModel,
+                maxTokens: 2000,
+                temperature: 0.7
+              })
+            });
+
+            if (aiResponse.ok) {
+              const aiData = await aiResponse.json();
+              let platformContent = '';
+              
+              if (aiData.data && aiData.data.choices && aiData.data.choices[0] && aiData.data.choices[0].message) {
+                platformContent = aiData.data.choices[0].message.content;
+              } else if (aiData.choices && aiData.choices[0] && aiData.choices[0].message) {
+                platformContent = aiData.choices[0].message.content;
+              } else {
+                platformContent = JSON.stringify(aiData);
+              }
+              
+              // 更新结果
+              const updatedResults = [...newResults];
+              const resultIndex = updatedResults.findIndex(r => r.platformId === platformId);
+              if (resultIndex !== -1) {
+                updatedResults[resultIndex].content = platformContent;
+                updatedResults[resultIndex].source = 'ai';
+                updatedResults[resultIndex].steps[3].status = 'completed';
+                updatedResults[resultIndex].steps[3].message = '生成完成';
+              }
+              setResults([...updatedResults]);
+              newResults[resultIndex] = updatedResults[resultIndex];
+            } else {
+              throw new Error('AI服务调用失败');
+            }
+          } else {
+            throw new Error(response.error || '内容适配失败');
+          }
+        } catch (error) {
+          console.error(`生成 ${platformId} 内容失败:`, error);
+          
+          const updatedResults = [...newResults];
+          const resultIndex = updatedResults.findIndex(r => r.platformId === platformId);
+          if (resultIndex !== -1) {
+            updatedResults[resultIndex].error = error instanceof Error ? error.message : '生成失败';
+            updatedResults[resultIndex].steps.forEach(step => {
+              if (step.status === 'loading') {
+                step.status = 'error';
+              }
+            });
+          }
+          setResults([...updatedResults]);
         }
       }
+
+      // 保存到历史记录
+      saveToHistory(newResults);
       
-      // Decrement usage after successful generation
-      decrementUsage();
-      
-      // 生成完成后保存历史
-      saveToHistory(results);
       toast({
-        title: "内容已生成",
-        description: `已成功为${selectedPlatforms.length}个平台生成内容`,
+        title: "生成完成",
+        description: `已为 ${selectedPlatforms.length} 个平台生成内容`,
       });
     } catch (error) {
-      console.error("Error generating content:", error);
-      
-      // Update all platforms with error status
-      setResults(current => 
-        current.map(result => ({
-          ...result,
-          steps: result.steps.map(step => 
-            step.status === "loading" 
-              ? { ...step, status: "error" }
-              : step
-          ),
-          error: error instanceof Error ? error.message : "生成失败"
-        }))
-      );
-      
+      console.error('生成内容失败:', error);
       toast({
         title: "生成失败",
-        description: error instanceof Error ? error.message : "内容生成过程中发生错误，请稍后重试",
+        description: error instanceof Error ? error.message : '生成内容时发生错误',
         variant: "destructive"
       });
     } finally {
@@ -1207,121 +1277,120 @@ export default function AdaptPage() {
 
   // Regenerate content for a specific platform
   const handleRegeneratePlatformContent = async (platformId: string) => {
-    if (generating) return;
+    if (!checkUsageAndShowReminder()) return;
     
-    // Show loading state
-    setResults(current => 
-      current.map(result => 
-        result.platformId === platformId 
-          ? {
-              ...result,
-              steps: [
-                { status: "loading", message: "重新分析内容..." },
-                { status: "waiting", message: "提取核心信息..." },
-                { status: "waiting", message: "进行平台适配..." },
-                { status: "waiting", message: "优化输出结果..." }
-              ]
-            }
-          : result
-      )
-    );
-    
+    const platformResult = results.find(r => r.platformId === platformId);
+    if (!platformResult) return;
+
+    // 更新状态为重新生成中
+    const updatedResults = [...results];
+    const resultIndex = updatedResults.findIndex(r => r.platformId === platformId);
+    if (resultIndex === -1) return;
+
+    updatedResults[resultIndex].steps = [
+      { status: 'loading', message: '重新生成中...' },
+      { status: 'loading', message: '构建提示词...' },
+      { status: 'loading', message: '调用AI服务...' },
+      { status: 'loading', message: '处理响应...' }
+    ];
+    setResults([...updatedResults]);
+
+    const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error") => {
+      const currentResults = [...results];
+      if (currentResults[resultIndex]) {
+        currentResults[resultIndex].steps[stepIndex].status = status;
+        setResults([...currentResults]);
+      }
+    };
+
     try {
-      // Prepare settings for the specific platform
-      const platformSettingsForAPI: Record<string, unknown> = {};
-      const settings = platformSettings[platformId];
-      platformSettingsForAPI[`${platformId}-charCount`] = settings?.charCount || getCharCountMax(platformId) * 0.6;
-      platformSettingsForAPI[`${platformId}-emoji`] = settings?.useEmoji || false;
-      platformSettingsForAPI[`${platformId}-mdFormat`] = settings?.useMdFormat || false;
-      platformSettingsForAPI[`${platformId}-autoFormat`] = settings?.useAutoFormat || false;
-      platformSettingsForAPI[`${platformId}-brandLibrary`] = useBrandLibrary;
+      // 步骤1: 开始重新生成
+      updateStep(0, 'completed');
       
-      // Call API to regenerate content for this specific platform
-      const result = await regeneratePlatformContent(
-        platformId,
-        originalContent,
-        platformSettingsForAPI,
-        selectedSchemeId
-      );
+      // 步骤2: 构建提示词
+      updateStep(1, 'loading');
       
-      // Update steps progressively
-      const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error") => {
-        setResults(current => 
-          current.map(result => 
-            result.platformId === platformId 
-              ? {
-                  ...result,
-                  steps: result.steps.map((step, idx) => 
-                    idx === stepIndex ? { ...step, status } : step
-                  )
-                }
-              : result
-          )
-        );
+      // 调用新的重新生成API
+      const request: ContentAdaptationRequest = {
+        originalContent: originalContent.trim(),
+        platform: platformId,
+        schemeId: selectedSchemeId,
+        style: selectedStyle
       };
       
-      // Simulate progressive steps
-      updateStep(0, "completed");
-      await new Promise(r => setTimeout(r, 300));
+      const response = await regenerateAdaptedContent(request);
       
-      updateStep(1, "loading");
-      await new Promise(r => setTimeout(r, 300));
-      updateStep(1, "completed");
+      // 步骤3: 调用AI服务
+      updateStep(2, 'completed');
       
-      updateStep(2, "loading");
-      await new Promise(r => setTimeout(r, 300));
-      updateStep(2, "completed");
+      // 步骤4: 处理响应
+      updateStep(3, 'loading');
       
-      updateStep(3, "loading");
-      await new Promise(r => setTimeout(r, 300));
-      
-      // Update content with regenerated result
-      const adaptedContent = result[platformId];
-      updateStep(3, "completed");
-      
-      // Update content in results
-      setResults(current => 
-        current.map(r => 
-          r.platformId === platformId 
-            ? { 
-                ...r, 
-                content: adaptedContent.content,
-                source: adaptedContent.source,
-                error: adaptedContent.error 
+      if (response.success && response.data) {
+        // 使用AI服务生成最终内容
+        const aiResponse = await fetch('/api/ai/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'system',
+                content: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。'
+              },
+              {
+                role: 'user',
+                content: response.data.prompt
               }
-            : r
-        )
-      );
-      
-      toast({
-        title: "重新生成成功",
-        description: `已为${platformId}重新生成内容`,
-      });
+            ],
+            model: selectedModel,
+            maxTokens: 2000,
+            temperature: 0.7
+          })
+        });
+
+        if (aiResponse.ok) {
+          const aiData = await aiResponse.json();
+          let platformContent = '';
+          
+          if (aiData.data && aiData.data.choices && aiData.data.choices[0] && aiData.data.choices[0].message) {
+            platformContent = aiData.data.choices[0].message.content;
+          } else if (aiData.choices && aiData.choices[0] && aiData.choices[0].message) {
+            platformContent = aiData.choices[0].message.content;
+          } else {
+            platformContent = JSON.stringify(aiData);
+          }
+          
+          // 更新结果
+          const currentResults = [...results];
+          if (currentResults[resultIndex]) {
+            currentResults[resultIndex].content = platformContent;
+            currentResults[resultIndex].source = 'ai';
+            currentResults[resultIndex].error = undefined;
+            currentResults[resultIndex].steps[3].status = 'completed';
+            currentResults[resultIndex].steps[3].message = '重新生成完成';
+          }
+          setResults([...currentResults]);
+        } else {
+          throw new Error('AI服务调用失败');
+        }
+      } else {
+        throw new Error(response.error || '重新生成失败');
+      }
     } catch (error) {
-      console.error(`Error regenerating content for ${platformId}:`, error);
+      console.error(`重新生成 ${platformId} 内容失败:`, error);
       
-      // Handle errors
-      setResults(current => 
-        current.map(result => 
-          result.platformId === platformId 
-            ? {
-                ...result,
-                steps: result.steps.map(step => 
-                  step.status === "loading" 
-                    ? { ...step, status: "error" }
-                    : step
-                ),
-                error: error instanceof Error ? error.message : "重新生成失败"
-              }
-            : result
-        )
-      );
-      
-      toast({
-        title: "重新生成失败",
-        description: error instanceof Error ? error.message : `适配${platformId}内容时出错`,
-        variant: "destructive"
-      });
+      const currentResults = [...results];
+      if (currentResults[resultIndex]) {
+        currentResults[resultIndex].error = error instanceof Error ? error.message : '重新生成失败';
+        currentResults[resultIndex].steps.forEach(step => {
+          if (step.status === 'loading') {
+            step.status = 'error';
+          }
+        });
+      }
+      setResults([...currentResults]);
     }
   };
 
@@ -1451,7 +1520,6 @@ export default function AdaptPage() {
   const [apiManagerOpen, setApiManagerOpen] = useState(false);
   const [publishMode, setPublishMode] = useState<'jump' | 'api'>('jump');
   const [publishingPlatforms, setPublishingPlatforms] = useState<Set<string>>(new Set());
-  const [selectedSchemeId, setSelectedSchemeId] = useState('default');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1761,13 +1829,15 @@ export default function AdaptPage() {
         <CardHeader>
           <CardTitle className="text-lg">内容适配方案</CardTitle>
           <CardDescription>
-            选择不同的方案来获得不同风格的内容适配效果
+            选择不同的方案和风格来获得最佳的内容生成效果
           </CardDescription>
         </CardHeader>
         <CardContent>
           <SchemeSelector
-            selectedSchemeId={selectedSchemeId}
+            selectedScheme={selectedSchemeId}
+            selectedStyle={selectedStyle}
             onSchemeChange={setSelectedSchemeId}
+            onStyleChange={setSelectedStyle}
           />
         </CardContent>
       </Card>

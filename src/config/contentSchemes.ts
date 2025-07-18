@@ -18,12 +18,27 @@ export interface ContentScheme {
 }
 
 /**
+ * 风格类型枚举
+ */
+export type StyleType = 'professional' | 'funny' | 'real' | 'hook';
+
+/**
  * 平台提示词模板接口
  */
 export interface PlatformPromptTemplate {
   name: string;
   styleGuide: string;
   prompt: (input: string) => string;
+}
+
+/**
+ * 风格提示词模板接口
+ */
+export interface StylePromptTemplate {
+  name: string;
+  description: string;
+  characteristics: string[];
+  prompt: (input: string, platform: string) => string;
 }
 
 /**
@@ -46,6 +61,139 @@ export const globalContentAdaptationScheme: ContentScheme = {
     '互动引导设计'
   ],
   isDefault: true
+};
+
+/**
+ * 四大核心风格体系
+ */
+export const stylePromptTemplates: Record<StyleType, StylePromptTemplate> = {
+  professional: {
+    name: '专业风格',
+    description: '专业 + 客观 + 洞察',
+    characteristics: [
+      '使用专业术语和行业词汇',
+      '客观分析，避免主观情绪',
+      '提供深度洞察和独到见解',
+      '逻辑清晰，结构严谨',
+      '引用权威数据和案例',
+      '保持专业权威性'
+    ],
+    prompt: (input: string, platform: string) => `你是一位${platform}平台的专业内容创作者，擅长撰写专业、客观、有洞察力的内容。
+
+请根据以下原始内容，生成一篇符合专业风格的内容：
+
+原始内容：
+${input}
+
+专业风格要求：
+- 使用专业术语和行业词汇
+- 客观分析，避免主观情绪
+- 提供深度洞察和独到见解
+- 逻辑清晰，结构严谨
+- 引用权威数据和案例
+- 保持专业权威性
+
+请输出格式如下：
+
+标题：XXXXX（专业性强，准确表达主题）
+内容：XXXX（专业分析，逻辑清晰，有深度洞察）`
+  },
+
+  funny: {
+    name: '幽默风格',
+    description: '幽默 + 自嘲 + 网络热词 + 惊叹 + 标题党',
+    characteristics: [
+      '使用幽默风趣的表达',
+      '适当自嘲和调侃',
+      '融入网络热词和流行语',
+      '使用惊叹号和夸张表达',
+      '标题党风格吸引注意',
+      '轻松活泼的语调'
+    ],
+    prompt: (input: string, platform: string) => `你是一位${platform}平台的幽默内容创作者，擅长撰写有趣、有梗、吸引眼球的内容。
+
+请根据以下原始内容，生成一篇符合幽默风格的内容：
+
+原始内容：
+${input}
+
+幽默风格要求：
+- 使用幽默风趣的表达
+- 适当自嘲和调侃
+- 融入网络热词和流行语
+- 使用惊叹号和夸张表达
+- 标题党风格吸引注意
+- 轻松活泼的语调
+
+请输出格式如下：
+
+标题：XXXXX（有趣吸引人，可以使用惊叹号）
+内容：XXXX（幽默表达，有梗有趣，轻松活泼）`
+  },
+
+  real: {
+    name: '真实风格',
+    description: '真实感 + 主观 + 分享型',
+    characteristics: [
+      '第一人称真实体验',
+      '主观感受和情感表达',
+      '分享个人经历和故事',
+      '真实可信的表达方式',
+      '避免过度包装和修饰',
+      '贴近生活的语言'
+    ],
+    prompt: (input: string, platform: string) => `你是一位${platform}平台的真实内容创作者，擅长撰写真实、有温度、有共鸣的内容。
+
+请根据以下原始内容，生成一篇符合真实风格的内容：
+
+原始内容：
+${input}
+
+真实风格要求：
+- 第一人称真实体验
+- 主观感受和情感表达
+- 分享个人经历和故事
+- 真实可信的表达方式
+- 避免过度包装和修饰
+- 贴近生活的语言
+
+请输出格式如下：
+
+标题：XXXXX（真实感受，有温度）
+内容：XXXX（个人体验，真实分享，有共鸣）`
+  },
+
+  hook: {
+    name: '钩子风格',
+    description: '钩子型 + 精准用户导向 + 高点击转化',
+    characteristics: [
+      '开头设置强烈钩子',
+      '精准定位目标用户',
+      '高点击率和转化导向',
+      '制造悬念和好奇心',
+      '突出核心卖点和价值',
+      '引导用户行动'
+    ],
+    prompt: (input: string, platform: string) => `你是一位${platform}平台的钩子内容创作者，擅长撰写高点击、高转化、精准引流的内容。
+
+请根据以下原始内容，生成一篇符合钩子风格的内容：
+
+原始内容：
+${input}
+
+钩子风格要求：
+- 开头设置强烈钩子
+- 精准定位目标用户
+- 高点击率和转化导向
+- 制造悬念和好奇心
+- 突出核心卖点和价值
+- 引导用户行动
+
+请输出格式如下：
+
+标题：XXXXX（强烈钩子，高点击率）
+内容：XXXX（精准用户导向，高转化，引导行动）`
+  }
 };
 
 /**
@@ -312,6 +460,13 @@ export function getPlatformPromptTemplate(platform: string): PlatformPromptTempl
 }
 
 /**
+ * 获取风格提示词模板
+ */
+export function getStylePromptTemplate(style: StyleType): StylePromptTemplate | undefined {
+  return stylePromptTemplates[style];
+}
+
+/**
  * 获取平台技术规格
  */
 export function getPlatformSpecification(platform: string) {
@@ -319,19 +474,27 @@ export function getPlatformSpecification(platform: string) {
 }
 
 /**
- * 生成平台适配内容
+ * 生成平台适配内容（带风格）
  */
 export function generatePlatformContent(
   originalContent: string,
   platform: string,
-  schemeId: string = 'global-adaptation'
+  schemeId: string = 'global-adaptation',
+  style: StyleType = 'professional'
 ): string {
   const template = getPlatformPromptTemplate(platform);
+  const styleTemplate = getStylePromptTemplate(style);
+  
   if (!template) {
     return originalContent;
   }
 
-  // 根据方案ID调整提示词
+  // 如果指定了风格，使用风格模板
+  if (styleTemplate) {
+    return styleTemplate.prompt(originalContent, platform);
+  }
+
+  // 否则使用平台模板
   let adjustedPrompt = template.prompt(originalContent);
   
   if (schemeId === 'marketing') {
@@ -341,4 +504,36 @@ export function generatePlatformContent(
   }
 
   return adjustedPrompt;
+}
+
+/**
+ * 获取所有可用风格
+ */
+export function getAvailableStyles(): Array<{ id: StyleType; name: string; description: string; icon: string }> {
+  return [
+    {
+      id: 'professional',
+      name: '专业风格',
+      description: '专业 + 客观 + 洞察',
+      icon: '🎯'
+    },
+    {
+      id: 'funny',
+      name: '幽默风格',
+      description: '幽默 + 自嘲 + 网络热词 + 惊叹 + 标题党',
+      icon: '😄'
+    },
+    {
+      id: 'real',
+      name: '真实风格',
+      description: '真实感 + 主观 + 分享型',
+      icon: '💝'
+    },
+    {
+      id: 'hook',
+      name: '钩子风格',
+      description: '钩子型 + 精准用户导向 + 高点击转化',
+      icon: '🎣'
+    }
+  ];
 } 

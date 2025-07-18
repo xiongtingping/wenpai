@@ -5,9 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  adaptContentToPlatforms,
-  getAllSupportedPlatforms,
-  getPlatformConfig
+  getAvailablePlatforms,
+  type ContentAdaptationRequest
 } from "@/api/contentAdapter";
 import { Loader2, CheckCircle2, XCircle, Zap, Settings } from "lucide-react";
 import ToolLayout from "@/components/layout/ToolLayout";
@@ -32,7 +31,7 @@ const setModel = (model: string) => {
   // 临时实现，实际应该更新全局状态
   console.log('Setting model:', model);
 };
-const generateAdaptedContent = async (content: string, platforms: string[], settings: any) => {
+const mockGenerateAdaptedContent = async (content: string, platforms: string[], settings: any) => {
   // 临时实现，返回模拟数据
   return {
     results: [{
@@ -41,6 +40,53 @@ const generateAdaptedContent = async (content: string, platforms: string[], sett
       success: true
     }]
   };
+};
+
+// 临时函数，用于兼容旧代码
+const adaptContentToPlatforms = async (request: any) => {
+  const { originalContent, targetPlatforms } = request;
+  const results = [];
+  
+  for (const platform of targetPlatforms) {
+    const response = await mockGenerateAdaptedContent(originalContent, [platform], {});
+    results.push({
+      platform,
+      content: response.results[0]?.content || '生成失败',
+      success: response.results[0]?.success || false
+    });
+  }
+  
+  return {
+    success: true,
+    results
+  };
+};
+
+const getAllSupportedPlatforms = () => {
+  return getAvailablePlatforms().map(p => ({
+    name: p.name,
+    description: p.name,
+    maxLength: 1000,
+    hashtagCount: 5,
+    tone: '自然',
+    features: ['内容适配']
+  }));
+};
+
+const getPlatformConfig = (platformName: string) => {
+  const platforms = getAvailablePlatforms();
+  const platform = platforms.find(p => p.name === platformName);
+  if (platform) {
+    return {
+      name: platform.name,
+      description: platform.name,
+      maxLength: 1000,
+      hashtagCount: 5,
+      tone: '自然',
+      features: ['内容适配']
+    };
+  }
+  return null;
 };
 
 const ApiTestPage = () => {
@@ -172,7 +218,7 @@ const ApiTestPage = () => {
 
     try {
       // Generate content for a single platform (知乎) as a test
-      const result = await generateAdaptedContent(
+      const result = await mockGenerateAdaptedContent(
         testContent,
         ['zhihu'],
         {
