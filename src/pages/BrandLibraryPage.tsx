@@ -3,14 +3,14 @@
  * @description 多维品牌语料库，支持AI自动分析和用户自定义修改
  */
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -25,8 +25,22 @@ import {
   Loader2, Crown, Lock
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageNavigation from '@/components/layout/PageNavigation';
+import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
+import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
+import { BrandProfile, BrandAsset } from '@/types/brand';
+import AIAnalysisService from '@/services/aiAnalysisService';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { usePermission } from '@/hooks/usePermission';
+import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 import PreviewGuard from '@/components/auth/PreviewGuard';
 
 /**
@@ -45,12 +59,18 @@ interface BrandDimension {
 }
 
 /**
+ * 排序选项类型
+ */
+type SortOption = 'date-new' | 'date-old' | 'name-asc' | 'name-desc' | 'size-asc' | 'size-desc';
+
+/**
  * 品牌资料库页面组件
  * @description 多维品牌语料库，支持AI自动分析和用户自定义修改
  */
 export default function BrandLibraryPage() {
-  const navigate = useNavigate();
+  const { user: currentUser, isAuthenticated } = useUnifiedAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // 使用PreviewGuard组件进行权限检查
   return (
@@ -147,6 +167,79 @@ export default function BrandLibraryPage() {
                         </div>
                       </div>
                       <Input placeholder="请输入您的品牌口号..." />
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Palette className="h-4 w-4" />
+                        <div>
+                          <Label className="text-sm font-medium">语调风格</Label>
+                          <p className="text-xs text-gray-500">选择品牌的语调风格</p>
+                        </div>
+                      </div>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="选择语调风格" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="professional">专业正式</SelectItem>
+                          <SelectItem value="friendly">友好亲切</SelectItem>
+                          <SelectItem value="casual">轻松随意</SelectItem>
+                          <SelectItem value="humorous">幽默风趣</SelectItem>
+                          <SelectItem value="authoritative">权威可信</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 品牌价值 */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Heart className="h-5 w-5 text-red-600" />
+                      品牌价值
+                    </CardTitle>
+                    <CardDescription>品牌的核心价值观和理念</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Heart className="h-4 w-4" />
+                        <div>
+                          <Label className="text-sm font-medium">核心价值观</Label>
+                          <p className="text-xs text-gray-500">品牌的核心价值观</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="secondary" className="cursor-pointer hover:bg-red-100">
+                          <Plus className="h-3 w-3 mr-1" />
+                          添加价值观
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 目标受众 */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Users className="h-5 w-5 text-green-600" />
+                      目标受众
+                    </CardTitle>
+                    <CardDescription>品牌的目标用户群体</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <div>
+                          <Label className="text-sm font-medium">目标用户</Label>
+                          <p className="text-xs text-gray-500">描述目标用户特征</p>
+                        </div>
+                      </div>
+                      <Textarea placeholder="请描述您的目标用户群体特征..." />
                     </div>
                   </CardContent>
                 </Card>
