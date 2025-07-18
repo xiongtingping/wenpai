@@ -6,6 +6,7 @@ import { initializeConfigValidation } from '@/utils/configValidator';
 import { setupGlobalErrorHandler } from '@/utils/errorHandler';
 import { runConfigDiagnostics, generateConfigReport } from '@/utils/configDiagnostics';
 import { ScrollManager } from '@/components/layout/ScrollManager';
+import TopNavigation from '@/components/layout/TopNavigation';
 
 // 页面导入
 import HomePage from '@/pages/HomePage';
@@ -81,6 +82,10 @@ export default function App() {
       {/* 滚动管理组件 - 禁用自动滚动到顶部 */}
       <ScrollManager autoScrollToTop={false} />
       <PageTracker />
+      
+      {/* 全局顶部导航栏 */}
+      <TopNavigation />
+      
       <div className="min-h-screen bg-background">
         <Routes>
           {/* 公开页面 */}
