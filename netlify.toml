@@ -22,12 +22,17 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
+# 静态资源处理 - 确保CSS和JS文件不被重定向
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+
 # 重定向规则 - 处理React Router的客户端路由
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = true
 
 # 环境变量设置
 [context.production.environment]
