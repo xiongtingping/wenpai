@@ -150,10 +150,20 @@ export function usePermissions(): UsePermissionsReturn {
     error: null,
   });
 
+  // 添加防抖机制，避免重复调用
+  const [lastLoadTime, setLastLoadTime] = useState(0);
+  const LOAD_DEBOUNCE_MS = 5000; // 5秒防抖
+
   /**
    * 加载用户权限信息
    */
   const loadPermissions = useCallback(async () => {
+    // 防抖检查
+    const now = Date.now();
+    if (now - lastLoadTime < LOAD_DEBOUNCE_MS) {
+      return;
+    }
+
     // 开发环境下使用最高权限配置
     if (isDevelopment()) {
       setState({
@@ -162,6 +172,7 @@ export function usePermissions(): UsePermissionsReturn {
         loading: false,
         error: null,
       });
+      setLastLoadTime(now);
       return;
     }
 
@@ -172,6 +183,7 @@ export function usePermissions(): UsePermissionsReturn {
         loading: false,
         error: null,
       });
+      setLastLoadTime(now);
       return;
     }
 
@@ -204,16 +216,18 @@ export function usePermissions(): UsePermissionsReturn {
         loading: false,
         error: null,
       });
+      setLastLoadTime(now);
     } catch (error) {
-      console.error('加载权限信息失败:', error);
+      // 静默处理错误，不污染控制台
       setState({
         roles: [],
         permissions: [],
         loading: false,
-        error: '加载权限信息失败',
+        error: null, // 不设置错误，避免UI显示错误
       });
+      setLastLoadTime(now);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, lastLoadTime]);
 
   /**
    * 检查是否有指定权限
@@ -285,12 +299,17 @@ export function usePermissions(): UsePermissionsReturn {
    * 刷新权限信息
    */
   const refreshPermissions = useCallback(async () => {
+    setLastLoadTime(0); // 重置防抖时间
     await loadPermissions();
   }, [loadPermissions]);
 
-  // 监听认证状态变化
+  // 监听认证状态变化，但使用防抖
   useEffect(() => {
-    loadPermissions();
+    const timer = setTimeout(() => {
+      loadPermissions();
+    }, 100); // 延迟100ms执行
+
+    return () => clearTimeout(timer);
   }, [loadPermissions]);
 
   return {

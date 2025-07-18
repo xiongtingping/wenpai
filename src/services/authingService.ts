@@ -218,6 +218,11 @@ class AuthingService {
    */
   async getUserPermissions(): Promise<string[]> {
     try {
+      // 开发环境下返回默认权限
+      if (process.env.NODE_ENV === 'development') {
+        return ['read', 'write', 'admin'];
+      }
+
       const guard = this.initGuard();
       const userInfo = await guard.trackSession();
       
@@ -229,7 +234,7 @@ class AuthingService {
       const permissions = (userInfo as any).permissions || [];
       return Array.isArray(permissions) ? permissions : [];
     } catch (error) {
-      console.error('获取用户权限失败:', error);
+      // 静默处理错误，不污染控制台
       return [];
     }
   }
@@ -239,6 +244,14 @@ class AuthingService {
    */
   async getUserRoles(): Promise<any[]> {
     try {
+      // 开发环境下返回默认角色
+      if (process.env.NODE_ENV === 'development') {
+        return [
+          { id: 'dev-user', name: '开发用户', code: 'user' },
+          { id: 'dev-vip', name: '开发VIP', code: 'vip' }
+        ];
+      }
+
       const guard = this.initGuard();
       const userInfo = await guard.trackSession();
       
@@ -250,7 +263,7 @@ class AuthingService {
       const roles = (userInfo as any).roles || [];
       return Array.isArray(roles) ? roles : [];
     } catch (error) {
-      console.error('获取用户角色失败:', error);
+      // 静默处理错误，不污染控制台
       return [];
     }
   }

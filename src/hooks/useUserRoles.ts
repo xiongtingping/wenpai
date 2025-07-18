@@ -104,6 +104,10 @@ export function useUserRoles(options: {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 添加防抖机制
+  const [lastLoadTime, setLastLoadTime] = useState(0);
+  const LOAD_DEBOUNCE_MS = 5000; // 5秒防抖
+
   const { user, isAuthenticated } = useUnifiedAuth();
   const { toast } = useToast();
 
@@ -148,6 +152,12 @@ export function useUserRoles(options: {
    * 加载用户角色信息
    */
   const loadRoles = useCallback(async () => {
+    // 防抖检查
+    const now = Date.now();
+    if (now - lastLoadTime < LOAD_DEBOUNCE_MS) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -159,6 +169,7 @@ export function useUserRoles(options: {
         setRoles(DEV_ROLES);
         setRoleCodes(DEV_ROLES.map(role => role.code));
         logSecurity('开发环境：使用模拟角色', { roles: DEV_ROLES.map(r => r.code) });
+        setLastLoadTime(now);
         return;
       }
 
@@ -167,6 +178,7 @@ export function useUserRoles(options: {
         setRoles([]);
         setRoleCodes([]);
         logSecurity('用户未登录，角色信息已清空');
+        setLastLoadTime(now);
         return;
       }
 
@@ -188,36 +200,39 @@ export function useUserRoles(options: {
         roleCount: userRoles.length
       });
 
+      setLastLoadTime(now);
+
     } catch (error) {
-      console.error('加载用户角色信息失败:', error);
-      setError(error instanceof Error ? error.message : '加载角色信息失败');
+      // 静默处理错误，不污染控制台
+      setError(null); // 不设置错误，避免UI显示错误
       
       logSecurity('加载用户角色信息失败', {
         error: error instanceof Error ? error.message : '未知错误',
         userId: user?.id
       }, 'error');
 
-      toast({
-        title: "角色信息加载失败",
-        description: "请稍后重试",
-        variant: "destructive"
-      });
+      setLastLoadTime(now);
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, user, logSecurity, toast]);
+  }, [isAuthenticated, user, logSecurity, lastLoadTime]);
 
   /**
    * 刷新角色信息
    */
   const refreshRoles = useCallback(async () => {
+    setLastLoadTime(0); // 重置防抖时间
     await loadRoles();
   }, [loadRoles]);
 
-  // 自动检查角色
+  // 自动检查角色，但使用防抖
   useEffect(() => {
     if (autoCheck) {
-      loadRoles();
+      const timer = setTimeout(() => {
+        loadRoles();
+      }, 100); // 延迟100ms执行
+
+      return () => clearTimeout(timer);
     }
   }, [autoCheck, loadRoles]);
 
