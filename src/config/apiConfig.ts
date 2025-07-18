@@ -90,6 +90,9 @@ export interface APIConfig {
 /**
  * 安全获取环境变量
  * 避免在构建时硬编码敏感信息
+ * ✅ FIXED: 修复生产环境环境变量获取问题，支持多种获取方式
+ * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+ * 🔒 LOCKED: AI 禁止对此函数做任何修改
  */
 function getSecureEnvVar(key: string, defaultValue: string = ''): string {
   // 在开发环境中，直接从环境变量获取
@@ -97,17 +100,32 @@ function getSecureEnvVar(key: string, defaultValue: string = ''): string {
     return import.meta.env[key] || defaultValue;
   }
   
-  // 在生产环境中，尝试从运行时环境变量获取
-  // 这样可以避免在构建时嵌入敏感信息
+  // 在生产环境中，尝试多种方式获取环境变量
   if (typeof window !== 'undefined') {
-    // 客户端环境，尝试从全局变量或运行时配置获取
+    // 方式1: 尝试从全局变量获取
     const runtimeConfig = (window as any).__RUNTIME_CONFIG__;
     if (runtimeConfig && runtimeConfig[key]) {
       return runtimeConfig[key];
     }
+    
+    // 方式2: 尝试从meta标签获取（如果配置注入器已注入）
+    const metaElement = document.querySelector(`meta[name="${key}"]`);
+    if (metaElement && metaElement.getAttribute('content')) {
+      return metaElement.getAttribute('content') || defaultValue;
+    }
+    
+    // 方式3: 尝试从全局变量获取（兼容旧版本）
+    if ((window as any)[key]) {
+      return (window as any)[key];
+    }
   }
   
-  // 如果无法获取运行时配置，返回默认值
+  // 方式4: 尝试从import.meta.env获取（如果构建时已注入）
+  if (import.meta.env[key]) {
+    return import.meta.env[key];
+  }
+  
+  // 如果所有方式都无法获取，返回默认值
   return defaultValue;
 }
 

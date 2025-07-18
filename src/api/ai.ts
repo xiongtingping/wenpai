@@ -157,8 +157,8 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     const authingConfig = getAuthingConfig();
 
     // 验证配置
-    if (!apiConfig.openai.apiKey) {
-      throw new Error('OpenAI API密钥未配置');
+    if (!apiConfig.openai.apiKey || apiConfig.openai.apiKey.includes('{{') || apiConfig.openai.apiKey.includes('your-')) {
+      throw new Error('OpenAI API密钥未正确配置，请在.env.local文件中设置VITE_OPENAI_API_KEY');
     }
 
     // 构建请求体
@@ -367,8 +367,8 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
     const apiConfig = getAPIConfig();
 
     // 验证配置
-    if (!apiConfig.openai.apiKey) {
-      throw new Error('OpenAI API密钥未配置');
+    if (!apiConfig.openai.apiKey || apiConfig.openai.apiKey.includes('{{') || apiConfig.openai.apiKey.includes('your-')) {
+      throw new Error('OpenAI API密钥未正确配置，请在.env.local文件中设置VITE_OPENAI_API_KEY');
     }
 
     // 构建请求体
