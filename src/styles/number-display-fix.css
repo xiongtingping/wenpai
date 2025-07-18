@@ -1,0 +1,197 @@
+/**
+ * 数字显示修复CSS
+ * 解决所有数字显示异常的问题，确保数字使用正确的字体
+ */
+
+/* 全局数字字体修复 */
+* {
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 确保所有数字元素使用正确的字体 */
+body,
+body *,
+[class*="text-"],
+[class*="font-"],
+.price,
+.number,
+.count,
+.amount,
+.token,
+.limit,
+.quota {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复价格数字显示 */
+.pricing-price,
+.price,
+.amount,
+.cost {
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  text-align: inherit !important;
+  vertical-align: baseline !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* 修复大字号数字显示 */
+.text-5xl,
+.text-4xl,
+.text-3xl,
+.text-2xl,
+.text-xl,
+.text-lg {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+}
+
+/* 修复功能对比表中的数字 */
+.pricing-table-cell,
+.pricing-table-number,
+.pricing-table-text,
+.feature-cell,
+.feature-number,
+.feature-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+}
+
+/* 修复Token限制数字 */
+.token-limit,
+.token-count,
+.limit-number,
+.quota-number {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复使用次数数字 */
+.usage-count,
+.usage-limit,
+.count-number {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复所有数字输入框 */
+input[type="number"],
+input[type="text"]:contains(numbers),
+.number-input {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复统计数字 */
+.stat-number,
+.stat-count,
+.stat-value {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复时间数字 */
+.time-number,
+.date-number,
+.timestamp {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复百分比数字 */
+.percentage,
+.percent-number {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复货币符号和数字组合 */
+.currency,
+.money,
+.price-symbol {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 确保emoji字体只在需要的地方使用 */
+.emoji-font,
+[data-emoji],
+.emoji,
+.emoji-picker .emoji-item {
+  font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif !important;
+  font-feature-settings: "liga" 1, "dlig" 1;
+}
+
+/* 修复可能的CSS变量问题 */
+.pricing-price,
+.price,
+.amount,
+.cost,
+.text-5xl,
+.text-4xl,
+.text-3xl,
+.text-2xl,
+.text-xl,
+.text-lg {
+  color: inherit !important;
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .pricing-price,
+  .price,
+  .amount,
+  .cost,
+  .text-5xl,
+  .text-4xl,
+  .text-3xl {
+    font-size: 2.5rem !important;
+    line-height: 1 !important;
+  }
+}
+
+/* 确保所有数字元素不使用等宽字体 */
+*:not(.emoji-font):not([data-emoji]):not(.emoji):not(.emoji-picker .emoji-item) {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+} 

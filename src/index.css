@@ -1,3 +1,5 @@
+@import './styles/number-display-fix.css';
+
 /**
  * **IMPORTANT** Never break the original structure, only add highly customized new styles
  */
@@ -48,8 +50,8 @@
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
     overflow-x: hidden;
-    /* 强制加载 Emoji 字体，确保 emoji 在所有系统上正确显示 */
-    font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif;
+    /* 使用正常的系统字体，确保数字正确显示 */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   }
   
   html {
