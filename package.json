@@ -7,9 +7,9 @@
     "node": ">=20.16.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5173 --host",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
