@@ -270,15 +270,13 @@ export default function BrandLibraryPage() {
       files: [],
       createdAt: new Date(),
       updatedAt: new Date(),
-      aiAnalysis: {
-        toneAnalysis: '专业而亲切',
-        keyThemes: ['专业', '可靠', '创新'],
-        brandPersonality: '专业可靠的品牌形象',
-        targetAudience: '追求专业解决方案的用户',
-        contentSuggestions: ['强调专业性', '突出可靠性', '展现创新性'],
-        valueAlignment: ['建议1', '建议2'],
-        topicConsistency: ['建议1', '建议2']
-      }
+              aiAnalysis: {
+          toneAnalysis: '专业而亲切',
+          keyThemes: ['专业', '可靠', '创新'],
+          brandPersonality: '专业可靠的品牌形象',
+          targetAudience: '追求专业解决方案的用户',
+          contentSuggestions: ['强调专业性', '突出可靠性', '展现创新性']
+        }
     };
     setBrandProfile(defaultProfile);
   }, []);
@@ -427,16 +425,10 @@ export default function BrandLibraryPage() {
       const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
       
       // 构建分析结果
-      const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.brandKeywords?.join('、') || analysisResult.keywords.join('、')}\n2. 产品关键词：${analysisResult.productKeywords?.join('、') || ''}\n3. 目标受众：${analysisResult.targetAudience?.join('、') || ''}\n4. 品牌故事：${analysisResult.brandStory?.join('、') || ''}\n5. 竞争优势：${analysisResult.competitiveAdvantage?.join('、') || ''}\n6. 品牌语气特征：${analysisResult.tone}\n7. 内容建议：${analysisResult.suggestions.join('、')}`;
+      const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.keywords.join('、')}\n2. 品牌语气特征：${analysisResult.tone}\n3. 内容建议：${analysisResult.suggestions.join('、')}`;
       
       // 合并所有关键词用于向后兼容
-      const allKeywords = [
-        ...(analysisResult.brandKeywords || []),
-        ...(analysisResult.productKeywords || []),
-        ...(analysisResult.targetAudience || []),
-        ...(analysisResult.brandStory || []),
-        ...(analysisResult.competitiveAdvantage || [])
-      ];
+      const allKeywords = analysisResult.keywords;
 
       // 更新资产数据
       setBrandAssets(prev => prev.map(a => 
@@ -510,16 +502,10 @@ export default function BrandLibraryPage() {
         const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
         
         // 构建分析结果
-        const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.brandKeywords?.join('、') || analysisResult.keywords.join('、')}\n2. 产品关键词：${analysisResult.productKeywords?.join('、') || ''}\n3. 目标受众：${analysisResult.targetAudience?.join('、') || ''}\n4. 品牌故事：${analysisResult.brandStory?.join('、') || ''}\n5. 竞争优势：${analysisResult.competitiveAdvantage?.join('、') || ''}\n6. 品牌语气特征：${analysisResult.tone}\n7. 内容建议：${analysisResult.suggestions.join('、')}`;
+        const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.keywords.join('、')}\n2. 品牌语气特征：${analysisResult.tone}\n3. 内容建议：${analysisResult.suggestions.join('、')}`;
         
         // 合并所有关键词用于向后兼容
-        const allKeywords = [
-          ...(analysisResult.brandKeywords || []),
-          ...(analysisResult.productKeywords || []),
-          ...(analysisResult.targetAudience || []),
-          ...(analysisResult.brandStory || []),
-          ...(analysisResult.competitiveAdvantage || [])
-        ];
+        const allKeywords = analysisResult.keywords;
 
         // 更新资产数据
       setBrandAssets(prev => prev.map(a => 

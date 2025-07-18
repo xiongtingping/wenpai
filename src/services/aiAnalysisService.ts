@@ -215,12 +215,7 @@ ${content}
       const competitiveAdvantage = result.competitiveAdvantage || [];
 
       return {
-        keywords: keywords, // 保持向后兼容
-        brandKeywords: brandKeywords,
-        productKeywords: productKeywords,
-        targetAudience: targetAudience,
-        brandStory: brandStory,
-        competitiveAdvantage: competitiveAdvantage,
+        keywords: brandKeywords,
         tone: result.tone,
         suggestions: result.suggestions
       };
