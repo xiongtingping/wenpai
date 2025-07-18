@@ -202,4 +202,77 @@ body.authing-guard-open {
   height: 100% !important;
   top: 0 !important;
   left: 0 !important;
+}
+
+/* 🔧 关键修复：强制Authing Guard组件正确显示 */
+.authing-guard-wrapper [data-authing-guard] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 强制Authing Guard弹窗内容正确显示 */
+.authing-guard-wrapper [data-authing-guard] > div {
+  position: relative !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  width: 400px !important;
+  background: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+  z-index: 10000 !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* 强制Authing Guard组件样式重置 */
+.authing-guard-wrapper * {
+  box-sizing: border-box !important;
+}
+
+/* 确保Authing Guard组件不被其他元素覆盖 */
+.authing-guard-wrapper {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+}
+
+/* 强制Authing Guard组件显示在最顶层 */
+.authing-guard-wrapper,
+.authing-guard-wrapper * {
+  z-index: 99999 !important;
+}
+
+/* 修复Authing Guard组件的iframe或shadow DOM问题 */
+.authing-guard-wrapper iframe {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 99999 !important;
+  border: none !important;
+}
+
+/* 强制Authing Guard组件内容可见 */
+.authing-guard-wrapper [style*="display: none"],
+.authing-guard-wrapper [style*="visibility: hidden"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 } 
