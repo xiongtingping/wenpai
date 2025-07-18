@@ -21,6 +21,7 @@ interface SimpleLoginButtonProps {
 
 /**
  * 登录按钮组件
+ * 使用Authing Guard组件进行登录
  */
 export function LoginButton({ 
   variant = "default", 
@@ -31,7 +32,7 @@ export function LoginButton({
   children = "登录"
 }: LoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const { isAuthenticated, loading, login } = useUnifiedAuth();
+  const { isAuthenticated, loading, login, error } = useUnifiedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -43,12 +44,11 @@ export function LoginButton({
 
     setIsLoading(true);
     try {
-      await login();
+      await login(redirectTo);
       toast({
-        title: "登录成功",
-        description: "欢迎回来！",
+        title: "正在登录",
+        description: "请在弹出的窗口中完成登录",
       });
-      navigate(redirectTo);
     } catch (error) {
       console.error('登录失败:', error);
       toast({
@@ -101,7 +101,7 @@ export function SimpleLoginButton({
   redirectTo = "/dashboard"
 }: SimpleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const { isAuthenticated, loading, login } = useUnifiedAuth();
+  const { isAuthenticated, loading, login, error } = useUnifiedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -113,12 +113,11 @@ export function SimpleLoginButton({
 
     setIsLoading(true);
     try {
-      await login();
+      await login(redirectTo);
       toast({
-        title: "登录成功",
-        description: "欢迎回来！",
+        title: "正在登录",
+        description: "请在弹出的窗口中完成登录",
       });
-      navigate(redirectTo);
     } catch (error) {
       console.error('登录失败:', error);
       toast({

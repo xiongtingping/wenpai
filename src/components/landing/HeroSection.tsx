@@ -59,15 +59,6 @@ const HeroSection: React.FC = () => {
             >
               开始创作
             </Button>
-            
-            <Button
-              onClick={() => navigate('/features')}
-              variant="outline"
-              size="lg"
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold rounded-lg transition-colors"
-            >
-              了解更多
-            </Button>
           </div>
           
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8">

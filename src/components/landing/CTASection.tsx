@@ -36,18 +36,18 @@ export function CTASection() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50to-white">
+    <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
       <div className="container mx-auto px-6 text-center">
-        <h2 className="text-3xl md:text-5ont-extrabold text-gray-900 mb-6">
+        <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6">
           准备好开始您的创作之旅了吗？
         </h2>
-        <p className="text-lg md:text-xl text-gray-600 max-w-3l mx-auto mb-10">
+        <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-10">
           立即加入，让AI成为你最得力的内容创作伙伴。
         </p>
         <div className="flex justify-center items-center">
           <Button
             size="lg"
-            className="bg-gradient-to-r from-blue-500o-purple-600over:from-blue-600over:to-purple-70xt-white font-bold py-6 rounded-lg shadow-lg text-lg transition-all duration-300nsform hover:scale-105"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-6 rounded-lg shadow-lg text-lg transition-all duration-300 transform hover:scale-105"
             onClick={handleButtonClick}
             style={{ cursor: 'pointer' }}
           >

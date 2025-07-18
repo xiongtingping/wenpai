@@ -3,201 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authing Guard 测试</title>
-    <link rel="stylesheet" href="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.css">
+    <title>Authing简单测试</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
             padding: 20px;
             background-color: #f5f5f5;
         }
         .container {
-            max-width: 600px;
-            margin: 0 auto;
             background: white;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-        .test-button {
+        .button {
             background: #007bff;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 15px 30px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin: 10px 5px;
+            margin: 10px;
+            transition: background 0.3s;
         }
-        .test-button:hover {
+        .button:hover {
             background: #0056b3;
         }
         .status {
             margin: 20px 0;
             padding: 15px;
             border-radius: 8px;
-            background: #f8f9fa;
-            border-left: 4px solid #007bff;
+            font-size: 14px;
         }
-        .error {
-            border-left-color: #dc3545;
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .success {
-            border-left-color: #28a745;
-            background: #d4edda;
-            color: #155724;
-        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Authing Guard 测试页面</h1>
+        <h1>🔐 Authing登录测试</h1>
         
-        <div id="status" class="status">
-            正在检查 Authing Guard 状态...
+        <div id="status" class="status info">
+            准备测试Authing登录功能...
         </div>
+
+        <button class="button" onclick="testLogin()">测试登录</button>
+        <button class="button" onclick="testRegister()">测试注册</button>
+        <button class="button" onclick="openApp()">打开文派应用</button>
         
-        <div>
-            <button class="test-button" onclick="testGuardInit()">测试 Guard 初始化</button>
-            <button class="test-button" onclick="testShowLogin()">显示登录弹窗</button>
-            <button class="test-button" onclick="testCheckStatus()">检查登录状态</button>
-        </div>
-        
-        <div id="log" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-family: monospace; font-size: 14px; max-height: 300px; overflow-y: auto;">
-            <div>日志输出：</div>
+        <div style="margin-top: 30px;">
+            <h3>测试步骤：</h3>
+            <ol style="text-align: left;">
+                <li>点击"测试登录"或"测试注册"按钮</li>
+                <li>在新窗口中完成Authing登录/注册</li>
+                <li>登录成功后会自动跳转回应用</li>
+                <li>点击"打开文派应用"查看登录状态</li>
+            </ol>
         </div>
     </div>
 
-    <script src="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.js"></script>
     <script>
-        let guard = null;
-        const statusDiv = document.getElementById('status');
-        const logDiv = document.getElementById('log');
-
-        function log(message) {
-            const timestamp = new Date().toLocaleTimeString();
-            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-            console.log(message);
-        }
+        const config = {
+            appId: '64f8b8b8b8b8b8b8b8b8b8b8',
+            host: 'https://wenpai.authing.cn',
+            redirectUri: 'http://localhost:5176/callback',
+            appUrl: 'http://localhost:5176'
+        };
 
         function updateStatus(message, type = 'info') {
-            statusDiv.textContent = message;
-            statusDiv.className = `status ${type}`;
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
         }
 
-        // 检查 Authing Guard 是否加载
-        function checkGuardLoaded() {
-            log('检查 Authing Guard 是否加载...');
+        function testLogin() {
+            updateStatus('🔄 正在打开登录页面...', 'info');
             
-            if (typeof window.GuardFactory !== 'undefined' && window.GuardFactory.Guard) {
-                log('✅ Authing Guard 已加载');
-                updateStatus('Authing Guard 已加载', 'success');
-                return true;
-            } else {
-                log('❌ Authing Guard 未加载');
-                updateStatus('Authing Guard 未加载，请检查网络连接', 'error');
-                return false;
-            }
-        }
-
-        // 测试 Guard 初始化
-        function testGuardInit() {
-            log('开始测试 Guard 初始化...');
-            
-            if (!checkGuardLoaded()) {
-                return;
-            }
-
             try {
-                guard = new window.GuardFactory.Guard({
-                    appId: '6867fdc88034eb95ae86167d',
-                    host: 'https://qutkgzkfaezk-demo.authing.cn',
-                    mode: 'modal',
-                    defaultLoginMethod: 'phone-code',
-                    autoRegister: true,
-                    skipComplateFileds: true,
-                    closeable: true,
-                    title: '登录文派',
-                    logo: '/favicon.ico'
-                });
-                
-                log('✅ Guard 实例创建成功');
-                updateStatus('Guard 实例创建成功', 'success');
-                
-                // 设置事件监听器
-                guard.on('login', (user) => {
-                    log(`✅ 登录成功: ${user.username || user.email || user.phone}`);
-                    updateStatus('登录成功！', 'success');
-                });
-                
-                guard.on('register', (user) => {
-                    log(`✅ 注册成功: ${user.username || user.email || user.phone}`);
-                    updateStatus('注册成功！', 'success');
-                });
-                
-                guard.on('login-error', (error) => {
-                    log(`❌ 登录失败: ${error.message}`);
-                    updateStatus('登录失败', 'error');
-                });
-                
-                guard.on('register-error', (error) => {
-                    log(`❌ 注册失败: ${error.message}`);
-                    updateStatus('注册失败', 'error');
-                });
-                
+                const loginUrl = `${config.host}/login?app_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
+                window.open(loginUrl, '_blank', 'width=400,height=600');
+                updateStatus('✅ 登录页面已打开，请在新窗口中完成登录', 'success');
             } catch (error) {
-                log(`❌ Guard 初始化失败: ${error.message}`);
-                updateStatus('Guard 初始化失败', 'error');
+                updateStatus('❌ 登录页面打开失败: ' + error.message, 'error');
             }
         }
 
-        // 测试显示登录弹窗
-        function testShowLogin() {
-            log('测试显示登录弹窗...');
+        function testRegister() {
+            updateStatus('🔄 正在打开注册页面...', 'info');
             
-            if (!guard) {
-                log('❌ Guard 未初始化，请先点击"测试 Guard 初始化"');
-                updateStatus('Guard 未初始化', 'error');
-                return;
-            }
-
             try {
-                guard.show();
-                log('✅ 登录弹窗已显示');
-                updateStatus('登录弹窗已显示', 'success');
+                const registerUrl = `${config.host}/register?app_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
+                window.open(registerUrl, '_blank', 'width=400,height=600');
+                updateStatus('✅ 注册页面已打开，请在新窗口中完成注册', 'success');
             } catch (error) {
-                log(`❌ 显示登录弹窗失败: ${error.message}`);
-                updateStatus('显示登录弹窗失败', 'error');
+                updateStatus('❌ 注册页面打开失败: ' + error.message, 'error');
             }
         }
 
-        // 测试检查登录状态
-        async function testCheckStatus() {
-            log('测试检查登录状态...');
+        function openApp() {
+            updateStatus('🔄 正在打开文派应用...', 'info');
             
-            if (!guard) {
-                log('❌ Guard 未初始化，请先点击"测试 Guard 初始化"');
-                updateStatus('Guard 未初始化', 'error');
-                return;
-            }
-
             try {
-                const isLoggedIn = await guard.checkLoginStatus();
-                log(`✅ 登录状态检查结果: ${isLoggedIn ? '已登录' : '未登录'}`);
-                updateStatus(`登录状态: ${isLoggedIn ? '已登录' : '未登录'}`, isLoggedIn ? 'success' : 'info');
+                window.open(config.appUrl, '_blank');
+                updateStatus('✅ 文派应用已在新标签页中打开', 'success');
             } catch (error) {
-                log(`❌ 检查登录状态失败: ${error.message}`);
-                updateStatus('检查登录状态失败', 'error');
+                updateStatus('❌ 应用打开失败: ' + error.message, 'error');
             }
         }
 
-        // 页面加载完成后自动检查
-        window.addEventListener('load', () => {
-            log('页面加载完成');
-            setTimeout(checkGuardLoaded, 1000);
+        // 页面加载时检查配置
+        window.addEventListener('load', function() {
+            updateStatus('✅ 页面加载完成，可以开始测试', 'success');
         });
     </script>
 </body>

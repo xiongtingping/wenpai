@@ -9,14 +9,21 @@ import { PageTracker } from '@/components/analytics/PageTracker';
 // 懒加载页面组件
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
+const AdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
 const CreativeCubePage = React.lazy(() => import('@/pages/CreativeCubePage'));
+const CreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
 const BrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
 const BookmarkPage = React.lazy(() => import('@/pages/BookmarkPage'));
 const ContentExtractorPage = React.lazy(() => import('@/pages/ContentExtractorPage'));
 const HotTopicsPage = React.lazy(() => import('@/pages/HotTopicsPage'));
+const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
+const PaymentPage = React.lazy(() => import('@/pages/PaymentPage'));
+const TermsPage = React.lazy(() => import('@/pages/TermsPage'));
+const PrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
 // const CallbackPage = React.lazy(() => import('@/pages/CallbackPage'));
-// const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const PermissionTestPage = React.lazy(() => import('@/pages/PermissionTestPage'));
+const AIConfigTestPage = React.lazy(() => import('@/pages/AIConfigTestPage'));
+const APIConfigTestPage = React.lazy(() => import('@/pages/APIConfigTestPage'));
 
 // 加载组件
 const LoadingSpinner = () => (
@@ -41,7 +48,26 @@ function App() {
             
             
             <Route path="/permission-test" element={<PermissionTestPage />} />
+            <Route path="/ai-config-test" element={<AIConfigTestPage />} />
+            <Route path="/api-config-test" element={<APIConfigTestPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             {/* 工具页面 */}
+            <Route path="/adapt" element={
+              <ToolLayout>
+                <AdaptPage />
+              </ToolLayout>
+            } />
+            <Route path="/creative" element={
+              <ToolLayout>
+                <CreativeCubePage />
+              </ToolLayout>
+            } />
+            <Route path="/creative-studio" element={
+              <ToolLayout>
+                <CreativeStudioPage />
+              </ToolLayout>
+            } />
             <Route path="/creative-cube" element={
               <ToolLayout>
                 <CreativeCubePage />
@@ -67,6 +93,13 @@ function App() {
                 <HotTopicsPage />
               </ToolLayout>
             } />
+            {/* 用户页面 */}
+            <Route path="/profile" element={
+              <ToolLayout>
+                <ProfilePage />
+              </ToolLayout>
+            } />
+            <Route path="/payment" element={<PaymentPage />} />
           </Routes>
         </Suspense>
         <Toaster />

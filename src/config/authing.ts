@@ -1,6 +1,7 @@
 /**
  * Authing 配置文件
- * 直接从环境变量读取配置
+ * 按照官方文档配置Guard组件
+ * 参考: https://docs.authing.cn/v2/reference/guard/v2/react.html
  */
 
 /**
@@ -67,7 +68,8 @@ export const getAuthingAppId = (): string => {
 };
 
 /**
- * 获取 Authing 配置对象（用于 Guard 组件）
+ * 获取 Guard 配置对象（用于 Guard 组件）
+ * 按照官方文档配置
  * @returns Guard 配置对象
  */
 export const getGuardConfig = () => {

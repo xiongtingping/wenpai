@@ -88,72 +88,96 @@ export interface APIConfig {
 }
 
 /**
+ * 安全获取环境变量
+ * 避免在构建时硬编码敏感信息
+ */
+function getSecureEnvVar(key: string, defaultValue: string = ''): string {
+  // 在开发环境中，直接从环境变量获取
+  if (import.meta.env.DEV) {
+    return import.meta.env[key] || defaultValue;
+  }
+  
+  // 在生产环境中，尝试从运行时环境变量获取
+  // 这样可以避免在构建时嵌入敏感信息
+  if (typeof window !== 'undefined') {
+    // 客户端环境，尝试从全局变量或运行时配置获取
+    const runtimeConfig = (window as any).__RUNTIME_CONFIG__;
+    if (runtimeConfig && runtimeConfig[key]) {
+      return runtimeConfig[key];
+    }
+  }
+  
+  // 如果无法获取运行时配置，返回默认值
+  return defaultValue;
+}
+
+/**
  * 获取API配置
  * @returns {APIConfig} API配置对象
  */
 export const getAPIConfig = (): APIConfig => {
   const config: APIConfig = {
     openai: {
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
+      apiKey: getSecureEnvVar('VITE_OPENAI_API_KEY', ''),
       baseURL: 'https://api.openai.com/v1',
       model: 'gpt-4o-mini',
-      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+      timeout: parseInt(getSecureEnvVar('VITE_API_TIMEOUT', '30000')),
     },
     deepseek: {
-      apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || '',
+      apiKey: getSecureEnvVar('VITE_DEEPSEEK_API_KEY', ''),
       baseURL: 'https://api.deepseek.com/v1',
       model: 'deepseek-chat',
-      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+      timeout: parseInt(getSecureEnvVar('VITE_API_TIMEOUT', '30000')),
     },
     gemini: {
-      apiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
+      apiKey: getSecureEnvVar('VITE_GEMINI_API_KEY', ''),
       baseURL: 'https://generativelanguage.googleapis.com/v1beta',
       model: 'gemini-pro',
-      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+      timeout: parseInt(getSecureEnvVar('VITE_API_TIMEOUT', '30000')),
     },
     authing: {
-      appId: import.meta.env.VITE_AUTHING_APP_ID || '',
-      secret: import.meta.env.VITE_AUTHING_SECRET || '',
-      host: import.meta.env.VITE_AUTHING_HOST || '',
+      appId: getSecureEnvVar('VITE_AUTHING_APP_ID', ''),
+      secret: getSecureEnvVar('VITE_AUTHING_SECRET', ''),
+      host: getSecureEnvVar('VITE_AUTHING_HOST', ''),
       redirectUri: import.meta.env.DEV 
-        ? (import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5174/callback')
-        : (import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback'),
+        ? (getSecureEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5174/callback'))
+        : (getSecureEnvVar('VITE_AUTHING_REDIRECT_URI_PROD', 'https://www.wenpai.xyz/callback')),
     },
     creem: {
-      apiKey: import.meta.env.VITE_CREEM_API_KEY || '',
+      apiKey: getSecureEnvVar('VITE_CREEM_API_KEY', ''),
       baseURL: 'https://api.creem.com',
-      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+      timeout: parseInt(getSecureEnvVar('VITE_API_TIMEOUT', '30000')),
     },
     backend: {
-      baseUrl: import.meta.env.VITE_API_BASE_URL || '',
-      port: parseInt(import.meta.env.BACKEND_PORT || '3001'),
-      timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
+      baseUrl: getSecureEnvVar('VITE_API_BASE_URL', ''),
+      port: parseInt(getSecureEnvVar('BACKEND_PORT', '3001')),
+      timeout: parseInt(getSecureEnvVar('VITE_API_TIMEOUT', '30000')),
     },
     payment: {
       alipay: {
-        appId: import.meta.env.VITE_ALIPAY_APP_ID || '',
-        publicKey: import.meta.env.VITE_ALIPAY_PUBLIC_KEY || '',
-        privateKey: import.meta.env.VITE_ALIPAY_PRIVATE_KEY || '',
+        appId: getSecureEnvVar('VITE_ALIPAY_APP_ID', ''),
+        publicKey: getSecureEnvVar('VITE_ALIPAY_PUBLIC_KEY', ''),
+        privateKey: getSecureEnvVar('VITE_ALIPAY_PRIVATE_KEY', ''),
       },
       wechat: {
-        appId: import.meta.env.VITE_WECHAT_APP_ID || '',
-        mchId: import.meta.env.VITE_WECHAT_MCH_ID || '',
-        apiKey: import.meta.env.VITE_WECHAT_API_KEY || '',
+        appId: getSecureEnvVar('VITE_WECHAT_APP_ID', ''),
+        mchId: getSecureEnvVar('VITE_WECHAT_MCH_ID', ''),
+        apiKey: getSecureEnvVar('VITE_WECHAT_API_KEY', ''),
       },
     },
     environment: {
       isDev: import.meta.env.DEV || false,
       isProd: import.meta.env.PROD || false,
-      debugMode: import.meta.env.VITE_DEBUG_MODE === 'true',
-      logLevel: import.meta.env.VITE_LOG_LEVEL || 'info',
+      debugMode: getSecureEnvVar('VITE_DEBUG_MODE', 'false') === 'true',
+      logLevel: getSecureEnvVar('VITE_LOG_LEVEL', 'info'),
       nodeEnv: import.meta.env.MODE || 'development',
     },
     features: {
-      enableAI: import.meta.env.VITE_ENABLE_AI_FEATURES !== 'false',
-      enableImageGeneration: import.meta.env.VITE_ENABLE_IMAGE_GENERATION !== 'false',
-      enableContentAdaptation: import.meta.env.VITE_ENABLE_CONTENT_ADAPTATION !== 'false',
-      enableSecurityLogging: import.meta.env.VITE_ENABLE_SECURITY_LOGGING === 'true',
-      enablePayment: import.meta.env.VITE_ENABLE_PAYMENT !== 'false',
+      enableAI: getSecureEnvVar('VITE_ENABLE_AI_FEATURES', 'true') !== 'false',
+      enableImageGeneration: getSecureEnvVar('VITE_ENABLE_IMAGE_GENERATION', 'true') !== 'false',
+      enableContentAdaptation: getSecureEnvVar('VITE_ENABLE_CONTENT_ADAPTATION', 'true') !== 'false',
+      enableSecurityLogging: getSecureEnvVar('VITE_ENABLE_SECURITY_LOGGING', 'false') === 'true',
+      enablePayment: getSecureEnvVar('VITE_ENABLE_PAYMENT', 'true') !== 'false',
     },
   };
 
@@ -293,22 +317,37 @@ export function getConfigSummary(): {
     description: '支付处理服务'
   });
   
-  // 后端API配置
-  details.push({
-    name: '后端API',
-    status: config.backend.baseUrl ? 'valid' : 'optional',
-    description: '后端服务接口'
-  });
-  
   const validConfigs = details.filter(d => d.status === 'valid').length;
-  const requiredConfigs = details.filter(d => d.status === 'missing' || d.status === 'valid').length;
-  const requiredValid = details.filter(d => d.status === 'valid').length;
+  const requiredConfigs = details.filter(d => d.status === 'missing').length;
   
   return {
     totalConfigs: details.length,
     validConfigs,
     requiredConfigs,
-    requiredValid,
+    requiredValid: requiredConfigs,
     details
   };
+}
+
+/**
+ * 设置运行时配置
+ * 用于在生产环境中动态设置API密钥
+ */
+export function setRuntimeConfig(config: Record<string, string>): void {
+  if (typeof window !== 'undefined') {
+    (window as any).__RUNTIME_CONFIG__ = {
+      ...(window as any).__RUNTIME_CONFIG__,
+      ...config
+    };
+  }
+}
+
+/**
+ * 获取运行时配置
+ */
+export function getRuntimeConfig(): Record<string, string> {
+  if (typeof window !== 'undefined') {
+    return (window as any).__RUNTIME_CONFIG__ || {};
+  }
+  return {};
 } 

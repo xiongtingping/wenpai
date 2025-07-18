@@ -2,28 +2,59 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://static.devv.ai/ep7eopzguu4g.png" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="文派 - 由个人开发的AI内容适配工具，一键将内容适配成多平台形式" />
-    <meta name="keywords" content="文派,AI内容创作,内容适配,多平台内容,自媒体工具,内容营销,小红书,抖音,知乎,B站,公众号" />
+    <title>文派 - AI内容创作平台</title>
+    <meta name="description" content="文派是一个基于AI的内容创作平台，帮助用户快速生成高质量的内容。" />
+    <meta name="keywords" content="AI,内容创作,文案生成,品牌营销,创意工具" />
     
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    
-    <!-- AuthingGuard -->
-    <link rel="stylesheet" href="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.css">
-    
-    <title>文派 - 多平台内容适配工具</title>
+    <!-- 运行时配置注入 -->
+    <script>
+      // 运行时配置对象，用于在生产环境中动态设置API密钥
+      window.__RUNTIME_CONFIG__ = {
+        // 这些值将在部署时被服务器端环境变量替换
+        VITE_OPENAI_API_KEY: '{{OPENAI_API_KEY}}',
+        VITE_DEEPSEEK_API_KEY: '{{DEEPSEEK_API_KEY}}',
+        VITE_GEMINI_API_KEY: '{{GEMINI_API_KEY}}',
+        VITE_CREEM_API_KEY: '{{CREEM_API_KEY}}',
+        VITE_AUTHING_APP_ID: '{{AUTHING_APP_ID}}',
+        VITE_AUTHING_HOST: '{{AUTHING_HOST}}',
+        VITE_API_BASE_URL: '{{API_BASE_URL}}',
+        VITE_DEBUG_MODE: '{{DEBUG_MODE}}',
+        VITE_LOG_LEVEL: '{{LOG_LEVEL}}'
+      };
+      
+      // 配置验证函数
+      window.__validateConfig__ = function() {
+        const config = window.__RUNTIME_CONFIG__;
+        const missing = [];
+        
+        // 检查必需的配置
+        if (!config.VITE_OPENAI_API_KEY || config.VITE_OPENAI_API_KEY === '{{OPENAI_API_KEY}}') {
+          missing.push('OpenAI API Key');
+        }
+        if (!config.VITE_AUTHING_APP_ID || config.VITE_AUTHING_APP_ID === '{{AUTHING_APP_ID}}') {
+          missing.push('Authing App ID');
+        }
+        
+        if (missing.length > 0) {
+          console.warn('⚠️ 缺少必需的配置:', missing.join(', '));
+          console.warn('请确保在生产环境中正确设置了环境变量');
+        }
+        
+        return missing.length === 0;
+      };
+      
+      // 页面加载时验证配置
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hostname !== 'localhost') {
+          window.__validateConfig__();
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    
-    <!-- AuthingGuard Script -->
-    <script src="https://unpkg.com/@authing/guard@5.3.9/dist/global/guard.min.js"></script>
-    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

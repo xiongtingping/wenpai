@@ -73,296 +73,207 @@ VITE_WECHAT_API_KEY=your-actual-wechat-api-key
 
 ```bash
 # 必需配置
-VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
-VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
+OPENAI_API_KEY=sk-your-actual-openai-api-key
+AUTHING_APP_ID=6867fdc88034eb95ae86167d
+AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 
 # 可选配置
-VITE_DEEPSEEK_API_KEY=sk-your-actual-deepseek-api-key
-VITE_GEMINI_API_KEY=your-actual-gemini-api-key
-VITE_CREEM_API_KEY=creem_your-actual-creem-api-key
-VITE_API_BASE_URL=https://www.wenpai.xyz/api
+DEEPSEEK_API_KEY=sk-your-actual-deepseek-api-key
+GEMINI_API_KEY=your-actual-gemini-api-key
+CREEM_API_KEY=your-actual-creem-api-key
+API_BASE_URL=https://www.wenpai.xyz/api
+DEBUG_MODE=false
+LOG_LEVEL=info
 ```
 
-#### 步骤4: 重新部署
-1. 点击 "Deploys" 标签
-2. 点击 "Trigger deploy" → "Deploy site"
-3. 等待部署完成
+#### 步骤4: 配置重定向规则
+在 `netlify.toml` 文件中添加：
+
+```toml
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/config-injector"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
 
 ### 2. Vercel 部署配置
 
-#### 步骤1: 登录Vercel控制台
-1. 访问 https://vercel.com/
-2. 使用GitHub账号登录
+#### 步骤1: 安装Vercel CLI
+```bash
+npm install -g vercel
+```
 
-#### 步骤2: 导入项目
-1. 点击 "New Project"
-2. 选择你的GitHub仓库
-3. 配置构建设置：
-   - Framework Preset: Vite
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-4. 点击 "Deploy"
+#### 步骤2: 登录Vercel
+```bash
+vercel login
+```
 
-#### 步骤3: 配置环境变量
-1. 在项目设置中，点击 "Environment Variables"
-2. 添加以下环境变量：
+#### 步骤3: 部署项目
+```bash
+vercel --prod
+```
+
+#### 步骤4: 配置环境变量
+在Vercel控制台中设置环境变量：
 
 ```bash
 # 必需配置
 VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
 VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
 VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
-VITE_AUTHING_REDIRECT_URI_PROD=https://your-vercel-domain.vercel.app/callback
 
 # 可选配置
 VITE_DEEPSEEK_API_KEY=sk-your-actual-deepseek-api-key
 VITE_GEMINI_API_KEY=your-actual-gemini-api-key
-VITE_CREEM_API_KEY=creem_your-actual-creem-api-key
-VITE_API_BASE_URL=https://your-vercel-domain.vercel.app/api
+VITE_CREEM_API_KEY=your-actual-creem-api-key
 ```
 
-#### 步骤4: 重新部署
-1. 在 "Deployments" 标签中
-2. 点击 "Redeploy" 重新部署
+### 3. 其他平台配置
 
-### 3. GitHub Pages 部署配置
+#### GitHub Pages
+1. 在GitHub仓库设置中配置Secrets
+2. 使用GitHub Actions构建和部署
+3. 在Actions中设置环境变量
 
-#### 步骤1: 创建GitHub Secrets
-1. 在GitHub仓库中，点击 "Settings" → "Secrets and variables" → "Actions"
-2. 添加以下Repository secrets：
+#### AWS S3 + CloudFront
+1. 在AWS Systems Manager中存储参数
+2. 使用Lambda@Edge注入配置
+3. 配置CloudFront函数处理配置注入
 
+## 🔒 安全最佳实践
+
+### 1. 密钥管理
+- ✅ 使用环境变量存储敏感信息
+- ✅ 定期轮换API密钥
+- ✅ 使用最小权限原则
+- ✅ 监控API使用量
+
+### 2. 配置验证
+- ✅ 部署前验证配置完整性
+- ✅ 运行时检查配置有效性
+- ✅ 提供配置错误提示
+- ✅ 记录配置加载日志
+
+### 3. 错误处理
+- ✅ 优雅处理配置缺失
+- ✅ 提供用户友好的错误信息
+- ✅ 实现降级策略
+- ✅ 监控和告警
+
+## 🧪 配置测试
+
+### 1. 本地测试
 ```bash
-# 必需配置
-VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
-VITE_AUTHING_REDIRECT_URI_PROD=https://your-username.github.io/your-repo/callback
+# 检查配置
+node check-ai-config.cjs
 
-# 可选配置
-VITE_DEEPSEEK_API_KEY=sk-your-actual-deepseek-api-key
-VITE_GEMINI_API_KEY=your-actual-gemini-api-key
-VITE_CREEM_API_KEY=creem_your-actual-creem-api-key
+# 测试API连接
+node test-ai-api.cjs
+
+# 启动开发服务器
+npm run dev
 ```
 
-#### 步骤2: 配置GitHub Actions
-创建 `.github/workflows/deploy.yml` 文件：
-
-```yaml
-name: Deploy to GitHub Pages
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build
-      run: npm run build
-      env:
-        VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
-        VITE_AUTHING_APP_ID: ${{ secrets.VITE_AUTHING_APP_ID }}
-        VITE_AUTHING_HOST: ${{ secrets.VITE_AUTHING_HOST }}
-        VITE_AUTHING_REDIRECT_URI_PROD: ${{ secrets.VITE_AUTHING_REDIRECT_URI_PROD }}
-        VITE_DEEPSEEK_API_KEY: ${{ secrets.VITE_DEEPSEEK_API_KEY }}
-        VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-        VITE_CREEM_API_KEY: ${{ secrets.VITE_CREEM_API_KEY }}
-        
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-```
-
-### 4. 自建服务器部署配置
-
-#### 步骤1: 创建环境变量文件
-在服务器上创建 `.env.production` 文件：
-
+### 2. 生产测试
 ```bash
-# 必需配置
-VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
-VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
-VITE_AUTHING_REDIRECT_URI_PROD=https://your-domain.com/callback
-
-# 可选配置
-VITE_DEEPSEEK_API_KEY=sk-your-actual-deepseek-api-key
-VITE_GEMINI_API_KEY=your-actual-gemini-api-key
-VITE_CREEM_API_KEY=creem_your-actual-creem-api-key
-VITE_API_BASE_URL=https://your-domain.com/api
-```
-
-#### 步骤2: 构建和部署
-```bash
-# 安装依赖
-npm ci
-
-# 构建项目
-npm run build
-
-# 部署到服务器
-# 将 dist 目录内容复制到服务器的Web根目录
-```
-
-## 🔍 配置验证
-
-### 1. 使用配置测试页面
-访问 `/api-config-test` 页面进行配置验证：
-
-```bash
-# 开发环境
-http://localhost:5173/api-config-test
-
-# 生产环境
+# 访问测试页面
+https://your-domain.com/ai-config-test
 https://your-domain.com/api-config-test
+
+# 检查控制台日志
+# 查看配置验证结果
 ```
 
-### 2. 检查配置状态
-配置测试页面会显示：
-- ✅ 配置状态概览
-- 📊 配置统计信息
-- ❌ 配置错误列表
-- ⚠️ 配置警告列表
-- 💡 配置建议
-
-### 3. 验证API连接
-在配置测试页面中可以：
-- 测试各个API的连接状态
-- 验证API密钥格式
-- 检查环境变量是否正确加载
-
-## 🔑 API密钥获取
-
-### OpenAI API密钥
-1. 访问 https://platform.openai.com/api-keys
-2. 登录或注册OpenAI账户
-3. 点击 "Create new secret key"
-4. 复制生成的密钥（以 `sk-` 开头）
-
-### DeepSeek API密钥
-1. 访问 https://platform.deepseek.com/
-2. 注册账户并登录
-3. 在API设置中获取密钥（以 `sk-` 开头）
-
-### Gemini API密钥
-1. 访问 https://makersuite.google.com/app/apikey
-2. 使用Google账户登录
-3. 创建新的API密钥
-
-### Creem支付API密钥
-1. 访问 https://creem.io/
-2. 注册并登录Creem账户
-3. 在控制台获取API密钥（以 `creem_` 开头）
-
-## 🛠️ 故障排除
-
-### 常见问题
-
-#### 1. 环境变量未生效
+### 3. 自动化测试
 ```bash
-# 检查环境变量是否正确设置
-console.log(import.meta.env.VITE_OPENAI_API_KEY);
+# 运行配置检查
+npm run test:config
 
-# 重新加载配置
-import { reloadAPIConfig } from '@/config/apiConfig';
-reloadAPIConfig();
+# 运行API连接测试
+npm run test:api
+
+# 运行端到端测试
+npm run test:e2e
 ```
 
-#### 2. API密钥无效
+## 📊 监控和日志
+
+### 1. 配置监控
+- 监控配置加载状态
+- 记录配置错误
+- 统计配置使用情况
+- 告警配置异常
+
+### 2. API监控
+- 监控API调用成功率
+- 记录API响应时间
+- 统计API使用量
+- 告警API异常
+
+### 3. 安全监控
+- 监控异常访问
+- 记录安全事件
+- 统计风险行为
+- 告警安全威胁
+
+## 🔄 更新和维护
+
+### 1. 配置更新
 ```bash
-# 验证API密钥格式
-import { isValidAPIKey } from '@/config/apiConfig';
-const isValid = isValidAPIKey(apiKey, 'openai');
+# 更新环境变量
+# 重新部署应用
+# 验证配置生效
+# 监控应用状态
 ```
 
-#### 3. 部署后配置丢失
-- 确保在部署平台的环境变量设置中正确配置
-- 检查环境变量名称是否正确（必须以 `VITE_` 开头）
-- 重新部署项目
-
-#### 4. 跨域问题
-- 确保Authing回调地址配置正确
-- 检查CORS设置
-- 验证域名配置
-
-### 调试模式
-
-启用调试模式查看详细配置信息：
-
+### 2. 密钥轮换
 ```bash
-# 在环境变量中设置
-VITE_DEBUG_MODE=true
-VITE_LOG_LEVEL=debug
+# 生成新密钥
+# 更新环境变量
+# 部署新配置
+# 验证功能正常
+# 删除旧密钥
 ```
 
-## 📊 配置监控
+### 3. 版本管理
+```bash
+# 记录配置变更
+# 版本化配置
+# 回滚机制
+# 变更通知
+```
 
-### 开发环境
-- 控制台输出配置加载信息
-- 实时配置验证
-- 错误和警告提示
+## 📞 故障排除
 
-### 生产环境
-- 配置状态页面
-- 错误日志记录
-- 性能监控
+### 1. 常见问题
+- **配置未生效**: 检查环境变量名称和值
+- **API调用失败**: 验证API密钥有效性
+- **构建失败**: 检查配置语法错误
+- **部署失败**: 验证平台配置
 
-## 🔒 安全注意事项
+### 2. 调试步骤
+1. 检查环境变量设置
+2. 验证配置加载
+3. 测试API连接
+4. 查看错误日志
+5. 联系技术支持
 
-### API密钥安全
-1. **不要硬编码**：永远不要在代码中直接写入API密钥
-2. **环境变量**：使用环境变量存储敏感信息
-3. **访问控制**：限制API密钥的访问权限
-4. **定期轮换**：定期更新API密钥
-5. **监控使用**：监控API密钥的使用情况
-
-### 部署安全
-1. **HTTPS**：生产环境必须使用HTTPS
-2. **域名验证**：确保域名配置正确
-3. **回调地址**：正确配置Authing回调地址
-4. **CORS设置**：配置适当的跨域策略
-
-## 📝 配置检查清单
-
-### 部署前检查
-- [ ] 所有必需的API密钥已获取
-- [ ] 环境变量已正确配置
-- [ ] 域名和回调地址已设置
-- [ ] HTTPS证书已安装
-- [ ] 配置测试通过
-
-### 部署后验证
-- [ ] 网站可以正常访问
-- [ ] 登录功能正常工作
-- [ ] API接口正常响应
-- [ ] 配置测试页面显示正确
-- [ ] 错误日志正常记录
-
-## 🆘 获取帮助
-
-如果遇到配置问题：
-
-1. **查看配置测试页面**：访问 `/api-config-test` 获取详细诊断
-2. **检查控制台日志**：查看浏览器控制台的错误信息
-3. **验证环境变量**：确认环境变量是否正确设置
-4. **联系技术支持**：提供详细的错误信息和配置状态
+### 3. 应急处理
+- 启用降级模式
+- 使用备用配置
+- 临时禁用功能
+- 紧急回滚
 
 ---
 
-**注意**：本文档中的API密钥示例仅用于说明格式，请使用您自己的真实API密钥。 
+**重要提醒**: 
+1. 永远不要将API密钥提交到版本控制系统
+2. 定期检查和更新配置
+3. 监控API使用量和成本
+4. 保持配置文档的更新 

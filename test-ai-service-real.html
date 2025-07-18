@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI服务真实API测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .status.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #1d4ed8;
+        }
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .config-info {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .config-info pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .api-test {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .api-test {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI服务真实API测试</h1>
+            <p>验证开发环境中的AI服务是否连接了真实的API</p>
+        </div>
+
+        <!-- 环境检查 -->
+        <div class="test-section">
+            <h3>🔍 环境检查</h3>
+            <div id="envStatus">
+                <div class="status info">检查中...</div>
+            </div>
+            <div id="envInfo" class="config-info" style="display: none;">
+                <pre id="envDetails"></pre>
+            </div>
+        </div>
+
+        <!-- 网络连接测试 -->
+        <div class="test-section">
+            <h3>🌐 网络连接测试</h3>
+            <div id="networkStatus">
+                <div class="status info">未测试</div>
+            </div>
+            <button class="button" onclick="testNetwork()">测试网络连接</button>
+            <div id="networkLog" class="log" style="display: none;"></div>
+        </div>
+
+        <!-- API配置测试 -->
+        <div class="test-section">
+            <h3>🔑 API配置测试</h3>
+            <div id="apiConfigStatus">
+                <div class="status info">未测试</div>
+            </div>
+            <button class="button" onclick="testAPIConfig()">测试API配置</button>
+            <div id="apiConfigLog" class="log" style="display: none;"></div>
+        </div>
+
+        <!-- 真实API调用测试 -->
+        <div class="test-section">
+            <h3>🚀 真实API调用测试</h3>
+            <div id="apiCallStatus">
+                <div class="status info">未测试</div>
+            </div>
+            <div class="api-test">
+                <div>
+                    <h4>OpenAI API测试</h4>
+                    <button class="button" onclick="testOpenAI()">测试OpenAI</button>
+                    <div id="openaiLog" class="log" style="display: none;"></div>
+                </div>
+                <div>
+                    <h4>项目AI服务测试</h4>
+                    <button class="button" onclick="testProjectAI()">测试项目AI服务</button>
+                    <div id="projectAILog" class="log" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 测试报告 -->
+        <div class="test-section">
+            <h3>📊 测试报告</h3>
+            <div id="testReport">
+                <div class="status info">等待测试完成...</div>
+            </div>
+            <button class="button" onclick="runAllTests()">运行所有测试</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let testResults = {
+            environment: false,
+            network: false,
+            apiConfig: false,
+            openai: false,
+            projectAI: false
+        };
+
+        // 日志函数
+        function log(elementId, message, type = 'info') {
+            const logElement = document.getElementById(elementId);
+            if (logElement) {
+                const timestamp = new Date().toLocaleTimeString();
+                const color = type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : type === 'warning' ? '#f59e0b' : '#3b82f6';
+                logElement.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+                logElement.style.display = 'block';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+
+        // 更新状态
+        function updateStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="status ${status}">${message}</div>`;
+            }
+        }
+
+        // 环境检查
+        function checkEnvironment() {
+            const envInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                timestamp: new Date().toISOString()
+            };
+
+            document.getElementById('envDetails').textContent = JSON.stringify(envInfo, null, 2);
+            document.getElementById('envInfo').style.display = 'block';
+            
+            testResults.environment = true;
+            updateStatus('envStatus', 'success', '环境检查完成');
+        }
+
+        // 网络连接测试
+        async function testNetwork() {
+            updateStatus('networkStatus', 'info', '测试中...');
+            const logId = 'networkLog';
+            
+            const testUrls = [
+                'https://api.openai.com',
+                'https://api.deepseek.com',
+                'https://generativelanguage.googleapis.com'
+            ];
+
+            let successCount = 0;
+
+            for (const url of testUrls) {
+                try {
+                    log(logId, `测试连接: ${url}`, 'info');
+                    
+                    const response = await fetch(url, {
+                        method: 'HEAD',
+                        mode: 'no-cors'
+                    });
+                    
+                    log(logId, `✅ ${url} - 连接成功`, 'success');
+                    successCount++;
+                } catch (error) {
+                    log(logId, `❌ ${url} - 连接失败: ${error.message}`, 'error');
+                }
+            }
+
+            testResults.network = successCount > 0;
+            updateStatus('networkStatus', testResults.network ? 'success' : 'error', 
+                testResults.network ? `网络连接正常 (${successCount}/${testUrls.length})` : '网络连接异常');
+        }
+
+        // API配置测试
+        async function testAPIConfig() {
+            updateStatus('apiConfigStatus', 'info', '测试中...');
+            const logId = 'apiConfigLog';
+            
+            // 检查环境变量（通过Vite注入）
+            const envVars = {
+                VITE_OPENAI_API_KEY: window.VITE_OPENAI_API_KEY || '未设置',
+                VITE_DEEPSEEK_API_KEY: window.VITE_DEEPSEEK_API_KEY || '未设置',
+                VITE_GEMINI_API_KEY: window.VITE_GEMINI_API_KEY || '未设置',
+                VITE_DEV_MODE: window.VITE_DEV_MODE || '未设置'
+            };
+
+            log(logId, '检查环境变量配置:', 'info');
+            Object.entries(envVars).forEach(([key, value]) => {
+                const status = value !== '未设置' && !value.includes('your-api-key') ? 'success' : 'error';
+                log(logId, `${key}: ${value}`, status);
+            });
+
+            // 检查是否有有效的API密钥
+            const hasValidKey = Object.values(envVars).some(value => 
+                value !== '未设置' && !value.includes('your-api-key') && value.startsWith('sk-')
+            );
+
+            testResults.apiConfig = hasValidKey;
+            updateStatus('apiConfigStatus', hasValidKey ? 'success' : 'warning', 
+                hasValidKey ? 'API配置有效' : 'API配置需要完善');
+        }
+
+        // OpenAI API测试
+        async function testOpenAI() {
+            const logId = 'openaiLog';
+            log(logId, '开始测试OpenAI API...', 'info');
+            
+            const apiKey = window.VITE_OPENAI_API_KEY;
+            
+            if (!apiKey || apiKey === 'sk-your-openai-api-key-here') {
+                log(logId, '❌ OpenAI API密钥未配置', 'error');
+                updateStatus('apiCallStatus', 'error', 'OpenAI API密钥未配置');
+                return;
+            }
+
+            try {
+                log(logId, '发送API请求...', 'info');
+                
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            {
+                                role: 'user',
+                                content: '请回复"测试成功"三个字'
+                            }
+                        ],
+                        max_tokens: 50,
+                        temperature: 0.1
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = data.choices[0].message.content;
+                    log(logId, `✅ API调用成功`, 'success');
+                    log(logId, `响应内容: ${content}`, 'success');
+                    log(logId, `使用Token: ${data.usage?.total_tokens || '未知'}`, 'success');
+                    
+                    testResults.openai = true;
+                    updateStatus('apiCallStatus', 'success', 'OpenAI API调用成功');
+                } else {
+                    const errorData = await response.json();
+                    log(logId, `❌ API调用失败: ${response.status} ${response.statusText}`, 'error');
+                    log(logId, `错误详情: ${JSON.stringify(errorData)}`, 'error');
+                    updateStatus('apiCallStatus', 'error', 'OpenAI API调用失败');
+                }
+            } catch (error) {
+                log(logId, `❌ API调用异常: ${error.message}`, 'error');
+                updateStatus('apiCallStatus', 'error', 'OpenAI API调用异常');
+            }
+        }
+
+        // 项目AI服务测试
+        async function testProjectAI() {
+            const logId = 'projectAILog';
+            log(logId, '开始测试项目AI服务...', 'info');
+            
+            try {
+                // 测试项目中的AI服务端点
+                const endpoints = [
+                    '/api/ai/generate',
+                    '/.netlify/functions/api',
+                    '/api/ai-service'
+                ];
+
+                for (const endpoint of endpoints) {
+                    try {
+                        log(logId, `测试端点: ${endpoint}`, 'info');
+                        
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                provider: 'openai',
+                                action: 'generate',
+                                messages: [
+                                    { role: 'user', content: '测试' }
+                                ]
+                            })
+                        });
+
+                        if (response.ok) {
+                            log(logId, `✅ ${endpoint} - 端点可用`, 'success');
+                            testResults.projectAI = true;
+                            updateStatus('apiCallStatus', 'success', '项目AI服务可用');
+                            return;
+                        } else {
+                            log(logId, `⚠️ ${endpoint} - 端点不可用 (${response.status})`, 'warning');
+                        }
+                    } catch (error) {
+                        log(logId, `❌ ${endpoint} - 连接失败: ${error.message}`, 'error');
+                    }
+                }
+
+                if (!testResults.projectAI) {
+                    log(logId, '❌ 所有项目AI服务端点都不可用', 'error');
+                    updateStatus('apiCallStatus', 'warning', '项目AI服务需要配置');
+                }
+            } catch (error) {
+                log(logId, `❌ 项目AI服务测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 运行所有测试
+        async function runAllTests() {
+            updateStatus('testReport', 'info', '运行所有测试...');
+            
+            // 重置结果
+            testResults = {
+                environment: false,
+                network: false,
+                apiConfig: false,
+                openai: false,
+                projectAI: false
+            };
+
+            // 运行测试
+            checkEnvironment();
+            await testNetwork();
+            await testAPIConfig();
+            await testOpenAI();
+            await testProjectAI();
+
+            // 生成报告
+            const passedTests = Object.values(testResults).filter(Boolean).length;
+            const totalTests = Object.keys(testResults).length;
+            
+            if (passedTests === totalTests) {
+                updateStatus('testReport', 'success', `🎉 所有测试通过 (${passedTests}/${totalTests})`);
+            } else {
+                updateStatus('testReport', 'warning', `⚠️ 部分测试通过 (${passedTests}/${totalTests})`);
+            }
+        }
+
+        // 页面加载时自动检查环境
+        window.addEventListener('load', () => {
+            checkEnvironment();
+        });
+    </script>
+</body>
+</html> 

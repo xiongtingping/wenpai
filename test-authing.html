@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing登录/注册功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .config-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authing登录/注册功能测试</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. 环境配置检查</div>
+            <div id="config-status" class="status info">正在检查配置...</div>
+            <div id="config-details" class="config-info"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">2. 网络连接测试</div>
+            <button class="test-button" onclick="testNetwork()">测试网络连接</button>
+            <div id="network-status" class="status info">点击按钮开始测试</div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">3. Authing服务测试</div>
+            <button class="test-button" onclick="testAuthingService()">测试Authing服务</button>
+            <div id="authing-status" class="status info">点击按钮开始测试</div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">4. 登录功能测试</div>
+            <button class="test-button" onclick="testLogin()">测试登录弹窗</button>
+            <button class="test-button" onclick="testRegister()">测试注册弹窗</button>
+            <div id="login-status" class="status info">点击按钮开始测试</div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">5. 用户状态检查</div>
+            <button class="test-button" onclick="checkUserStatus()">检查用户状态</button>
+            <div id="user-status" class="status info">点击按钮开始检查</div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">6. 跳转到应用测试</div>
+            <button class="test-button" onclick="openApp()">打开文派应用</button>
+            <div id="app-status" class="status info">点击按钮打开应用</div>
+        </div>
+    </div>
+
+    <script>
+        // 配置信息
+        const config = {
+            appId: '64f8b8b8b8b8b8b8b8b8b8b8',
+            host: 'https://wenpai.authing.cn',
+            redirectUri: 'http://localhost:5176/callback',
+            appUrl: 'http://localhost:5176'
+        };
+
+        // 1. 环境配置检查
+        function checkConfig() {
+            const configStatus = document.getElementById('config-status');
+            const configDetails = document.getElementById('config-details');
+            
+            try {
+                // 检查必要的环境变量
+                const envVars = {
+                    'VITE_AUTHING_APP_ID': config.appId,
+                    'VITE_AUTHING_HOST': config.host,
+                    'VITE_AUTHING_REDIRECT_URI': config.redirectUri,
+                    '当前URL': window.location.href,
+                    '用户代理': navigator.userAgent
+                };
+
+                configDetails.textContent = JSON.stringify(envVars, null, 2);
+                configStatus.className = 'status success';
+                configStatus.textContent = '✅ 配置检查完成';
+            } catch (error) {
+                configStatus.className = 'status error';
+                configStatus.textContent = '❌ 配置检查失败: ' + error.message;
+            }
+        }
+
+        // 2. 网络连接测试
+        async function testNetwork() {
+            const status = document.getElementById('network-status');
+            status.className = 'status info';
+            status.textContent = '🔄 正在测试网络连接...';
+
+            try {
+                // 测试基本网络连接
+                const response = await fetch('https://httpbin.org/get', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    status.className = 'status success';
+                    status.textContent = '✅ 网络连接正常';
+                } else {
+                    throw new Error('网络响应异常');
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ 网络连接失败: ' + error.message;
+            }
+        }
+
+        // 3. Authing服务测试
+        async function testAuthingService() {
+            const status = document.getElementById('authing-status');
+            status.className = 'status info';
+            status.textContent = '🔄 正在测试Authing服务...';
+
+            try {
+                // 测试Authing API连接
+                const response = await fetch(`${config.host}/api/v2/applications/${config.appId}`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    status.className = 'status success';
+                    status.textContent = '✅ Authing服务连接正常';
+                } else {
+                    throw new Error('Authing服务响应异常');
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Authing服务连接失败: ' + error.message;
+            }
+        }
+
+        // 4. 登录功能测试
+        function testLogin() {
+            const status = document.getElementById('login-status');
+            status.className = 'status info';
+            status.textContent = '🔄 正在打开登录弹窗...';
+
+            try {
+                // 模拟打开登录弹窗
+                const loginUrl = `${config.host}/login?app_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
+                window.open(loginUrl, '_blank', 'width=400,height=600');
+                
+                status.className = 'status success';
+                status.textContent = '✅ 登录弹窗已打开，请在新窗口中完成登录';
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ 登录弹窗打开失败: ' + error.message;
+            }
+        }
+
+        // 5. 注册功能测试
+        function testRegister() {
+            const status = document.getElementById('login-status');
+            status.className = 'status info';
+            status.textContent = '🔄 正在打开注册弹窗...';
+
+            try {
+                // 模拟打开注册弹窗
+                const registerUrl = `${config.host}/register?app_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
+                window.open(registerUrl, '_blank', 'width=400,height=600');
+                
+                status.className = 'status success';
+                status.textContent = '✅ 注册弹窗已打开，请在新窗口中完成注册';
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ 注册弹窗打开失败: ' + error.message;
+            }
+        }
+
+        // 6. 用户状态检查
+        function checkUserStatus() {
+            const status = document.getElementById('user-status');
+            status.className = 'status info';
+            status.textContent = '🔄 正在检查用户状态...';
+
+            try {
+                // 检查本地存储的用户信息
+                const savedUser = localStorage.getItem('authing_user');
+                const redirectTo = localStorage.getItem('login_redirect_to');
+
+                if (savedUser) {
+                    const userInfo = JSON.parse(savedUser);
+                    status.className = 'status success';
+                    status.textContent = `✅ 用户已登录: ${userInfo.nickname || userInfo.username || userInfo.email}`;
+                } else {
+                    status.className = 'status info';
+                    status.textContent = 'ℹ️ 用户未登录';
+                }
+
+                if (redirectTo) {
+                    status.textContent += ` | 跳转目标: ${redirectTo}`;
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ 用户状态检查失败: ' + error.message;
+            }
+        }
+
+        // 7. 跳转到应用测试
+        function openApp() {
+            const status = document.getElementById('app-status');
+            status.className = 'status info';
+            status.textContent = '🔄 正在打开应用...';
+
+            try {
+                window.open(config.appUrl, '_blank');
+                status.className = 'status success';
+                status.textContent = '✅ 应用已在新标签页中打开';
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ 应用打开失败: ' + error.message;
+            }
+        }
+
+        // 页面加载时自动检查配置
+        window.addEventListener('load', function() {
+            checkConfig();
+        });
+    </script>
+</body>
+</html> 

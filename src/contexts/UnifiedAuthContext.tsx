@@ -1,18 +1,20 @@
 /**
- * ✅ 项目全局统一使用 UnifiedAuthContext 作为登录认证上下文。
- *
- * ❌ 禁止使用 useAuthing（SDK裸调用会造成状态不一致）
- * ❌ 禁止使用旧版 AuthContext（已废弃）
- *
- * 所有组件请通过以下方式获取用户信息与登录状态：
- *   import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
- *
- * 如需扩展登录逻辑，请统一在 UnifiedAuthContext.tsx 文件中维护。
+ * ✅ 统一认证上下文 - 使用Authing官方Guard组件
+ * 
+ * 本文件提供统一的认证管理，使用Authing官方推荐的Guard组件
+ * 参考文档: https://docs.authing.cn/v2/reference/guard/v2/react.html
+ * 
+ * 主要功能:
+ * - 用户认证状态管理
+ * - 登录/登出功能
+ * - 用户信息获取和更新
+ * - 权限和角色管理
+ * - 统一的错误处理
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthenticationClient } from 'authing-js-sdk';
+import { Guard } from '@authing/react18-ui-components';
 import { getAuthingConfig } from '@/config/authing';
 
 /**
@@ -37,7 +39,7 @@ export interface UserInfo {
 }
 
 /**
- * 认证上下文接口
+ * 认证上下文类型
  */
 export interface AuthContextType {
   user: UserInfo | null;
@@ -55,37 +57,22 @@ export interface AuthContextType {
   bindTempUserId?: () => Promise<void>;
 }
 
-/**
- * 认证上下文
- */
+// 创建认证上下文
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * 认证提供者属性
- */
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 /**
- * 创建Authing实例
- */
-const createAuthingInstance = () => {
-  const config = getAuthingConfig();
-  return new AuthenticationClient({
-    appId: config.appId,
-    appHost: config.host,
-  });
-};
-
-/**
- * 认证提供者组件
- * @param props 组件属性
- * @returns React组件
+ * 统一认证提供者组件
+ * 使用Authing官方Guard组件管理认证状态
  */
 export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showGuard, setShowGuard] = useState(false);
   const navigate = useNavigate();
 
   /**
@@ -94,96 +81,42 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
   const checkAuth = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+
+      // 检查本地存储的用户信息
+      const savedUser = localStorage.getItem('authing_user');
       
-      // 创建Authing实例
-      const authing = createAuthingInstance();
-      
-      // 检查URL中是否有授权码
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const state = urlParams.get('state');
-      
-      if (code) {
-        // 处理授权码回调
-        try {
-          const tokenSet = await authing.getAccessTokenByCode(code, {
-            codeVerifier: undefined
-          });
-          
-          if (tokenSet && tokenSet.access_token) {
-            // 获取用户信息
-            const userInfo = await authing.getCurrentUser();
-            
-            if (userInfo) {
-              console.log("登录成功，用户信息：", userInfo);
-              
-              // 转换用户信息格式
-              const user: UserInfo = {
-                id: userInfo.id || (userInfo as any).userId || `user_${Date.now()}`,
-                username: userInfo.username || userInfo.nickname || '用户',
-                email: userInfo.email || '',
-                phone: userInfo.phone || '',
-                nickname: userInfo.nickname || userInfo.username || '用户',
-                avatar: (userInfo as any).avatar || '',
-                loginTime: new Date().toISOString()
-              };
-              
-              setUser(user);
-              
-              // 保存到本地存储
-              localStorage.setItem('authing_user', JSON.stringify(user));
-              localStorage.setItem('authing_token', tokenSet.access_token);
-              
-              // 清除URL中的参数
-              window.history.replaceState({}, document.title, window.location.pathname);
-              
-              // 如果有跳转目标，进行跳转
-              const redirectTo = localStorage.getItem('login_redirect_to');
-              if (redirectTo) {
-                localStorage.removeItem('login_redirect_to');
-                navigate(redirectTo, { replace: true });
-              }
-            }
-          }
-        } catch (callbackError) {
-          console.error('处理授权回调失败:', callbackError);
+      if (savedUser) {
+        const userInfo = JSON.parse(savedUser);
+        setUser(userInfo);
+        
+        // 如果有跳转目标，进行跳转
+        const redirectTo = localStorage.getItem('login_redirect_to');
+        if (redirectTo) {
+          localStorage.removeItem('login_redirect_to');
+          navigate(redirectTo, { replace: true });
         }
       } else {
-        // 检查本地存储的用户信息
-        const savedUser = localStorage.getItem('authing_user');
-        const savedToken = localStorage.getItem('authing_token');
-        
-        if (savedUser && savedToken) {
-          try {
-            // 验证token是否有效
-            const userInfo = await authing.getCurrentUser();
-            if (userInfo) {
-              setUser(JSON.parse(savedUser));
-            } else {
-              // token无效，清除本地数据
-              localStorage.removeItem('authing_user');
-              localStorage.removeItem('authing_token');
-            }
-          } catch (tokenError) {
-            console.error('验证token失败:', tokenError);
-            localStorage.removeItem('authing_user');
-            localStorage.removeItem('authing_token');
-          }
-        }
+        // 用户未登录，清除本地数据
+        setUser(null);
+        localStorage.removeItem('authing_user');
+        localStorage.removeItem('login_redirect_to');
       }
       
     } catch (error) {
       console.error('检查认证状态失败:', error);
+      setError(error instanceof Error ? error.message : '认证检查失败');
       // 清除可能存在的无效数据
+      setUser(null);
       localStorage.removeItem('authing_user');
-      localStorage.removeItem('authing_token');
+      localStorage.removeItem('login_redirect_to');
     } finally {
       setIsLoading(false);
     }
   };
 
   /**
-   * 登录方法 - 使用Authing SDK
+   * 登录方法 - 使用Guard组件
    * @param redirectTo 登录后跳转的目标页面
    */
   const login = (redirectTo?: string) => {
@@ -193,75 +126,41 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
         localStorage.setItem('login_redirect_to', redirectTo);
       }
 
-      // 获取配置
-      const config = getAuthingConfig();
+      console.log('🔗 使用Guard组件进行登录');
       
-      // 确保回调地址正确编码
-      const encodedRedirectUri = encodeURIComponent(config.redirectUri);
-      
-      // 构建授权URL - 使用Authing官方推荐的格式
-      const authUrl = `https://${config.host}/oidc/auth?` + new URLSearchParams({
-        client_id: config.appId,
-        redirect_uri: config.redirectUri, // 不在这里编码，让URLSearchParams处理
-        scope: 'openid profile email phone',
-        response_type: 'code',
-        state: redirectTo || '/',
-        nonce: Math.random().toString(36).substring(2, 15), // 添加nonce防止重放攻击
-      }).toString();
-      
-      console.log('🔗 跳转到Authing登录页面:', authUrl);
-      console.log('📋 配置信息:', {
-        appId: config.appId,
-        host: config.host,
-        redirectUri: config.redirectUri,
-        encodedRedirectUri
-      });
-      
-      window.location.href = authUrl;
+      // 显示Guard弹窗
+      setShowGuard(true);
       
     } catch (error) {
       console.error('登录失败:', error);
-      // 备用方案：使用Authing Guard的登录URL
-      const config = getAuthingConfig();
-      const fallbackUrl = `https://${config.host}/login?app_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
-      console.log('🔄 使用备用登录URL:', fallbackUrl);
-      window.location.href = fallbackUrl;
+      setError(error instanceof Error ? error.message : '登录失败');
     }
   };
 
   /**
-   * 登出方法
+   * 登出方法 - 使用Guard组件
    */
   const logout = async () => {
     try {
-      // 获取配置
-      const config = getAuthingConfig();
+      console.log('🔗 使用Guard组件进行登出');
       
       // 清除本地存储
       localStorage.removeItem('authing_user');
-      localStorage.removeItem('authing_token');
-      localStorage.removeItem('authing_code');
-      localStorage.removeItem('authing_state');
       localStorage.removeItem('login_redirect_to');
       
       // 重置状态
       setUser(null);
       
-      // 跳转到Authing登出页面
-      const logoutUrl = `https://${config.host}/oidc/session/end?` + new URLSearchParams({
-        client_id: config.appId,
-        post_logout_redirect_uri: window.location.origin,
-      }).toString();
-      
-      console.log('🔗 跳转到Authing登出页面:', logoutUrl);
-      window.location.href = logoutUrl;
+      // 跳转到首页
+      navigate('/', { replace: true });
       
     } catch (error) {
       console.error('登出失败:', error);
+      setError(error instanceof Error ? error.message : '登出失败');
       // 即使登出失败，也清除本地数据
-      localStorage.removeItem('authing_user');
-      localStorage.removeItem('authing_token');
       setUser(null);
+      localStorage.removeItem('authing_user');
+      localStorage.removeItem('login_redirect_to');
       navigate('/', { replace: true });
     }
   };
@@ -275,6 +174,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
     user,
     isAuthenticated: !!user,
     loading: isLoading,
+    error,
     login,
     logout,
     checkAuth,
@@ -283,6 +183,44 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
   return (
     <AuthContext.Provider value={value}>
       {children}
+      {/* 条件渲染Guard组件 */}
+      {showGuard && (
+        <Guard
+          appId={getAuthingConfig().appId}
+          onLogin={(user) => {
+            console.log('登录成功:', user);
+            // 转换用户信息格式
+            const userInfo: UserInfo = {
+              id: user.id || `user_${Date.now()}`,
+              username: user.username || user.nickname || '用户',
+              email: user.email || '',
+              phone: user.phone || '',
+              nickname: user.nickname || user.username || '用户',
+              avatar: (user as any).avatar || '',
+              loginTime: new Date().toISOString(),
+              roles: [],
+              permissions: []
+            };
+            
+            setUser(userInfo);
+            localStorage.setItem('authing_user', JSON.stringify(userInfo));
+            
+            // 关闭Guard弹窗
+            setShowGuard(false);
+            
+            // 如果有跳转目标，进行跳转
+            const redirectTo = localStorage.getItem('login_redirect_to');
+            if (redirectTo) {
+              localStorage.removeItem('login_redirect_to');
+              navigate(redirectTo, { replace: true });
+            }
+          }}
+          onClose={() => {
+            console.log('Guard弹窗关闭');
+            setShowGuard(false);
+          }}
+        />
+      )}
     </AuthContext.Provider>
   );
 };
@@ -351,7 +289,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
   requiredRoles = [], 
   fallback = <div>权限不足</div> 
 }) => {
-  const { hasPermission, hasRole, loading } = useUnifiedAuth();
+  const { user, loading } = useUnifiedAuth();
 
   if (loading) {
     return (
@@ -366,11 +304,11 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
 
   // 检查权限
   const hasRequiredPermissions = requiredPermissions.length === 0 || 
-    requiredPermissions.every(permission => hasPermission(permission));
+    requiredPermissions.every(permission => user?.permissions?.includes(permission));
 
   // 检查角色
   const hasRequiredRoles = requiredRoles.length === 0 || 
-    requiredRoles.some(role => hasRole(role));
+    requiredRoles.some(role => user?.roles?.includes(role));
 
   if (hasRequiredPermissions && hasRequiredRoles) {
     return <>{children}</>;
