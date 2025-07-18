@@ -1,556 +1,344 @@
 /**
- * 内容适配方案配置
- * 定义不同的内容风格和适配策略
+ * 内容方案配置
+ * 定义不同风格的内容生成方案
  */
 
+/**
+ * 内容方案接口
+ */
 export interface ContentScheme {
   id: string;
   name: string;
   description: string;
-  version: string;
-  isDefault?: boolean;
-  platforms: PlatformScheme[];
-  globalSettings: GlobalSchemeSettings;
-  promptTemplate: string;
-  metadata: {
-    author: string;
-    createdAt: string;
-    updatedAt: string;
-    tags: string[];
-  };
-}
-
-export interface PlatformScheme {
-  platformId: string;
-  name: string;
-  description: string;
-  style: string;
-  wordLimit: {
-    min: number;
-    max: number;
-  };
-  hashtagCount: number;
-  tone: string;
+  icon: string;
+  color: string;
+  platforms: string[];
   features: string[];
-  promptModifiers: string[];
-}
-
-export interface GlobalSchemeSettings {
-  defaultTone: string;
-  emojiUsage: 'none' | 'minimal' | 'moderate' | 'heavy';
-  formatStyle: 'plain' | 'markdown' | 'rich';
-  contentStructure: 'free' | 'structured' | 'template';
-  languageStyle: 'casual' | 'professional' | 'creative' | 'academic';
+  isDefault?: boolean;
 }
 
 /**
- * 默认方案 - 通用内容适配
+ * 平台提示词模板接口
  */
-export const DEFAULT_SCHEME: ContentScheme = {
-  id: 'default',
-  name: '通用适配方案',
-  description: '适用于大多数平台的标准内容适配方案，平衡专业性和可读性',
-  version: '1.0.0',
-  isDefault: true,
-  platforms: [
-    {
-      platformId: 'xiaohongshu',
-      name: '小红书',
-      description: '小红书笔记风格',
-      style: '种草分享风格，注重个人体验和实用价值',
-      wordLimit: { min: 100, max: 1000 },
-      hashtagCount: 20,
-      tone: '亲切、分享、种草',
-      features: ['个人体验', '图片展示', '标签丰富', '实用价值'],
-      promptModifiers: [
-        '使用第一人称叙述',
-        '加入个人感受和体验',
-        '突出实用价值和购买理由',
-        '使用emoji增加亲和力'
-      ]
-    },
-    {
-      platformId: 'weibo',
-      name: '微博',
-      description: '微博短文风格',
-      style: '简洁明了，热点敏感，互动性强',
-      wordLimit: { min: 20, max: 2000 },
-      hashtagCount: 3,
-      tone: '简洁、热点、互动',
-      features: ['话题标签', '@用户', '转发互动', '热点敏感'],
-      promptModifiers: [
-        '保持简洁明了',
-        '加入相关话题标签',
-        '鼓励用户互动',
-        '关注热点话题'
-      ]
-    },
-    {
-      platformId: 'wechat',
-      name: '微信',
-      description: '微信公众号风格',
-      style: '专业权威，深度内容，图文并茂',
-      wordLimit: { min: 300, max: 20000 },
-      hashtagCount: 0,
-      tone: '专业、权威、深度',
-      features: ['图文并茂', '深度内容', '专业术语', '权威性'],
-      promptModifiers: [
-        '使用专业术语',
-        '提供深度分析',
-        '保持权威性',
-        '结构清晰'
-      ]
-    },
-    {
-      platformId: 'douyin',
-      name: '抖音',
-      description: '抖音短视频风格',
-      style: '轻松有趣，节奏感强，互动引导',
-      wordLimit: { min: 50, max: 1000 },
-      hashtagCount: 5,
-      tone: '轻松、有趣、活力',
-      features: ['视频脚本', '音乐配合', '互动引导', '节奏感'],
-      promptModifiers: [
-        '保持轻松有趣的语调',
-        '加入互动引导',
-        '考虑视频节奏',
-        '使用流行词汇'
-      ]
-    },
-    {
-      platformId: 'zhihu',
-      name: '知乎',
-      description: '知乎问答风格',
-      style: '专业深度，逻辑清晰，引用权威',
-      wordLimit: { min: 200, max: 10000 },
-      hashtagCount: 0,
-      tone: '专业、深度、逻辑',
-      features: ['详细解答', '专业术语', '引用来源', '逻辑清晰'],
-      promptModifiers: [
-        '提供详细解答',
-        '使用专业术语',
-        '逻辑结构清晰',
-        '引用权威来源'
-      ]
-    },
-    {
-      platformId: 'bilibili',
-      name: 'B站',
-      description: 'B站视频风格',
-      style: '年轻活力，弹幕友好，分区明确',
-      wordLimit: { min: 100, max: 5000 },
-      hashtagCount: 10,
-      tone: '年轻、活力、友好',
-      features: ['弹幕互动', '视频标题', '分区标签', '年轻化'],
-      promptModifiers: [
-        '使用年轻化表达',
-        '考虑弹幕互动',
-        '明确分区定位',
-        '保持友好氛围'
-      ]
-    }
+export interface PlatformPromptTemplate {
+  name: string;
+  styleGuide: string;
+  prompt: (input: string) => string;
+}
+
+/**
+ * 全域内容适配方案
+ * 针对不同平台特点的内容生成方案
+ */
+export const globalContentAdaptationScheme: ContentScheme = {
+  id: 'global-adaptation',
+  name: '全域内容适配方案',
+  description: '针对小红书、微博、微信、抖音、知乎、B站等主流平台的专业内容适配方案，确保内容符合各平台特色和用户习惯',
+  icon: '🌐',
+  color: 'from-purple-500 to-indigo-600',
+  platforms: ['xiaohongshu', 'weibo', 'wechat', 'douyin', 'zhihu', 'bilibili'],
+  features: [
+    '多平台风格适配',
+    '专业提示词模板',
+    '平台特色优化',
+    '用户习惯匹配',
+    '内容结构规范',
+    '互动引导设计'
   ],
-  globalSettings: {
-    defaultTone: '专业友好',
-    emojiUsage: 'moderate',
-    formatStyle: 'plain',
-    contentStructure: 'structured',
-    languageStyle: 'professional'
-  },
-  promptTemplate: `你是一个专业的内容适配专家，需要将原始内容适配到不同的社交媒体平台。
+  isDefault: true
+};
+
+/**
+ * 平台提示词模板配置
+ */
+export const platformPromptTemplates: Record<string, PlatformPromptTemplate> = {
+  xiaohongshu: {
+    name: '小红书',
+    styleGuide: `风格：亲切、细腻、有生活美学。常用表达如"巨好用"、"闭眼入"、"姐妹们看过来！"。
+写作结构建议：
+1. 用钩子吸引点击（如"这玩意也太香了吧！"）
+2. 分享亲身体验背景
+3. 产品使用感受
+4. 总结亮点+推荐理由
+
+使用 emoji 表情，并以"第一人称"语气撰写，避免AI腔调，真实自然。`,
+    prompt: (input: string) => `你是一位擅长撰写小红书爆款笔记的内容创作者。
+
+请根据以下原始内容，生成一篇符合小红书风格的图文笔记内容，风格要有"闺蜜感"和"种草力"，加入真实体验描述和口语化表达：
 
 原始内容：
-{originalContent}
+${input}
 
-目标平台：{platformName}
-平台特点：{platformStyle}
-字数要求：{wordLimit}
-标签数量：{hashtagCount}
-语调风格：{tone}
-特色功能：{features}
+请输出格式如下：
 
-适配要求：
-1. 严格按照平台字数限制
-2. 符合平台语调风格
-3. 融入平台特色功能
-4. 保持内容核心价值
-5. 优化用户阅读体验
+标题：XXXXX（有吸引力的笔记标题）
+内容：XXXXX（正文内容，包含生活感受、细节体验、真实推荐，使用emoji）`,
+  },
 
-请为每个平台生成独立的内容，格式如下：
-=== {platformName} ===
-{adaptedContent}
-=== 结束 ===
+  weibo: {
+    name: '微博',
+    styleGuide: `风格：简洁、有观点、热点感强。适合蹭热度和互动。
+建议加入话题标签（#XX#）、@用户，以及简短带情绪的句子。
 
-请确保每个平台的内容都是完整独立的，不要混合多个平台的内容。`,
-  metadata: {
-    author: 'AI Content Adapter',
-    createdAt: '2024-01-01',
-    updatedAt: '2024-01-01',
-    tags: ['通用', '标准', '多平台']
+语言要有"爽感"，结尾建议引导讨论或投票。`,
+    prompt: (input: string) => `你是一位擅长撰写微博热评内容的用户。
+
+请根据以下原始内容，生成一条微博内容：
+- 语言要短小有力，最好控制在200字以内
+- 带话题 #XX#
+- 引导读者转发/讨论
+
+原始内容：
+${input}
+
+输出格式如下：
+
+标题：#关键词话题#
+内容：XXXX（简洁表达观点，可使用网络流行语）`,
+  },
+
+  wechat: {
+    name: '微信',
+    styleGuide: `风格：专业、权威，适合职场人群阅读。
+文章结构要清晰，有逻辑，有洞察，支持引用权威观点或数据。
+
+语言正式、准确、避免AI腔和口语化表达。`,
+    prompt: (input: string) => `你是一位专业内容编辑，负责撰写适合微信公众平台发布的深度内容文章。
+
+请根据以下原始内容，撰写一篇专业文章，结构清晰，逻辑完整，用词严谨：
+
+原始内容：
+${input}
+
+输出格式如下：
+
+标题：XXXXX（专业性强，准确表达主题）
+内容：XXXX（不少于500字，具有深度与可读性）`,
+  },
+
+  douyin: {
+    name: '抖音',
+    styleGuide: `风格：轻松、有趣、上头。适合配合视频节奏，具备情绪反转。
+语气需具备"语音转文字感"，如"姐妹们，这也太离谱了吧！"
+
+建议输出3段式脚本：开头吸引人→中段反转→结尾高能引导互动。`,
+    prompt: (input: string) => `你是一位抖音短视频脚本创作者。
+
+请将以下原始内容改写为适合拍摄抖音短视频的文字脚本，语气活泼，有情绪反转，适合配乐节奏：
+
+原始内容：
+${input}
+
+输出格式如下：
+
+标题：XXXXX（爆点标题）
+脚本内容：
+画面一：[脚本文案]
+画面二：[脚本文案]
+画面三：[脚本文案]
+结尾Call to Action：[引导关注/评论的话语]`,
+  },
+
+  zhihu: {
+    name: '知乎',
+    styleGuide: `风格：理性、深度、结构化。建议"总-分-总"结构，内容逻辑要严谨，有证据或数据支持。
+
+语气需克制、专业，避免情绪化或商业化表述。`,
+    prompt: (input: string) => `你是一位知乎答主，擅长理性分析、逻辑表达。
+
+请根据以下原始内容，撰写一篇知乎回答，逻辑清晰，有深度，引用例证数据更佳：
+
+原始内容：
+${input}
+
+输出格式如下：
+
+标题：XXXXX（如"如何看待…"、"为什么…"）
+内容：1）观点陈述 2）逻辑论证（含举例）3）总结归纳`,
+  },
+
+  bilibili: {
+    name: 'B站',
+    styleGuide: `风格：年轻、活力、有梗。适合视频简介、开箱稿、搞笑吐槽、安利型内容。
+
+语气要轻松、能玩梗，适合"弹幕场景"共鸣感。`,
+    prompt: (input: string) => `你是一位B站视频up主，擅长撰写搞笑、有共鸣的内容简介。
+
+请将以下原始内容改写为适合B站风格的视频简介，语气年轻、有梗、接地气：
+
+原始内容：
+${input}
+
+输出格式如下：
+
+标题：【XXXX】（用【】包围，带有梗或情绪）
+简介内容：XXXXX（语言轻松活泼，可带调侃或二次元语气）`,
+  },
+};
+
+/**
+ * 平台技术规格
+ */
+export const platformSpecifications = {
+  xiaohongshu: {
+    maxLength: 1000,
+    hashtagCount: 20,
+    features: ['图文笔记', '种草推荐', '生活分享', '话题挑战'],
+    bestPractices: [
+      '使用高质量图片',
+      '添加相关话题标签',
+      '分享真实使用体验',
+      '与粉丝互动回复'
+    ]
+  },
+  weibo: {
+    maxLength: 200,
+    hashtagCount: 10,
+    features: ['实时动态', '话题讨论', '热点追踪', '粉丝互动'],
+    bestPractices: [
+      '抓住热点话题',
+      '使用话题标签',
+      '配图增强表达',
+      '引导用户互动'
+    ]
+  },
+  wechat: {
+    maxLength: 5000,
+    hashtagCount: 0,
+    features: ['深度文章', '专业分析', '行业洞察', '权威发布'],
+    bestPractices: [
+      '内容结构清晰',
+      '引用权威数据',
+      '专业术语准确',
+      '逻辑论证完整'
+    ]
+  },
+  douyin: {
+    maxLength: 300,
+    hashtagCount: 15,
+    features: ['短视频', '音乐配乐', '特效滤镜', '直播带货'],
+    bestPractices: [
+      '开头3秒吸引注意',
+      '节奏感强',
+      '情绪反转',
+      '引导关注互动'
+    ]
+  },
+  zhihu: {
+    maxLength: 10000,
+    hashtagCount: 0,
+    features: ['问答社区', '专业讨论', '知识分享', '理性分析'],
+    bestPractices: [
+      '逻辑结构清晰',
+      '引用可靠数据',
+      '避免情绪化表达',
+      '提供有价值观点'
+    ]
+  },
+  bilibili: {
+    maxLength: 2000,
+    hashtagCount: 10,
+    features: ['视频平台', '弹幕互动', '二次元文化', '年轻群体'],
+    bestPractices: [
+      '标题有梗有趣',
+      '内容接地气',
+      '与弹幕互动',
+      '保持年轻活力'
+    ]
   }
 };
 
 /**
- * 营销推广方案
+ * 内容方案列表
  */
-export const MARKETING_SCHEME: ContentScheme = {
-  id: 'marketing',
-  name: '营销推广方案',
-  description: '专注于品牌推广和产品营销的内容适配方案',
-  version: '1.0.0',
-  platforms: [
-    {
-      platformId: 'xiaohongshu',
-      name: '小红书',
-      description: '小红书种草营销',
-      style: 'KOL种草风格，突出产品卖点和用户痛点',
-      wordLimit: { min: 100, max: 1000 },
-      hashtagCount: 20,
-      tone: '种草、推荐、专业',
-      features: ['产品展示', '用户痛点', '购买理由', 'KOL风格'],
-      promptModifiers: [
-        '突出产品核心卖点',
-        '解决用户痛点',
-        '提供购买理由',
-        '使用KOL表达方式'
-      ]
-    },
-    {
-      platformId: 'weibo',
-      name: '微博',
-      description: '微博热点营销',
-      style: '热点借势，话题营销，病毒传播',
-      wordLimit: { min: 20, max: 2000 },
-      hashtagCount: 3,
-      tone: '热点、话题、传播',
-      features: ['热点借势', '话题营销', '病毒传播', '互动引导'],
-      promptModifiers: [
-        '结合当前热点',
-        '创造话题标签',
-        '鼓励转发传播',
-        '设置互动话题'
-      ]
-    },
-    {
-      platformId: 'wechat',
-      name: '微信',
-      description: '微信深度营销',
-      style: '品牌故事，深度分析，权威背书',
-      wordLimit: { min: 300, max: 20000 },
-      hashtagCount: 0,
-      tone: '权威、专业、可信',
-      features: ['品牌故事', '深度分析', '权威背书', '专业术语'],
-      promptModifiers: [
-        '讲述品牌故事',
-        '提供深度分析',
-        '加入权威背书',
-        '使用专业术语'
-      ]
-    },
-    {
-      platformId: 'douyin',
-      name: '抖音',
-      description: '抖音短视频营销',
-      style: '创意展示，音乐配合，快速吸引',
-      wordLimit: { min: 50, max: 1000 },
-      hashtagCount: 5,
-      tone: '创意、活力、吸引',
-      features: ['创意展示', '音乐配合', '快速吸引', '视觉冲击'],
-      promptModifiers: [
-        '突出创意元素',
-        '考虑音乐配合',
-        '快速抓住注意力',
-        '强调视觉冲击'
-      ]
-    },
-    {
-      platformId: 'zhihu',
-      name: '知乎',
-      description: '知乎专业营销',
-      style: '专业解答，数据支撑，权威论证',
-      wordLimit: { min: 200, max: 10000 },
-      hashtagCount: 0,
-      tone: '专业、权威、可信',
-      features: ['专业解答', '数据支撑', '权威论证', '逻辑清晰'],
-      promptModifiers: [
-        '提供专业解答',
-        '加入数据支撑',
-        '权威论证观点',
-        '保持逻辑清晰'
-      ]
-    },
-    {
-      platformId: 'bilibili',
-      name: 'B站',
-      description: 'B站年轻营销',
-      style: '年轻化表达，二次元元素，互动营销',
-      wordLimit: { min: 100, max: 5000 },
-      hashtagCount: 10,
-      tone: '年轻、活力、二次元',
-      features: ['年轻化表达', '二次元元素', '互动营销', '分区定位'],
-      promptModifiers: [
-        '使用年轻化表达',
-        '融入二次元元素',
-        '设置互动环节',
-        '明确分区定位'
-      ]
-    }
-  ],
-  globalSettings: {
-    defaultTone: '营销专业',
-    emojiUsage: 'moderate',
-    formatStyle: 'rich',
-    contentStructure: 'template',
-    languageStyle: 'professional'
+export const contentSchemes: ContentScheme[] = [
+  globalContentAdaptationScheme,
+  {
+    id: 'universal',
+    name: '通用适配方案',
+    description: '适用于大多数平台的基础内容适配，保持内容核心价值的同时进行适度调整',
+    icon: '🔄',
+    color: 'from-blue-500 to-cyan-500',
+    platforms: ['general'],
+    features: [
+      '通用内容适配',
+      '保持核心价值',
+      '适度风格调整',
+      '多平台兼容'
+    ]
   },
-  promptTemplate: `你是一个专业的营销内容适配专家，需要将产品/服务内容适配到不同的社交媒体平台进行营销推广。
-
-原始内容：
-{originalContent}
-
-目标平台：{platformName}
-营销风格：{platformStyle}
-字数要求：{wordLimit}
-标签数量：{hashtagCount}
-营销语调：{tone}
-营销特色：{features}
-
-营销要求：
-1. 突出产品/服务核心价值
-2. 解决目标用户痛点
-3. 创造购买动机
-4. 符合平台营销特点
-5. 优化转化效果
-
-请为每个平台生成独立的营销内容，格式如下：
-=== {platformName} ===
-{adaptedContent}
-=== 结束 ===
-
-请确保每个平台的内容都是完整独立的营销文案，不要混合多个平台的内容。`,
-  metadata: {
-    author: 'AI Content Adapter',
-    createdAt: '2024-01-01',
-    updatedAt: '2024-01-01',
-    tags: ['营销', '推广', '转化']
-  }
-};
-
-/**
- * 创意写作方案
- */
-export const CREATIVE_SCHEME: ContentScheme = {
-  id: 'creative',
-  name: '创意写作方案',
-  description: '注重创意表达和文学性的内容适配方案',
-  version: '1.0.0',
-  platforms: [
-    {
-      platformId: 'xiaohongshu',
-      name: '小红书',
-      description: '小红书创意笔记',
-      style: '文艺清新，故事性强，情感共鸣',
-      wordLimit: { min: 100, max: 1000 },
-      hashtagCount: 20,
-      tone: '文艺、清新、情感',
-      features: ['故事性强', '情感共鸣', '文艺表达', '生活美学'],
-      promptModifiers: [
-        '讲述生动故事',
-        '引发情感共鸣',
-        '使用文艺表达',
-        '体现生活美学'
-      ]
-    },
-    {
-      platformId: 'weibo',
-      name: '微博',
-      description: '微博创意短文',
-      style: '金句频出，观点独特，传播性强',
-      wordLimit: { min: 20, max: 2000 },
-      hashtagCount: 3,
-      tone: '独特、犀利、传播',
-      features: ['金句频出', '观点独特', '传播性强', '话题性'],
-      promptModifiers: [
-        '创造金句表达',
-        '提出独特观点',
-        '增强传播性',
-        '制造话题性'
-      ]
-    },
-    {
-      platformId: 'wechat',
-      name: '微信',
-      description: '微信深度文章',
-      style: '文学性强，思想深度，艺术表达',
-      wordLimit: { min: 300, max: 20000 },
-      hashtagCount: 0,
-      tone: '文学、深度、艺术',
-      features: ['文学性强', '思想深度', '艺术表达', '文化内涵'],
-      promptModifiers: [
-        '增强文学性',
-        '体现思想深度',
-        '使用艺术表达',
-        '融入文化内涵'
-      ]
-    },
-    {
-      platformId: 'douyin',
-      name: '抖音',
-      description: '抖音创意脚本',
-      style: '创意十足，节奏感强，视觉冲击',
-      wordLimit: { min: 50, max: 1000 },
-      hashtagCount: 5,
-      tone: '创意、活力、冲击',
-      features: ['创意十足', '节奏感强', '视觉冲击', '音乐配合'],
-      promptModifiers: [
-        '突出创意元素',
-        '增强节奏感',
-        '创造视觉冲击',
-        '配合音乐节奏'
-      ]
-    },
-    {
-      platformId: 'zhihu',
-      name: '知乎',
-      description: '知乎深度创作',
-      style: '思想深刻，逻辑严密，文化底蕴',
-      wordLimit: { min: 200, max: 10000 },
-      hashtagCount: 0,
-      tone: '深刻、严密、底蕴',
-      features: ['思想深刻', '逻辑严密', '文化底蕴', '学术性'],
-      promptModifiers: [
-        '体现思想深刻',
-        '保持逻辑严密',
-        '展现文化底蕴',
-        '增强学术性'
-      ]
-    },
-    {
-      platformId: 'bilibili',
-      name: 'B站',
-      description: 'B站创意内容',
-      style: '二次元创意，年轻活力，文化融合',
-      wordLimit: { min: 100, max: 5000 },
-      hashtagCount: 10,
-      tone: '二次元、活力、融合',
-      features: ['二次元创意', '年轻活力', '文化融合', '互动创意'],
-      promptModifiers: [
-        '融入二次元元素',
-        '保持年轻活力',
-        '实现文化融合',
-        '增加互动创意'
-      ]
-    }
-  ],
-  globalSettings: {
-    defaultTone: '创意文学',
-    emojiUsage: 'moderate',
-    formatStyle: 'rich',
-    contentStructure: 'free',
-    languageStyle: 'creative'
+  {
+    id: 'marketing',
+    name: '营销推广方案',
+    description: '专注于营销效果的内容适配，强调转化率和用户行动引导',
+    icon: '📈',
+    color: 'from-green-500 to-emerald-500',
+    platforms: ['marketing'],
+    features: [
+      '营销导向',
+      '转化优化',
+      '行动引导',
+      '效果追踪'
+    ]
   },
-  promptTemplate: `你是一个专业的创意写作专家，需要将内容以创意文学的方式适配到不同的社交媒体平台。
-
-原始内容：
-{originalContent}
-
-目标平台：{platformName}
-创意风格：{platformStyle}
-字数要求：{wordLimit}
-标签数量：{hashtagCount}
-创意语调：{tone}
-创意特色：{features}
-
-创意要求：
-1. 运用文学修辞手法
-2. 创造独特的表达方式
-3. 增强情感共鸣
-4. 符合平台创意特点
-5. 提升艺术价值
-
-请为每个平台生成独立的创意内容，格式如下：
-=== {platformName} ===
-{adaptedContent}
-=== 结束 ===
-
-请确保每个平台的内容都是完整独立的创意作品，不要混合多个平台的内容。`,
-  metadata: {
-    author: 'AI Content Adapter',
-    createdAt: '2024-01-01',
-    updatedAt: '2024-01-01',
-    tags: ['创意', '文学', '艺术']
+  {
+    id: 'creative',
+    name: '创意写作方案',
+    description: '注重创意性和独特性的内容生成，适合需要差异化表达的场景',
+    icon: '✨',
+    color: 'from-purple-500 to-pink-500',
+    platforms: ['creative'],
+    features: [
+      '创意表达',
+      '差异化内容',
+      '独特视角',
+      '艺术性表达'
+    ]
   }
-};
-
-/**
- * 所有可用方案
- */
-export const AVAILABLE_SCHEMES: ContentScheme[] = [
-  DEFAULT_SCHEME,
-  MARKETING_SCHEME,
-  CREATIVE_SCHEME
 ];
 
 /**
  * 获取方案配置
- * @param schemeId 方案ID
- * @returns ContentScheme | null
  */
-export function getScheme(schemeId: string): ContentScheme | null {
-  return AVAILABLE_SCHEMES.find(scheme => scheme.id === schemeId) || null;
+export function getContentScheme(schemeId: string): ContentScheme | undefined {
+  return contentSchemes.find(scheme => scheme.id === schemeId);
 }
 
 /**
- * 获取默认方案
- * @returns ContentScheme
+ * 获取平台提示词模板
  */
-export function getDefaultScheme(): ContentScheme {
-  return AVAILABLE_SCHEMES.find(scheme => scheme.isDefault) || DEFAULT_SCHEME;
+export function getPlatformPromptTemplate(platform: string): PlatformPromptTemplate | undefined {
+  return platformPromptTemplates[platform];
 }
 
 /**
- * 获取所有可用方案
- * @returns ContentScheme[]
+ * 获取平台技术规格
  */
-export function getAllSchemes(): ContentScheme[] {
-  return AVAILABLE_SCHEMES;
+export function getPlatformSpecification(platform: string) {
+  return platformSpecifications[platform as keyof typeof platformSpecifications];
 }
 
 /**
- * 获取方案中的平台配置
- * @param schemeId 方案ID
- * @param platformId 平台ID
- * @returns PlatformScheme | null
+ * 生成平台适配内容
  */
-export function getPlatformScheme(schemeId: string, platformId: string): PlatformScheme | null {
-  const scheme = getScheme(schemeId);
-  if (!scheme) return null;
-  
-  return scheme.platforms.find(platform => platform.platformId === platformId) || null;
-}
-
-/**
- * 验证方案配置
- * @param scheme ContentScheme
- * @returns { isValid: boolean; errors: string[] }
- */
-export function validateScheme(scheme: ContentScheme): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  
-  if (!scheme.id || !scheme.name) {
-    errors.push('方案ID和名称不能为空');
+export function generatePlatformContent(
+  originalContent: string,
+  platform: string,
+  schemeId: string = 'global-adaptation'
+): string {
+  const template = getPlatformPromptTemplate(platform);
+  if (!template) {
+    return originalContent;
   }
+
+  // 根据方案ID调整提示词
+  let adjustedPrompt = template.prompt(originalContent);
   
-  if (!scheme.platforms || scheme.platforms.length === 0) {
-    errors.push('方案必须包含至少一个平台配置');
+  if (schemeId === 'marketing') {
+    adjustedPrompt += '\n\n注意：重点突出营销效果和转化引导，使用更具说服力的表达。';
+  } else if (schemeId === 'creative') {
+    adjustedPrompt += '\n\n注意：注重创意性和独特性，使用更有想象力的表达方式。';
   }
-  
-  if (!scheme.promptTemplate) {
-    errors.push('方案必须包含提示词模板');
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
+
+  return adjustedPrompt;
 } 

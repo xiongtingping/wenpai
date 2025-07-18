@@ -1,25 +1,12 @@
 /**
  * 方案选择器组件
- * 允许用户选择不同的内容适配方案
+ * 用于选择不同的内容适配方案
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { 
   Dialog,
   DialogContent,
@@ -29,25 +16,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { 
   Palette, 
   Sparkles, 
   Target, 
   BookOpen, 
   Settings,
   Check,
-  Info
+  Info,
+  Globe,
+  Zap,
+  Users
 } from "lucide-react";
 import { 
-  getAllSchemes, 
-  getScheme, 
-  type ContentScheme,
-  type PlatformScheme 
+  contentSchemes, 
+  getContentScheme, 
+  type ContentScheme 
 } from '@/config/contentSchemes';
 
 interface SchemeSelectorProps {
@@ -69,15 +52,14 @@ export function SchemeSelector({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    const availableSchemes = getAllSchemes();
-    setSchemes(availableSchemes);
+    setSchemes(contentSchemes);
     
-    const currentScheme = getScheme(selectedSchemeId) || availableSchemes[0];
+    const currentScheme = getContentScheme(selectedSchemeId) || contentSchemes[0];
     setSelectedScheme(currentScheme);
   }, [selectedSchemeId]);
 
   const handleSchemeChange = (schemeId: string) => {
-    const scheme = getScheme(schemeId);
+    const scheme = getContentScheme(schemeId);
     if (scheme) {
       setSelectedScheme(scheme);
       onSchemeChange(schemeId);
@@ -86,7 +68,9 @@ export function SchemeSelector({
 
   const getSchemeIcon = (schemeId: string) => {
     switch (schemeId) {
-      case 'default':
+      case 'global-adaptation':
+        return <Globe className="h-4 w-4" />;
+      case 'universal':
         return <Palette className="h-4 w-4" />;
       case 'marketing':
         return <Target className="h-4 w-4" />;
@@ -99,12 +83,14 @@ export function SchemeSelector({
 
   const getSchemeColor = (schemeId: string) => {
     switch (schemeId) {
-      case 'default':
+      case 'global-adaptation':
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'universal':
         return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'marketing':
         return 'bg-green-50 text-green-700 border-green-200';
       case 'creative':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-pink-50 text-pink-700 border-pink-200';
       default:
         return 'bg-gray-50 text-gray-700 border-gray-200';
     }
@@ -141,7 +127,7 @@ export function SchemeSelector({
                 <Card key={scheme.id} className="border-l-4 border-l-blue-500">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                      {getSchemeIcon(scheme.id)}
+                      <span className="text-2xl">{scheme.icon}</span>
                       <CardTitle className="text-lg">{scheme.name}</CardTitle>
                       {scheme.isDefault && (
                         <Badge variant="secondary" className="text-xs">
@@ -154,12 +140,17 @@ export function SchemeSelector({
                   <CardContent className="pt-0">
                     <div className="space-y-3">
                       <div>
-                        <h4 className="font-medium text-sm mb-2">全局设置</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>默认语调: {scheme.globalSettings.defaultTone}</div>
-                          <div>表情使用: {scheme.globalSettings.emojiUsage}</div>
-                          <div>格式样式: {scheme.globalSettings.formatStyle}</div>
-                          <div>语言风格: {scheme.globalSettings.languageStyle}</div>
+                        <h4 className="font-medium text-sm mb-2">特色功能</h4>
+                        <div className="flex flex-wrap gap-1">
+                          {scheme.features.map((feature) => (
+                            <Badge 
+                              key={feature} 
+                              variant="outline" 
+                              className="text-xs"
+                            >
+                              {feature}
+                            </Badge>
+                          ))}
                         </div>
                       </div>
                       
@@ -168,26 +159,11 @@ export function SchemeSelector({
                         <div className="flex flex-wrap gap-1">
                           {scheme.platforms.map((platform) => (
                             <Badge 
-                              key={platform.platformId} 
+                              key={platform} 
                               variant="outline" 
                               className="text-xs"
                             >
-                              {platform.name}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-sm mb-2">标签</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {scheme.metadata.tags.map((tag) => (
-                            <Badge 
-                              key={tag} 
-                              variant="secondary" 
-                              className="text-xs"
-                            >
-                              {tag}
+                              {platform}
                             </Badge>
                           ))}
                         </div>
@@ -201,7 +177,7 @@ export function SchemeSelector({
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {schemes.map((scheme) => (
           <Card 
             key={scheme.id}
@@ -215,7 +191,7 @@ export function SchemeSelector({
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {getSchemeIcon(scheme.id)}
+                  <span className="text-xl">{scheme.icon}</span>
                   <CardTitle className="text-base">{scheme.name}</CardTitle>
                 </div>
                 {selectedScheme.id === scheme.id && (
@@ -233,26 +209,26 @@ export function SchemeSelector({
                     variant="outline" 
                     className={`text-xs ${getSchemeColor(scheme.id)}`}
                   >
-                    {scheme.globalSettings.defaultTone}
+                    {scheme.platforms.length}个平台
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    {scheme.platforms.length}个平台
+                    {scheme.features.length}项功能
                   </Badge>
                 </div>
                 
                 <div className="flex flex-wrap gap-1">
-                  {scheme.metadata.tags.slice(0, 2).map((tag) => (
+                  {scheme.features.slice(0, 2).map((feature) => (
                     <Badge 
-                      key={tag} 
+                      key={feature} 
                       variant="secondary" 
                       className="text-xs"
                     >
-                      {tag}
+                      {feature}
                     </Badge>
                   ))}
-                  {scheme.metadata.tags.length > 2 && (
+                  {scheme.features.length > 2 && (
                     <Badge variant="secondary" className="text-xs">
-                      +{scheme.metadata.tags.length - 2}
+                      +{scheme.features.length - 2}
                     </Badge>
                   )}
                 </div>
@@ -262,60 +238,51 @@ export function SchemeSelector({
         ))}
       </div>
 
-      {/* 方案详情展示 */}
+      {/* 当前选中方案的详细信息 */}
       {selectedScheme && (
-        <Card className="mt-4">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <CardTitle className="text-base">当前方案: {selectedScheme.name}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-sm mb-2">平台配置</h4>
-                <div className="space-y-2">
-                  {selectedScheme.platforms.map((platform) => (
-                    <div key={platform.platformId} className="flex items-center justify-between text-sm">
-                      <span>{platform.name}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          {platform.wordLimit.min}-{platform.wordLimit.max}字
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {platform.hashtagCount}标签
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-sm mb-2">全局设置</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>默认语调:</span>
-                    <span className="font-medium">{selectedScheme.globalSettings.defaultTone}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>表情使用:</span>
-                    <span className="font-medium">{selectedScheme.globalSettings.emojiUsage}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>格式样式:</span>
-                    <span className="font-medium">{selectedScheme.globalSettings.formatStyle}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>语言风格:</span>
-                    <span className="font-medium">{selectedScheme.globalSettings.languageStyle}</span>
-                  </div>
-                </div>
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xl">{selectedScheme.icon}</span>
+            <h4 className="font-medium">当前方案：{selectedScheme.name}</h4>
+            {selectedScheme.isDefault && (
+              <Badge variant="secondary" className="text-xs">
+                默认方案
+              </Badge>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h5 className="font-medium mb-2">支持平台</h5>
+              <div className="flex flex-wrap gap-1">
+                {selectedScheme.platforms.map((platform) => (
+                  <Badge 
+                    key={platform} 
+                    variant="outline" 
+                    className="text-xs"
+                  >
+                    {platform}
+                  </Badge>
+                ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
+            
+            <div>
+              <h5 className="font-medium mb-2">核心功能</h5>
+              <div className="flex flex-wrap gap-1">
+                {selectedScheme.features.map((feature) => (
+                  <Badge 
+                    key={feature} 
+                    variant="secondary" 
+                    className="text-xs"
+                  >
+                    {feature}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

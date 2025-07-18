@@ -5,11 +5,12 @@
 
 import aiService from './aiService';
 import { 
-  getScheme, 
-  getDefaultScheme, 
-  AVAILABLE_SCHEMES,
-  type ContentScheme, 
-  type PlatformScheme 
+  contentSchemes, 
+  getContentScheme, 
+  platformPromptTemplates, 
+  getPlatformPromptTemplate,
+  generatePlatformContent,
+  type ContentScheme 
 } from '@/config/contentSchemes';
 
 /**
@@ -205,12 +206,12 @@ export interface BatchAdaptResult {
  */
 export async function adaptContentToPlatforms(
   request: ContentAdaptRequest, 
-  schemeId: string = 'default'
+  schemeId: string = 'global-adaptation'
 ): Promise<BatchAdaptResult> {
   const { originalContent, targetPlatforms, brandProfile, customSettings } = request;
   
   // 获取方案配置
-  const scheme = getScheme(schemeId) || getDefaultScheme();
+  const scheme = getContentScheme(schemeId);
   
   if (!originalContent.trim()) {
     return {
@@ -355,20 +356,19 @@ ${originalContent}
  */
 function buildSchemePrompt(
   originalContent: string,
-  platformScheme: PlatformScheme,
+  platformId: string,
   scheme: ContentScheme,
   brandProfile?: any,
   customSettings?: any
 ): string {
-  // 替换模板中的占位符
-  let prompt = scheme.promptTemplate
-    .replace('{originalContent}', originalContent)
-    .replace('{platformName}', platformScheme.name)
-    .replace('{platformStyle}', platformScheme.style)
-    .replace('{wordLimit}', `${platformScheme.wordLimit.min}-${platformScheme.wordLimit.max}字`)
-    .replace('{hashtagCount}', platformScheme.hashtagCount.toString())
-    .replace('{tone}', platformScheme.tone)
-    .replace('{features}', platformScheme.features.join('、'));
+  // 获取平台提示词模板
+  const template = getPlatformPromptTemplate(platformId);
+  if (!template) {
+    return `请将以下内容适配为${platformId}平台的内容风格：\n\n${originalContent}`;
+  }
+
+  // 使用全域内容适配方案生成提示词
+  let prompt = generatePlatformContent(originalContent, platformId, scheme.id);
 
   // 添加品牌信息
   if (brandProfile) {
@@ -389,14 +389,6 @@ function buildSchemePrompt(
 - 最大长度：${customSettings.maxLength || '使用方案默认'}
 - 标签数量：${customSettings.hashtagCount || '使用方案默认'}
 - 语气调整：${customSettings.tone || '使用方案默认'}`;
-  }
-
-  // 添加平台特定的提示词修饰符
-  if (platformScheme.promptModifiers.length > 0) {
-    prompt += `
-
-平台特定要求：
-${platformScheme.promptModifiers.map(modifier => `- ${modifier}`).join('\n')}`;
   }
 
   return prompt;
@@ -482,29 +474,30 @@ export async function generateAdaptedContent(
   originalContent: string,
   targetPlatforms: string[],
   settings?: Record<string, unknown>,
-  schemeId: string = 'default'
+  schemeId: string = 'global-adaptation'
 ): Promise<Record<string, { content: string; source: "ai"; error?: string }>> {
   try {
     // 获取方案配置
-    const scheme = getScheme(schemeId) || getDefaultScheme();
+    const scheme = getContentScheme(schemeId);
     const result: Record<string, { content: string; source: "ai"; error?: string }> = {};
     
     // 为每个平台单独生成内容
     for (const platformId of targetPlatforms) {
       try {
-        // 获取方案中的平台配置
-        const platformScheme = scheme.platforms.find(p => p.platformId === platformId);
-        if (!platformScheme) {
+        // 获取平台提示词模板
+        const template = getPlatformPromptTemplate(platformId);
+        if (!template) {
           result[platformId] = {
             content: '',
             source: "ai",
-            error: `方案 ${scheme.name} 不支持平台: ${platformId}`
+            error: `不支持的平台: ${platformId}`
           };
           continue;
         }
 
-        // 构建方案提示词
-        const prompt = buildSchemePrompt(originalContent, platformScheme, scheme, undefined, settings);
+        // 使用全域内容适配方案生成提示词
+        const prompt = generatePlatformContent(originalContent, platformId, schemeId);
+        
         const response = await aiService.generateText({
           messages: [
             {
@@ -537,14 +530,6 @@ export async function generateAdaptedContent(
             } else {
               platformContent = JSON.stringify(response.data);
             }
-          }
-          
-          // 尝试从响应中提取特定平台的内容
-          const platformPattern = new RegExp(`=== ${platformScheme.name} ===\\s*([\\s\\S]*?)\\s*=== 结束 ===`, 'i');
-          const match = platformContent.match(platformPattern);
-          
-          if (match && match[1]) {
-            platformContent = match[1].trim();
           }
           
           result[platformId] = {
@@ -591,23 +576,21 @@ export async function regeneratePlatformContent(
   platformId: string,
   originalContent: string,
   settings?: Record<string, unknown>,
-  schemeId: string = 'default'
+  schemeId: string = 'global-adaptation'
 ): Promise<AIApiResponse> {
   try {
-    // 获取方案配置
-    const scheme = getScheme(schemeId) || getDefaultScheme();
-    
-    // 获取方案中的平台配置
-    const platformScheme = scheme.platforms.find(p => p.platformId === platformId);
-    if (!platformScheme) {
+    // 获取平台提示词模板
+    const template = getPlatformPromptTemplate(platformId);
+    if (!template) {
       return {
         success: false,
-        error: `方案 ${scheme.name} 不支持平台: ${platformId}`
+        error: `不支持的平台: ${platformId}`
       };
     }
 
-    // 构建方案提示词
-    const prompt = buildSchemePrompt(originalContent, platformScheme, scheme, undefined, settings);
+    // 使用全域内容适配方案生成提示词
+    const prompt = generatePlatformContent(originalContent, platformId, schemeId);
+    
     const response = await aiService.generateText({
       messages: [
         {
@@ -640,14 +623,6 @@ export async function regeneratePlatformContent(
         } else {
           platformContent = JSON.stringify(response.data);
         }
-      }
-      
-      // 尝试从响应中提取特定平台的内容
-      const platformPattern = new RegExp(`=== ${platformScheme.name} ===\\s*([\\s\\S]*?)\\s*=== 结束 ===`, 'i');
-      const match = platformContent.match(platformPattern);
-      
-      if (match && match[1]) {
-        platformContent = match[1].trim();
       }
       
       return {
@@ -707,19 +682,19 @@ export function getAvailableModels(): string[] {
  * 获取所有可用方案
  */
 export function getAvailableSchemes() {
-  return AVAILABLE_SCHEMES;
+  return contentSchemes;
 }
 
 /**
  * 获取方案配置
  */
 export function getSchemeConfig(schemeId: string) {
-  return getScheme(schemeId);
+  return getContentScheme(schemeId);
 }
 
 /**
  * 获取默认方案
  */
 export function getDefaultSchemeConfig() {
-  return getDefaultScheme();
+  return getContentScheme('global-adaptation');
 }
