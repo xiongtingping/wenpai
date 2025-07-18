@@ -25,6 +25,7 @@ export interface AuthingConfig {
  */
 export const getAuthingConfig = (): AuthingConfig => {
   const appId = import.meta.env.VITE_AUTHING_APP_ID || '';
+  // 确保host格式正确，移除协议前缀
   const host = (import.meta.env.VITE_AUTHING_HOST || '').replace(/^https?:\/\//, '');
   
   // 根据环境设置回调地址
@@ -34,6 +35,13 @@ export const getAuthingConfig = (): AuthingConfig => {
   } else {
     redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
   }
+  
+  console.log('🔧 Authing配置:', {
+    appId,
+    host,
+    redirectUri,
+    env: import.meta.env.MODE
+  });
   
   return {
     appId,

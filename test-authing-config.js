@@ -1,58 +1,60 @@
-/**
- * 测试Authing配置
- */
+#!/usr/bin/env node
 
-console.log('🔍 测试Authing配置...\n');
+// 测试Authing配置
+console.log('🔧 测试Authing配置...');
 
 // 模拟环境变量
-const mockEnv = {
-  VITE_AUTHING_APP_ID: '6867fdc88034eb95ae86167d',
-  VITE_AUTHING_HOST: 'https://wenpai.authing.cn',
-  VITE_AUTHING_REDIRECT_URI_DEV: 'http://localhost:5173/callback',
-  VITE_AUTHING_REDIRECT_URI_PROD: 'https://www.wenpai.xyz/callback',
-  DEV: true
-};
+process.env.VITE_AUTHING_APP_ID = '6867fdc88034eb95ae86167d';
+process.env.VITE_AUTHING_HOST = 'https://qutkgzkfaezk-demo.authing.cn';
+process.env.VITE_AUTHING_REDIRECT_URI_DEV = 'http://localhost:5173/callback';
+process.env.VITE_AUTHING_REDIRECT_URI_PROD = 'https://www.wenpai.xyz/callback';
+process.env.MODE = 'development';
 
-// 模拟import.meta.env
-global.import = {
-  meta: {
-    env: mockEnv
+// 模拟getAuthingConfig函数
+function getAuthingConfig() {
+  const appId = process.env.VITE_AUTHING_APP_ID || '';
+  const host = (process.env.VITE_AUTHING_HOST || '').replace(/^https?:\/\//, '');
+  
+  let redirectUri = '';
+  if (process.env.MODE === 'development') {
+    redirectUri = process.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback';
+  } else {
+    redirectUri = process.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
   }
-};
-
-// 测试URL构建逻辑
-function testAuthingConfig() {
-  const appId = mockEnv.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d';
-  const host = (mockEnv.VITE_AUTHING_HOST || 'wenpai.authing.cn').replace(/^https?:\/\//, '');
-  const callbackUrl = mockEnv.DEV 
-    ? (mockEnv.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback')
-    : (mockEnv.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback');
   
-  const loginUrl = `https://${host}/login?app_id=${appId}&redirect_uri=${encodeURIComponent(callbackUrl)}`;
-  
-  console.log('📋 配置详情:');
-  console.log(`  应用ID: ${appId}`);
-  console.log(`  域名: ${host}`);
-  console.log(`  回调URL: ${callbackUrl}`);
-  console.log(`  登录URL: ${loginUrl}`);
-  
-  // 验证URL格式
-  const isValidUrl = /^https:\/\/[^\/]+\/login\?app_id=[^&]+&redirect_uri=[^&]+$/.test(loginUrl);
-  console.log(`\n✅ URL格式验证: ${isValidUrl ? '通过' : '失败'}`);
-  
-  // 检查是否包含多余空格
-  const hasExtraSpaces = loginUrl.includes('  ') || callbackUrl.includes('  ');
-  console.log(`✅ 空格检查: ${!hasExtraSpaces ? '通过' : '失败'}`);
-  
-  return { appId, host, callbackUrl, loginUrl, isValidUrl, hasExtraSpaces };
+  return {
+    appId,
+    host,
+    redirectUri,
+    mode: 'modal',
+    defaultScene: 'login',
+  };
 }
 
-// 运行测试
-const result = testAuthingConfig();
+// 测试配置
+const config = getAuthingConfig();
+console.log('📋 Authing配置:', config);
 
-console.log('\n🎯 测试结果:');
-if (result.isValidUrl && !result.hasExtraSpaces) {
-  console.log('✅ 所有测试通过！Authing配置正确。');
-} else {
-  console.log('❌ 测试失败，需要修复配置。');
-} 
+// 构建授权URL
+const authUrl = `https://${config.host}/oidc/auth?` + new URLSearchParams({
+  client_id: config.appId,
+  redirect_uri: config.redirectUri,
+  scope: 'openid profile email phone',
+  response_type: 'code',
+  state: '/',
+  nonce: Math.random().toString(36).substring(2, 15),
+}).toString();
+
+console.log('🔗 授权URL:', authUrl);
+
+// 检查URL编码
+console.log('🔍 URL编码检查:');
+console.log('  redirect_uri (原始):', config.redirectUri);
+console.log('  redirect_uri (编码):', encodeURIComponent(config.redirectUri));
+
+// 验证配置
+console.log('\n✅ 配置验证:');
+console.log('  App ID:', config.appId ? '✅ 已设置' : '❌ 未设置');
+console.log('  Host:', config.host ? '✅ 已设置' : '❌ 未设置');
+console.log('  Redirect URI:', config.redirectUri ? '✅ 已设置' : '❌ 未设置');
+console.log('  Host格式:', config.host.includes('https://') ? '❌ 包含协议前缀' : '✅ 格式正确'); 

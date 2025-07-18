@@ -196,21 +196,32 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
       // 获取配置
       const config = getAuthingConfig();
       
-      // 构建授权URL
+      // 确保回调地址正确编码
+      const encodedRedirectUri = encodeURIComponent(config.redirectUri);
+      
+      // 构建授权URL - 使用Authing官方推荐的格式
       const authUrl = `https://${config.host}/oidc/auth?` + new URLSearchParams({
         client_id: config.appId,
-        redirect_uri: config.redirectUri,
+        redirect_uri: config.redirectUri, // 不在这里编码，让URLSearchParams处理
         scope: 'openid profile email phone',
         response_type: 'code',
         state: redirectTo || '/',
+        nonce: Math.random().toString(36).substring(2, 15), // 添加nonce防止重放攻击
       }).toString();
       
       console.log('🔗 跳转到Authing登录页面:', authUrl);
+      console.log('📋 配置信息:', {
+        appId: config.appId,
+        host: config.host,
+        redirectUri: config.redirectUri,
+        encodedRedirectUri
+      });
+      
       window.location.href = authUrl;
       
     } catch (error) {
       console.error('登录失败:', error);
-      // 备用方案：直接跳转到Authing登录页面
+      // 备用方案：使用Authing Guard的登录URL
       const config = getAuthingConfig();
       const fallbackUrl = `https://${config.host}/login?app_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
       console.log('🔄 使用备用登录URL:', fallbackUrl);
