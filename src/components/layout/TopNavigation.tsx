@@ -109,7 +109,11 @@ export const TopNavigation: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="relative">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🎯</span>
+                <img 
+                  src="https://static.devv.ai/ep7eod98hhq8.png" 
+                  alt="文派" 
+                  className="h-8 w-8 group-hover:scale-110 transition-transform duration-200"
+                />
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200 blur-sm"></div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-200">
@@ -224,7 +228,11 @@ export const TopNavigation: React.FC = () => {
                 <SheetHeader>
                   <SheetTitle className="flex items-center space-x-2">
                     <div className="relative">
-                      <span className="text-2xl">🎯</span>
+                      <img 
+                        src="https://static.devv.ai/ep7eod98hhq8.png" 
+                        alt="文派" 
+                        className="h-8 w-8"
+                      />
                       <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 blur-sm"></div>
                     </div>
                     <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">

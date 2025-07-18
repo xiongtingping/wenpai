@@ -199,7 +199,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     }
 
     // 发送请求
-    const response = await fetch(apiConfig.openai.baseURL + '/v1/chat/completions', {
+    const response = await fetch(apiConfig.openai.baseURL + '/chat/completions', {
       method: 'POST',
       headers,
       body: JSON.stringify(requestBody)
