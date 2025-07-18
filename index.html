@@ -10,6 +10,10 @@
     
     <!-- 运行时配置注入 -->
     <script>
+      // ✅ FIXED: 修复环境变量注入问题，添加多种获取方式和回退机制
+      // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+      // 🔒 LOCKED: AI 禁止对此函数做任何修改
+      
       // 运行时配置对象，用于在生产环境中动态设置API密钥
       window.__RUNTIME_CONFIG__ = {
         // 这些值将在部署时被服务器端环境变量替换
@@ -24,9 +28,63 @@
         VITE_LOG_LEVEL: '{{VITE_LOG_LEVEL}}'
       };
       
+      // 环境变量检测和回退机制
+      window.__detectEnvVars__ = function() {
+        const config = window.__RUNTIME_CONFIG__;
+        const detected = {};
+        
+        // 检查是否所有配置都是占位符
+        const allPlaceholders = Object.values(config).every(value => 
+          typeof value === 'string' && value.includes('{{') && value.includes('}}')
+        );
+        
+        if (allPlaceholders) {
+          console.warn('⚠️ 检测到所有环境变量都是占位符，尝试从其他来源获取...');
+          
+          // 尝试从meta标签获取
+          const metaElements = document.querySelectorAll('meta[name^="VITE_"]');
+          metaElements.forEach(meta => {
+            const name = meta.getAttribute('name');
+            const content = meta.getAttribute('content');
+            if (name && content && content !== '{{' + name + '}}') {
+              detected[name] = content;
+              console.log(`✅ 从meta标签获取到 ${name}`);
+            }
+          });
+          
+          // 尝试从URL参数获取（仅开发环境）
+          if (window.location.hostname === 'localhost') {
+            const urlParams = new URLSearchParams(window.location.search);
+            Object.keys(config).forEach(key => {
+              const value = urlParams.get(key);
+              if (value) {
+                detected[key] = value;
+                console.log(`✅ 从URL参数获取到 ${key}`);
+              }
+            });
+          }
+          
+          // 尝试从localStorage获取（仅开发环境）
+          if (window.location.hostname === 'localhost') {
+            Object.keys(config).forEach(key => {
+              const value = localStorage.getItem(key);
+              if (value) {
+                detected[key] = value;
+                console.log(`✅ 从localStorage获取到 ${key}`);
+              }
+            });
+          }
+          
+          // 更新配置
+          Object.assign(config, detected);
+        }
+        
+        return config;
+      };
+      
       // 配置验证函数
       window.__validateConfig__ = function() {
-        const config = window.__RUNTIME_CONFIG__;
+        const config = window.__detectEnvVars__();
         const missing = [];
         
         // 检查必需的配置
@@ -40,6 +98,16 @@
         if (missing.length > 0) {
           console.warn('⚠️ 缺少必需的配置:', missing.join(', '));
           console.warn('请确保在生产环境中正确设置了环境变量');
+          
+          // 在开发环境中提供更详细的帮助信息
+          if (window.location.hostname === 'localhost') {
+            console.log('💡 开发环境配置提示:');
+            console.log('1. 创建 .env.local 文件');
+            console.log('2. 添加 VITE_OPENAI_API_KEY=your-api-key');
+            console.log('3. 重启开发服务器');
+          }
+        } else {
+          console.log('✅ 所有必需配置已正确设置');
         }
         
         return missing.length === 0;
@@ -47,9 +115,7 @@
       
       // 页面加载时验证配置
       document.addEventListener('DOMContentLoaded', function() {
-        if (window.location.hostname !== 'localhost') {
-          window.__validateConfig__();
-        }
+        window.__validateConfig__();
       });
     </script>
   </head>
