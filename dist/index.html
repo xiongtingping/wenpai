@@ -13,15 +13,15 @@
       // 运行时配置对象，用于在生产环境中动态设置API密钥
       window.__RUNTIME_CONFIG__ = {
         // 这些值将在部署时被服务器端环境变量替换
-        VITE_OPENAI_API_KEY: '{{OPENAI_API_KEY}}',
-        VITE_DEEPSEEK_API_KEY: '{{DEEPSEEK_API_KEY}}',
-        VITE_GEMINI_API_KEY: '{{GEMINI_API_KEY}}',
-        VITE_CREEM_API_KEY: '{{CREEM_API_KEY}}',
-        VITE_AUTHING_APP_ID: '{{AUTHING_APP_ID}}',
-        VITE_AUTHING_HOST: '{{AUTHING_HOST}}',
-        VITE_API_BASE_URL: '{{API_BASE_URL}}',
-        VITE_DEBUG_MODE: '{{DEBUG_MODE}}',
-        VITE_LOG_LEVEL: '{{LOG_LEVEL}}'
+        VITE_OPENAI_API_KEY: '{{VITE_OPENAI_API_KEY}}',
+        VITE_DEEPSEEK_API_KEY: '{{VITE_DEEPSEEK_API_KEY}}',
+        VITE_GEMINI_API_KEY: '{{VITE_GEMINI_API_KEY}}',
+        VITE_CREEM_API_KEY: '{{VITE_CREEM_API_KEY}}',
+        VITE_AUTHING_APP_ID: '{{VITE_AUTHING_APP_ID}}',
+        VITE_AUTHING_HOST: '{{VITE_AUTHING_HOST}}',
+        VITE_API_BASE_URL: '{{VITE_API_BASE_URL}}',
+        VITE_DEBUG_MODE: '{{VITE_DEBUG_MODE}}',
+        VITE_LOG_LEVEL: '{{VITE_LOG_LEVEL}}'
       };
       
       // 配置验证函数
@@ -30,10 +30,10 @@
         const missing = [];
         
         // 检查必需的配置
-        if (!config.VITE_OPENAI_API_KEY || config.VITE_OPENAI_API_KEY === '{{OPENAI_API_KEY}}') {
+        if (!config.VITE_OPENAI_API_KEY || config.VITE_OPENAI_API_KEY === '{{VITE_OPENAI_API_KEY}}') {
           missing.push('OpenAI API Key');
         }
-        if (!config.VITE_AUTHING_APP_ID || config.VITE_AUTHING_APP_ID === '{{AUTHING_APP_ID}}') {
+        if (!config.VITE_AUTHING_APP_ID || config.VITE_AUTHING_APP_ID === '{{VITE_AUTHING_APP_ID}}') {
           missing.push('Authing App ID');
         }
         
@@ -52,8 +52,8 @@
         }
       });
     </script>
-    <script type="module" crossorigin src="/assets/index-DMIarFvo-1752855892699.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CSRGcyVN-1752855892699.css">
+    <script type="module" crossorigin src="/assets/index-Chh-bxyD-1752856120842.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CSRGcyVN-1752856120842.css">
   </head>
   <body>
     <div id="root"></div>

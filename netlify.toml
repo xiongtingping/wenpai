@@ -27,6 +27,7 @@
   from = "/*"
   to = "/index.html"
   status = 200
+  force = true
 
 # 环境变量设置
 [context.production.environment]
