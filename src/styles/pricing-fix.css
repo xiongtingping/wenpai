@@ -84,4 +84,75 @@
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* 修复功能对比表中的数字和文字显示 */
+.pricing-table-cell {
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  text-align: inherit !important;
+  vertical-align: baseline !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-feature-settings: "kern" 1, "liga" 1 !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* 修复表格中的数字显示 */
+.pricing-table-number {
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  text-align: inherit !important;
+  vertical-align: baseline !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-feature-settings: "kern" 1, "liga" 1 !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* 修复表格中的中文文字显示 */
+.pricing-table-text {
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  text-align: inherit !important;
+  vertical-align: baseline !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-feature-settings: "kern" 1, "liga" 1 !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* 确保表格单元格内容正确显示 */
+.pricing-table-cell,
+.pricing-table-number,
+.pricing-table-text {
+  color: inherit !important;
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 } 

@@ -344,28 +344,28 @@ export function PricingSection() {
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI模型</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-gray-600">基础模型</span>
+                      <span className="text-gray-600 pricing-table-text">基础模型</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 font-medium">高级模型</span>
+                      <span className="text-purple-600 font-medium pricing-table-text">高级模型</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <div className="text-yellow-600 font-medium text-xs leading-tight">
-                        <div>高级及</div>
-                        <div>最新模型</div>
+                      <div className="text-yellow-600 font-medium text-xs leading-tight pricing-table-cell">
+                        <div className="pricing-table-text">高级及</div>
+                        <div className="pricing-table-text">最新模型</div>
                       </div>
                     </td>
                   </tr>
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">Token限制</td>
                     <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-gray-600">100,000</span>
+                      <span className="text-gray-600 pricing-table-number">100,000</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600">200,000</span>
+                      <span className="text-purple-600 pricing-table-number">200,000</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-yellow-600">500,000</span>
+                      <span className="text-yellow-600 pricing-table-number">500,000</span>
                     </td>
                   </tr>
                 </tbody>
