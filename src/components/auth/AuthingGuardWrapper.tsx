@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Guard } from '@authing/react18-ui-components';
-import { getAuthingConfig } from '@/config/authing';
+import { getGuardConfig } from '@/config/authing';
 
 /**
  * Authing Guard包装组件
@@ -17,45 +17,27 @@ const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
   onClose,
   onLoginError
 }) => {
-  const guardRef = useRef<any>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     // 确保组件挂载后立即显示弹窗
-    if (guardRef.current) {
-      // 延迟一帧确保DOM完全渲染
-      requestAnimationFrame(() => {
-        try {
-          guardRef.current?.show();
-        } catch (error) {
-          console.error('显示Authing Guard弹窗失败:', error);
-        }
-      });
-    }
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
+
+  if (!isVisible) {
+    return null;
+  }
+
+  const config = getGuardConfig();
 
   return (
     <div className="authing-guard-wrapper">
       <Guard
-        ref={guardRef}
-        appId={getAuthingConfig().appId}
-        host={getAuthingConfig().host}
-        redirectUri={getAuthingConfig().redirectUri}
-        mode="modal"
-        defaultScene="login"
-        lang="zh-CN"
-        // 弹窗模式专用配置
-        autoRegister={false}
-        skipComplateFileds={false}
-        skipComplateFiledsPlace="modal"
-        closeable={true}
-        clickCloseableMask={true}
-        // 登录配置
-        loginMethodList={['password', 'phone-code', 'email-code']}
-        // 注册配置
-        registerMethodList={['phone', 'email']}
-        // 界面配置
-        logo="https://cdn.authing.co/authing-console/logo.png"
-        title="文派"
+        {...config}
         onLogin={onLogin}
         onClose={onClose}
         onLoginError={onLoginError}
