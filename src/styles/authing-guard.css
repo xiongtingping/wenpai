@@ -1,9 +1,9 @@
 /**
- * Authing Guard 弹窗样式修复
- * 确保弹窗位置正确，避免显示在底部或其他异常位置
+ * 自定义Authing登录弹窗样式
+ * 完全重写，不依赖有问题的Authing Guard组件
  */
 
-/* 防止页面滚动 - 关键修复 */
+/* 防止页面滚动 */
 body.authing-guard-open {
   overflow: hidden !important;
   position: fixed !important;
@@ -11,186 +11,304 @@ body.authing-guard-open {
   height: 100% !important;
 }
 
-/* 确保Authing Guard弹窗容器正确定位 */
-.authing-guard-container {
+/* 弹窗容器 */
+.authing-guard-wrapper {
   position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: auto !important;
+}
+
+/* 背景遮罩 */
+.authing-guard-overlay {
+  position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  z-index: 9999 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
   background-color: rgba(0, 0, 0, 0.5) !important;
-  /* 防止滚动 */
-  overflow: hidden !important;
+  backdrop-filter: blur(4px) !important;
 }
 
-/* Authing Guard弹窗主体 */
+/* 弹窗主体 */
 .authing-guard-modal {
   position: relative !important;
-  max-width: 90vw !important;
+  width: 90vw !important;
+  max-width: 400px !important;
   max-height: 90vh !important;
-  width: 400px !important;
   background: white !important;
-  border-radius: 8px !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
   overflow: hidden !important;
-  z-index: 10000 !important;
-  /* 防止滚动 */
-  transform: none !important;
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
+  z-index: 100000 !important;
+  animation: authing-modal-fade-in 0.3s ease-out !important;
 }
 
-/* 确保弹窗内容居中 */
-.authing-guard-content {
+/* 弹窗动画 */
+@keyframes authing-modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 弹窗头部 */
+.authing-guard-header {
   display: flex !important;
-  flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
-  padding: 24px !important;
-  min-height: 400px !important;
-  /* 防止滚动 */
-  overflow: hidden !important;
+  justify-content: space-between !important;
+  padding: 24px 24px 0 24px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  margin-bottom: 24px !important;
 }
 
-/* 修复可能的定位问题 */
-.authing-guard-container * {
-  box-sizing: border-box !important;
+.authing-guard-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+  margin: 0 !important;
 }
 
-/* 确保关闭按钮可见 */
-.authing-guard-close {
-  position: absolute !important;
-  top: 16px !important;
-  right: 16px !important;
-  z-index: 10001 !important;
-  cursor: pointer !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-  border-radius: 50% !important;
+.authing-guard-close-btn {
   width: 32px !important;
   height: 32px !important;
+  border: none !important;
+  background: #f9fafb !important;
+  border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border: 1px solid #e5e7eb !important;
+  font-size: 18px !important;
+  color: #6b7280 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
 }
 
-/* 修复输入框样式 */
+.authing-guard-close-btn:hover {
+  background: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* 弹窗内容 */
+.authing-guard-content {
+  padding: 0 24px 24px 24px !important;
+}
+
+/* 登录方式切换标签 */
+.authing-guard-tabs {
+  display: flex !important;
+  margin-bottom: 24px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.authing-guard-tab {
+  flex: 1 !important;
+  padding: 12px 16px !important;
+  border: none !important;
+  background: none !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #6b7280 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.authing-guard-tab.active {
+  color: #3b82f6 !important;
+  border-bottom-color: #3b82f6 !important;
+}
+
+.authing-guard-tab:hover:not(.active) {
+  color: #374151 !important;
+}
+
+/* 错误信息 */
+.authing-guard-error {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  color: #dc2626 !important;
+  padding: 12px 16px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  margin-bottom: 16px !important;
+}
+
+/* 表单 */
+.authing-guard-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.authing-guard-input-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.authing-guard-label {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+}
+
 .authing-guard-input {
   width: 100% !important;
   padding: 12px 16px !important;
   border: 1px solid #d1d5db !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   font-size: 14px !important;
   line-height: 1.5 !important;
-  margin-bottom: 16px !important;
+  transition: border-color 0.2s !important;
+  box-sizing: border-box !important;
 }
 
-/* 修复按钮样式 */
-.authing-guard-button {
+.authing-guard-input:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.authing-guard-input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* 验证码输入组 */
+.authing-guard-code-input {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.authing-guard-code-input .authing-guard-input {
+  flex: 1 !important;
+}
+
+.authing-guard-code-btn {
+  padding: 12px 16px !important;
+  border: 1px solid #d1d5db !important;
+  background: white !important;
+  color: #3b82f6 !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  white-space: nowrap !important;
+}
+
+.authing-guard-code-btn:hover:not(:disabled) {
+  background: #f8fafc !important;
+  border-color: #3b82f6 !important;
+}
+
+.authing-guard-code-btn:disabled {
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+}
+
+/* 登录按钮 */
+.authing-guard-submit-btn {
   width: 100% !important;
   padding: 12px 24px !important;
   background: #3b82f6 !important;
   color: white !important;
   border: none !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  margin-top: 8px !important;
+}
+
+.authing-guard-submit-btn:hover:not(:disabled) {
+  background: #2563eb !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.authing-guard-submit-btn:disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* 底部 */
+.authing-guard-footer {
+  margin-top: 24px !important;
+  text-align: center !important;
+}
+
+.authing-guard-tip {
+  font-size: 14px !important;
+  color: #6b7280 !important;
+  margin: 0 !important;
+}
+
+.authing-guard-link {
+  background: none !important;
+  border: none !important;
+  color: #3b82f6 !important;
   font-size: 14px !important;
   font-weight: 500 !important;
   cursor: pointer !important;
-  transition: background-color 0.2s !important;
+  text-decoration: underline !important;
+  transition: color 0.2s !important;
 }
 
-.authing-guard-button:hover {
-  background: #2563eb !important;
+.authing-guard-link:hover {
+  color: #2563eb !important;
 }
 
-.authing-guard-button:disabled {
-  background: #9ca3af !important;
-  cursor: not-allowed !important;
-}
-
-/* 修复标题样式 */
-.authing-guard-title {
-  font-size: 24px !important;
-  font-weight: 600 !important;
-  color: #111827 !important;
-  margin-bottom: 8px !important;
-  text-align: center !important;
-}
-
-/* 修复副标题样式 */
-.authing-guard-subtitle {
-  font-size: 14px !important;
-  color: #6b7280 !important;
-  margin-bottom: 24px !important;
-  text-align: center !important;
-}
-
-/* 修复错误信息样式 */
-.authing-guard-error {
-  color: #dc2626 !important;
-  font-size: 14px !important;
-  margin-top: 8px !important;
-  text-align: center !important;
-}
-
-/* 确保在移动设备上正确显示 */
+/* 移动端适配 */
 @media (max-width: 768px) {
   .authing-guard-modal {
     width: 95vw !important;
-    max-width: 400px !important;
+    max-width: none !important;
     margin: 20px !important;
   }
   
+  .authing-guard-header {
+    padding: 20px 20px 0 20px !important;
+  }
+  
   .authing-guard-content {
-    padding: 16px !important;
-    min-height: 350px !important;
+    padding: 0 20px 20px 20px !important;
+  }
+  
+  .authing-guard-tabs {
+    margin-bottom: 20px !important;
+  }
+  
+  .authing-guard-tab {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
   }
 }
 
-/* 修复可能的z-index冲突 */
-.authing-guard-container,
+/* 确保在所有设备上正确显示 */
+.authing-guard-wrapper * {
+  box-sizing: border-box !important;
+}
+
+/* 强制样式优先级 */
+.authing-guard-wrapper,
+.authing-guard-overlay,
 .authing-guard-modal,
 .authing-guard-content {
-  z-index: 9999 !important;
-}
-
-/* 确保弹窗在页面滚动时保持居中 */
-.authing-guard-container {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-}
-
-/* 修复Authing Guard组件的滚动问题 */
-.authing-guard-wrapper {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 9999 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background-color: rgba(0, 0, 0, 0.5) !important;
-  /* 防止滚动 */
-  overflow: hidden !important;
-}
-
-/* 修复Authing Guard组件内部的滚动问题 */
-.authing-guard-wrapper > div {
-  overflow: hidden !important;
-  max-height: 90vh !important;
-  max-width: 90vw !important;
+  z-index: 99999 !important;
 }
 
 /* 防止页面内容滚动 */
@@ -202,77 +320,4 @@ body.authing-guard-open {
   height: 100% !important;
   top: 0 !important;
   left: 0 !important;
-}
-
-/* 🔧 关键修复：强制Authing Guard组件正确显示 */
-.authing-guard-wrapper [data-authing-guard] {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 9999 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background-color: rgba(0, 0, 0, 0.5) !important;
-}
-
-/* 强制Authing Guard弹窗内容正确显示 */
-.authing-guard-wrapper [data-authing-guard] > div {
-  position: relative !important;
-  max-width: 90vw !important;
-  max-height: 90vh !important;
-  width: 400px !important;
-  background: white !important;
-  border-radius: 8px !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  overflow: hidden !important;
-  z-index: 10000 !important;
-  transform: none !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-}
-
-/* 强制Authing Guard组件样式重置 */
-.authing-guard-wrapper * {
-  box-sizing: border-box !important;
-}
-
-/* 确保Authing Guard组件不被其他元素覆盖 */
-.authing-guard-wrapper {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 99999 !important;
-  pointer-events: auto !important;
-}
-
-/* 强制Authing Guard组件显示在最顶层 */
-.authing-guard-wrapper,
-.authing-guard-wrapper * {
-  z-index: 99999 !important;
-}
-
-/* 修复Authing Guard组件的iframe或shadow DOM问题 */
-.authing-guard-wrapper iframe {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 99999 !important;
-  border: none !important;
-}
-
-/* 强制Authing Guard组件内容可见 */
-.authing-guard-wrapper [style*="display: none"],
-.authing-guard-wrapper [style*="visibility: hidden"] {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
 } 
