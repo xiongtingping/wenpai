@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { initializeConfigValidation } from '@/utils/configValidator';
+import { setupGlobalErrorHandler } from '@/utils/errorHandler';
 
 // 页面导入
 import HomePage from '@/pages/HomePage';
@@ -34,6 +35,9 @@ export default function App() {
    * 应用初始化
    */
   useEffect(() => {
+    // 初始化全局错误处理
+    setupGlobalErrorHandler();
+    
     // 初始化配置验证
     initializeConfigValidation();
     
