@@ -313,14 +313,16 @@ export default function PaymentPage() {
               </CardHeader>
               <CardContent className="space-y-3 pb-4 px-6">
                 {/* 价格显示 */}
-                <div className="text-center">
+                <div className="text-center pricing-container">
                   {plan.tier === 'trial' ? (
                     <div className="text-3xl font-bold text-green-600">免费</div>
                   ) : (
                     <div className="space-y-2">
                       {isInDiscount && timeLeft > 0 ? (
                         <div className="space-y-2">
-                          <div className="text-3xl font-bold text-red-600">¥{currentPrice}</div>
+                          <div className="text-3xl font-bold text-red-600 pricing-price">
+                            <span className="pricing-price-symbol">¥</span>{currentPrice}
+                          </div>
                           <div className="text-sm text-red-500 font-semibold">
                             <Zap className="h-3 w-3 inline mr-1" />
                             限时特惠价 省¥{savedAmount.toFixed(2)}
@@ -328,7 +330,9 @@ export default function PaymentPage() {
                           <div className="text-sm text-gray-400 line-through">¥{originalPrice} 原价</div>
                         </div>
                       ) : (
-                        <div className="text-3xl font-bold text-gray-900">¥{currentPrice}</div>
+                        <div className="text-3xl font-bold text-gray-900 pricing-price">
+                          <span className="pricing-price-symbol">¥</span>{currentPrice}
+                        </div>
                       )}
                       <div className="text-sm text-gray-500">/{selectedPeriod === 'monthly' ? '月' : '年'}</div>
                       

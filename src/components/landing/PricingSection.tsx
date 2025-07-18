@@ -199,20 +199,20 @@ export function PricingSection() {
                 
                 <p className="mt-2 text-gray-500">{plan.description}</p>
                 
-                <div className="mt-6">
+                <div className="mt-6 pricing-container">
                   {isTrial ? (
                     <div className="text-center">
-                      <p className="text-5xl font-extrabold text-green-600">¥0</p>
+                      <p className="text-5xl font-extrabold text-green-600 pricing-price">¥0</p>
                       <p className="text-gray-500">永久免费</p>
                     </div>
                   ) : (
                     <div className="text-center">
                       {isAuthenticated && inPromo ? (
                         <div className="flex items-center justify-center gap-2">
-                          <p className={`text-5xl font-extrabold ${
+                          <p className={`text-5xl font-extrabold pricing-price ${
                             isRecommended ? 'text-purple-600' : 'text-gray-900'
                           }`}>
-                            ¥{pricing.discountPrice}
+                            <span className="pricing-price-symbol">¥</span>{pricing.discountPrice}
                           </p>
                           <div className="flex flex-col items-start">
                             <span className="text-xs text-red-500 font-semibold">限时特惠</span>
@@ -221,10 +221,10 @@ export function PricingSection() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2">
-                          <p className={`text-5xl font-extrabold ${
+                          <p className={`text-5xl font-extrabold pricing-price ${
                             isRecommended ? 'text-purple-600' : 'text-gray-900'
                           }`}>
-                            ¥{pricing.originalPrice}
+                            <span className="pricing-price-symbol">¥</span>{pricing.originalPrice}
                           </p>
                         </div>
                       )}

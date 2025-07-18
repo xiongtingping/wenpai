@@ -1,0 +1,87 @@
+/**
+ * 定价页面数字显示修复
+ * 解决价格数字显示异常的问题
+ */
+
+/* 确保价格数字正确显示 */
+.pricing-price {
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  text-align: inherit !important;
+  vertical-align: baseline !important;
+}
+
+/* 修复text-5xl和font-extrabold组合的显示问题 */
+.text-5xl.font-extrabold {
+  display: inline-block !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  font-family: inherit !important;
+  font-weight: 800 !important;
+  font-size: 3rem !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  vertical-align: baseline !important;
+}
+
+/* 确保价格容器正确显示 */
+.pricing-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* 修复价格数字的字体渲染 */
+.pricing-price,
+.text-5xl.font-extrabold {
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-feature-settings: "kern" 1, "liga" 1 !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* 确保价格符号和数字在同一行 */
+.pricing-price-symbol {
+  display: inline !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+/* 修复可能的字体回退问题 */
+.pricing-price,
+.text-5xl.font-extrabold {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+}
+
+/* 确保在移动设备上正确显示 */
+@media (max-width: 768px) {
+  .pricing-price,
+  .text-5xl.font-extrabold {
+    font-size: 2.5rem !important;
+    line-height: 1 !important;
+  }
+}
+
+/* 修复可能的CSS变量问题 */
+.pricing-price,
+.text-5xl.font-extrabold {
+  color: inherit !important;
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+} 
