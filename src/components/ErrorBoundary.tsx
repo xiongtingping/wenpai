@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
    */
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // 检查是否为初始化错误
-    const isInitializationError = this.isInitializationError(error);
+    const isInitializationError = ErrorBoundary.isInitializationError(error);
     
     return {
       hasError: true,

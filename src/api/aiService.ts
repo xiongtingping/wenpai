@@ -159,8 +159,7 @@ class AIService {
         model: model as AIModel,
         temperature,
         maxTokens,
-        systemPrompt,
-        extraParams: { provider }
+        systemPrompt
       }, DEFAULT_CONFIG.maxRetries);
 
       if (result.success) {
@@ -301,7 +300,23 @@ class AIService {
         },
         {
           role: 'user',
-          content: `请将以下内容适配到平台：${targetPlatforms.join(', ')}\n\n内容：${originalContent}`
+          content: `请将以下内容分别适配到${targetPlatforms.length}个平台：${targetPlatforms.join('、')}
+
+原始内容：${originalContent}
+
+请为每个平台生成独立的内容，格式如下：
+
+### ${targetPlatforms[0]}适配
+标题：[平台标题]
+内容：[适配后的内容]
+
+### ${targetPlatforms[1]}适配
+标题：[平台标题]
+内容：[适配后的内容]
+
+...（其他平台）
+
+请确保每个平台的内容风格符合该平台的特点，内容要简洁明了，适合该平台的用户群体。`
         }
       ];
 

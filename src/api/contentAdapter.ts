@@ -4,6 +4,13 @@
  */
 
 import aiService from './aiService';
+import { 
+  getScheme, 
+  getDefaultScheme, 
+  AVAILABLE_SCHEMES,
+  type ContentScheme, 
+  type PlatformScheme 
+} from '@/config/contentSchemes';
 
 /**
  * AI API响应接口
@@ -193,10 +200,17 @@ export interface BatchAdaptResult {
 /**
  * 将内容适配到指定平台
  * @param request 适配请求
+ * @param schemeId 方案ID，默认为默认方案
  * @returns Promise<BatchAdaptResult>
  */
-export async function adaptContentToPlatforms(request: ContentAdaptRequest): Promise<BatchAdaptResult> {
+export async function adaptContentToPlatforms(
+  request: ContentAdaptRequest, 
+  schemeId: string = 'default'
+): Promise<BatchAdaptResult> {
   const { originalContent, targetPlatforms, brandProfile, customSettings } = request;
+  
+  // 获取方案配置
+  const scheme = getScheme(schemeId) || getDefaultScheme();
   
   if (!originalContent.trim()) {
     return {
@@ -337,6 +351,58 @@ ${originalContent}
 }
 
 /**
+ * 构建方案提示词
+ */
+function buildSchemePrompt(
+  originalContent: string,
+  platformScheme: PlatformScheme,
+  scheme: ContentScheme,
+  brandProfile?: any,
+  customSettings?: any
+): string {
+  // 替换模板中的占位符
+  let prompt = scheme.promptTemplate
+    .replace('{originalContent}', originalContent)
+    .replace('{platformName}', platformScheme.name)
+    .replace('{platformStyle}', platformScheme.style)
+    .replace('{wordLimit}', `${platformScheme.wordLimit.min}-${platformScheme.wordLimit.max}字`)
+    .replace('{hashtagCount}', platformScheme.hashtagCount.toString())
+    .replace('{tone}', platformScheme.tone)
+    .replace('{features}', platformScheme.features.join('、'));
+
+  // 添加品牌信息
+  if (brandProfile) {
+    prompt += `
+
+品牌信息：
+- 品牌名称：${brandProfile.name}
+- 品牌语气：${brandProfile.tone}
+- 关键词：${brandProfile.keywords?.join('、') || '无'}
+- 目标受众：${brandProfile.targetAudience || '无'}`;
+  }
+
+  // 添加自定义设置
+  if (customSettings) {
+    prompt += `
+
+自定义设置：
+- 最大长度：${customSettings.maxLength || '使用方案默认'}
+- 标签数量：${customSettings.hashtagCount || '使用方案默认'}
+- 语气调整：${customSettings.tone || '使用方案默认'}`;
+  }
+
+  // 添加平台特定的提示词修饰符
+  if (platformScheme.promptModifiers.length > 0) {
+    prompt += `
+
+平台特定要求：
+${platformScheme.promptModifiers.map(modifier => `- ${modifier}`).join('\n')}`;
+  }
+
+  return prompt;
+}
+
+/**
  * 计算内容元数据
  */
 function calculateContentMetadata(content: string, platformConfig: PlatformConfig) {
@@ -415,20 +481,106 @@ export function getAllSupportedPlatforms(): PlatformConfig[] {
 export async function generateAdaptedContent(
   originalContent: string,
   targetPlatforms: string[],
-  settings?: Record<string, unknown>
-): Promise<AIApiResponse> {
+  settings?: Record<string, unknown>,
+  schemeId: string = 'default'
+): Promise<Record<string, { content: string; source: "ai"; error?: string }>> {
   try {
-    const response = await aiService.adaptContent(originalContent, targetPlatforms, settings);
-    return {
-      success: response.success,
-      data: response.data as string,
-      error: response.error
-    };
+    // 获取方案配置
+    const scheme = getScheme(schemeId) || getDefaultScheme();
+    const result: Record<string, { content: string; source: "ai"; error?: string }> = {};
+    
+    // 为每个平台单独生成内容
+    for (const platformId of targetPlatforms) {
+      try {
+        // 获取方案中的平台配置
+        const platformScheme = scheme.platforms.find(p => p.platformId === platformId);
+        if (!platformScheme) {
+          result[platformId] = {
+            content: '',
+            source: "ai",
+            error: `方案 ${scheme.name} 不支持平台: ${platformId}`
+          };
+          continue;
+        }
+
+        // 构建方案提示词
+        const prompt = buildSchemePrompt(originalContent, platformScheme, scheme, undefined, settings);
+        const response = await aiService.generateText({
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          model: getModel(),
+          maxTokens: 2000,
+          temperature: 0.7
+        });
+        
+        if (response.success && response.data) {
+          // 提取平台内容
+          let platformContent = '';
+          
+          // 从响应中提取内容
+          if (typeof response.data === 'string') {
+            platformContent = response.data;
+          } else if (response.data && typeof response.data === 'object') {
+            const dataObj = response.data as any;
+            if (dataObj.data && dataObj.data.choices && dataObj.data.choices[0] && dataObj.data.choices[0].message) {
+              platformContent = dataObj.data.choices[0].message.content;
+            } else if (dataObj.choices && dataObj.choices[0] && dataObj.choices[0].message) {
+              platformContent = dataObj.choices[0].message.content;
+            } else {
+              platformContent = JSON.stringify(response.data);
+            }
+          }
+          
+          // 尝试从响应中提取特定平台的内容
+          const platformPattern = new RegExp(`=== ${platformScheme.name} ===\\s*([\\s\\S]*?)\\s*=== 结束 ===`, 'i');
+          const match = platformContent.match(platformPattern);
+          
+          if (match && match[1]) {
+            platformContent = match[1].trim();
+          }
+          
+          result[platformId] = {
+            content: platformContent,
+            source: "ai"
+          };
+        } else {
+          result[platformId] = {
+            content: '',
+            source: "ai",
+            error: response.error || '生成失败'
+          };
+        }
+      } catch (error) {
+        result[platformId] = {
+          content: '',
+          source: "ai",
+          error: error instanceof Error ? error.message : '未知错误'
+        };
+      }
+    }
+    
+    return result;
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : '内容适配失败'
-    };
+    // 如果发生异常，为每个平台返回错误
+    const result: Record<string, { content: string; source: "ai"; error?: string }> = {};
+    
+    for (const platformId of targetPlatforms) {
+      result[platformId] = {
+        content: '',
+        source: "ai",
+        error: error instanceof Error ? error.message : '内容适配失败'
+      };
+    }
+    
+    return result;
   }
 }
 
@@ -438,15 +590,76 @@ export async function generateAdaptedContent(
 export async function regeneratePlatformContent(
   platformId: string,
   originalContent: string,
-  settings?: Record<string, unknown>
+  settings?: Record<string, unknown>,
+  schemeId: string = 'default'
 ): Promise<AIApiResponse> {
   try {
-    const response = await aiService.adaptContent(originalContent, [platformId], settings);
-    return {
-      success: response.success,
-      data: response.data as string,
-      error: response.error
-    };
+    // 获取方案配置
+    const scheme = getScheme(schemeId) || getDefaultScheme();
+    
+    // 获取方案中的平台配置
+    const platformScheme = scheme.platforms.find(p => p.platformId === platformId);
+    if (!platformScheme) {
+      return {
+        success: false,
+        error: `方案 ${scheme.name} 不支持平台: ${platformId}`
+      };
+    }
+
+    // 构建方案提示词
+    const prompt = buildSchemePrompt(originalContent, platformScheme, scheme, undefined, settings);
+    const response = await aiService.generateText({
+      messages: [
+        {
+          role: 'system',
+          content: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: getModel(),
+      maxTokens: 2000,
+      temperature: 0.7
+    });
+    
+    if (response.success && response.data) {
+      // 提取平台内容
+      let platformContent = '';
+      
+      // 从响应中提取内容
+      if (typeof response.data === 'string') {
+        platformContent = response.data;
+      } else if (response.data && typeof response.data === 'object') {
+        const dataObj = response.data as any;
+        if (dataObj.data && dataObj.data.choices && dataObj.data.choices[0] && dataObj.data.choices[0].message) {
+          platformContent = dataObj.data.choices[0].message.content;
+        } else if (dataObj.choices && dataObj.choices[0] && dataObj.choices[0].message) {
+          platformContent = dataObj.choices[0].message.content;
+        } else {
+          platformContent = JSON.stringify(response.data);
+        }
+      }
+      
+      // 尝试从响应中提取特定平台的内容
+      const platformPattern = new RegExp(`=== ${platformScheme.name} ===\\s*([\\s\\S]*?)\\s*=== 结束 ===`, 'i');
+      const match = platformContent.match(platformPattern);
+      
+      if (match && match[1]) {
+        platformContent = match[1].trim();
+      }
+      
+      return {
+        success: true,
+        data: platformContent
+      };
+    } else {
+      return {
+        success: false,
+        error: response.error || '生成失败'
+      };
+    }
   } catch (error) {
     return {
       success: false,
@@ -488,4 +701,25 @@ export function getModel(): string {
  */
 export function getAvailableModels(): string[] {
   return ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo'];
+}
+
+/**
+ * 获取所有可用方案
+ */
+export function getAvailableSchemes() {
+  return AVAILABLE_SCHEMES;
+}
+
+/**
+ * 获取方案配置
+ */
+export function getSchemeConfig(schemeId: string) {
+  return getScheme(schemeId);
+}
+
+/**
+ * 获取默认方案
+ */
+export function getDefaultSchemeConfig() {
+  return getDefaultScheme();
 }

@@ -45,8 +45,10 @@ import {
   getApiProvider,
   setModel,
   getModel,
-  getAvailableModels
+  getAvailableModels,
+  getAvailableSchemes
 } from "@/api/contentAdapter";
+import SchemeSelector from '@/components/creative/SchemeSelector';
 import { 
   getAvailableModelsForTier, 
   getModelInfo, 
@@ -651,7 +653,8 @@ export default function AdaptPage() {
       const generatedContent = await generateAdaptedContent(
         originalContent,
         selectedPlatforms,
-        platformSettingsForAPI
+        platformSettingsForAPI,
+        selectedSchemeId
       );
       
       // Process each platform sequentially for better UX
@@ -1237,7 +1240,8 @@ export default function AdaptPage() {
       const result = await regeneratePlatformContent(
         platformId,
         originalContent,
-        platformSettingsForAPI
+        platformSettingsForAPI,
+        selectedSchemeId
       );
       
       // Update steps progressively
@@ -1447,6 +1451,7 @@ export default function AdaptPage() {
   const [apiManagerOpen, setApiManagerOpen] = useState(false);
   const [publishMode, setPublishMode] = useState<'jump' | 'api'>('jump');
   const [publishingPlatforms, setPublishingPlatforms] = useState<Set<string>>(new Set());
+  const [selectedSchemeId, setSelectedSchemeId] = useState('default');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1748,6 +1753,22 @@ export default function AdaptPage() {
               </div>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Scheme Selection */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg">内容适配方案</CardTitle>
+          <CardDescription>
+            选择不同的方案来获得不同风格的内容适配效果
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SchemeSelector
+            selectedSchemeId={selectedSchemeId}
+            onSchemeChange={setSelectedSchemeId}
+          />
         </CardContent>
       </Card>
 
@@ -2132,7 +2153,7 @@ export default function AdaptPage() {
                                   result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
                                   'bg-gray-50 border-gray-200'
                                 }`}>
-                                  {result.content}
+                                  {typeof result.content === 'string' ? result.content : JSON.stringify(result.content)}
                                 </div>
                                 {/* 平台标识 */}
                                 <div className="absolute top-4 right-4">
