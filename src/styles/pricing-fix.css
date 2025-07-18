@@ -11,12 +11,14 @@
   text-orientation: mixed !important;
   direction: ltr !important;
   unicode-bidi: normal !important;
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
   font-weight: inherit !important;
   font-size: inherit !important;
   line-height: inherit !important;
   text-align: inherit !important;
   vertical-align: baseline !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
 }
 
 /* 修复text-5xl和font-extrabold组合的显示问题 */
@@ -27,12 +29,14 @@
   text-orientation: mixed !important;
   direction: ltr !important;
   unicode-bidi: normal !important;
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
   font-weight: 800 !important;
   font-size: 3rem !important;
   line-height: 1 !important;
   text-align: center !important;
   vertical-align: baseline !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
 }
 
 /* 确保价格容器正确显示 */
@@ -51,6 +55,7 @@
   -moz-osx-font-smoothing: grayscale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
+  font-variant-numeric: normal !important;
 }
 
 /* 确保价格符号和数字在同一行 */
@@ -59,6 +64,8 @@
   transform: none !important;
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-variant-numeric: normal !important;
 }
 
 /* 修复可能的字体回退问题 */
@@ -94,7 +101,7 @@
   text-orientation: mixed !important;
   direction: ltr !important;
   unicode-bidi: normal !important;
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
   font-weight: inherit !important;
   font-size: inherit !important;
   line-height: inherit !important;
@@ -104,6 +111,7 @@
   -moz-osx-font-smoothing: grayscale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
+  font-variant-numeric: normal !important;
 }
 
 /* 修复表格中的数字显示 */
@@ -124,6 +132,7 @@
   -moz-osx-font-smoothing: grayscale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
+  font-variant-numeric: normal !important;
 }
 
 /* 修复表格中的中文文字显示 */
@@ -144,6 +153,7 @@
   -moz-osx-font-smoothing: grayscale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
+  font-variant-numeric: normal !important;
 }
 
 /* 确保表格单元格内容正确显示 */
@@ -155,4 +165,43 @@
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* 修复所有数字的字体显示 */
+* {
+  font-variant-numeric: normal !important;
+}
+
+/* 确保价格数字不使用等宽字体 */
+.pricing-price,
+.text-5xl.font-extrabold,
+.pricing-table-number,
+.pricing-table-cell,
+.pricing-table-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* 修复功能列表中的数字显示 */
+.pricing-feature-number {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
+  display: inline !important;
+}
+
+/* 修复所有价格相关数字的显示 */
+[class*="text-"] {
+  font-variant-numeric: normal !important;
+}
+
+/* 确保数字不使用等宽字体 */
+.text-3xl,
+.text-5xl,
+.text-lg,
+.text-2xl,
+.text-xl {
+  font-variant-numeric: normal !important;
+  font-feature-settings: normal !important;
 } 

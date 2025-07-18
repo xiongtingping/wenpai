@@ -118,22 +118,14 @@ export default function PaymentPage() {
   const handlePlanSelect = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setShowQRCode(false);
-    setTimeout(() => {
-      paymentInfoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // 确保支付信息区域在视窗中央
-      window.scrollBy(0, -100);
-    }, 100);
+    // 移除自动滚动逻辑，让用户自己控制页面滚动
   };
 
   // 处理周期选择
   const handlePeriodSelect = (period: SubscriptionPeriod) => {
     setSelectedPeriod(period);
     setShowQRCode(false);
-    // 滚动到页面顶部，让用户看到完整的订阅计划
-    window.scrollTo({ 
-      top: 0,
-      behavior: 'smooth'
-    });
+    // 移除自动滚动逻辑，让用户自己控制页面滚动
   };
 
   // 获取当前价格
