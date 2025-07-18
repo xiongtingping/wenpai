@@ -30,6 +30,15 @@ export interface PermissionResult {
 }
 
 /**
+ * 权限配置接口
+ */
+export interface PermissionConfig {
+  requiredRole: string;
+  description: string;
+  enabled: boolean;
+}
+
+/**
  * 功能权限配置表
  */
 export const FEATURE_PERMISSIONS: Record<string, FeaturePermission> = {
@@ -205,18 +214,66 @@ export function checkFeaturePermission(featureId: string, userPlan: string = 'tr
       return {
         hasPermission: false,
         missingConfigs,
-        message: '系统配置不完整',
+        message: '缺少必需的配置',
         suggestions: [
-          '请联系管理员检查系统配置',
-          '确保所有必需的API密钥已正确设置'
+          '请检查环境变量配置',
+          '联系管理员配置相关服务'
         ]
       };
     }
   }
 
   return {
-    hasPermission: true
+    hasPermission: true,
+    message: '权限验证通过'
   };
+}
+
+/**
+ * 检查单个权限（简化版本）
+ * @param permissionKey 权限键
+ * @returns 是否有权限
+ */
+export function checkPermission(permissionKey: string): boolean {
+  const result = checkFeaturePermission(permissionKey);
+  return result.hasPermission;
+}
+
+/**
+ * 检查所有权限
+ * @returns 权限检查结果
+ */
+export function checkAllPermissions(): { allValid: boolean; results: PermissionResult[] } {
+  const results: PermissionResult[] = [];
+  let allValid = true;
+
+  for (const featureId of Object.keys(FEATURE_PERMISSIONS)) {
+    const result = checkFeaturePermission(featureId);
+    results.push(result);
+    if (!result.hasPermission) {
+      allValid = false;
+    }
+  }
+
+  return { allValid, results };
+}
+
+/**
+ * 获取权限配置
+ * @returns 权限配置对象
+ */
+export function getPermissionConfig(): Record<string, PermissionConfig> {
+  const config: Record<string, PermissionConfig> = {};
+  
+  for (const [key, feature] of Object.entries(FEATURE_PERMISSIONS)) {
+    config[key] = {
+      requiredRole: feature.requiredPlan,
+      description: feature.description,
+      enabled: feature.enabled
+    };
+  }
+  
+  return config;
 }
 
 /**
@@ -230,7 +287,7 @@ export function checkMultipleFeaturePermissions(featureIds: string[], userPlan: 
 }
 
 /**
- * 获取用户可用的功能列表
+ * 获取可用功能列表
  * @param userPlan 用户计划
  * @returns 可用功能列表
  */
@@ -242,24 +299,27 @@ export function getAvailableFeatures(userPlan: string = 'trial'): FeaturePermiss
 }
 
 /**
- * 获取用户不可用的功能列表
+ * 获取不可用功能列表
  * @param userPlan 用户计划
  * @returns 不可用功能列表
  */
 export function getUnavailableFeatures(userPlan: string = 'trial'): Array<FeaturePermission & { reason: string }> {
   return Object.values(FEATURE_PERMISSIONS)
+    .filter(feature => {
+      const result = checkFeaturePermission(feature.id, userPlan);
+      return !result.hasPermission;
+    })
     .map(feature => {
       const result = checkFeaturePermission(feature.id, userPlan);
       return {
         ...feature,
         reason: result.message || '未知原因'
       };
-    })
-    .filter(feature => !checkFeaturePermission(feature.id, userPlan).hasPermission);
+    });
 }
 
 /**
- * React Hook: 使用功能权限检查
+ * 权限检查Hook
  * @param featureId 功能ID
  * @returns 权限检查结果
  */
@@ -271,7 +331,7 @@ export function useFeaturePermission(featureId: string): PermissionResult {
 }
 
 /**
- * React Hook: 使用多个功能权限检查
+ * 多权限检查Hook
  * @param featureIds 功能ID数组
  * @returns 权限检查结果数组
  */
@@ -283,58 +343,12 @@ export function useMultipleFeaturePermissions(featureIds: string[]): PermissionR
 }
 
 /**
- * 全局权限检查函数
- * 在window对象上暴露，供浏览器控制台调用
+ * 设置全局权限检查函数
  */
 export function setupGlobalPermissionCheck(): void {
   if (typeof window !== 'undefined') {
-    (window as any).__checkPermission__ = (featureId: string) => {
-      const { user } = useUnifiedAuth();
-      const userPlan = user?.plan || 'trial';
-      const result = checkFeaturePermission(featureId, userPlan);
-      
-      console.group(`🔐 功能权限检查: ${featureId}`);
-      console.log('功能名称:', FEATURE_PERMISSIONS[featureId]?.name || '未知功能');
-      console.log('用户计划:', userPlan);
-      console.log('权限状态:', result.hasPermission ? '✅ 有权限' : '❌ 无权限');
-      
-      if (!result.hasPermission) {
-        console.log('原因:', result.message);
-        if (result.suggestions) {
-          console.log('建议:', result.suggestions);
-        }
-      }
-      
-      console.groupEnd();
-      return result;
-    };
-
-    (window as any).__checkAllPermissions__ = () => {
-      const { user } = useUnifiedAuth();
-      const userPlan = user?.plan || 'trial';
-      
-      console.group('🔐 全局权限检查');
-      console.log('用户计划:', userPlan);
-      
-      const availableFeatures = getAvailableFeatures(userPlan);
-      const unavailableFeatures = getUnavailableFeatures(userPlan);
-      
-      console.log('✅ 可用功能:', availableFeatures.length);
-      availableFeatures.forEach(feature => {
-        console.log(`  - ${feature.name} (${feature.description})`);
-      });
-      
-      console.log('❌ 不可用功能:', unavailableFeatures.length);
-      unavailableFeatures.forEach(feature => {
-        console.log(`  - ${feature.name}: ${feature.reason}`);
-      });
-      
-      console.groupEnd();
-      
-      return {
-        available: availableFeatures,
-        unavailable: unavailableFeatures
-      };
-    };
+    (window as any).__checkPermission__ = checkPermission;
+    (window as any).__checkAllPermissions__ = checkAllPermissions;
+    (window as any).__checkFeaturePermission__ = checkFeaturePermission;
   }
 } 

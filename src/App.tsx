@@ -13,11 +13,9 @@ import PaymentTestPage from '@/pages/PaymentTestPage';
 import PaymentPlanDemoPage from '@/pages/PaymentPlanDemoPage';
 import CreemPaymentTestPage from '@/pages/CreemPaymentTestPage';
 import CheckoutTestPage from '@/pages/CheckoutTestPage';
-import EnhancedPaymentPage from '@/pages/EnhancedPaymentPage';
 import PaymentStatusPage from '@/pages/PaymentStatusPage';
 import AdaptPage from '@/pages/AdaptPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
-import BrandAnalysisPage from '@/pages/BrandAnalysisPage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
 
@@ -30,7 +28,7 @@ import PageTracker from '@/components/analytics/PageTracker';
  * @returns {JSX.Element}
  */
 export default function App() {
-  const { isInitialized } = useUnifiedAuth();
+  const { user, isAuthenticated } = useUnifiedAuth();
 
   /**
    * 应用初始化
@@ -43,7 +41,7 @@ export default function App() {
   }, []);
 
   // 等待认证初始化完成
-  if (!isInitialized) {
+  if (!user && isAuthenticated === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -70,7 +68,6 @@ export default function App() {
           <Route path="/payment-plan-demo" element={<PaymentPlanDemoPage />} />
           <Route path="/creem-payment-test" element={<CreemPaymentTestPage />} />
           <Route path="/checkout-test" element={<CheckoutTestPage />} />
-          <Route path="/enhanced-payment" element={<EnhancedPaymentPage />} />
           <Route path="/payment-status" element={<PaymentStatusPage />} />
           
           {/* 需要认证的页面 */}
@@ -83,12 +80,6 @@ export default function App() {
           <Route path="/brand-library" element={
             <AuthGuard>
               <BrandLibraryPage />
-            </AuthGuard>
-          } />
-          
-          <Route path="/brand-analysis" element={
-            <AuthGuard>
-              <BrandAnalysisPage />
             </AuthGuard>
           } />
           
