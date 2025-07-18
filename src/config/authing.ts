@@ -31,7 +31,9 @@ export const getAuthingConfig = (): AuthingConfig => {
   // 根据环境设置回调地址
   let redirectUri = '';
   if (import.meta.env.DEV) {
-    redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback';
+    // 动态获取当前端口号
+    const currentPort = window.location.port || '5173';
+    redirectUri = `http://localhost:${currentPort}/callback`;
   } else {
     redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
   }
@@ -40,7 +42,8 @@ export const getAuthingConfig = (): AuthingConfig => {
     appId,
     host,
     redirectUri,
-    env: import.meta.env.MODE
+    env: import.meta.env.MODE,
+    currentPort: window.location.port
   });
   
   return {
