@@ -14,8 +14,8 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Guard } from '@authing/react18-ui-components';
 import { getAuthingConfig } from '@/config/authing';
+import AuthingGuardWrapper from '@/components/auth/AuthingGuardWrapper';
 
 /**
  * 用户信息接口
@@ -185,8 +185,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
       {children}
       {/* 条件渲染Guard组件 */}
       {showGuard && (
-        <Guard
-          appId={getAuthingConfig().appId}
+        <AuthingGuardWrapper
           onLogin={(user) => {
             console.log('登录成功:', user);
             // 转换用户信息格式
@@ -218,6 +217,10 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
           onClose={() => {
             console.log('Guard弹窗关闭');
             setShowGuard(false);
+          }}
+          onLoginError={(error) => {
+            console.error('登录失败:', error);
+            setError(error.message || '登录失败');
           }}
         />
       )}

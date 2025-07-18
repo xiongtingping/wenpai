@@ -1,0 +1,162 @@
+/**
+ * Authing Guard 弹窗样式修复
+ * 确保弹窗位置正确，避免显示在底部或其他异常位置
+ */
+
+/* 确保Authing Guard弹窗容器正确定位 */
+.authing-guard-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Authing Guard弹窗主体 */
+.authing-guard-modal {
+  position: relative !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  width: 400px !important;
+  background: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+  z-index: 10000 !important;
+}
+
+/* 确保弹窗内容居中 */
+.authing-guard-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  min-height: 400px !important;
+}
+
+/* 修复可能的定位问题 */
+.authing-guard-container * {
+  box-sizing: border-box !important;
+}
+
+/* 确保关闭按钮可见 */
+.authing-guard-close {
+  position: absolute !important;
+  top: 16px !important;
+  right: 16px !important;
+  z-index: 10001 !important;
+  cursor: pointer !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* 修复输入框样式 */
+.authing-guard-input {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  margin-bottom: 16px !important;
+}
+
+/* 修复按钮样式 */
+.authing-guard-button {
+  width: 100% !important;
+  padding: 12px 24px !important;
+  background: #3b82f6 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s !important;
+}
+
+.authing-guard-button:hover {
+  background: #2563eb !important;
+}
+
+.authing-guard-button:disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed !important;
+}
+
+/* 修复标题样式 */
+.authing-guard-title {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+  margin-bottom: 8px !important;
+  text-align: center !important;
+}
+
+/* 修复副标题样式 */
+.authing-guard-subtitle {
+  font-size: 14px !important;
+  color: #6b7280 !important;
+  margin-bottom: 24px !important;
+  text-align: center !important;
+}
+
+/* 修复错误信息样式 */
+.authing-guard-error {
+  color: #dc2626 !important;
+  font-size: 14px !important;
+  margin-top: 8px !important;
+  text-align: center !important;
+}
+
+/* 确保在移动设备上正确显示 */
+@media (max-width: 768px) {
+  .authing-guard-modal {
+    width: 95vw !important;
+    max-width: 400px !important;
+    margin: 20px !important;
+  }
+  
+  .authing-guard-content {
+    padding: 16px !important;
+    min-height: 350px !important;
+  }
+}
+
+/* 修复可能的z-index冲突 */
+.authing-guard-container,
+.authing-guard-modal,
+.authing-guard-content {
+  z-index: 9999 !important;
+}
+
+/* 确保弹窗在页面滚动时保持居中 */
+.authing-guard-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* 修复可能的transform问题 */
+.authing-guard-modal {
+  transform: none !important;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+} 
