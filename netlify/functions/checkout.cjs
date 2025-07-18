@@ -65,14 +65,45 @@ exports.handler = async function(event) {
 
     // 获取API Key
     const creemApiKey = process.env.CREEM_API_KEY;
+    
+    // 如果没有配置API Key，返回测试模式
     if (!creemApiKey) {
-      console.error('CREEM_API_KEY 未配置');
+      console.log('CREEM_API_KEY 未配置，使用测试模式');
+      
+      // 生成测试二维码
+      const testQrCodeUrl = "https://www.wenpai.xyz/payment-test";
+      let qrCodeDataURL = null;
+      
+      try {
+        qrCodeDataURL = await QRCode.toDataURL(testQrCodeUrl, {
+          width: 300,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          },
+          errorCorrectionLevel: 'H'
+        });
+      } catch (qrError) {
+        console.error('生成测试二维码失败:', qrError);
+      }
+      
       return {
-        statusCode: 500,
+        statusCode: 200,
         headers: corsHeaders,
-        body: JSON.stringify({ 
-          error: '支付服务配置错误，请联系管理员',
-          details: 'CREEM_API_KEY 环境变量未配置'
+        body: JSON.stringify({
+          success: true,
+          url: testQrCodeUrl,
+          qrCodeUrl: testQrCodeUrl,
+          qrCodeDataURL: qrCodeDataURL,
+          price: 29,
+          checkout: {
+            id: 'test_checkout_' + Date.now(),
+            status: 'pending',
+            amount: 2900
+          },
+          mode: 'test',
+          message: '当前为测试模式，请配置CREEM_API_KEY环境变量以使用真实支付'
         })
       };
     }
