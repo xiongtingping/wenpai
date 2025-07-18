@@ -68,18 +68,21 @@ export const PreviewGuard: React.FC<PreviewGuardProps> = ({
 
       {/* 透明遮罩层 */}
       {showPreview && (
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-50 flex items-center justify-center p-4">
           {/* 升级提示卡片 */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 max-w-md w-full mx-4 p-6 relative">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 max-w-md w-full max-h-[90vh] overflow-y-auto relative">
             {/* 关闭按钮 */}
             {allowClose && (
               <button
                 onClick={() => setShowPreview(false)}
-                className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors z-10"
               >
                 <X className="w-4 h-4 text-gray-500" />
               </button>
             )}
+            
+            {/* 卡片内容 */}
+            <div className="p-6">
 
             {/* 图标 */}
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
@@ -158,6 +161,7 @@ export const PreviewGuard: React.FC<PreviewGuardProps> = ({
             {/* 提示信息 */}
             <div className="text-xs text-gray-500 text-center mt-4">
               <p>💡 您可以预览功能界面，升级后即可正常使用</p>
+            </div>
             </div>
           </div>
         </div>
