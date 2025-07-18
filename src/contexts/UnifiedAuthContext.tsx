@@ -207,6 +207,19 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
             // 关闭Guard弹窗
             setShowGuard(false);
             
+            // 恢复页面滚动状态
+            const scrollY = document.body.style.top;
+            if (scrollY) {
+              document.body.style.position = '';
+              document.body.style.top = '';
+              document.body.style.width = '';
+              document.body.style.overflow = '';
+              document.documentElement.style.overflow = '';
+              document.body.classList.remove('authing-guard-open');
+              document.documentElement.classList.remove('authing-guard-open');
+              window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            }
+            
             // 如果有跳转目标，进行跳转
             const redirectTo = localStorage.getItem('login_redirect_to');
             if (redirectTo) {
@@ -217,6 +230,19 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
           onClose={() => {
             console.log('Guard弹窗关闭');
             setShowGuard(false);
+            
+            // 恢复页面滚动状态
+            const scrollY = document.body.style.top;
+            if (scrollY) {
+              document.body.style.position = '';
+              document.body.style.top = '';
+              document.body.style.width = '';
+              document.body.style.overflow = '';
+              document.documentElement.style.overflow = '';
+              document.body.classList.remove('authing-guard-open');
+              document.documentElement.classList.remove('authing-guard-open');
+              window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            }
           }}
           onLoginError={(error) => {
             console.error('登录失败:', error);
