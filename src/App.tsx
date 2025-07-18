@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { initializeConfigValidation } from '@/utils/configValidator';
 import { setupGlobalErrorHandler } from '@/utils/errorHandler';
+import { runConfigDiagnostics, generateConfigReport } from '@/utils/configDiagnostics';
 
 // 页面导入
 import HomePage from '@/pages/HomePage';
@@ -40,6 +41,23 @@ export default function App() {
     
     // 初始化配置验证
     initializeConfigValidation();
+    
+    // 运行配置诊断
+    const diagnostics = runConfigDiagnostics();
+    if (diagnostics.length > 0) {
+      console.log('🔧 配置诊断结果:');
+      console.log(generateConfigReport());
+      
+      // 在生产环境中，只显示关键错误
+      if (import.meta.env.PROD) {
+        const errors = diagnostics.filter(d => d.status === 'error');
+        if (errors.length > 0) {
+          console.warn('❌ 发现关键配置错误:', errors.map(e => e.message).join(', '));
+        }
+      }
+    } else {
+      console.log('✅ 所有配置正常');
+    }
     
     console.log('🚀 应用启动完成');
   }, []);

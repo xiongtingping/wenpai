@@ -181,20 +181,30 @@ export const getAPIConfig = (): APIConfig => {
     },
   };
 
-  // 简化验证，只在开发模式下显示警告
-  if (import.meta.env.DEV) {
-    const invalidConfigs = Object.entries(config).filter(([key, value]) => {
-      if (key === 'authing') {
-        return !value.appId || !value.host;
-      }
-      if (key === 'creem' || key === 'openai' || key === 'deepseek' || key === 'gemini') {
-        return !value.apiKey || value.apiKey === 'your-' + key + '-api-key';
-      }
-      return false;
-    });
+  // 配置验证和警告
+  const invalidConfigs = Object.entries(config).filter(([key, value]) => {
+    if (key === 'authing') {
+      return !value.appId || !value.host;
+    }
+    if (key === 'creem' || key === 'openai' || key === 'deepseek' || key === 'gemini') {
+      return !value.apiKey || value.apiKey === 'your-' + key + '-api-key';
+    }
+    return false;
+  });
+  
+  // 在开发环境中显示详细警告
+  if (import.meta.env.DEV && invalidConfigs.length > 0) {
+    console.log(`⚠️ 部分API配置未设置: ${invalidConfigs.map(([key]) => key).join(', ')}`);
+  }
+  
+  // 在生产环境中，只对关键配置显示简洁警告
+  if (import.meta.env.PROD) {
+    const criticalConfigs = invalidConfigs.filter(([key]) => 
+      ['openai', 'authing'].includes(key)
+    );
     
-    if (invalidConfigs.length > 0) {
-      console.log(`⚠️ 部分API配置未设置: ${invalidConfigs.map(([key]) => key).join(', ')}`);
+    if (criticalConfigs.length > 0) {
+      console.warn(`⚠️ 关键配置缺失: ${criticalConfigs.map(([key]) => key).join(', ')}`);
     }
   }
 
