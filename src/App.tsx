@@ -5,6 +5,7 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { initializeConfigValidation } from '@/utils/configValidator';
 import { setupGlobalErrorHandler } from '@/utils/errorHandler';
 import { runConfigDiagnostics, generateConfigReport } from '@/utils/configDiagnostics';
+import { ScrollManager } from '@/components/layout/ScrollManager';
 
 // 页面导入
 import HomePage from '@/pages/HomePage';
@@ -77,6 +78,8 @@ export default function App() {
 
   return (
     <>
+      {/* 滚动管理组件 - 禁用自动滚动到顶部 */}
+      <ScrollManager autoScrollToTop={false} />
       <PageTracker />
       <div className="min-h-screen bg-background">
         <Routes>

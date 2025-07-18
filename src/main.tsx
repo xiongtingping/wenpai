@@ -14,7 +14,14 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
  */
 const AppWithErrorBoundary = () => (
   <ErrorBoundary>
-    <Router>
+    <Router
+      // 禁用React Router的自动滚动到顶部行为
+      // 让用户自己控制页面滚动位置
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <UnifiedAuthProvider>
         <App />
       </UnifiedAuthProvider>
