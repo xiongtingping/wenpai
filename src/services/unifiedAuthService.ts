@@ -62,7 +62,7 @@ class UnifiedAuthService {
       const response = await fetch('https://qutkgzkfaezk-demo.authing.cn/api/v3/health', {
         method: 'GET',
         mode: 'no-cors',
-        timeout: 3000
+        // timeout: 3000
       });
       return true;
     } catch (error) {

@@ -269,7 +269,7 @@ export function UserEditForm({
 
       // 执行保存后回调
       if (onSave && authUser) {
-        onSave(authUser);
+        onSave(authUser as any);
       }
 
       // 显示成功提示
@@ -421,7 +421,7 @@ export function UserEditForm({
                            VIP用户
                          </Badge>
                        )}
-                       {userRoles.isNormalUser && (
+                       {!userRoles.isVip && !(userRoles as any).isAdmin && (
                          <Badge variant="outline">
                            普通用户
                          </Badge>

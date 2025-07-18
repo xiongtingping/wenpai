@@ -107,24 +107,24 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
         // 处理授权码回调
         try {
           const tokenSet = await authing.getAccessTokenByCode(code, {
-            redirectUri: getAuthingConfig().redirectUri
+            codeVerifier: undefined
           });
           
           if (tokenSet && tokenSet.access_token) {
             // 获取用户信息
-            const userInfo = await authing.getUserInfo(tokenSet.access_token);
+            const userInfo = await authing.getCurrentUser();
             
             if (userInfo) {
               console.log("登录成功，用户信息：", userInfo);
               
               // 转换用户信息格式
               const user: UserInfo = {
-                id: userInfo.id || userInfo.userId || `user_${Date.now()}`,
+                id: userInfo.id || (userInfo as any).userId || `user_${Date.now()}`,
                 username: userInfo.username || userInfo.nickname || '用户',
                 email: userInfo.email || '',
                 phone: userInfo.phone || '',
                 nickname: userInfo.nickname || userInfo.username || '用户',
-                avatar: userInfo.avatar || '',
+                avatar: (userInfo as any).avatar || '',
                 loginTime: new Date().toISOString()
               };
               
@@ -156,7 +156,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
         if (savedUser && savedToken) {
           try {
             // 验证token是否有效
-            const userInfo = await authing.getUserInfo(savedToken);
+            const userInfo = await authing.getCurrentUser();
             if (userInfo) {
               setUser(JSON.parse(savedUser));
             } else {

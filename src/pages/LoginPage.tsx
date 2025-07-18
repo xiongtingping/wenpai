@@ -16,7 +16,7 @@ import { LogIn, AlertCircle } from 'lucide-react';
  * 登录页面组件
  */
 export default function LoginPage() {
-  const { isAuthenticated, login, isLoading } = useUnifiedAuth();
+  const { isAuthenticated, login, loading } = useUnifiedAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showFallback, setShowFallback] = useState(false);
@@ -63,7 +63,7 @@ export default function LoginPage() {
   };
 
   // 如果正在加载，显示加载状态
-  if (isLoading && !showFallback) {
+  if (loading && !showFallback) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

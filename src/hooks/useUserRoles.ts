@@ -7,7 +7,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { securityUtils } from '@/lib/security';
-import { isDevelopment } from '@/utils/envChecker';
+
+/**
+ * 检查是否为开发环境
+ */
+const isDevelopment = (): boolean => {
+  return process.env.NODE_ENV === 'development';
+};
 
 /**
  * 角色信息接口

@@ -11,7 +11,7 @@
  * - 图像生成: dall-e-3, dall-e-2, midjourney
  */
 
-import { getApiConfig } from '@/config/apiConfig';
+import { getAPIConfig } from '@/config/apiConfig';
 import { getAuthingConfig } from '@/config/authing';
 
 /**
@@ -153,7 +153,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
 
   try {
     // 获取API配置
-    const apiConfig = getApiConfig();
+    const apiConfig = getAPIConfig();
     const authingConfig = getAuthingConfig();
 
     // 验证配置
@@ -364,7 +364,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
 
   try {
     // 获取API配置
-    const apiConfig = getApiConfig();
+    const apiConfig = getAPIConfig();
 
     // 验证配置
     if (!apiConfig.openai.apiKey) {

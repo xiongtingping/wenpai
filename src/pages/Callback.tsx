@@ -31,10 +31,25 @@ const Callback: React.FC = () => {
         });
 
         // 处理重定向回调
-        await authing.handleRedirectCallback();
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        
+        if (!code) {
+          throw new Error('未找到授权码');
+        }
+        
+        // 获取访问令牌
+        const tokenSet = await authing.getAccessTokenByCode(code, {
+          codeVerifier: undefined
+        });
+        
+        if (!tokenSet || !tokenSet.access_token) {
+          throw new Error('获取访问令牌失败');
+        }
         
         // 获取用户信息
-        const userInfo = await authing.getUserInfo();
+        const userInfo = await authing.getCurrentUser();
         
         if (userInfo) {
           console.log("登录成功，用户信息：", userInfo);
@@ -44,12 +59,12 @@ const Callback: React.FC = () => {
           
           // 转换用户信息格式
           const user = {
-            id: userInfo.id || userInfo.userId || `user_${Date.now()}`,
+            id: userInfo.id || (userInfo as any).userId || `user_${Date.now()}`,
             username: userInfo.username || userInfo.nickname || '用户',
             email: userInfo.email || '',
             phone: userInfo.phone || '',
             nickname: userInfo.nickname || userInfo.username || '用户',
-            avatar: userInfo.avatar || '',
+            avatar: (userInfo as any).avatar || '',
             loginTime: new Date().toISOString()
           };
           

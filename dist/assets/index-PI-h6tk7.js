@@ -1,0 +1,1 @@
+import{r}from"./index-CZg_0vaA.js";function e(r,[e,u]){return Math.min(u,Math.max(e,r))}function u(e){const u=r.useRef({value:e,previous:e});return r.useMemo(()=>(u.current.value!==e&&(u.current.previous=u.current.value,u.current.value=e),u.current.previous),[e])}export{e as c,u};

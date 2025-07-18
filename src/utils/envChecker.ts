@@ -14,6 +14,16 @@ export interface EnvCheckResult {
   required: boolean;
 }
 
+export interface EnvCheckSummary {
+  total: number;
+  valid: number;
+  invalid: number;
+  required: number;
+  requiredValid: number;
+  hasErrors: boolean;
+  details: EnvCheckResult[];
+}
+
 /**
  * 环境变量配置检查器
  */
@@ -266,17 +276,8 @@ export class EnvChecker {
  * 检查环境变量配置
  * @returns {EnvCheckResult} 检查结果
  */
-export const checkEnvironmentVariables = (): EnvCheckResult => {
-  const results: EnvCheckResult = {
-    total: 0,
-    valid: 0,
-    invalid: 0,
-    required: 0,
-    requiredValid: 0,
-    details: [],
-    hasErrors: false,
-    hasWarnings: false
-  };
+export const checkEnvironmentVariables = (): EnvCheckSummary => {
+  const results: EnvCheckResult[] = [];
 
   // 简化检查，只检查关键配置
   const configs = [
@@ -301,36 +302,34 @@ export const checkEnvironmentVariables = (): EnvCheckResult => {
   ];
 
   configs.forEach(config => {
-    results.total++;
-    if (config.required) results.required++;
-    
-    const isValid = config.value && config.value !== 'your-' + config.key.toLowerCase().replace('vite_', '') + '-key';
-    
-    if (isValid) {
-      results.valid++;
-      if (config.required) results.requiredValid++;
-    } else {
-      results.invalid++;
-      if (config.required) results.hasErrors = true;
-    }
-    
-    results.details.push({
-      key: config.key,
+    const result: EnvCheckResult = {
+      name: config.key,
       value: config.value,
-      required: config.required,
-      valid: isValid,
-      description: config.description
-    });
+      isValid: config.value && config.value !== 'your-' + config.key.toLowerCase().replace('vite_', '') + '-key',
+      message: config.value && config.value !== 'your-' + config.key.toLowerCase().replace('vite_', '') + '-key' ? '配置正确' : '请设置有效的' + config.description,
+      required: config.required
+    };
+    results.push(result);
   });
 
-  return results;
+  const summary: EnvCheckSummary = {
+    total: results.length,
+    valid: results.filter(r => r.isValid).length,
+    invalid: results.filter(r => !r.isValid).length,
+    required: results.filter(r => r.required).length,
+    requiredValid: results.filter(r => r.required && r.isValid).length,
+    hasErrors: results.some(r => r.required && !r.isValid),
+    details: results
+  };
+
+  return summary;
 };
 
 /**
  * 记录环境检查结果
  * @param results 检查结果
  */
-export const logEnvCheckResults = (results: EnvCheckResult): void => {
+export const logEnvCheckResults = (results: EnvCheckSummary): void => {
   // 只在有错误时输出日志
   if (results.hasErrors) {
     console.warn('⚠️ 发现配置错误，请检查.env.local文件');

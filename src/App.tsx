@@ -14,8 +14,8 @@ const BrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
 const BookmarkPage = React.lazy(() => import('@/pages/BookmarkPage'));
 const ContentExtractorPage = React.lazy(() => import('@/pages/ContentExtractorPage'));
 const HotTopicsPage = React.lazy(() => import('@/pages/HotTopicsPage'));
-const CallbackPage = React.lazy(() => import('@/pages/CallbackPage'));
-const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
+// const CallbackPage = React.lazy(() => import('@/pages/CallbackPage'));
+// const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const PermissionTestPage = React.lazy(() => import('@/pages/PermissionTestPage'));
 
 // 加载组件
@@ -38,8 +38,8 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/callback" element={<CallbackPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            
+            
             <Route path="/permission-test" element={<PermissionTestPage />} />
             {/* 工具页面 */}
             <Route path="/creative-cube" element={
