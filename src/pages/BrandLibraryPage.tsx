@@ -31,6 +31,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import PageNavigation from '@/components/layout/PageNavigation';
 import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
 import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
+import PDFChatDialog from '@/components/creative/PDFChatDialog';
 import { BrandProfile, BrandAsset } from '@/types/brand';
 import AIAnalysisService from '@/services/aiAnalysisService';
 
@@ -93,6 +94,7 @@ export default function BrandLibraryPage() {
   const [isViewingAsset, setIsViewingAsset] = useState<string | null>(null);
   const [isAnalyzingAsset, setIsAnalyzingAsset] = useState<string | null>(null);
   const [assetViewerContent, setAssetViewerContent] = useState('');
+  const [isPDFChatOpen, setIsPDFChatOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1179,6 +1181,14 @@ export default function BrandLibraryPage() {
                     <Brain className="h-4 w-4 mr-2" />
                     {isProcessing ? 'AI分析中...' : '批量AI分析'}
                   </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setIsPDFChatOpen(true)}
+                    disabled={brandAssets.length === 0}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    PDF对话
+                  </Button>
                 </div>
 
                 {/* 文件格式说明 */}
@@ -1474,7 +1484,20 @@ export default function BrandLibraryPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-                    </div>
+
+      {/* PDF对话问答弹窗 */}
+      <PDFChatDialog
+        documents={brandAssets.map(asset => ({
+          id: asset.id,
+          name: asset.name,
+          content: asset.content,
+          uploadDate: asset.uploadDate,
+          size: asset.size
+        }))}
+        isOpen={isPDFChatOpen}
+        onOpenChange={setIsPDFChatOpen}
+      />
+    </div>
   );
 }
 
