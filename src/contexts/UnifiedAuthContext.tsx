@@ -151,7 +151,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
       // 重置状态
       setUser(null);
       
-      // 跳转到首页
+      // 使用React Router导航到首页
       navigate('/', { replace: true });
       
     } catch (error) {
@@ -252,6 +252,7 @@ export const UnifiedAuthGuard: React.FC<UnifiedAuthGuardProps> = ({
   redirectTo = '/login' 
 }) => {
   const { isAuthenticated, loading } = useUnifiedAuth();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -265,8 +266,8 @@ export const UnifiedAuthGuard: React.FC<UnifiedAuthGuardProps> = ({
   }
 
   if (requireAuth && !isAuthenticated) {
-    // 重定向到登录页面
-    window.location.href = redirectTo;
+    // 使用React Router导航到登录页面
+    navigate(redirectTo, { replace: true });
     return null;
   }
 

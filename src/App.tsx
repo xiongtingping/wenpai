@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { initializeConfigValidation } from '@/utils/configValidator';
@@ -75,7 +75,7 @@ export default function App() {
   }
 
   return (
-    <Router>
+    <>
       <PageTracker />
       <div className="min-h-screen bg-background">
         <Routes>
@@ -111,6 +111,6 @@ export default function App() {
         </Routes>
       </div>
       <Toaster />
-    </Router>
+    </>
   );
 }

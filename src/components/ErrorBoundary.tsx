@@ -11,6 +11,7 @@ interface ErrorBoundaryState {
   error: Error | null;
   errorInfo: ErrorInfo | null;
   errorId: string;
+  isInitializationError: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ interface ErrorBoundaryProps {
 /**
  * 全局错误边界组件
  * 用于捕获和处理应用中的JavaScript错误
+ * 特别处理React Router和认证上下文初始化冲突
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -32,7 +34,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       hasError: false,
       error: null,
       errorInfo: null,
-      errorId: ''
+      errorId: '',
+      isInitializationError: false
     };
   }
 
@@ -40,11 +43,39 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
    * 捕获子组件错误
    */
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+    // 检查是否为初始化错误
+    const isInitializationError = this.isInitializationError(error);
+    
     return {
       hasError: true,
       error,
-      errorId: `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      errorId: `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      isInitializationError
     };
+  }
+
+  /**
+   * 判断是否为初始化错误
+   */
+  private static isInitializationError(error: Error): boolean {
+    const errorMessage = error.message.toLowerCase();
+    const errorStack = error.stack?.toLowerCase() || '';
+    
+    // 检查常见的初始化错误模式
+    const initializationPatterns = [
+      'useunifiedauth must be used within a unifiedauthprovider',
+      'useauth must be used within an authprovider',
+      'usecontext must be used within a provider',
+      'router context',
+      'navigation context',
+      'cannot read properties of undefined',
+      'yield*',
+      'suspended while responding to synchronous input'
+    ];
+    
+    return initializationPatterns.some(pattern => 
+      errorMessage.includes(pattern) || errorStack.includes(pattern)
+    );
   }
 
   /**
@@ -58,7 +89,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       errorId: this.state.errorId,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
-      url: window.location.href
+      url: window.location.href,
+      isInitializationError: this.state.isInitializationError
     });
 
     this.setState({
@@ -87,7 +119,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           version: import.meta.env.VITE_APP_VERSION || 'unknown',
           environment: import.meta.env.MODE,
           buildTime: import.meta.env.VITE_BUILD_TIME || 'unknown'
-        }
+        },
+        isInitializationError: this.state.isInitializationError
       };
 
       // 发送错误报告（可选）
@@ -116,7 +149,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       hasError: false,
       error: null,
       errorInfo: null,
-      errorId: ''
+      errorId: '',
+      isInitializationError: false
     });
   };
 
@@ -153,13 +187,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <AlertTriangle className="h-6 w-6 text-red-600" />
               </div>
               <CardTitle className="text-xl text-gray-900">
-                应用遇到问题
+                {this.state.isInitializationError ? '应用初始化失败' : '应用遇到问题'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
                 <p className="text-gray-600 mb-4">
-                  抱歉，应用遇到了一个意外错误。我们已经记录了这个问题。
+                  {this.state.isInitializationError 
+                    ? '应用初始化过程中遇到问题，这通常是由于配置或依赖问题导致的。'
+                    : '抱歉，应用遇到了一个意外错误。我们已经记录了这个问题。'
+                  }
                 </p>
                 
                 {this.state.error && (
@@ -173,11 +210,24 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         错误ID: {this.state.errorId}
                       </p>
                     )}
+                    {this.state.isInitializationError && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        💡 建议：尝试刷新页面或清除浏览器缓存
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
 
               <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={this.handleRefresh}
+                  className="w-full"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  刷新页面
+                </Button>
+                
                 <Button 
                   onClick={this.handleReset}
                   className="w-full"
@@ -185,14 +235,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   重试
-                </Button>
-                
-                <Button 
-                  onClick={this.handleRefresh}
-                  className="w-full"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  刷新页面
                 </Button>
                 
                 <Button 
