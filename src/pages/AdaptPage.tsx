@@ -1453,8 +1453,7 @@ export default function AdaptPage() {
       {/* 页面导航 */}
       <PageNavigation
         title="AI内容适配器"
-        description="一次创作，多平台适配，让您的内容在每个平台都能发挥最大效果"
-        showAdaptButton={false}
+        description="智能分析内容，一键适配多平台格式"
         actions={
           <>
             <Button 
@@ -1463,13 +1462,6 @@ export default function AdaptPage() {
             >
               <FileText className="h-4 w-4 mr-1" />
               历史记录
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => setApiManagerOpen(true)}
-            >
-              <Settings className="h-4 w-4 mr-1" />
-              API配置
             </Button>
           </>
         }
@@ -1498,39 +1490,6 @@ export default function AdaptPage() {
           </Tooltip>
         </TooltipProvider>
       </div>
-
-      {/* 发布模式切换 */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <Label className="text-sm font-medium">发布模式:</Label>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant={publishMode === 'jump' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setPublishMode('jump')}
-              >
-                <ExternalLink className="w-4 h-4 mr-1" />
-                跳转发布
-              </Button>
-              <Button
-                variant={publishMode === 'api' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setPublishMode('api')}
-              >
-                <Zap className="w-4 h-4 mr-1" />
-                API直发
-              </Button>
-            </div>
-            {publishMode === 'api' && (
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                <Zap className="w-3 h-3 mr-1" />
-                需要配置API密钥
-              </Badge>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Content Input Section */}
       <Card className="mb-8">
@@ -1585,54 +1544,106 @@ export default function AdaptPage() {
             </div>
           </div>
           
-          {/* Advanced Options */}
+          {/* 适配设置 - 重新调整布局 */}
           {showAdvancedSettings && (
-            <div className="mt-2 w-full">
-              <div className="bg-white rounded-lg shadow p-3 flex flex-col items-center w-full max-w-full">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full px-4">
-                  <div className="flex items-center space-x-1">
-                    <Label className="text-xs w-28 flex-shrink-0">全局字符数限制</Label>
-                    <Select 
-                      value={globalSettings.charCountPreset}
-                      onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
-                    >
-                      <SelectTrigger className="h-7 w-36 text-xs">
-                        <SelectValue placeholder="选择字符数限制" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="auto">自动</SelectItem>
-                        <SelectItem value="mini">精简(50-200字)</SelectItem>
-                        <SelectItem value="standard">标准(200-800字)</SelectItem>
-                        <SelectItem value="detailed">详细(800+)</SelectItem>
-                      </SelectContent>
-                    </Select>
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  内容适配设置
+                </h4>
+                <p className="text-xs text-blue-700 mt-1">自定义内容生成参数，让AI更好地理解您的需求</p>
+              </div>
+              
+              <div className="space-y-4">
+                {/* 字符数限制 */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Hash className="h-3 w-3" />
+                    字符数限制
+                  </Label>
+                  <Select 
+                    value={globalSettings.charCountPreset}
+                    onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="选择字符数限制" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">自动适配</SelectItem>
+                      <SelectItem value="mini">精简版 (50-200字)</SelectItem>
+                      <SelectItem value="standard">标准版 (200-800字)</SelectItem>
+                      <SelectItem value="detailed">详细版 (800字+)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500">根据平台特点自动调整内容长度</p>
+                </div>
+                
+                {/* 内容格式 */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <FileText className="h-3 w-3" />
+                    内容格式
+                  </Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex items-center space-x-3">
+                      <Checkbox 
+                        id="global-emoji" 
+                        checked={globalSettings.globalEmoji}
+                        onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
+                      />
+                      <Label htmlFor="global-emoji" className="text-sm cursor-pointer flex items-center gap-2">
+                        <Smile className="h-3 w-3" />
+                        启用表情符号
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Checkbox 
+                        id="global-md"
+                        checked={globalSettings.globalMd}
+                        onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
+                      />
+                      <Label htmlFor="global-md" className="text-sm cursor-pointer flex items-center gap-2">
+                        <FileText className="h-3 w-3" />
+                        启用Markdown格式
+                      </Label>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Label className="text-xs w-28 flex-shrink-0">启用表情符号</Label>
-                    <Checkbox 
-                      id="global-emoji" 
-                      checked={globalSettings.globalEmoji}
-                      onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
-                    />
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Label className="text-xs w-28 flex-shrink-0">启用Markdown格式</Label>
-                    <Checkbox 
-                      id="global-md"
-                      checked={globalSettings.globalMd}
-                      onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
-                    />
+                  <p className="text-xs text-gray-500">增强内容的可读性和视觉效果</p>
+                </div>
+                
+                {/* 智能优化 */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Zap className="h-3 w-3" />
+                    智能优化
+                  </Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="flex items-center gap-2 text-xs text-blue-800 bg-blue-100 px-3 py-2 rounded">
+                      <Check className="h-3 w-3" />
+                      <span>自动排版优化</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-blue-800 bg-blue-100 px-3 py-2 rounded">
+                      <Check className="h-3 w-3" />
+                      <span>平台特色适配</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-blue-800 bg-blue-100 px-3 py-2 rounded">
+                      <Check className="h-3 w-3" />
+                      <span>关键词优化</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-center mt-2 w-full">
+                
+                {/* 保存按钮 */}
+                <div className="pt-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={saveSettings}
-                    className="flex items-center h-7 text-xs px-3"
+                    className="w-full bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
                   >
-                    <Save className="h-3 w-3 mr-1" />
-                    保存
+                    <Save className="h-4 w-4 mr-2" />
+                    保存设置
                   </Button>
                 </div>
               </div>
@@ -1727,13 +1738,15 @@ export default function AdaptPage() {
                 <p>{getModelInfo(selectedModel)?.description}</p>
               </div>
             )}
-            {/* 订阅等级切换，仅开发/测试用，正式版应自动获取 */}
-            <div className="mt-4 flex gap-2 items-center">
-              <span className="text-xs text-gray-500">模拟订阅等级：</span>
-              <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
-              <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
-              <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
-            </div>
+            {/* 开发环境订阅等级切换 */}
+            {import.meta.env.DEV && (
+              <div className="mt-4 flex gap-2 items-center">
+                <span className="text-xs text-gray-500">开发环境订阅等级：</span>
+                <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
+                <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
+                <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -101,8 +101,8 @@ const mainFeatures = [
     bgColor: 'from-indigo-50 to-blue-50',
     borderColor: 'border-indigo-200',
     hoverColor: 'hover:from-indigo-100 hover:to-blue-100',
-    badge: '专业',
-    badgeColor: 'bg-gradient-to-r from-indigo-500 to-blue-500',
+    badge: '高级版',
+    badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
   },
 ];

@@ -79,7 +79,6 @@ export function PricingSection() {
   function getFeatureStatus(feature: string, planTier: string) {
     // 这里可根据feature内容和planTier灵活判断
     if (feature.includes('创意魔方') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
-    if (feature.includes('全网雷达') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
     if (feature.includes('品牌库') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };
     if (feature.includes('高级模型') && planTier === 'trial') return { disabled: true, label: '专业版专属' };
     if (feature.includes('最新模型') && planTier !== 'premium') return { disabled: true, label: '高级版专属' };

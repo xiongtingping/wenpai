@@ -172,7 +172,7 @@ class UnifiedAuthService {
     this.listeners.forEach(listener => {
       try {
         listener(this.user, this.isAuthenticated);
-      } catch (error) {
+    } catch (error) {
         console.warn('通知监听器失败:', error);
       }
     });

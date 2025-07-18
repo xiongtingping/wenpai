@@ -133,101 +133,138 @@ ${content}
 - 如果某个维度信息不足，可以基于品牌特征进行合理推测
 `;
 
-    try {
-      const response = await callOpenAIProxy([
-        {
-          role: 'system',
-          content: '你是一名专业的品牌策略分析专家。你的任务是将品牌资料分析为JSON格式。重要：1) 只返回JSON格式，不要包含任何其他文字；2) 确保JSON格式完全正确；3) 如果内容不足，基于常见品牌特征进行合理推测。'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ], 'gpt-4o', 0.1, 2000);
+    // 添加重试机制
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-      if (!response.success || !response.data) {
-        console.error('API响应失败:', response);
-        throw new Error('AI分析服务请求失败');
-      }
-
-      // 检查响应数据结构 - 兼容不同的API响应格式
-      let choices = response.data.choices;
-      if (!choices && response.data.data && response.data.data.choices) {
-        choices = response.data.data.choices;
-      }
-      
-      if (!Array.isArray(choices) || !choices[0] || !choices[0].message) {
-        console.error('API响应数据结构异常，完整响应:', response);
-        throw new Error('AI分析服务返回数据格式异常，请稍后重试');
-      }
-
-      const content = choices[0].message.content;
-      if (!content) {
-        throw new Error('API返回空内容');
-      }
-
-      let result;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        // 清理可能的Markdown代码块格式
-        let cleanContent = content.trim();
-        if (cleanContent.startsWith('```json')) {
-          cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (cleanContent.startsWith('```')) {
-          cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        console.log(`尝试调用AI分析服务 (第${attempt}次)`);
+        
+        // 首先尝试调用Netlify Functions
+        const response = await callOpenAIProxy([
+          {
+            role: 'system',
+            content: '你是一名专业的品牌策略分析专家。你的任务是将品牌资料分析为JSON格式。重要：1) 只返回JSON格式，不要包含任何其他文字；2) 确保JSON格式完全正确；3) 如果内容不足，基于常见品牌特征进行合理推测。'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ], 'gpt-4o', 0.1, 2000);
+
+        if (!response.success || !response.data) {
+          console.error(`第${attempt}次API响应失败:`, response);
+          throw new Error(`AI分析服务请求失败: ${response.error || '未知错误'}`);
+        }
+
+        // 检查响应数据结构 - 兼容不同的API响应格式
+        let choices = response.data.choices;
+        if (!choices && response.data.data && response.data.data.choices) {
+          choices = response.data.data.choices;
         }
         
-        // 尝试直接解析JSON
-        result = JSON.parse(cleanContent);
-      } catch (parseError) {
-        console.error('JSON解析失败，原始内容:', content);
-        
-        // 如果解析失败，检查是否是错误提示
-        if (content.includes('请提供') || content.includes('内容不足') || content.length < 50) {
-          console.warn('AI返回了错误提示，使用默认分析结果');
-          result = {
-            keywords: ['品牌建设', '市场定位', '用户价值', '产品创新', '用户体验'],
-            tone: '专业、可靠、创新',
-            suggestions: ['请提供更多品牌资料以获得更准确的分析', '建议包含品牌介绍、产品描述、市场定位等信息', '可以上传品牌手册、产品介绍等文档']
-          };
-        } else {
-          // 尝试从文本中提取关键信息
-          console.warn('尝试从非JSON响应中提取信息');
-          const keywords = content.match(/关键词[：:]\s*([^，。\n]+)/g)?.map(k => k.replace(/关键词[：:]\s*/, '')) || 
-                          ['品牌建设', '市场定位', '用户价值'];
-          const tone = content.match(/语气[：:]\s*([^，。\n]+)/)?.pop() || '专业、可靠、创新';
-          const suggestions = content.match(/建议[：:]\s*([^，。\n]+)/g)?.map(s => s.replace(/建议[：:]\s*/, '')) || 
-                             ['加强品牌故事传播', '突出产品差异化优势', '建立用户情感连接'];
+        if (!Array.isArray(choices) || !choices[0] || !choices[0].message) {
+          console.error(`第${attempt}次API响应数据结构异常，完整响应:`, response);
+          throw new Error('AI分析服务返回数据格式异常，请稍后重试');
+        }
+
+        const content = choices[0].message.content;
+        if (!content) {
+          throw new Error('API返回空内容');
+        }
+
+        let result;
+        try {
+          // 清理可能的Markdown代码块格式
+          let cleanContent = content.trim();
+          if (cleanContent.startsWith('```json')) {
+            cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+          } else if (cleanContent.startsWith('```')) {
+            cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+          }
           
-          result = {
-            keywords: keywords.slice(0, 5),
-            tone: tone,
-            suggestions: suggestions.slice(0, 3)
-          };
+          // 尝试直接解析JSON
+          result = JSON.parse(cleanContent);
+        } catch (parseError) {
+          console.error(`第${attempt}次JSON解析失败，原始内容:`, content);
+          
+          // 如果解析失败，检查是否是错误提示
+          if (content.includes('请提供') || content.includes('内容不足') || content.length < 50) {
+            console.warn('AI返回了错误提示，使用默认分析结果');
+            result = {
+              keywords: ['品牌建设', '市场定位', '用户价值', '产品创新', '用户体验'],
+              tone: '专业、可靠、创新',
+              suggestions: ['请提供更多品牌资料以获得更准确的分析', '建议包含品牌介绍、产品描述、市场定位等信息', '可以上传品牌手册、产品介绍等文档']
+            };
+          } else {
+            // 尝试从文本中提取关键信息
+            console.warn('尝试从非JSON响应中提取信息');
+            const keywords = content.match(/关键词[：:]\s*([^，。\n]+)/g)?.map(k => k.replace(/关键词[：:]\s*/, '')) || 
+                            ['品牌建设', '市场定位', '用户价值'];
+            const tone = content.match(/语气[：:]\s*([^，。\n]+)/)?.pop() || '专业、可靠、创新';
+            const suggestions = content.match(/建议[：:]\s*([^，。\n]+)/g)?.map(s => s.replace(/建议[：:]\s*/, '')) || 
+                               ['加强品牌故事传播', '突出产品差异化优势', '建立用户情感连接'];
+            
+            result = {
+              keywords: keywords.slice(0, 5),
+              tone: tone,
+              suggestions: suggestions.slice(0, 3)
+            };
+          }
+        }
+
+        // 兼容新旧格式
+        const keywords = result.keywords || result.brandKeywords || [];
+        const brandKeywords = result.brandKeywords || keywords;
+        const productKeywords = result.productKeywords || [];
+        const targetAudience = result.targetAudience || [];
+        const brandStory = result.brandStory || [];
+        const competitiveAdvantage = result.competitiveAdvantage || [];
+
+        console.log(`第${attempt}次AI分析成功`);
+        return {
+          keywords: keywords, // 保持向后兼容
+          brandKeywords: brandKeywords,
+          productKeywords: productKeywords,
+          targetAudience: targetAudience,
+          brandStory: brandStory,
+          competitiveAdvantage: competitiveAdvantage,
+          tone: result.tone,
+          suggestions: result.suggestions
+        };
+
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.error(`第${attempt}次AI分析失败:`, lastError.message);
+        
+        // 如果不是最后一次尝试，等待一段时间后重试
+        if (attempt < maxRetries) {
+          const delay = Math.pow(2, attempt) * 1000; // 指数退避
+          console.log(`等待${delay}ms后重试...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
-
-      // 兼容新旧格式
-      const keywords = result.keywords || result.brandKeywords || [];
-      const brandKeywords = result.brandKeywords || keywords;
-      const productKeywords = result.productKeywords || [];
-      const targetAudience = result.targetAudience || [];
-      const brandStory = result.brandStory || [];
-      const competitiveAdvantage = result.competitiveAdvantage || [];
-
-      return {
-        keywords: keywords, // 保持向后兼容
-        brandKeywords: brandKeywords,
-        productKeywords: productKeywords,
-        targetAudience: targetAudience,
-        brandStory: brandStory,
-        competitiveAdvantage: competitiveAdvantage,
-        tone: result.tone,
-        suggestions: result.suggestions
-      };
-    } catch (error) {
-      console.error('AI 分析失败:', error);
-      throw new Error('品牌资料分析失败');
     }
+
+    // 所有重试都失败了，返回默认结果
+    console.error('所有AI分析尝试都失败了，使用默认分析结果');
+    console.error('最后一次错误:', lastError?.message);
+    
+    return {
+      keywords: ['品牌建设', '市场定位', '用户价值', '产品创新', '用户体验'],
+      brandKeywords: ['品牌建设', '市场定位', '用户价值'],
+      productKeywords: ['产品创新', '用户体验'],
+      targetAudience: ['目标用户', '潜在客户'],
+      brandStory: ['品牌故事', '企业文化'],
+      competitiveAdvantage: ['技术优势', '服务特色'],
+      tone: '专业、可靠、创新',
+      suggestions: [
+        '请检查网络连接和API配置',
+        '建议稍后重试或联系技术支持',
+        '当前使用默认分析结果，功能仍可正常使用'
+      ]
+    };
   }
 
   /**

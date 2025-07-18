@@ -208,43 +208,43 @@ export function getDeploymentRecommendations(): {
       variables: [
         {
           name: 'VITE_OPENAI_API_KEY',
-          value: 'sk-your-openai-api-key',
+          value: 'sk-your-actual-openai-api-key',
           required: true,
           description: 'OpenAI API密钥'
         },
         {
           name: 'VITE_AUTHING_APP_ID',
-          value: '6867fdc88034eb95ae86167d',
+          value: 'your-actual-authing-app-id',
           required: true,
           description: 'Authing应用ID'
         },
         {
           name: 'VITE_AUTHING_HOST',
-          value: 'https://qutkgzkfaezk-demo.authing.cn',
+          value: 'your-actual-authing-host',
           required: true,
           description: 'Authing域名'
         },
         {
           name: 'VITE_DEEPSEEK_API_KEY',
-          value: 'sk-your-deepseek-api-key',
+          value: 'sk-your-actual-deepseek-api-key',
           required: false,
           description: 'DeepSeek API密钥（可选）'
         },
         {
           name: 'VITE_GEMINI_API_KEY',
-          value: 'your-gemini-api-key',
+          value: 'your-actual-gemini-api-key',
           required: false,
           description: 'Gemini API密钥（可选）'
         },
         {
           name: 'VITE_CREEM_API_KEY',
-          value: 'creem_your-creem-api-key',
+          value: 'creem_your-actual-creem-api-key',
           required: false,
           description: 'Creem支付API密钥（可选）'
         },
         {
           name: 'VITE_API_BASE_URL',
-          value: 'https://www.wenpai.xyz/api',
+          value: 'https://your-domain.com/api',
           required: false,
           description: '后端API基础URL（可选）'
         }
@@ -261,19 +261,19 @@ export function getDeploymentRecommendations(): {
       variables: [
         {
           name: 'VITE_OPENAI_API_KEY',
-          value: 'sk-your-openai-api-key',
+          value: 'sk-your-actual-openai-api-key',
           required: true,
           description: 'OpenAI API密钥'
         },
         {
           name: 'VITE_AUTHING_APP_ID',
-          value: '6867fdc88034eb95ae86167d',
+          value: 'your-actual-authing-app-id',
           required: true,
           description: 'Authing应用ID'
         },
         {
           name: 'VITE_AUTHING_HOST',
-          value: 'https://qutkgzkfaezk-demo.authing.cn',
+          value: 'your-actual-authing-host',
           required: true,
           description: 'Authing域名'
         }

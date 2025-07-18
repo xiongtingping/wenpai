@@ -1,307 +1,301 @@
-import React, { useState } from 'react';
+/**
+ * 权限测试页面
+ * 用于测试和展示所有功能的权限状态
+ */
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { usePermissions } from '@/hooks/usePermissions';
-import AuthGuard from '@/components/auth/AuthGuard';
-import PermissionGuard from '@/components/auth/PermissionGuard';
+import { 
+  checkFeaturePermission, 
+  getAvailableFeatures, 
+  getUnavailableFeatures,
+  FEATURE_PERMISSIONS 
+} from '@/utils/permissionChecker';
+import { getConfigStatus } from '@/utils/configValidator';
+import { 
+  CheckCircle, 
+  XCircle, 
+  AlertTriangle, 
+  Settings, 
+  User, 
+  Shield,
+  Zap,
+  Star,
+  Lock,
+  Unlock
+} from 'lucide-react';
 
-/**
- * 检查是否为开发环境
- */
-const isDevelopment = () => {
-  return import.meta.env.DEV || process.env.NODE_ENV === 'development';
-};
+export default function PermissionTestPage() {
+  const { user } = useUnifiedAuth();
+  const [configStatus, setConfigStatus] = useState<any>(null);
+  const [availableFeatures, setAvailableFeatures] = useState<any[]>([]);
+  const [unavailableFeatures, setUnavailableFeatures] = useState<any[]>([]);
 
-/**
- * 权限测试页面组件
- * @returns React 组件
- */
-const PermissionTestPage: React.FC = () => {
-  const { user, isAuthenticated, error } = useUnifiedAuth();
-  const { roles, permissions, hasPermission, hasRole, checkPermissions } = usePermissions();
-  const [testResults, setTestResults] = useState<string[]>([]);
+  useEffect(() => {
+    // 获取配置状态
+    const status = getConfigStatus();
+    setConfigStatus(status);
 
-  /**
-   * 添加测试结果
-   */
-  const addTestResult = (result: string) => {
-    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
-  };
+    // 获取功能权限状态
+    const userPlan = user?.plan || 'trial';
+    const available = getAvailableFeatures(userPlan);
+    const unavailable = getUnavailableFeatures(userPlan);
+    
+    setAvailableFeatures(available);
+    setUnavailableFeatures(unavailable);
+  }, [user]);
 
-  /**
-   * 测试基本认证
-   */
-  const testBasicAuth = () => {
-    addTestResult(`错误信息: ${error || '无'} | 已认证: ${isAuthenticated}`);
-    if (user) {
-      addTestResult(`用户信息: ${user.username || user.email || user.id}`);
+  const getPlanIcon = (plan: string) => {
+    switch (plan) {
+      case 'premium':
+        return <Star className="h-4 w-4 text-yellow-500" />;
+      case 'pro':
+        return <Zap className="h-4 w-4 text-blue-500" />;
+      default:
+        return <User className="h-4 w-4 text-gray-500" />;
     }
   };
 
-  /**
-   * 测试权限守卫
-   */
-  const testPermissionGuard = () => {
-    addTestResult('测试权限守卫 - 需要 content:read 权限');
+  const getPlanName = (plan: string) => {
+    switch (plan) {
+      case 'premium':
+        return '高级版';
+      case 'pro':
+        return '专业版';
+      default:
+        return '试用版';
+    }
   };
 
-  /**
-   * 测试角色守卫
-   */
-  const testRoleGuard = () => {
-    addTestResult('测试角色守卫 - 需要 admin 角色');
-  };
-
-  /**
-   * 测试复杂权限
-   */
-  const testComplexPermission = () => {
-    addTestResult('测试复杂权限 - 需要 content:create 权限');
-  };
-
-  /**
-   * 测试权限检查
-   */
-  const testPermissionCheck = () => {
-    const result = checkPermissions(
-      [{ resource: 'content', action: 'read' }],
-      ['admin']
+  const getConfigStatusIcon = (status: boolean) => {
+    return status ? (
+      <CheckCircle className="h-4 w-4 text-green-500" />
+    ) : (
+      <XCircle className="h-4 w-4 text-red-500" />
     );
-    addTestResult(`权限检查结果: ${JSON.stringify(result)}`);
   };
 
-  /**
-   * 清除测试结果
-   */
-  const clearResults = () => {
-    setTestResults([]);
+  const testFeaturePermission = (featureId: string) => {
+    const userPlan = user?.plan || 'trial';
+    const result = checkFeaturePermission(featureId, userPlan);
+    
+    console.group(`🔐 测试功能权限: ${featureId}`);
+    console.log('功能名称:', FEATURE_PERMISSIONS[featureId]?.name);
+    console.log('用户计划:', userPlan);
+    console.log('权限结果:', result);
+    console.groupEnd();
+    
+    alert(`功能: ${FEATURE_PERMISSIONS[featureId]?.name}\n权限: ${result.hasPermission ? '有权限' : '无权限'}\n原因: ${result.message || '无'}`);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">权限测试页面</h1>
-        
-        {/* 开发环境标识 */}
-        {isDevelopment() && (
-          <Card className="mb-6 border-amber-200 bg-amber-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="premium">DEV</Badge>
-                <span className="font-semibold text-amber-800">开发模式</span>
-              </div>
-              <p className="text-amber-700 text-sm">
-                当前处于开发环境，所有权限检查都会返回通过，方便测试所有功能。
-                生产环境将使用真实的权限验证。
-              </p>
-            </CardContent>
-          </Card>
-        )}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">权限测试页面</h1>
+          <p className="text-gray-600">测试和展示所有功能的权限状态</p>
+        </div>
 
-        <p className="text-gray-600">
-          此页面用于测试权限系统的各项功能，包括认证、权限检查、角色验证等。
-        </p>
-      </div>
-
-      {/* 当前状态 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card>
+        {/* 用户信息 */}
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle>认证状态</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              用户信息
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <p><strong>已认证:</strong> {isAuthenticated ? '✅ 是' : '❌ 否'}</p>
-              <p><strong>用户:</strong> {user ? (user.username || user.email || user.id) : '无'}</p>
-              <p><strong>错误:</strong> {error || '无'}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">用户ID:</span>
+                <span className="text-sm text-gray-600">{user?.id || '未登录'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">用户名:</span>
+                <span className="text-sm text-gray-600">{user?.username || '未登录'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">当前计划:</span>
+                <div className="flex items-center gap-1">
+                  {getPlanIcon(user?.plan || 'trial')}
+                  <Badge variant={user?.plan === 'premium' ? 'default' : user?.plan === 'pro' ? 'secondary' : 'outline'}>
+                    {getPlanName(user?.plan || 'trial')}
+                  </Badge>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* 系统配置状态 */}
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle>权限信息</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              系统配置状态
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <p><strong>角色数量:</strong> {roles.length}</p>
-              <p><strong>权限数量:</strong> {permissions.length}</p>
-              <p><strong>环境:</strong> {isDevelopment() ? '开发环境' : '生产环境'}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium">OpenAI API</span>
+                {getConfigStatusIcon(configStatus?.openai)}
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium">Authing认证</span>
+                {getConfigStatusIcon(configStatus?.authing)}
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium">Creem支付</span>
+                {getConfigStatusIcon(configStatus?.creem)}
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium">DeepSeek API</span>
+                {getConfigStatusIcon(configStatus?.deepseek)}
+              </div>
+            </div>
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <div className="flex items-center gap-2 text-sm text-blue-800">
+                <AlertTriangle className="h-4 w-4" />
+                <span>整体配置状态: {configStatus?.overall ? '正常' : '异常'}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 可用功能 */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Unlock className="h-5 w-5 text-green-500" />
+              可用功能 ({availableFeatures.length})
+            </CardTitle>
+            <CardDescription>
+              您当前计划可以使用的功能
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {availableFeatures.map((feature) => (
+                <div key={feature.id} className="p-4 border border-green-200 bg-green-50 rounded-lg">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium text-green-900">{feature.name}</h3>
+                    <Badge variant="outline" className="text-green-700 border-green-300">
+                      {getPlanName(feature.requiredPlan)}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-green-700 mb-3">{feature.description}</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => testFeaturePermission(feature.id)}
+                    className="text-green-700 border-green-300 hover:bg-green-100"
+                  >
+                    测试权限
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 不可用功能 */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-red-500" />
+              不可用功能 ({unavailableFeatures.length})
+            </CardTitle>
+            <CardDescription>
+              需要升级计划或配置才能使用的功能
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {unavailableFeatures.map((feature) => (
+                <div key={feature.id} className="p-4 border border-red-200 bg-red-50 rounded-lg">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium text-red-900">{feature.name}</h3>
+                    <Badge variant="outline" className="text-red-700 border-red-300">
+                      {getPlanName(feature.requiredPlan)}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-red-700 mb-2">{feature.description}</p>
+                  <p className="text-xs text-red-600 mb-3">原因: {feature.reason}</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => testFeaturePermission(feature.id)}
+                    className="text-red-700 border-red-300 hover:bg-red-100"
+                  >
+                    测试权限
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 全局权限检查 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              全局权限检查
+            </CardTitle>
+            <CardDescription>
+              在浏览器控制台中运行权限检查命令
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium mb-2">可用命令:</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <code className="bg-gray-200 px-2 py-1 rounded">__checkPermission__('content-adaptation')</code>
+                    <span className="text-gray-600">检查特定功能权限</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <code className="bg-gray-200 px-2 py-1 rounded">__checkAllPermissions__()</code>
+                    <span className="text-gray-600">检查所有功能权限</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <code className="bg-gray-200 px-2 py-1 rounded">__validateConfig__()</code>
+                    <span className="text-gray-600">验证系统配置</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && (window as any).__checkAllPermissions__) {
+                      (window as any).__checkAllPermissions__();
+                    }
+                  }}
+                >
+                  运行全局检查
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && (window as any).__validateConfig__) {
+                      (window as any).__validateConfig__();
+                    }
+                  }}
+                >
+                  验证配置
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* 测试按钮 */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>测试功能</CardTitle>
-          <CardDescription>
-            点击按钮测试各项权限功能
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={testBasicAuth} variant="outline">
-              测试基本认证
-            </Button>
-            <Button onClick={testPermissionGuard} variant="outline">
-              测试权限守卫
-            </Button>
-            <Button onClick={testRoleGuard} variant="outline">
-              测试角色守卫
-            </Button>
-            <Button onClick={testComplexPermission} variant="outline">
-              测试复杂权限
-            </Button>
-            <Button onClick={testPermissionCheck} variant="outline">
-              测试权限检查
-            </Button>
-            <Button onClick={clearResults} variant="destructive">
-              清除结果
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* 基本认证守卫 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>基本认证守卫</CardTitle>
-            <CardDescription>
-              测试需要登录才能访问的内容
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AuthGuard>
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-medium">✅ 认证成功</p>
-                <p className="text-green-600 text-sm mt-1">
-                  您已通过认证，可以访问此内容
-                </p>
-              </div>
-            </AuthGuard>
-          </CardContent>
-        </Card>
-
-        {/* 权限守卫 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>权限守卫</CardTitle>
-            <CardDescription>
-              测试需要特定权限才能访问的内容
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PermissionGuard
-              requiredPermissions={['content:read']}
-              noPermissionComponent={
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 font-medium">❌ 权限不足</p>
-                  <p className="text-red-600 text-sm mt-1">
-                    您没有 content:read 权限
-                  </p>
-                </div>
-              }
-            >
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-medium">✅ 权限验证通过</p>
-                <p className="text-green-600 text-sm mt-1">
-                  您有 content:read 权限，可以访问此内容
-                </p>
-              </div>
-            </PermissionGuard>
-          </CardContent>
-        </Card>
-
-        {/* 角色守卫 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>角色守卫</CardTitle>
-            <CardDescription>
-              测试需要特定角色才能访问的内容
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PermissionGuard
-              requiredRoles={['admin']}
-              noPermissionComponent={
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 font-medium">❌ 角色不足</p>
-                  <p className="text-red-600 text-sm mt-1">
-                    您没有 admin 角色
-                  </p>
-                </div>
-              }
-            >
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-medium">✅ 角色验证通过</p>
-                <p className="text-green-600 text-sm mt-1">
-                  您有 admin 角色，可以访问此内容
-                </p>
-              </div>
-            </PermissionGuard>
-          </CardContent>
-        </Card>
-
-        {/* 复杂权限守卫 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>复杂权限守卫</CardTitle>
-            <CardDescription>
-              测试需要多个权限才能访问的内容
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PermissionGuard
-              requiredPermissions={['content:create']}
-              noPermissionComponent={
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 font-medium">❌ 权限不足</p>
-                  <p className="text-red-600 text-sm mt-1">
-                    您没有 content:create 权限
-                  </p>
-                </div>
-              }
-            >
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-medium">✅ 权限验证通过</p>
-                <p className="text-green-600 text-sm mt-1">
-                  您有 content:create 权限，可以访问此内容
-                </p>
-              </div>
-            </PermissionGuard>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 测试结果 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>测试结果</CardTitle>
-          <CardDescription>
-            测试操作的详细结果
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="max-h-64 overflow-y-auto space-y-1">
-            {testResults.length === 0 ? (
-              <p className="text-gray-500">暂无测试结果</p>
-            ) : (
-              testResults.map((result, index) => (
-                <div key={index} className="text-sm font-mono bg-gray-100 p-2 rounded">
-                  {result}
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
-};
-
-export default PermissionTestPage; 
+} 

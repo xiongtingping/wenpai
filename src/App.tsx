@@ -5,6 +5,8 @@ import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import { ToolLayout } from '@/components/layout/ToolLayout';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { PageTracker } from '@/components/analytics/PageTracker';
+import { setupGlobalConfigValidation } from '@/utils/configValidator';
+import { setupGlobalPermissionCheck } from '@/utils/permissionChecker';
 
 // 懒加载页面组件
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -36,6 +38,12 @@ const LoadingSpinner = () => (
  * 主应用组件 - 极简修正版
  */
 function App() {
+  // 初始化全局配置验证和权限检查
+  React.useEffect(() => {
+    setupGlobalConfigValidation();
+    setupGlobalPermissionCheck();
+  }, []);
+
   return (
     <Router>
       <UnifiedAuthProvider>

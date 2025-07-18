@@ -17,7 +17,7 @@ import {
   Plus, X, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
   TrendingUp, Users2, Package, Share2, MoreHorizontal,
-  Loader2
+  Loader2, Crown, Lock
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -33,6 +33,9 @@ import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
 import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
 import { BrandProfile, BrandAsset } from '@/types/brand';
 import AIAnalysisService from '@/services/aiAnalysisService';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { usePermission } from '@/hooks/usePermission';
+import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 
 /**
  * 品牌语料库维度接口
@@ -59,6 +62,70 @@ type SortOption = 'date-new' | 'date-old' | 'name-asc' | 'name-desc' | 'size-asc
  * @description 多维品牌语料库，支持AI自动分析和用户自定义修改
  */
 export default function BrandLibraryPage() {
+  const { user: currentUser, isAuthenticated } = useUnifiedAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // 权限检查：品牌库功能仅对高级版用户开放
+  const hasPremiumAccess = currentUser?.subscription?.tier === 'premium';
+  
+  // 如果用户没有高级版权限，显示升级提示
+  if (!hasPremiumAccess) {
+    const premiumPlan = SUBSCRIPTION_PLANS.find(plan => plan.tier === 'premium');
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center">
+          <CardHeader>
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mb-4">
+              <Crown className="h-8 w-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-gray-900">品牌库功能</CardTitle>
+            <CardDescription className="text-gray-600">
+              这是高级版专属功能，需要升级到高级版才能使用
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
+              <h3 className="font-semibold text-yellow-800 mb-2">高级版特权</h3>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>• 品牌库完整功能</li>
+                <li>• AI内容适配器不限次数</li>
+                <li>• 50万Token额度/月</li>
+                <li>• 高级及最新AI模型</li>
+                <li>• 创意魔方功能</li>
+              </ul>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                ¥{premiumPlan?.monthly.originalPrice}/月
+              </div>
+              <div className="text-sm text-gray-500 mb-4">
+                或 ¥{premiumPlan?.yearly.originalPrice}/年（更优惠）
+              </div>
+              
+              <Button 
+                onClick={() => navigate('/payment')}
+                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+              >
+                立即升级到高级版
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/')}
+                className="w-full mt-2"
+              >
+                返回首页
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState('dimensions');
   const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
@@ -93,8 +160,6 @@ export default function BrandLibraryPage() {
   const [isViewingAsset, setIsViewingAsset] = useState<string | null>(null);
   const [isAnalyzingAsset, setIsAnalyzingAsset] = useState<string | null>(null);
   const [assetViewerContent, setAssetViewerContent] = useState('');
-  const { toast } = useToast();
-  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // 可用的文件分类

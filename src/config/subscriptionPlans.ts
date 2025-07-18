@@ -64,7 +64,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '创意魔方',
       '全网雷达',
       '我的资料库',
-      '品牌库',
       'Token额度：20万/月',
       '高级模型'
     ]

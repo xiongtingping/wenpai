@@ -120,6 +120,8 @@ export default function PaymentPage() {
     setShowQRCode(false);
     setTimeout(() => {
       paymentInfoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // 确保支付信息区域在视窗中央
+      window.scrollBy(0, -100);
     }, 100);
   };
 
@@ -127,9 +129,11 @@ export default function PaymentPage() {
   const handlePeriodSelect = (period: SubscriptionPeriod) => {
     setSelectedPeriod(period);
     setShowQRCode(false);
-    setTimeout(() => {
-      paymentInfoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
+    // 滚动到页面顶部，让用户看到完整的订阅计划
+    window.scrollTo({ 
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
   // 获取当前价格
@@ -253,7 +257,7 @@ export default function PaymentPage() {
       </div>
 
       {/* 订阅计划选择 - 上方 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 max-w-6xl mx-auto justify-items-center">
         {SUBSCRIPTION_PLANS.map((plan) => {
           const pricing = selectedPeriod === 'monthly' ? plan.monthly : plan.yearly;
           const originalPrice = pricing.originalPrice;

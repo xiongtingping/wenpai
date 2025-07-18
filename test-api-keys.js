@@ -3,10 +3,11 @@
  * 验证配置的API密钥是否正常工作
  */
 
+// 从环境变量获取API密钥，避免硬编码
 const API_KEYS = {
-  OPENAI: sk-***[已隐藏]***,
-  DEEPSEEK: 'sk-c195bdaf58941978ec7322fc6dd88,
-  GEMINI: 'your-gemini-api-key'
+  OPENAI: process.env.VITE_OPENAI_API_KEY || '',
+  DEEPSEEK: process.env.VITE_DEEPSEEK_API_KEY || '',
+  GEMINI: process.env.VITE_GEMINI_API_KEY || ''
 };
 
 /**
@@ -14,6 +15,11 @@ const API_KEYS = {
  */
 async function testOpenAI() {
   console.log('🧪 测试OpenAI API...');
+  
+  if (!API_KEYS.OPENAI) {
+    console.log('❌ OpenAI API密钥未设置');
+    return;
+  }
   
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -49,6 +55,11 @@ async function testOpenAI() {
 async function testDeepSeek() {
   console.log('🧪 测试DeepSeek API...');
   
+  if (!API_KEYS.DEEPSEEK) {
+    console.log('❌ DeepSeek API密钥未设置');
+    return;
+  }
+  
   try {
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
@@ -81,13 +92,13 @@ async function testDeepSeek() {
  * 运行所有测试
  */
 async function runAllTests() {
-  console.log('�� 开始API密钥测试...\n');
+  console.log('🧪 开始API密钥测试...\n');
   
   await testOpenAI();
   console.log('');
   await testDeepSeek();
   
-  console.log('\n�� API密钥测试完成');
+  console.log('\n✅ API密钥测试完成');
 }
 
 // 如果在浏览器中运行
