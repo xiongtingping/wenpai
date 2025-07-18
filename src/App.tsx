@@ -45,8 +45,8 @@ const ConditionalNavigation: React.FC = () => {
 export default function App() {
   return (
     <>
-      {/* 滚动管理组件 - 禁用自动滚动到顶部 */}
-      <ScrollManager autoScrollToTop={false} />
+      {/* 滚动管理组件 - 启用自动滚动到顶部 */}
+      <ScrollManager autoScrollToTop={true} />
       <PageTracker />
       
       {/* 条件性顶部导航栏 - 首页隐藏，二级页面显示 */}
