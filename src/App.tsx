@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { TopNavigation } from '@/components/layout/TopNavigation';
 import { ScrollManager } from '@/components/layout/ScrollManager';
 import AuthGuard from '@/components/auth/AuthGuard';
+import PreviewGuard from '@/components/auth/PreviewGuard';
 import PageTracker from '@/components/analytics/PageTracker';
 
 // 页面组件导入
@@ -20,6 +21,7 @@ import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import HotTopicsPage from '@/pages/HotTopicsPage';
 import BookmarkPage from '@/pages/BookmarkPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
+import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
@@ -72,9 +74,30 @@ export default function App() {
             </AuthGuard>
           } />
           
+          {/* 需要专业版权限的页面 */}
           <Route path="/creative-studio" element={
             <AuthGuard>
-              <CreativeStudioPage />
+              <PreviewGuard
+                featureId="creative-studio"
+                featureName="创意魔方"
+                featureDescription="AI驱动的创意内容生成工具，包含九宫格创意魔方、营销日历、朋友圈模板和Emoji生成器"
+                allowClose={true}
+              >
+                <CreativeStudioPage />
+              </PreviewGuard>
+            </AuthGuard>
+          } />
+          
+          <Route path="/content-extractor" element={
+            <AuthGuard>
+              <PreviewGuard
+                featureId="content-extractor"
+                featureName="内容提取器"
+                featureDescription="智能提取网页内容并生成摘要"
+                allowClose={true}
+              >
+                <ContentExtractorPage />
+              </PreviewGuard>
             </AuthGuard>
           } />
           
@@ -90,9 +113,17 @@ export default function App() {
             </AuthGuard>
           } />
           
+          {/* 需要高级版权限的页面 */}
           <Route path="/brand-library" element={
             <AuthGuard>
-              <BrandLibraryPage />
+              <PreviewGuard
+                featureId="brand-library"
+                featureName="品牌库功能"
+                featureDescription="多维品牌语料库，支持AI自动分析和用户自定义修改"
+                allowClose={true}
+              >
+                <BrandLibraryPage />
+              </PreviewGuard>
             </AuthGuard>
           } />
           

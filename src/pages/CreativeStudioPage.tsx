@@ -48,7 +48,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
-import PreviewGuard from '@/components/auth/PreviewGuard';
+
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
 const EmojiPage = React.lazy(() => import('@/pages/EmojiPage'));
@@ -64,13 +64,7 @@ export default function CreativeStudioPage() {
   const [activeTab, setActiveTab] = useState('calendar');
 
   return (
-    <PreviewGuard
-      featureId="creative-studio"
-      featureName="创意魔方"
-      featureDescription="AI驱动的创意内容生成工具，包含九宫格创意魔方、营销日历、朋友圈模板和Emoji生成器"
-      allowClose={true}
-    >
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
         {/* 页面导航 */}
         <PageNavigation
           title="创意魔方"
@@ -134,6 +128,5 @@ export default function CreativeStudioPage() {
           </Tabs>
         </div>
       </div>
-    </PreviewGuard>
   );
 } 

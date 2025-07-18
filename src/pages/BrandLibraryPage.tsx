@@ -41,7 +41,7 @@ import AIAnalysisService from '@/services/aiAnalysisService';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
-import PreviewGuard from '@/components/auth/PreviewGuard';
+
 
 /**
  * 品牌语料库维度接口
@@ -72,15 +72,8 @@ export default function BrandLibraryPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // 使用PreviewGuard组件进行权限检查
   return (
-    <PreviewGuard
-      featureId="brand-library"
-      featureName="品牌库功能"
-      featureDescription="多维品牌语料库，支持AI自动分析和用户自定义修改"
-      allowClose={true}
-    >
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <PageNavigation
           title="多维品牌语料库"
           description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
@@ -268,6 +261,5 @@ export default function BrandLibraryPage() {
           </Tabs>
         </div>
       </div>
-    </PreviewGuard>
   );
 }

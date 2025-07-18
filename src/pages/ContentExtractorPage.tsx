@@ -42,7 +42,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import PreviewGuard from '@/components/auth/PreviewGuard';
 
 /**
  * 提取结果接口
@@ -568,13 +567,7 @@ ${mockResult.content}
   };
 
   return (
-    <PreviewGuard
-      featureId="content-extractor"
-      featureName="内容提取器"
-      featureDescription="智能提取网页内容并生成摘要"
-      allowClose={true}
-    >
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       {/* 页面导航 */}
       <PageNavigation
         title="内容提取与AI总结"
@@ -886,9 +879,8 @@ ${mockResult.content}
               </Card>
             )}
           </div>
+                  </div>
         </div>
       </div>
-      </div>
-    </PreviewGuard>
   );
 } 
