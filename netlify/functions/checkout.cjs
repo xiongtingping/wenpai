@@ -35,13 +35,21 @@ exports.handler = async function(event) {
   }
 
   try {
+    console.log('=== 支付函数开始执行 ===');
+    console.log('请求方法:', event.httpMethod);
+    console.log('请求路径:', event.path);
+    console.log('请求头:', JSON.stringify(event.headers, null, 2));
+    
     const body = JSON.parse(event.body || "{}");
+    console.log('请求体:', JSON.stringify(body, null, 2));
+    
     const priceId = body.priceId;
     const productId = body.productId || body.priceId;
     const customerEmail = body.customerEmail;
 
     // 验证必需参数
     if (!priceId) {
+      console.error('缺少必需参数: priceId');
       return {
         statusCode: 400,
         headers: corsHeaders,
@@ -50,7 +58,10 @@ exports.handler = async function(event) {
     }
 
     // 调试环境变量
+    console.log('=== 环境变量检查 ===');
     console.log('CREEM_API_KEY:', process.env.CREEM_API_KEY ? '已配置' : '未配置');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('所有环境变量:', Object.keys(process.env).filter(key => key.includes('CREEM') || key.includes('API')));
 
     // 获取API Key
     const creemApiKey = process.env.CREEM_API_KEY;
@@ -59,7 +70,10 @@ exports.handler = async function(event) {
       return {
         statusCode: 500,
         headers: corsHeaders,
-        body: JSON.stringify({ error: '支付服务配置错误，请联系管理员' })
+        body: JSON.stringify({ 
+          error: '支付服务配置错误，请联系管理员',
+          details: 'CREEM_API_KEY 环境变量未配置'
+        })
       };
     }
 
@@ -68,6 +82,7 @@ exports.handler = async function(event) {
     const creem = new Creem();
     
     // 调用Creem API创建支付检查点
+    console.log('调用Creem API...');
     const checkout = await creem.createCheckout({
       createCheckoutRequest: {
         priceId: priceId,
@@ -98,10 +113,13 @@ exports.handler = async function(event) {
       alipayQrCodeUrl = checkout.checkoutUrl;
     }
     
+    console.log('支付宝二维码URL:', alipayQrCodeUrl);
+    
     // 生成二维码图片
     let qrCodeDataURL = null;
     if (alipayQrCodeUrl) {
       try {
+        console.log('开始生成二维码...');
         qrCodeDataURL = await QRCode.toDataURL(alipayQrCodeUrl, {
           width: 300,
           margin: 2,
@@ -145,23 +163,36 @@ exports.handler = async function(event) {
       hasAlipayUrl: !!alipayQrCodeUrl
     });
     
+    console.log('=== 支付函数执行完成 ===');
+    
     return {
       statusCode: 200,
       headers: corsHeaders,
       body: JSON.stringify(responseData)
     };
   } catch (error) {
-    console.error('Creem createCheckout 调用失败:', error);
+    console.error('=== 支付函数执行失败 ===');
+    console.error('错误类型:', error.constructor.name);
+    console.error('错误消息:', error.message);
+    console.error('错误堆栈:', error.stack);
+    console.error('完整错误对象:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     
     // 提供更友好的错误信息
     let errorMessage = '支付服务暂时不可用，请稍后重试';
+    let errorDetails = '';
+    
     if (error.message) {
-      if (error.message.includes('API key')) {
+      if (error.message.includes('API key') || error.message.includes('authentication')) {
         errorMessage = '支付服务配置错误，请联系管理员';
-      } else if (error.message.includes('network')) {
+        errorDetails = 'API密钥验证失败';
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
         errorMessage = '网络连接失败，请检查网络设置';
-      } else if (error.message.includes('price')) {
+        errorDetails = '网络请求失败';
+      } else if (error.message.includes('price') || error.message.includes('product')) {
         errorMessage = '商品信息错误，请重新选择';
+        errorDetails = '商品参数错误';
+      } else {
+        errorDetails = error.message;
       }
     }
     
@@ -170,7 +201,11 @@ exports.handler = async function(event) {
       headers: corsHeaders,
       body: JSON.stringify({ 
         error: errorMessage,
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: errorDetails,
+        debug: process.env.NODE_ENV === 'development' ? {
+          message: error.message,
+          stack: error.stack
+        } : undefined
       })
     };
   }
