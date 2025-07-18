@@ -1,159 +1,182 @@
 /**
- * 配置验证工具
- * 用于检查和修复API配置问题
+ * 全局配置验证器
+ * 用于验证应用运行所需的配置和环境
  */
-
-import { getAPIConfig, isValidAPIKey } from '@/config/apiConfig';
 
 /**
- * 配置验证结果
+ * 配置验证结果接口
  */
-export interface ConfigValidationResult {
+interface ConfigValidationResult {
   isValid: boolean;
   missingConfigs: string[];
-  invalidConfigs: string[];
   warnings: string[];
-  suggestions: string[];
+  errors: string[];
+  networkStatus: {
+    online: boolean;
+    apiEndpoint: string;
+    canConnect: boolean;
+  };
 }
 
 /**
- * 验证所有API配置
+ * 验证所有必需的配置
+ * @returns {ConfigValidationResult} 验证结果
  */
-export function validateAllConfigs(): ConfigValidationResult {
-  const config = getAPIConfig();
+export async function validateAllConfigs(): Promise<ConfigValidationResult> {
   const result: ConfigValidationResult = {
     isValid: true,
     missingConfigs: [],
-    invalidConfigs: [],
     warnings: [],
-    suggestions: []
+    errors: [],
+    networkStatus: {
+      online: navigator.onLine,
+      apiEndpoint: '',
+      canConnect: false
+    }
   };
 
+  // 检查网络连接
+  if (!navigator.onLine) {
+    result.errors.push('网络连接不可用');
+    result.isValid = false;
+  }
+
   // 检查OpenAI配置
-  if (!config.openai.apiKey) {
+  const openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (!openaiKey) {
     result.missingConfigs.push('OpenAI API Key');
-    result.isValid = false;
-  } else if (!isValidAPIKey(config.openai.apiKey, 'openai')) {
-    result.invalidConfigs.push('OpenAI API Key');
-    result.isValid = false;
+    result.warnings.push('AI功能将不可用');
   }
 
   // 检查Authing配置
-  if (!config.authing.appId) {
+  const authingAppId = import.meta.env.VITE_AUTHING_APP_ID;
+  if (!authingAppId) {
     result.missingConfigs.push('Authing App ID');
+    result.warnings.push('用户认证功能将不可用');
+  }
+
+  // 检查Creem支付配置
+  const creemApiKey = import.meta.env.VITE_CREEM_API_KEY;
+  if (!creemApiKey) {
+    result.missingConfigs.push('Creem API Key');
+    result.warnings.push('支付功能将不可用');
+  }
+
+  // 测试支付API连接
+  try {
+    const apiEndpoint = getPaymentAPIEndpoint();
+    result.networkStatus.apiEndpoint = apiEndpoint;
+    
+    // 测试API连接
+    const response = await fetch(apiEndpoint, {
+      method: 'OPTIONS',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    result.networkStatus.canConnect = response.ok;
+    
+    if (!response.ok) {
+      result.errors.push(`支付API连接失败: ${response.status}`);
+      result.isValid = false;
+    }
+  } catch (error: any) {
+    result.networkStatus.canConnect = false;
+    result.errors.push(`支付API连接错误: ${error.message}`);
     result.isValid = false;
   }
 
-  if (!config.authing.host) {
-    result.missingConfigs.push('Authing Host');
-    result.isValid = false;
-  }
-
-  // 检查Creem配置（可选）
-  if (!config.creem.apiKey) {
-    result.warnings.push('Creem API Key未配置，支付功能可能不可用');
-  } else if (!isValidAPIKey(config.creem.apiKey, 'creem')) {
-    result.invalidConfigs.push('Creem API Key');
-  }
-
-  // 检查DeepSeek配置（可选）
-  if (!config.deepseek.apiKey) {
-    result.warnings.push('DeepSeek API Key未配置，将使用OpenAI作为备选');
-  } else if (!isValidAPIKey(config.deepseek.apiKey, 'deepseek')) {
-    result.invalidConfigs.push('DeepSeek API Key');
-  }
-
-  // 生成建议
+  // 如果有缺失的配置，标记为无效
   if (result.missingConfigs.length > 0) {
-    result.suggestions.push('请在.env.local文件中配置缺失的API密钥');
-  }
-
-  if (result.invalidConfigs.length > 0) {
-    result.suggestions.push('请检查API密钥格式是否正确');
-  }
-
-  if (!result.isValid) {
-    result.suggestions.push('建议访问 https://platform.openai.com/api-keys 获取OpenAI API密钥');
-    result.suggestions.push('建议检查Authing控制台配置是否正确');
+    result.isValid = false;
   }
 
   return result;
 }
 
 /**
- * 显示配置验证结果
+ * 获取支付API端点
+ * @returns {string} API端点URL
  */
-export function displayConfigValidation(): void {
-  const result = validateAllConfigs();
+function getPaymentAPIEndpoint(): string {
+  if (import.meta.env.PROD) {
+    return '/.netlify/functions/checkout';
+  }
   
-  console.group('🔧 API配置验证结果');
+  if (import.meta.env.DEV) {
+    return 'http://localhost:8888/.netlify/functions/checkout';
+  }
   
-  if (result.isValid) {
-    console.log('✅ 所有必需配置已正确设置');
-  } else {
-    console.error('❌ 发现配置问题：');
-    if (result.missingConfigs.length > 0) {
-      console.error('  缺失配置:', result.missingConfigs.join(', '));
-    }
-    if (result.invalidConfigs.length > 0) {
-      console.error('  无效配置:', result.invalidConfigs.join(', '));
-    }
-  }
-
-  if (result.warnings.length > 0) {
-    console.warn('⚠️  警告:', result.warnings.join(', '));
-  }
-
-  if (result.suggestions.length > 0) {
-    console.log('💡 建议:', result.suggestions.join(', '));
-  }
-
-  console.groupEnd();
+  return '/.netlify/functions/checkout';
 }
 
 /**
- * 全局配置验证函数
- * 在window对象上暴露，供浏览器控制台调用
+ * 验证特定配置
+ * @param configName 配置名称
+ * @returns {boolean} 是否有效
  */
-export function setupGlobalConfigValidation(): void {
-  if (typeof window !== 'undefined') {
-    (window as any).__validateConfig__ = () => {
-      const result = validateAllConfigs();
-      
-      if (!result.isValid) {
-        console.error('⚠️ 缺少必需的配置:', result.missingConfigs.join(', '));
-        console.error('请确保在生产环境中正确设置了环境变量');
-        return false;
-      }
-      
-      console.log('✅ 配置验证通过');
-      return true;
-    };
+export function validateConfig(configName: string): boolean {
+  const configMap: Record<string, string> = {
+    'openai': import.meta.env.VITE_OPENAI_API_KEY,
+    'authing': import.meta.env.VITE_AUTHING_APP_ID,
+    'creem': import.meta.env.VITE_CREEM_API_KEY,
+  };
 
-    // 自动验证
-    if (import.meta.env.DEV) {
-      displayConfigValidation();
-    }
-  }
+  return !!configMap[configName];
 }
 
 /**
  * 获取配置状态摘要
+ * @returns {string} 配置状态摘要
  */
-export function getConfigStatus(): {
-  openai: boolean;
-  authing: boolean;
-  creem: boolean;
-  deepseek: boolean;
-  overall: boolean;
-} {
-  const config = getAPIConfig();
-  
-  return {
-    openai: !!(config.openai.apiKey && isValidAPIKey(config.openai.apiKey, 'openai')),
-    authing: !!(config.authing.appId && config.authing.host),
-    creem: !!(config.creem.apiKey && isValidAPIKey(config.creem.apiKey, 'creem')),
-    deepseek: !!(config.deepseek.apiKey && isValidAPIKey(config.deepseek.apiKey, 'deepseek')),
-    overall: !!(config.openai.apiKey && config.authing.appId && config.authing.host)
+export function getConfigSummary(): string {
+  const openaiValid = validateConfig('openai');
+  const authingValid = validateConfig('authing');
+  const creemValid = validateConfig('creem');
+  const networkValid = navigator.onLine;
+
+  const status = {
+    'AI服务': openaiValid ? '✅' : '❌',
+    '用户认证': authingValid ? '✅' : '❌',
+    '支付服务': creemValid ? '✅' : '❌',
+    '网络连接': networkValid ? '✅' : '❌',
   };
+
+  return Object.entries(status)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(' | ');
+}
+
+/**
+ * 初始化配置验证
+ * 在应用启动时自动运行
+ */
+export function initializeConfigValidation(): void {
+  console.log('🔧 开始验证应用配置...');
+  
+  validateAllConfigs().then(result => {
+    console.log('📋 配置验证结果:', result);
+    
+    if (!result.isValid) {
+      console.warn('⚠️ 配置验证失败:', {
+        missing: result.missingConfigs,
+        warnings: result.warnings,
+        errors: result.errors
+      });
+    } else {
+      console.log('✅ 配置验证通过');
+    }
+    
+    console.log('🌐 网络状态:', result.networkStatus);
+  }).catch(error => {
+    console.error('❌ 配置验证过程出错:', error);
+  });
+}
+
+// 在浏览器控制台暴露验证函数
+if (typeof window !== 'undefined') {
+  (window as any).__validateConfig__ = validateAllConfigs;
+  (window as any).__validateSpecificConfig__ = validateConfig;
+  (window as any).__getConfigSummary__ = getConfigSummary;
 } 

@@ -6,6 +6,25 @@
 import QRCode from "qrcode";
 
 /**
+ * 获取API端点
+ * 根据环境自动选择正确的API端点
+ */
+function getAPIEndpoint(): string {
+  // 生产环境使用Netlify Functions
+  if (import.meta.env.PROD) {
+    return '/.netlify/functions/checkout';
+  }
+  
+  // 开发环境使用本地Netlify Functions
+  if (import.meta.env.DEV) {
+    return 'http://localhost:8888/.netlify/functions/checkout';
+  }
+  
+  // 默认使用相对路径（适用于大多数部署环境）
+  return '/.netlify/functions/checkout';
+}
+
+/**
  * 创建支付检查点（通过后端API）
  * @param priceId 价格ID
  * @param customerEmail 客户邮箱（可选）
@@ -18,8 +37,11 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       throw new Error('网络连接不可用');
     }
 
+    const apiEndpoint = getAPIEndpoint();
+    console.log('使用API端点:', apiEndpoint);
+
     // 调用后端API创建支付检查点
-    const response = await fetch('http://localhost:8888/.netlify/functions/checkout', {
+    const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,11 +53,14 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({ error: '网络请求失败' }));
+      console.error('支付API错误:', errorData);
       throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('支付检查点创建成功:', data);
+    
     return {
       success: true,
       checkout: data.checkout,
@@ -45,9 +70,14 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       price: data.price
     };
   } catch (error: any) {
-    // 简化错误处理，减少日志输出
-    console.log('支付服务暂时不可用，请稍后重试');
-    throw new Error('支付服务暂时不可用');
+    console.error('支付服务调用失败:', error);
+    
+    // 提供更友好的错误信息
+    if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+      throw new Error('支付服务暂时不可用，请稍后重试');
+    }
+    
+    throw new Error(error.message || '支付服务暂时不可用');
   }
 }
 
@@ -80,7 +110,7 @@ export async function getAlipayQRCode(priceId: string, customerEmail?: string) {
       price: result.price
     };
   } catch (error: any) {
-    console.log('获取支付宝二维码失败，请稍后重试');
+    console.error('获取支付宝二维码失败:', error);
     throw error;
   }
 }
@@ -129,7 +159,7 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
       originalUrl: qrResult.qrUrl
     };
   } catch (error: any) {
-    console.log('生成二维码失败，请稍后重试');
+    console.error('生成二维码失败:', error);
     throw error;
   }
 }

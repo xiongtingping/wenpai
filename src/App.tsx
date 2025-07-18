@@ -1,119 +1,103 @@
-import React, { Suspense } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
-import { ToolLayout } from '@/components/layout/ToolLayout';
-import { ScrollToTop } from '@/components/layout/ScrollToTop';
-import { PageTracker } from '@/components/analytics/PageTracker';
-import { setupGlobalConfigValidation } from '@/utils/configValidator';
-import { setupGlobalPermissionCheck } from '@/utils/permissionChecker';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { initializeConfigValidation } from '@/utils/configValidator';
 
-// 懒加载页面组件
-const HomePage = React.lazy(() => import('@/pages/HomePage'));
-const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
-const AdaptPage = React.lazy(() => import('@/pages/AdaptPage'));
-const CreativeCubePage = React.lazy(() => import('@/pages/CreativeCubePage'));
-const CreativeStudioPage = React.lazy(() => import('@/pages/CreativeStudioPage'));
-const BrandLibraryPage = React.lazy(() => import('@/pages/BrandLibraryPage'));
-const BookmarkPage = React.lazy(() => import('@/pages/BookmarkPage'));
-const ContentExtractorPage = React.lazy(() => import('@/pages/ContentExtractorPage'));
-const HotTopicsPage = React.lazy(() => import('@/pages/HotTopicsPage'));
-const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
-const PaymentPage = React.lazy(() => import('@/pages/PaymentPage'));
-const TermsPage = React.lazy(() => import('@/pages/TermsPage'));
-const PrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
-// const CallbackPage = React.lazy(() => import('@/pages/CallbackPage'));
-const PermissionTestPage = React.lazy(() => import('@/pages/PermissionTestPage'));
-const AIConfigTestPage = React.lazy(() => import('@/pages/AIConfigTestPage'));
-const APIConfigTestPage = React.lazy(() => import('@/pages/APIConfigTestPage'));
+// 页面导入
+import HomePage from '@/pages/HomePage';
+import AboutPage from '@/pages/AboutPage';
+import LoginPage from '@/pages/LoginPage';
+import PaymentPage from '@/pages/PaymentPage';
+import PaymentTestPage from '@/pages/PaymentTestPage';
+import PaymentPlanDemoPage from '@/pages/PaymentPlanDemoPage';
+import CreemPaymentTestPage from '@/pages/CreemPaymentTestPage';
+import CheckoutTestPage from '@/pages/CheckoutTestPage';
+import EnhancedPaymentPage from '@/pages/EnhancedPaymentPage';
+import PaymentStatusPage from '@/pages/PaymentStatusPage';
+import AdaptPage from '@/pages/AdaptPage';
+import BrandLibraryPage from '@/pages/BrandLibraryPage';
+import BrandAnalysisPage from '@/pages/BrandAnalysisPage';
+import AIConfigTestPage from '@/pages/AIConfigTestPage';
+import PermissionTestPage from '@/pages/PermissionTestPage';
 
-// 加载组件
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-  </div>
-);
+// 组件导入
+import AuthGuard from '@/components/auth/AuthGuard';
+import PageTracker from '@/components/analytics/PageTracker';
 
 /**
- * 主应用组件 - 极简修正版
+ * 主应用组件
+ * @returns {JSX.Element}
  */
-function App() {
-  // 初始化全局配置验证和权限检查
-  React.useEffect(() => {
-    setupGlobalConfigValidation();
-    setupGlobalPermissionCheck();
+export default function App() {
+  const { isInitialized } = useUnifiedAuth();
+
+  /**
+   * 应用初始化
+   */
+  useEffect(() => {
+    // 初始化配置验证
+    initializeConfigValidation();
+    
+    console.log('🚀 应用启动完成');
   }, []);
+
+  // 等待认证初始化完成
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">正在初始化...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>
-      <UnifiedAuthProvider>
-        <ScrollToTop />
-        <PageTracker />
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            
-            
-            <Route path="/permission-test" element={<PermissionTestPage />} />
-            <Route path="/ai-config-test" element={<AIConfigTestPage />} />
-            <Route path="/api-config-test" element={<APIConfigTestPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            {/* 工具页面 */}
-            <Route path="/adapt" element={
-              <ToolLayout>
-                <AdaptPage />
-              </ToolLayout>
-            } />
-            <Route path="/creative" element={
-              <ToolLayout>
-                <CreativeCubePage />
-              </ToolLayout>
-            } />
-            <Route path="/creative-studio" element={
-              <ToolLayout>
-                <CreativeStudioPage />
-              </ToolLayout>
-            } />
-            <Route path="/creative-cube" element={
-              <ToolLayout>
-                <CreativeCubePage />
-              </ToolLayout>
-            } />
-            <Route path="/brand-library" element={
-              <ToolLayout>
-                <BrandLibraryPage />
-              </ToolLayout>
-            } />
-            <Route path="/library" element={
-              <ToolLayout>
-                <BookmarkPage />
-              </ToolLayout>
-            } />
-            <Route path="/content-extractor" element={
-              <ToolLayout>
-                <ContentExtractorPage />
-              </ToolLayout>
-            } />
-            <Route path="/hot-topics" element={
-              <ToolLayout>
-                <HotTopicsPage />
-              </ToolLayout>
-            } />
-            {/* 用户页面 */}
-            <Route path="/profile" element={
-              <ToolLayout>
-                <ProfilePage />
-              </ToolLayout>
-            } />
-            <Route path="/payment" element={<PaymentPage />} />
-          </Routes>
-        </Suspense>
-        <Toaster />
-      </UnifiedAuthProvider>
+      <PageTracker />
+      <div className="min-h-screen bg-background">
+        <Routes>
+          {/* 公开页面 */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          
+          {/* 支付相关页面 */}
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment-test" element={<PaymentTestPage />} />
+          <Route path="/payment-plan-demo" element={<PaymentPlanDemoPage />} />
+          <Route path="/creem-payment-test" element={<CreemPaymentTestPage />} />
+          <Route path="/checkout-test" element={<CheckoutTestPage />} />
+          <Route path="/enhanced-payment" element={<EnhancedPaymentPage />} />
+          <Route path="/payment-status" element={<PaymentStatusPage />} />
+          
+          {/* 需要认证的页面 */}
+          <Route path="/adapt" element={
+            <AuthGuard>
+              <AdaptPage />
+            </AuthGuard>
+          } />
+          
+          <Route path="/brand-library" element={
+            <AuthGuard>
+              <BrandLibraryPage />
+            </AuthGuard>
+          } />
+          
+          <Route path="/brand-analysis" element={
+            <AuthGuard>
+              <BrandAnalysisPage />
+            </AuthGuard>
+          } />
+          
+          {/* 测试页面 */}
+          <Route path="/ai-config-test" element={<AIConfigTestPage />} />
+          <Route path="/permission-test" element={<PermissionTestPage />} />
+        </Routes>
+      </div>
+      <Toaster />
     </Router>
   );
 }
-
-export default App;

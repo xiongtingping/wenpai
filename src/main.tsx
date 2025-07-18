@@ -1,8 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import '@authing/guard-react/dist/esm/guard.min.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 
 /**
  * 开发环境配置
@@ -109,8 +109,10 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <UnifiedAuthProvider>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </UnifiedAuthProvider>
   </React.StrictMode>,
 );

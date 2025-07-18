@@ -1,215 +1,150 @@
 /**
- * 支付状态管理页面
- * 用于查看和管理所有支付状态
+ * 支付服务状态检查页面
+ * 用于诊断支付相关的配置和连接问题
  */
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 import { 
-  RefreshCw, 
-  Download, 
-  Upload, 
-  Trash2, 
-  Settings, 
-  Clock, 
   CheckCircle, 
+  XCircle, 
   AlertCircle, 
-  X,
-  Search,
-  Filter
+  RefreshCw, 
+  Loader2,
+  Wifi,
+  WifiOff,
+  Settings,
+  CreditCard,
+  Shield,
+  Smartphone
 } from 'lucide-react';
-import { paymentStatusService, PaymentStatusData } from '@/services/paymentStatusService';
-import { EnhancedPaymentStatusMonitor } from '@/components/payment/EnhancedPaymentStatusMonitor';
+import { validateAllConfigs, getConfigSummary } from '@/utils/configValidator';
 
+/**
+ * 状态检查结果接口
+ */
+interface StatusCheckResult {
+  name: string;
+  status: 'success' | 'error' | 'warning';
+  message: string;
+  details?: string;
+  timestamp: string;
+}
+
+/**
+ * 支付服务状态检查页面
+ * @returns {JSX.Element}
+ */
 export default function PaymentStatusPage() {
-  const [allPayments, setAllPayments] = useState<PaymentStatusData[]>([]);
-  const [filteredPayments, setFilteredPayments] = useState<PaymentStatusData[]>([]);
-  const [stats, setStats] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [monitoringPayments, setMonitoringPayments] = useState<string[]>([]);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    loadPaymentData();
-  }, []);
-
-  useEffect(() => {
-    filterPayments();
-  }, [allPayments, searchTerm, statusFilter]);
+  const [checkResults, setCheckResults] = useState<StatusCheckResult[]>([]);
+  const [isChecking, setIsChecking] = useState(false);
+  const [lastCheckTime, setLastCheckTime] = useState<string>('');
 
   /**
-   * 加载支付数据
+   * 执行状态检查
    */
-  const loadPaymentData = () => {
+  const performStatusCheck = async () => {
+    setIsChecking(true);
+    const results: StatusCheckResult[] = [];
+    const now = new Date().toLocaleString();
+
     try {
-      setIsLoading(true);
-      const allPaymentsData = paymentStatusService.getAllPaymentStatuses();
-      const paymentsArray = Object.values(allPaymentsData);
-      setAllPayments(paymentsArray);
-      
-      const statsData = paymentStatusService.getPaymentStats();
-      setStats(statsData);
-    } catch (error) {
-      console.error('加载支付数据失败:', error);
-      toast({
-        title: "加载失败",
-        description: "无法加载支付数据",
-        variant: "destructive",
+      // 1. 检查网络连接
+      results.push({
+        name: '网络连接',
+        status: navigator.onLine ? 'success' : 'error',
+        message: navigator.onLine ? '网络连接正常' : '网络连接不可用',
+        details: navigator.onLine ? '可以访问互联网' : '请检查网络设置',
+        timestamp: now
       });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  /**
-   * 过滤支付记录
-   */
-  const filterPayments = () => {
-    let filtered = allPayments;
-
-    // 按状态过滤
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(payment => payment.status === statusFilter);
-    }
-
-    // 按搜索词过滤
-    if (searchTerm) {
-      filtered = filtered.filter(payment => 
-        payment.checkoutId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.message.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredPayments(filtered);
-  };
-
-  /**
-   * 开始监控支付状态
-   */
-  const startMonitoring = (checkoutId: string) => {
-    setMonitoringPayments(prev => [...prev, checkoutId]);
-    toast({
-      title: "开始监控",
-      description: "正在监控支付状态",
-    });
-  };
-
-  /**
-   * 停止监控支付状态
-   */
-  const stopMonitoring = (checkoutId: string) => {
-    setMonitoringPayments(prev => prev.filter(id => id !== checkoutId));
-    toast({
-      title: "停止监控",
-      description: "已停止监控该支付",
-    });
-  };
-
-  /**
-   * 删除支付记录
-   */
-  const deletePayment = (checkoutId: string) => {
-    paymentStatusService.removePaymentStatus(checkoutId);
-    setMonitoringPayments(prev => prev.filter(id => id !== checkoutId));
-    loadPaymentData();
-    
-    toast({
-      title: "删除成功",
-      description: "支付记录已删除",
-    });
-  };
-
-  /**
-   * 导出支付数据
-   */
-  const exportData = () => {
-    try {
-      const data = paymentStatusService.exportPaymentData();
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `payment-data-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: "导出成功",
-        description: "支付数据已导出",
-      });
-    } catch (error) {
-      console.error('导出失败:', error);
-      toast({
-        title: "导出失败",
-        description: "无法导出支付数据",
-        variant: "destructive",
-      });
-    }
-  };
-
-  /**
-   * 导入支付数据
-   */
-  const importData = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
+      // 2. 检查配置验证
       try {
-        const data = e.target?.result as string;
-        const success = paymentStatusService.importPaymentData(data);
-        
-        if (success) {
-          loadPaymentData();
-          toast({
-            title: "导入成功",
-            description: "支付数据已导入",
+        const configResult = await validateAllConfigs();
+        results.push({
+          name: '配置验证',
+          status: configResult.isValid ? 'success' : 'warning',
+          message: configResult.isValid ? '配置验证通过' : '配置验证失败',
+          details: configResult.isValid 
+            ? '所有必需配置已正确设置'
+            : `缺失配置: ${configResult.missingConfigs.join(', ')}`,
+          timestamp: now
+        });
+
+        // 3. 检查支付API连接
+        results.push({
+          name: '支付API连接',
+          status: configResult.networkStatus.canConnect ? 'success' : 'error',
+          message: configResult.networkStatus.canConnect ? '支付API连接正常' : '支付API连接失败',
+          details: configResult.networkStatus.canConnect 
+            ? `API端点: ${configResult.networkStatus.apiEndpoint}`
+            : '无法连接到支付服务，请检查网络或联系客服',
+          timestamp: now
+        });
+
+        // 4. 检查环境变量
+        const envChecks = [
+          { name: 'OpenAI API Key', key: 'VITE_OPENAI_API_KEY' },
+          { name: 'Authing App ID', key: 'VITE_AUTHING_APP_ID' },
+          { name: 'Creem API Key', key: 'VITE_CREEM_API_KEY' }
+        ];
+
+        envChecks.forEach(check => {
+          const value = import.meta.env[check.key];
+          results.push({
+            name: check.name,
+            status: value ? 'success' : 'error',
+            message: value ? `${check.name}已配置` : `${check.name}未配置`,
+            details: value ? '配置正确' : '请在环境变量中配置此值',
+            timestamp: now
           });
-        } else {
-          toast({
-            title: "导入失败",
-            description: "数据格式错误",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error('导入失败:', error);
-        toast({
-          title: "导入失败",
-          description: "无法解析文件",
-          variant: "destructive",
+        });
+
+      } catch (error: any) {
+        results.push({
+          name: '配置验证',
+          status: 'error',
+          message: '配置验证过程出错',
+          details: error.message,
+          timestamp: now
         });
       }
-    };
-    reader.readAsText(file);
-  };
 
-  /**
-   * 清理所有数据
-   */
-  const clearAllData = () => {
-    if (window.confirm('确定要删除所有支付数据吗？此操作不可恢复。')) {
-      paymentStatusService.resetAllData();
-      setAllPayments([]);
-      setFilteredPayments([]);
-      setMonitoringPayments([]);
-      setStats(null);
-      
-      toast({
-        title: "清理完成",
-        description: "所有支付数据已删除",
+      // 5. 检查浏览器兼容性
+      const browserChecks = [
+        { name: 'Fetch API', test: () => typeof fetch !== 'undefined' },
+        { name: 'Promise支持', test: () => typeof Promise !== 'undefined' },
+        { name: 'JSON支持', test: () => typeof JSON !== 'undefined' },
+        { name: 'Canvas支持', test: () => typeof HTMLCanvasElement !== 'undefined' }
+      ];
+
+      browserChecks.forEach(check => {
+        const isSupported = check.test();
+        results.push({
+          name: `浏览器${check.name}`,
+          status: isSupported ? 'success' : 'error',
+          message: isSupported ? `${check.name}支持正常` : `${check.name}不支持`,
+          details: isSupported ? '浏览器功能正常' : '请使用现代浏览器',
+          timestamp: now
+        });
+      });
+
+    } catch (error: any) {
+      results.push({
+        name: '状态检查',
+        status: 'error',
+        message: '状态检查过程出错',
+        details: error.message,
+        timestamp: now
       });
     }
+
+    setCheckResults(results);
+    setLastCheckTime(now);
+    setIsChecking(false);
   };
 
   /**
@@ -217,18 +152,14 @@ export default function PaymentStatusPage() {
    */
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'paid':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'processing':
-        return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />;
-      case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'failed':
-      case 'expired':
-      case 'cancelled':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'success':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'error':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'warning':
+        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+        return <AlertCircle className="h-5 w-5 text-gray-500" />;
     }
   };
 
@@ -237,256 +168,202 @@ export default function PaymentStatusPage() {
    */
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid':
-        return 'bg-green-100 text-green-800';
-      case 'processing':
-        return 'bg-blue-100 text-blue-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'failed':
-      case 'expired':
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
+      case 'success':
+        return 'bg-green-50 border-green-200';
+      case 'error':
+        return 'bg-red-50 border-red-200';
+      case 'warning':
+        return 'bg-yellow-50 border-yellow-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-50 border-gray-200';
     }
   };
 
   /**
-   * 格式化时间
+   * 组件挂载时自动检查
    */
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
-            <span className="text-gray-600">正在加载支付数据...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    performStatusCheck();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="container mx-auto max-w-6xl">
-        {/* 页面标题 */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">支付状态管理</h1>
-          <p className="text-gray-600 mt-2">查看和管理所有支付状态</p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* 页面标题 */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          支付服务状态检查
+        </h1>
+        <p className="text-gray-600">
+          诊断支付相关的配置和连接问题
+        </p>
+      </div>
 
-        {/* 统计信息 */}
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-                <div className="text-sm text-gray-600">总支付数</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-green-600">{stats.paid}</div>
-                <div className="text-sm text-gray-600">支付成功</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-                <div className="text-sm text-gray-600">等待支付</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
-                <div className="text-sm text-gray-600">支付失败</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-gray-600">{stats.expired}</div>
-                <div className="text-sm text-gray-600">已过期</div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+      {/* 操作按钮 */}
+      <div className="flex justify-center mb-6">
+        <Button 
+          onClick={performStatusCheck}
+          disabled={isChecking}
+          className="flex items-center gap-2"
+          size="lg"
+        >
+          {isChecking ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-5 w-5" />
+          )}
+          {isChecking ? '检查中...' : '重新检查'}
+        </Button>
+      </div>
 
-        {/* 操作栏 */}
+      {/* 状态摘要 */}
+      {checkResults.length > 0 && (
         <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-              {/* 搜索 */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="搜索支付记录..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              状态摘要
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {checkResults.filter(r => r.status === 'success').length}
+                </div>
+                <div className="text-sm text-gray-600">正常</div>
               </div>
-
-              {/* 状态过滤 */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="选择状态" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部状态</SelectItem>
-                  <SelectItem value="pending">等待支付</SelectItem>
-                  <SelectItem value="processing">处理中</SelectItem>
-                  <SelectItem value="paid">支付成功</SelectItem>
-                  <SelectItem value="failed">支付失败</SelectItem>
-                  <SelectItem value="expired">已过期</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* 操作按钮 */}
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={loadPaymentData}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  刷新
-                </Button>
-                <Button variant="outline" size="sm" onClick={exportData}>
-                  <Download className="h-4 w-4 mr-2" />
-                  导出
-                </Button>
-                <label className="cursor-pointer">
-                  <Button variant="outline" size="sm" asChild>
-                    <span>
-                      <Upload className="h-4 w-4 mr-2" />
-                      导入
-                    </span>
-                  </Button>
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={importData}
-                    className="hidden"
-                  />
-                </label>
-                <Button variant="outline" size="sm" onClick={clearAllData}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  清空
-                </Button>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {checkResults.filter(r => r.status === 'warning').length}
+                </div>
+                <div className="text-sm text-gray-600">警告</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-600">
+                  {checkResults.filter(r => r.status === 'error').length}
+                </div>
+                <div className="text-sm text-gray-600">错误</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-600">
+                  {checkResults.length}
+                </div>
+                <div className="text-sm text-gray-600">总计</div>
               </div>
             </div>
+            {lastCheckTime && (
+              <div className="text-center mt-4 text-sm text-gray-500">
+                最后检查时间: {lastCheckTime}
+              </div>
+            )}
           </CardContent>
         </Card>
+      )}
 
-        {/* 支付记录列表 */}
-        <div className="space-y-4">
-          {filteredPayments.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <p className="text-gray-600">暂无支付记录</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredPayments.map((payment) => (
-              <Card key={payment.checkoutId}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(payment.status)}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Badge className={getStatusColor(payment.status)}>
-                            {payment.message}
-                          </Badge>
-                          <span className="text-sm text-gray-500">
-                            {payment.checkoutId}
-                          </span>
-                        </div>
-                        {payment.amount && (
-                          <div className="text-sm text-gray-600 mt-1">
-                            金额: ¥{(payment.amount / 100).toFixed(2)}
-                          </div>
-                        )}
-                        <div className="text-xs text-gray-500 mt-1">
-                          创建时间: {formatTime(payment.createdAt)}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {monitoringPayments.includes(payment.checkoutId) ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => stopMonitoring(payment.checkoutId)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => startMonitoring(payment.checkoutId)}
-                        >
-                          监控
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deletePayment(payment.checkoutId)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+      {/* 检查结果列表 */}
+      <div className="space-y-4">
+        {checkResults.map((result, index) => (
+          <Card key={index} className={getStatusColor(result.status)}>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                {getStatusIcon(result.status)}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900">{result.name}</h3>
+                    <Badge 
+                      variant={result.status === 'success' ? 'default' : 'destructive'}
+                      className="text-xs"
+                    >
+                      {result.status === 'success' ? '正常' : 
+                       result.status === 'warning' ? '警告' : '错误'}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+                  <p className="text-sm text-gray-700 mb-1">{result.message}</p>
+                  {result.details && (
+                    <p className="text-xs text-gray-500">{result.details}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        {/* 监控中的支付状态 */}
-        {monitoringPayments.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">实时监控</h2>
-            <div className="space-y-4">
-              {monitoringPayments.map((checkoutId) => {
-                const payment = allPayments.find(p => p.checkoutId === checkoutId);
-                if (!payment) return null;
-
-                return (
-                  <EnhancedPaymentStatusMonitor
-                    key={checkoutId}
-                    checkoutId={checkoutId}
-                    apiKey={import.meta.env.VITE_CREEM_API_KEY || ''}
-                    onPaymentSuccess={(paymentData) => {
-                      stopMonitoring(checkoutId);
-                      loadPaymentData();
-                    }}
-                    onPaymentFailed={(error) => {
-                      stopMonitoring(checkoutId);
-                      loadPaymentData();
-                    }}
-                    onPaymentExpired={() => {
-                      stopMonitoring(checkoutId);
-                      loadPaymentData();
-                    }}
-                    autoRefresh={true}
-                    refreshInterval={3000}
-                    maxRetries={10}
-                    enableNotifications={true}
-                    enableSound={true}
-                    showAdvancedInfo={true}
-                  />
-                );
-              })}
+      {/* 故障排除指南 */}
+      <Separator className="my-8" />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            故障排除指南
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                <Wifi className="h-4 w-4" />
+                网络问题
+              </h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• 检查网络连接是否正常</li>
+                <li>• 尝试刷新页面</li>
+                <li>• 检查防火墙设置</li>
+                <li>• 尝试使用其他网络</li>
+              </ul>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                支付问题
+              </h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• 确保支付宝App已安装</li>
+                <li>• 检查支付宝账户余额</li>
+                <li>• 确认支付限额设置</li>
+                <li>• 联系客服获取帮助</li>
+              </ul>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                配置问题
+              </h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• 检查环境变量配置</li>
+                <li>• 确认API密钥有效性</li>
+                <li>• 验证域名设置</li>
+                <li>• 查看控制台错误信息</li>
+              </ul>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                <Smartphone className="h-4 w-4" />
+                浏览器问题
+              </h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• 使用现代浏览器</li>
+                <li>• 清除浏览器缓存</li>
+                <li>• 禁用广告拦截器</li>
+                <li>• 尝试无痕模式</li>
+              </ul>
             </div>
           </div>
-        )}
+        </CardContent>
+      </Card>
+
+      {/* 联系客服 */}
+      <div className="text-center mt-8">
+        <p className="text-gray-600 mb-2">
+          如果问题持续存在，请联系客服获取帮助
+        </p>
+        <Button variant="outline" onClick={() => window.open('mailto:support@example.com')}>
+          联系客服
+        </Button>
       </div>
     </div>
   );

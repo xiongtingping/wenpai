@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { generateAlipayQRCode } from "@/api/creemClientService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, Shield, Smartphone } from "lucide-react";
+import { Loader2, RefreshCw, Shield, Smartphone, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AlipayQRCodeProps {
@@ -19,25 +19,26 @@ interface AlipayQRCodeProps {
 }
 
 /**
- * 支付宝官方Logo组件
+ * 支付宝Logo组件
  */
-const AlipayLogo: React.FC<{ size?: number; className?: string }> = ({ 
-  size = 24, 
-  className = "text-blue-500" 
-}) => (
-  <svg 
-    viewBox="0 0 1024 1024" 
-    className={className}
-    style={{ width: size, height: size }}
-    fill="currentColor"
+const AlipayLogo: React.FC<{ size?: number }> = ({ size = 24 }) => (
+  <div 
+    className="bg-blue-500 text-white rounded flex items-center justify-center font-bold"
+    style={{ width: size, height: size, fontSize: size * 0.6 }}
   >
-    {/* 支付宝官方logo - 简洁版本 */}
-    <rect x="128" y="128" width="768" height="768" rx="128" fill="#1677FF"/>
-    {/* 支付宝文字 "支" */}
-    <text x="512" y="580" textAnchor="middle" fill="white" fontSize="320" fontWeight="bold" fontFamily="Arial, sans-serif">支</text>
-  </svg>
+    支
+  </div>
 );
 
+/**
+ * 支付宝二维码组件
+ * @param priceId 价格ID
+ * @param customerEmail 客户邮箱
+ * @param title 标题
+ * @param showPrice 是否显示价格
+ * @param onRefresh 刷新回调
+ * @returns {JSX.Element}
+ */
 export default function AlipayQRCode({
   priceId,
   customerEmail,
@@ -50,10 +51,18 @@ export default function AlipayQRCode({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const fetchQRCode = async () => {
+  /**
+   * 获取二维码数据
+   */
+  const fetchQRCode = async (isRetry = false) => {
     try {
-      setLoading(true);
+      if (isRetry) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       
       // 检查网络连接
@@ -61,91 +70,143 @@ export default function AlipayQRCode({
         throw new Error('网络连接不可用，请检查网络设置');
       }
 
+      console.log('开始获取支付二维码:', { priceId, customerEmail });
+
       const result = await generateAlipayQRCode(priceId, customerEmail);
       
       if (result.success && result.qrCodeDataURL) {
         setQrCodeDataURL(result.qrCodeDataURL);
         setPrice(result.price);
+        setRetryCount(0); // 重置重试计数
+        console.log('二维码获取成功');
       } else {
         throw new Error('二维码生成失败');
       }
     } catch (error: any) {
-      // 简化错误处理
-      console.log('二维码生成失败，请稍后重试');
-      setError('二维码生成失败，请稍后重试');
+      console.error('二维码获取失败:', error);
+      
+      // 增加重试计数
+      const newRetryCount = retryCount + 1;
+      setRetryCount(newRetryCount);
+      
+      // 根据错误类型提供不同的错误信息
+      let errorMessage = '二维码生成失败，请稍后重试';
+      
+      if (error.message.includes('网络连接')) {
+        errorMessage = '网络连接不可用，请检查网络设置';
+      } else if (error.message.includes('支付服务')) {
+        errorMessage = '支付服务暂时不可用，请稍后重试';
+      } else if (error.message.includes('配置')) {
+        errorMessage = '支付配置错误，请联系客服';
+      } else if (error.message.includes('产品')) {
+        errorMessage = '商品信息错误，请重新选择';
+      }
+      
+      setError(errorMessage);
+      
+      // 如果是重试，显示重试次数
+      if (isRetry && newRetryCount < 3) {
+        setError(`${errorMessage} (重试 ${newRetryCount}/3)`);
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
+  /**
+   * 处理刷新
+   */
   const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchQRCode();
-    setRefreshing(false);
+    if (retryCount >= 3) {
+      setRetryCount(0); // 重置重试计数
+    }
+    await fetchQRCode(true);
     onRefresh?.();
   };
 
+  /**
+   * 组件挂载时获取二维码
+   */
   useEffect(() => {
     if (priceId) {
       fetchQRCode();
     }
   }, [priceId, customerEmail]);
 
+  // 加载状态
   if (loading) {
     return (
-      <Card className="w-full max-w-sm mx-auto">
-        <CardHeader>
+      <Card className="w-full max-w-sm mx-auto border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+        <CardHeader className="pb-4">
           <CardTitle className="text-center flex items-center justify-center gap-2">
-            <AlipayLogo size={24} />
-            {title}
+            <AlipayLogo size={32} />
+            <span className="text-blue-900">{title}</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-            <span>正在生成二维码...</span>
+        <CardContent className="text-center space-y-4">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <p className="text-sm text-gray-600">正在生成支付二维码...</p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
+  // 错误状态
   if (error) {
     return (
-      <Card className="w-full max-w-sm mx-auto border-red-200">
-        <CardHeader>
-          <CardTitle className="text-center text-red-600 flex items-center justify-center gap-2">
-            <AlipayLogo size={24} className="text-red-500" />
-            {title}
+      <Card className="w-full max-w-sm mx-auto border-red-100 bg-gradient-to-br from-red-50 to-white">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-center flex items-center justify-center gap-2">
+            <AlertCircle className="h-6 w-6 text-red-500" />
+            <span className="text-red-900">支付二维码生成失败</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center">
-          <div className="space-y-4">
-            <p className="text-red-600 text-sm">{error}</p>
-            <Button 
-              onClick={handleRefresh} 
-              variant="outline" 
-              size="sm"
-              disabled={refreshing}
-            >
-              {refreshing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  刷新中...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  重新生成
-                </>
+        <CardContent className="text-center space-y-4">
+          <div className="space-y-3">
+            <p className="text-sm text-red-600">{error}</p>
+            
+            <div className="flex gap-2 justify-center">
+              <Button 
+                onClick={handleRefresh}
+                disabled={refreshing}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                {refreshing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                重试
+              </Button>
+              
+              {retryCount >= 3 && (
+                <Button 
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  size="sm"
+                >
+                  刷新页面
+                </Button>
               )}
-            </Button>
+            </div>
+            
+            {retryCount >= 3 && (
+              <p className="text-xs text-gray-500">
+                如果问题持续存在，请联系客服
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
     );
   }
 
+  // 正常显示二维码
   return (
     <Card className="w-full max-w-sm mx-auto border-blue-100 bg-gradient-to-br from-blue-50 to-white">
       <CardHeader className="pb-4">
@@ -205,29 +266,30 @@ export default function AlipayQRCode({
             </div>
             
             {/* 操作提示 */}
-            <div className="flex items-center justify-center gap-2 text-gray-600">
-              <Smartphone className="h-4 w-4" />
-              <span className="text-sm">使用手机支付宝扫码</span>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <div className="flex items-center justify-center gap-2 text-gray-600 mb-2">
+                <Smartphone className="h-4 w-4" />
+                <span className="text-sm font-medium">使用支付宝App扫码</span>
+              </div>
+              <p className="text-xs text-gray-500 text-center">
+                请确保支付宝App已安装并登录
+              </p>
             </div>
             
+            {/* 刷新按钮 */}
             <Button 
-              onClick={handleRefresh} 
-              variant="outline" 
-              size="sm"
+              onClick={handleRefresh}
               disabled={refreshing}
-              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+              variant="outline"
+              size="sm"
+              className="w-full flex items-center justify-center gap-2"
             >
               {refreshing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  刷新中...
-                </>
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  刷新二维码
-                </>
+                <RefreshCw className="h-4 w-4" />
               )}
+              刷新二维码
             </Button>
           </div>
         )}

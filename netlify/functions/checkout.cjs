@@ -8,51 +8,66 @@ const QRCode = require("qrcode");
  * @returns {Promise<{statusCode: number, body: string}>}
  */
 exports.handler = async function(event) {
+  // 设置CORS头
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Max-Age": "86400"
+  };
+
   // 处理预检请求（OPTIONS）
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      },
+      headers: corsHeaders,
       body: ""
     };
   }
 
+  // 只允许POST请求
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
-  const body = JSON.parse(event.body || "{}");
-  const priceId = body.priceId;
-  const productId = body.productId || body.priceId;
-  const customerEmail = body.customerEmail;
-
-  // 调试环境变量
-  console.log('CREEM_API_KEY:', process.env.CREEM_API_KEY);
-
-  // 临时硬编码 API Key 用于测试
-  const creemApiKey = process.env.CREEM_API_KEY || 'creem_EGDvCS72OYrsU8ho7aJ1C';
-  console.log('使用的 CREEM_API_KEY:', creemApiKey);
-
-  // 检查 API Key 是否存在
-  if (!creemApiKey) {
-    console.error('CREEM_API_KEY 未配置');
-    return {
-      statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      },
-      body: JSON.stringify({ error: 'CREEM_API_KEY 未配置' })
+    return { 
+      statusCode: 405, 
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Method Not Allowed" })
     };
   }
 
-  const creem = new Creem();
   try {
-    // 根据错误信息，Creem SDK 期望的参数结构是：
-    // 第一个参数：包含 createCheckoutRequest 和 xApiKey 的对象
+    const body = JSON.parse(event.body || "{}");
+    const priceId = body.priceId;
+    const productId = body.productId || body.priceId;
+    const customerEmail = body.customerEmail;
+
+    // 验证必需参数
+    if (!priceId) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "缺少必需的参数: priceId" })
+      };
+    }
+
+    // 调试环境变量
+    console.log('CREEM_API_KEY:', process.env.CREEM_API_KEY ? '已配置' : '未配置');
+
+    // 获取API Key
+    const creemApiKey = process.env.CREEM_API_KEY;
+    if (!creemApiKey) {
+      console.error('CREEM_API_KEY 未配置');
+      return {
+        statusCode: 500,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: '支付服务配置错误，请联系管理员' })
+      };
+    }
+
+    console.log('开始创建支付检查点:', { priceId, productId, customerEmail });
+
+    const creem = new Creem();
+    
+    // 调用Creem API创建支付检查点
     const checkout = await creem.createCheckout({
       createCheckoutRequest: {
         priceId: priceId,
@@ -62,7 +77,11 @@ exports.handler = async function(event) {
       xApiKey: creemApiKey
     });
     
-    console.log('Creem checkout 响应:', checkout);
+    console.log('Creem checkout 响应:', {
+      id: checkout.id,
+      status: checkout.status,
+      amount: checkout.amount
+    });
     
     // 尝试获取支付宝二维码URL
     let alipayQrCodeUrl = null;
@@ -92,8 +111,10 @@ exports.handler = async function(event) {
           },
           errorCorrectionLevel: 'H'
         });
+        console.log('二维码生成成功');
       } catch (qrError) {
         console.error('生成二维码失败:', qrError);
+        // 二维码生成失败不影响支付流程
       }
     }
     
@@ -120,27 +141,36 @@ exports.handler = async function(event) {
     console.log('支付检查点创建成功:', {
       id: checkout.id,
       price: price,
-      hasQrCode: !!qrCodeDataURL
+      hasQrCode: !!qrCodeDataURL,
+      hasAlipayUrl: !!alipayQrCodeUrl
     });
     
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      },
+      headers: corsHeaders,
       body: JSON.stringify(responseData)
     };
   } catch (error) {
     console.error('Creem createCheckout 调用失败:', error);
+    
+    // 提供更友好的错误信息
+    let errorMessage = '支付服务暂时不可用，请稍后重试';
+    if (error.message) {
+      if (error.message.includes('API key')) {
+        errorMessage = '支付服务配置错误，请联系管理员';
+      } else if (error.message.includes('network')) {
+        errorMessage = '网络连接失败，请检查网络设置';
+      } else if (error.message.includes('price')) {
+        errorMessage = '商品信息错误，请重新选择';
+      }
+    }
+    
     return {
       statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ 
-        error: error.message || "创建支付失败", 
-        details: error, 
-        stack: error.stack || String(error)
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       })
     };
   }
