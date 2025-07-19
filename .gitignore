@@ -4,3 +4,8 @@
 
 # Local Netlify folder
 .netlify
+
+# Build outputs
+dist/
+build/
+*.log
