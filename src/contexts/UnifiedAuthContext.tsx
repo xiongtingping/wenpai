@@ -47,6 +47,7 @@ export interface AuthContextType {
   loading: boolean;
   error?: string | null;
   login: (redirectTo?: string) => void;
+  register: (redirectTo?: string) => void;
   logout: () => void;
   checkAuth: () => void;
   hasPermission?: (permission: string) => boolean;
@@ -73,6 +74,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showGuard, setShowGuard] = useState(false);
+  const [guardMode, setGuardMode] = useState<'login' | 'register'>('login');
   const navigate = useNavigate();
 
   /**
@@ -128,12 +130,36 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
 
       console.log('🔗 使用Guard组件进行登录');
       
-      // 显示Guard弹窗
+      // 显示Guard弹窗，设置为登录模式
+      setGuardMode('login');
       setShowGuard(true);
       
     } catch (error) {
       console.error('登录失败:', error);
       setError(error instanceof Error ? error.message : '登录失败');
+    }
+  };
+
+  /**
+   * 注册方法 - 使用Guard组件
+   * @param redirectTo 注册后跳转的目标页面
+   */
+  const register = (redirectTo?: string) => {
+    try {
+      // 保存跳转目标
+      if (redirectTo) {
+        localStorage.setItem('login_redirect_to', redirectTo);
+      }
+
+      console.log('🔗 使用Guard组件进行注册');
+      
+      // 显示Guard弹窗，并设置为注册模式
+      setGuardMode('register');
+      setShowGuard(true);
+      
+    } catch (error) {
+      console.error('注册失败:', error);
+      setError(error instanceof Error ? error.message : '注册失败');
     }
   };
 
@@ -176,6 +202,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
     loading: isLoading,
     error,
     login,
+    register,
     logout,
     checkAuth,
   };
@@ -186,6 +213,7 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
       {/* 条件渲染Guard组件 */}
       {showGuard && (
         <AuthingGuardWrapper
+          mode={guardMode}
           onLogin={(user) => {
             console.log('登录成功:', user);
             // 转换用户信息格式

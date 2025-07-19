@@ -80,7 +80,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, login } = useUnifiedAuth()
+  const { user, isAuthenticated, login, register } = useUnifiedAuth()
   const navigate = useNavigate()
   
   return (
@@ -197,7 +197,7 @@ export function Header() {
                 <Button variant="outline" onClick={() => login()}>
                   登录
                 </Button>
-                <Button onClick={() => login()} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={() => register()} className="bg-blue-600 hover:bg-blue-700">
                   注册
                 </Button>
               </div>
@@ -298,7 +298,7 @@ export function Header() {
                     <Button variant="outline" onClick={() => login()}>
                       登录
                     </Button>
-                    <Button onClick={() => login()}>
+                    <Button onClick={() => register()}>
                       注册
                     </Button>
                   </div>

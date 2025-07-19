@@ -9,17 +9,20 @@ interface AuthingGuardWrapperProps {
   onLogin: (user: any) => void;
   onClose: () => void;
   onLoginError?: (error: any) => void;
+  mode?: 'login' | 'register';
 }
 
 const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
   onLogin,
   onClose,
-  onLoginError
+  onLoginError,
+  mode = 'login'
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [loginMethod, setLoginMethod] = useState<'password' | 'phone' | 'email'>('password');
+  const [currentMode, setCurrentMode] = useState<'login' | 'register'>(mode);
   
   // 表单数据
   const [formData, setFormData] = useState({
@@ -83,7 +86,7 @@ const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
     setError('');
 
     try {
-      // 模拟登录成功
+      // 模拟登录/注册成功
       const mockUser = {
         id: `user_${Date.now()}`,
         username: formData.username || formData.phone || formData.email,
@@ -101,7 +104,7 @@ const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
       
       onLogin(mockUser);
     } catch (error) {
-      setError('登录失败，请重试');
+      setError(currentMode === 'login' ? '登录失败，请重试' : '注册失败，请重试');
       onLoginError?.(error);
     } finally {
       setIsLoading(false);
@@ -146,7 +149,7 @@ const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
       <div className="authing-guard-overlay" onClick={handleClose}></div>
       <div className="authing-guard-modal">
         <div className="authing-guard-header">
-          <h2 className="authing-guard-title">登录文派</h2>
+          <h2 className="authing-guard-title">{currentMode === 'login' ? '登录文派' : '注册文派'}</h2>
           <button 
             className="authing-guard-close-btn"
             onClick={handleClose}
@@ -290,31 +293,41 @@ const AuthingGuardWrapper: React.FC<AuthingGuardWrapperProps> = ({
               </>
             )}
 
-            {/* 登录按钮 */}
+            {/* 登录/注册按钮 */}
             <button
               type="submit"
               className="authing-guard-submit-btn"
               disabled={isLoading}
             >
-              {isLoading ? '登录中...' : '登录'}
+              {isLoading ? (currentMode === 'login' ? '登录中...' : '注册中...') : (currentMode === 'login' ? '登录' : '注册')}
             </button>
           </form>
 
           {/* 其他选项 */}
           <div className="authing-guard-footer">
-            <p className="authing-guard-tip">
-              还没有账号？{' '}
-              <button
-                type="button"
-                className="authing-guard-link"
-                onClick={() => {
-                  // 切换到注册模式
-                  console.log('切换到注册模式');
-                }}
-              >
-                立即注册
-              </button>
-            </p>
+            {currentMode === 'login' ? (
+              <p className="authing-guard-tip">
+                还没有账号？{' '}
+                <button
+                  type="button"
+                  className="authing-guard-link"
+                  onClick={() => setCurrentMode('register')}
+                >
+                  立即注册
+                </button>
+              </p>
+            ) : (
+              <p className="authing-guard-tip">
+                已有账号？{' '}
+                <button
+                  type="button"
+                  className="authing-guard-link"
+                  onClick={() => setCurrentMode('login')}
+                >
+                  立即登录
+                </button>
+              </p>
+            )}
           </div>
         </div>
       </div>
