@@ -112,11 +112,32 @@ export function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-20 opacity-0 animate-fadeIn">
-      <div className="container mx-auto px-6">
-        <div className="text-center max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">选择适合您的方案</h2>
-          <p className="mt-4 text-lg text-gray-600">从免费体验到高级版，全方位赋能新媒体创意工作者</p>
+    <section id="pricing" className="py-12 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+      {/* 装饰背景 - 突出定价方案推荐区 */}
+      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-blue-50/40 to-transparent"></div>
+      
+      <div className="container mx-auto px-4 md:px-12 relative z-10">
+        {/* 🎯 标题区域优化 */}
+        <div className="text-center max-w-4xl mx-auto py-12">
+          {/* 主标题 */}
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 leading-snug">
+            选择适合您的方案
+          </h2>
+          
+          {/* 副标题 */}
+          <p className="text-base text-gray-500 text-center mt-2 leading-relaxed">
+            从免费体验到高级版，全方位赋能新媒体创意工作者
+          </p>
+          
+          {/* CTA 按钮 - 立即试用 */}
+          <div className="mt-6">
+            <Button 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              立即试用
+            </Button>
+          </div>
           {/* 登录用户显示倒计时 */}
           {isAuthenticated && inPromo && (
             <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
