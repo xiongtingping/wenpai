@@ -6,54 +6,84 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brain, FileText, Shield, Users, CreditCard } from 'lucide-react';
+import { ArrowLeft, Brain, FileText, Shield, Users, CreditCard, Calendar, Mail, MessageSquare, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function TermsPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-8 px-4 max-w-5xl">
       {/* 返回按钮 */}
-      <div className="mb-6">
+      <div className="mb-8">
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 hover:bg-blue-50 text-blue-600"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回
+          返回上一页
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <Brain className="h-6 w-6 text-blue-600" />
-            文派服务条款
-          </CardTitle>
-          <p className="text-muted-foreground">最后更新：2024年12月</p>
-          <p className="text-sm text-gray-600">
-            文派是专业的AI内容创作和适配工具，帮助用户快速生成和优化多平台内容
+      <Card className="shadow-lg border-0">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+              <Brain className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-3xl font-bold text-gray-900">
+                文派服务条款
+              </CardTitle>
+              <p className="text-blue-600 font-medium">Wenpai Terms of Service</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            <span className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              最后更新：2024年12月
+            </span>
+            <span className="flex items-center gap-1">
+              <FileText className="h-4 w-4" />
+              版本：v2.0
+            </span>
+          </div>
+          <p className="text-gray-700 leading-relaxed mt-3">
+            文派是专业的AI内容创作和适配工具，帮助用户快速生成和优化多平台内容。
+            请仔细阅读以下条款，使用我们的服务即表示您同意这些条款。
           </p>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <section>
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-blue-500" />
+        <CardContent className="space-y-8 p-8">
+          <section className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-3 text-blue-900">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <FileText className="h-4 w-4 text-white" />
+              </div>
               1. 服务概述
             </h3>
-            <div className="space-y-3 text-gray-700">
-              <p className="leading-relaxed">
+            <div className="space-y-4 text-gray-700">
+              <p className="leading-relaxed text-lg">
                 文派（以下简称"我们"）是一个基于人工智能的内容创作和适配平台，为用户提供以下核心服务：
               </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li><strong>AI内容生成：</strong>基于用户输入生成原创内容</li>
-                <li><strong>多平台适配：</strong>将内容适配到不同社交媒体平台</li>
-                <li><strong>品牌库管理：</strong>存储和管理品牌风格指南</li>
-                <li><strong>热点话题分析：</strong>提供热门话题和趋势分析</li>
-                <li><strong>内容优化：</strong>AI驱动的内容质量提升</li>
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-lg border border-blue-100">
+                  <h4 className="font-semibold text-blue-700 mb-2">🤖 AI内容生成</h4>
+                  <p className="text-sm">基于用户输入生成原创内容</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-blue-100">
+                  <h4 className="font-semibold text-blue-700 mb-2">🌐 多平台适配</h4>
+                  <p className="text-sm">将内容适配到不同社交媒体平台</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-blue-100">
+                  <h4 className="font-semibold text-blue-700 mb-2">🏢 品牌库管理</h4>
+                  <p className="text-sm">存储和管理品牌风格指南</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-blue-100">
+                  <h4 className="font-semibold text-blue-700 mb-2">📡 热点话题分析</h4>
+                  <p className="text-sm">提供热门话题和趋势分析</p>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -84,28 +114,82 @@ export default function TermsPage() {
             </div>
           </section>
 
-          <section>
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-blue-500" />
+          <section className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-3 text-green-900">
+              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                <CreditCard className="h-4 w-4 text-white" />
+              </div>
               3. 订阅与付费
             </h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-6 text-gray-700">
               <div>
-                <h4 className="font-medium mb-2">3.1 订阅计划</h4>
-                <ul className="list-disc pl-6 space-y-1">
-                  <li><strong>体验版：</strong>免费使用，有使用次数限制</li>
-                  <li><strong>专业版：</strong>月付29元/年付288元（年付比月付省80元），适合个人创作者</li>
-                  <li><strong>高级版：</strong>月付79元/年付788元（年付比月付省202元），适合团队和企业</li>
-                </ul>
+                <h4 className="font-semibold mb-3 text-green-800">3.1 订阅计划</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-white p-4 rounded-lg border border-green-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">🎯</span>
+                      <h5 className="font-bold text-green-700">体验版</h5>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">免费使用，有使用次数限制</p>
+                    <div className="text-lg font-bold text-green-600">¥0</div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border border-green-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">⭐</span>
+                      <h5 className="font-bold text-green-700">专业版</h5>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">适合个人创作者</p>
+                    <div className="space-y-1">
+                      <div className="text-sm">月付：<span className="font-bold text-green-600">¥39</span></div>
+                      <div className="text-sm">年付：<span className="font-bold text-green-600">¥388</span></div>
+                      <div className="text-xs text-green-500">年付省¥80</div>
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border border-green-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">👑</span>
+                      <h5 className="font-bold text-green-700">高级版</h5>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">适合团队和企业</p>
+                    <div className="space-y-1">
+                      <div className="text-sm">月付：<span className="font-bold text-green-600">¥99</span></div>
+                      <div className="text-sm">年付：<span className="font-bold text-green-600">¥986</span></div>
+                      <div className="text-xs text-green-500">年付省¥202</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-orange-600">💡</span>
+                    <h5 className="font-semibold text-orange-800">限时优惠</h5>
+                  </div>
+                  <p className="text-sm text-orange-700">
+                    新用户注册后30分钟内可享受特惠价格：
+                  </p>
+                  <ul className="text-sm text-orange-700 mt-2 space-y-1">
+                    <li>• 专业版：月付¥29 / 年付¥288</li>
+                    <li>• 高级版：月付¥79 / 年付¥788</li>
+                  </ul>
+                </div>
               </div>
               <div>
-                <h4 className="font-medium mb-2">3.2 付费规则</h4>
-                <ul className="list-disc pl-6 space-y-1">
-                  <li>订阅费用按选择的周期（月付/年付）收取</li>
-                  <li>订阅会自动续费，您可以随时取消</li>
-                  <li>取消后，服务将在当前计费周期结束后停止</li>
-                  <li>年付用户享受更多优惠和功能</li>
-                </ul>
+                <h4 className="font-semibold mb-3 text-green-800">3.2 付费规则</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white p-4 rounded-lg border border-green-100">
+                    <h5 className="font-medium text-green-700 mb-2">💰 费用收取</h5>
+                    <ul className="text-sm space-y-1">
+                      <li>• 订阅费用按选择的周期（月付/年付）收取</li>
+                      <li>• 订阅会自动续费，您可以随时取消</li>
+                    </ul>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border border-green-100">
+                    <h5 className="font-medium text-green-700 mb-2">🎁 优惠政策</h5>
+                    <ul className="text-sm space-y-1">
+                      <li>• 年付用户享受更多优惠和功能</li>
+                      <li>• 取消后，服务将在当前计费周期结束后停止</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -226,16 +310,41 @@ export default function TermsPage() {
             </div>
           </section>
 
-          <div className="border-t pt-6 bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">联系我们</h4>
-            <p className="text-sm text-blue-800">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <Users className="h-5 w-5 text-white" />
+              </div>
+              <h4 className="text-xl font-bold text-blue-900">联系我们</h4>
+            </div>
+            <p className="text-blue-800 mb-4">
               如果您对这些条款有任何疑问或需要帮助，请通过以下方式联系我们：
             </p>
-            <ul className="text-sm text-blue-800 mt-2 space-y-1">
-              <li>• 客服邮箱：<a href="mailto:support@wenpai.com" className="underline">support@wenpai.com</a></li>
-              <li>• 应用内客服：通过平台内置客服功能</li>
-              <li>• 工作时间：周一至周五 9:00-18:00</li>
-            </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Mail className="h-4 w-4 text-blue-600" />
+                  <h5 className="font-semibold text-blue-700">客服邮箱</h5>
+                </div>
+                <a href="mailto:support@wenpai.com" className="text-blue-600 hover:underline">
+                  support@wenpai.com
+                </a>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <MessageSquare className="h-4 w-4 text-blue-600" />
+                  <h5 className="font-semibold text-blue-700">应用内客服</h5>
+                </div>
+                <p className="text-sm text-gray-600">通过平台内置客服功能</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4 text-blue-600" />
+                  <h5 className="font-semibold text-blue-700">工作时间</h5>
+                </div>
+                <p className="text-sm text-gray-600">周一至周五 9:00-18:00</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

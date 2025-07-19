@@ -6,35 +6,52 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Shield, Database, Eye, Lock, Users, Brain, Mail } from 'lucide-react';
+import { ArrowLeft, Shield, Database, Eye, Lock, Users, Brain, Mail, Calendar, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function PrivacyPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-8 px-4 max-w-5xl">
       {/* 返回按钮 */}
-      <div className="mb-6">
+      <div className="mb-8">
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 hover:bg-green-50 text-green-600"
         >
           <ArrowLeft className="h-4 w-4" />
-          返回
+          返回上一页
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <Shield className="h-6 w-6 text-green-600" />
-            文派隐私政策
-          </CardTitle>
-          <p className="text-muted-foreground">最后更新：2024年12月</p>
-          <p className="text-sm text-gray-600">
-            我们深知隐私保护的重要性，本政策详细说明我们如何收集、使用和保护您的个人信息
+      <Card className="shadow-lg border-0">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-3xl font-bold text-gray-900">
+                文派隐私政策
+              </CardTitle>
+              <p className="text-green-600 font-medium">Wenpai Privacy Policy</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            <span className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              最后更新：2024年12月
+            </span>
+            <span className="flex items-center gap-1">
+              <FileText className="h-4 w-4" />
+              版本：v2.0
+            </span>
+          </div>
+          <p className="text-gray-700 leading-relaxed mt-3">
+            我们深知隐私保护的重要性，本政策详细说明我们如何收集、使用和保护您的个人信息。
+            请仔细阅读以下政策，使用我们的服务即表示您同意这些条款。
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
