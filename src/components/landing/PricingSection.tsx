@@ -289,7 +289,9 @@ export function PricingSection() {
 
         {/* 功能对比表 */}
         <div className="mt-16">
-          <h3 className="text-2xl font-bold text-center mb-8">功能详细对比</h3>
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-gray-900">功能详细对比</h3>
+          </div>
           <div className="overflow-x-auto">
             <div className="max-w-6xl mx-auto">
               <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden shadow-sm">
