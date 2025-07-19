@@ -183,20 +183,33 @@ export const FeaturesSection: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-      <div className="container mx-auto px-4">
-        {/* 标题区域 - 重新设计 */}
-        <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 text-blue-700 px-4 py-2">
-            <Sparkles className="w-4 h-4 mr-2" />
-            🚀 核心功能
-          </Badge>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    <section className="py-16 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+      {/* 背景装饰 - 顶部淡渐变色块 */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-blue-50/30 to-transparent"></div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        {/* 1️⃣ Banner 标题区域优化 */}
+        <div className="text-center py-16 px-4">
+          {/* 左侧「核心功能」按钮优化 */}
+          <div className="flex items-center justify-center mb-6">
+            <Badge 
+              variant="outline" 
+              className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-600 border-blue-200 hover:bg-blue-200 transition-colors duration-300 animate-fadeInDown"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              🚀 核心功能
+            </Badge>
+          </div>
+          
+          {/* 2️⃣ 主标题「专业的新媒体创作工具」优化 */}
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight animate-fadeInUp">
+            <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
               专业的新媒体创作工具
             </span>
           </h2>
-          <p className="text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed font-medium">
+          
+          {/* 3️⃣ 副标题（描述文本）优化 */}
+          <p className="text-base text-gray-500 leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
             从内容创作到分发管理，文派提供全方位的
             <span className="text-blue-600 font-semibold">AI驱动工具</span>，
             助力创作者提升效率和质量
