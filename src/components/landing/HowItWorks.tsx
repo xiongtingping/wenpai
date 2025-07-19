@@ -34,47 +34,65 @@ export function HowItWorks() {
   ]
 
   return (
-    <section className="py-20 bg-white" id="how-it-works-section">
+    <section className="py-16 bg-white" id="how-it-works-section">
       <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">三步搞定，就这么简单</h2>
-          <p className="mt-2 text-lg text-gray-600">告别繁琐的内容适配流程，把时间用在创意上。</p>
-          <div className="border border-green-200 bg-green-50 px-4 py-2 rounded-lg flex items-center gap-2 text-green-700 text-sm font-medium mt-4 mx-auto w-fit shadow-sm">
-            <CheckCircle className="w-4 h-4 text-green-500" />
+        {/* 1️⃣ 标题区优化 */}
+        <div className="text-center max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+            三步搞定，就这么简单
+          </h2>
+          <p className="text-lg text-gray-500 mb-4">
+            告别繁琐的内容适配流程，把时间用在创意上。
+          </p>
+          <div className="flex items-center justify-center gap-2 text-sm text-green-600 mt-4">
+            <span className="text-lg">✅</span>
             每天帮您节省45分钟内容创作时间，提高内容转化效率200%
           </div>
         </div>
-        <div className="mt-16 flex flex-col md:flex-row items-stretch justify-center gap-8 md:gap-4 relative">
+
+        {/* 2️⃣ 三步内容卡片优化 */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
           {stepTitles.map((title, i) => {
             const Icon = stepIcons[i]
             return (
               <div
                 key={title}
-                className={`group flex-1 flex flex-col items-center px-2 md:px-0 animate-fadeInUp`}
+                className="group bg-white rounded-xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
                 style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
               >
-                <div className={`relative flex flex-col items-center mb-6`}>
+                <div className="flex flex-col items-center text-center">
+                  {/* 渐变圆形背景图标 */}
                   <div
-                    className={`flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br ${stepGradients[i]} shadow-lg border-4 border-white dark:border-slate-800 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl`}
+                    className={`flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br ${stepGradients[i]} shadow-lg mb-6 transition-transform duration-300 group-hover:scale-110`}
                   >
-                    <span className="absolute top-2 left-2 text-xs text-white/80 font-bold opacity-80 select-none">{i + 1}</span>
-                    <Icon className="w-9 h-9 md:w-10 md:h-10 text-white drop-shadow" />
+                    <Icon className="w-10 h-10 text-white" />
                   </div>
-                </div>
-                <div className="text-center max-w-xs mx-auto">
-                  <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{title}</h3>
-                  <p className="mx-auto text-gray-600 leading-[1.7] text-base md:text-lg max-w-[18rem]">{stepDescs[i]}</p>
+                  
+                  {/* 主标题 */}
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    {title}
+                  </h3>
+                  
+                  {/* 描述文字 */}
+                  <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
+                    {stepDescs[i]}
+                  </p>
                 </div>
               </div>
             )
           })}
         </div>
-        <div className="mt-12 max-w-3xl mx-auto text-center">
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h3 className="text-lg font-semibold text-blue-700 mb-2">提高效率，节省时间</h3>
+
+        {/* 3️⃣ 最下方蓝色提示条优化 */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="rounded-lg bg-blue-50 text-center px-6 py-4 border border-blue-100">
+            <h3 className="text-lg font-semibold text-blue-700 mb-2">
+              提高效率，节省时间
+            </h3>
             <p className="text-sm text-gray-600">
-              传统多平台内容适配每篇需要<span className="line-through mx-1">60-90分钟</span>
-              <span className="text-green-600 font-medium mx-1">现在只需15分钟</span>
+              传统多平台内容适配每篇需要
+              <span className="line-through mx-1">60-90分钟</span>
+              <span className="text-green-600 font-semibold mx-1">现在只需15分钟</span>
               即可完成全平台内容分发，让您专注于创意本身！
             </p>
           </div>
