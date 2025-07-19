@@ -325,30 +325,41 @@ export const FeaturesSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 平台优势区域 */}
-        <div className="mb-20">
+        {/* 3️⃣ 平台优势区域优化 */}
+        <div className="py-16">
+          {/* 标题部分优化 */}
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">平台优势</h3>
-            <p className="text-muted-foreground">为什么选择文派？我们为您提供最优质的服务</p>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">平台优势</h3>
+            <p className="text-gray-500 text-base mt-2 mb-8">
+              为什么选择文派？我们为您提供最优质的服务
+            </p>
           </div>
           
+          {/* 优势卡片网格布局 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {advantages.map((advantage, index) => (
-              <div 
+              <Card 
                 key={index} 
-                className="text-center group animate-slideUp"
+                className="group text-center py-6 px-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 animate-slideUp min-h-[220px] flex flex-col justify-center"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${advantage.bgColor} mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <advantage.icon className={`w-8 h-8 ${advantage.color}`} />
-                </div>
-                <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors duration-300">
-                  {advantage.title}
-                </h4>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {advantage.description}
-                </p>
-              </div>
+                <CardContent className="p-0">
+                  {/* 图标区域 */}
+                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full ${advantage.bgColor} mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <advantage.icon className={`w-5 h-5 ${advantage.color}`} />
+                  </div>
+                  
+                  {/* 标题 */}
+                  <h4 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-gray-900 transition-colors duration-300">
+                    {advantage.title}
+                  </h4>
+                  
+                  {/* 描述文字 */}
+                  <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+                    {advantage.description}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
