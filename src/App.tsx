@@ -25,6 +25,14 @@ import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
+import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
+import APIConfigTestPage from '@/pages/APIConfigTestPage';
+import QRCodeTestPage from '@/pages/QRCodeTestPage';
+import TermsPage from '@/pages/TermsPage';
+import PrivacyPage from '@/pages/PrivacyPage';
+import EmojiPage from '@/pages/EmojiPage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import SettingsPage from '@/pages/SettingsPage';
 
 /**
  * 条件性导航组件
@@ -58,6 +66,12 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/emoji-generator" element={<EmojiPage />} />
+          
+          {/* 404页面 - 必须放在最后 */}
+          <Route path="*" element={<NotFoundPage />} />
           
           {/* 支付相关页面 */}
           <Route path="/payment" element={<PaymentPage />} />
@@ -133,9 +147,18 @@ export default function App() {
             </AuthGuard>
           } />
           
+          <Route path="/settings" element={
+            <AuthGuard>
+              <SettingsPage />
+            </AuthGuard>
+          } />
+          
           {/* 测试页面 */}
           <Route path="/ai-config-test" element={<AIConfigTestPage />} />
           <Route path="/permission-test" element={<PermissionTestPage />} />
+          <Route path="/functionality-test" element={<FunctionalityTestPage />} />
+          <Route path="/api-config-test" element={<APIConfigTestPage />} />
+          <Route path="/qrcode-test" element={<QRCodeTestPage />} />
         </Routes>
       </div>
     </>
