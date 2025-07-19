@@ -3,7 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu
 } from "lucide-react";
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
@@ -1685,6 +1685,75 @@ export default function AdaptPage() {
                   <p className="text-xs text-gray-500">增强内容的可读性和视觉效果</p>
                 </div>
                 
+                {/* AI模型选择 */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Cpu className="h-3 w-3" />
+                    AI模型选择
+                    <Badge variant="outline" className="text-xs text-gray-500">进阶用户</Badge>
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {allModels.map((model) => {
+                      const isAvailable = availableModels.some(m => m.id === model.id);
+                      let disabled = !isAvailable;
+                      let badge = '';
+                      let showUpgradeTip = false;
+                      
+                      if (model.id === 'gpt-4o' && userPlan === 'trial') {
+                        badge = '专业版/高级版专属';
+                        showUpgradeTip = true;
+                      }
+                      
+                      return (
+                        <div
+                          key={model.id}
+                          className={`p-2 border rounded-md cursor-pointer transition-all hover:shadow-sm text-xs ${
+                            selectedModel === model.id
+                              ? 'border-blue-500 bg-blue-50'
+                              : disabled
+                              ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
+                              : 'border-gray-200 hover:border-blue-300'
+                          }`}
+                          onClick={() => handleModelSelect(model.id, disabled)}
+                        >
+                          <div className="flex items-start space-x-2">
+                            <div className={`w-3 h-3 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                              selectedModel === model.id
+                                ? 'border-blue-500 bg-blue-500'
+                                : 'border-gray-300'
+                            }`}>
+                              {selectedModel === model.id && (
+                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1 mb-1">
+                                <span className="font-medium text-blue-600 text-xs">{model.name}</span>
+                                {badge && (
+                                  <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
+                              {showUpgradeTip && (
+                                <div className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+                                  <span className="mr-1">🔒</span>
+                                  去解锁高级功能
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {selectedModel && (
+                    <div className="text-xs text-muted-foreground">
+                      <p className="font-medium">当前选择：{getModelInfo(selectedModel)?.name}</p>
+                      <p>{getModelInfo(selectedModel)?.description}</p>
+                    </div>
+                  )}
+                </div>
+
                 {/* 智能优化 */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">

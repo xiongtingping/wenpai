@@ -41,67 +41,67 @@ import {
  */
 const mainFeatures = [
   {
-    title: 'AI内容适配器',
-    description: '智能分析内容，一键适配多平台格式，提升内容传播效果',
+    title: '🎯 AI内容适配器',
+    description: '智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩',
     icon: Zap,
     path: '/adapt',
     color: 'from-blue-500 to-cyan-500',
     bgColor: 'from-blue-50 to-cyan-50',
     borderColor: 'border-blue-200',
     hoverColor: 'hover:from-blue-100 hover:to-cyan-100',
-    badge: '热门',
+    badge: '🔥 热门',
     badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500',
     features: ['智能内容分析', '多平台格式适配', '一键生成优化建议', '实时预览效果']
   },
   {
-    title: '创意魔方',
-    description: 'AI驱动的创意生成工具，激发灵感，创造独特内容',
+    title: '✨ 创意魔方',
+    description: 'AI驱动的创意生成工具，激发无限灵感，创造独特而富有吸引力的内容',
     icon: Sparkles,
     path: '/creative-studio',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'from-purple-50 to-pink-50',
     borderColor: 'border-purple-200',
     hoverColor: 'hover:from-purple-100 hover:to-pink-100',
-    badge: '推荐',
+    badge: '⭐ 推荐',
     badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
     features: ['AI创意生成', '多种创意模板', '灵感库管理', '创意协作']
   },
   {
-    title: '全网雷达',
-    description: '实时监控热点话题，把握趋势，抢占内容先机',
+    title: '📡 全网雷达',
+    description: '实时监控热点话题，精准把握趋势脉搏，抢占内容传播先机',
     icon: TrendingUp,
     path: '/hot-topics',
     color: 'from-orange-500 to-red-500',
     bgColor: 'from-orange-50 to-red-50',
     borderColor: 'border-orange-200',
     hoverColor: 'hover:from-orange-100 hover:to-red-100',
-    badge: '开发中',
+    badge: '🚧 开发中',
     badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
     features: ['实时热点监控', '趋势分析报告', '竞品内容追踪', '话题预测']
   },
   {
-    title: '我的资料库',
-    description: '个人内容管理中心，收藏整理，随时调用',
+    title: '📚 我的资料库',
+    description: '个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及',
     icon: FolderOpen,
     path: '/library',
     color: 'from-green-500 to-emerald-500',
     bgColor: 'from-green-50 to-emerald-50',
     borderColor: 'border-green-200',
     hoverColor: 'hover:from-green-100 hover:to-emerald-100',
-    badge: '实用',
+    badge: '💡 实用',
     badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
     features: ['内容收藏管理', '智能分类标签', '快速搜索检索', '云端同步']
   },
   {
-    title: '品牌库',
-    description: '品牌资产管理系统，统一管理，提升品牌一致性',
+    title: '🏢 品牌库',
+    description: '专业品牌资产管理系统，统一管理品牌元素，提升品牌一致性和识别度',
     icon: Users,
     path: '/brand-library',
     color: 'from-indigo-500 to-blue-500',
     bgColor: 'from-indigo-50 to-blue-50',
     borderColor: 'border-indigo-200',
     hoverColor: 'hover:from-indigo-100 hover:to-blue-100',
-    badge: '高级版',
+    badge: '👑 高级版',
     badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
   },
@@ -112,29 +112,29 @@ const mainFeatures = [
  */
 const quickTools = [
   {
-    title: 'Emoji生成器',
-    description: '智能生成表情符号，让内容更有趣',
+    title: '😊 Emoji生成器',
+    description: '智能生成生动表情符号，让内容更有趣更有感染力',
     icon: Smile,
     path: '/emoji-generator',
     color: 'from-yellow-400 to-orange-400',
   },
   {
-    title: '一键转发',
-    description: '多平台内容分发，提升传播效率',
+    title: '🚀 一键转发',
+    description: '多平台内容智能分发，最大化传播效果和影响力',
     icon: Upload,
     path: '/share-manager',
     color: 'from-teal-400 to-cyan-400',
   },
   {
-    title: '朋友圈模板',
-    description: '精美模板快速生成，提升内容质量',
+    title: '💬 朋友圈模板',
+    description: '精美模板快速生成，让您的朋友圈内容脱颖而出',
     icon: MessageCircle,
     path: '/wechat-templates',
     color: 'from-pink-400 to-rose-400',
   },
   {
-    title: '历史记录',
-    description: '查看使用历史，追踪创作轨迹',
+    title: '📊 历史记录',
+    description: '智能追踪创作轨迹，优化内容策略和创作方向',
     icon: Clock,
     path: '/history',
     color: 'from-gray-400 to-slate-400',
@@ -146,29 +146,29 @@ const quickTools = [
  */
 const advantages = [
   {
-    title: 'AI驱动',
-    description: '先进的AI技术，智能分析内容，提供精准建议',
+    title: '🤖 AI驱动',
+    description: '先进的AI技术，智能分析内容，提供精准建议和优化方案',
     icon: Target,
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
   },
   {
-    title: '多平台适配',
-    description: '一键适配微信、微博、抖音等主流平台',
+    title: '🌐 多平台适配',
+    description: '一键适配微信、微博、抖音等主流平台，覆盖全媒体矩阵',
     icon: Globe,
     color: 'text-green-600',
     bgColor: 'bg-green-50',
   },
   {
-    title: '专业工具',
-    description: '丰富的专业工具，满足不同内容创作需求',
+    title: '🎨 专业工具',
+    description: '丰富的专业工具套件，满足不同内容创作场景和需求',
     icon: Palette,
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
   },
   {
-    title: '安全可靠',
-    description: '企业级安全保障，数据加密存储',
+    title: '🔒 安全可靠',
+    description: '企业级安全保障，数据加密存储，保护您的创作成果',
     icon: Shield,
     color: 'text-orange-600',
     bgColor: 'bg-orange-50',
@@ -185,17 +185,21 @@ export const FeaturesSection: React.FC = () => {
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
       <div className="container mx-auto px-4">
-        {/* 标题区域 */}
+        {/* 标题区域 - 重新设计 */}
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 text-blue-700">
-            <Sparkles className="w-3 h-3 mr-1" />
-            核心功能
+          <Badge variant="outline" className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 text-blue-700 px-4 py-2">
+            <Sparkles className="w-4 h-4 mr-2" />
+            🚀 核心功能
           </Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            专业的新媒体创作工具
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              专业的新媒体创作工具
+            </span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            从内容创作到分发管理，文派提供全方位的AI驱动工具，助力创作者提升效率和质量
+          <p className="text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed font-medium">
+            从内容创作到分发管理，文派提供全方位的
+            <span className="text-blue-600 font-semibold">AI驱动工具</span>，
+            助力创作者提升效率和质量
           </p>
         </div>
 
