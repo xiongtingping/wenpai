@@ -261,8 +261,8 @@ export default function PrivacyPage() {
               <p>如果您对本隐私政策有任何疑问或需要行使您的权利，请通过以下方式联系我们：</p>
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <ul className="space-y-2 text-sm">
-                  <li>• <strong>隐私保护邮箱：</strong><a href="mailto:privacy@wenpai.com" className="text-blue-600 hover:underline ml-1">privacy@wenpai.com</a></li>
-                  <li>• <strong>客服邮箱：</strong><a href="mailto:support@wenpai.com" className="text-blue-600 hover:underline ml-1">support@wenpai.com</a></li>
+                                  <li>• <strong>隐私保护邮箱：</strong><a href="mailto:xiongtingping@gmail.com" className="text-blue-600 hover:underline ml-1">xiongtingping@gmail.com</a></li>
+                <li>• <strong>客服邮箱：</strong><a href="mailto:xiongtingping@gmail.com" className="text-blue-600 hover:underline ml-1">xiongtingping@gmail.com</a></li>
                   <li>• <strong>应用内客服：</strong>通过平台内置客服功能</li>
                   <li>• <strong>工作时间：</strong>周一至周五 9:00-18:00</li>
                 </ul>

@@ -326,8 +326,8 @@ export default function TermsPage() {
                   <Mail className="h-4 w-4 text-blue-600" />
                   <h5 className="font-semibold text-blue-700">客服邮箱</h5>
                 </div>
-                <a href="mailto:support@wenpai.com" className="text-blue-600 hover:underline">
-                  support@wenpai.com
+                <a href="mailto:xiongtingping@gmail.com" className="text-blue-600 hover:underline">
+                  xiongtingping@gmail.com
                 </a>
               </div>
               <div className="bg-white p-4 rounded-lg border border-blue-100">

@@ -129,15 +129,7 @@ export function PricingSection() {
             从免费体验到高级版，全方位赋能新媒体创意工作者
           </p>
           
-          {/* CTA 按钮 - 立即试用 */}
-          <div className="mt-6">
-            <Button 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              立即试用
-            </Button>
-          </div>
+
           {/* 登录用户显示倒计时 */}
           {isAuthenticated && inPromo && (
             <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
@@ -358,7 +350,7 @@ export function PricingSection() {
                       <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-green-600 font-medium">✅</span>
+                      <span className="text-red-500 font-medium">❌</span>
                     </td>
                     <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
                       <span className="text-green-600 font-medium">✅</span>

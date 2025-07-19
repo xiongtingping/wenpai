@@ -249,9 +249,12 @@ export const UnifiedAuthProvider: React.FC<AuthProviderProps> = ({ children }) =
               
               // 修复滚动恢复逻辑，确保不会滚动到底部
               const scrollPosition = parseInt(scrollY.replace('-', '') || '0');
-              requestAnimationFrame(() => {
-                window.scrollTo(0, scrollPosition);
-              });
+              // 使用setTimeout确保DOM更新完成后再滚动
+              setTimeout(() => {
+                if (scrollPosition > 0) {
+                  window.scrollTo(0, scrollPosition);
+                }
+              }, 100);
             }
           }}
           onLoginError={(error) => {
