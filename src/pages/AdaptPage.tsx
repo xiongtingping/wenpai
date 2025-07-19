@@ -1725,104 +1725,7 @@ export default function AdaptPage() {
         </CardContent>
       </Card>
 
-      {/* AI Model Selection */}
-      <Card className="mb-8">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg">AI 模型选择</CardTitle>
-              <CardDescription>
-                选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o
-              </CardDescription>
-            </div>
-            {userPlan === 'trial' && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate('/payment')}
-                className="text-blue-600 border-blue-200 hover:bg-blue-50"
-              >
-                去解锁
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {allModels.map((model) => {
-                const isAvailable = availableModels.some(m => m.id === model.id);
-                let disabled = !isAvailable;
-                let badge = '';
-                let showUpgradeTip = false;
-                
-                if (model.id === 'gpt-4o' && userPlan === 'trial') {
-                  badge = '专业版/高级版专属';
-                  showUpgradeTip = true;
-                }
-                
-                return (
-                  <div
-                    key={model.id}
-                    className={`p-6 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
-                      selectedModel === model.id
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : disabled
-                        ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
-                        : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                    onClick={() => handleModelSelect(model.id, disabled)}
-                  >
-                    <div className="flex items-start space-x-4">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                        selectedModel === model.id
-                          ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
-                      }`}>
-                        {selectedModel === model.id && (
-                          <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-semibold text-blue-600 text-base">{model.name}</span>
-                          {badge && (
-                            <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600 leading-relaxed">{model.description}</p>
-                        {showUpgradeTip && (
-                          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
-                            <p className="text-xs text-yellow-700 flex items-center">
-                              <span className="mr-1">🔒</span>
-                              去解锁高级功能
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {selectedModel && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                <p className="font-medium">{getModelInfo(selectedModel)?.name}</p>
-                <p>{getModelInfo(selectedModel)?.description}</p>
-              </div>
-            )}
-            {/* 开发环境订阅等级切换 */}
-            {import.meta.env.DEV && (
-              <div className="mt-4 flex gap-2 items-center">
-                <span className="text-xs text-gray-500">开发环境订阅等级：</span>
-                <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
-                <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
-                <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Scheme Selection */}
       <Card className="mb-8">
@@ -1934,6 +1837,87 @@ export default function AdaptPage() {
                         </Label>
                       </div>
                     </div>
+                  </div>
+
+                  {/* AI模型选择 - 进阶设置 */}
+                  <div className="border-b pb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-gray-700">AI模型选择</h4>
+                      <Badge variant="outline" className="text-xs text-gray-500">进阶用户</Badge>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {allModels.map((model) => {
+                        const isAvailable = availableModels.some(m => m.id === model.id);
+                        let disabled = !isAvailable;
+                        let badge = '';
+                        let showUpgradeTip = false;
+                        
+                        if (model.id === 'gpt-4o' && userPlan === 'trial') {
+                          badge = '专业版/高级版专属';
+                          showUpgradeTip = true;
+                        }
+                        
+                        return (
+                          <div
+                            key={model.id}
+                            className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
+                              selectedModel === model.id
+                                ? 'border-blue-500 bg-blue-50'
+                                : disabled
+                                ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
+                                : 'border-gray-200 hover:border-blue-300'
+                            }`}
+                            onClick={() => handleModelSelect(model.id, disabled)}
+                          >
+                            <div className="flex items-start space-x-2">
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                                selectedModel === model.id
+                                  ? 'border-blue-500 bg-blue-500'
+                                  : 'border-gray-300'
+                              }`}>
+                                {selectedModel === model.id && (
+                                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <span className="font-medium text-blue-600 text-sm">{model.name}</span>
+                                  {badge && (
+                                    <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
+                                {showUpgradeTip && (
+                                  <div className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+                                    <span className="mr-1">🔒</span>
+                                    去解锁高级功能
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {selectedModel && (
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        <p className="font-medium">当前选择：{getModelInfo(selectedModel)?.name}</p>
+                        <p>{getModelInfo(selectedModel)?.description}</p>
+                      </div>
+                    )}
+                    
+                    {/* 开发环境订阅等级切换 */}
+                    {import.meta.env.DEV && (
+                      <div className="mt-3 flex gap-2 items-center">
+                        <span className="text-xs text-gray-500">开发环境订阅等级：</span>
+                        <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
+                        <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
+                        <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
+                      </div>
+                    )}
                   </div>
 
                   {/* 平台特定设置 */}
