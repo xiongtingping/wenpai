@@ -42,19 +42,19 @@ const HeroSection: React.FC = () => {
     <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
-          {/* 品牌标识 */}
-          <div className="mb-8">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
-              <span className="text-3xl font-bold text-white">文</span>
+          {/* 品牌标识 - 优化设计 */}
+          <div className="mb-10">
+            <div className="inline-flex items-center justify-center w-28 h-28 bg-gradient-to-br from-indigo-500 via-blue-500 to-purple-600 rounded-full mb-8 shadow-xl border-4 border-white/20 hover:scale-105 transition-all duration-300 hover:shadow-2xl group">
+              <span className="text-4xl font-bold text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300">文</span>
             </div>
           </div>
           
-          {/* 主标题 - 重新设计 */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          {/* 主标题 - 优化设计 */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
               文派AI
             </span>
-            <span className="block text-2xl sm:text-3xl lg:text-4xl font-medium text-gray-700 mt-2">
+            <span className="block text-2xl sm:text-3xl lg:text-4xl font-medium text-gray-700 mt-3">
               智能创作平台
             </span>
           </h1>
