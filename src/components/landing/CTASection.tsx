@@ -36,22 +36,32 @@ export function CTASection() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-      <div className="container mx-auto px-6 text-center">
-        <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6">
+    <section className="py-16 bg-gray-50 relative overflow-hidden">
+      {/* 装饰背景 - 增强视觉层次 */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-pink-50/30"></div>
+      
+      <div className="container mx-auto px-6 text-center relative z-10">
+        {/* 1️⃣ 主标题 */}
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2">
           准备好开始您的创作之旅了吗？
         </h2>
-        <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-10">
+        
+        {/* 2️⃣ 副标题 */}
+        <p className="text-base text-gray-500 text-center mb-6 max-w-xl mx-auto leading-relaxed">
           立即加入，让AI成为你最得力的内容创作伙伴。
         </p>
-        <div className="flex justify-center items-center">
+        
+        {/* 3️⃣ CTA 按钮 */}
+        <div className="flex justify-center">
           <Button
             size="lg"
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-6 rounded-lg shadow-lg text-lg transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-full font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
             onClick={handleButtonClick}
-            style={{ cursor: 'pointer' }}
           >
-            免费开启高效创作之旅 →
+            立即开启高效创作之旅
+            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
           </Button>
         </div>
       </div>
