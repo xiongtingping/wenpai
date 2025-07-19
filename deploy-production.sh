@@ -271,8 +271,9 @@ netlify deploy --prod --dir=dist
 ### 环境变量
 ```bash
 # AI API Keys
-OPENAI_API_KEY=sk-***[已隐藏]***
-DEEPSEEK_API_KEY=sk-c195bdaf58941978c7322fc6dd88EMINI_API_KEY=your-gemini-api-key
+OPENAI_API_KEY=your-openai-api-key-here
+DEEPSEEK_API_KEY=your-deepseek-api-key-here
+GEMINI_API_KEY=your-gemini-api-key-here
 
 # Authing配置
 VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d

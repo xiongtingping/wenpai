@@ -3,10 +3,10 @@
 ## 必需配置
 
 ### OpenAI API
-OPENAI_API_KEY = sk-***[已隐藏]***
+OPENAI_API_KEY = your-openai-api-key-here
 
 ### DeepSeek API  
-DEEPSEEK_API_KEY = sk-c195bdaf58941978ec7322fc6dd88
+DEEPSEEK_API_KEY = your-deepseek-api-key-here
 
 ### Gemini API
 GEMINI_API_KEY = your-gemini-api-key
