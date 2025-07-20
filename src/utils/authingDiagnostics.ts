@@ -25,7 +25,7 @@ export function diagnoseAuthingConfig() {
     console.log('🔧 Guard配置:', {
       appId: guardConfig.appId,
       host: guardConfig.host,
-      redirectUri: guardConfig.redirectUri,
+      redirectUri: (guardConfig as any).redirectUri || '未设置',
       mode: guardConfig.mode,
       defaultScene: guardConfig.defaultScene,
       skipComplateFileds: guardConfig.skipComplateFileds,

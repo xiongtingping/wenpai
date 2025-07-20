@@ -89,7 +89,7 @@ export function testAuthingConfig(): AuthingTestResult {
       guardConfig: {
         appId: guardConfig.appId,
         host: guardConfig.host,
-        redirectUri: guardConfig.redirectUri,
+        redirectUri: (guardConfig as any).redirectUri || '未设置',
         mode: guardConfig.mode,
         defaultScene: guardConfig.defaultScene,
       }
