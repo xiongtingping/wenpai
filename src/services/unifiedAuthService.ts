@@ -87,7 +87,7 @@ class UnifiedAuthService {
           // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
           // 🔒 LOCKED: AI 禁止对此配置做任何修改
           // 使用配置文件中的Authing配置
-          const appId = import.meta.env.VITE_AUTHING_APP_ID || '687bc631c105de597b993202';
+          const appId = import.meta.env.VITE_AUTHING_APP_ID || '687cc2a82e907f6e8aea5848';
           const host = (import.meta.env.VITE_AUTHING_HOST || 'wenpai.authing.cn').replace(/^https?:\/\//, '');
           const callbackUrl = import.meta.env.DEV 
             ? (import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback')

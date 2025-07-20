@@ -88,7 +88,7 @@ export const getAuthingConfig = (): AuthingConfig => {
   const globalEnv = typeof window !== 'undefined' ? (window as any).__ENV__ : {};
   
   // 使用Authing控制台中的实际App ID - 确保有默认值
-  const appId = globalEnv.VITE_AUTHING_APP_ID || import.meta.env.VITE_AUTHING_APP_ID || '687c5c7f4e778a6485a4f0e0';
+  const appId = globalEnv.VITE_AUTHING_APP_ID || import.meta.env.VITE_AUTHING_APP_ID || '687cc2a82e907f6e8aea5848';
   
   // 获取 Authing 域名配置 - 使用Authing控制台中的实际域名
   let host = globalEnv.VITE_AUTHING_HOST || import.meta.env.VITE_AUTHING_HOST || '';
