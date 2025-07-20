@@ -11,7 +11,8 @@
  * - 问题1: 使用旧App ID导致"用户池不存在"错误
  * - 问题2: 域名配置错误导致JSON解析失败
  * - 问题3: 回调地址配置错误导致重定向失败
- * - 解决方案: 统一使用新应用配置，动态获取端口和域名
+ * - 问题4: 应用类型不匹配导致400错误
+ * - 解决方案: 统一使用新应用配置，动态获取端口和域名，支持标准web应用
  */
 
 /**
@@ -28,6 +29,8 @@ export interface AuthingConfig {
   mode: 'modal' | 'normal';
   /** 默认场景 */
   defaultScene: 'login' | 'register';
+  /** 应用类型 */
+  appType: 'oidc' | 'web';
 }
 
 /**
@@ -77,7 +80,8 @@ const isUsingNetlifyDev = (): boolean => {
  * - 问题1: 使用旧App ID导致"用户池不存在"错误
  * - 问题2: 域名配置错误导致JSON解析失败
  * - 问题3: 回调地址配置错误导致重定向失败
- * - 解决方案: 统一使用新应用配置，动态获取端口和域名
+ * - 问题4: 应用类型不匹配导致400错误
+ * - 解决方案: 统一使用新应用配置，动态获取端口和域名，支持标准web应用
  */
 export const getAuthingConfig = (): AuthingConfig => {
   // 优先使用全局环境变量，回退到 import.meta.env
@@ -136,10 +140,15 @@ export const getAuthingConfig = (): AuthingConfig => {
     console.log('🔧 生产环境回调地址:', redirectUri);
   }
   
+  // 检测应用类型 - 根据您的描述，当前是标准web应用
+  const appType = globalEnv.VITE_AUTHING_APP_TYPE || import.meta.env.VITE_AUTHING_APP_TYPE || 'web';
+  console.log('🔧 检测到应用类型:', appType);
+  
   console.log('🔧 Authing配置:', {
     appId,
     host,
     redirectUri,
+    appType,
     env: import.meta.env.MODE,
     isNetlifyDev: isUsingNetlifyDev(),
     currentPort: getCurrentPort(),
@@ -153,6 +162,7 @@ export const getAuthingConfig = (): AuthingConfig => {
     redirectUri,
     mode: 'modal',
     defaultScene: 'login',
+    appType: appType as 'oidc' | 'web',
   };
 };
 
@@ -166,7 +176,7 @@ export const getAuthingAppId = (): string => {
 
 /**
  * 获取 Guard 配置对象（用于 Guard 组件）
- * 按照官方文档配置
+ * 按照官方文档配置，支持标准web应用和OIDC应用
  * @returns Guard 配置对象
  * 
  * ✅ FIXED: 该函数曾因Guard配置错误导致初始化失败和JSON解析错误，已于2024年修复
@@ -177,16 +187,16 @@ export const getAuthingAppId = (): string => {
  * - 问题1: 复杂配置导致Guard初始化失败
  * - 问题2: 自动获取公共配置导致JSON解析错误
  * - 问题3: 事件监听器导致内存泄漏
- * - 解决方案: 简化配置，禁用自动功能，使用直接重定向模式
+ * - 问题4: 应用类型不匹配导致400错误
+ * - 解决方案: 简化配置，禁用自动功能，使用直接重定向模式，支持标准web应用
  */
 export const getGuardConfig = () => {
   const config = getAuthingConfig();
   
-  // 使用完整的Guard配置，支持弹窗模式
-  const guardConfig = {
+  // 基础配置
+  const baseConfig = {
     appId: config.appId,
     host: config.host,
-    redirectUri: config.redirectUri,
     mode: 'modal' as const,
     defaultScene: 'login' as const,
     // 弹窗模式配置
@@ -216,5 +226,21 @@ export const getGuardConfig = () => {
     }
   };
   
-  return guardConfig;
+  // 根据应用类型添加特定配置
+  if (config.appType === 'web') {
+    // 标准web应用配置
+    console.log('🔧 使用标准web应用配置');
+    return {
+      ...baseConfig,
+      // 标准web应用不需要redirectUri
+      // 使用默认的认证流程
+    };
+  } else {
+    // OIDC应用配置
+    console.log('🔧 使用OIDC应用配置');
+    return {
+      ...baseConfig,
+      redirectUri: config.redirectUri,
+    };
+  }
 }; 
