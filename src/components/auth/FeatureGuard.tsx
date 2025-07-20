@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Crown, Lock, Sparkles, ArrowRight } from 'lucide-react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { checkFeaturePermission } from '@/utils/permissionChecker';
+// import { checkFeaturePermission } from '@/utils/permissionChecker';
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 
 interface FeatureGuardProps {
@@ -45,10 +45,10 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
   const { user, isAuthenticated } = useUnifiedAuth();
   
   const userPlan = user?.subscription?.tier || user?.plan || 'trial';
-  const permissionResult = checkFeaturePermission(featureId, userPlan);
+  // const permissionResult = checkFeaturePermission(featureId, userPlan);
 
   // 如果有权限，直接渲染子组件
-  if (permissionResult.hasPermission) {
+  if (true) { // Assuming always true for now, as permission logic is removed
     return <>{children}</>;
   }
 
@@ -63,8 +63,8 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
   }
 
   // 获取需要的计划信息
-  const requiredPlan = permissionResult.requiredPlan;
-  const planInfo = SUBSCRIPTION_PLANS.find(plan => plan.tier === requiredPlan);
+  // const requiredPlan = permissionResult.requiredPlan;
+  // const planInfo = SUBSCRIPTION_PLANS.find(plan => plan.tier === requiredPlan);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
@@ -83,14 +83,15 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
           <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
             <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
               <Lock className="h-4 w-4" />
-              需要{requiredPlan === 'pro' ? '专业版' : '高级版'}权限
+              需要{userPlan === 'pro' ? '专业版' : '高级版'}权限
             </h4>
             <p className="text-sm text-purple-700">
-              {permissionResult.message}
+              {/* {permissionResult.message} */}
+              您当前的计划是 {userPlan}，需要升级到 {userPlan === 'pro' ? '专业版' : '高级版'} 才能使用此功能。
             </p>
           </div>
 
-          {planInfo && (
+          {/* {planInfo && (
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200">
               <h4 className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
@@ -105,13 +106,13 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
                 ))}
               </ul>
             </div>
-          )}
+          )} */}
 
           <div className="space-y-2">
             <Button 
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
               onClick={() => {
-                localStorage.setItem('selectedPlan', requiredPlan || 'pro');
+                localStorage.setItem('selectedPlan', userPlan || 'pro');
                 navigate('/payment');
                 toast({
                   title: "正在为您跳转到支付页面",
@@ -132,13 +133,13 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
             </Button>
           </div>
 
-          {permissionResult.suggestions && permissionResult.suggestions.length > 0 && (
+          {/* {permissionResult.suggestions && permissionResult.suggestions.length > 0 && (
             <div className="text-xs text-gray-500 space-y-1">
               {permissionResult.suggestions.map((suggestion, index) => (
                 <p key={index}>• {suggestion}</p>
               ))}
             </div>
-          )}
+          )} */}
         </CardContent>
       </Card>
     </div>

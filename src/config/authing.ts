@@ -190,7 +190,6 @@ export const getGuardConfig = () => {
     mode: 'modal' as const,
     defaultScene: 'login' as const,
     // 弹窗模式配置
-    autoRegister: false,
     skipComplateFileds: false,
     skipComplateFiledsPlace: 'modal',
     closeable: true,
@@ -202,9 +201,6 @@ export const getGuardConfig = () => {
     // 界面配置
     logo: 'https://www.wenpai.xyz/logo.png',
     title: '文派AI',
-    // 禁用自动功能，避免配置错误
-    autoRegister: false,
-    skipComplateFileds: false,
     // 事件处理
     onLogin: (user: any) => {
       console.log('🔐 Guard登录成功:', user);

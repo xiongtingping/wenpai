@@ -60,22 +60,16 @@ export default function BrandContentGenerator() {
       const prompt = await brandService.generatePrompt(topic);
       
       // 调用真实AI服务生成内容
-      const aiService = (await import('@/api/aiService')).default;
-      const response = await aiService.generateCreativeContent({
+      const aiService = (await import('@/api/aiService')).callAI;
+      const response = await aiService({
         prompt: prompt,
-        context: {
-          brandName: profile.name,
-          brandSlogan: profile.slogans[0] || '',
-          brandKeywords: profile.keywords.join('、'),
-          brandTone: profile.tone || '专业',
-          topic: topic
-        },
-        style: 'brand_consistent',
-        maxTokens: 800
+        model: 'gpt-4',
+        maxTokens: 1000,
+        temperature: 0.7
       });
 
-      if (response.success && response.data) {
-        setGeneratedContent(response.data as string);
+      if (response.success && response.content) {
+        setGeneratedContent(response.content);
       } else {
         // 如果AI调用失败，使用高质量模拟内容
         const mockContent = `基于"${topic}"主题，我们为您精心打造了符合品牌调性的内容：

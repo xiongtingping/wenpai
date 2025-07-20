@@ -267,18 +267,11 @@ export default function ContentExtractorPage() {
         try {
           await new Promise(resolve => setTimeout(resolve, 500)); // 模拟提取延迟
           
-          const messages = [{
-            role: 'user',
-            content: `请为以下提取的内容生成AI智能总结：
-
-${mockResult.content}
-
-请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
-          }];
-
-          const response = await import('@/api/aiService').then(module => module.default.summarizeContent(mockResult.content));
+          const response = await import('@/api/aiService').then(module => module.callAI({
+            prompt: `请为以下提取的内容生成AI智能总结：\n\n${mockResult.content}\n\n请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
+          }));
           
-          const responseData = response.data as Record<string, unknown>;
+          const responseData = response as unknown as Record<string, unknown>;
           const choices = responseData?.data as Record<string, unknown>;
           if (response.success && choices?.choices?.[0]?.message?.content) {
             mockResult.summary = choices.choices[0].message.content;
@@ -478,9 +471,11 @@ ${mockResult.content}
     setIsGeneratingSummary(true);
     
     try {
-      const response = await import('@/api/aiService').then(module => module.default.summarizeContent(result.content));
+      const response = await import('@/api/aiService').then(module => module.callAI({
+        prompt: `请为以下提取的内容生成AI智能总结：\n\n${result.content}\n\n请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`
+      }));
       
-      const responseData = response.data as Record<string, unknown>;
+      const responseData = response as unknown as Record<string, unknown>;
       const choices = responseData?.data as Record<string, unknown>;
       
       if (response.success && choices?.choices?.[0]?.message?.content) {

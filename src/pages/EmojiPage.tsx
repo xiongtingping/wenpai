@@ -43,7 +43,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { notoEmojiService, UNICODE_EMOJI_GROUPS, SKIN_TONE_MODIFIERS, NOTO_STYLES, type NotoEmojiData } from '@/services/notoEmojiService';
-import aiService from '@/api/aiService';
+import { callAI } from '@/api/aiService';
 import PersonalizedEmojiGenerator from '@/components/creative/PersonalizedEmojiGenerator';
 
 /**
@@ -251,22 +251,11 @@ const EmojiPage: React.FC = () => {
 
     setIsRecommending(true);
     try {
-      const messages = [{
-        role: 'user',
-        content: `请为以下内容推荐合适的emoji表情符号：
-
-内容场景: ${contentContext}
-
-请推荐5-10个最适合的emoji，并说明推荐理由。要求emoji能够增强内容的表达效果和情感共鸣。
-
-请按照以下格式返回：
-推荐emoji: 💪 🔥 ⭐ ✨ 🎯
-推荐理由: 详细说明每个emoji的使用场景和情感表达效果`
-      }];
-
-      const response = await aiService.recommendEmojis(contentContext);
+      const response = await callAI({
+        prompt: `请为以下内容推荐合适的表情符号：\n\n${contentContext}\n\n请推荐5-10个相关的表情符号，并说明推荐理由。`
+      });
       
-      const responseData = response.data as Record<string, unknown>;
+      const responseData = response as unknown as Record<string, unknown>;
       const choices = responseData?.data as Record<string, unknown>;
       if (response.success && choices?.choices?.[0]?.message?.content) {
         const content = choices.choices[0].message.content;

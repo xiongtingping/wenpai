@@ -92,7 +92,6 @@ export function testAuthingConfig(): AuthingTestResult {
         redirectUri: guardConfig.redirectUri,
         mode: guardConfig.mode,
         defaultScene: guardConfig.defaultScene,
-        lang: guardConfig.lang
       }
     };
 

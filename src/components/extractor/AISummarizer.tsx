@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Copy, Check, Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import aiService from '@/api/aiService';
+import { callAI } from '@/api/aiService';
 
 interface AISummarizerProps {
   initialContent?: string;
@@ -55,26 +55,17 @@ export default function AISummarizer({ initialContent = '', onSummaryGenerated }
       console.log('开始生成AI总结，内容长度:', content.length);
       
       // 使用统一的AI服务层
-      const aiService = (await import('@/api/aiService')).default;
+      const aiService = (await import('@/api/aiService')).callAI;
       
-      const response = await aiService.generateCreativeContent({
-        prompt: `请对以下内容进行智能总结，要求：
-1. 提取核心要点和关键信息
-2. 保持逻辑清晰，结构合理
-3. 语言简洁明了，易于理解
-4. 总结长度控制在原文的30%以内
-
-内容：${content}`,
-        context: {
-          task: 'summarize',
-          originalLength: content.length
-        },
-        style: 'concise',
-        maxTokens: Math.min(1000, Math.floor(content.length * 0.3))
+      const response = await aiService({
+        prompt: `请为以下内容生成AI智能总结：\n\n${content}\n\n请生成一个简洁有用的AI总结，包含内容概要、核心观点、关键要点和应用价值。`,
+        model: 'gpt-4',
+        maxTokens: 800,
+        temperature: 0.7
       });
       
-      if (response.success && response.data) {
-        const generatedSummary = response.data as string;
+      if (response.success && response.content) {
+        const generatedSummary = response.content;
         setSummary(generatedSummary);
         
         // 调用回调函数

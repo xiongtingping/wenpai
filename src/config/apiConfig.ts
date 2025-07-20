@@ -169,7 +169,7 @@ export const validateAPIConfig = (): {
 /**
  * 获取特定API的配置
  */
-export const getAPIConfig = (apiName: keyof APIConfig) => {
+export const getSpecificAPIConfig = (apiName: keyof APIConfig) => {
   const config = getAPIConfig();
   return config[apiName];
 };
@@ -178,7 +178,7 @@ export const getAPIConfig = (apiName: keyof APIConfig) => {
  * 检查特定API是否可用
  */
 export const isAPIAvailable = (apiName: keyof APIConfig): boolean => {
-  const config = getAPIConfig(apiName);
+  const config = getSpecificAPIConfig(apiName);
   return !!(config.apiKey && config.baseURL);
 };
 

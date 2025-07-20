@@ -27,7 +27,6 @@ import ProfilePage from '@/pages/ProfilePage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
 import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
-import APIConfigTestPage from '@/pages/APIConfigTestPage';
 import QRCodeTestPage from '@/pages/QRCodeTestPage';
 import AuthingTestPage from '@/pages/AuthingTestPage';
 import AuthingConfigTestPage from '@/pages/AuthingConfigTestPage';
@@ -165,7 +164,6 @@ export default function App() {
           <Route path="/ai-config-test" element={<AIConfigTestPage />} />
           <Route path="/permission-test" element={<PermissionTestPage />} />
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
-          <Route path="/api-config-test" element={<APIConfigTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
           <Route path="/authing-test" element={<AuthingTestPage />} />
           <Route path="/authing-config-test" element={<AuthingConfigTestPage />} />

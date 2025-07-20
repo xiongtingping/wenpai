@@ -46,7 +46,7 @@ import {
   Zap
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import aiService from '@/api/aiService';
+import { callAI } from '@/api/aiService';
 
 /**
  * 对话消息接口
@@ -181,34 +181,22 @@ ${selectedDocument.content}
 请开始回答：`;
 
       // 调用AI服务
-      const response = await aiService.generateText({
-        messages: [
-          {
-            role: 'system',
-            content: '你是一个专业的PDF文档分析助手，能够基于文档内容准确回答用户问题。'
-          },
-          {
-            role: 'user',
-            content: contextPrompt
-          }
-        ],
-        model: 'gpt-4o-mini',
-        maxTokens: 2000,
-        temperature: 0.7
+      const response = await callAI({
+        prompt: `请分析以下PDF内容并回答问题：\n\nPDF内容：${selectedDocument.content}\n\n问题：${inputValue}`
       });
-
-      if (response.success && response.data) {
+        
+      if (response.success) {
         let content = '';
-        if (typeof response.data === 'string') {
-          content = response.data;
-        } else if (response.data && typeof response.data === 'object') {
-          const dataObj = response.data as any;
-          if (dataObj.data && dataObj.data.choices && dataObj.data.choices[0] && dataObj.data.choices[0].message) {
-            content = dataObj.data.choices[0].message.content;
-          } else if (dataObj.choices && dataObj.choices[0] && dataObj.choices[0].message) {
-            content = dataObj.choices[0].message.content;
+        if (typeof response.content === 'string') {
+          content = response.content;
+        } else if (response.content && typeof response.content === 'object') {
+          const dataObj = response.content as any;
+          if (dataObj.text) {
+            content = dataObj.text;
+          } else if (dataObj.content) {
+            content = dataObj.content;
           } else {
-            content = JSON.stringify(response.data);
+            content = JSON.stringify(response.content);
           }
         }
 

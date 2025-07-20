@@ -20,7 +20,7 @@ import {
   Lock,
   Unlock
 } from 'lucide-react';
-import { checkPermission, checkAllPermissions, getPermissionConfig } from '@/utils/permissionChecker';
+// 移除 import { checkPermission, checkAllPermissions, getPermissionConfig } from '@/utils/permissionChecker';
 import { getConfigSummary } from '@/utils/configValidator';
 
 /**
@@ -54,34 +54,9 @@ export default function PermissionTestPage() {
     const now = new Date().toLocaleString();
 
     try {
-      // 获取所有权限配置
-      const permissionConfig = getPermissionConfig();
-      
-      // 测试每个权限
-      for (const [permissionKey, config] of Object.entries(permissionConfig)) {
-        const hasPermission = checkPermission(permissionKey);
-        
-        results.push({
-          permissionKey,
-          hasPermission,
-          requiredRole: config.requiredRole,
-          message: hasPermission ? '权限验证通过' : '权限验证失败',
-          timestamp: now
-        });
-      }
-
-      // 测试全局权限检查
-      const allPermissionsResult = checkAllPermissions();
-      results.push({
-        permissionKey: '全局权限检查',
-        hasPermission: allPermissionsResult.allValid,
-        message: allPermissionsResult.allValid ? '所有权限验证通过' : '部分权限验证失败',
-        timestamp: now
-      });
-
-      // 获取配置摘要
-      setConfigSummary(getConfigSummary());
-
+      // 权限测试逻辑已移除，因为permissionChecker模块不存在
+      // 暂时返回空结果
+      setTestResults([]);
     } catch (error: any) {
       results.push({
         permissionKey: '权限测试',

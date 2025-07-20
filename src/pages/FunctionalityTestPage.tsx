@@ -12,7 +12,7 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useUserStore } from '@/store/userStore';
 import { EnvChecker } from '@/utils/envChecker';
-import aiService from '@/api/aiService';
+import { callAI } from '@/api/aiService';
 import { creemOptimizer } from '@/utils/creemOptimizer';
 import { 
   CheckCircle, 
@@ -156,9 +156,11 @@ export default function FunctionalityTestPage() {
     
     try {
       // 测试AI服务状态
-      const status = await aiService.checkStatus('openai');
+      const status = await callAI({
+        prompt: 'Hello, this is a test message to check AI service status.'
+      });
       
-      if (status.success && status.available) {
+      if (status.success) {
         addTestResult('AI服务功能', 'success', 'AI服务功能正常', { status });
       } else {
         addTestResult('AI服务功能', 'warning', 'AI服务可能不可用', { status });

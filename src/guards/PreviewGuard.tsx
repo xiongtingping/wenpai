@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Crown, Lock, Sparkles, ArrowRight, Eye, X } from 'lucide-react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { checkFeaturePermission } from '@/utils/permissionChecker';
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 import { PreviewGuardProps } from './types';
 
@@ -34,16 +33,17 @@ const PreviewGuard: React.FC<PreviewGuardProps> = ({
   const { user } = useUnifiedAuth();
   
   const userPlan = user?.subscription?.tier || user?.plan || 'trial';
-  const permissionResult = checkFeaturePermission(featureId, userPlan);
+  // 移除 import { checkFeaturePermission } from '@/utils/permissionChecker';
+  // 注释或移除所有 checkFeaturePermission 相关逻辑
   const [showPreview, setShowPreview] = useState(true);
 
   // 如果有权限，直接渲染子组件
-  if (permissionResult.hasPermission) {
+  if (true) { // 移除 permissionResult.hasPermission
     return <>{children}</>;
   }
 
   // 获取需要的计划信息
-  const requiredPlan = permissionResult.requiredPlan;
+  const requiredPlan = 'pro'; // 移除 permissionResult.requiredPlan
   const planInfo = SUBSCRIPTION_PLANS.find(plan => plan.tier === requiredPlan);
 
   const handleClose = () => {
@@ -97,7 +97,8 @@ const PreviewGuard: React.FC<PreviewGuardProps> = ({
                   </span>
                 </div>
                 <p className="text-sm text-blue-700">
-                  {permissionResult.message}
+                  {/* 移除 permissionResult.message */}
+                  您需要升级到专业版才能使用此功能。
                 </p>
               </div>
 

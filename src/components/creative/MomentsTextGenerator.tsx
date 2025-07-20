@@ -440,7 +440,7 @@ export function MomentsTextGenerator() {
 
     try {
       // 调用真实AI服务生成文案
-      const aiService = (await import('@/api/aiService')).default;
+      const aiService = (await import('@/api/aiService')).callAI;
       
       const lengthMap = {
         'short': '简短精练，50字以内',
@@ -465,22 +465,19 @@ export function MomentsTextGenerator() {
 
 请直接返回文案内容，不要包含其他说明文字。`;
 
-      const response = await aiService.generateCreativeContent({
+      const maxTokens = aiLength === 'long' ? 300 : aiLength === 'medium' ? 200 : 150;
+
+      const response = await aiService({
         prompt: prompt,
-        context: {
-          platform: 'wechat_moments',
-          style: aiStyle,
-          length: aiLength,
-          topic: aiPrompt
-        },
-        style: 'social_media',
-        maxTokens: aiLength === 'long' ? 300 : aiLength === 'medium' ? 200 : 150
+        model: 'gpt-4',
+        maxTokens: maxTokens,
+        temperature: 0.8
       });
 
       let generatedContent = '';
       
-      if (response.success && response.data) {
-        generatedContent = response.data as string;
+      if (response.success && response.content) {
+        generatedContent = response.content;
       } else {
         // 如果AI调用失败，使用高质量模拟内容
         generatedContent = `✨ ${aiPrompt}

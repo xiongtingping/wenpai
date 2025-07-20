@@ -1327,7 +1327,7 @@ ${generateStandardCallToAction()}
       console.log('开始调用AI服务...');
       
       // 使用统一的AI服务层
-      const aiService = (await import('@/api/aiService')).default;
+      const aiService = (await import('@/api/aiService')).callAI;
       
       const systemPrompt = `You are an expert social media copywriter and brand storyteller.
 
@@ -1375,20 +1375,18 @@ Your output must feel like it was written by a real KOC or content strategist �
       console.log('调用AI服务，消息数量:', messages.length);
       console.log('用户提示词长度:', prompt.length);
 
-      const response = await aiService.generateCreativeContent({
+      const response = await aiService({
         prompt: prompt,
-        context: {
-          contentType: contentType,
-          systemPrompt: systemPrompt
-        },
-        style: 'creative',
-        maxTokens: 1000
+        model: 'gpt-4',
+        maxTokens: 1000,
+        temperature: 0.7,
+        systemPrompt: systemPrompt
       });
 
       console.log('AI服务响应:', response);
 
-      if (response.success && response.data) {
-        const content = response.data as string;
+      if (response.success && response.content) {
+        const content = response.content;
         console.log('AI生成成功，内容长度:', content.length);
         return {
           success: true,

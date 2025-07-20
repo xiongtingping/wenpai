@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Crown, Lock, Sparkles, ArrowRight, Eye, X } from 'lucide-react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { checkFeaturePermission } from '@/utils/permissionChecker';
+// import { checkFeaturePermission } from '@/utils/permissionChecker';
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 
 interface PreviewGuardProps {
@@ -47,17 +47,17 @@ export const PreviewGuard: React.FC<PreviewGuardProps> = ({
   const { user, isAuthenticated } = useUnifiedAuth();
   
   const userPlan = user?.subscription?.tier || user?.plan || 'trial';
-  const permissionResult = checkFeaturePermission(featureId, userPlan);
+  // const permissionResult = checkFeaturePermission(featureId, userPlan);
   const [showPreview, setShowPreview] = useState(true);
 
   // 如果有权限，直接渲染子组件
-  if (permissionResult.hasPermission) {
-    return <>{children}</>;
-  }
+  // if (permissionResult.hasPermission) {
+  //   return <>{children}</>;
+  // }
 
   // 获取需要的计划信息
-  const requiredPlan = permissionResult.requiredPlan;
-  const planInfo = SUBSCRIPTION_PLANS.find(plan => plan.tier === requiredPlan);
+  // const requiredPlan = permissionResult.requiredPlan;
+  // const planInfo = SUBSCRIPTION_PLANS.find(plan => plan.tier === requiredPlan);
 
   return (
     <div className="relative">
@@ -102,16 +102,16 @@ export const PreviewGuard: React.FC<PreviewGuardProps> = ({
               <div className="flex items-center gap-2 mb-2">
                 <Lock className="h-4 w-4 text-blue-600" />
                 <span className="font-semibold text-blue-800">
-                  需要{requiredPlan === 'pro' ? '专业版' : '高级版'}权限
+                  需要{userPlan === 'pro' ? '专业版' : '高级版'}权限
                 </span>
               </div>
               <p className="text-sm text-blue-700">
-                {permissionResult.message}
+                您当前使用的是 {userPlan} 版本，需要升级到 {userPlan === 'pro' ? '专业版' : '高级版'} 才能使用此功能。
               </p>
             </div>
 
             {/* 计划特权 */}
-            {planInfo && (
+            {/* {planInfo && (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200 mb-6">
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="h-4 w-4 text-amber-600" />
@@ -128,14 +128,14 @@ export const PreviewGuard: React.FC<PreviewGuardProps> = ({
                   ))}
                 </ul>
               </div>
-            )}
+            )} */}
 
             {/* 操作按钮 */}
             <div className="space-y-3">
               <Button 
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
                 onClick={() => {
-                  localStorage.setItem('selectedPlan', requiredPlan || 'pro');
+                  localStorage.setItem('selectedPlan', userPlan === 'pro' ? 'pro' : 'pro');
                   navigate('/payment');
                   toast({
                     title: "正在为您跳转到支付页面",

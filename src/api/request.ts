@@ -236,6 +236,11 @@ export const request = {
 export const getConfig = getAPIConfig;
 
 /**
+ * 导出getAPIConfig函数（兼容性）
+ */
+export { getAPIConfig };
+
+/**
  * 检查API配置是否完整
  */
 export const validateAPIConfig = (): boolean => {

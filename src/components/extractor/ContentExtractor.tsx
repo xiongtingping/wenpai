@@ -93,20 +93,17 @@ export function ContentExtractor() {
 
     try {
       // 使用统一的AI服务进行内容提取
-      const aiService = (await import('@/api/aiService')).default;
+      const aiService = (await import('@/api/aiService')).callAI;
       
-      const response = await aiService.extractContent({
-        url: url,
-        contentType: contentType,
-        options: {
-          includeMetadata: true,
-          extractKeywords: true,
-          summarize: true
-        }
+      const response = await aiService({
+        prompt: `请从以下内容中提取关键信息：\n\n${url}\n\n请提取标题、作者、发布时间、正文内容等关键信息。`,
+        model: 'gpt-4',
+        maxTokens: 1000,
+        temperature: 0.5
       });
 
-      if (response.success && response.data) {
-        const responseData = response.data as any;
+      if (response.success && response.content) {
+        const responseData = response.content as any;
         const result: ExtractResult = {
           id: resultId,
           source: url,
