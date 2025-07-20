@@ -184,7 +184,7 @@ ${selectedDocument.content}
       const response = await callAI({
         prompt: `请分析以下PDF内容并回答问题：\n\nPDF内容：${selectedDocument.content}\n\n问题：${inputValue}`
       });
-        
+
       if (response.success) {
         let content = '';
         if (typeof response.content === 'string') {

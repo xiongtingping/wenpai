@@ -1380,7 +1380,7 @@ Your output must feel like it was written by a real KOC or content strategist �
         model: 'gpt-4',
         maxTokens: 1000,
         temperature: 0.7,
-        systemPrompt: systemPrompt
+          systemPrompt: systemPrompt
       });
 
       console.log('AI服务响应:', response);

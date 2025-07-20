@@ -354,7 +354,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
       url: item.url,
       revisedPrompt: item.revised_prompt
     }));
-
+    
     return {
       images,
       model,

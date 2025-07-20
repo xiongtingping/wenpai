@@ -36,7 +36,7 @@ import {
   testAuthingConfig, 
   testAuthingGuard, 
   testAuthingCallback, 
-  runFullAuthingTest
+  runFullAuthingTest 
 } from '@/utils/authingTest';
 import { getAuthingConfig, getGuardConfig } from '@/config/authing';
 
@@ -180,64 +180,64 @@ export default function AuthingTestPage() {
 
       {/* 测试按钮组 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Button 
+            <Button 
           onClick={runBasicTest}
           disabled={testResults?.loading}
           className="bg-blue-500 hover:bg-blue-600"
-        >
+            >
           {testResults?.loading && testResults.type === 'basic' ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
+              ) : (
             <TestTube className="w-4 h-4 mr-2" />
           )}
           基础测试
-        </Button>
-
-        <Button 
+            </Button>
+            
+            <Button 
           onClick={runFullTest}
           disabled={testResults?.loading}
           className="bg-green-500 hover:bg-green-600"
-        >
+            >
           {testResults?.loading && testResults.type === 'full' ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
+              ) : (
             <Zap className="w-4 h-4 mr-2" />
-          )}
+              )}
           完整测试
-        </Button>
+            </Button>
 
-        <Button 
+            <Button 
           onClick={checkCurrentConfig}
           disabled={testResults?.loading}
           className="bg-purple-500 hover:bg-purple-600"
-        >
+            >
           <Settings className="w-4 h-4 mr-2" />
           检查配置
-        </Button>
+            </Button>
 
-        <Button 
+            <Button 
           onClick={testAuthStatus}
           disabled={testResults?.loading}
           className="bg-orange-500 hover:bg-orange-600"
-        >
+            >
           <User className="w-4 h-4 mr-2" />
           认证状态
-        </Button>
+            </Button>
 
-        <Button 
+            <Button 
           onClick={testLogin}
           disabled={testResults?.loading}
           className="bg-indigo-500 hover:bg-indigo-600"
-        >
+            >
           {testResults?.loading && testResults.type === 'login' ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           ) : (
             <LogIn className="w-4 h-4 mr-2" />
           )}
           登录测试
-        </Button>
+            </Button>
 
-        <Button 
+              <Button 
           onClick={testRegister}
           disabled={testResults?.loading}
           className="bg-teal-500 hover:bg-teal-600"
@@ -248,9 +248,9 @@ export default function AuthingTestPage() {
             <UserPlus className="w-4 h-4 mr-2" />
           )}
           注册测试
-        </Button>
+              </Button>
 
-        <Button 
+              <Button 
           onClick={testLogout}
           disabled={testResults?.loading}
           className="bg-red-500 hover:bg-red-600"
@@ -261,17 +261,17 @@ export default function AuthingTestPage() {
             <LogOut className="w-4 h-4 mr-2" />
           )}
           登出测试
-        </Button>
+              </Button>
 
-        <Button 
-          variant="outline"
+              <Button 
+                variant="outline"
           onClick={() => setTestResults(null)}
           className="border-gray-300"
-        >
+              >
           <RefreshCw className="w-4 h-4 mr-2" />
           清除结果
-        </Button>
-      </div>
+              </Button>
+            </div>
 
       {/* 测试结果 */}
       {testResults && (
@@ -293,7 +293,7 @@ export default function AuthingTestPage() {
               <div className="flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>正在执行测试...</span>
-              </div>
+                      </div>
             ) : testResults.error ? (
               <div className="space-y-2">
                 <p className="text-red-600 font-medium">测试失败</p>
@@ -310,8 +310,8 @@ export default function AuthingTestPage() {
                     {JSON.stringify(testResults.data, null, 2)}
                   </pre>
                 )}
-              </div>
-            )}
+                </div>
+              )}
           </CardContent>
         </Card>
       )}
@@ -338,9 +338,9 @@ export default function AuthingTestPage() {
                   <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
                     {JSON.stringify(currentConfig.guardConfig, null, 2)}
                   </pre>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </CardContent>
         </Card>
       )}

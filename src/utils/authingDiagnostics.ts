@@ -37,7 +37,7 @@ export function diagnoseAuthingConfig() {
       logo: guardConfig.logo,
       title: guardConfig.title
     });
-    
+
     // 验证配置
     const issues = [];
     
@@ -128,7 +128,7 @@ export async function generateAuthingDiagnosticReport() {
   };
   
   console.log('📊 Authing诊断报告:', report);
-  
+
   return report;
 }
 

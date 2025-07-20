@@ -62,40 +62,40 @@ const FeatureGuard: React.FC<FeatureGuardProps> = ({
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mx-auto">
               <Lock className="h-6 w-6 text-purple-600" />
-            </div>
-            
+          </div>
+        
             <div>
-              <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
-                <Lock className="h-4 w-4" />
-                需要{requiredPlan === 'pro' ? '专业版' : '高级版'}权限
-              </h4>
-              <p className="text-sm text-purple-700">
+            <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              需要{requiredPlan === 'pro' ? '专业版' : '高级版'}权限
+            </h4>
+            <p className="text-sm text-purple-700">
                 您当前的计划是 {userPlan}，需要升级到 {requiredPlan === 'pro' ? '专业版' : '高级版'} 才能使用此功能。
-              </p>
-            </div>
+            </p>
+          </div>
 
-            <div className="space-y-2">
-              <Button 
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
-                onClick={() => {
-                  localStorage.setItem('selectedPlan', requiredPlan || 'pro');
-                  navigate('/payment');
-                  toast({
+          <div className="space-y-2">
+            <Button 
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
+              onClick={() => {
+                localStorage.setItem('selectedPlan', requiredPlan || 'pro');
+                navigate('/payment');
+                toast({
                     title: "跳转到支付页面",
                     description: "请选择适合的计划进行升级",
-                  });
-                }}
-              >
-                立即升级
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
+                });
+              }}
+            >
+              立即升级
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full"
                 onClick={() => navigate('/pricing')}
-              >
+            >
                 查看价格
-              </Button>
+            </Button>
             </div>
           </div>
         </CardContent>
