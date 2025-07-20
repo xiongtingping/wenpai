@@ -1,24 +1,14 @@
 /**
- * 认证弹窗组件
- * 使用Dialog包装统一认证入口
+ * ✅ 认证弹窗组件 - 使用 Authing 官方认证系统
+ * 
+ * 本组件通过 AuthingGuardModal 使用 Authing 官方Guard组件
+ * 支持真正的弹窗登录/注册功能
+ * 
+ * 🔒 LOCKED: 已封装稳定，禁止修改核心逻辑
  */
 
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  LogIn, 
-  UserPlus, 
-  Loader2,
-  Shield,
-  CheckCircle,
-  X
-} from 'lucide-react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { securityUtils } from '@/lib/security';
-
+import React from 'react';
+import AuthingGuardModal from './AuthingGuardModal';
 
 /**
  * 认证弹窗组件属性
@@ -38,6 +28,7 @@ interface AuthModalProps {
 
 /**
  * 认证弹窗组件
+ * 使用AuthingGuardModal实现真正的弹窗认证功能
  */
 export default function AuthModal({
   open,
@@ -46,266 +37,13 @@ export default function AuthModal({
   onSuccess,
   className = ''
 }: AuthModalProps) {
-  const { user, isAuthenticated, loading: authLoading, login } = useUnifiedAuth();
-  const { toast } = useToast();
-
-  /**
-   * 处理关闭弹窗
-   */
-  const handleClose = () => {
-    onOpenChange(false);
-  };
-
-  /**
-   * 处理Authing登录
-   */
-  const handleAuthingLogin = () => {
-    try {
-      securityUtils.secureLog('用户通过弹窗选择Authing登录');
-      login();
-      handleClose(); // 关闭弹窗，让Authing Guard接管
-    } catch (error) {
-      console.error('Authing登录失败:', error);
-      toast({
-        title: "登录失败",
-        description: "请稍后重试",
-        variant: "destructive"
-      });
-    }
-  };
-
-  /**
-   * 处理登录/注册成功
-   */
-  const handleSuccess = (user: any) => {
-    onSuccess?.(user);
-    handleClose();
-  };
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0">
-        <DialogHeader className="p-6 pb-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold">
-              登录 / 注册
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogHeader>
-
-        <div className="p-6 pt-4">
-          {/* 如果用户已登录，显示用户信息 */}
-          {isAuthenticated && user ? (
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600 mr-2" />
-                <Badge variant="outline" className="text-green-600">
-                  已登录
-                </Badge>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium">欢迎回来！</h3>
-                <p className="text-sm text-muted-foreground">
-                  {user.nickname || user.username || user.email}
-                </p>
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={handleClose}
-              >
-                继续使用
-              </Button>
-            </div>
-          ) : (
-            <div className="text-center space-y-6">
-              <div>
-                <h3 className="text-lg font-medium mb-2">欢迎使用文派</h3>
-                <p className="text-sm text-muted-foreground">
-                  使用Authing进行安全登录和注册
-                </p>
-              </div>
-              
-              <Button 
-                onClick={handleAuthingLogin}
-                className="w-full h-12 text-base"
-                disabled={authLoading}
-              >
-                {authLoading ? (
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                ) : (
-                  <Shield className="w-5 h-5 mr-2" />
-                )}
-                使用Authing安全登录
-              </Button>
-              
-              <div className="text-xs text-muted-foreground">
-                支持邮箱、手机号、社交账号等多种登录方式
-              </div>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-/**
- * 快速登录按钮组件
- * 点击后打开认证弹窗
- */
-export function QuickAuthButton({
-  variant = 'default',
-  size = 'default',
-  className = '',
-  defaultTab = 'login',
-  onSuccess,
-  children
-}: {
-  variant?: 'default' | 'outline' | 'ghost' | 'link' | 'destructive';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  className?: string;
-  defaultTab?: 'login' | 'register';
-  onSuccess?: (user: any) => void;
-  children?: React.ReactNode;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useUnifiedAuth();
-
-  if (isAuthenticated) {
-    return null; // 已登录时不显示
-  }
-
-  return (
-    <>
-      <Button
-        variant={variant}
-        size={size}
-        onClick={() => setIsOpen(true)}
-        className={className}
-      >
-        {children || (
-          <>
-            <LogIn className="w-4 h-4 mr-2" />
-            登录 / 注册
-          </>
-        )}
-      </Button>
-
-      <AuthModal
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        defaultTab={defaultTab}
-        onSuccess={onSuccess}
-      />
-    </>
-  );
-}
-
-/**
- * 登录按钮组件
- * 专门用于登录的按钮
- */
-export function LoginButton({
-  variant = 'default',
-  size = 'default',
-  className = '',
-  onSuccess,
-  children
-}: {
-  variant?: 'default' | 'outline' | 'ghost' | 'link' | 'destructive';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  className?: string;
-  onSuccess?: (user: any) => void;
-  children?: React.ReactNode;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useUnifiedAuth();
-
-  if (isAuthenticated) {
-    return null; // 已登录时不显示
-  }
-
-  return (
-    <>
-      <Button
-        variant={variant}
-        size={size}
-        onClick={() => setIsOpen(true)}
-        className={className}
-      >
-        {children || (
-          <>
-            <LogIn className="w-4 h-4 mr-2" />
-            登录
-          </>
-        )}
-      </Button>
-
-      <AuthModal
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        defaultTab="login"
-        onSuccess={onSuccess}
-      />
-    </>
-  );
-}
-
-/**
- * 注册按钮组件
- * 专门用于注册的按钮
- */
-export function RegisterButton({
-  variant = 'outline',
-  size = 'default',
-  className = '',
-  onSuccess,
-  children
-}: {
-  variant?: 'default' | 'outline' | 'ghost' | 'link' | 'destructive';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  className?: string;
-  onSuccess?: (user: any) => void;
-  children?: React.ReactNode;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useUnifiedAuth();
-
-  if (isAuthenticated) {
-    return null; // 已登录时不显示
-  }
-
-  return (
-    <>
-      <Button
-        variant={variant}
-        size={size}
-        onClick={() => setIsOpen(true)}
-        className={className}
-      >
-        {children || (
-          <>
-            <UserPlus className="w-4 h-4 mr-2" />
-            注册
-          </>
-        )}
-      </Button>
-
-      <AuthModal
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        defaultTab="register"
-        onSuccess={onSuccess}
-      />
-    </>
+    <AuthingGuardModal
+      open={open}
+      onOpenChange={onOpenChange}
+      defaultScene={defaultTab}
+      onSuccess={onSuccess}
+      className={className}
+    />
   );
 } 

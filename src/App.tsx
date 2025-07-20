@@ -10,6 +10,7 @@ import PageTracker from '@/components/analytics/PageTracker';
 import HomePage from '@/pages/HomePage';
 import AboutPage from '@/pages/AboutPage';
 import LoginPage from '@/pages/LoginPage';
+
 import PaymentPage from '@/pages/PaymentPage';
 import PaymentTestPage from '@/pages/PaymentTestPage';
 import PaymentPlanDemoPage from '@/pages/PaymentPlanDemoPage';
@@ -28,6 +29,11 @@ import PermissionTestPage from '@/pages/PermissionTestPage';
 import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
 import APIConfigTestPage from '@/pages/APIConfigTestPage';
 import QRCodeTestPage from '@/pages/QRCodeTestPage';
+import AuthingTestPage from '@/pages/AuthingTestPage';
+import AuthingConfigTestPage from '@/pages/AuthingConfigTestPage';
+import AuthingGuardTestPage from '@/pages/AuthingGuardTestPage';
+import AuthingCompleteTestPage from '@/pages/AuthingCompleteTestPage';
+import CallbackPage from '@/pages/CallbackPage';
 import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import EmojiPage from '@/pages/EmojiPage';
@@ -66,6 +72,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/callback" element={<CallbackPage />} />
+
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/emoji-generator" element={<EmojiPage />} />
@@ -159,6 +167,10 @@ export default function App() {
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
           <Route path="/api-config-test" element={<APIConfigTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
+          <Route path="/authing-test" element={<AuthingTestPage />} />
+          <Route path="/authing-config-test" element={<AuthingConfigTestPage />} />
+          <Route path="/authing-guard-test" element={<AuthingGuardTestPage />} />
+          <Route path="/authing-complete-test" element={<AuthingCompleteTestPage />} />
         </Routes>
       </div>
     </>

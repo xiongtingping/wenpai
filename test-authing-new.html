@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing 新配置测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .config-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Authing 新配置测试</h1>
+        
+        <div class="test-section">
+            <h2>📋 配置信息</h2>
+            <div class="config-item">
+                <strong>App ID:</strong> 687bc631c105de597b993202
+            </div>
+            <div class="config-item">
+                <strong>域名:</strong> wenpaiai.authing.cn
+            </div>
+            <div class="config-item">
+                <strong>回调地址:</strong> http://localhost:5173/callback
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 配置验证</h2>
+            <div id="config-validation"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🌐 端点测试</h2>
+            <div id="endpoint-tests"></div>
+            <button onclick="testEndpoints()">测试端点连接</button>
+        </div>
+
+        <div class="test-section">
+            <h2>🚀 快速测试</h2>
+            <button onclick="testAuthingLogin()">测试 Authing 登录</button>
+            <button onclick="testAuthingRegister()">测试 Authing 注册</button>
+            <div id="auth-test-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 调试信息</h2>
+            <pre id="debug-info"></pre>
+        </div>
+    </div>
+
+    <script>
+        // 新的 Authing 配置
+        const authingConfig = {
+            appId: '687bc631c105de597b993202',
+            host: 'wenpaiai.authing.cn',
+            redirectUri: 'http://localhost:5173/callback',
+            endpoints: {
+                token: 'https://wenpaiai.authing.cn/oidc/token',
+                userInfo: 'https://wenpaiai.authing.cn/oidc/me',
+                logout: 'https://wenpaiai.authing.cn/oidc/session/end',
+                jwks: 'https://wenpaiai.authing.cn/oidc/.well-known/jwks.json',
+                auth: 'https://wenpaiai.authing.cn/oidc/auth',
+                issuer: 'https://wenpaiai.authing.cn/oidc',
+                discovery: 'https://wenpaiai.authing.cn/oidc/.well-known/openid-configuration'
+            }
+        };
+
+        // 配置验证
+        function validateConfig() {
+            const validationDiv = document.getElementById('config-validation');
+            let html = '';
+
+            // 验证 App ID 格式
+            const appIdValid = /^[a-f0-9]{24}$/.test(authingConfig.appId);
+            html += `<div class="status ${appIdValid ? 'success' : 'error'}">
+                App ID 格式: ${appIdValid ? '✅ 正确' : '❌ 错误'}
+            </div>`;
+
+            // 验证域名格式
+            const hostValid = /^[a-z0-9-]+\.authing\.cn$/.test(authingConfig.host);
+            html += `<div class="status ${hostValid ? 'success' : 'error'}">
+                域名格式: ${hostValid ? '✅ 正确' : '❌ 错误'}
+            </div>`;
+
+            // 验证回调地址格式
+            const redirectValid = /^https?:\/\/[^\/]+\/callback$/.test(authingConfig.redirectUri);
+            html += `<div class="status ${redirectValid ? 'success' : 'error'}">
+                回调地址格式: ${redirectValid ? '✅ 正确' : '❌ 错误'}
+            </div>`;
+
+            validationDiv.innerHTML = html;
+        }
+
+        // 测试端点连接
+        async function testEndpoints() {
+            const testsDiv = document.getElementById('endpoint-tests');
+            testsDiv.innerHTML = '<div class="status info">正在测试端点连接...</div>';
+
+            const endpoints = [
+                { url: authingConfig.endpoints.discovery, name: '服务发现端点' },
+                { url: authingConfig.endpoints.jwks, name: 'JWKS 端点' },
+                { url: authingConfig.endpoints.auth, name: '认证端点' }
+            ];
+
+            let results = '';
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint.url, { method: 'HEAD' });
+                    const status = response.ok ? 'success' : 'error';
+                    const message = response.ok ? '✅ 可访问' : '❌ 不可访问';
+                    results += `<div class="status ${status}">${endpoint.name}: ${message} (${response.status})</div>`;
+                } catch (error) {
+                    results += `<div class="status error">${endpoint.name}: ❌ 连接失败 (${error.message})</div>`;
+                }
+            }
+
+            testsDiv.innerHTML = results;
+        }
+
+        // 测试 Authing 登录
+        function testAuthingLogin() {
+            const resultsDiv = document.getElementById('auth-test-results');
+            resultsDiv.innerHTML = '<div class="status info">正在测试 Authing 登录...</div>';
+
+            // 构建 Authing 登录 URL
+            const authUrl = new URL(authingConfig.endpoints.auth);
+            authUrl.searchParams.set('client_id', authingConfig.appId);
+            authUrl.searchParams.set('redirect_uri', authingConfig.redirectUri);
+            authUrl.searchParams.set('response_type', 'code');
+            authUrl.searchParams.set('scope', 'openid profile email');
+            authUrl.searchParams.set('state', 'test-state-' + Date.now());
+
+            resultsDiv.innerHTML = `
+                <div class="status success">✅ 登录 URL 构建成功</div>
+                <div class="config-item">
+                    <strong>登录 URL:</strong><br>
+                    <a href="${authUrl.toString()}" target="_blank">${authUrl.toString()}</a>
+                </div>
+                <button onclick="window.open('${authUrl.toString()}', '_blank')">在新窗口打开登录</button>
+            `;
+        }
+
+        // 测试 Authing 注册
+        function testAuthingRegister() {
+            const resultsDiv = document.getElementById('auth-test-results');
+            resultsDiv.innerHTML = '<div class="status info">正在测试 Authing 注册...</div>';
+
+            // 构建 Authing 注册 URL
+            const authUrl = new URL(authingConfig.endpoints.auth);
+            authUrl.searchParams.set('client_id', authingConfig.appId);
+            authUrl.searchParams.set('redirect_uri', authingConfig.redirectUri);
+            authUrl.searchParams.set('response_type', 'code');
+            authUrl.searchParams.set('scope', 'openid profile email');
+            authUrl.searchParams.set('state', 'test-state-' + Date.now());
+            authUrl.searchParams.set('screen_hint', 'signup');
+
+            resultsDiv.innerHTML = `
+                <div class="status success">✅ 注册 URL 构建成功</div>
+                <div class="config-item">
+                    <strong>注册 URL:</strong><br>
+                    <a href="${authUrl.toString()}" target="_blank">${authUrl.toString()}</a>
+                </div>
+                <button onclick="window.open('${authUrl.toString()}', '_blank')">在新窗口打开注册</button>
+            `;
+        }
+
+        // 显示调试信息
+        function showDebugInfo() {
+            const debugDiv = document.getElementById('debug-info');
+            const debugInfo = {
+                userAgent: navigator.userAgent,
+                currentUrl: window.location.href,
+                timestamp: new Date().toISOString(),
+                config: authingConfig
+            };
+            debugDiv.textContent = JSON.stringify(debugInfo, null, 2);
+        }
+
+        // 页面加载时执行
+        window.onload = function() {
+            validateConfig();
+            showDebugInfo();
+        };
+    </script>
+</body>
+</html> 

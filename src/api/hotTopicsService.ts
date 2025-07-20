@@ -2,8 +2,11 @@
  * 热点话题服务
  * 提供全网热点话题相关API请求
  * 数据源：DailyHotApi - https://github.com/imsyy/DailyHotApi
+ * 
+ * ✅ 使用统一API请求模块，禁止直接使用fetch/axios
+ * 📌 所有API地址从环境变量获取，严禁硬编码
  */
-import axios from 'axios';
+import request from './request';
 
 /**
  * DailyHotApi 单条热榜数据结构
@@ -155,35 +158,24 @@ function generateRelatedTopics(title: string): string[] {
  * @throws Error 当API请求失败时抛出错误
  */
 export async function getDailyHotAll(): Promise<DailyHotResponse> {
-  // 按照您的方案，优先使用配置了正确CORS的Netlify函数代理
+  // 使用统一API请求模块，从环境变量获取API地址
   const apiSources = [
     {
       name: 'netlify-proxy',
       url: '/.netlify/functions/api',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ action: 'hot-topics' })
+      method: 'POST' as const,
+      data: { action: 'hot-topics' }
     },
     {
       name: 'allorigins-proxy',
       url: 'https://api.allorigins.win/get?url=https://api-hot.imsyy.top/all',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
+      method: 'GET' as const,
       isAllOrigins: true
     },
     {
       name: 'direct-api',
       url: 'https://api-hot.imsyy.top/all',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+      method: 'GET' as const
     }
   ];
 
@@ -194,22 +186,17 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
         console.log(`尝试使用API源: ${source.name}`);
       }
       
-      const options: RequestInit = {
-        method: source.method,
-        headers: source.headers
-      };
-
-      if (source.body) {
-        options.body = source.body;
+      let data: any;
+      
+      if (source.method === 'POST') {
+        data = await request.post(source.url, source.data);
+      } else {
+        data = await request.get(source.url);
       }
 
-      const response = await fetch(source.url, options);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!data) {
+        throw new Error('API返回空数据');
       }
-
-      const data = await response.json();
       
       // 处理allorigins代理的响应格式
       if (source.isAllOrigins && data.contents) {
@@ -228,61 +215,25 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
         }
       }
       
-      // 检查标准响应格式
+      // 处理直接API响应
       if (data.code === 200 && data.data) {
         if (process.env.NODE_ENV === 'development') {
           console.log(`✅ 成功使用API源: ${source.name}`);
         }
         return processHotTopicsData(data);
-      } else if (data.code === 200 && data.routes) {
-        // 处理API路由信息，获取主要平台的数据
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`✅ 获取到API路由信息，开始获取主要平台数据: ${source.name}`);
-        }
-        
-        // 获取主要平台的数据
-        const mainPlatforms = ['weibo', 'zhihu', 'bilibili', 'douyin'];
-        const platformData: Record<string, DailyHotItem[]> = {};
-        
-        for (const platform of mainPlatforms) {
-          try {
-            const platformItems = await getDailyHotByPlatform(platform);
-            platformData[platform] = platformItems;
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn(`获取${platform}数据失败:`, error);
-            }
-            platformData[platform] = [];
-          }
-        }
-        
-        return {
-          code: 200,
-          msg: 'success',
-          data: platformData
-        };
-      } else if (data.error) {
-        throw new Error(data.error);
-      } else {
-        throw new Error('Invalid response format');
       }
+      
+      throw new Error(`API返回错误: ${data.msg || '未知错误'}`);
+      
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.error(`API源 ${source.name} 失败:`, error);
-        
-        // 详细的CORS错误处理
-        if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-          console.warn(`检测到CORS错误，尝试下一个API源: ${source.name}`);
-        }
       }
-      
-      // 继续尝试下一个源
-      continue;
+      continue; // 尝试下一个源
     }
   }
-
-  // 所有API源都失败了
-  throw new Error('无法获取热点数据，请检查网络连接或稍后重试');
+  
+  throw new Error('所有API源都无法访问，请检查网络连接');
 }
 
 /**
@@ -380,35 +331,24 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
     return [];
   }
 
-  // 按照您的方案，优先使用配置了正确CORS的Netlify函数代理
+  // 使用统一API请求模块，从环境变量获取API地址
   const apiSources = [
     {
       name: 'netlify-proxy',
       url: '/.netlify/functions/api',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ action: 'hot-topics', platform })
+      method: 'POST' as const,
+      data: { action: 'hot-topics', platform }
     },
     {
       name: 'allorigins-proxy',
       url: `https://api.allorigins.win/get?url=https://api-hot.imsyy.top/${platform}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
+      method: 'GET' as const,
       isAllOrigins: true
     },
     {
       name: 'direct-api',
       url: `https://api-hot.imsyy.top/${platform}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+      method: 'GET' as const
     }
   ];
 
@@ -419,28 +359,18 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
         console.log(`尝试使用API源获取${platform}数据: ${source.name}`);
       }
       
-      const options: RequestInit = {
-        method: source.method,
-        headers: source.headers
-      };
-
-      if (source.body) {
-        options.body = source.body;
-      }
-
-      const response = await fetch(source.url, options);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      let data: any;
       
-      // 检查响应数据格式
+      if (source.method === 'POST') {
+        data = await request.post(source.url, source.data);
+      } else {
+        data = await request.get(source.url);
+      }
+
       if (!data) {
         throw new Error('API返回空数据');
       }
-
+      
       // 处理allorigins代理的响应格式
       let processedData = data;
       if (source.isAllOrigins && data.contents) {
@@ -585,6 +515,6 @@ export function getPlatformIconClass(platform: string): string {
  * @returns Promise<any>
  */
 export async function fetchMoyuCalendar() {
-  const res = await axios.get('https://api.vvhan.com/api/moyu');
+  const res = await request.get('https://api.vvhan.com/api/moyu');
   return res.data;
 } 

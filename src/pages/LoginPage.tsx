@@ -1,26 +1,27 @@
 /**
- * 登录页面 - 使用统一认证系统
+ * ✅ 登录页面 - 使用 Authing 官方认证系统
+ * 
+ * 本页面通过 useUnifiedAuth 调用 Authing 官方认证链路
+ * 不包含任何本地模拟或备用登录逻辑
+ * 
+ * 🔒 LOCKED: 已封装稳定，禁止修改核心逻辑
  */
 
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { LogIn, AlertCircle } from 'lucide-react';
+import { LogIn, AlertCircle, Loader2 } from 'lucide-react';
 
 /**
  * 登录页面组件
  */
 export default function LoginPage() {
-  const { isAuthenticated, login, loading } = useUnifiedAuth();
+  const { isAuthenticated, login, loading, error } = useUnifiedAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [showFallback, setShowFallback] = useState(false);
-  const [isFallbackLoading, setIsFallbackLoading] = useState(false);
 
   // 获取重定向地址
   const redirectTo = searchParams.get('redirect') || '/';
@@ -32,51 +33,28 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, navigate, redirectTo]);
 
-  // 备用登录处理
-  const handleFallbackLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsFallbackLoading(true);
-    
-    try {
-      // 模拟登录过程
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // 创建模拟用户数据
-      const mockUser = {
-        id: `user_${Date.now()}`,
-        username: 'demo_user',
-        email: 'demo@example.com',
-        nickname: '演示用户',
-        avatar: ''
-      };
-      
-      // 保存到 localStorage
-      localStorage.setItem('authing_user', JSON.stringify(mockUser));
-      
-      // 跳转到目标页面
-      navigate(redirectTo);
-    } catch (error) {
-      console.error('备用登录失败:', error);
-    } finally {
-      setIsFallbackLoading(false);
-    }
+  // 处理登录
+  const handleLogin = () => {
+    login(redirectTo);
   };
 
-  // 如果正在加载，显示加载状态
-  if (loading && !showFallback) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">正在加载登录界面...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <p className="text-gray-600">正在检查登录状态...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // 备用登录界面
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2">
@@ -84,58 +62,35 @@ export default function LoginPage() {
             登录文派
           </CardTitle>
           <CardDescription>
-            由于认证服务暂时不可用，请使用演示模式登录
+            使用 Authing 官方认证系统进行安全登录
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Alert className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              当前使用演示模式，登录后将获得完整的应用体验
-            </AlertDescription>
-          </Alert>
+        
+        <CardContent className="space-y-4">
+          {/* 错误提示 */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           
-          <form onSubmit={handleFallbackLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">用户名</Label>
-              <Input 
-                id="username" 
-                type="text" 
-                placeholder="demo_user" 
-                defaultValue="demo_user"
-                disabled
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">密码</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                placeholder="任意密码" 
-                defaultValue="demo123"
-                disabled
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isFallbackLoading}
-            >
-              {isFallbackLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  登录中...
-                </>
-              ) : (
-                '演示登录'
-              )}
-            </Button>
-          </form>
+          {/* 登录按钮 */}
+          <Button 
+            onClick={handleLogin}
+            className="w-full"
+            size="lg"
+          >
+            <LogIn className="mr-2 h-4 w-4" />
+            使用 Authing 登录
+          </Button>
           
-          <div className="mt-4 text-center text-sm text-gray-500">
-            <p>登录后将跳转到: {redirectTo}</p>
+          {/* 说明信息 */}
+          <div className="text-center text-sm text-gray-500">
+            <p>点击按钮将打开 Authing 官方登录窗口</p>
+            {redirectTo !== '/' && (
+              <p className="mt-1">登录成功后将跳转到: {redirectTo}</p>
+            )}
           </div>
         </CardContent>
       </Card>

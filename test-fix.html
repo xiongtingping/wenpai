@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修复验证测试</title>
+</head>
+<body>
+    <h1>🔧 修复验证测试</h1>
+    
+    <div id="results">
+        <h2>测试结果：</h2>
+        <div id="env-test"></div>
+        <div id="authing-test"></div>
+        <div id="module-test"></div>
+    </div>
+
+    <script>
+        // 测试环境变量注入
+        function testEnvVars() {
+            const envDiv = document.getElementById('env-test');
+            const env = window.__ENV__;
+            
+            if (env) {
+                envDiv.innerHTML = `
+                    <h3>✅ 环境变量注入测试</h3>
+                    <p><strong>VITE_AUTHING_APP_ID:</strong> ${env.VITE_AUTHING_APP_ID ? '✅ 已设置' : '❌ 未设置'}</p>
+                    <p><strong>VITE_AUTHING_HOST:</strong> ${env.VITE_AUTHING_HOST ? '✅ 已设置' : '❌ 未设置'}</p>
+                    <p><strong>VITE_OPENAI_API_KEY:</strong> ${env.VITE_OPENAI_API_KEY ? '✅ 已设置' : '❌ 未设置'}</p>
+                `;
+            } else {
+                envDiv.innerHTML = '<h3>❌ 环境变量注入失败</h3>';
+            }
+        }
+
+        // 测试模块加载
+        function testModuleLoading() {
+            const moduleDiv = document.getElementById('module-test');
+            
+            // 测试动态导入
+            import('/src/lib/utils.ts')
+                .then(() => {
+                    moduleDiv.innerHTML = '<h3>✅ 模块加载测试通过</h3>';
+                })
+                .catch(error => {
+                    moduleDiv.innerHTML = `<h3>❌ 模块加载失败</h3><p>错误: ${error.message}</p>`;
+                });
+        }
+
+        // 页面加载完成后运行测试
+        window.addEventListener('load', () => {
+            testEnvVars();
+            testModuleLoading();
+        });
+    </script>
+</body>
+</html> 

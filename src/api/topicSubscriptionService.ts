@@ -1,9 +1,12 @@
 /**
  * 话题订阅服务
  * 支持自定义话题监控、实时更新和热度追踪
+ * 
+ * ✅ 使用统一API请求模块，禁止直接使用fetch/axios
+ * 📌 所有API地址从环境变量获取，严禁硬编码
  */
 
-import axios from 'axios';
+import request from './request';
 import { 
   notifyTopicUpdate, 
   notifyHeatAlert, 

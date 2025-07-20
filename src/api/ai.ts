@@ -1,21 +1,18 @@
 /**
- * ✅ 本文件封装所有 AI API 的调用逻辑。
- * ⚠️ 全项目中禁止重复写 fetch / axios 调用 OpenAI / Gemini / Deepseek 等接口。
- * 🚫 请统一使用 callAI() 方法。
+ * 统一AI API调用模块
  * 
- * 支持的模型：
- * - OpenAI: gpt-4, gpt-4-turbo, gpt-3.5-turbo
- * - Gemini: gemini-pro, gemini-pro-vision
- * - Deepseek: deepseek-chat, deepseek-coder
- * - 本地模型: qwen, llama, mistral
- * - 图像生成: dall-e-3, dall-e-2, midjourney
+ * ⚠️ 全项目中禁止重复写 fetch / axios 调用 OpenAI / Gemini / Deepseek 等接口。
+ * 所有AI API调用必须通过此模块进行，确保统一管理和错误处理。
+ * 
+ * ✅ 使用统一API请求模块，禁止直接使用fetch/axios
+ * 📌 所有API地址从环境变量获取，严禁硬编码
  */
 
-import { getAPIConfig } from '@/config/apiConfig';
-import { getAuthingConfig } from '@/config/authing';
+import request from './request';
+import { getAPIConfig } from './request';
 
 /**
- * AI模型类型
+ * AI模型类型定义
  */
 export type AIModel = 
   | 'gpt-4' | 'gpt-4-turbo' | 'gpt-3.5-turbo'
@@ -25,14 +22,14 @@ export type AIModel =
   | 'claude-3' | 'claude-3-sonnet' | 'claude-3-haiku';
 
 /**
- * 图像生成模型类型
+ * 图像生成模型类型定义
  */
 export type ImageModel = 
   | 'dall-e-3' | 'dall-e-2' | 'midjourney'
   | 'stable-diffusion' | 'deepfloyd';
 
 /**
- * AI调用参数
+ * AI调用参数接口
  */
 export interface AICallParams {
   /** 提示词 */
@@ -54,7 +51,7 @@ export interface AICallParams {
 }
 
 /**
- * 图像生成参数
+ * 图像生成参数接口
  */
 export interface ImageGenerationParams {
   /** 图像描述提示词 */
@@ -74,7 +71,7 @@ export interface ImageGenerationParams {
 }
 
 /**
- * AI响应结果
+ * AI响应接口
  */
 export interface AIResponse {
   /** 响应内容 */
@@ -96,7 +93,7 @@ export interface AIResponse {
 }
 
 /**
- * 图像生成响应结果
+ * 图像生成响应接口
  */
 export interface ImageGenerationResponse {
   /** 生成的图像列表 */
@@ -124,16 +121,17 @@ export interface ImageGenerationResponse {
  * 
  * @example
  * ```typescript
- * // 基础调用
+ * // 基础对话
  * const result = await callAI({
- *   prompt: "请帮我写一个React组件",
+ *   prompt: "你好，请介绍一下人工智能",
  *   model: "gpt-4"
  * });
  * 
- * // 带系统提示的调用
+ * // 带系统提示词的对话
  * const result = await callAI({
- *   prompt: "分析这段代码",
- *   systemPrompt: "你是一个代码审查专家",
+ *   prompt: "分析这段代码的性能问题",
+ *   model: "gpt-4",
+ *   systemPrompt: "你是一个专业的代码审查专家",
  *   temperature: 0.3
  * });
  * ```
@@ -143,7 +141,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
   const {
     prompt,
     model = 'gpt-4',
-    maxTokens = 2000,
+    maxTokens = 1000,
     temperature = 0.7,
     systemPrompt,
     stream = false,
@@ -154,7 +152,6 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
   try {
     // 获取API配置
     const apiConfig = getAPIConfig();
-    const authingConfig = getAuthingConfig();
 
     // 验证配置
     if (!apiConfig.openai.apiKey || apiConfig.openai.apiKey.includes('{{') || apiConfig.openai.apiKey.includes('your-')) {
@@ -162,61 +159,38 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     }
 
     // 构建请求体
-    const messages = [];
-    
-    // 添加系统提示
-    if (systemPrompt) {
-      messages.push({
-        role: 'system',
-        content: systemPrompt
-      });
-    }
-
-    // 添加用户提示
-    messages.push({
-      role: 'user',
-      content: prompt
-    });
-
-    const requestBody = {
+    const requestBody: any = {
       model: getModelMapping(model),
-      messages,
+      messages: [
+        ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
+        { role: 'user', content: prompt }
+      ],
       max_tokens: maxTokens,
       temperature,
       stream,
       ...extraParams
     };
 
-    // 构建请求头
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiConfig.openai.apiKey}`
-    };
-
     // 添加用户信息（如果提供）
     if (userId) {
-      headers['X-User-ID'] = userId;
+      requestBody.user = userId;
     }
 
-    // 发送请求
-    const response = await fetch(apiConfig.openai.baseURL + '/chat/completions', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(requestBody)
+    // 使用统一请求模块发送请求
+    const data = await request.post('/chat/completions', requestBody, {
+      baseURL: apiConfig.openai.baseURL,
+      headers: {
+        'Authorization': `Bearer ${apiConfig.openai.apiKey}`,
+        ...(userId && { 'X-User-ID': userId })
+      }
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`API请求失败: ${response.status} ${response.statusText} - ${errorData.error?.message || '未知错误'}`);
-    }
 
     // 处理流式响应
     if (stream) {
-      return handleStreamResponse(response, model, startTime);
+      return handleStreamResponse(data, model, startTime);
     }
 
     // 处理普通响应
-    const data = await response.json();
     const content = data.choices[0]?.message?.content || '';
     const usage = data.usage;
 
@@ -245,50 +219,16 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
  * 处理流式响应
  */
 async function handleStreamResponse(
-  response: Response, 
+  data: any, 
   model: string, 
   startTime: number
 ): Promise<AIResponse> {
-  const reader = response.body?.getReader();
-  if (!reader) {
-    throw new Error('无法读取流式响应');
-  }
-
   let content = '';
-  const decoder = new TextDecoder();
 
   try {
-    while (true) {
-      const { done, value } = await reader.read();
-      
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6);
-          
-          if (data === '[DONE]') {
-            return {
-              content,
-              model,
-              responseTime: Date.now() - startTime,
-              success: true
-            };
-          }
-
-          try {
-            const parsed = JSON.parse(data);
-            const delta = parsed.choices[0]?.delta?.content;
-            if (delta) {
-              content += delta;
-            }
-          } catch (e) {
-            // 忽略解析错误
-          }
-        }
+    for (const chunk of data.choices) {
+      if (chunk.delta?.content) {
+        content += chunk.delta.content;
       }
     }
 
@@ -299,8 +239,15 @@ async function handleStreamResponse(
       success: true
     };
 
-  } finally {
-    reader.releaseLock();
+  } catch (e) {
+    console.error('流式响应处理失败:', e);
+    return {
+      content,
+      model,
+      responseTime: Date.now() - startTime,
+      success: false,
+      error: '流式响应处理失败'
+    };
   }
 }
 
@@ -397,25 +344,19 @@ export async function generateImage(params: ImageGenerationParams): Promise<Imag
       headers['X-User-ID'] = userId;
     }
 
-    // 发送请求
-    const response = await fetch(apiConfig.openai.baseURL + '/v1/images/generations', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(requestBody)
+    // 使用统一请求模块发送请求
+    const data = await request.post('/v1/images/generations', requestBody, {
+      baseURL: apiConfig.openai.baseURL,
+      headers
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`图像生成API请求失败: ${response.status} ${response.statusText} - ${errorData.error?.message || '未知错误'}`);
-    }
+    const images = data.data.map((item: any) => ({
+      url: item.url,
+      revisedPrompt: item.revised_prompt
+    }));
 
-    const data = await response.json();
-    
     return {
-      images: data.data.map((item: any) => ({
-        url: item.url,
-        revisedPrompt: item.revised_prompt
-      })),
+      images,
       model,
       responseTime: Date.now() - startTime,
       success: true,

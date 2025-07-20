@@ -70,6 +70,20 @@
   VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  # OpenAI配置
+  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+  # Gemini配置
+  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+  # Deepseek配置
+  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+  # Creem配置
+  VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+  VITE_CREEM_BASE_URL = "https://api.creem.com"
+  # 热点话题API配置
+  VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
@@ -77,6 +91,20 @@
   VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  # OpenAI配置
+  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+  # Gemini配置
+  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+  # Deepseek配置
+  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+  # Creem配置
+  VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+  VITE_CREEM_BASE_URL = "https://api.creem.com"
+  # 热点话题API配置
+  VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [context.branch-deploy.environment]
   NODE_ENV = "development"
@@ -84,6 +112,20 @@
   VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  # OpenAI配置
+  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+  # Gemini配置
+  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+  # Deepseek配置
+  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+  # Creem配置
+  VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+  VITE_CREEM_BASE_URL = "https://api.creem.com"
+  # 热点话题API配置
+  VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [dev]
   command = "npm run dev"
@@ -97,6 +139,20 @@
     VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
     VITE_AUTHING_HOST = "wenpaiai.authing.cn"
     VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+    # OpenAI配置
+    VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+    VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+    # Gemini配置
+    VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+    VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+    # Deepseek配置
+    VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+    VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+    # Creem配置
+    VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+    VITE_CREEM_BASE_URL = "https://api.creem.com"
+    # 热点话题API配置
+    VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [[headers]]
   for = "/*"

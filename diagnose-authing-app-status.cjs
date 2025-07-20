@@ -1,169 +1,154 @@
 /**
- * 🔍 Authing应用状态诊断脚本
- * 从全局角度检查Authing配置和状态
+ * 诊断Authing应用状态
+ * 检查新应用的配置和状态
  */
 
 const https = require('https');
-const fs = require('fs');
 
-// Authing配置
-const AUTHING_CONFIG = {
-  appId: '6867fdc88034eb95ae86167d',
-  host: 'qutkgzkfaezk-demo.authing.cn',
+console.log('🔍 诊断Authing应用状态...\n');
+
+// 新应用配置
+const appConfig = {
+  appId: '687bc631c105de597b993202',
+  host: 'wenpaiai.authing.cn',
   redirectUri: 'http://localhost:5173/callback'
 };
 
-/**
- * 检查Authing应用状态
- */
-async function checkAuthingAppStatus() {
-  console.log('🔍 开始诊断Authing应用状态...\n');
-
-  // 1. 检查应用基本信息
-  console.log('📋 1. 应用基本信息:');
-  console.log(`   - 应用ID: ${AUTHING_CONFIG.appId}`);
-  console.log(`   - 域名: ${AUTHING_CONFIG.host}`);
-  console.log(`   - 回调URI: ${AUTHING_CONFIG.redirectUri}`);
-  console.log('');
-
-  // 2. 检查应用是否可访问
-  console.log('🌐 2. 检查应用可访问性:');
-  try {
-    const response = await makeRequest(`https://${AUTHING_CONFIG.host}/oidc/auth`, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-      }
-    });
-    console.log('   ✅ Authing服务可访问');
-  } catch (error) {
-    console.log('   ❌ Authing服务不可访问:', error.message);
-  }
-  console.log('');
-
-  // 3. 检查授权端点
-  console.log('🔐 3. 检查授权端点:');
-  const authUrl = `https://${AUTHING_CONFIG.host}/oidc/auth?client_id=${AUTHING_CONFIG.appId}&redirect_uri=${encodeURIComponent(AUTHING_CONFIG.redirectUri)}&scope=openid+profile+email+phone&response_type=code&state=test`;
-  
-  try {
-    const response = await makeRequest(authUrl, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-      }
-    });
-    
-    if (response.statusCode === 400) {
-      console.log('   ❌ 授权端点返回400错误');
-      console.log('   📋 可能的原因:');
-      console.log('      - 应用ID不存在或无效');
-      console.log('      - 应用未启用');
-      console.log('      - 回调URL未正确配置');
-      console.log('      - 应用类型配置错误');
-    } else if (response.statusCode === 200) {
-      console.log('   ✅ 授权端点正常');
-    } else {
-      console.log(`   ⚠️  授权端点返回状态码: ${response.statusCode}`);
-    }
-  } catch (error) {
-    console.log('   ❌ 授权端点检查失败:', error.message);
-  }
-  console.log('');
-
-  // 4. 检查项目中的认证系统
-  console.log('🏗️  4. 检查项目认证系统:');
-  
-  // 检查App.tsx中的Provider
-  try {
-    const appContent = fs.readFileSync('src/App.tsx', 'utf8');
-    if (appContent.includes('UnifiedAuthProvider')) {
-      console.log('   ✅ App.tsx使用UnifiedAuthProvider');
-    } else {
-      console.log('   ❌ App.tsx未使用UnifiedAuthProvider');
-    }
-  } catch (error) {
-    console.log('   ❌ 无法读取App.tsx:', error.message);
-  }
-
-  // 检查是否有多个认证系统
-  try {
-    const authContextFiles = fs.readdirSync('src/contexts').filter(file => file.includes('Auth'));
-    console.log(`   📁 认证上下文文件: ${authContextFiles.join(', ')}`);
-    
-    if (authContextFiles.length > 1) {
-      console.log('   ⚠️  发现多个认证上下文文件，可能存在冲突');
-    }
-  } catch (error) {
-    console.log('   ❌ 无法检查认证上下文文件:', error.message);
-  }
-  console.log('');
-
-  // 5. 检查SDK使用情况
-  console.log('📦 5. 检查SDK使用情况:');
-  
-  try {
-    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-    const authingDeps = Object.keys(packageJson.dependencies || {}).filter(dep => dep.includes('authing'));
-    console.log(`   📦 Authing相关依赖: ${authingDeps.join(', ')}`);
-  } catch (error) {
-    console.log('   ❌ 无法读取package.json:', error.message);
-  }
-  console.log('');
-
-  // 6. 检查环境变量
-  console.log('🔧 6. 检查环境变量:');
-  try {
-    const envContent = fs.readFileSync('.env', 'utf8');
-    const authingVars = envContent.split('\n').filter(line => line.includes('AUTHING'));
-    console.log('   📋 Authing环境变量:');
-    authingVars.forEach(var_ => console.log(`      ${var_}`));
-  } catch (error) {
-    console.log('   ❌ 无法读取.env文件:', error.message);
-  }
-  console.log('');
-
-  // 7. 生成诊断报告
-  console.log('📊 7. 诊断报告:');
-  console.log('   🎯 问题分析:');
-  console.log('      - 400错误通常表示应用配置问题');
-  console.log('      - 可能是应用ID、回调URL或应用状态问题');
-  console.log('      - 多个认证系统可能导致冲突');
-  console.log('');
-  console.log('   🔧 建议解决方案:');
-  console.log('      1. 登录Authing控制台检查应用状态');
-  console.log('      2. 确认应用ID和域名配置正确');
-  console.log('      3. 检查回调URL格式和配置');
-  console.log('      4. 统一使用单一认证系统');
-  console.log('      5. 清理缓存并重启服务器');
-  console.log('');
-}
-
-/**
- * 发送HTTP请求
- */
-function makeRequest(url, options = {}) {
-  return new Promise((resolve, reject) => {
-    const req = https.request(url, options, (res) => {
+// 测试函数
+async function testEndpoint(url, description) {
+  return new Promise((resolve) => {
+    const req = https.get(url, (res) => {
       let data = '';
       res.on('data', (chunk) => {
         data += chunk;
       });
       res.on('end', () => {
-        resolve({
-          statusCode: res.statusCode,
-          headers: res.headers,
-          data: data
-        });
+        console.log(`✅ ${description}: ${res.statusCode} ${res.statusMessage}`);
+        if (res.statusCode === 200) {
+          try {
+            const jsonData = JSON.parse(data);
+            console.log(`   📄 响应数据:`, JSON.stringify(jsonData, null, 2));
+          } catch (e) {
+            console.log(`   📄 响应数据: ${data.substring(0, 200)}...`);
+          }
+        }
+        resolve({ success: true, status: res.statusCode, data });
       });
     });
-
-    req.on('error', (error) => {
-      reject(error);
+    
+    req.on('error', (err) => {
+      console.log(`❌ ${description}: ${err.message}`);
+      resolve({ success: false, error: err.message });
     });
-
-    req.end();
+    
+    req.setTimeout(10000, () => {
+      console.log(`⏰ ${description}: 请求超时`);
+      req.destroy();
+      resolve({ success: false, error: 'timeout' });
+    });
   });
 }
 
+async function runDiagnostics() {
+  console.log('📋 应用配置信息:');
+  console.log('- App ID:', appConfig.appId);
+  console.log('- 域名:', appConfig.host);
+  console.log('- 回调地址:', appConfig.redirectUri);
+  console.log('');
+
+  // 测试1: 检查应用公共配置
+  console.log('🔧 测试1: 检查应用公共配置...');
+  await testEndpoint(
+    `https://${appConfig.host}/api/v2/applications/${appConfig.appId}/public-config`,
+    '应用公共配置'
+  );
+
+  // 测试2: 检查应用详情
+  console.log('\n📋 测试2: 检查应用详情...');
+  await testEndpoint(
+    `https://${appConfig.host}/api/v2/applications/${appConfig.appId}`,
+    '应用详情'
+  );
+
+  // 测试3: 检查登录页面
+  console.log('\n🌐 测试3: 检查登录页面...');
+  await testEndpoint(
+    `https://${appConfig.host}/login?app_id=${appConfig.appId}`,
+    '登录页面'
+  );
+
+  // 测试4: 检查注册页面
+  console.log('\n📝 测试4: 检查注册页面...');
+  await testEndpoint(
+    `https://${appConfig.host}/register?app_id=${appConfig.appId}`,
+    '注册页面'
+  );
+
+  // 测试5: 检查OIDC授权端点
+  console.log('\n🔐 测试5: 检查OIDC授权端点...');
+  const oidcUrl = new URL(`https://${appConfig.host}/oidc/auth`);
+  oidcUrl.searchParams.set('client_id', appConfig.appId);
+  oidcUrl.searchParams.set('redirect_uri', appConfig.redirectUri);
+  oidcUrl.searchParams.set('response_type', 'code');
+  oidcUrl.searchParams.set('scope', 'openid profile email');
+  oidcUrl.searchParams.set('state', 'test-' + Date.now());
+  
+  await testEndpoint(oidcUrl.toString(), 'OIDC授权端点');
+
+  // 测试6: 检查OIDC授权端点（带注册提示）
+  console.log('\n📝 测试6: 检查OIDC授权端点（注册模式）...');
+  const oidcRegisterUrl = new URL(`https://${appConfig.host}/oidc/auth`);
+  oidcRegisterUrl.searchParams.set('client_id', appConfig.appId);
+  oidcRegisterUrl.searchParams.set('redirect_uri', appConfig.redirectUri);
+  oidcRegisterUrl.searchParams.set('response_type', 'code');
+  oidcRegisterUrl.searchParams.set('scope', 'openid profile email');
+  oidcRegisterUrl.searchParams.set('state', 'test-register-' + Date.now());
+  oidcRegisterUrl.searchParams.set('screen_hint', 'signup');
+  
+  await testEndpoint(oidcRegisterUrl.toString(), 'OIDC授权端点（注册）');
+
+  // 生成不同的URL格式进行测试
+  console.log('\n🔗 生成不同格式的测试URL...');
+  
+  // 格式1: 标准登录URL
+  const loginUrl1 = `https://${appConfig.host}/login?app_id=${appConfig.appId}`;
+  console.log('格式1 - 标准登录:', loginUrl1);
+  
+  // 格式2: 带协议参数的登录URL
+  const loginUrl2 = `https://${appConfig.host}/login?app_id=${appConfig.appId}&protocol=oidc`;
+  console.log('格式2 - 带协议登录:', loginUrl2);
+  
+  // 格式3: 注册URL
+  const registerUrl1 = `https://${appConfig.host}/register?app_id=${appConfig.appId}`;
+  console.log('格式3 - 标准注册:', registerUrl1);
+  
+  // 格式4: 带注册提示的登录URL
+  const loginUrl3 = `https://${appConfig.host}/login?app_id=${appConfig.appId}&screen_hint=signup`;
+  console.log('格式4 - 注册提示登录:', loginUrl3);
+
+  console.log('\n🎯 诊断总结:');
+  console.log('================================');
+  console.log('✅ 配置信息:');
+  console.log('- 使用新的Authing应用');
+  console.log('- 域名: wenpaiai.authing.cn');
+  console.log('- App ID: 687bc631c105de597b993202');
+  
+  console.log('\n🔧 可能的问题:');
+  console.log('1. Authing应用可能未正确配置');
+  console.log('2. 回调URL可能未在Authing控制台设置');
+  console.log('3. 应用可能未启用或权限不足');
+  console.log('4. 可能需要使用不同的URL格式');
+  
+  console.log('\n📝 建议的修复步骤:');
+  console.log('1. 登录Authing控制台: https://console.authing.cn/');
+  console.log('2. 找到应用: 687bc631c105de597b993202');
+  console.log('3. 检查应用状态是否启用');
+  console.log('4. 配置回调URL: http://localhost:5173/callback');
+  console.log('5. 检查应用权限设置');
+  console.log('6. 测试不同的URL格式');
+  
+  console.log('\n✅ 诊断完成！');
+}
+
 // 运行诊断
-checkAuthingAppStatus().catch(console.error); 
+runDiagnostics().catch(console.error); 

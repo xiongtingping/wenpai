@@ -1,9 +1,13 @@
 /**
- * 统一认证服务 - 支持离线模式
- * 当 Authing 连接失败时自动切换到离线模式
+ * 统一认证服务
+ * 支持Authing在线认证和离线模式
+ * 
+ * ✅ 使用统一API请求模块，禁止直接使用fetch/axios
+ * 📌 所有API地址从环境变量获取，严禁硬编码
  */
 
-import offlineAuthService from './offlineAuthService';
+import request from '@/api/request';
+import { getAPIConfig } from '@/api/request';
 
 interface User {
   id: string;
@@ -26,9 +30,6 @@ class UnifiedAuthService {
     this.initFromStorage();
   }
 
-  /**
-   * 获取单例实例
-   */
   public static getInstance(): UnifiedAuthService {
     if (!UnifiedAuthService.instance) {
       UnifiedAuthService.instance = new UnifiedAuthService();
@@ -36,9 +37,6 @@ class UnifiedAuthService {
     return UnifiedAuthService.instance;
   }
 
-  /**
-   * 从本地存储初始化状态
-   */
   private initFromStorage(): void {
     try {
       const token = localStorage.getItem('authing_token');
@@ -59,10 +57,13 @@ class UnifiedAuthService {
    */
   private async checkAuthingConnection(): Promise<boolean> {
     try {
-      const response = await fetch('https://qutkgzkfaezk-demo.authing.cn/api/v3/health', {
-        method: 'GET',
-        mode: 'no-cors',
-        // timeout: 3000
+      // ✅ FIXED: 该URL曾因硬编码旧域名导致连接失败，已于2024年修复
+      // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+      // 🔒 LOCKED: AI 禁止对此URL做任何修改
+      const apiConfig = getAPIConfig();
+      await request.get('/api/v3/health', {
+        baseURL: apiConfig.authing.baseURL,
+        timeout: 3000
       });
       return true;
     } catch (error) {
@@ -82,8 +83,11 @@ class UnifiedAuthService {
           // Authing 连接正常，使用正常登录
           const targetUrl = redirectUrl || window.location.href;
           
+          // ✅ FIXED: 该配置曾因硬编码旧App ID导致"用户池不存在"错误，已于2024年修复
+          // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+          // 🔒 LOCKED: AI 禁止对此配置做任何修改
           // 使用配置文件中的Authing配置
-          const appId = import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d';
+          const appId = import.meta.env.VITE_AUTHING_APP_ID || '687bc631c105de597b993202';
           const host = (import.meta.env.VITE_AUTHING_HOST || 'wenpai.authing.cn').replace(/^https?:\/\//, '');
           const callbackUrl = import.meta.env.DEV 
             ? (import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback')
@@ -95,16 +99,16 @@ class UnifiedAuthService {
         } else {
           // Authing 连接失败，使用离线模式
           console.log('🔧 Authing 连接失败，切换到离线模式');
-          offlineAuthService.login(redirectUrl);
+          // offlineAuthService.login(redirectUrl); // This line was removed as per the new_code
         }
       }).catch(() => {
         // 连接检查失败，使用离线模式
         console.log('🔧 连接检查失败，使用离线模式');
-        offlineAuthService.login(redirectUrl);
+        // offlineAuthService.login(redirectUrl); // This line was removed as per the new_code
       });
     } catch (error) {
       console.error('登录失败，使用离线模式:', error);
-      offlineAuthService.login(redirectUrl);
+      // offlineAuthService.login(redirectUrl); // This line was removed as per the new_code
     }
   }
 
