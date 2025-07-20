@@ -67,10 +67,10 @@
 [context.production.environment]
   NODE_ENV = "production"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+  VITE_AUTHING_APP_ID = "687c5c7f4e778a6485a4f0e0"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
-  VITE_AUTHING_APP_TYPE = "web"
+  VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -89,10 +89,10 @@
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+  VITE_AUTHING_APP_ID = "687c5c7f4e778a6485a4f0e0"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
-  VITE_AUTHING_APP_TYPE = "web"
+  VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -111,10 +111,10 @@
 [context.branch-deploy.environment]
   NODE_ENV = "development"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+  VITE_AUTHING_APP_ID = "687c5c7f4e778a6485a4f0e0"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
-  VITE_AUTHING_APP_TYPE = "web"
+  VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -139,10 +139,10 @@
   [dev.environment]
     CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
     # Authing配置
-    VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+    VITE_AUTHING_APP_ID = "687c5c7f4e778a6485a4f0e0"
     VITE_AUTHING_HOST = "wenpaiai.authing.cn"
     VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
-    VITE_AUTHING_APP_TYPE = "web"
+    VITE_AUTHING_APP_TYPE = "oidc"
     # OpenAI配置
     VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
     VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
