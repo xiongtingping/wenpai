@@ -95,8 +95,8 @@ export const getAuthingConfig = (): AuthingConfig => {
   
   // 如果环境变量中没有域名，使用Authing控制台中的实际域名
   if (!host) {
-    host = 'wenpaiai.authing.cn';
-    console.log('🔧 使用Authing控制台中的实际域名: wenpaiai.authing.cn');
+    host = 'aiwenpai.authing.cn';
+    console.log('🔧 使用Authing控制台中的实际域名: aiwenpai.authing.cn');
   } else {
     console.log('🔧 使用环境变量中的 Authing 域名:', host);
   }
@@ -140,8 +140,8 @@ export const getAuthingConfig = (): AuthingConfig => {
     console.log('🔧 生产环境回调地址:', redirectUri);
   }
   
-  // 检测应用类型 - 根据您的描述，当前是标准web应用
-  const appType = globalEnv.VITE_AUTHING_APP_TYPE || import.meta.env.VITE_AUTHING_APP_TYPE || 'web';
+  // 检测应用类型 - 根据Authing控制台配置，当前是OIDC应用
+  const appType = globalEnv.VITE_AUTHING_APP_TYPE || import.meta.env.VITE_AUTHING_APP_TYPE || 'oidc';
   console.log('🔧 检测到应用类型:', appType);
   
   console.log('🔧 Authing配置:', {

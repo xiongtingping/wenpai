@@ -109,7 +109,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     const content = data.choices[0]?.message?.content || '';
     const usage = data.usage;
 
-    return {
+        return {
       content,
       model,
       usage,
@@ -117,20 +117,20 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       success: true
     };
 
-  } catch (error) {
+    } catch (error) {
     console.error('AI服务调用失败:', error);
     
-    return {
+      return {
       content: '',
       model,
       responseTime: Date.now() - startTime,
-      success: false,
+        success: false,
       error: error instanceof Error ? error.message : '未知错误'
-    };
+      };
+    }
   }
-}
 
-/**
+  /**
  * 检查AI服务状态
  */
 export async function checkAIStatus(): Promise<{
@@ -169,7 +169,7 @@ export async function checkAIStatus(): Promise<{
           headers: { 'x-goog-api-key': config.gemini.apiKey }
         });
         status.gemini = true;
-      } catch (error) {
+    } catch (error) {
         console.warn('Gemini检查失败:', error);
       }
     }
@@ -182,7 +182,7 @@ export async function checkAIStatus(): Promise<{
           headers: { 'Authorization': `Bearer ${config.deepseek.apiKey}` }
         });
         status.deepseek = true;
-      } catch (error) {
+    } catch (error) {
         console.warn('Deepseek检查失败:', error);
       }
     }
@@ -196,7 +196,7 @@ export async function checkAIStatus(): Promise<{
       : '所有AI服务都不可用';
 
     return status;
-  } catch (error) {
+    } catch (error) {
     status.message = '检查AI服务状态失败';
     return status;
   }
