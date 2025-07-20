@@ -69,7 +69,7 @@
   # Authing配置
   VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
-  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -90,7 +90,7 @@
   # Authing配置
   VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
-  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -111,7 +111,7 @@
   # Authing配置
   VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
   VITE_AUTHING_HOST = "wenpaiai.authing.cn"
-  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -138,7 +138,7 @@
     # Authing配置
     VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
     VITE_AUTHING_HOST = "wenpaiai.authing.cn"
-    VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+    VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
     # OpenAI配置
     VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
     VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"

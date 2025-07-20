@@ -132,7 +132,7 @@ export const getAuthingConfig = (): AuthingConfig => {
     });
   } else {
     // 生产环境使用配置的回调地址
-    redirectUri = globalEnv.VITE_AUTHING_REDIRECT_URI_PROD || import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
+    redirectUri = globalEnv.VITE_AUTHING_REDIRECT_URI_PROD || import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://wenpai.netlify.app/callback';
     console.log('🔧 生产环境回调地址:', redirectUri);
   }
   
