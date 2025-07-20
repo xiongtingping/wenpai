@@ -83,7 +83,7 @@ export const getAuthingConfig = (): AuthingConfig => {
   // 优先使用全局环境变量，回退到 import.meta.env
   const globalEnv = typeof window !== 'undefined' ? (window as any).__ENV__ : {};
   
-  // 使用Authing控制台中的实际App ID
+  // 使用Authing控制台中的实际App ID - 确保有默认值
   const appId = globalEnv.VITE_AUTHING_APP_ID || import.meta.env.VITE_AUTHING_APP_ID || '687bc631c105de597b993202';
   
   // 获取 Authing 域名配置 - 使用Authing控制台中的实际域名
@@ -131,7 +131,9 @@ export const getAuthingConfig = (): AuthingConfig => {
       env: import.meta.env.MODE
     });
   } else {
+    // 生产环境使用配置的回调地址
     redirectUri = globalEnv.VITE_AUTHING_REDIRECT_URI_PROD || import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
+    console.log('🔧 生产环境回调地址:', redirectUri);
   }
   
   console.log('🔧 Authing配置:', {
@@ -198,17 +200,25 @@ export const getGuardConfig = () => {
     // 注册方式配置
     registerMethodList: ['phone', 'email'] as const,
     // 界面配置
-    logo: 'https://cdn.authing.co/authing-console/logo.png',
-    title: '文派',
-    lang: 'zh-CN' as const,
-    // 调试配置
-    debug: import.meta.env.DEV,
-    // 禁用自动功能，避免网络请求问题
-    disableGuard: true,
-    autoCheckLoginStatus: false,
+    logo: 'https://www.wenpai.xyz/logo.png',
+    title: '文派AI',
+    // 禁用自动功能，避免配置错误
+    autoRegister: false,
+    skipComplateFileds: false,
+    // 事件处理
+    onLogin: (user: any) => {
+      console.log('🔐 Guard登录成功:', user);
+    },
+    onRegister: (user: any) => {
+      console.log('🔐 Guard注册成功:', user);
+    },
+    onError: (error: any) => {
+      console.error('❌ Guard错误:', error);
+    },
+    onClose: () => {
+      console.log('🔐 Guard弹窗关闭');
+    }
   };
-  
-  console.log('🔧 Guard 配置:', guardConfig);
   
   return guardConfig;
 }; 

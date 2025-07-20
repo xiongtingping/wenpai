@@ -22,10 +22,39 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
+# Authing回调重定向到Netlify函数
+[[redirects]]
+  from = "/callback"
+  to = "/.netlify/functions/authing-callback"
+  status = 200
+
 # 静态资源处理 - 确保CSS和JS文件不被重定向
 [[redirects]]
   from = "/assets/*"
   to = "/assets/:splat"
+  status = 200
+
+# Vite 开发模块 - 在开发环境中优先处理
+[[redirects]]
+  from = "/@vite/*"
+  to = "/@vite/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/@react-refresh"
+  to = "/@react-refresh"
+  status = 200
+
+# 静态资源处理 - 确保CSS和JS文件不被重定向
+[[redirects]]
+  from = "/src/*"
+  to = "/src/:splat"
+  status = 200
+
+# Vite 依赖模块 - 确保 node_modules 路径不被重定向
+[[redirects]]
+  from = "/node_modules/*"
+  to = "/node_modules/:splat"
   status = 200
 
 # 重定向规则 - 处理React Router的客户端路由
@@ -37,12 +66,24 @@
 # 环境变量设置
 [context.production.environment]
   NODE_ENV = "production"
+  # Authing配置
+  VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+  VITE_AUTHING_HOST = "wenpaiai.authing.cn"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
 
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
+  # Authing配置
+  VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+  VITE_AUTHING_HOST = "wenpaiai.authing.cn"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
 
 [context.branch-deploy.environment]
-  NODE_ENV = "development" 
+  NODE_ENV = "development"
+  # Authing配置
+  VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+  VITE_AUTHING_HOST = "wenpaiai.authing.cn"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
 
 [dev]
   command = "npm run dev"
@@ -52,6 +93,10 @@
   
   [dev.environment]
     CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+    # Authing配置
+    VITE_AUTHING_APP_ID = "687bc631c105de597b993202"
+    VITE_AUTHING_HOST = "wenpaiai.authing.cn"
+    VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
 
 [[headers]]
   for = "/*"
