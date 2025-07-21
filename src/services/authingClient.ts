@@ -21,14 +21,15 @@ class AuthingClient {
 
   private constructor() {
     if (!AuthingClient.sdkInstance) {
+      // 关键：类型断言，兼容 SDK 支持但类型未补全
       AuthingClient.sdkInstance = new Authing({
         domain: this.config.host,
         appId: this.config.appId,
         userPoolId: this.config.userPoolId,
         redirectUri: this.config.redirectUri,
         scope: this.config.scope,
-        oidcOrigin: this.config.oidcOrigin // 关键补充项
-      });
+        oidcOrigin: this.config.oidcOrigin
+      } as any);
     }
     this.authing = AuthingClient.sdkInstance;
   }

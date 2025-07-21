@@ -55,13 +55,14 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
       console.log('🔧 初始化 Authing Guard...');
       // 直接使用 getAuthingConfig() 保证与 SDK 配置一致
       const config = getGuardConfig();
-      const guardConfig: GuardOptions = {
+      // 关键：类型断言，兼容 SDK 支持但类型未补全
+      const guardConfig = {
         ...config,
         mode,
         defaultScene,
         lang: 'zh-CN' as Lang,
-        oidcOrigin: config.oidcOrigin // 关键补充项
-      };
+        oidcOrigin: config.oidcOrigin
+      } as any;
       guardRef.current = new Guard(guardConfig);
 
       // 添加事件监听器
