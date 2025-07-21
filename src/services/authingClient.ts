@@ -4,7 +4,7 @@
  * 参考: https://docs.authing.cn/v2/quickstarts/spa/react.html
  */
 
-import * as AuthingWeb from '@authing/web';
+import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 
 /**
@@ -22,7 +22,7 @@ class AuthingClient {
   private constructor() {
     if (!AuthingClient.sdkInstance) {
       // 关键：类型断言，兼容 SDK 支持但类型未补全
-      AuthingClient.sdkInstance = new (AuthingWeb.Authing as any)({
+      AuthingClient.sdkInstance = new (Authing as any)({
         domain: this.config.host,
         appId: this.config.appId,
         userPoolId: this.config.userPoolId,
