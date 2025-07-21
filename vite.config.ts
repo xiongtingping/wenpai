@@ -21,12 +21,11 @@ export default defineConfig({
       VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
       VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
       VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
-      VITE_AUTHING_APP_ID: process.env.VITE_AUTHING_APP_ID || '',
-      VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || '',
+      // ⚠️ VITE_AUTHING_HOST 必须为完整认证地址（含应用路径），如 https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+      VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || 'https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '',
       VITE_DEBUG_MODE: process.env.VITE_DEBUG_MODE || '',
       VITE_LOG_LEVEL: process.env.VITE_LOG_LEVEL || '',
-      // 兼容 SSR/Node 环境变量
       NODE_ENV: process.env.NODE_ENV || '',
       BASE_PATH: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
     })

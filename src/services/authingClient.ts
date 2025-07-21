@@ -27,6 +27,7 @@ class AuthingClient {
         userPoolId: this.config.userPoolId,
         redirectUri: this.config.redirectUri,
         scope: this.config.scope,
+        oidcOrigin: this.config.oidcOrigin // 关键补充项
       });
     }
     this.authing = AuthingClient.sdkInstance;

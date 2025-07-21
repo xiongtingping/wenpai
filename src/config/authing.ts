@@ -37,13 +37,16 @@ export interface AuthingConfig {
   defaultScene: 'login' | 'register';
   /** 应用类型 */
   appType: 'oidc' | 'web';
+  /** 完整 OIDC 认证路径，供 SDK/Guard 使用 */
+  oidcOrigin: string;
 }
 
 /**
  * 获取 Authing 配置对象
  * 仅支持标准开发端口 5173，回调地址锁定为 http://localhost:5173/callback
- * 生产环境为 https://www.wenpai.xyz/callback
+ * 生产环境为 https://www.wenpai.xyz/callback 或 https://wenpai.netlify.app/callback
  * ⚠️ 本逻辑已锁定，禁止随意更改。如需变更请单独封装新模块。
+ * 📌 注意：redirectUri 必须与 Authing 控制台“安全域”与“登录回调 URL”白名单严格一致，否则认证链路会失败。
  */
 export const getAuthingConfig = (): AuthingConfig => {
   const globalEnv = typeof window !== 'undefined' ? (window as any).__ENV__ : {};
@@ -74,6 +77,8 @@ export const getAuthingConfig = (): AuthingConfig => {
     mode: 'modal',
     defaultScene: 'login',
     appType: appType as 'oidc' | 'web',
+    // 新增：完整 OIDC 认证路径，供 SDK/Guard 使用
+    oidcOrigin: `https://${host}`
   };
 };
 

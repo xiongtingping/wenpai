@@ -59,7 +59,8 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
         ...config,
         mode,
         defaultScene,
-        lang: 'zh-CN' as Lang
+        lang: 'zh-CN' as Lang,
+        oidcOrigin: config.oidcOrigin // 关键补充项
       };
       guardRef.current = new Guard(guardConfig);
 
