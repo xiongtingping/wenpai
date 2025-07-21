@@ -4,8 +4,8 @@
  * 参考: https://docs.authing.cn/v2/quickstarts/spa/react.html
  */
 
-// @ts-ignore
-import Authing = require('@authing/web');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const AuthingWeb = require('@authing/web');
 import { getAuthingConfig } from '@/config/authing';
 
 /**
@@ -23,7 +23,7 @@ class AuthingClient {
   private constructor() {
     if (!AuthingClient.sdkInstance) {
       // 关键：类型断言，兼容 SDK 支持但类型未补全
-      AuthingClient.sdkInstance = new (Authing.Authing as any)({
+      AuthingClient.sdkInstance = new (AuthingWeb.Authing as any)({
         domain: this.config.host,
         appId: this.config.appId,
         userPoolId: this.config.userPoolId,
