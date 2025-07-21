@@ -9,7 +9,6 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "isolatedModules": true,
     "moduleDetection": "force",
     "composite": true,
     "jsx": "react-jsx",
@@ -25,7 +24,11 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "outDir": "./dist/app"
+    "outDir": "./dist/app",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "noEmit": false
   },
   "include": ["src", "src/assets/**/*.json"]
 }
