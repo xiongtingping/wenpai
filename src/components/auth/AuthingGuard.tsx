@@ -62,8 +62,8 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
         defaultScene,
         lang: 'zh-CN',
         oidcOrigin: config.oidcOrigin
-      } as any;
-      guardRef.current = new (Guard as any)(guardConfig);
+      };
+      guardRef.current = new (Guard as any)(guardConfig as any);
 
       // 添加事件监听器
       if (onLogin) {
