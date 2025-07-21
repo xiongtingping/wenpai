@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import AuthingClient from '@/services/authingClient';
 import { useNavigate } from 'react-router-dom';
+import { getAuthingConfig } from '@/config/authing';
 
 /**
  * ✅ FIXED: 2024-07-21 Authing测试已切换为新App ID和认证地址
@@ -62,19 +63,17 @@ const AuthTestPage: React.FC = () => {
         ...prev,
         login: '🔄 跳转中...'
       }));
-      
-      // 直接跳转到 Authing 登录页面
+      // 用配置函数获取 redirectUri，避免 TS 报错
+      const { redirectUri } = getAuthingConfig();
       const loginUrl = `https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?` + 
         `client_id=687e0aafee2b84f86685b644&` +
-        `redirect_uri=${encodeURIComponent(authingClient.getAuthing().config.redirectUri)}&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
         `response_type=code&` +
         `scope=openid profile email phone&` +
         `state=${Date.now()}&` +
         `nonce=${Date.now()}`;
-      
       console.log('🔗 登录 URL:', loginUrl);
       window.location.href = loginUrl;
-      
     } catch (error) {
       console.error('❌ 登录失败:', error);
       setTestResults(prev => ({
@@ -435,14 +434,17 @@ const AuthTestPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {Object.entries(testResults).map(([key, value]) => (
-              <div key={key} className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                <span className="font-medium">{key}:</span>
-                <span className={value.includes('✅') ? 'text-green-600' : value.includes('❌') ? 'text-red-600' : 'text-blue-600'}>
-                  {value}
-                </span>
-              </div>
-            ))}
+            {Object.entries(testResults).map(([key, value]) => {
+              const valueStr = typeof value === 'string' ? value : JSON.stringify(value);
+              return (
+                <div key={key} className="flex justify-between items-center p-2 bg-muted/50 rounded">
+                  <span className="font-medium">{key}:</span>
+                  <span className={valueStr.includes('✅') ? 'text-green-600' : valueStr.includes('❌') ? 'text-red-600' : 'text-blue-600'}>
+                    {valueStr}
+                  </span>
+                </div>
+              );
+            })}
             {Object.keys(testResults).length === 0 && (
               <div className="text-center text-muted-foreground py-4">
                 暂无测试结果
