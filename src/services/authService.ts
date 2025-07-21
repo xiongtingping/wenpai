@@ -212,6 +212,8 @@ class AuthService {
 
   /**
    * 获取登录 URL
+   * @deprecated 前端禁止直接调用，必须用 SDK
+   * 🔒 LOCKED: 禁止前端直接拼接 OIDC URL，必须用 SDK
    */
   getLoginUrl(redirectTo?: string): string {
     const params = new URLSearchParams({
@@ -230,6 +232,8 @@ class AuthService {
 
   /**
    * 获取注册 URL
+   * @deprecated 前端禁止直接调用，必须用 SDK
+   * 🔒 LOCKED: 禁止前端直接拼接 OIDC URL，必须用 SDK
    */
   getRegisterUrl(redirectTo?: string): string {
     const params = new URLSearchParams({

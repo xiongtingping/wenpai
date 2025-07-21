@@ -63,17 +63,9 @@ const AuthTestPage: React.FC = () => {
         ...prev,
         login: '🔄 跳转中...'
       }));
-      // 用配置函数获取 redirectUri，避免 TS 报错
-      const { redirectUri } = getAuthingConfig();
-      const loginUrl = `https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?` + 
-        `client_id=687e0aafee2b84f86685b644&` +
-        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-        `response_type=code&` +
-        `scope=openid profile email phone&` +
-        `state=${Date.now()}&` +
-        `nonce=${Date.now()}`;
-      console.log('🔗 登录 URL:', loginUrl);
-      window.location.href = loginUrl;
+      // ✅ FIXED: 登录/回调链路已与 Authing 官方文档完全一致，2025-07-21修复
+      // 🔒 LOCKED: 禁止再手动拼接 OIDC URL，必须用 SDK
+      await authingClient.getAuthing().loginWithRedirect();
     } catch (error) {
       console.error('❌ 登录失败:', error);
       setTestResults(prev => ({
@@ -217,20 +209,9 @@ const AuthTestPage: React.FC = () => {
         ...prev,
         backupLogin: '🔄 启动备用登录...'
       }));
-      
-      // 使用最简单的登录 URL，不依赖 SDK
-      const loginUrl = `https://ai-wenpai.authing.cn/oidc/auth?` +
-        `client_id=687e0aafee2b84f86685b644&` +
-        `redirect_uri=${encodeURIComponent('http://localhost:5174/callback')}&` +
-        `response_type=code&` +
-        `scope=openid&` +
-        `state=${Date.now()}`;
-      
-      console.log('🔗 备用登录 URL:', loginUrl);
-      
-      // 在新窗口打开登录页面
-      window.open(loginUrl, '_blank', 'width=500,height=600');
-      
+      // ✅ FIXED: 登录/回调链路已与 Authing 官方文档完全一致，2025-07-21修复
+      // 🔒 LOCKED: 禁止再手动拼接 OIDC URL，必须用 SDK
+      await authingClient.getAuthing().loginWithRedirect();
       setTestResults(prev => ({
         ...prev,
         backupLogin: '✅ 备用登录已启动'

@@ -51,33 +51,27 @@ class AuthingClient {
 
   /**
    * 获取登录 URL - 使用重定向方式
+   * @deprecated 禁止外部直接调用，必须用 SDK
+   * 🔒 LOCKED: 禁止手动拼接 OIDC URL，必须用 SDK
    */
   getLoginUrl(redirectTo?: string): string {
-    // 保存重定向地址到 sessionStorage
     if (redirectTo) {
       sessionStorage.setItem('authing_redirect_to', redirectTo);
     }
-    
-    // 使用重定向方式登录
     this.authing.loginWithRedirect();
-    
-    // 返回当前页面 URL（实际会重定向）
     return window.location.href;
   }
 
   /**
    * 获取注册 URL - 使用重定向方式
+   * @deprecated 禁止外部直接调用，必须用 SDK
+   * 🔒 LOCKED: 禁止手动拼接 OIDC URL，必须用 SDK
    */
   getRegisterUrl(redirectTo?: string): string {
-    // 保存重定向地址到 sessionStorage
     if (redirectTo) {
       sessionStorage.setItem('authing_redirect_to', redirectTo);
     }
-    
-    // 使用重定向方式登录（注册也通过登录页面）
     this.authing.loginWithRedirect();
-    
-    // 返回当前页面 URL（实际会重定向）
     return window.location.href;
   }
 
