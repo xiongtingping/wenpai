@@ -14,13 +14,13 @@
     "skipLibCheck": true,
     "allowJs": true,
     "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "include": [
-      "src",
-      "src/types"
-    ],
-    "exclude": [
-      "node_modules"
-    ]
-  }
+    "strictNullChecks": false
+  },
+  "include": [
+    "src",
+    "src/types"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
