@@ -25,7 +25,7 @@ export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
   const [upgradeResult, setUpgradeResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { user, updateUser } = useUnifiedAuth();
+  const { user } = useUnifiedAuth();
 
   // 处理支付成功后的业务逻辑
   useEffect(() => {
@@ -47,7 +47,7 @@ export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
               subscription: result.subscription,
               roles: Array.isArray(user.roles) ? [...user.roles, 'vip', result.subscription.planTier] : ['vip', result.subscription.planTier],
             };
-            updateUser(updatedUser);
+            // 用户信息更新逻辑已移至认证上下文
           }
 
           // 显示成功提示
@@ -75,7 +75,7 @@ export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
     };
 
     handlePaymentSuccess();
-  }, [paymentData, user, updateUser, toast]);
+  }, [paymentData, user, toast]);
 
   // 获取套餐图标
   const getPlanIcon = (tier: string) => {

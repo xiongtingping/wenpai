@@ -1,113 +1,121 @@
-/**
- * 权限守卫组件
- * 基于用户权限和角色的访问控制
- */
-
-import React, { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { usePermissions } from '@/hooks/usePermissions';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { usePermission, PermissionResult } from '@/hooks/usePermission';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Lock, Crown, Star, AlertTriangle } from 'lucide-react';
 
 /**
- * 权限守卫属性
+ * 权限守卫组件属性
  */
 interface PermissionGuardProps {
+  /** 需要的权限键或权限键数组 */
+  required: string | string[];
+  /** 权限检查失败时显示的内容 */
+  fallback?: React.ReactNode;
+  /** 是否自动重定向 */
+  autoRedirect?: boolean;
+  /** 重定向延迟（毫秒） */
+  redirectDelay?: number;
   /** 子组件 */
-  children: ReactNode;
-  /** 需要的权限 */
-  requiredPermissions?: string[];
-  /** 需要的角色 */
-  requiredRoles?: string[];
-  /** 无权限时重定向的路径 */
-  redirectTo?: string;
-  /** 加载时显示的组件 */
-  loadingComponent?: ReactNode;
-  /** 无权限时显示的组件 */
-  noPermissionComponent?: ReactNode;
+  children: React.ReactNode;
 }
 
 /**
- * 权限守卫组件
- * @param props 组件属性
- * @returns React 组件
+ * 默认的权限失败提示组件
  */
-const PermissionGuard: React.FC<PermissionGuardProps> = ({
-  children,
-  requiredPermissions = [],
-  requiredRoles = [],
-  redirectTo,
-  loadingComponent = (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">正在验证权限...</p>
-      </div>
+const DefaultFallback: React.FC<{ permission: PermissionResult }> = ({ permission }) => {
+  const navigate = useNavigate();
+  
+  const getIcon = () => {
+    if (permission.details?.key.includes('auth:required')) return <Lock className="h-8 w-8" />;
+    if (permission.details?.key.includes('vip:required')) return <Crown className="h-8 w-8" />;
+    if (permission.details?.key.includes('preview:')) return <Star className="h-8 w-8" />;
+    return <AlertTriangle className="h-8 w-8" />;
+  };
+
+  const getTitle = () => {
+    if (permission.details?.key.includes('auth:required')) return '需要登录';
+    if (permission.details?.key.includes('vip:required')) return '需要VIP权限';
+    if (permission.details?.key.includes('preview:')) return '功能内测中';
+    return '权限不足';
+  };
+
+  const getDescription = () => {
+    return permission.reason || '您没有访问此功能的权限';
+  };
+
+  const handleAction = () => {
+    if (permission.redirect) {
+      navigate(permission.redirect);
+    }
+  };
+
+  const getActionText = () => {
+    if (permission.details?.key.includes('auth:required')) return '去登录';
+    if (permission.details?.key.includes('vip:required')) return '升级VIP';
+    if (permission.details?.key.includes('preview:')) return '申请内测';
+    return '返回首页';
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-[400px] p-4">
+      <Card className="w-full max-w-md text-center">
+        <CardHeader>
+          <div className="flex justify-center mb-4">
+            {getIcon()}
+          </div>
+          <CardTitle className="text-xl">{getTitle()}</CardTitle>
+          <CardDescription className="text-base">
+            {getDescription()}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={handleAction} className="w-full">
+            {getActionText()}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
-  ),
-  noPermissionComponent = (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">权限不足</h1>
-        <p className="text-gray-600 mb-4">您没有访问此页面的权限</p>
-        <button
-          onClick={() => window.history.back()}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          返回上一页
-        </button>
-      </div>
-    </div>
-  ),
+  );
+};
+
+/**
+ * 统一的权限守卫组件
+ */
+export const PermissionGuard: React.FC<PermissionGuardProps> = ({
+  required,
+  fallback,
+  autoRedirect = true,
+  redirectDelay = 2000,
+  children
 }) => {
-  const location = useLocation();
-  const { loading: authLoading, isAuthenticated } = useUnifiedAuth();
-  const { 
-    loading: permissionLoading, 
-    hasAllPermissions, 
-    hasAllRoles,
-    checkPermissions 
-  } = usePermissions();
+  const navigate = useNavigate();
+  const permission = usePermission(required);
 
-  // 如果正在加载认证或权限信息，显示加载组件
-  if (authLoading || permissionLoading) {
-    return <>{loadingComponent}</>;
-  }
+  // 自动重定向逻辑
+  useEffect(() => {
+    if (!permission.pass && autoRedirect && permission.redirect) {
+      const timer = setTimeout(() => {
+        console.log(`🔒 权限检查失败，自动重定向到: ${permission.redirect}`);
+        navigate(permission.redirect!);
+      }, redirectDelay);
 
-  // 如果用户未登录，重定向到登录页
-  if (!isAuthenticated) {
-    return (
-      <Navigate
-        to="/login"
-        state={{ from: location }}
-        replace
-      />
-    );
-  }
+      return () => clearTimeout(timer);
+    }
+  }, [permission.pass, permission.redirect, autoRedirect, redirectDelay, navigate]);
 
-  // 如果没有权限要求，直接渲染子组件
-  if (requiredPermissions.length === 0 && requiredRoles.length === 0) {
+  // 权限检查通过，渲染子组件
+  if (permission.pass) {
     return <>{children}</>;
   }
 
-  // 进行真实的权限检查
-  const permissionResult = checkPermissions(
-    requiredPermissions.map(p => {
-      const [resource, action] = p.split(':');
-      return { resource, action };
-    }),
-    requiredRoles
+  // 权限检查失败，渲染 fallback 或默认提示
+  return (
+    <>
+      {fallback || <DefaultFallback permission={permission} />}
+    </>
   );
-
-  // 如果权限不足，显示无权限组件或重定向
-  if (!permissionResult.hasPermission) {
-    if (redirectTo) {
-      return <Navigate to={redirectTo} replace />;
-    }
-    return <>{noPermissionComponent}</>;
-  }
-
-  // 渲染子组件
-  return <>{children}</>;
 };
 
 export default PermissionGuard; 

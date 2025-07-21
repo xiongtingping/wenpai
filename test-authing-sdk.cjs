@@ -7,8 +7,8 @@ const { AuthenticationClient } = require('authing-js-sdk');
 
 // 模拟环境变量
 const env = {
-  VITE_AUTHING_APP_ID: '6867fdc88034eb95ae86167d',
-  VITE_AUTHING_HOST: 'https://qutkgzkfaezk-demo.authing.cn',
+  VITE_AUTHING_APP_ID: '687e0aafee2b84f86685b644',
+  VITE_AUTHING_HOST: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   VITE_AUTHING_REDIRECT_URI_DEV: 'http://localhost:5173/callback',
   VITE_AUTHING_REDIRECT_URI_PROD: 'https://www.wenpai.xyz/callback',
   DEV: true

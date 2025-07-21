@@ -5,7 +5,7 @@
 
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useUserStore } from '@/store/userStore';
+import { useAuthStore } from '@/store/authStore';
 
 interface PageTrackerProps {
   /** 页面标题 */
@@ -25,7 +25,7 @@ const PageTracker: React.FC<PageTrackerProps> = ({
   metadata = {} 
 }) => {
   const location = useLocation();
-  const { recordUserAction } = useUserStore();
+  const { recordUserAction } = useAuthStore();
 
   useEffect(() => {
     // 记录页面访问

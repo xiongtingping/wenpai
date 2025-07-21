@@ -40,8 +40,12 @@ export default function QRCodeTestPage() {
     try {
       console.log(`开始测试 ${testName}:`, { priceId });
       
-      // 直接调用后端接口
-      const response = await fetch('http://localhost:8888/.netlify/functions/checkout', {
+      // 使用环境变量或动态获取 base URL
+      const baseUrl = import.meta.env.PROD 
+        ? window.location.origin 
+        : 'http://localhost:8888';
+      
+      const response = await fetch(`${baseUrl}/.netlify/functions/checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

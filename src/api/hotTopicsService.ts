@@ -518,3 +518,47 @@ export async function fetchMoyuCalendar() {
   const res = await request.get('https://api.vvhan.com/api/moyu');
   return res.data;
 } 
+
+/**
+ * 获取热点话题列表
+ * @param platform 平台名称（可选）
+ * @returns 热点话题列表
+ */
+export async function fetchHotTopics(platform?: string): Promise<DailyHotItem[]> {
+  try {
+    if (platform) {
+      return await getDailyHotByPlatform(platform);
+    } else {
+      const allData = await getDailyHotAll();
+      return aggregateAndSortTopics(allData.data);
+    }
+  } catch (error) {
+    console.error('获取热点话题失败:', error);
+    return [];
+  }
+}
+
+/**
+ * 获取话题详情
+ * @param title 话题标题
+ * @param platform 平台名称
+ * @returns 话题详情
+ */
+export async function fetchTopicDetail(title: string, platform: string): Promise<DailyHotItem | null> {
+  try {
+    const topics = await fetchHotTopics(platform);
+    const topic = topics.find(t => t.title === title);
+    
+    if (topic) {
+      // 生成详细内容
+      topic.content = generateTopicContent(topic.title, platform);
+      topic.relatedTopics = generateRelatedTopics(topic.title);
+      return topic;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('获取话题详情失败:', error);
+    return null;
+  }
+} 

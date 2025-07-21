@@ -32,7 +32,7 @@ console.log('   - 确认应用类型：OIDC 单页 Web 应用');
 console.log('   - 不是"Web 应用"或其他类型');
 
 console.log('\n步骤4：检查认证地址');
-console.log('   - 认证地址：https://aiwenpai.authing.cn');
+console.log('   - 认证地址：ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
 console.log('   - 确保与代码中的host一致');
 
 console.log('\n步骤5：强制刷新配置');
@@ -45,10 +45,10 @@ console.log('4. 使用无痕模式测试');
 console.log('\n🔍 详细检查项目：');
 console.log('=====================================');
 console.log('✅ 应用类型：OIDC 单页 Web 应用');
-console.log('✅ 认证地址：https://aiwenpai.authing.cn');
+console.log('✅ 认证地址：ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
 console.log('✅ 登录回调URL：https://wenpai.netlify.app/callback,http://localhost:5173/callback');
 console.log('✅ 域名白名单：wenpai.netlify.app');
-console.log('✅ App ID：687cc2a82e907f6e8aea5848');
+console.log('✅ App ID：687e0aafee2b84f86685b644');
 
 console.log('\n⚠️  重要提醒：');
 console.log('=====================================');

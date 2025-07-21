@@ -15,7 +15,7 @@ redirectUrls.forEach((url, index) => {
 
 console.log('\n🔍 检查Authing控制台配置步骤:');
 console.log('1. 登录 https://console.authing.cn');
-console.log('2. 进入应用: 6867fdc88034eb95ae86167d');
+console.log('2. 进入应用: 687e0aafee2b84f86685b644');
 console.log('3. 点击 "应用配置" -> "登录回调 URL"');
 console.log('4. 添加以下回调URL:');
 redirectUrls.forEach(url => {

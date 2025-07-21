@@ -10,7 +10,7 @@ console.log('🔍 诊断Authing应用状态...\n');
 // 新应用配置
 const appConfig = {
   appId: '687bc631c105de597b993202',
-  host: 'wenpaiai.authing.cn',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   redirectUri: 'http://localhost:5173/callback'
 };
 
@@ -130,7 +130,7 @@ async function runDiagnostics() {
   console.log('================================');
   console.log('✅ 配置信息:');
   console.log('- 使用新的Authing应用');
-  console.log('- 域名: wenpaiai.authing.cn');
+  console.log('- 域名: ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
   console.log('- App ID: 687bc631c105de597b993202');
   
   console.log('\n🔧 可能的问题:');

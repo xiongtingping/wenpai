@@ -1,351 +1,179 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { useUserRoles } from '@/hooks/useUserRoles';
-import { securityUtils } from '@/lib/security';
+import { usePermission } from '@/hooks/usePermission';
 import { 
   Crown, 
   Star, 
-  Shield, 
-  Zap, 
-  Users, 
-  Settings, 
+  CheckCircle, 
+  XCircle, 
   ArrowRight,
-  CheckCircle,
-  XCircle,
-  Clock,
-  TrendingUp
+  Zap,
+  Shield,
+  Gift
 } from 'lucide-react';
 
 /**
  * VIP页面组件
- * @returns React 组件
  */
-export default function VIPPage() {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user, isAuthenticated, login } = useUnifiedAuth();
-  const { isVip, isAdmin, roles, loading, error, refreshRoles } = useUserRoles({
-    autoCheck: true,
-    enableSecurityLog: true,
-    vipRoleCode: 'vip'
-  });
+const VIPPage: React.FC = () => {
+  const { user, isAuthenticated } = useUnifiedAuth();
+  const vipPermission = usePermission('vip:required');
+  const [loading, setLoading] = useState(false);
 
-  const [accessGranted, setAccessGranted] = useState(false);
-  const [checkingAccess, setCheckingAccess] = useState(true);
-
-  // VIP权限检查
-  useEffect(() => {
-    const checkVIPAccess = async () => {
-      try {
-        setCheckingAccess(true);
-        securityUtils.secureLog('开始检查VIP访问权限');
-
-        // 检查用户是否已登录
-        if (!isAuthenticated || !user) {
-          securityUtils.secureLog('用户未登录，重定向到登录页面');
-          toast({
-            title: "需要登录",
-            description: "请先登录后再访问VIP页面",
-            variant: "destructive"
-          });
-          login();
-          return;
-        }
-
-        // 等待角色检查完成
-        if (loading) {
-          return;
-        }
-
-        // 检查VIP权限
-        if (!isVip && !isAdmin) {
-          securityUtils.secureLog('非VIP用户尝试访问VIP页面', {
-            userId: user.id,
-            roles: roles
-          }, 'error');
-          
-          toast({
-            title: "访问被拒绝",
-            description: "此页面仅限VIP用户访问，请升级您的账户",
-            variant: "destructive"
-          });
-          
-          // 延迟跳转，让用户看到提示
-          setTimeout(() => {
-            navigate('/payment');
-          }, 2000);
-          return;
-        }
-
-        // 权限验证通过
-        setAccessGranted(true);
-        securityUtils.secureLog('VIP用户访问权限验证通过', {
-          userId: user.id,
-          roles: roles,
-          isVip,
-          isAdmin
-        });
-
-        toast({
-          title: "欢迎VIP用户",
-          description: "您已成功访问VIP专属页面",
-        });
-
-      } catch (error) {
-        console.error('VIP权限检查失败:', error);
-        securityUtils.secureLog('VIP权限检查失败', {
-          error: error instanceof Error ? error.message : '未知错误',
-          userId: user?.id
-        }, 'error');
-        
-        toast({
-          title: "权限检查失败",
-          description: "请稍后重试或联系客服",
-          variant: "destructive"
-        });
-      } finally {
-        setCheckingAccess(false);
-      }
-    };
-
-    checkVIPAccess();
-  }, [isAuthenticated, user, isVip, isAdmin, roles, loading, navigate, toast, login]);
-
-  // 刷新角色信息
-  const handleRefreshRoles = async () => {
-    try {
-      await refreshRoles();
-      toast({
-        title: "角色信息已刷新",
-        description: "您的权限状态已更新",
-      });
-    } catch (error) {
-      toast({
-        title: "刷新失败",
-        description: "请稍后重试",
-        variant: "destructive"
-      });
+  // VIP特权列表
+  const vipFeatures = [
+    {
+      icon: <Zap className="h-5 w-5" />,
+      title: 'AI创意魔方',
+      description: '无限使用AI创意生成功能',
+      available: true
+    },
+    {
+      icon: <Shield className="h-5 w-5" />,
+      title: '品牌库',
+      description: '访问专业品牌素材库',
+      available: true
+    },
+    {
+      icon: <Gift className="h-5 w-5" />,
+      title: '内容提取器',
+      description: '智能内容提取和分析',
+      available: true
+    },
+    {
+      icon: <Star className="h-5 w-5" />,
+      title: '优先客服',
+      description: '专属客服支持',
+      available: true
     }
+  ];
+
+  // 处理升级VIP
+  const handleUpgrade = () => {
+    setLoading(true);
+    // 跳转到支付页面
+    window.location.href = '/payment';
   };
 
-  // 加载状态
-  if (checkingAccess || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">正在验证VIP权限...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 权限被拒绝
-  if (!accessGranted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-50">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <XCircle className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">访问被拒绝</h1>
-          <p className="text-gray-600 mb-6">
-            此页面仅限VIP用户访问，请升级您的账户以享受专属功能。
-          </p>
-          <div className="space-y-3">
-            <Button
-              onClick={() => navigate('/payment')}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90"
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              立即升级VIP
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="w-full"
-            >
-              返回首页
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // VIP页面内容
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-16">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* VIP欢迎区域 */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mb-6">
-            <Crown className="w-10 h-10 text-white" />
+    <div className="container mx-auto py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* 页面标题 */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <Crown className="h-16 w-16 text-yellow-500" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            欢迎，VIP用户！
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            VIP会员中心
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            享受您的专属功能和特权
+          <p className="text-gray-600">
+            解锁所有高级功能，提升创作效率
           </p>
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {roles.map((role) => (
-              <Badge key={role.code} variant="secondary" className="bg-purple-100 text-purple-800">
-                {role.name}
-              </Badge>
-            ))}
-          </div>
-          <Button
-            onClick={handleRefreshRoles}
-            variant="outline"
-            size="sm"
-            className="mb-8"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            刷新权限
-          </Button>
         </div>
 
-        {/* VIP功能区域 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {/* 专属功能 */}
-          <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-white">
-            <CardHeader>
-              <CardTitle className="flex items-center text-purple-800">
-                <Star className="w-5 h-5 mr-2" />
-                专属功能
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  无限AI调用次数
-                </li>
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  高级模型访问权限
-                </li>
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  优先客服支持
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* 安全保护 */}
-          <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-            <CardHeader>
-              <CardTitle className="flex items-center text-blue-800">
-                <Shield className="w-5 h-5 mr-2" />
-                安全保护
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  数据加密存储
-                </li>
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  隐私保护
-                </li>
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  安全审计日志
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* 性能优化 */}
-          <Card className="border-green-200 bg-gradient-to-br from-green-50 to-white">
-            <CardHeader>
-              <CardTitle className="flex items-center text-green-800">
-                <Zap className="w-5 h-5 mr-2" />
-                性能优化
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  优先处理队列
-                </li>
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  高速响应
-                </li>
-                <li className="flex items-center text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                  专属服务器
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 使用统计 */}
+        {/* VIP状态卡片 */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2" />
-              使用统计
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="h-5 w-5" />
+              会员状态
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-2">∞</div>
-                <div className="text-sm text-gray-600">剩余调用次数</div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">当前状态</p>
+                <Badge variant={vipPermission.pass ? "default" : "secondary"} className="mt-1">
+                  {vipPermission.pass ? "VIP会员" : "普通用户"}
+                </Badge>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">VIP</div>
-                <div className="text-sm text-gray-600">用户等级</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">24/7</div>
-                <div className="text-sm text-gray-600">客服支持</div>
-              </div>
+              {!vipPermission.pass && (
+                <Button onClick={handleUpgrade} disabled={loading}>
+                  {loading ? "处理中..." : "升级VIP"}
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* 快速操作 */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">快速操作</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button
-              onClick={() => navigate('/ai-chat')}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90"
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              AI对话
-            </Button>
-            <Button
-              onClick={() => navigate('/emoji-generator')}
-              variant="outline"
-            >
-              <Star className="w-4 h-4 mr-2" />
-              表情生成
-            </Button>
-            <Button
-              onClick={() => navigate('/profile')}
-              variant="outline"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              个人中心
-            </Button>
-          </div>
+        {/* VIP特权列表 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {vipFeatures.map((feature, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  {feature.icon}
+                  {feature.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-3">{feature.description}</p>
+                <div className="flex items-center gap-2">
+                  {feature.available ? (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-red-500" />
+                  )}
+                  <span className="text-sm">
+                    {feature.available ? "可用" : "不可用"}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+
+        {/* 用户信息 */}
+        {user && (
+          <Card>
+            <CardHeader>
+              <CardTitle>用户信息</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">用户ID</span>
+                  <span className="text-sm font-mono">{user.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">邮箱</span>
+                  <span className="text-sm">{user.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">用户名</span>
+                  <span className="text-sm">{user.username || '未设置'}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">VIP状态</span>
+                  <Badge variant={user.isVip ? "default" : "secondary"}>
+                    {user.isVip ? "VIP用户" : "普通用户"}
+                  </Badge>
+                </div>
+                {user.permissions && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">权限</span>
+                    <span className="text-sm">{user.permissions.join(', ') || '无'}</span>
+                  </div>
+                )}
+                {user.roles && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">角色</span>
+                    <span className="text-sm">{user.roles.join(', ') || '无'}</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
-} 
+};
+
+export default VIPPage; 

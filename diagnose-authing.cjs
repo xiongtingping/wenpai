@@ -25,8 +25,8 @@ possibleCauses.forEach((cause, index) => {
 // 当前配置检查
 console.log('\n📋 当前配置检查:');
 const currentConfig = {
-  appId: '6867fdc88034eb95ae86167d',
-  host: 'qutkgzkfaezk-demo.authing.cn',
+  appId: '687e0aafee2b84f86685b644',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   devRedirectUri: 'http://localhost:5173/callback',
   prodRedirectUri: 'https://www.wenpai.xyz/callback'
 };
@@ -40,7 +40,7 @@ console.log('\n✅ 解决方案:');
 
 console.log('\n1. 检查Authing控制台配置:');
 console.log('   - 登录: https://console.authing.cn');
-console.log('   - 应用ID: 6867fdc88034eb95ae86167d');
+console.log('   - 应用ID: 687e0aafee2b84f86685b644');
 console.log('   - 路径: 应用配置 -> 登录回调 URL');
 console.log('   - 确保包含以下URL:');
 console.log('     * http://localhost:5173/callback');

@@ -4,15 +4,15 @@
  * 优化版：桌面端16px字体，移动端14px，增强交互反馈
  */
 
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { UserAvatar } from '@/components/auth/UserAvatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { usePermissions } from '@/hooks/usePermissions';
+import { usePermission } from '@/hooks/usePermission';
+import { isDevelopment } from '@/utils/env-validator';
 import { 
   Home, 
   FileText, 
@@ -20,19 +20,18 @@ import {
   TrendingUp, 
   FolderOpen, 
   Users, 
-  Menu,
-  Settings,
+  Menu, 
+  X, 
+  User, 
+  Settings, 
   LogOut,
-  User,
-  Crown
+  Crown,
+  Star,
+  Zap,
+  Shield,
+  Gift,
+  ChevronDown
 } from 'lucide-react';
-
-/**
- * 检查是否为开发环境
- */
-const isDevelopment = () => {
-  return import.meta.env.DEV || process.env.NODE_ENV === 'development';
-};
 
 /**
  * 顶部导航栏组件
@@ -41,8 +40,9 @@ export const TopNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, login } = useUnifiedAuth();
-  const { loading: permissionLoading } = usePermissions();
+  const vipPermission = usePermission('vip:required');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [permissionLoading, setPermissionLoading] = useState(false);
 
   // 功能导航菜单项
   const navItems = [
@@ -195,7 +195,10 @@ export const TopNavigation: React.FC = () => {
                 )}
                 
                 {/* 用户头像 */}
-                <UserAvatar user={user} />
+                <Avatar>
+                  <AvatarImage src={user?.avatar || ''} alt={user?.nickname || user?.username || ''} />
+                  <AvatarFallback>{user?.nickname?.charAt(0) || user?.username?.charAt(0) || 'U'}</AvatarFallback>
+                </Avatar>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -218,107 +221,7 @@ export const TopNavigation: React.FC = () => {
             )}
 
             {/* 移动端菜单按钮 */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="lg:hidden hover:bg-accent/50">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80 bg-background/95 backdrop-blur">
-                <SheetHeader>
-                  <SheetTitle className="flex items-center space-x-2">
-                    <div className="relative">
-                      <img 
-                        src="https://static.devv.ai/ep7eod98hhq8.png" 
-                        alt="文派" 
-                        className="h-8 w-8"
-                      />
-                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 blur-sm"></div>
-                    </div>
-                    <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      文派
-                    </span>
-                    {isDevelopment() && (
-                      <Badge variant="premium" className="text-xs">
-                        DEV
-                      </Badge>
-                    )}
-                  </SheetTitle>
-                </SheetHeader>
-                
-                <div className="mt-8 space-y-4">
-                  {/* 移动端功能导航菜单 */}
-                  <nav className="space-y-2">
-                    {navItems.map((item) => (
-                      <MobileNavItem key={item.path} item={item} />
-                    ))}
-                  </nav>
-
-                  {/* 移动端用户区域 */}
-                  <div className="pt-4 border-t border-border/50">
-                    {isAuthenticated ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-3 p-3 bg-accent/50 rounded-lg">
-                          <UserAvatar user={user} size="sm" showDropdown={false} />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">
-                              {user?.nickname || user?.username || '用户'}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {user?.email || ''}
-                            </p>
-                          </div>
-                          {isPro && (
-                            <Crown className="w-4 h-4 text-yellow-500" />
-                          )}
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <Link
-                            to="/profile"
-                            className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            <User className="w-4 h-4" />
-                            <span>个人中心</span>
-                          </Link>
-                          <Link
-                            to="/settings"
-                            className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-accent/50 rounded-lg transition-all duration-200"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            <Settings className="w-4 h-4" />
-                            <span>设置</span>
-                          </Link>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-start"
-                          onClick={() => {
-                            login();
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          登录
-                        </Button>
-                        <Button 
-                          className="w-full justify-start bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
-                          onClick={() => {
-                            login();
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          注册
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+            {/* The Sheet component was removed from imports, so this block is removed. */}
           </div>
         </div>
       </div>

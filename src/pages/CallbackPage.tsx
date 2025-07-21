@@ -1,328 +1,167 @@
 /**
- * Authing 回调处理页面
- * 
- * 处理 Authing 登录/注册回调，获取授权码并完成认证
+ * 认证回调页面
+ * 处理 Authing OIDC 回调
  */
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { getAuthingConfig } from '@/config/authing';
+import AuthingClient from '@/services/authingClient';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 /**
- * 处理Authing回调，获取用户信息
- * 
- * ✅ FIXED: 该函数曾因API调用错误导致用户信息获取失败，已于2024年修复
- * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数做任何修改
- * 
- * 修复历史：
- * - 问题1: 授权码交换token失败
- * - 问题2: 用户信息API调用错误
- * - 问题3: 数据格式解析错误
- * - 解决方案: 使用Authing官方API，统一数据格式处理
+ * 回调页面组件
  */
-const handleAuthingCallback = async (code: string, state: string | null) => {
-  try {
-    console.log('🔐 开始处理Authing回调...');
-    
-    const config = getAuthingConfig();
-    
-    // 构建token交换请求
-    const tokenResponse = await fetch(`https://${config.host}/oidc/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: config.appId,
-        code: code,
-        redirect_uri: config.redirectUri,
-      }),
-    });
-
-    if (!tokenResponse.ok) {
-      throw new Error(`Token交换失败: ${tokenResponse.status}`);
-    }
-
-    const tokenData = await tokenResponse.json();
-    console.log('🔐 Token交换成功:', tokenData);
-
-    // 获取用户信息
-    const userResponse = await fetch(`https://${config.host}/oidc/me`, {
-      headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
-      },
-    });
-
-    if (!userResponse.ok) {
-      throw new Error(`获取用户信息失败: ${userResponse.status}`);
-    }
-
-    const userData = await userResponse.json();
-    console.log('🔐 用户信息获取成功:', userData);
-
-    // 构建统一的用户信息格式
-    const userInfo = {
-      id: userData.sub || userData.id || `user_${Date.now()}`,
-      username: userData.preferred_username || userData.username || userData.name || '用户',
-      email: userData.email || '',
-      phone: userData.phone_number || '',
-      nickname: userData.nickname || userData.name || userData.preferred_username || '用户',
-      avatar: userData.picture || userData.avatar || '',
-      loginTime: new Date().toISOString(),
-      roles: userData.roles || ['user'],
-      permissions: userData.permissions || ['basic'],
-      // 保留原始数据
-      ...userData
-    };
-
-    return userInfo;
-    
-  } catch (error) {
-    console.error('❌ Authing回调处理失败:', error);
-    
-    // 如果API调用失败，返回模拟用户数据（开发环境）
-    if (import.meta.env.DEV) {
-      console.log('🔧 开发环境：使用模拟用户数据');
-      return {
-        id: `user_${Date.now()}`,
-        username: '测试用户',
-        email: 'test@example.com',
-        nickname: '测试用户',
-        loginTime: new Date().toISOString(),
-        roles: ['user'],
-        permissions: ['basic']
-      };
-    }
-    
-    throw error;
-  }
-};
-
-/**
- * Authing 回调处理页面
- */
-const CallbackPage: React.FC = () => {
+export default function CallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { login } = useUnifiedAuth();
+  const { handleAuthingLogin } = useUnifiedAuth();
+  const { toast } = useToast();
+  const authingClient = AuthingClient.getInstance();
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        console.log('🔐 开始处理 Authing 回调...');
-        
-        // 获取 URL 参数
         const code = searchParams.get('code');
         const state = searchParams.get('state');
-        const errorParam = searchParams.get('error');
+        const error = searchParams.get('error');
         const errorDescription = searchParams.get('error_description');
-        
-        console.log('📋 回调参数:', { code, state, error: errorParam, errorDescription });
 
         // 检查是否有错误
-        if (errorParam) {
+        if (error) {
+          setError(errorDescription || error);
           setStatus('error');
-          setError(errorDescription || errorParam);
-          console.error('❌ Authing 回调错误:', errorParam, errorDescription);
+          toast({
+            title: '认证失败',
+            description: errorDescription || error,
+            variant: 'destructive'
+          });
           return;
         }
 
-        // 检查是否有授权码
+        // 检查必要参数
         if (!code) {
+          setError('认证参数不完整，缺少 code');
           setStatus('error');
-          setError('缺少授权码，认证失败');
-          console.error('❌ 缺少授权码');
+          toast({
+            title: '认证失败',
+            description: '认证参数不完整，缺少 code',
+            variant: 'destructive'
+          });
           return;
         }
 
-        console.log('✅ 收到有效授权码:', code);
-
-        // 处理Authing回调，获取用户信息
-        // 在实际应用中，这里应该调用Authing API获取用户信息
-        let userInfo = null;
-        try {
-          userInfo = await handleAuthingCallback(code, state);
-          
-          if (!userInfo) {
-            throw new Error('获取用户信息失败');
-          }
-
-          // 保存用户信息到本地存储
-          localStorage.setItem('authing_user', JSON.stringify(userInfo));
-        } catch (error) {
-          console.error('❌ 回调处理失败，使用模拟数据:', error);
-          
-          // 使用模拟用户数据
-          userInfo = {
-            id: `user_${Date.now()}`,
-            username: '测试用户',
-            email: 'test@example.com',
-            nickname: '测试用户',
-            loginTime: new Date().toISOString(),
-            roles: ['user'],
-            permissions: ['basic']
-          };
-
-          // 保存模拟用户信息到本地存储
-          localStorage.setItem('authing_user', JSON.stringify(userInfo));
+        // 处理回调
+        const callbackData = await authingClient.handleCallback();
+        if (!callbackData || !callbackData.user) {
+          setError('认证回调处理失败，未获取到用户信息');
+          setStatus('error');
+          toast({
+            title: '认证失败',
+            description: '认证回调处理失败，未获取到用户信息',
+            variant: 'destructive'
+          });
+          return;
         }
-        
+
+        handleAuthingLogin(callbackData.user);
         setStatus('success');
-        setMessage('认证成功，正在跳转...');
-        
-        console.log('🔐 用户登录成功:', userInfo);
-        
-        // 延迟跳转，让用户看到成功消息
+        toast({
+          title: '认证成功',
+          description: '欢迎使用文派！',
+        });
         setTimeout(() => {
-          // 跳转到首页或之前的页面
-          const from = state ? decodeURIComponent(state) : '/';
-          navigate(from, { replace: true });
-        }, 2000);
-        
-      } catch (error) {
-        console.error('❌ 回调处理失败:', error);
+          // 处理完 code 后跳转到首页或 state 指定页面，replace: true 清理历史记录，防止重复消费
+          const redirectTo = callbackData.state ? decodeURIComponent(callbackData.state) : '/';
+          navigate(redirectTo, { replace: true });
+        }, 1500);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : '认证失败';
+        setError(errorMessage);
         setStatus('error');
-        setError('回调处理失败，请重试');
+        toast({
+          title: '认证失败',
+          description: errorMessage,
+          variant: 'destructive'
+        });
       }
     };
-
     handleCallback();
-  }, [searchParams, navigate, login]);
+    // eslint-disable-next-line
+  }, [searchParams, handleAuthingLogin, authingClient, navigate, toast]);
 
-  /**
-   * 获取状态图标
-   */
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'loading':
-        return <Loader2 className="h-8 w-8 animate-spin text-blue-600" />;
-      case 'success':
-        return <CheckCircle className="h-8 w-8 text-green-600" />;
-      case 'error':
-        return <XCircle className="h-8 w-8 text-red-600" />;
-      default:
-        return <AlertTriangle className="h-8 w-8 text-yellow-600" />;
-    }
-  };
+  // 加载状态
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <p className="text-gray-600">正在处理认证回调...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  /**
-   * 获取状态标题
-   */
-  const getStatusTitle = () => {
-    switch (status) {
-      case 'loading':
-        return '正在处理认证...';
-      case 'success':
-        return '认证成功';
-      case 'error':
-        return '认证失败';
-      default:
-        return '处理中';
-    }
-  };
+  // 成功状态
+  if (status === 'success') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <CheckCircle className="h-8 w-8 mx-auto mb-4 text-green-600" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">认证成功</h3>
+              <p className="text-gray-600">正在跳转到首页...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  /**
-   * 获取状态描述
-   */
-  const getStatusDescription = () => {
-    switch (status) {
-      case 'loading':
-        return '正在验证您的身份信息，请稍候...';
-      case 'success':
-        return message || '您的身份验证成功，即将跳转...';
-      case 'error':
-        return error || '身份验证失败，请重试';
-      default:
-        return '正在处理您的请求...';
-    }
-  };
-
-  /**
-   * 重试登录
-   */
-  const handleRetry = () => {
-    setStatus('loading');
-    setError('');
-    setMessage('');
-    // 重新加载页面
-    window.location.reload();
-  };
-
-  /**
-   * 返回首页
-   */
-  const handleGoHome = () => {
-    navigate('/', { replace: true });
-  };
-
+  // 错误状态
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-            {getStatusIcon()}
-          </div>
-          <CardTitle className="text-xl">{getStatusTitle()}</CardTitle>
-          <CardDescription>{getStatusDescription()}</CardDescription>
+        <CardHeader>
+          <CardTitle className="text-center">认证失败</CardTitle>
+          <CardDescription className="text-center">
+            处理认证回调时出现错误
+          </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-4">
-          {/* 调试信息 - 仅在开发环境显示 */}
-          {import.meta.env.DEV && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <div className="text-sm">
-                  <strong>调试信息:</strong>
-                  <br />
-                  授权码: {searchParams.get('code') ? '已收到' : '未收到'}
-                  <br />
-                  状态: {searchParams.get('state') || '无'}
-                  <br />
-                  错误: {searchParams.get('error') || '无'}
-                  <br />
-                  完整URL: {window.location.href}
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* 操作按钮 */}
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          
           <div className="flex gap-2">
-            {status === 'error' && (
-              <Button onClick={handleRetry} className="flex-1">
-                重试
-              </Button>
-            )}
-            <Button 
-              variant="outline" 
-              onClick={handleGoHome} 
-              className="flex-1"
+            <button
+              onClick={() => window.location.reload()}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              返回首页
-            </Button>
-          </div>
-
-          {/* 帮助信息 */}
-          <div className="text-xs text-gray-500 text-center">
-            <p>如果问题持续存在，请联系客服</p>
-            <p className="mt-1">当前使用模拟认证模式</p>
+              重试
+            </button>
+            <button
+              onClick={() => navigate('/login')}
+              className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              返回登录
+            </button>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default CallbackPage; 
+} 

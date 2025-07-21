@@ -62,7 +62,7 @@ interface ReferralStats {
  * @param request 推荐奖励请求
  * @returns 模拟响应
  */
-async function mockReferralReward(request: ReferralRewardRequest): Promise<ReferralRewardResponse> {
+export async function mockReferralReward(request: ReferralRewardRequest): Promise<ReferralRewardResponse> {
   // 模拟网络延迟
   await new Promise(resolve => setTimeout(resolve, 500));
   

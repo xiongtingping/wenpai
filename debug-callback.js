@@ -12,8 +12,8 @@ global.location = {
 };
 
 const config = {
-  appId: '6867fdc88034eb95ae86167d',
-  host: 'https://qutkgzkfaezk-demo.authing.cn',
+  appId: '687e0aafee2b84f86685b644',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   redirectUri: 'http://localhost:3002/callback'
 };
 

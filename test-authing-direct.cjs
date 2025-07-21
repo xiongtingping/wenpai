@@ -10,7 +10,7 @@ console.log('🚀 开始测试直接跳转方式的 Authing 配置...\n');
 // 新的配置信息
 const config = {
   appId: '687bc631c105de597b993202',
-  host: 'wenpaiai.authing.cn',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   redirectUri: 'http://localhost:5173/callback'
 };
 

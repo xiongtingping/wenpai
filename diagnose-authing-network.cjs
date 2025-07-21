@@ -10,7 +10,7 @@ const { URL } = require('url');
 console.log('🔧 诊断Authing网络连接问题...\n');
 
 const appId = '687c5c7f4e778a6485a4f0e0';
-const host = 'wenpaiai.authing.cn';
+const host = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644';
 
 /**
  * 测试URL连接

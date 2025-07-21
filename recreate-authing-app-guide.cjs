@@ -32,7 +32,7 @@ console.log('   - 应用名称：wenpai');
 console.log('   - 应用描述：文派AI应用');
 
 console.log('\n步骤3：配置新应用');
-console.log('   - 认证地址：https://wenpaiai.authing.cn');
+console.log('   - 认证地址：ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
 console.log('   - 登录回调 URL：https://wenpai.netlify.app/callback');
 console.log('   - 登出回调 URL：（留空）');
 

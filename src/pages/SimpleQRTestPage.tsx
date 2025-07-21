@@ -9,19 +9,26 @@ export default function SimpleQRTestPage() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const testQRCode = async () => {
+  const handleTestCheckout = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:8888/.netlify/functions/checkout', {
+      // 使用环境变量或动态获取 base URL
+      const baseUrl = import.meta.env.PROD 
+        ? window.location.origin 
+        : 'http://localhost:8888';
+      
+      const response = await fetch(`${baseUrl}/.netlify/functions/checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          priceId: 'prod_3nJOuQeVStqkp6JaDcrKHf'
-        }),
+          amount: 100,
+          currency: 'CNY',
+          description: '测试支付'
+        })
       });
 
       if (!response.ok) {
@@ -49,7 +56,7 @@ export default function SimpleQRTestPage() {
 
         <div className="text-center">
           <button
-            onClick={testQRCode}
+            onClick={handleTestCheckout}
             disabled={loading}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
           >

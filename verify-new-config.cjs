@@ -11,7 +11,7 @@ console.log('🔍 验证新的Authing配置...\n');
 // 新配置
 const newConfig = {
   appId: '687bc631c105de597b993202',
-  host: 'wenpaiai.authing.cn',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   redirectUri: 'http://localhost:5173/callback'
 };
 
@@ -93,7 +93,7 @@ async function runTests() {
   console.log('================================');
   console.log('✅ 新配置已应用:');
   console.log('- App ID: 687bc631c105de597b993202');
-  console.log('- 域名: wenpaiai.authing.cn');
+  console.log('- 域名: ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
   console.log('- 回调地址: http://localhost:5173/callback');
   
   console.log('\n📝 下一步操作:');

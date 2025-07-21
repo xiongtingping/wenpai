@@ -3,6 +3,10 @@ import { AlertCircle, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 import { Alert, AlertDescription } from './alert';
 
 /**
+ * ✅ FIXED: 2024-07-21 Authing接口已切换为新认证地址 https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+ * 📌 请勿改动，后续如需更换请单独审批
+ */
+/**
  * 网络状态监控组件
  * 实时监控网络连接状态和关键服务可用性
  */
@@ -16,7 +20,7 @@ export const NetworkStatus: React.FC = () => {
    */
   const checkAuthingStatus = async () => {
     try {
-      const response = await fetch('https://qutkgzkfaezk-demo.authing.cn/api/v2/applications/6867fdc88034eb95ae86167d/public-config', {
+      const response = await fetch('https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644/api/v2/applications/687e0aafee2b84f86685b644/public-config', {
         method: 'GET',
         mode: 'no-cors', // 避免CORS问题
         cache: 'no-cache'

@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Crown, Star, ArrowRight, User } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 
 /**

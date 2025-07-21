@@ -1,9 +1,17 @@
+---
+/**
+ * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
+ * App ID: 687e0aafee2b84f86685b644
+ * Host: ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+ * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
+ */
+---
 # ✅ Authing 配置最终总结
 
 ## 🎯 配置状态
 
-- ✅ **域名**: `qutkgzkfaezk-demo.authing.cn` (正常工作)
-- ✅ **App ID**: `6867fdc88034eb95ae86167d`
+- ✅ **域名**: `ai-wenpai.authing.cn/687e0aafee2b84f86685b644` (正常工作)
+- ✅ **App ID**: `687e0aafee2b84f86685b644`
 - ✅ **回调地址**: `http://localhost:5173/` (根路径)
 - ✅ **开发服务器**: http://localhost:5173
 - ✅ **Authing Guard**: 初始化成功
@@ -12,7 +20,7 @@
 
 ### Authing 后台配置
 
-**认证地址**: `https://qutkgzkfaezk-demo.authing.cn`
+**认证地址**: `https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644`
 
 **登录回调 URL**:
 ```

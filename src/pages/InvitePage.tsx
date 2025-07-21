@@ -10,8 +10,8 @@ import {
   ArrowLeft,
   CheckCircle
 } from 'lucide-react';
-import { useUserStore } from "@/store/userStore";
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useAuthStore } from "@/store/authStore";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { useNavigate } from 'react-router-dom';
 
 function InvitePage() {
@@ -19,8 +19,8 @@ function InvitePage() {
   const { user } = useUnifiedAuth();
   const userId = user?.id;
   const isTempUser = !user?.email; // 如果没有邮箱，认为是临时用户
-  const userInviteCode = useUserStore((state) => state.userInviteCode);
-  const trackInviteClick = useUserStore((state) => state.trackInviteClick);
+  const userInviteCode = useAuthStore((state) => state.getUserInviteCode());
+  const trackInviteClick = useAuthStore((state) => state.trackInviteClick);
   const navigate = useNavigate();
 
   // Base URL for invites
@@ -32,7 +32,7 @@ function InvitePage() {
       await navigator.clipboard.writeText(inviteUrl);
       
       // 记录邀请链接点击
-      trackInviteClick(userInviteCode);
+      trackInviteClick();
       
       toast({
         title: "邀请链接已复制",

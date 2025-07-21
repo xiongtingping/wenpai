@@ -21,7 +21,7 @@ import {
   hasProcessedReferral,
   markReferralProcessed
 } from '@/lib/utils';
-import { useUserStore } from '@/store/userStore';
+import { useAuthStore } from '@/store/authStore';
 import { Input } from '@/components/ui/input';
 
 /**
@@ -41,7 +41,7 @@ export default function ReferrerTestPage() {
   
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { getReferrer, clearReferrer } = useUserStore();
+  const { getReferrer, clearReferrer } = useAuthStore();
 
   /**
    * 组件挂载时获取所有相关数据

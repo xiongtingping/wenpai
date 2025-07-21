@@ -50,7 +50,7 @@ import { MomentsTextGenerator } from './MomentsTextGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useUserStore } from '@/store/userStore';
+import { useAuthStore } from '@/store/authStore';
 import { callOpenAIProxy } from '@/api/apiProxy';
 import { callOpenAIDevProxy } from '@/api/devApiProxy';
 import { Label as UILabel } from '@/components/ui/label';
@@ -223,7 +223,8 @@ function DimensionCard({
  */
 export function CreativeCube() {
   const { toast } = useToast();
-  const { usageRemaining, decrementUsage } = useUserStore();
+  const { decrementUsage } = useAuthStore();
+  const usageRemaining = useAuthStore((state) => state.getUsageRemaining());
   
   // 九宫格维度定义
   const dimensions: CubeDimension[] = [

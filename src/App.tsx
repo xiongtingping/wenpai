@@ -2,14 +2,15 @@ import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { TopNavigation } from '@/components/layout/TopNavigation';
 import { ScrollManager } from '@/components/layout/ScrollManager';
-import AuthGuard from '@/components/auth/AuthGuard';
-import PreviewGuard from '@/components/auth/PreviewGuard';
+import { PermissionGuard } from '@/components/auth/PermissionGuard';
+import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import PageTracker from '@/components/analytics/PageTracker';
 
 // 页面组件导入
 import HomePage from '@/pages/HomePage';
 import AboutPage from '@/pages/AboutPage';
 import LoginPage from '@/pages/LoginPage';
+import CallbackPage from '@/pages/CallbackPage';
 
 import PaymentPage from '@/pages/PaymentPage';
 import PaymentTestPage from '@/pages/PaymentTestPage';
@@ -28,16 +29,12 @@ import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
 import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
 import QRCodeTestPage from '@/pages/QRCodeTestPage';
-import AuthingTestPage from '@/pages/AuthingTestPage';
-import AuthingConfigTestPage from '@/pages/AuthingConfigTestPage';
-import AuthingGuardTestPage from '@/pages/AuthingGuardTestPage';
-import AuthingCompleteTestPage from '@/pages/AuthingCompleteTestPage';
-import CallbackPage from '@/pages/CallbackPage';
 import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import EmojiPage from '@/pages/EmojiPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import SettingsPage from '@/pages/SettingsPage';
+import AuthTestPage from '@/pages/AuthTestPage';
 
 /**
  * 条件性导航组件
@@ -55,7 +52,10 @@ const ConditionalNavigation: React.FC = () => {
   return <TopNavigation />;
 };
 
-export default function App() {
+/**
+ * 应用主组件
+ */
+function AppContent() {
   return (
     <>
       {/* 滚动管理组件 - 启用自动滚动到顶部 */}
@@ -72,13 +72,9 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/callback" element={<CallbackPage />} />
-
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/emoji-generator" element={<EmojiPage />} />
-          
-          {/* 404页面 - 必须放在最后 */}
-          <Route path="*" element={<NotFoundPage />} />
           
           {/* 支付相关页面 */}
           <Route path="/payment" element={<PaymentPage />} />
@@ -90,74 +86,53 @@ export default function App() {
           
           {/* 需要认证的页面 */}
           <Route path="/adapt" element={
-            <AuthGuard>
+            <PermissionGuard required="auth:required">
               <AdaptPage />
-            </AuthGuard>
+            </PermissionGuard>
           } />
           
           {/* 需要专业版权限的页面 */}
           <Route path="/creative-studio" element={
-            <AuthGuard>
-              <PreviewGuard
-                featureId="creative-studio"
-                featureName="创意魔方"
-                featureDescription="AI驱动的创意内容生成工具，包含九宫格创意魔方、营销日历、朋友圈模板和Emoji生成器"
-                allowClose={true}
-              >
-                <CreativeStudioPage />
-              </PreviewGuard>
-            </AuthGuard>
+            <PermissionGuard required="feature:creative-studio">
+              <CreativeStudioPage />
+            </PermissionGuard>
           } />
           
           <Route path="/content-extractor" element={
-            <AuthGuard>
-              <PreviewGuard
-                featureId="content-extractor"
-                featureName="内容提取器"
-                featureDescription="智能提取网页内容并生成摘要"
-                allowClose={true}
-              >
-                <ContentExtractorPage />
-              </PreviewGuard>
-            </AuthGuard>
+            <PermissionGuard required="feature:content-extractor">
+              <ContentExtractorPage />
+            </PermissionGuard>
           } />
           
           <Route path="/hot-topics" element={
-            <AuthGuard>
+            <PermissionGuard required="auth:required">
               <HotTopicsPage />
-            </AuthGuard>
+            </PermissionGuard>
           } />
           
           <Route path="/library" element={
-            <AuthGuard>
+            <PermissionGuard required="auth:required">
               <BookmarkPage />
-            </AuthGuard>
+            </PermissionGuard>
           } />
           
           {/* 需要高级版权限的页面 */}
           <Route path="/brand-library" element={
-            <AuthGuard>
-              <PreviewGuard
-                featureId="brand-library"
-                featureName="品牌库功能"
-                featureDescription="多维品牌语料库，支持AI自动分析和用户自定义修改"
-                allowClose={true}
-              >
-                <BrandLibraryPage />
-              </PreviewGuard>
-            </AuthGuard>
+            <PermissionGuard required="feature:brand-library">
+              <BrandLibraryPage />
+            </PermissionGuard>
           } />
           
           <Route path="/profile" element={
-            <AuthGuard>
+            <PermissionGuard required="auth:required">
               <ProfilePage />
-            </AuthGuard>
+            </PermissionGuard>
           } />
           
           <Route path="/settings" element={
-            <AuthGuard>
+            <PermissionGuard required="auth:required">
               <SettingsPage />
-            </AuthGuard>
+            </PermissionGuard>
           } />
           
           {/* 测试页面 */}
@@ -165,12 +140,24 @@ export default function App() {
           <Route path="/permission-test" element={<PermissionTestPage />} />
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
-          <Route path="/authing-test" element={<AuthingTestPage />} />
-          <Route path="/authing-config-test" element={<AuthingConfigTestPage />} />
-          <Route path="/authing-guard-test" element={<AuthingGuardTestPage />} />
-          <Route path="/authing-complete-test" element={<AuthingCompleteTestPage />} />
+          <Route path="/auth-test" element={<AuthTestPage />} />
+          
+          {/* 404页面 - 必须放在最后 */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
     </>
+  );
+}
+
+/**
+ * 应用根组件
+ * 包装认证提供者
+ */
+export default function App() {
+  return (
+    <UnifiedAuthProvider>
+      <AppContent />
+    </UnifiedAuthProvider>
   );
 }

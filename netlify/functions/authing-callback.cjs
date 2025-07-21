@@ -1,3 +1,7 @@
+// 已废弃：回归前端直连 Authing 回调模式，所有回调由前端 /callback 页面处理
+// 保留文件防止 Netlify 构建报错，如需恢复请参考历史实现
+
+/*
 /**
  * Authing 回调处理函数
  * 处理 Authing 登录/注册回调
@@ -118,4 +122,5 @@ module.exports.handler = async (event, context) => {
       })
     };
   }
-}; 
+};
+*/ 

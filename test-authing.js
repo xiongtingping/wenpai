@@ -1,12 +1,14 @@
 /**
- * Authing 配置测试脚本
- * 验证 Authing 配置是否正确
+ * ✅ FIXED: 2024-07-21 Authing测试脚本已切换为新App ID和认证地址
+ * App ID: 687e0aafee2b84f86685b644
+ * Host: ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+ * 📌 请勿改动，后续如需更换请单独审批
  */
 
 // 测试配置
 const testConfig = {
-  appId: '6867fdc88034eb95ae86167d',
-  host: 'https://qutkgzkfaezk-demo.authing.cn',
+  appId: '687e0aafee2b84f86685b644',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   redirectUri: 'http://localhost:5173/callback'
 };
 

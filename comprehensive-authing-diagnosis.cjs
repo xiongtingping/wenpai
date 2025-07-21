@@ -12,18 +12,18 @@ const allConfigs = [
   {
     name: '新应用配置',
     appId: '687bc631c105de597b993202',
-    host: 'wenpaiai.authing.cn',
+    host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
     redirectUri: 'http://localhost:5173/callback'
   },
   {
     name: '旧应用配置',
-    appId: '6867fdc88034eb95ae86167d',
-    host: 'qutkgzkfaezk-demo.authing.cn',
+    appId: '687e0aafee2b84f86685b644',
+    host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
     redirectUri: 'http://localhost:5173/callback'
   },
   {
     name: '备用配置1',
-    appId: '6867fdc88034eb95ae86167d',
+    appId: '687e0aafee2b84f86685b644',
     host: 'wenpai.authing.cn',
     redirectUri: 'http://localhost:5173/callback'
   }

@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { useUserStore } from '@/store/userStore';
+import { useAuthStore } from '@/store/authStore';
 import UserDataService from '@/services/userDataService';
 import PageTracker from '@/components/analytics/PageTracker';
 
@@ -48,7 +48,7 @@ interface UserDataRecord {
  * 用户数据查看页面
  */
 export default function UserDataPage() {
-  const { getCurrentUserId, isTempUserIdBound } = useUserStore();
+  const { getCurrentUserId, isTempUserIdBound } = useAuthStore();
   const [userData, setUserData] = useState<UserDataRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

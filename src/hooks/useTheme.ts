@@ -36,6 +36,12 @@ export function useTheme() {
     document.documentElement.setAttribute('data-theme', next);
   }, []);
 
+  // 切换亮暗主题
+  const toggleTheme = useCallback(() => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    switchTheme(nextTheme);
+  }, [theme, switchTheme]);
+
   // 初始化时应用主题
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -44,6 +50,7 @@ export function useTheme() {
   return {
     theme,
     switchTheme,
+    toggleTheme,
     themes: Object.keys(THEMES) as Theme[],
     themeNames: THEMES,
   };

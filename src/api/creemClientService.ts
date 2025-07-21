@@ -9,7 +9,7 @@ import QRCode from "qrcode";
  * 获取API端点
  * 根据环境自动选择正确的API端点
  */
-function getAPIEndpoint(): string {
+export function getAPIEndpoint(): string {
   // 生产环境使用Netlify Functions
   if (import.meta.env.PROD) {
     return '/.netlify/functions/checkout';

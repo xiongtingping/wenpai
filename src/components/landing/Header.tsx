@@ -188,8 +188,6 @@ export function Header() {
             
             {isAuthenticated ? (
               <UserAvatar 
-                user={user} 
-                showDropdown={true} 
                 size="md"
               />
             ) : (
@@ -289,8 +287,6 @@ export function Header() {
                 
                 {isAuthenticated ? (
                   <UserAvatar 
-                    user={user} 
-                    showDropdown={true} 
                     size="md"
                   />
                 ) : (

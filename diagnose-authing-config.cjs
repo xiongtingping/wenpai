@@ -1,82 +1,163 @@
+#!/usr/bin/env node
+
 /**
- * Authing 配置诊断脚本
+ * 详细诊断Authing配置问题
  */
 
 const https = require('https');
-const querystring = require('querystring');
 
-// 当前配置
-const config = {
-  client_id: '6867fdc88034eb95ae86167d',
-  redirect_uri: 'http://localhost:5173/callback',
-  scope: 'openid profile email phone',
-  response_type: 'code',
-  state: '/creative',
-  host: 'qutkgzkfaezk-demo.authing.cn'
-};
+/**
+ * 检查Authing OIDC配置
+ */
+function checkOIDCConfig() {
+  return new Promise((resolve) => {
+    const url = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/.well-known/openid-configuration';
+    
+    console.log('🔍 检查OIDC配置...');
+    console.log('📋 URL:', url);
+    
+    const req = https.get(url, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        try {
+          const config = JSON.parse(data);
+          console.log('✅ OIDC配置获取成功');
+          console.log('📋 授权端点:', config.authorization_endpoint);
+          console.log('📋 Token端点:', config.token_endpoint);
+          console.log('📋 用户信息端点:', config.userinfo_endpoint);
+          console.log('📋 发行者:', config.issuer);
+          resolve(config);
+        } catch (error) {
+          console.log('❌ OIDC配置解析失败:', error.message);
+          resolve(null);
+        }
+      });
+    });
+    
+    req.on('error', (error) => {
+      console.log('❌ OIDC配置获取失败:', error.message);
+      resolve(null);
+    });
+    
+    req.setTimeout(10000, () => {
+      console.log('❌ OIDC配置获取超时');
+      req.destroy();
+      resolve(null);
+    });
+  });
+}
 
-console.log('🔍 Authing 配置诊断');
-console.log('==================');
-console.log('当前配置:');
-console.log('- 应用ID:', config.client_id);
-console.log('- 域名:', config.host);
-console.log('- 回调URL:', config.redirect_uri);
-console.log('- 权限范围:', config.scope);
-console.log('');
-
-// 构建授权URL
-const authParams = {
-  client_id: config.client_id,
-  redirect_uri: config.redirect_uri,
-  scope: config.scope,
-  response_type: config.response_type,
-  state: config.state
-};
-
-const authUrl = `https://${config.host}/oidc/auth?${querystring.stringify(authParams)}`;
-console.log('🔗 授权URL:');
-console.log(authUrl);
-console.log('');
-
-// 测试连接
-console.log('🧪 测试连接...');
-const testUrl = `https://${config.host}/oidc/auth`;
-
-const req = https.get(testUrl, (res) => {
-  console.log('📡 响应状态:', res.statusCode);
-  console.log('📡 响应头:', res.headers);
+/**
+ * 测试不同的回调URL格式
+ */
+async function testCallbackUrlFormats() {
+  console.log('\n🔍 测试不同的回调URL格式...');
   
-  if (res.statusCode === 400) {
-    console.log('❌ 400 错误 - 可能的原因:');
-    console.log('1. 应用ID不存在或错误');
-    console.log('2. 应用未启用');
-    console.log('3. 回调URL未配置');
-    console.log('4. 应用配置有误');
-    console.log('');
-    console.log('🔧 建议修复步骤:');
-    console.log('1. 检查Authing控制台中的应用ID');
-    console.log('2. 确认应用状态为"已启用"');
-    console.log('3. 在应用配置中添加回调URL');
-    console.log('4. 检查应用的其他配置');
-  } else if (res.statusCode === 200) {
-    console.log('✅ 连接正常');
-  } else {
-    console.log('⚠️ 其他状态码:', res.statusCode);
+  const testUrls = [
+    'http://localhost:5173/callback',
+    'http://localhost:5173/callback/',
+    'http://localhost:5173/callback?',
+    'http://localhost:5173/callback#',
+    'http://localhost:5173/callback.html',
+    'http://localhost:5173/auth/callback',
+    'http://localhost:5173/api/auth/callback'
+  ];
+  
+  for (const url of testUrls) {
+    const params = new URLSearchParams({
+      client_id: '687e0aafee2b84f86685b644',
+      redirect_uri: url,
+      response_type: 'code',
+      scope: 'openid',
+      state: 'test-state'
+    });
+    
+    const loginUrl = `ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?${params.toString()}`;
+    
+    const result = await new Promise((resolve) => {
+      const req = https.get(loginUrl, (res) => {
+        resolve({ statusCode: res.statusCode });
+      });
+      
+      req.on('error', () => {
+        resolve({ statusCode: 'error' });
+      });
+      
+      req.setTimeout(5000, () => {
+        req.destroy();
+        resolve({ statusCode: 'timeout' });
+      });
+    });
+    
+    const status = result.statusCode === 200 || result.statusCode === 302 ? '✅' : '❌';
+    console.log(`${status} ${url} (${result.statusCode})`);
   }
-});
+}
 
-req.on('error', (err) => {
-  console.log('❌ 连接错误:', err.message);
-});
+/**
+ * 检查应用状态
+ */
+function checkAppStatus() {
+  return new Promise((resolve) => {
+    // 尝试访问应用的根路径
+    const url = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/';
+    
+    console.log('\n🔍 检查Authing应用状态...');
+    console.log('📋 URL:', url);
+    
+    const req = https.get(url, (res) => {
+      console.log('📋 应用状态码:', res.statusCode);
+      console.log('📋 应用响应头:', res.headers);
+      resolve({ statusCode: res.statusCode, headers: res.headers });
+    });
+    
+    req.on('error', (error) => {
+      console.log('❌ 应用状态检查失败:', error.message);
+      resolve({ statusCode: 'error', error: error.message });
+    });
+    
+    req.setTimeout(5000, () => {
+      console.log('❌ 应用状态检查超时');
+      req.destroy();
+      resolve({ statusCode: 'timeout' });
+    });
+  });
+}
 
-req.setTimeout(5000, () => {
-  console.log('⏰ 连接超时');
-  req.destroy();
-});
+/**
+ * 主函数
+ */
+async function main() {
+  console.log('🚀 开始详细诊断Authing配置...\n');
+  
+  // 检查OIDC配置
+  const oidcConfig = await checkOIDCConfig();
+  
+  // 检查应用状态
+  await checkAppStatus();
+  
+  // 测试不同的回调URL格式
+  await testCallbackUrlFormats();
+  
+  console.log('\n📊 诊断完成');
+  console.log('\n💡 建议检查Authing控制台中的以下设置:');
+  console.log('1. 应用类型是否正确设置为"OIDC应用"');
+  console.log('2. 回调URL是否完全匹配（包括协议、端口、路径）');
+  console.log('3. 应用是否已启用');
+  console.log('4. 是否有IP白名单限制');
+  console.log('5. 应用密钥是否正确');
+  
+  if (oidcConfig) {
+    console.log('\n📋 OIDC配置信息:');
+    console.log('- 授权端点:', oidcConfig.authorization_endpoint);
+    console.log('- Token端点:', oidcConfig.token_endpoint);
+    console.log('- 发行者:', oidcConfig.issuer);
+  }
+}
 
-console.log('📋 检查清单:');
-console.log('1. 应用ID是否正确: 6867fdc88034eb95ae86167d');
-console.log('2. 域名是否正确: qutkgzkfaezk-demo.authing.cn');
-console.log('3. 回调URL是否配置: http://localhost:5173/callback');
-console.log('4. 应用是否启用');
-console.log('5. 应用类型是否为"单页应用"'); 
+// 运行诊断
+main(); 

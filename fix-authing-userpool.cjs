@@ -8,14 +8,14 @@ console.log('🔧 修复Authing用户池问题...\n');
 // 当前配置
 const currentConfig = {
   appId: '687bc631c105de597b993202',
-  host: 'wenpaiai.authing.cn',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   redirectUri: 'http://localhost:5173/callback'
 };
 
 // 旧配置（可能仍然有效）
 const oldConfig = {
-  appId: '6867fdc88034eb95ae86167d',
-  host: 'qutkgzkfaezk-demo.authing.cn',
+  appId: '687e0aafee2b84f86685b644',
+  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
   redirectUri: 'http://localhost:5173/callback'
 };
 
@@ -54,8 +54,8 @@ console.log('   - 检查回调URL配置');
 console.log('');
 
 console.log('步骤3: 如果新应用有问题，使用旧应用');
-console.log('   - 应用ID: 6867fdc88034eb95ae86167d');
-console.log('   - 域名: qutkgzkfaezk-demo.authing.cn');
+console.log('   - 应用ID: 687e0aafee2b84f86685b644');
+console.log('   - 域名: ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
 console.log('   - 这个应用可能仍然有效');
 console.log('');
 
@@ -72,8 +72,8 @@ console.log('================================');
 console.log('如果新应用确实有问题，可以临时使用旧应用配置:');
 console.log('');
 console.log('1. 更新环境变量:');
-console.log('   VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d');
-console.log('   VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn');
+console.log('   VITE_AUTHING_APP_ID=687e0aafee2b84f86685b644');
+console.log('   VITE_AUTHING_HOST=ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
 console.log('');
 console.log('2. 重启开发服务器');
 console.log('3. 测试登录功能');

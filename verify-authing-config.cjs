@@ -13,9 +13,9 @@ const https = require('https');
 function getAuthingConfig() {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: 'qutkgzkfaezk-demo.authing.cn',
+      hostname: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
       port: 443,
-      path: '/api/v2/applications/6867fdc88034eb95ae86167d/public-config',
+      path: '/api/v2/applications/687e0aafee2b84f86685b644/public-config',
       method: 'GET',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'

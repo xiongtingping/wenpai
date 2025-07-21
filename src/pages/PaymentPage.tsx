@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, Calendar, ArrowLeft, Check, Crown, Star, CreditCard, Percent, Zap, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { 
   SUBSCRIPTION_PLANS
 } from "@/config/subscriptionPlans";

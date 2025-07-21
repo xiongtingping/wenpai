@@ -20,9 +20,9 @@ console.log('\n📋 联系Authing技术支持步骤：');
 console.log('=====================================');
 
 console.log('\n步骤1：准备问题描述');
-console.log('   - 应用ID：687cc2a82e907f6e8aea5848');
+console.log('   - 应用ID：687e0aafee2b84f86685b644');
 console.log('   - 应用类型：OIDC 单页 Web 应用');
-console.log('   - 认证地址：https://aiwenpai.authing.cn');
+console.log('   - 认证地址：ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
 console.log('   - 回调URL：https://wenpai.netlify.app/callback');
 
 console.log('\n步骤2：联系渠道');
@@ -37,8 +37,8 @@ console.log('标题：OIDC应用redirect_uri_mismatch问题 - 服务端缓存');
 console.log('');
 console.log('问题描述：');
 console.log('我创建了一个OIDC单页Web应用，配置如下：');
-console.log('- 应用ID：687cc2a82e907f6e8aea5848');
-console.log('- 认证地址：https://aiwenpai.authing.cn');
+console.log('- 应用ID：687e0aafee2b84f86685b644');
+console.log('- 认证地址：ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
 console.log('- 登录回调URL：https://wenpai.netlify.app/callback');
 console.log('');
 console.log('问题现象：');

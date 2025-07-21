@@ -64,11 +64,17 @@
   status = 200
 
 # 环境变量设置
+# ===================
+# ✅ FIXED: 2024-07-21 Authing配置已切换为新应用
+# App ID: 687e0aafee2b84f86685b644
+# 认证地址: https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+# 📌 请勿改动，后续如需更换请单独审批
+# ===================
 [context.production.environment]
   NODE_ENV = "production"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687cc2a82e907f6e8aea5848"
-  VITE_AUTHING_HOST = "aiwenpai.authing.cn"
+  VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
+  VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
@@ -89,8 +95,8 @@
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687cc2a82e907f6e8aea5848"
-  VITE_AUTHING_HOST = "aiwenpai.authing.cn"
+  VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
+  VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
@@ -111,8 +117,8 @@
 [context.branch-deploy.environment]
   NODE_ENV = "development"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687cc2a82e907f6e8aea5848"
-  VITE_AUTHING_HOST = "aiwenpai.authing.cn"
+  VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
+  VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
@@ -132,15 +138,15 @@
 
 [dev]
   command = "npm run dev"
-  port = 8888
+  port = 5173
   targetPort = 5173
   publish = "dist"
   
   [dev.environment]
     CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
     # Authing配置
-    VITE_AUTHING_APP_ID = "687cc2a82e907f6e8aea5848"
-    VITE_AUTHING_HOST = "aiwenpai.authing.cn"
+    VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
+    VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
     VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
     VITE_AUTHING_APP_TYPE = "oidc"
     # OpenAI配置

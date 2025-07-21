@@ -1,82 +1,87 @@
+#!/usr/bin/env node
+
 /**
  * Authing 配置诊断脚本
+ * 检查所有Authing相关配置是否正确
  */
 
-const https = require('https');
-const querystring = require('querystring');
+console.log('🔍 Authing 配置诊断开始...\n');
 
-// 当前配置
-const config = {
-  client_id: '6867fdc88034eb95ae86167d',
-  redirect_uri: 'http://localhost:5173/callback',
-  scope: 'openid profile email phone',
-  response_type: 'code',
-  state: '/creative',
-  host: 'qutkgzkfaezk-demo.authing.cn'
+// 1. 检查环境变量
+console.log('📋 1. 环境变量检查:');
+const envVars = {
+  'VITE_AUTHING_APP_ID': process.env.VITE_AUTHING_APP_ID || '未设置',
+  'VITE_AUTHING_HOST': process.env.VITE_AUTHING_HOST || '未设置',
+  'VITE_AUTHING_REDIRECT_URI_DEV': process.env.VITE_AUTHING_REDIRECT_URI_DEV || '未设置',
+  'VITE_AUTHING_REDIRECT_URI_PROD': process.env.VITE_AUTHING_REDIRECT_URI_PROD || '未设置',
+  'VITE_AUTHING_APP_TYPE': process.env.VITE_AUTHING_APP_TYPE || '未设置'
 };
 
-console.log('🔍 Authing 配置诊断');
-console.log('==================');
-console.log('当前配置:');
-console.log('- 应用ID:', config.client_id);
-console.log('- 域名:', config.host);
-console.log('- 回调URL:', config.redirect_uri);
-console.log('- 权限范围:', config.scope);
-console.log('');
-
-// 构建授权URL
-const authParams = {
-  client_id: config.client_id,
-  redirect_uri: config.redirect_uri,
-  scope: config.scope,
-  response_type: config.response_type,
-  state: config.state
-};
-
-const authUrl = `https://${config.host}/oidc/auth?${querystring.stringify(authParams)}`;
-console.log('🔗 授权URL:');
-console.log(authUrl);
-console.log('');
-
-// 测试连接
-console.log('🧪 测试连接...');
-const testUrl = `https://${config.host}/oidc/auth`;
-
-const req = https.get(testUrl, (res) => {
-  console.log('📡 响应状态:', res.statusCode);
-  console.log('📡 响应头:', res.headers);
-  
-  if (res.statusCode === 400) {
-    console.log('❌ 400 错误 - 可能的原因:');
-    console.log('1. 应用ID不存在或错误');
-    console.log('2. 应用未启用');
-    console.log('3. 回调URL未配置');
-    console.log('4. 应用配置有误');
-    console.log('');
-    console.log('🔧 建议修复步骤:');
-    console.log('1. 检查Authing控制台中的应用ID');
-    console.log('2. 确认应用状态为"已启用"');
-    console.log('3. 在应用配置中添加回调URL');
-    console.log('4. 检查应用的其他配置');
-  } else if (res.statusCode === 200) {
-    console.log('✅ 连接正常');
-  } else {
-    console.log('⚠️ 其他状态码:', res.statusCode);
-  }
+Object.entries(envVars).forEach(([key, value]) => {
+  const status = value !== '未设置' ? '✅' : '❌';
+  console.log(`   ${status} ${key}: ${value}`);
 });
 
-req.on('error', (err) => {
-  console.log('❌ 连接错误:', err.message);
-});
+// 2. 检查当前运行环境
+console.log('\n🌐 2. 运行环境检查:');
+const currentUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+console.log(`   📍 当前开发服务器: ${currentUrl}`);
+console.log(`   🔧 环境模式: ${process.env.NODE_ENV || 'development'}`);
 
-req.setTimeout(5000, () => {
-  console.log('⏰ 连接超时');
-  req.destroy();
-});
+// 3. 检查Authing控制台配置要求
+console.log('\n🔧 3. Authing控制台配置要求:');
+console.log('   请确保在Authing控制台中配置以下内容:');
+console.log(`   📍 应用ID: ${envVars['VITE_AUTHING_APP_ID']}`);
+console.log(`   🌐 域名: ${envVars['VITE_AUTHING_HOST']}`);
+console.log(`   🔗 登录回调URL: ${envVars['VITE_AUTHING_REDIRECT_URI_DEV']}`);
+console.log(`   🔗 登出回调URL: http://localhost:5173/`);
 
-console.log('📋 检查清单:');
-console.log('1. 应用ID是否正确: 6867fdc88034eb95ae86167d');
-console.log('2. 域名是否正确: qutkgzkfaezk-demo.authing.cn');
-console.log('3. 回调URL是否配置: http://localhost:5173/callback');
-console.log('4. 应用是否启用');
-console.log('5. 应用类型是否为"单页应用"'); 
+// 4. 生成测试URL
+console.log('\n🧪 4. 测试URL生成:');
+const appId = envVars['VITE_AUTHING_APP_ID'];
+const host = envVars['VITE_AUTHING_HOST'].replace(/^https?:\/\//, '');
+const redirectUri = envVars['VITE_AUTHING_REDIRECT_URI_DEV'];
+
+if (appId !== '未设置' && host !== '未设置' && redirectUri !== '未设置') {
+  const testUrl = `https://${host}/oidc/auth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid+profile+email&state=test`;
+  console.log(`   🔗 测试认证URL: ${testUrl}`);
+} else {
+  console.log('   ❌ 无法生成测试URL，配置不完整');
+}
+
+// 5. 检查常见问题
+console.log('\n⚠️  5. 常见问题检查:');
+const issues = [];
+
+if (envVars['VITE_AUTHING_APP_ID'] === '未设置') {
+  issues.push('❌ 应用ID未配置');
+}
+
+if (envVars['VITE_AUTHING_HOST'] === '未设置') {
+  issues.push('❌ Authing域名未配置');
+}
+
+if (envVars['VITE_AUTHING_REDIRECT_URI_DEV'] === '未设置') {
+  issues.push('❌ 开发环境回调URL未配置');
+}
+
+if (envVars['VITE_AUTHING_REDIRECT_URI_DEV'] && !envVars['VITE_AUTHING_REDIRECT_URI_DEV'].includes('localhost:5173')) {
+  issues.push('⚠️  开发环境回调URL端口可能不匹配当前运行端口');
+}
+
+if (issues.length === 0) {
+  console.log('   ✅ 配置检查通过，未发现明显问题');
+} else {
+  issues.forEach(issue => console.log(`   ${issue}`));
+}
+
+// 6. 下一步操作建议
+console.log('\n🚀 6. 下一步操作建议:');
+console.log('   1. 访问Authing控制台: https://console.authing.cn/');
+console.log('   2. 找到应用ID对应的应用');
+console.log('   3. 检查登录回调URL配置');
+console.log('   4. 确保回调URL与当前配置一致');
+console.log('   5. 保存配置并等待生效');
+console.log('   6. 重新测试登录功能');
+
+console.log('\n�� Authing 配置诊断完成！'); 

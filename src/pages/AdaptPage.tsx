@@ -53,7 +53,7 @@ import {
   getModelProvider,
   type AIModel 
 } from "@/config/aiModels";
-import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
@@ -67,6 +67,7 @@ import {
   type PublishResult
 } from '@/api/platformApiService';
 import { type StyleType } from '@/config/contentSchemes';
+import { request, callAI } from '@/api';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -409,10 +410,8 @@ export default function AdaptPage() {
   };
   
   // User store for usage tracking
-  const { 
-    usageRemaining, 
-    decrementUsage 
-  } = useUserStore();
+  const usageRemaining = useAuthStore((state) => state.getUsageRemaining());
+  const { decrementUsage } = useAuthStore();
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
@@ -1162,26 +1161,16 @@ export default function AdaptPage() {
   // 调用翻译API
   const callTranslationAPI = async (content: string): Promise<string> => {
     try {
-      const response = await fetch('/api/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: content,
-          targetLang: 'en',
-          sourceLang: 'zh'
-        })
+      // 使用统一的 API 模块
+      const response = await request.post('/api/translate', {
+        text: content,
+        targetLang: 'en',
+        sourceLang: 'zh'
       });
 
-      if (!response.ok) {
-        throw new Error('Translation API failed');
-      }
-
-      const data = await response.json();
-      return data.translatedText || content;
-    } catch {
-      console.error('Translation API error');
+      return response.translatedText || content;
+    } catch (error) {
+      console.error('Translation API error:', error);
       // 如果API调用失败，回退到模拟翻译
       return simulateTranslation(content);
     }
@@ -1520,6 +1509,29 @@ export default function AdaptPage() {
   const [apiManagerOpen, setApiManagerOpen] = useState(false);
   const [publishMode, setPublishMode] = useState<'jump' | 'api'>('jump');
   const [publishingPlatforms, setPublishingPlatforms] = useState<Set<string>>(new Set());
+
+  // 调用AI生成内容
+  const callAIGenerate = async (prompt: string, platformId: string): Promise<string> => {
+    try {
+      // 使用统一的 AI API
+      const result = await callAI({
+        prompt,
+        model: selectedModel as any, // 类型转换
+        systemPrompt: `你是一个专业的${platformId}内容创作者，请根据用户的需求生成高质量的内容。`,
+        temperature: 0.7,
+        maxTokens: 1000
+      });
+
+      if (result.success) {
+        return result.content;
+      } else {
+        throw new Error(result.error || 'AI生成失败');
+      }
+    } catch (error) {
+      console.error('AI生成失败:', error);
+      throw error;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">

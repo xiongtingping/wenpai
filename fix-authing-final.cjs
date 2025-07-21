@@ -10,7 +10,7 @@ console.log('原因: Authing控制台的回调URL配置与实际使用的不匹�
 // 解决方案1: 检查Authing应用状态
 console.log('\n🔍 解决方案1: 检查Authing应用状态');
 console.log('1. 登录 https://console.authing.cn');
-console.log('2. 进入应用: 6867fdc88034eb95ae86167d');
+console.log('2. 进入应用: 687e0aafee2b84f86685b644');
 console.log('3. 检查应用状态是否为"已发布"');
 console.log('4. 如果未发布，点击"发布"按钮');
 
