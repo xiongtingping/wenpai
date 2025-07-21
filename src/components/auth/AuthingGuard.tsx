@@ -42,7 +42,7 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
   visible = false,
   containerId = 'authing-guard-container'
 }) => {
-  const guardRef = useRef<Guard | null>(null);
+  const guardRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -63,7 +63,7 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
         lang: 'zh-CN',
         oidcOrigin: config.oidcOrigin
       } as any;
-      guardRef.current = new Guard(guardConfig);
+      guardRef.current = new (Guard as any)(guardConfig);
 
       // 添加事件监听器
       if (onLogin) {

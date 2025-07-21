@@ -13,8 +13,8 @@ import { getAuthingConfig } from '@/config/authing';
  */
 class AuthingClient {
   private static instance: AuthingClient;
-  private static sdkInstance: Authing | null = null;
-  private authing: Authing;
+  private static sdkInstance: any = null;
+  private authing: any;
   private config = getAuthingConfig();
   private isInitializing = false;
   private isCheckingStatus = false;
@@ -22,14 +22,14 @@ class AuthingClient {
   private constructor() {
     if (!AuthingClient.sdkInstance) {
       // 关键：类型断言，兼容 SDK 支持但类型未补全
-      AuthingClient.sdkInstance = new Authing({
+      AuthingClient.sdkInstance = new (Authing as any)({
         domain: this.config.host,
         appId: this.config.appId,
         userPoolId: this.config.userPoolId,
         redirectUri: this.config.redirectUri,
         scope: this.config.scope,
         oidcOrigin: this.config.oidcOrigin
-      } as any);
+      });
     }
     this.authing = AuthingClient.sdkInstance;
   }
@@ -47,7 +47,7 @@ class AuthingClient {
   /**
    * 获取 Authing 实例
    */
-  getAuthing(): Authing {
+  getAuthing(): any {
     return this.authing;
   }
 

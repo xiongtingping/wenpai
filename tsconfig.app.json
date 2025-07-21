@@ -27,5 +27,5 @@
     },
     "outDir": "./dist/app"
   },
-  "include": ["src"]
+  "include": ["src", "src/assets/**/*.json"]
 }
