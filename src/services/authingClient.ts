@@ -22,7 +22,7 @@ class AuthingClient {
   private constructor() {
     if (!AuthingClient.sdkInstance) {
       // 关键：类型断言，兼容 SDK 支持但类型未补全
-      AuthingClient.sdkInstance = new (AuthingWeb.Authing as any)({
+      AuthingClient.sdkInstance = new (AuthingWeb as any)({
         domain: this.config.host,
         appId: this.config.appId,
         userPoolId: this.config.userPoolId,
