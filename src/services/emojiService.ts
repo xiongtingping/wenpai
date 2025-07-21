@@ -99,7 +99,7 @@ export function searchEmojis(keyword: string): EmojiItem[] {
  * @returns {string} 图片路径
  */
 export function getEmojiImage(unified: string): string {
-  return `/src/assets/noto-emoji/emoji_u${unified.toLowerCase()}.png`;
+  return `/assets/noto-emoji/emoji_u${unified.toLowerCase()}.png`;
 }
 
 /**

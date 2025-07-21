@@ -42,10 +42,10 @@ export default function QRCodeTestPage() {
       
       // 使用环境变量或动态获取 base URL
       const baseUrl = import.meta.env.PROD 
-        ? window.location.origin 
-        : 'http://localhost:8888';
+        ? '/.netlify/functions/checkout' 
+        : 'http://localhost:8888/.netlify/functions/checkout';
       
-      const response = await fetch(`${baseUrl}/.netlify/functions/checkout`, {
+      const response = await fetch(baseUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

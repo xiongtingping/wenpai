@@ -13,7 +13,7 @@ import Tesseract from 'tesseract.js';
 if (typeof window !== 'undefined') {
   try {
     // 使用本地托管的worker文件，避免CORS问题和版本不匹配
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
   } catch (error) {
     console.warn('PDF.js worker配置失败:', error);
   }
