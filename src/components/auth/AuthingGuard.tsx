@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { Guard, GuardOptions, Lang } from '@authing/guard-react';
+import Guard from '@authing/guard-react';
 import { getGuardConfig } from '@/config/authing';
 
 /**
@@ -60,7 +60,7 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
         ...config,
         mode,
         defaultScene,
-        lang: 'zh-CN' as Lang,
+        lang: 'zh-CN',
         oidcOrigin: config.oidcOrigin
       } as any;
       guardRef.current = new Guard(guardConfig);
