@@ -19,11 +19,6 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "src",
-    "src/types"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/debug-theme.js"
+    "src"
   ]
 }

@@ -30,5 +30,7 @@
     "emitDeclarationOnly": false,
     "noEmit": false
   },
-  "include": ["src", "src/assets/**/*.json"]
+  "include": [
+    "src"
+  ]
 }
