@@ -4,7 +4,7 @@
  * 参考: https://docs.authing.cn/v2/quickstarts/spa/react.html
  */
 
-import Authing from '@authing/web';
+import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 
 /**
