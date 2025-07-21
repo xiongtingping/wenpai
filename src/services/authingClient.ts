@@ -4,9 +4,7 @@
  * 参考: https://docs.authing.cn/v2/quickstarts/spa/react.html
  */
 
-// @ts-ignore
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const AuthingWeb = require('@authing/web');
+import type { Authing as AuthingType } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 
 /**
