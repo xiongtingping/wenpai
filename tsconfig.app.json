@@ -28,10 +28,15 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": false,
-    "noEmit": false
+    "noEmit": false,
+    "incremental": true
   },
   "include": [
     "src",
     "src/assets/**/*.json"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }
