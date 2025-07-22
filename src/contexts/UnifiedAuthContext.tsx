@@ -132,8 +132,6 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const authingClient = AuthingClient.getInstance();
-
   /**
    * 初始化认证状态
    */
@@ -143,6 +141,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setError(null);
 
       // 检查是否是重定向回调
+      const authingClient = await AuthingClient.getInstance();
       const callbackResult = await authingClient.handleCallback();
       if (callbackResult) {
         // 处理登录回调
@@ -160,6 +159,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       
       if (storedUser && !isTokenExpired(storedUser.loginTime)) {
         // 验证 token 是否有效
+        const authingClient = await AuthingClient.getInstance();
         const isValid = await authingClient.checkLoginStatus();
         if (isValid) {
           setUser(storedUser);
@@ -172,6 +172,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       } else if (storedUser) {
         // Token 过期，尝试刷新
         try {
+          const authingClient = await AuthingClient.getInstance();
           await refreshToken();
         } catch (error) {
           clearUserFromStorage();
@@ -208,6 +209,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const login = useCallback(async (redirectTo?: string) => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       const loginUrl = authingClient.getLoginUrl(redirectTo);
       window.location.href = loginUrl;
     } catch (error) {
@@ -222,6 +224,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const register = useCallback(async (redirectTo?: string) => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       const registerUrl = authingClient.getRegisterUrl(redirectTo);
       window.location.href = registerUrl;
     } catch (error) {
@@ -236,6 +239,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const logout = useCallback(async () => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       await authingClient.logout();
       setUser(null);
       clearUserFromStorage();
@@ -251,6 +255,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const checkAuth = useCallback(async () => {
     try {
+      const authingClient = await AuthingClient.getInstance();
       const isValid = await authingClient.checkLoginStatus();
       if (!isValid && user) {
         setUser(null);
@@ -266,6 +271,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const refreshToken = useCallback(async () => {
     try {
+      const authingClient = await AuthingClient.getInstance();
       const tokenSet = await authingClient.refreshToken();
       if (user) {
         const updatedUser = {
@@ -304,6 +310,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const loginWithPassword = useCallback(async (username: string, password: string) => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       const userInfo = await authingClient.loginWithPassword(username, password);
       handleAuthingLogin(userInfo);
     } catch (error) {
@@ -319,6 +326,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const loginWithEmailCode = useCallback(async (email: string, code: string) => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       const userInfo = await authingClient.loginWithEmailCode(email, code);
       handleAuthingLogin(userInfo);
     } catch (error) {
@@ -334,6 +342,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const loginWithPhoneCode = useCallback(async (phone: string, code: string) => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       const userInfo = await authingClient.loginWithPhoneCode(phone, code);
       handleAuthingLogin(userInfo);
     } catch (error) {
@@ -349,6 +358,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const sendVerificationCode = useCallback(async (email: string, scene: 'login' | 'register' | 'reset' = 'login') => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       await authingClient.sendVerificationCode(email, scene);
     } catch (error) {
       console.error('发送验证码失败:', error);
@@ -363,6 +373,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const registerUser = useCallback(async (userInfo: any) => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       const newUser = await authingClient.registerUser(userInfo);
       handleAuthingLogin(newUser);
     } catch (error) {
@@ -378,6 +389,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const resetPassword = useCallback(async (email: string, code: string, newPassword: string) => {
     try {
       setError(null);
+      const authingClient = await AuthingClient.getInstance();
       await authingClient.resetPassword(email, code, newPassword);
     } catch (error) {
       console.error('重置密码失败:', error);

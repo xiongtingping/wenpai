@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@authing/guard": "^5.3.9",
-    "@authing/guard-react": "5.1.x",
+    "@authing/guard-react": "^5.3.9",
     "@authing/react18-ui-components": "^4.5.43",
     "@authing/web": "^5.1.20",
     "@hookform/resolvers": "^5.0.1",

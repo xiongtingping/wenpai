@@ -20,7 +20,6 @@ export default function CallbackPage() {
   const navigate = useNavigate();
   const { handleAuthingLogin } = useUnifiedAuth();
   const { toast } = useToast();
-  const authingClient = AuthingClient.getInstance();
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +57,7 @@ export default function CallbackPage() {
         }
 
         // 处理回调
+        const authingClient = await AuthingClient.getInstance();
         const callbackData = await authingClient.handleCallback();
         if (!callbackData || !callbackData.user) {
           setError('认证回调处理失败，未获取到用户信息');
@@ -94,7 +94,7 @@ export default function CallbackPage() {
     };
     handleCallback();
     // eslint-disable-next-line
-  }, [searchParams, handleAuthingLogin, authingClient, navigate, toast]);
+  }, [searchParams, handleAuthingLogin, navigate, toast]);
 
   // 加载状态
   if (status === 'loading') {

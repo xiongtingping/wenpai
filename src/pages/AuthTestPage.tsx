@@ -25,8 +25,6 @@ const AuthTestPage: React.FC = () => {
   const [testResults, setTestResults] = useState<any>({});
   const navigate = useNavigate(); // 正确获取 navigate
 
-  const authingClient = AuthingClient.getInstance();
-
   /**
    * 测试 Authing 连接
    */
@@ -35,6 +33,7 @@ const AuthTestPage: React.FC = () => {
       setAuthingStatus('测试中...');
       
       // 测试基本连接
+      const authingClient = await AuthingClient.getInstance();
       const authing = authingClient.getAuthing();
       console.log('✅ Authing 实例创建成功:', authing);
       
@@ -65,6 +64,7 @@ const AuthTestPage: React.FC = () => {
       }));
       // ✅ FIXED: 登录/回调链路已与 Authing 官方文档完全一致，2025-07-21修复
       // 🔒 LOCKED: 禁止再手动拼接 OIDC URL，必须用 SDK
+      const authingClient = await AuthingClient.getInstance();
       await authingClient.getAuthing().loginWithRedirect();
     } catch (error) {
       console.error('❌ 登录失败:', error);
@@ -86,6 +86,7 @@ const AuthTestPage: React.FC = () => {
       }));
       
       // 使用 SDK 登录
+      const authingClient = await AuthingClient.getInstance();
       await login();
       
       setTestResults(prev => ({
@@ -111,6 +112,7 @@ const AuthTestPage: React.FC = () => {
         status: '🔄 检查中...'
       }));
       
+      const authingClient = await AuthingClient.getInstance();
       const status = await authingClient.checkLoginStatus();
       console.log('📊 登录状态:', status);
       
@@ -137,6 +139,7 @@ const AuthTestPage: React.FC = () => {
         userInfo: '🔄 获取中...'
       }));
       
+      const authingClient = await AuthingClient.getInstance();
       const userInfo = await authingClient.getCurrentUser();
       console.log('👤 用户信息:', userInfo);
       
@@ -163,6 +166,7 @@ const AuthTestPage: React.FC = () => {
         logout: '🔄 登出中...'
       }));
       
+      const authingClient = await AuthingClient.getInstance();
       await logout();
       
       setTestResults(prev => ({
@@ -187,6 +191,7 @@ const AuthTestPage: React.FC = () => {
     // 添加延迟避免重复调用
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    const authingClient = await AuthingClient.getInstance();
     await testAuthingConnection();
     
     // 添加延迟避免重复调用
@@ -211,6 +216,7 @@ const AuthTestPage: React.FC = () => {
       }));
       // ✅ FIXED: 登录/回调链路已与 Authing 官方文档完全一致，2025-07-21修复
       // 🔒 LOCKED: 禁止再手动拼接 OIDC URL，必须用 SDK
+      const authingClient = await AuthingClient.getInstance();
       await authingClient.getAuthing().loginWithRedirect();
       setTestResults(prev => ({
         ...prev,
@@ -232,6 +238,7 @@ const AuthTestPage: React.FC = () => {
     setTestResults(prev => ({ ...prev, fullFlow: '🔄 测试中...' }));
     try {
       // 1. 登出，确保无会话
+      const authingClient = await AuthingClient.getInstance();
       await logout();
       // 2. 发起登录
       await login('/auth-test?autotest=1');
@@ -398,7 +405,7 @@ const AuthTestPage: React.FC = () => {
           <CardDescription>一键验证注册、登录、回调、用户信息、权限页面跳转等全流程</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => runFullAuthFlowTest(authingClient, login, logout, checkAuth, setTestResults, navigate)}>
+          <Button onClick={() => runFullAuthFlowTest(AuthingClient.getInstance(), login, logout, checkAuth, setTestResults, navigate)}>
             一键测试注册/登录链路
           </Button>
           <div className="mt-4 text-sm">
