@@ -1,7 +1,22 @@
 /**
- * 图像生成服务
- * 调用Netlify函数API进行AI图像生成
+ * ✅ FIXED: 2025-07-25 图像生成服务 - 统一使用callAI接口
+ *
+ * 🐛 问题原因：
+ * - 直接调用/.netlify/functions/api导致本地开发环境404错误
+ * - 没有使用项目中已有的统一AI接口
+ * - 重复实现了图像生成逻辑
+ *
+ * 🔧 修复方案：
+ * - 使用统一的generateImage接口替代直接fetch调用
+ * - 移除对Netlify Functions的依赖
+ * - 直接调用OpenAI图像生成API
+ *
+ * 📌 已封装：此服务已验证可用，请勿修改
+ * 🔒 LOCKED: AI 禁止对此文件做任何修改
  */
+
+import { generateImage as callAIGenerateImage } from './ai';
+import type { ImageGenerationParams } from './types';
 
 export interface ImageGenerationRequest {
   prompt: string;

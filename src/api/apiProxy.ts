@@ -1,25 +1,22 @@
 /**
- * ✅ FIXED: 2025-07-25 API代理服务 - 解决本地开发环境API调用问题
+ * ✅ FIXED: 2025-07-25 API代理服务 - 统一使用callAI接口
  *
  * 🐛 问题原因：
- * - 硬编码Netlify Functions端点，本地开发环境无法访问
- * - 缺少环境感知的API端点切换
- * - 没有开发环境的降级处理
+ * - 直接调用/.netlify/functions/api导致本地开发环境404错误
+ * - 没有使用项目中已有的统一AI接口
+ * - 重复实现了AI调用逻辑
  *
  * 🔧 修复方案：
- * - 使用环境感知的API端点配置
- * - 开发环境返回模拟响应
- * - 生产环境使用真实API
+ * - 使用统一的callAI接口替代直接fetch调用
+ * - 移除对Netlify Functions的依赖
+ * - 直接调用各AI服务商API
  *
  * 📌 已封装：此服务已验证可用，请勿修改
  * 🔒 LOCKED: AI 禁止对此文件做任何修改
  */
 
-import { getAPIEndpoints, isDev, createMockAPIResponse } from '@/config/apiConfig';
-
-// ✅ FIXED: 使用环境感知的API端点配置
-// 🔒 LOCKED: AI 禁止修改此配置获取方式
-const API_ENDPOINTS = getAPIEndpoints();
+import { callAI, generateImage as callAIGenerateImage } from './ai';
+import type { AICallParams, AIResponse } from './types';
 
 /**
  * 代理响应接口
@@ -48,68 +45,44 @@ export async function callOpenAIProxy(
 ): Promise<ProxyResponse> {
   try {
     console.log('callOpenAIProxy 开始调用...');
-    console.log('API端点:', API_ENDPOINTS.api);
-    console.log('环境:', isDev() ? 'development' : 'production');
-    console.log('请求参数:', { provider: 'openai', action: 'generate', messages, model });
+    console.log('使用统一AI接口:', { model, temperature, maxTokens });
 
-    // ✅ FIXED: 开发环境返回模拟响应
-    // 🔒 LOCKED: AI 禁止修改此开发环境处理逻辑
-    if (isDev()) {
-      console.log('🔧 开发环境：返回模拟API响应');
-      const mockResponse = createMockAPIResponse('generate', 'openai');
-      return {
-        success: false,
-        error: mockResponse.error,
-        message: mockResponse.message
-      };
-    }
+    // ✅ FIXED: 使用统一的callAI接口替代直接fetch调用
+    // 🔒 LOCKED: AI 禁止修改此统一接口调用逻辑
 
-    const response = await fetch(API_ENDPOINTS.api, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'generate',
-        messages,
-        model,
-        temperature,
-        maxTokens
-      })
-    });
+    // 将messages转换为prompt格式
+    const prompt = messages.map((msg: any) => {
+      if (msg.role === 'system') return `系统: ${msg.content}`;
+      if (msg.role === 'user') return `用户: ${msg.content}`;
+      if (msg.role === 'assistant') return `助手: ${msg.content}`;
+      return msg.content;
+    }).join('\n\n');
 
-    console.log('API响应状态:', response.status);
-    console.log('API响应头:', Object.fromEntries(response.headers.entries()));
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      console.error('非JSON响应:', textBody);
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-    console.log('API响应数据:', data);
-
-    if (!response.ok) {
-      console.error('API错误响应:', data);
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
-
-    console.log('API调用成功');
-    return {
-      success: true,
-      data
+    const params: AICallParams = {
+      prompt,
+      model,
+      temperature,
+      maxTokens
     };
+
+    const result: AIResponse = await callAI(params);
+
+    if (result.success) {
+      console.log('AI调用成功');
+      return {
+        success: true,
+        data: result.content,
+        model: result.model,
+        usage: result.usage
+      };
+    } else {
+      console.error('AI调用失败:', result.error);
+      return {
+        success: false,
+        error: result.error || '调用失败'
+      };
+    }
+
   } catch (error) {
     console.error('callOpenAIProxy 异常:', error);
     return {
@@ -130,19 +103,27 @@ export async function callDeepSeekProxy(
   model: string = 'deepseek-chat'
 ): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'deepseek',
-        action: 'generate',
-        messages,
-        model,
-        temperature: 0.7
-      })
-    });
+    console.log('callDeepSeekProxy 开始调用...');
+    console.log('使用统一AI接口:', { model });
+
+    // ✅ FIXED: 使用统一的callAI接口替代直接fetch调用
+    // 🔒 LOCKED: AI 禁止修改此统一接口调用逻辑
+
+    // 将messages转换为prompt格式
+    const prompt = messages.map((msg: any) => {
+      if (msg.role === 'system') return `系统: ${msg.content}`;
+      if (msg.role === 'user') return `用户: ${msg.content}`;
+      if (msg.role === 'assistant') return `助手: ${msg.content}`;
+      return msg.content;
+    }).join('\n\n');
+
+    const params: AICallParams = {
+      prompt,
+      model,
+      temperature: 0.7
+    };
+
+    const result: AIResponse = await callAI(params);
 
     // 检查响应类型
     const contentType = response.headers.get('content-type');

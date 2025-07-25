@@ -6,8 +6,20 @@
 // 核心请求模块
 export { request } from './request';
 
-// AI 相关 API
-export { callAI, callAIBatch } from './ai';
+// AI 相关 API - 统一环境感知服务
+export {
+  callAI,
+  generateImage,
+  checkAIStatus,
+  getEnvironmentInfo
+} from './unifiedAIService';
+
+// 原始AI接口（仅开发环境直接使用）
+export {
+  callAI as callDirectAI,
+  callAIBatch,
+  generateImage as generateDirectImage
+} from './ai';
 
 // 认证相关 API
 export { 
@@ -33,9 +45,9 @@ export {
   mockReferralReward
 } from './referralService';
 
-// 图像生成 API
-export { 
-  generateImage
+// 图像生成 API - 代理服务（仅生产环境使用）
+export {
+  generateImage as generateProxyImage
 } from './imageGenerationService';
 
 // 类型导出

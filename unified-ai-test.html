@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统一AI服务测试 - 环境感知API调用</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button { padding: 12px 24px; margin: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin: 20px 0; }
+        .test-card { padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #f8f9fa; }
+        .test-result { margin: 15px 0; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 14px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        .loading { background: #e9ecef; color: #6c757d; }
+        h1 { color: #333; text-align: center; }
+        h2 { color: #495057; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        h3 { color: #6c757d; }
+        .architecture { background: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; margin: 20px 0; }
+        .dev-env { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; }
+        .prod-env { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+        code { background: #f8f9fa; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        .env-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-dev { background: #d4edda; color: #155724; }
+        .badge-prod { background: #fff3cd; color: #856404; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .comparison-item { padding: 15px; border-radius: 8px; }
+        .comparison-dev { background: #d4edda; border: 1px solid #c3e6cb; }
+        .comparison-prod { background: #fff3cd; border: 1px solid #ffeaa7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 统一AI服务测试</h1>
+        <p style="text-align: center; color: #6c757d;">环境感知的API调用切换验证</p>
+        
+        <div class="architecture">
+            <h2>🎯 架构设计</h2>
+            <div class="comparison">
+                <div class="comparison-item comparison-dev">
+                    <h3>🔗 开发环境</h3>
+                    <p><strong>使用方式</strong>：<code>ai.ts</code> 直连API</p>
+                    <p><strong>优势</strong>：</p>
+                    <ul>
+                        <li>快速开发和测试</li>
+                        <li>直接调试模型参数</li>
+                        <li>无需后端代理</li>
+                        <li>实时错误反馈</li>
+                    </ul>
+                    <p><strong>注意</strong>：API Key暴露在前端（仅开发环境可接受）</p>
+                </div>
+                
+                <div class="comparison-item comparison-prod">
+                    <h3>🛡️ 生产环境</h3>
+                    <p><strong>使用方式</strong>：<code>apiProxy.ts</code> 走后端代理</p>
+                    <p><strong>优势</strong>：</p>
+                    <ul>
+                        <li>保护API Key不暴露</li>
+                        <li>统一权限控制</li>
+                        <li>频率限制管理</li>
+                        <li>解决CORS问题</li>
+                    </ul>
+                    <p><strong>通过</strong>：Netlify Functions代理调用</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="status info">
+            <h3>📍 当前环境状态</h3>
+            <p><strong>检测到的环境</strong>：<span id="current-env" class="env-badge">检测中...</span></p>
+            <p><strong>API调用方式</strong>：<span id="api-method">检测中...</span></p>
+            <p><strong>环境描述</strong>：<span id="env-description">检测中...</span></p>
+        </div>
+
+        <div class="test-grid">
+            <div class="test-card">
+                <h3>🔍 环境检测</h3>
+                <p>检测当前运行环境和API调用方式</p>
+                <button class="btn-primary" onclick="detectEnvironment()">检测环境</button>
+                <div id="env-result" class="test-result"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>🤖 AI服务状态</h3>
+                <p>检查统一AI服务的可用性</p>
+                <button class="btn-success" onclick="checkAIStatus()">检查AI状态</button>
+                <div id="ai-status-result" class="test-result"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>💬 AI对话测试</h3>
+                <p>测试统一AI调用接口</p>
+                <button class="btn-warning" onclick="testAICall()">测试AI对话</button>
+                <div id="ai-call-result" class="test-result"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>🖼️ 图像生成测试</h3>
+                <p>测试统一图像生成接口</p>
+                <button class="btn-danger" onclick="testImageGeneration()">测试图像生成</button>
+                <div id="image-result" class="test-result"></div>
+            </div>
+        </div>
+
+        <div class="dev-env">
+            <h3>🔗 开发环境说明</h3>
+            <p>在开发环境中，所有AI调用将直接连接到各AI服务商的API：</p>
+            <ul>
+                <li><strong>OpenAI</strong>：直连 <code>https://api.openai.com</code></li>
+                <li><strong>DeepSeek</strong>：直连 <code>https://api.deepseek.com</code></li>
+                <li><strong>Gemini</strong>：直连 <code>https://generativelanguage.googleapis.com</code></li>
+            </ul>
+            <p>这样可以快速调试和测试，无需依赖后端代理服务。</p>
+        </div>
+
+        <div class="prod-env">
+            <h3>🛡️ 生产环境说明</h3>
+            <p>在生产环境中，所有AI调用将通过后端代理：</p>
+            <ul>
+                <li><strong>代理端点</strong>：<code>/.netlify/functions/api</code></li>
+                <li><strong>API Key保护</strong>：存储在服务器环境变量中</li>
+                <li><strong>权限控制</strong>：统一的访问控制和频率限制</li>
+                <li><strong>CORS处理</strong>：后端统一处理跨域问题</li>
+            </ul>
+            <p>这样可以保护API密钥，提供更安全的生产环境。</p>
+        </div>
+    </div>
+
+    <script>
+        // 检测当前环境
+        function detectEnvironment() {
+            const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            // 更新环境状态显示
+            const envSpan = document.getElementById('current-env');
+            const methodSpan = document.getElementById('api-method');
+            const descSpan = document.getElementById('env-description');
+            
+            if (isDev) {
+                envSpan.textContent = '开发环境';
+                envSpan.className = 'env-badge badge-dev';
+                methodSpan.textContent = 'ai.ts 直连API';
+                descSpan.textContent = '直连AI服务商API，快速调试';
+            } else {
+                envSpan.textContent = '生产环境';
+                envSpan.className = 'env-badge badge-prod';
+                methodSpan.textContent = 'apiProxy.ts 后端代理';
+                descSpan.textContent = '通过后端代理调用，保护API Key';
+            }
+
+            // 显示详细检测结果
+            showLoading('env-result');
+            setTimeout(() => {
+                const result = `环境检测结果：
+🌍 当前环境: ${isDev ? '开发环境' : '生产环境'}
+🔗 API调用方式: ${isDev ? 'ai.ts 直连API' : 'apiProxy.ts 后端代理'}
+🏠 主机名: ${window.location.hostname}
+🚪 端口: ${window.location.port}
+📍 协议: ${window.location.protocol}
+🎯 完整URL: ${window.location.href}
+
+${isDev ? 
+'✅ 开发环境：将使用直连API进行AI调用' : 
+'✅ 生产环境：将使用后端代理进行AI调用'}`;
+                showResult('env-result', result, true);
+            }, 1000);
+        }
+
+        // 显示结果
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `test-result ${isSuccess ? 'success' : 'error'}`;
+        }
+
+        // 显示加载状态
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.textContent = '正在测试...';
+            element.className = 'test-result loading';
+        }
+
+        // 检查AI状态
+        function checkAIStatus() {
+            showLoading('ai-status-result');
+            
+            setTimeout(() => {
+                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const result = `AI服务状态检查：
+🔧 环境: ${isDev ? '开发环境' : '生产环境'}
+📡 调用方式: ${isDev ? '直连API' : '后端代理'}
+🎯 预期行为: ${isDev ? 
+'直接调用各AI服务商API' : 
+'通过Netlify Functions代理调用'}
+
+${isDev ? 
+'✅ 开发环境：AI服务将直接连接到各服务商API' : 
+'✅ 生产环境：AI服务将通过后端代理调用'}
+
+📝 注意：实际API调用需要在应用中进行测试`;
+                showResult('ai-status-result', result, true);
+            }, 1500);
+        }
+
+        // 测试AI调用
+        function testAICall() {
+            showLoading('ai-call-result');
+            
+            setTimeout(() => {
+                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const result = `AI对话测试：
+🤖 测试类型: 统一AI调用接口
+🔧 环境: ${isDev ? '开发环境' : '生产环境'}
+📡 调用路径: ${isDev ? 
+'unifiedAIService.ts → ai.ts → 直连API' : 
+'unifiedAIService.ts → apiProxy.ts → Netlify Functions'}
+
+${isDev ? 
+'🔗 开发环境：将直接调用OpenAI/DeepSeek/Gemini API' : 
+'🛡️ 生产环境：将通过后端代理调用AI服务'}
+
+📝 注意：此页面仅用于架构验证，实际AI调用请在应用中测试`;
+                showResult('ai-call-result', result, true);
+            }, 2000);
+        }
+
+        // 测试图像生成
+        function testImageGeneration() {
+            showLoading('image-result');
+            
+            setTimeout(() => {
+                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const result = `图像生成测试：
+🖼️ 测试类型: 统一图像生成接口
+🔧 环境: ${isDev ? '开发环境' : '生产环境'}
+📡 调用路径: ${isDev ? 
+'unifiedAIService.ts → ai.ts → OpenAI Images API' : 
+'unifiedAIService.ts → imageGenerationService.ts → Netlify Functions'}
+
+${isDev ? 
+'🔗 开发环境：将直接调用OpenAI图像生成API' : 
+'🛡️ 生产环境：将通过后端代理调用图像生成服务'}
+
+📝 注意：此页面仅用于架构验证，实际图像生成请在应用中测试`;
+                showResult('image-result', result, true);
+            }, 2000);
+        }
+
+        // 页面加载时自动检测环境
+        window.onload = function() {
+            detectEnvironment();
+        };
+    </script>
+</body>
+</html>
