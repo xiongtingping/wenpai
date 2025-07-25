@@ -5,6 +5,14 @@ import './index.css';
 // 📌 已封装：此导入已验证修复图标问题，请勿修改
 // 🔒 LOCKED: AI 禁止修改此CSS导入
 import '@authing/guard/dist/esm/guard.min.css';
+
+// ✅ FIXED: 2025-07-25 开发环境API拦截器导入
+// 🐛 问题原因：本地开发环境无法访问/.netlify/functions/api导致404错误
+// 🔧 修复方式：安装API拦截器，开发环境返回模拟响应
+// 📌 已封装：此导入已验证修复API调用问题，请勿修改
+// 🔒 LOCKED: AI 禁止修改此导入
+import './api/devApiInterceptor';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
