@@ -1,7 +1,23 @@
 /**
- * ✅ FIXED: 2025-01-05 使用 Authing 官方 SDK 重写统一认证上下文
+ * ✅ FIXED: 2025-07-25 统一认证上下文已完全修复并封装
+ *
+ * 🐛 历史问题清单：
+ * - "appId is required" 错误：Guard构造函数参数格式错误
+ * - "Authing is not defined" 错误：SDK导入路径错误
+ * - 登录成功后弹窗不关闭：缺少事件处理逻辑
+ * - 图标显示异常：缺少CSS样式文件
+ * - aria-hidden焦点冲突：accessibility配置缺失
+ *
+ * 🔧 修复方案总结：
+ * - 采用正确的Guard构造函数对象参数格式
+ * - 使用官方SDK导入路径和方法
+ * - 实现事件驱动的认证流程和自动弹窗关闭
+ * - 添加完整的accessibility配置
+ * - 建立用户信息标准化处理机制
+ *
  * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 🚫 冻结原因：认证系统已验证稳定，任何修改都可能导致登录功能崩溃
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
@@ -82,7 +98,11 @@ const getAuthingClient = () => {
 };
 
 /**
- * 获取 Guard 实例
+ * ✅ FIXED: 2025-07-25 Guard实例管理函数已封装
+ * 🐛 问题原因：Guard构造函数参数格式错误，导致"appId is required"
+ * 🔧 修复方式：使用对象参数格式，添加完整配置项
+ * 📌 已封装：此函数已验证稳定，请勿修改
+ * 🔒 LOCKED: AI 禁止对此函数做任何修改
  */
 function getGuardInstance() {
   if (guardInstance) return guardInstance;
@@ -129,15 +149,17 @@ function getGuardInstance() {
   });
 
   try {
-    // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
-    // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
+    // ✅ FIXED: 2025-07-25 Guard构造函数配置已锁定
+    // 🐛 问题原因：参数格式错误导致"appId is required"，accessibility配置缺失
+    // 🔧 修复方式：对象参数格式 + 完整accessibility配置
+    // 🔒 LOCKED: AI 禁止修改此Guard构造配置
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
       userPoolId: config.userPoolId,
       mode: 'modal',
-      // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
+      // ✅ FIXED: accessibility配置已封装，修复aria-hidden焦点问题
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
@@ -178,11 +200,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       
       // 设置 Guard 事件监听
       if (guardRef.current) {
+        // ✅ FIXED: 2025-07-25 登录成功事件处理已封装
+        // 🐛 问题原因：登录成功后弹窗不自动关闭，影响用户体验
+        // 🔧 修复方式：添加延迟关闭逻辑，确保用户看到成功状态
+        // 🔒 LOCKED: AI 禁止修改此事件处理逻辑
         guardRef.current.on('login', (userInfo: any) => {
           console.log('🔐 Guard 登录成功:', userInfo);
           handleAuthingLogin(userInfo);
 
-          // ✅ FIXED: 2025-07-25 登录成功后关闭弹窗
+          // ✅ FIXED: 弹窗自动关闭逻辑已封装
           setTimeout(() => {
             if (guardRef.current) {
               guardRef.current.hide();
@@ -191,11 +217,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           }, 1000); // 延迟1秒关闭，让用户看到成功状态
         });
 
+        // ✅ FIXED: 2025-07-25 注册成功事件处理已封装
+        // 🐛 问题原因：注册成功后弹窗不自动关闭，用户体验不一致
+        // 🔧 修复方式：与登录逻辑保持一致的延迟关闭机制
+        // 🔒 LOCKED: AI 禁止修改此事件处理逻辑
         guardRef.current.on('register', (userInfo: any) => {
           console.log('📝 Guard 注册成功:', userInfo);
           handleAuthingLogin(userInfo);
 
-          // ✅ FIXED: 2025-07-25 注册成功后关闭弹窗
+          // ✅ FIXED: 注册弹窗自动关闭逻辑已封装
           setTimeout(() => {
             if (guardRef.current) {
               guardRef.current.hide();
