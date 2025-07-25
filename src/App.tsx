@@ -35,6 +35,7 @@ import EmojiPage from '@/pages/EmojiPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import SettingsPage from '@/pages/SettingsPage';
 import AuthTestPage from '@/pages/AuthTestPage';
+import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
 
 /**
  * 条件性导航组件
@@ -141,6 +142,7 @@ function AppContent() {
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
           <Route path="/auth-test" element={<AuthTestPage />} />
+          <Route path="/simple-auth-test" element={<SimpleAuthTestPage />} />
           
           {/* 404页面 - 必须放在最后 */}
           <Route path="*" element={<NotFoundPage />} />

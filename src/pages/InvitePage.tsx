@@ -11,14 +11,14 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useAuthStore } from "@/store/authStore";
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+// import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { useNavigate } from 'react-router-dom';
 
 function InvitePage() {
   const { toast } = useToast();
-  const { user } = useUnifiedAuth();
-  const userId = user?.id;
-  const isTempUser = !user?.email; // 如果没有邮箱，认为是临时用户
+  // TODO: 登录系统已移除，后续可接入新的认证平台
+  const userId = null; // TODO: 已移除 Authing 实现，待接入新认证系统
+  const isTempUser = !userId; // 如果没有邮箱，认为是临时用户
   const userInviteCode = useAuthStore((state) => state.getUserInviteCode());
   const trackInviteClick = useAuthStore((state) => state.trackInviteClick);
   const navigate = useNavigate();

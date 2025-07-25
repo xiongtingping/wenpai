@@ -1,167 +1,195 @@
 /**
- * 认证回调页面
- * 处理 Authing OIDC 回调
+ * ✅ FIXED: 2025-01-05 更新 Authing 认证回调处理页面
+ * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+ * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
  */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import AuthingClient from '@/services/authingClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, CheckCircle, XCircle, AlertCircle, Home, RefreshCw } from 'lucide-react';
 
 /**
- * 回调页面组件
+ * Authing 认证回调处理页面
  */
-export default function CallbackPage() {
+const CallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { handleAuthingLogin } = useUnifiedAuth();
-  const { toast } = useToast();
-  
+  const { handleAuthingLogin, checkAuth } = useUnifiedAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [message, setMessage] = useState<string>('正在处理认证回调...');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        console.log('🔄 CallbackPage: 开始处理认证回调...');
+        
+        // 获取 URL 参数
         const code = searchParams.get('code');
         const state = searchParams.get('state');
         const error = searchParams.get('error');
         const errorDescription = searchParams.get('error_description');
-
+        
+        console.log('📋 CallbackPage: URL 参数:', { code, state, error, errorDescription });
+        
         // 检查是否有错误
         if (error) {
+          console.error('❌ CallbackPage: 认证错误:', error, errorDescription);
+          setStatus('error');
+          setMessage('认证失败');
           setError(errorDescription || error);
-          setStatus('error');
-          toast({
-            title: '认证失败',
-            description: errorDescription || error,
-            variant: 'destructive'
-          });
           return;
         }
-
-        // 检查必要参数
+        
+        // 检查是否有授权码
         if (!code) {
-          setError('认证参数不完整，缺少 code');
+          console.error('❌ CallbackPage: 缺少授权码');
           setStatus('error');
-          toast({
-            title: '认证失败',
-            description: '认证参数不完整，缺少 code',
-            variant: 'destructive'
-          });
+          setMessage('缺少授权码');
+          setError('未收到有效的授权码');
           return;
         }
-
-        // 处理回调
-        const authingClient = await AuthingClient.getInstance();
-        const callbackData = await authingClient.handleCallback();
-        if (!callbackData || !callbackData.user) {
-          setError('认证回调处理失败，未获取到用户信息');
-          setStatus('error');
-          toast({
-            title: '认证失败',
-            description: '认证回调处理失败，未获取到用户信息',
-            variant: 'destructive'
-          });
-          return;
-        }
-
-        handleAuthingLogin(callbackData.user);
-        setStatus('success');
-        toast({
-          title: '认证成功',
-          description: '欢迎使用文派！',
-        });
+        
+        // 重新检查认证状态（这会触发 UnifiedAuthContext 中的回调处理）
+        console.log('🔐 CallbackPage: 重新检查认证状态...');
+        await checkAuth();
+        
+        // 等待一段时间让认证处理完成
         setTimeout(() => {
-          // 处理完 code 后跳转到首页或 state 指定页面，replace: true 清理历史记录，防止重复消费
-          const redirectTo = callbackData.state ? decodeURIComponent(callbackData.state) : '/';
-          navigate(redirectTo, { replace: true });
-        }, 1500);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : '认证失败';
-        setError(errorMessage);
+          console.log('✅ CallbackPage: 认证处理完成');
+          setStatus('success');
+          setMessage('认证成功！正在跳转...');
+          
+          // 跳转到首页或指定页面
+          setTimeout(() => {
+            navigate('/');
+          }, 1000);
+        }, 1000);
+        
+      } catch (error) {
+        console.error('❌ CallbackPage: 处理回调失败:', error);
         setStatus('error');
-        toast({
-          title: '认证失败',
-          description: errorMessage,
-          variant: 'destructive'
-        });
+        setMessage('处理认证回调失败');
+        setError(error instanceof Error ? error.message : '未知错误');
       }
     };
+
     handleCallback();
-    // eslint-disable-next-line
-  }, [searchParams, handleAuthingLogin, navigate, toast]);
+  }, [searchParams, navigate, handleAuthingLogin, checkAuth]);
 
-  // 加载状态
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-              <p className="text-gray-600">正在处理认证回调...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const handleRetry = () => {
+    setStatus('loading');
+    setMessage('正在重新处理认证回调...');
+    setError(null);
+    window.location.reload();
+  };
 
-  // 成功状态
-  if (status === 'success') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <CheckCircle className="h-8 w-8 mx-auto mb-4 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">认证成功</h3>
-              <p className="text-gray-600">正在跳转到首页...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const handleGoHome = () => {
+    navigate('/');
+  };
 
-  // 错误状态
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">认证失败</CardTitle>
-          <CardDescription className="text-center">
-            处理认证回调时出现错误
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4">
+            {status === 'loading' && (
+              <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
+            )}
+            {status === 'success' && (
+              <CheckCircle className="h-12 w-12 text-green-500" />
+            )}
+            {status === 'error' && (
+              <XCircle className="h-12 w-12 text-red-500" />
+            )}
+          </div>
+          <CardTitle className="text-xl font-semibold">
+            {status === 'loading' && '认证处理中'}
+            {status === 'success' && '认证成功'}
+            {status === 'error' && '认证失败'}
+          </CardTitle>
+          <CardDescription className="text-sm text-gray-600">
+            {message}
           </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-4">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+          {status === 'loading' && (
+            <div className="text-center">
+              <div className="animate-pulse">
+                <div className="h-2 bg-gray-200 rounded mb-2"></div>
+                <div className="h-2 bg-gray-200 rounded mb-2"></div>
+                <div className="h-2 bg-gray-200 rounded w-3/4"></div>
+              </div>
+            </div>
+          )}
           
-          <div className="flex gap-2">
-            <button
-              onClick={() => window.location.reload()}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              重试
-            </button>
-            <button
-              onClick={() => navigate('/login')}
-              className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              返回登录
-            </button>
-          </div>
+          {status === 'success' && (
+            <div className="text-center space-y-3">
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <CheckCircle className="h-4 w-4 mr-1" />
+                登录成功
+              </Badge>
+              <p className="text-sm text-gray-600">
+                您已成功登录，正在跳转到首页...
+              </p>
+            </div>
+          )}
+          
+          {status === 'error' && (
+            <div className="space-y-3">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="flex items-start">
+                  <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-red-800">认证失败</p>
+                    {error && (
+                      <p className="text-red-600 mt-1">{error}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={handleRetry}
+                  className="flex-1"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  重试
+                </Button>
+                <Button 
+                  onClick={handleGoHome}
+                  className="flex-1"
+                >
+                  <Home className="h-4 w-4 mr-2" />
+                  返回首页
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          {/* 调试信息 */}
+          {import.meta.env.DEV && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <p className="text-xs font-mono text-gray-600">
+                <strong>调试信息:</strong><br />
+                Code: {searchParams.get('code') || '无'}<br />
+                State: {searchParams.get('state') || '无'}<br />
+                Error: {searchParams.get('error') || '无'}<br />
+                Error Description: {searchParams.get('error_description') || '无'}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
-} 
+};
+
+export default CallbackPage; 

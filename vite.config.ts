@@ -9,6 +9,8 @@ export default defineConfig({
   plugins: [react(), envPlugin()],
   // 优化 base 路径配置，支持通过环境变量 VITE_BASE_PATH 设置，兼容子路径部署
   base: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
+  root: '.',
+  publicDir: 'public',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -21,8 +23,6 @@ export default defineConfig({
       VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
       VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
       VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
-      // ⚠️ VITE_AUTHING_HOST 必须为完整认证地址（含应用路径），如 https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644
-      VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || 'https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '',
       VITE_DEBUG_MODE: process.env.VITE_DEBUG_MODE || '',
       VITE_LOG_LEVEL: process.env.VITE_LOG_LEVEL || '',
@@ -32,8 +32,8 @@ export default defineConfig({
   },
   // 开发服务器配置
   server: {
-    port: 5173,
-    host: true
+    port: 3000,
+    host: 'localhost'
   },
   // 预览服务器配置
   preview: {
@@ -49,7 +49,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          authing: ['@authing/guard', '@authing/guard-react'],
           ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
         }
       }

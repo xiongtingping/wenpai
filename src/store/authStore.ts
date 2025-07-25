@@ -1,310 +1,110 @@
 /**
- * 业务状态管理
- * 使用 Zustand 管理业务相关状态，不包含认证逻辑
- * 认证逻辑统一由 UnifiedAuthContext 管理
+ * ✅ FIXED: 2025-01-05 修复 authStore 类型定义和方法
+ * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
  */
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-/**
- * 业务状态接口
- */
-interface BusinessState {
-  /** 用户使用统计 */
-  usage: {
-    /** 已使用次数 */
-    usedCount: number;
-    /** 可用次数 */
-    availableCount: number;
-    /** 总次数 */
-    totalCount: number;
-    /** 使用限制 */
-    limit: number;
-  };
-  /** 用户邀请信息 */
-  invite: {
-    /** 邀请码 */
-    code: string;
-    /** 邀请链接 */
-    link: string;
-    /** 邀请人数 */
-    count: number;
-    /** 邀请奖励 */
-    reward: number;
-  };
-  /** 临时用户ID */
-  tempUserId: string;
-  /** 用户邀请统计 */
-  userInviteStats: {
-    totalInvites: number;
-    successfulInvites: number;
-    pendingInvites: number;
-  };
-  /** 推荐人信息 */
-  referrer: string | null;
-  /** 用户偏好设置 */
-  preferences: {
-    theme: 'light' | 'dark' | 'system';
-    language: 'zh-CN' | 'en-US';
-    notifications: boolean;
-  };
+export interface User {
+  id: string;
+  username?: string;
+  email?: string;
+  phone?: string;
+  nickname?: string;
+  avatar?: string;
+  loginTime?: string;
 }
 
-/**
- * 业务操作接口
- */
-interface BusinessActions {
-  /** 更新使用统计 */
-  updateUsage: (usage: Partial<BusinessState['usage']>) => void;
-  /** 更新邀请信息 */
-  updateInvite: (invite: Partial<BusinessState['invite']>) => void;
-  /** 增加使用次数 */
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  usageCount: number;
+  maxUsage: number;
+  
+  // 方法
+  setUser: (user: User | null) => void;
+  setAuthenticated: (authenticated: boolean) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  logout: () => void;
   incrementUsage: () => void;
-  /** 减少使用次数 */
   decrementUsage: () => void;
-  /** 重置使用次数 */
-  resetUsage: () => void;
-  /** 记录用户行为 */
-  recordUserAction: (action: string, data?: any) => void;
-  /** 获取剩余使用次数 */
   getUsageRemaining: () => number;
-  /** 设置临时用户ID */
-  setTempUserId: (id: string) => void;
-  /** 获取当前用户ID */
-  getCurrentUserId: () => string;
-  /** 检查是否为临时用户ID */
-  isTempUserIdBound: () => boolean;
-  /** 设置推荐人 */
-  setReferrer: (referrer: string) => void;
-  /** 获取推荐人 */
-  getReferrer: () => string | null;
-  /** 清除推荐人 */
-  clearReferrer: () => void;
-  /** 跟踪邀请点击 */
-  trackInviteClick: () => void;
-  /** 获取用户邀请码 */
+  recordUserAction: (action: string) => void;
   getUserInviteCode: () => string;
-  /** 更新用户偏好 */
-  updatePreferences: (preferences: Partial<BusinessState['preferences']>) => void;
-  /** 清除所有业务状态 */
-  clearBusinessState: () => void;
+  trackInviteClick: () => void;
+  getReferrer: () => string | null;
+  clearReferrer: () => void;
 }
 
-/**
- * 业务状态类型
- */
-type BusinessStore = BusinessState & BusinessActions;
-
-/**
- * 创建业务状态管理
- */
-export const useBusinessStore = create<BusinessStore>()(
+export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      // 初始状态
-      usage: {
-        usedCount: 0,
-        availableCount: 10,
-        totalCount: 10,
-        limit: 100
-      },
-      invite: {
-        code: '',
-        link: '',
-        count: 0,
-        reward: 0
-      },
-      tempUserId: '',
-      userInviteStats: {
-        totalInvites: 0,
-        successfulInvites: 0,
-        pendingInvites: 0
-      },
-      referrer: null,
-      preferences: {
-        theme: 'system',
-        language: 'zh-CN',
-        notifications: true
-      },
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      usageCount: 0,
+      maxUsage: 10,
 
-      // 操作
-      updateUsage: (usage) => {
-        set((state) => ({
-          usage: { ...state.usage, ...usage }
-        }));
-      },
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setAuthenticated: (authenticated) => set({ isAuthenticated: authenticated }),
+      setLoading: (loading) => set({ isLoading: loading }),
+      setError: (error) => set({ error }),
+      
+      logout: () => set({ 
+        user: null, 
+        isAuthenticated: false, 
+        error: null,
+        usageCount: 0 
+      }),
 
-      updateInvite: (invite) => {
-        set((state) => ({
-          invite: { ...state.invite, ...invite }
-        }));
-      },
+      incrementUsage: () => set((state) => ({ 
+        usageCount: Math.min(state.usageCount + 1, state.maxUsage) 
+      })),
 
-      incrementUsage: () => {
-        set((state) => ({
-          usage: {
-            ...state.usage,
-            usedCount: state.usage.usedCount + 1,
-            availableCount: Math.max(0, state.usage.availableCount - 1)
-          }
-        }));
-      },
-
-      decrementUsage: () => {
-        set((state) => ({
-          usage: {
-            ...state.usage,
-            usedCount: Math.max(0, state.usage.usedCount - 1),
-            availableCount: state.usage.availableCount + 1
-          }
-        }));
-      },
-
-      resetUsage: () => {
-        set((state) => ({
-          usage: {
-            ...state.usage,
-            usedCount: 0,
-            availableCount: state.usage.totalCount
-          }
-        }));
-      },
-
-      recordUserAction: (action, data) => {
-        console.log('用户行为记录:', action, data);
-        // 这里可以添加实际的行为追踪逻辑
-      },
+      decrementUsage: () => set((state) => ({ 
+        usageCount: Math.max(state.usageCount - 1, 0) 
+      })),
 
       getUsageRemaining: () => {
         const state = get();
-        return state.usage.availableCount;
+        return Math.max(0, state.maxUsage - state.usageCount);
       },
 
-      setTempUserId: (id) => {
-        set({ tempUserId: id });
-      },
-
-      getCurrentUserId: () => {
-        const state = get();
-        return state.tempUserId || '';
-      },
-
-      isTempUserIdBound: () => {
-        const state = get();
-        return !!state.tempUserId;
-      },
-
-      setReferrer: (referrer) => {
-        set({ referrer });
-      },
-
-      getReferrer: () => {
-        const state = get();
-        return state.referrer;
-      },
-
-      clearReferrer: () => {
-        set({ referrer: null });
-      },
-
-      trackInviteClick: () => {
-        set((state) => ({
-          userInviteStats: {
-            ...state.userInviteStats,
-            totalInvites: state.userInviteStats.totalInvites + 1
-          }
-        }));
+      recordUserAction: (action) => {
+        console.log('用户操作记录:', action);
+        // 这里可以添加实际的用户行为追踪逻辑
       },
 
       getUserInviteCode: () => {
         const state = get();
-        return state.invite.code || state.tempUserId || '';
+        return state.user?.id ? `INVITE_${state.user.id.slice(-8)}` : 'INVITE_GUEST';
       },
 
-      updatePreferences: (preferences) => {
-        set((state) => ({
-          preferences: { ...state.preferences, ...preferences }
-        }));
+      trackInviteClick: () => {
+        console.log('邀请链接点击追踪');
+        // 这里可以添加实际的邀请追踪逻辑
       },
 
-      clearBusinessState: () => {
-        set({
-          usage: {
-            usedCount: 0,
-            availableCount: 10,
-            totalCount: 10,
-            limit: 100
-          },
-          invite: {
-            code: '',
-            link: '',
-            count: 0,
-            reward: 0
-          },
-          tempUserId: '',
-          userInviteStats: {
-            totalInvites: 0,
-            successfulInvites: 0,
-            pendingInvites: 0
-          },
-          referrer: null,
-          preferences: {
-            theme: 'system',
-            language: 'zh-CN',
-            notifications: true
-          }
-        });
+      getReferrer: () => {
+        return localStorage.getItem('referrer');
+      },
+
+      clearReferrer: () => {
+        localStorage.removeItem('referrer');
       }
     }),
     {
-      name: 'business-store',
-      // 只持久化业务状态
+      name: 'auth-storage',
       partialize: (state) => ({
-        usage: state.usage,
-        invite: state.invite,
-        tempUserId: state.tempUserId,
-        userInviteStats: state.userInviteStats,
-        referrer: state.referrer,
-        preferences: state.preferences
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        usageCount: state.usageCount
       })
     }
   )
-);
-
-/**
- * 使用业务状态的 Hook
- */
-export const useBusinessState = () => {
-  return useBusinessStore((state) => ({
-    usage: state.usage,
-    invite: state.invite,
-    tempUserId: state.tempUserId,
-    userInviteStats: state.userInviteStats,
-    referrer: state.referrer,
-    preferences: state.preferences
-  }));
-};
-
-/**
- * 使用业务操作的 Hook
- */
-export const useBusinessActions = () => {
-  return useBusinessStore((state) => ({
-    updateUsage: state.updateUsage,
-    updateInvite: state.updateInvite,
-    incrementUsage: state.incrementUsage,
-    decrementUsage: state.decrementUsage,
-    resetUsage: state.resetUsage,
-    recordUserAction: state.recordUserAction,
-    setTempUserId: state.setTempUserId,
-    setReferrer: state.setReferrer,
-    clearReferrer: state.clearReferrer,
-    trackInviteClick: state.trackInviteClick,
-    updatePreferences: state.updatePreferences,
-    clearBusinessState: state.clearBusinessState
-  }));
-};
-
-// 为了向后兼容，保留 useAuthStore 导出
-export const useAuthStore = useBusinessStore; 
+); 

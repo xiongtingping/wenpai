@@ -1,6 +1,6 @@
 {
   "name": "tw-animate-css",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "TailwindCSS v4.0 compatible replacement for `tailwindcss-animate`.",
   "keywords": [
     "accordion",

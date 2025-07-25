@@ -49,7 +49,7 @@ class AuthingClient {
       const Authing = (AuthingModule as any).Authing;
 
       // 使用正确的函数调用
-      AuthingClient.sdkInstance = Authing({
+      AuthingClient.sdkInstance = new Authing({
         domain: this.config.host,
         appId: this.config.appId,
         userPoolId: this.config.userPoolId,
@@ -73,13 +73,13 @@ class AuthingClient {
   }
 
   /**
-   * 处理回调
+   * 获取当前用户信息（v5标准）
    */
-  async handleCallback(): Promise<any> {
+  async getUserInfo(): Promise<any> {
     if (!this.authing) {
       throw new Error('Authing SDK 未初始化');
     }
-    return this.authing.handleCallback();
+    return this.authing.getUserInfo();
   }
 
   /**

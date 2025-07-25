@@ -43,7 +43,7 @@ const PageTracker: React.FC<PageTrackerProps> = ({
       }
     };
 
-    recordUserAction('pageVisit', pageData);
+    recordUserAction('pageVisit');
 
     // 记录页面停留时间（在组件卸载时）
     const startTime = Date.now();
@@ -51,11 +51,7 @@ const PageTracker: React.FC<PageTrackerProps> = ({
     return () => {
       const duration = Date.now() - startTime;
       if (duration > 1000) { // 只记录停留超过1秒的页面
-        recordUserAction('pageVisit', {
-          ...pageData,
-          duration,
-          action: 'page_leave'
-        });
+        recordUserAction('pageLeave');
       }
     };
   }, [location.pathname, title, description, metadata, recordUserAction]);
