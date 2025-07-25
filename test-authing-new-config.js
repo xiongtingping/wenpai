@@ -9,16 +9,16 @@ const testAuthingConfig = () => {
   // 新的配置信息
   const newConfig = {
     appId: '687bc631c105de597b993202',
-    host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+    host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
     redirectUri: 'http://localhost:5173/callback',
     endpoints: {
-      token: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/token',
-      userInfo: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/me',
-      logout: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/session/end',
-      jwks: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/.well-known/jwks.json',
-      auth: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth',
-      issuer: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc',
-      discovery: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/.well-known/openid-configuration'
+      token: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/token',
+      userInfo: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/me',
+      logout: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/session/end',
+      jwks: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/.well-known/jwks.json',
+      auth: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/auth',
+      issuer: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc',
+      discovery: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/.well-known/openid-configuration'
     }
   };
 

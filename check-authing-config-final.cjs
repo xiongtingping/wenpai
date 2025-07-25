@@ -12,9 +12,9 @@ console.log('🔍 Authing 配置最终检查开始...\n');
 
 // Authing 配置
 const AUTHING_CONFIG = {
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
-  appId: '687e0aafee2b84f86685b644',
-  userPoolId: '687e0aafee2b84f86685b644',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
+  appId: '688237f7f9e118de849dc274',
+  userPoolId: '688237f7f9e118de849dc274',
   callbackUrls: [
     'http://localhost:5173/callback',
     'http://localhost:5174/callback', 

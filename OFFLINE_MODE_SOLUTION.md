@@ -23,7 +23,7 @@ ERR_CONNECTION_CLOSED
 // 检查Authing服务可用性
 const checkAuthingService = async () => {
   try {
-    const response = await fetch('https://qutkgzkfaezk-demo.authing.cn/api/v2/applications/6867fdc88034eb95ae86167d/public-config', {
+    const response = await fetch('https://qutkgzkfaezk-demo.authing.cn/api/v2/applications/688237f7f9e118de849dc274/public-config', {
       method: 'GET',
       signal: AbortSignal.timeout(3000) // 3秒超时
     });

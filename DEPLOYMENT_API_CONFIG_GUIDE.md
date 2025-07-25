@@ -21,7 +21,7 @@
 VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
 
 # Authing认证配置（必需）
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
 VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```
@@ -74,7 +74,7 @@ VITE_WECHAT_API_KEY=your-actual-wechat-api-key
 ```bash
 # 必需配置
 OPENAI_API_KEY=sk-your-actual-openai-api-key
-AUTHING_APP_ID=6867fdc88034eb95ae86167d
+AUTHING_APP_ID=688237f7f9e118de849dc274
 AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 
 # 可选配置
@@ -125,7 +125,7 @@ vercel --prod
 ```bash
 # 必需配置
 VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
 VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 
 # 可选配置

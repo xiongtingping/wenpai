@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * ✅ FIXED: 2024-07-21 Authing测试脚本已切换为新App ID 687e0aafee2b84f86685b644
+ * ✅ FIXED: 2024-07-21 Authing测试脚本已切换为新App ID 688237f7f9e118de849dc274
  * 📌 请勿改动，后续如需更换请单独审批
  */
 
@@ -15,7 +15,7 @@ const https = require('https');
  * 测试Authing登录URL
  */
 function testAuthingLogin() {
-  const appId = '687e0aafee2b84f86685b644';
+  const appId = '688237f7f9e118de849dc274';
   const redirectUri = 'http://localhost:5173/callback';
   
   const params = new URLSearchParams({
@@ -26,7 +26,7 @@ function testAuthingLogin() {
     state: 'test-state-' + Date.now()
   });
   
-  const loginUrl = `ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?${params.toString()}`;
+  const loginUrl = `ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/auth?${params.toString()}`;
   
   console.log('🔍 测试Authing登录URL:');
   console.log('📋 App ID:', appId);
@@ -96,7 +96,7 @@ async function testDifferentParams() {
     {
       name: '标准OIDC参数',
       params: {
-        client_id: '687e0aafee2b84f86685b644',
+        client_id: '688237f7f9e118de849dc274',
         redirect_uri: 'http://localhost:5173/callback',
         response_type: 'code',
         scope: 'openid profile email phone',
@@ -106,7 +106,7 @@ async function testDifferentParams() {
     {
       name: '简化scope',
       params: {
-        client_id: '687e0aafee2b84f86685b644',
+        client_id: '688237f7f9e118de849dc274',
         redirect_uri: 'http://localhost:5173/callback',
         response_type: 'code',
         scope: 'openid',
@@ -116,7 +116,7 @@ async function testDifferentParams() {
     {
       name: '使用5174端口',
       params: {
-        client_id: '687e0aafee2b84f86685b644',
+        client_id: '688237f7f9e118de849dc274',
         redirect_uri: 'http://localhost:5174/callback',
         response_type: 'code',
         scope: 'openid profile email phone',
@@ -128,7 +128,7 @@ async function testDifferentParams() {
   for (const test of tests) {
     console.log(`\n🔍 测试: ${test.name}`);
     const params = new URLSearchParams(test.params);
-    const loginUrl = `ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?${params.toString()}`;
+    const loginUrl = `ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/auth?${params.toString()}`;
     
     const result = await new Promise((resolve) => {
       const req = https.get(loginUrl, (res) => {

@@ -52,7 +52,7 @@ npm run dev
 
 #### Authing配置
 项目已预配置Authing测试环境，可直接使用：
-- 应用ID: `6867fdc88034eb95ae86167d`
+- 应用ID: `688237f7f9e118de849dc274`
 - 域名: `https://qutkgzkfaezk-demo.authing.cn`
 
 ### 环境变量配置
@@ -75,7 +75,7 @@ nano .env.local
 ```env
 # 必需配置
 VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
 VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 VITE_AUTHING_REDIRECT_URI_PROD=http://localhost:5173/callback
 

@@ -65,17 +65,20 @@
 
 # 环境变量设置
 # ===================
-# ✅ FIXED: 2024-07-21 Authing配置已切换为新应用
-# App ID: 687e0aafee2b84f86685b644
-# 认证地址: https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644
-# 📌 请勿改动，后续如需更换请单独审批
+# ✅ FIXED: 2025-07-25 Authing配置已更新为用户确认的App ID
+# App ID: 68823897631e1ef8ff3720b2 (用户确认)
+# 认证域名: rzcswqd4sq0f.authing.cn
+# 📌 基于用户提供的正确App ID更新
 # ===================
 [context.production.environment]
   NODE_ENV = "production"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
-  VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
+  VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
+  VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
@@ -95,9 +98,12 @@
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
-  VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
+  VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
+  VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
@@ -117,9 +123,12 @@
 [context.branch-deploy.environment]
   NODE_ENV = "development"
   # Authing配置
-  VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
-  VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
+  VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
+  VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
@@ -145,9 +154,12 @@
   [dev.environment]
     CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
     # Authing配置
-    VITE_AUTHING_APP_ID = "687e0aafee2b84f86685b644"
-    VITE_AUTHING_HOST = "ai-wenpai.authing.cn/687e0aafee2b84f86685b644"
-    VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
+    VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+    VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
+    VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+    VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
+  VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
     VITE_AUTHING_APP_TYPE = "oidc"
     # OpenAI配置
     VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"

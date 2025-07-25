@@ -47,7 +47,7 @@ redirectUri = `http://${currentHost}:${currentPort}/`;
 
 ### 第2步：更新 Authing 后台配置
 
-进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/6867fdc88034eb95ae86167d?app_detail_active_tab=quick_start)
+进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start)
 
 **更新回调 URL：**
 

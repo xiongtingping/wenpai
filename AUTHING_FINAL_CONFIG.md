@@ -8,7 +8,7 @@
 - **状态**: ✅ 正常工作
 
 ### 应用配置
-- **App ID**: `6867fdc88034eb95ae86167d`
+- **App ID**: `688237f7f9e118de849dc274`
 - **认证模式**: Modal (弹窗模式)
 - **默认场景**: Login (登录)
 - **当前端口**: 5177 (动态分配)
@@ -55,7 +55,7 @@ https://wenpai.netlify.app/
 ## 🚀 操作步骤
 
 ### 第1步：更新 Authing 后台配置
-1. 进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/6867fdc88034eb95ae86167d?app_detail_active_tab=quick_start)
+1. 进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start)
 2. 确认认证地址为：`https://qutkgzkfaezk-demo.authing.cn`
 3. 添加上述所有回调 URL（特别注意添加 5177 端口）
 4. 保存配置

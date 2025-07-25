@@ -58,7 +58,7 @@ async function testOIDCConfiguration() {
   console.log('🔍 测试Authing OIDC配置端点');
   console.log('=====================================');
 
-  const configUrl = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/.well-known/openid-configuration';
+  const configUrl = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/.well-known/openid-configuration';
   
   try {
     console.log(`📡 请求: ${configUrl}`);
@@ -185,7 +185,7 @@ async function runTests() {
   console.log('🚀 开始Authing OIDC端点测试');
   console.log('=====================================');
   console.log(`⏰ 测试时间: ${new Date().toLocaleString()}`);
-  console.log(`🌐 测试域名: ai-wenpai.authing.cn/687e0aafee2b84f86685b644`);
+  console.log(`🌐 测试域名: ai-wenpai.authing.cn/688237f7f9e118de849dc274`);
   console.log(`🆔 应用ID: 687c5c7f4e778a6485a4f0e0`);
   console.log(`📍 回调URL: https://wenpai.netlify.app/callback`);
   console.log('');

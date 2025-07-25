@@ -22,8 +22,8 @@ console.log('   左侧菜单 → 应用 → 自建应用 → wenpai\n');
 console.log('3️⃣ 验证应用配置:');
 console.log('   ✅ 应用状态: 确保应用已启用');
 console.log('   ✅ 应用类型: 确保为"单页 Web 应用"');
-console.log('   ✅ 认证地址: ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
-console.log('   ✅ App ID: 687e0aafee2b84f86685b644\n');
+console.log('   ✅ 认证地址: ai-wenpai.authing.cn/688237f7f9e118de849dc274');
+console.log('   ✅ App ID: 688237f7f9e118de849dc274\n');
 
 console.log('4️⃣ 检查授权配置:');
 console.log('   点击"授权配置"选项卡，确保:');

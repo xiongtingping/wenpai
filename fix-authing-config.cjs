@@ -31,7 +31,7 @@ console.log('📋 当前配置:', currentConfig);
 
 // 修复配置
 const fixedConfig = {
-  appId: currentConfig.appId || '687e0aafee2b84f86685b644',
+  appId: currentConfig.appId || '688237f7f9e118de849dc274',
   host: currentConfig.host || 'wenpai.authing.cn',
   redirectUriDev: 'http://localhost:8888/callback',  // 使用 Netlify dev 端口
   redirectUriProd: currentConfig.redirectUriProd || 'https://www.wenpai.xyz/callback'
@@ -83,7 +83,7 @@ async function validateConfig() {
   
   const domains = [
     'wenpai.authing.cn',
-    'ai-wenpai.authing.cn/687e0aafee2b84f86685b644'
+    'ai-wenpai.authing.cn/688237f7f9e118de849dc274'
   ];
   
   for (const domain of domains) {

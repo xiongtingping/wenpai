@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing配置测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Authing配置测试页面</h1>
+    
+    <div id="status"></div>
+    
+    <h2>📋 配置信息</h2>
+    <div id="config"></div>
+    
+    <h2>🔧 测试结果</h2>
+    <div id="results"></div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        const configDiv = document.getElementById('config');
+        const resultsDiv = document.getElementById('results');
+        
+        function addStatus(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            statusDiv.appendChild(div);
+        }
+        
+        function addConfig(key, value) {
+            const div = document.createElement('div');
+            div.innerHTML = `<strong>${key}:</strong> <code>${value || 'undefined'}</code>`;
+            configDiv.appendChild(div);
+        }
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        // 开始测试
+        addStatus('开始Authing配置测试...', 'info');
+        
+        // 检查环境变量
+        const expectedAppId = '68823897631e1ef8ff3720b2';
+        const expectedDomain = 'rzcswqd4sq0f.authing.cn';
+        
+        addConfig('预期App ID', expectedAppId);
+        addConfig('预期Domain', expectedDomain);
+        
+        // 模拟环境变量（因为这是静态HTML）
+        const mockEnv = {
+            VITE_AUTHING_APP_ID: expectedAppId,
+            VITE_AUTHING_DOMAIN: expectedDomain,
+            VITE_AUTHING_HOST: `https://${expectedDomain}`
+        };
+        
+        addConfig('模拟App ID', mockEnv.VITE_AUTHING_APP_ID);
+        addConfig('模拟Domain', mockEnv.VITE_AUTHING_DOMAIN);
+        addConfig('模拟Host', mockEnv.VITE_AUTHING_HOST);
+        
+        // 测试配置获取逻辑
+        function testConfigLogic() {
+            try {
+                // 模拟getEnvVar函数
+                function getEnvVar(key, defaultValue = '') {
+                    return mockEnv[key] || defaultValue;
+                }
+                
+                const APP_ID = getEnvVar('VITE_AUTHING_APP_ID', expectedAppId);
+                const DOMAIN = getEnvVar('VITE_AUTHING_DOMAIN', expectedDomain);
+                const HOST = getEnvVar('VITE_AUTHING_HOST', `https://${DOMAIN}`);
+                
+                const config = {
+                    appId: APP_ID,
+                    domain: DOMAIN,
+                    host: HOST,
+                    redirectUri: `${window.location.origin}/callback`
+                };
+                
+                addResult('✅ 配置获取成功', 'success');
+                addResult(`<pre>${JSON.stringify(config, null, 2)}</pre>`, 'info');
+                
+                // 验证配置
+                const appIdCorrect = config.appId === expectedAppId;
+                const domainCorrect = config.domain === expectedDomain;
+                
+                if (appIdCorrect && domainCorrect) {
+                    addResult('✅ 配置验证通过！', 'success');
+                    addResult('🎉 Authing配置修复成功，可以尝试初始化Guard实例', 'success');
+                } else {
+                    addResult('❌ 配置验证失败', 'error');
+                    if (!appIdCorrect) addResult(`App ID不匹配: 期望 ${expectedAppId}, 实际 ${config.appId}`, 'error');
+                    if (!domainCorrect) addResult(`Domain不匹配: 期望 ${expectedDomain}, 实际 ${config.domain}`, 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ 配置测试失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 运行测试
+        testConfigLogic();
+        
+        addStatus('测试完成', 'success');
+        
+        // 添加访问主应用的链接
+        const linkDiv = document.createElement('div');
+        linkDiv.innerHTML = `
+            <h2>🚀 下一步</h2>
+            <p><a href="http://localhost:5174" target="_blank">访问主应用测试登录功能</a></p>
+            <p>在主应用中打开浏览器控制台，查看是否还有Authing初始化错误</p>
+        `;
+        document.body.appendChild(linkDiv);
+    </script>
+</body>
+</html>

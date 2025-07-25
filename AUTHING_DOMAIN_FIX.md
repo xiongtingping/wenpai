@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 687e0aafee2b84f86685b644
- * Host: ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+ * App ID: 688237f7f9e118de849dc274
+ * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -17,7 +17,7 @@ host: 'wenpai.authing.cn'  // ❌ 错误域名
 
 应该使用：
 ```
-host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644'  // ✅ 正确域名
+host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274'  // ✅ 正确域名
 ```
 
 ## 🔧 修复步骤
@@ -34,7 +34,7 @@ VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 
 **修改后**:
 ```bash
-VITE_AUTHING_HOST=ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+VITE_AUTHING_HOST=ai-wenpai.authing.cn/688237f7f9e118de849dc274
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/
 ```
 
@@ -43,18 +43,18 @@ VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/
 已在 `src/config/authing.ts` 中强制使用正确域名：
 ```typescript
 // 强制使用正确的域名，忽略环境变量中的错误配置
-host = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644';
+host = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274';
 ```
 
 ### 第3步：更新 Authing 后台配置
 
-进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/6867fdc88034eb95ae86167d?app_detail_active_tab=quick_start)
+进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start)
 
 **更新配置**：
 
 #### 认证地址
 ```
-https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+https://ai-wenpai.authing.cn/688237f7f9e118de849dc274
 ```
 
 #### 登录回调 URL
@@ -77,8 +77,8 @@ http://localhost:5173/
 ## 🎯 关键配置
 
 ### 正确的配置
-- **App ID**: `687e0aafee2b84f86685b644`
-- **Host**: `ai-wenpai.authing.cn/687e0aafee2b84f86685b644`
+- **App ID**: `688237f7f9e118de849dc274`
+- **Host**: `ai-wenpai.authing.cn/688237f7f9e118de849dc274`
 - **回调地址**: `http://localhost:5173/`
 
 ### 错误的配置
@@ -99,7 +99,7 @@ http://localhost:5173/
 ```javascript
 // 检查当前 Authing 配置
 console.log('🔧 当前配置:');
-console.log('Host:', 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
+console.log('Host:', 'ai-wenpai.authing.cn/688237f7f9e118de849dc274');
 console.log('回调地址:', window.location.origin + '/');
 ```
 

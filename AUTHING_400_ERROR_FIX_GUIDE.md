@@ -3,7 +3,7 @@
 ## 问题描述
 登录时出现 400 Bad Request 错误：
 ```
-GET https://qutkgzkfaezk-demo.authing.cn/oidc/auth?client_id=6867fdc88034eb95ae86167d&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&scope=openid+profile+email+phone&response_type=code&state=%2Fcreative 400 (Bad Request)
+GET https://qutkgzkfaezk-demo.authing.cn/oidc/auth?client_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&scope=openid+profile+email+phone&response_type=code&state=%2Fcreative 400 (Bad Request)
 ```
 
 ## 问题原因分析
@@ -15,7 +15,7 @@ GET https://qutkgzkfaezk-demo.authing.cn/oidc/auth?client_id=6867fdc88034eb95ae8
 5. **应用配置不完整**
 
 ## 当前配置
-- 应用ID: `6867fdc88034eb95ae86167d`
+- 应用ID: `688237f7f9e118de849dc274`
 - 域名: `qutkgzkfaezk-demo.authing.cn`
 - 回调URL: `http://localhost:5173/callback`
 
@@ -24,7 +24,7 @@ GET https://qutkgzkfaezk-demo.authing.cn/oidc/auth?client_id=6867fdc88034eb95ae8
 ### 1. 检查应用是否存在
 1. 登录 [Authing 控制台](https://console.authing.cn/)
 2. 进入 `应用管理`
-3. 查找应用ID为 `6867fdc88034eb95ae86167d` 的应用
+3. 查找应用ID为 `688237f7f9e118de849dc274` 的应用
 4. 如果不存在，需要创建新应用
 
 ### 2. 创建新应用（如果需要）

@@ -13,9 +13,9 @@ console.log('=====================================\n');
 
 // 配置信息
 const config = {
-  appId: '687e0aafee2b84f86685b644',
-  userPoolId: '687e0aafee2b84f86685b644',
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+  appId: '688237f7f9e118de849dc274',
+  userPoolId: '688237f7f9e118de849dc274',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
   redirectUri: 'http://localhost:5175/callback',
   scope: 'openid profile email phone'
 };
@@ -165,7 +165,7 @@ function showFixGuide() {
   
   console.log('📋 步骤 1: 检查 Authing 控制台应用配置');
   console.log('   1. 登录 Authing 控制台: https://console.authing.cn');
-  console.log('   2. 进入应用管理 -> 找到应用 ID: 687e0aafee2b84f86685b644');
+  console.log('   2. 进入应用管理 -> 找到应用 ID: 688237f7f9e118de849dc274');
   console.log('   3. 点击应用进入详情页面\n');
   
   console.log('📋 步骤 2: 配置回调 URL');

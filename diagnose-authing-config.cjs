@@ -11,7 +11,7 @@ const https = require('https');
  */
 function checkOIDCConfig() {
   return new Promise((resolve) => {
-    const url = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/.well-known/openid-configuration';
+    const url = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/.well-known/openid-configuration';
     
     console.log('🔍 检查OIDC配置...');
     console.log('📋 URL:', url);
@@ -69,14 +69,14 @@ async function testCallbackUrlFormats() {
   
   for (const url of testUrls) {
     const params = new URLSearchParams({
-      client_id: '687e0aafee2b84f86685b644',
+      client_id: '688237f7f9e118de849dc274',
       redirect_uri: url,
       response_type: 'code',
       scope: 'openid',
       state: 'test-state'
     });
     
-    const loginUrl = `ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?${params.toString()}`;
+    const loginUrl = `ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/auth?${params.toString()}`;
     
     const result = await new Promise((resolve) => {
       const req = https.get(loginUrl, (res) => {
@@ -104,7 +104,7 @@ async function testCallbackUrlFormats() {
 function checkAppStatus() {
   return new Promise((resolve) => {
     // 尝试访问应用的根路径
-    const url = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644/';
+    const url = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274/';
     
     console.log('\n🔍 检查Authing应用状态...');
     console.log('📋 URL:', url);

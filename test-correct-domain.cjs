@@ -10,9 +10,9 @@ const https = require('https');
  * 测试Authing登录URL（使用正确域名）
  */
 function testAuthingLogin() {
-  const appId = '687e0aafee2b84f86685b644';
+  const appId = '688237f7f9e118de849dc274';
   const redirectUri = 'http://localhost:5173/callback';
-  const host = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644'; // 使用正确的域名
+  const host = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274'; // 使用正确的域名
   
   const params = new URLSearchParams({
     client_id: appId,
@@ -78,7 +78,7 @@ async function testDifferentCallbackUrls() {
   
   for (const url of testUrls) {
     const params = new URLSearchParams({
-      client_id: '687e0aafee2b84f86685b644',
+      client_id: '688237f7f9e118de849dc274',
       redirect_uri: url,
       response_type: 'code',
       scope: 'openid profile email phone',

@@ -10,7 +10,7 @@ const { URL } = require('url');
 console.log('🔧 检查Authing服务状态...\n');
 
 const appId = '687c5c7f4e778a6485a4f0e0';
-const host = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644';
+const host = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274';
 const testUrls = [
   `https://${host}`,
   `https://${host}/oidc/auth`,

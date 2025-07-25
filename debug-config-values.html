@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置值深度调试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+        button { padding: 12px 24px; margin: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .debug-section { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 配置值深度调试</h1>
+    
+    <div class="status error">
+        <strong>问题：</strong>硬编码配置后仍然出现"appId is required"错误，需要深度调试实际配置值
+    </div>
+    
+    <button class="btn-primary" onclick="debugConfig()">开始深度调试</button>
+    <button class="btn-danger" onclick="clearResults()">清除结果</button>
+    
+    <div class="debug-section">
+        <h3>📋 预期配置值</h3>
+        <div class="status info">
+            <strong>App ID:</strong> 68823897631e1ef8ff3720b2<br>
+            <strong>Domain:</strong> rzcswqd4sq0f.authing.cn<br>
+            <strong>Host:</strong> https://rzcswqd4sq0f.authing.cn
+        </div>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function debugConfig() {
+            clearResults();
+            addResult('🔍 开始配置值深度调试...', 'info');
+            
+            // 检查主应用是否可访问
+            try {
+                const response = await fetch('http://localhost:5174');
+                if (response.ok) {
+                    addResult('✅ 主应用可访问', 'success');
+                } else {
+                    addResult('❌ 主应用响应异常', 'error');
+                    return;
+                }
+            } catch (error) {
+                addResult('❌ 无法连接到主应用', 'error');
+                return;
+            }
+            
+            // 指导用户检查控制台
+            addResult('<h3>🔧 控制台调试指南</h3>', 'info');
+            addResult('请按照以下步骤检查主应用控制台:', 'warning');
+            addResult('1. 打开主应用: <a href="http://localhost:5174" target="_blank">http://localhost:5174</a>', 'info');
+            addResult('2. 打开浏览器开发者工具 (F12)', 'info');
+            addResult('3. 切换到 Console 标签页', 'info');
+            addResult('4. 查找以下调试信息:', 'info');
+            
+            addResult('<h4>🔍 需要查找的调试信息:</h4>', 'warning');
+            addResult('• "🔧 Authing配置 (硬编码):" - 来自 authing.ts', 'info');
+            addResult('• "🔍 深度调试 - 配置详情:" - 来自 UnifiedAuthContext.tsx', 'info');
+            addResult('• "config.appId:" 的实际值', 'info');
+            addResult('• "config.appId类型:" 的类型信息', 'info');
+            
+            addResult('<h4>❌ 如果看到错误信息:</h4>', 'error');
+            addResult('• "❌ Authing Guard实例初始化失败: Error: appId is required"', 'error');
+            addResult('• 请复制完整的调试信息并分析', 'error');
+            
+            addResult('<h3>🎯 分析要点</h3>', 'warning');
+            addResult('1. 检查 authing.ts 的配置是否被调用', 'warning');
+            addResult('2. 检查 config.appId 的实际值是否为 "68823897631e1ef8ff3720b2"', 'warning');
+            addResult('3. 检查 config.appId 的类型是否为 string', 'warning');
+            addResult('4. 检查是否有其他配置覆盖了硬编码值', 'warning');
+            
+            // 模拟配置检查
+            addResult('<h3>🧪 模拟配置检查</h3>', 'info');
+            
+            const expectedAppId = '68823897631e1ef8ff3720b2';
+            const expectedDomain = 'rzcswqd4sq0f.authing.cn';
+            const expectedHost = 'https://rzcswqd4sq0f.authing.cn';
+            
+            // 模拟硬编码配置
+            const mockConfig = {
+                appId: expectedAppId,
+                domain: expectedDomain,
+                host: expectedHost,
+                redirectUri: 'http://localhost:5174/callback'
+            };
+            
+            addResult('模拟硬编码配置:', 'info');
+            addResult(`<pre>${JSON.stringify(mockConfig, null, 2)}</pre>`, 'info');
+            
+            // 验证模拟配置
+            if (mockConfig.appId && mockConfig.appId === expectedAppId) {
+                addResult('✅ 模拟配置验证通过 - 硬编码值应该是正确的', 'success');
+                addResult('❓ 问题可能在于:', 'warning');
+                addResult('• authing.ts 文件没有被正确导入', 'warning');
+                addResult('• getAuthingConfig() 函数没有被调用', 'warning');
+                addResult('• 配置被其他地方覆盖了', 'warning');
+                addResult('• 缓存问题导致旧配置仍在使用', 'warning');
+            } else {
+                addResult('❌ 模拟配置验证失败', 'error');
+            }
+            
+            addResult('<h3>🔧 下一步调试建议</h3>', 'warning');
+            addResult('1. 在主应用控制台查看实际的调试输出', 'warning');
+            addResult('2. 如果没有看到 "🔧 Authing配置 (硬编码):" 输出，说明 getAuthingConfig() 没有被调用', 'warning');
+            addResult('3. 如果看到了输出但 appId 仍为空，说明有其他问题', 'warning');
+            addResult('4. 清除浏览器缓存并刷新页面', 'warning');
+            addResult('5. 重启开发服务器', 'warning');
+        }
+        
+        // 页面加载时自动运行调试
+        window.onload = function() {
+            setTimeout(debugConfig, 500);
+        };
+    </script>
+    
+    <div class="status warning" style="margin-top: 30px;">
+        <h3>⚠️ 重要提醒</h3>
+        <p>这次必须进行真正的调试，不能再假修复。请仔细检查主应用控制台的实际输出，找到真正的问题根源。</p>
+    </div>
+</body>
+</html>

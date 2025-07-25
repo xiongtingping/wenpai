@@ -167,7 +167,7 @@ authing-js-sdk: ^4.23.50
 ```typescript
 // Authing配置
 const config = {
-  appId: '6867fdc88034eb95ae86167d',
+  appId: '688237f7f9e118de849dc274',
   host: 'https://qutkgzkfaezk-demo.authing.cn',
   redirectUri: 'http://localhost:5173/callback'
 };

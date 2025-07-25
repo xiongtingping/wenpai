@@ -83,7 +83,7 @@ curl -s http://localhost:5173 | grep -A 10 "__ENV__"
 ```javascript
 window.__ENV__ = {
   VITE_OPENAI_API_KEY: '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',
-  VITE_AUTHING_APP_ID: '6867fdc88034eb95ae86167d',
+  VITE_AUTHING_APP_ID: '688237f7f9e118de849dc274',
   VITE_AUTHING_HOST: 'wenpai.authing.cn',
   // ... 其他环境变量
 };

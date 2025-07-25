@@ -6,7 +6,7 @@ Authing 后台仍使用旧域名，导致登录失败。
 ## ⚡ 快速修复步骤
 
 ### 第1步：修改认证地址 ⭐ **最重要**
-1. 进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/6867fdc88034eb95ae86167d?app_detail_active_tab=quick_start)
+1. 进入 [Authing 后台](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start)
 2. 找到"认证地址"字段
 3. 将 `https://qutkgzkfaezk-demo.authing.cn` 改为 `https://wenpai.authing.cn`
 4. 点击"保存"

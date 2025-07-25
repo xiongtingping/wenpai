@@ -35,7 +35,7 @@
 ### 问题描述
 Authing API网络连接失败：
 ```
-qutkgzkfaezk-demo.authing.cn/api/v2/applications/6867fdc88034eb95ae86167d/public-config:1 Failed to load resource: net::ERR_CONNECTION_CLOSED
+qutkgzkfaezk-demo.authing.cn/api/v2/applications/688237f7f9e118de849dc274/public-config:1 Failed to load resource: net::ERR_CONNECTION_CLOSED
 ```
 
 ### 解决方案

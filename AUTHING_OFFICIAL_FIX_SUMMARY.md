@@ -145,7 +145,7 @@ newGuard.on('login-error', (error) => {
 ## 配置说明
 
 ### Authing 控制台配置
-- **App ID**: 6867fdc88034eb95ae86167d
+- **App ID**: 688237f7f9e118de849dc274
 - **Host**: https://qutkgzkfaezk-demo.authing.cn
 - **Mode**: modal
 - **回调 URL**: 当前域名/callback

@@ -90,7 +90,7 @@
 ```typescript
 // UserEditForm.tsx
 const authing = new Authing({
-  appId: '6867fdc88034eb95ae86167d',
+  appId: '688237f7f9e118de849dc274',
   domain: '@https://qutkgzkfaezk-demo.authing.cn ',
 });
 

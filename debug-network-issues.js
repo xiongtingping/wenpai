@@ -18,7 +18,7 @@ function checkNetworkConnection() {
   const testUrls = [
     'https://www.google.com',
     'https://api.openai.com',
-    'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+    'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
     'https://www.baidu.com'
   ];
 
@@ -48,7 +48,7 @@ function checkDNSResolution() {
   console.log('\n=== DNS解析检查 ===');
   
   const domains = [
-    'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+    'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
     'api.openai.com',
     'www.google.com'
   ];

@@ -66,8 +66,8 @@ console.log('   • 每个 URL 必须单独占一行');
 console.log('   • 保存后可能需要等待几分钟才能生效\n');
 
 console.log('🔍 如果问题仍然存在:');
-console.log('   1. 检查应用 ID 是否正确: 687e0aafee2b84f86685b644');
-console.log('   2. 检查域名是否正确: ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
+console.log('   1. 检查应用 ID 是否正确: 688237f7f9e118de849dc274');
+console.log('   2. 检查域名是否正确: ai-wenpai.authing.cn/688237f7f9e118de849dc274');
 console.log('   3. 联系 Authing 技术支持');
 console.log('   4. 检查应用是否已启用\n');
 

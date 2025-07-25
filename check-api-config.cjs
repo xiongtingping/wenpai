@@ -68,7 +68,7 @@ const https = require('https');
 
 const testUrls = [
     'https://api.openai.com',
-    'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+    'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
     'https://www.wenpai.xyz'
 ];
 

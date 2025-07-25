@@ -103,7 +103,7 @@
 
 ```javascript
 const config = {
-    appId: '6867fdc88034eb95ae86167d',
+    appId: '688237f7f9e118de849dc274',
     host: 'https://qutkgzkfaezk-demo.authing.cn',
     redirectUri: `${window.location.origin}/callback`,
     mode: 'modal', // 关键：弹窗模式

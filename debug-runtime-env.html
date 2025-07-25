@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运行时环境变量诊断</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🔍 运行时环境变量诊断</h1>
+    
+    <div class="status error">
+        <strong>问题：</strong>配置文件已更新但运行时仍报"appId is required"错误
+    </div>
+    
+    <button class="btn-primary" onclick="diagnoseEnv()">开始诊断</button>
+    <button class="btn-danger" onclick="clearResults()">清除结果</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        function diagnoseEnv() {
+            clearResults();
+            addResult('🔍 开始运行时环境变量诊断...', 'info');
+            
+            // 检查import.meta.env
+            addResult('<h3>📋 检查 import.meta.env</h3>', 'info');
+            
+            if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+                addResult('✅ import.meta.env 可用', 'success');
+                
+                const authingVars = Object.keys(import.meta.env).filter(key => key.includes('AUTHING'));
+                if (authingVars.length > 0) {
+                    addResult(`✅ 找到 ${authingVars.length} 个 AUTHING 环境变量`, 'success');
+                    authingVars.forEach(key => {
+                        const value = import.meta.env[key];
+                        addResult(`   ${key}: ${value || 'undefined'}`, value ? 'success' : 'error');
+                    });
+                } else {
+                    addResult('❌ 未找到 AUTHING 相关环境变量', 'error');
+                }
+                
+                // 显示所有环境变量
+                addResult('<h4>所有环境变量:</h4>', 'info');
+                addResult(`<pre>${JSON.stringify(import.meta.env, null, 2)}</pre>`, 'info');
+                
+            } else {
+                addResult('❌ import.meta.env 不可用', 'error');
+            }
+            
+            // 检查window.__ENV__
+            addResult('<h3>📋 检查 window.__ENV__</h3>', 'info');
+            
+            if (typeof window !== 'undefined' && window.__ENV__) {
+                addResult('✅ window.__ENV__ 可用', 'success');
+                addResult(`<pre>${JSON.stringify(window.__ENV__, null, 2)}</pre>`, 'info');
+            } else {
+                addResult('❌ window.__ENV__ 不可用', 'error');
+            }
+            
+            // 模拟getEnvVar函数
+            addResult('<h3>🔧 模拟 getEnvVar 函数</h3>', 'info');
+            
+            function testGetEnvVar(key, defaultValue = '') {
+                let value = defaultValue;
+                let source = 'default';
+                
+                // 尝试从import.meta.env获取
+                if (typeof import !== 'undefined' && import.meta?.env?.[key]) {
+                    value = import.meta.env[key];
+                    source = 'import.meta.env';
+                }
+                // 尝试从window.__ENV__获取
+                else if (typeof window !== 'undefined' && window.__ENV__?.[key]) {
+                    value = window.__ENV__[key];
+                    source = 'window.__ENV__';
+                }
+                
+                return { value, source };
+            }
+            
+            const expectedAppId = '68823897631e1ef8ff3720b2';
+            const expectedDomain = 'rzcswqd4sq0f.authing.cn';
+            
+            const appIdResult = testGetEnvVar('VITE_AUTHING_APP_ID', expectedAppId);
+            const domainResult = testGetEnvVar('VITE_AUTHING_DOMAIN', expectedDomain);
+            const hostResult = testGetEnvVar('VITE_AUTHING_HOST', `https://${expectedDomain}`);
+            
+            addResult(`App ID: ${appIdResult.value} (来源: ${appIdResult.source})`, 
+                     appIdResult.value === expectedAppId ? 'success' : 'error');
+            addResult(`Domain: ${domainResult.value} (来源: ${domainResult.source})`, 
+                     domainResult.value === expectedDomain ? 'success' : 'error');
+            addResult(`Host: ${hostResult.value} (来源: ${hostResult.source})`, 'info');
+            
+            // 检查配置对象
+            addResult('<h3>🔧 模拟配置对象生成</h3>', 'info');
+            
+            const mockConfig = {
+                appId: appIdResult.value,
+                domain: domainResult.value,
+                host: hostResult.value,
+                redirectUri: `${window.location.origin}/callback`
+            };
+            
+            addResult(`<pre>${JSON.stringify(mockConfig, null, 2)}</pre>`, 'info');
+            
+            // 验证配置
+            if (mockConfig.appId && mockConfig.appId !== '') {
+                addResult('✅ App ID 不为空，应该不会出现 "appId is required" 错误', 'success');
+            } else {
+                addResult('❌ App ID 为空，这就是问题所在！', 'error');
+            }
+            
+            // 建议解决方案
+            addResult('<h3>💡 解决方案建议</h3>', 'warning');
+            
+            if (appIdResult.source === 'default') {
+                addResult('🔧 环境变量未正确注入，需要:', 'warning');
+                addResult('1. 重启开发服务器', 'warning');
+                addResult('2. 检查 .env.local 文件是否存在', 'warning');
+                addResult('3. 检查 vite.config.ts 中的环境变量定义', 'warning');
+                addResult('4. 清除浏览器缓存', 'warning');
+            } else {
+                addResult('✅ 环境变量注入正常，问题可能在其他地方', 'success');
+            }
+        }
+        
+        // 页面加载时自动运行诊断
+        window.onload = function() {
+            setTimeout(diagnoseEnv, 500);
+        };
+    </script>
+</body>
+</html>

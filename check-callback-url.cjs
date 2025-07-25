@@ -22,14 +22,14 @@ const testUrls = [
 function testCallbackUrl(redirectUri) {
   return new Promise((resolve) => {
     const params = new URLSearchParams({
-      client_id: '687e0aafee2b84f86685b644',
+      client_id: '688237f7f9e118de849dc274',
       redirect_uri: redirectUri,
       response_type: 'code',
       scope: 'openid profile email phone',
       state: 'test-state'
     });
     
-    const loginUrl = `ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?${params.toString()}`;
+    const loginUrl = `ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/auth?${params.toString()}`;
     
     console.log(`\n🔍 测试回调URL: ${redirectUri}`);
     

@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 687e0aafee2b84f86685b644
- * Host: ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+ * App ID: 688237f7f9e118de849dc274
+ * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -96,9 +96,9 @@ VITE_GEMINI_MODEL=gemini-pro
 VITE_GEMINI_TIMEOUT=30000
 
 # Authing 配置
-VITE_AUTHING_APP_ID=687e0aafee2b84f86685b644
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
 VITE_AUTHING_SECRET=your-authing-secret-key
-VITE_AUTHING_HOST=ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+VITE_AUTHING_HOST=ai-wenpai.authing.cn/688237f7f9e118de849dc274
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 
@@ -136,8 +136,8 @@ VITE_LOG_LEVEL=info
 ```bash
 # 必需配置
 VITE_OPENAI_API_KEY=sk-your-actual-openai-api-key
-VITE_AUTHING_APP_ID=687e0aafee2b84f86685b644
-VITE_AUTHING_HOST=ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
+VITE_AUTHING_HOST=ai-wenpai.authing.cn/688237f7f9e118de849dc274
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 VITE_API_BASE_URL=https://www.wenpai.xyz/api
 

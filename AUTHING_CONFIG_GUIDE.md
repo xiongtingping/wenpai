@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 687e0aafee2b84f86685b644
- * Host: ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+ * App ID: 688237f7f9e118de849dc274
+ * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -16,7 +16,7 @@ Authing 后台配置完全缺失，导致登录功能无法正常工作。
 
 ### 第1步：访问 Authing 控制台
 
-打开链接：[Authing 控制台](https://console.authing.cn/console/687e0aafee2b84f86685b644/application/self-built-apps/detail/687e0aafee2b84f86685b644?app_detail_active_tab=quick_start)
+打开链接：[Authing 控制台](https://console.authing.cn/console/688237f7f9e118de849dc274/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start)
 
 ### 第2步：配置应用基本信息
 
@@ -40,7 +40,7 @@ http://localhost:5173/
 
 #### 认证地址
 ```
-https://ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+https://ai-wenpai.authing.cn/688237f7f9e118de849dc274
 ```
 
 ### 第5步：保存配置
@@ -87,7 +87,7 @@ node verify-authing-config.cjs
 1. **检查回调 URL 格式**：确保没有多余的斜杠或路径
 2. **清除浏览器缓存**：强制刷新页面
 3. **等待配置生效**：Authing 配置可能需要几分钟才能生效
-4. **检查网络连接**：确保可以访问 `ai-wenpai.authing.cn/687e0aafee2b84f86685b644`
+4. **检查网络连接**：确保可以访问 `ai-wenpai.authing.cn/688237f7f9e118de849dc274`
 
 ### 如果 Authing Guard 无法打开
 

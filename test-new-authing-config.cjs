@@ -8,14 +8,14 @@ console.log('🔍 测试新的Authing配置...\n');
 // 新的配置信息
 const newConfig = {
   appId: '687bc631c105de597b993202',
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
   redirectUri: 'http://localhost:5173/callback'
 };
 
 // 旧的配置信息
 const oldConfig = {
-  appId: '687e0aafee2b84f86685b644',
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+  appId: '688237f7f9e118de849dc274',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
   redirectUri: 'http://localhost:5173/callback'
 };
 
@@ -70,14 +70,14 @@ console.log('================================');
 
 console.log('✅ 新配置优势:');
 console.log('- 使用新创建的Authing应用');
-console.log('- 域名: ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
+console.log('- 域名: ai-wenpai.authing.cn/688237f7f9e118de849dc274');
 console.log('- App ID: 687bc631c105de597b993202');
 console.log('- 应该能正常访问和登录');
 
 console.log('\n❌ 旧配置问题:');
 console.log('- 使用已删除的旧应用');
-console.log('- 域名: ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
-console.log('- App ID: 687e0aafee2b84f86685b644');
+console.log('- 域名: ai-wenpai.authing.cn/688237f7f9e118de849dc274');
+console.log('- App ID: 688237f7f9e118de849dc274');
 console.log('- 会导致400错误');
 
 console.log('\n🔧 修复状态:');

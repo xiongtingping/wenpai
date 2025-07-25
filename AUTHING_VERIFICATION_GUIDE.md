@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 687e0aafee2b84f86685b644
- * Host: ai-wenpai.authing.cn/687e0aafee2b84f86685b644
+ * App ID: 688237f7f9e118de849dc274
+ * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -114,8 +114,8 @@
 
 ```javascript
 const config = {
-    appId: '687e0aafee2b84f86685b644',
-    host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+    appId: '688237f7f9e118de849dc274',
+    host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
     redirectUri: `${window.location.origin}/callback`,
     mode: 'modal', // 关键：弹窗模式
     defaultScene: 'login',

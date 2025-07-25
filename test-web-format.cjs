@@ -4,8 +4,8 @@ const https = require('https');
 
 console.log('🧪 测试Web应用格式...\n');
 
-const appId = '687e0aafee2b84f86685b644';
-const host = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644';
+const appId = '688237f7f9e118de849dc274';
+const host = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274';
 const redirectUri = 'http://localhost:5173/callback';
 
 console.log('📋 配置:');

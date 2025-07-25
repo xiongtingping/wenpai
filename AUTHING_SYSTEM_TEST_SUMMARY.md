@@ -103,7 +103,7 @@
 ### 当前配置
 ```javascript
 {
-  appId: '6867fdc88034eb95ae86167d',
+  appId: '688237f7f9e118de849dc274',
   host: 'https://qutkgzkfaezk-demo.authing.cn',
   redirectUri: 'http://localhost:5174/callback',
   mode: 'normal',

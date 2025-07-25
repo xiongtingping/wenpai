@@ -42,7 +42,7 @@ export const useAuthing = () => {
   const login = useCallback((redirectUrl?: string) => {
     try {
       const targetUrl = redirectUrl || window.location.href;
-      const loginUrl = `ai-wenpai.authing.cn/687e0aafee2b84f86685b644/login?redirect_uri=${encodeURIComponent(targetUrl)}`;
+      const loginUrl = `ai-wenpai.authing.cn/688237f7f9e118de849dc274/login?redirect_uri=${encodeURIComponent(targetUrl)}`;
       window.location.href = loginUrl;
     } catch (err) {
       console.error('跳转登录页面失败:', err);

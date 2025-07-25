@@ -28,7 +28,7 @@ proxy: {
 ### 2. **Authing 测试脚本** (`test-authing-sdk.cjs`)
 ```javascript
 const config = {
-  appId: '6867fdc88034eb95ae86167d',
+  appId: '688237f7f9e118de849dc274',
   host: 'https://qutkgzkfaezk-demo.authing.cn',
   redirectUri: 'https://www.wenpai.xyz/callback',  // 更新
 };

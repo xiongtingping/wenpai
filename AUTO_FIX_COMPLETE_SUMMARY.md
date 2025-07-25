@@ -24,7 +24,7 @@
 
 ### Authing配置
 ```
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
 VITE_AUTHING_HOST=qutkgzkfaezk-demo.authing.cn
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
@@ -63,7 +63,7 @@ VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 
 1. **Authing控制台配置**
    - 登录：https://console.authing.cn/
-   - 检查应用ID：`6867fdc88034eb95ae86167d`
+   - 检查应用ID：`688237f7f9e118de849dc274`
    - 确认应用状态：已启用
    - 确认应用类型：单页应用(SPA)
 

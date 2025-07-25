@@ -9,8 +9,8 @@ global.window = global;
 global.location = { href: 'http://localhost:3000' };
 
 const config = {
-  appId: '687e0aafee2b84f86685b644',
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+  appId: '688237f7f9e118de849dc274',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
   redirectUri: 'http://localhost:3000/callback'
 };
 
@@ -71,7 +71,7 @@ try {
   console.log('7. 控制台配置步骤:');
   console.log('1. 访问: https://console.authing.cn/');
   console.log('2. 进入"应用管理"');
-  console.log('3. 选择应用 ID: 687e0aafee2b84f86685b644');
+  console.log('3. 选择应用 ID: 688237f7f9e118de849dc274');
   console.log('4. 进入"应用配置"');
   console.log('5. 找到"登录回调 URL"');
   console.log('6. 添加: http://localhost:3000/callback');

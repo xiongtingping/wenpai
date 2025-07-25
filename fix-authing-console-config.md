@@ -19,7 +19,7 @@
 ### 2. 找到应用配置
 
 1. 进入"应用管理"
-2. 找到应用ID为 `6867fdc88034eb95ae86167d` 的应用
+2. 找到应用ID为 `688237f7f9e118de849dc274` 的应用
 3. 点击"配置"
 
 ### 3. 修复回调URL配置
@@ -65,7 +65,7 @@ http://localhost:5173/callback
 配置完成后，测试登录流程：
 
 1. 点击首页"开始创作"按钮
-2. 应该跳转到：`https://wenpai.authing.cn/login?app_id=6867fdc88034eb95ae86167d&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback`
+2. 应该跳转到：`https://wenpai.authing.cn/login?app_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback`
 3. 登录成功后应该跳转到：`http://localhost:5173/callback?code=...&state=...`
 
 ## 常见问题
@@ -85,7 +85,7 @@ A: 通常1-2分钟内生效，如果超过5分钟仍未生效，请检查配置�
 ## 配置检查清单
 
 - [ ] 登录Authing控制台
-- [ ] 找到正确的应用（ID: 6867fdc88034eb95ae86167d）
+- [ ] 找到正确的应用（ID: 688237f7f9e118de849dc274）
 - [ ] 清除回调URL字段中的所有内容
 - [ ] 添加正确的回调URL：`http://localhost:5173/callback`
 - [ ] 保存配置

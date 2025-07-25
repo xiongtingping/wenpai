@@ -8,8 +8,8 @@ console.log(`📋 当前环境: ${env}`);
 
 // 模拟环境变量（从.env.local读取）
 const config = {
-  appId: '687e0aafee2b84f86685b644',
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+  appId: '688237f7f9e118de849dc274',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
   devRedirectUri: 'http://localhost:5173/callback',
   prodRedirectUri: 'https://www.wenpai.xyz/callback'
 };
@@ -76,7 +76,7 @@ console.log(`5. 回调URL以/callback结尾: ${hasCallback ? '✅ 是' : '❌ �
 // Authing控制台配置指南
 console.log('\n📋 Authing控制台配置指南:');
 console.log('1. 登录 https://console.authing.cn');
-console.log('2. 进入应用: 687e0aafee2b84f86685b644');
+console.log('2. 进入应用: 688237f7f9e118de849dc274');
 console.log('3. 点击 "应用配置" -> "登录回调 URL"');
 console.log('4. 删除所有现有的回调URL');
 console.log('5. 添加以下回调URL（确保完全一致）:');

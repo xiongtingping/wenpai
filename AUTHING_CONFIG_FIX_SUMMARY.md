@@ -51,7 +51,7 @@ VITE_AUTHING_HOST=wenpai.authing.cn
 ## 📊 修复结果
 
 ### 配置验证 ✅
-- ✅ App ID 正确设置: `6867fdc88034eb95ae86167d`
+- ✅ App ID 正确设置: `688237f7f9e118de849dc274`
 - ✅ Host 正确配置: `wenpai.authing.cn`
 - ✅ Redirect URI 正确: `http://localhost:5174/callback`
 - ✅ Mode 正确: `modal`

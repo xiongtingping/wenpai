@@ -65,5 +65,5 @@ console.log('   https://wenpai.netlify.app/callback?code=abc123&state=login-1234
 console.log('');
 
 console.log('🔗 直接测试Authing登录:');
-console.log('   ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/auth?client_id=687c5c7f4e778a6485a4f0e0&redirect_uri=https%3A%2F%2Fwenpai.netlify.app%2Fcallback&response_type=code&scope=openid+profile+email&state=test-1752981750826');
+console.log('   ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/auth?client_id=687c5c7f4e778a6485a4f0e0&redirect_uri=https%3A%2F%2Fwenpai.netlify.app%2Fcallback&response_type=code&scope=openid+profile+email&state=test-1752981750826');
 console.log(''); 

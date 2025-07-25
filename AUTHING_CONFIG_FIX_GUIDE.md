@@ -16,7 +16,7 @@
 
 ### 步骤2：找到应用配置
 1. 进入"应用管理"
-2. 找到您的应用（应用ID：`6867fdc88034eb95ae86167d`）
+2. 找到您的应用（应用ID：`688237f7f9e118de849dc274`）
 3. 点击"应用配置"
 
 ### 步骤3：修复回调URL配置
@@ -49,12 +49,12 @@ https://*.netlify.app/callback
 ### 方法2：检查生成的URL
 正确的登录URL应该是：
 ```
-https://qutkgzkfaezk-demo.authing.cn/login?app_id=6867fdc88034eb95ae86167d&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
+https://qutkgzkfaezk-demo.authing.cn/login?app_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
 ```
 
 ## 🔧 当前配置信息
 
-- **应用ID**: `6867fdc88034eb95ae86167d`
+- **应用ID**: `688237f7f9e118de849dc274`
 - **域名**: `qutkgzkfaezk-demo.authing.cn`
 - **开发环境回调**: `http://localhost:5173/callback`
 - **生产环境回调**: `https://www.wenpai.xyz/callback`

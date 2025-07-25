@@ -91,7 +91,7 @@ export const getAPIConfig = (): APIConfig => {
     },
     authing: {
       apiKey: getEnvVar('VITE_AUTHING_API_KEY', ''),
-      baseURL: getEnvVar('VITE_AUTHING_BASE_URL', 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644'),
+      baseURL: getEnvVar('VITE_AUTHING_BASE_URL', 'https://rzcswqd4sq0f.authing.cn'),
     },
     hotTopics: {
       baseURL: getEnvVar('VITE_HOT_TOPICS_BASE_URL', 'https://api-hot.imsyy.top'),

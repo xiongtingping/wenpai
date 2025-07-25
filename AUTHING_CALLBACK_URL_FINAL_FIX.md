@@ -26,7 +26,7 @@ const loginUrl = `https://qutkgzkfaezk-demo.authing.cn/login?redirect_uri=${enco
 **修复后：**
 ```typescript
 // 使用配置文件中的Authing配置
-const appId = import.meta.env.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d';
+const appId = import.meta.env.VITE_AUTHING_APP_ID || '688237f7f9e118de849dc274';
 const host = (import.meta.env.VITE_AUTHING_HOST || 'wenpai.authing.cn').replace(/^https?:\/\//, '');
 const callbackUrl = import.meta.env.DEV 
   ? (import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback')
@@ -53,7 +53,7 @@ redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost
 
 **正确的.env配置：**
 ```bash
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
 VITE_AUTHING_HOST=https://wenpai.authing.cn
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
@@ -68,7 +68,7 @@ VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 
 ### ✅ 修复后
 ```
-已转到 https://wenpai.authing.cn/login?app_id=6867fdc88034eb95ae86167d&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
+已转到 https://wenpai.authing.cn/login?app_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
 ```
 
 ## 验证测试
@@ -78,7 +78,7 @@ VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```javascript
 // 测试URL构建逻辑
 function testAuthingConfig() {
-  const appId = mockEnv.VITE_AUTHING_APP_ID || '6867fdc88034eb95ae86167d';
+  const appId = mockEnv.VITE_AUTHING_APP_ID || '688237f7f9e118de849dc274';
   const host = (mockEnv.VITE_AUTHING_HOST || 'wenpai.authing.cn').replace(/^https?:\/\//, '');
   const callbackUrl = mockEnv.DEV 
     ? (mockEnv.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback')

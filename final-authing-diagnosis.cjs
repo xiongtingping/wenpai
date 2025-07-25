@@ -12,9 +12,9 @@ console.log('🔍 Authing 最终诊断脚本启动...\n');
 
 // Authing 配置
 const AUTHING_CONFIG = {
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
-  appId: '687e0aafee2b84f86685b644',
-  userPoolId: '687e0aafee2b84f86685b644',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
+  appId: '688237f7f9e118de849dc274',
+  userPoolId: '688237f7f9e118de849dc274',
   redirectUri: 'http://localhost:5174/callback'
 };
 
@@ -174,7 +174,7 @@ function generateFixSuggestions() {
   console.log('   - 使用带 response_mode 的登录 URL\n');
   
   console.log('3️⃣ 检查网络和域名:');
-  console.log('   - 确保 ai-wenpai.authing.cn/687e0aafee2b84f86685b644 可访问');
+  console.log('   - 确保 ai-wenpai.authing.cn/688237f7f9e118de849dc274 可访问');
   console.log('   - 检查 DNS 解析是否正常');
   console.log('   - 检查防火墙设置\n');
   

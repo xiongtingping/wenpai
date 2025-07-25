@@ -5,8 +5,8 @@
 根据环境变量检查，当前使用的配置为：
 
 ### 应用信息
-- **应用ID**: `687cc2a82e907f6e8aea5848`
-- **域名**: `aiwenpai.authing.cn`
+- **应用ID**: `688237f7f9e118de849dc274`
+- **域名**: `rzcswqd4sq0f.authing.cn`
 - **应用类型**: OIDC
 
 ### 回调地址配置
@@ -23,7 +23,7 @@
 
 ### 第2步：找到对应应用
 1. 在左侧菜单中点击"应用管理"
-2. 找到应用ID为 `687cc2a82e907f6e8aea5848` 的应用
+2. 找到应用ID为 `688237f7f9e118de849dc274` 的应用
 3. 点击应用名称进入详情页面
 
 ### 第3步：配置登录回调 URL
@@ -56,7 +56,7 @@ https://wenpai.netlify.app/
 ### 测试URL
 使用以下URL测试认证流程：
 ```
-https://aiwenpai.authing.cn/oidc/auth?client_id=687cc2a82e907f6e8aea5848&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&response_type=code&scope=openid+profile+email&state=test
+https://rzcswqd4sq0f.authing.cn/oidc/auth?client_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&response_type=code&scope=openid+profile+email&state=test
 ```
 
 ### 本地测试步骤
@@ -94,7 +94,7 @@ https://aiwenpai.authing.cn/oidc/auth?client_id=687cc2a82e907f6e8aea5848&redirec
 
 ### 如果出现其他错误
 1. **检查应用状态**：确保应用在Authing控制台中为"已启用"状态
-2. **检查域名**：确保域名 `aiwenpai.authing.cn` 可正常访问
+2. **检查域名**：确保域名 `rzcswqd4sq0f.authing.cn` 可正常访问
 3. **检查网络**：确保可以访问Authing服务
 
 ## 📞 技术支持

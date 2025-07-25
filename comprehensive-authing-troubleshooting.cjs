@@ -28,7 +28,7 @@ console.log('   - 检查用户池域名配置');
 console.log('   - 验证用户池权限设置');
 
 console.log('\n3. 检查网络和DNS');
-console.log('   - 测试 ai-wenpai.authing.cn/687e0aafee2b84f86685b644 是否可访问');
+console.log('   - 测试 ai-wenpai.authing.cn/688237f7f9e118de849dc274 是否可访问');
 console.log('   - 检查DNS解析是否正常');
 console.log('   - 验证网络连接');
 
@@ -45,7 +45,7 @@ console.log('   - 验证时间戳格式');
 console.log('\n6. 检查请求参数');
 console.log('=====================================');
 console.log('当前请求参数：');
-console.log('- client_id: 687e0aafee2b84f86685b644');
+console.log('- client_id: 688237f7f9e118de849dc274');
 console.log('- redirect_uri: https://wenpai.netlify.app/callback');
 console.log('- response_type: code');
 console.log('- scope: openid+profile+email');
@@ -78,13 +78,13 @@ console.log('- 用户登录记录');
 console.log('\n🔧 诊断命令：');
 console.log('=====================================');
 console.log('1. 测试Authing域名：');
-console.log('   curl -I ai-wenpai.authing.cn/687e0aafee2b84f86685b644');
+console.log('   curl -I ai-wenpai.authing.cn/688237f7f9e118de849dc274');
 console.log('');
 console.log('2. 测试OIDC配置：');
-console.log('   curl ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/.well-known/openid-configuration');
+console.log('   curl ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/.well-known/openid-configuration');
 console.log('');
 console.log('3. 测试JWKS：');
-console.log('   curl ai-wenpai.authing.cn/687e0aafee2b84f86685b644/oidc/.well-known/jwks.json');
+console.log('   curl ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/.well-known/jwks.json');
 
 console.log('\n📞 联系Authing技术支持');
 console.log('=====================================');

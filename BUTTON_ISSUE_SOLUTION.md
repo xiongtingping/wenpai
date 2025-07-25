@@ -28,7 +28,7 @@
 
 ```bash
 # Authing配置
-VITE_AUTHING_APP_ID=6867fdc88034eb95ae86167d
+VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
 VITE_AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 
 # OpenAI配置 (请替换为真实密钥)

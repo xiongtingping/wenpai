@@ -10,7 +10,7 @@ console.log('🔧 检查Authing控制台回调URL配置...\n');
 
 // 模拟检查Authing控制台的回调URL配置
 const appId = '687c5c7f4e778a6485a4f0e0';
-const host = 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644';
+const host = 'ai-wenpai.authing.cn/688237f7f9e118de849dc274';
 
 console.log('📋 当前配置信息:');
 console.log(`   App ID: ${appId}`);

@@ -13,7 +13,7 @@ Authing 登录失败的根本原因是 **`redirect_uri_mismatch`** 错误，具�
 
 #### ✅ 已修复的配置
 - **环境变量统一**: 使用 `.env.local` 中的配置
-- **应用ID**: `687cc2a82e907f6e8aea5848`
+- **应用ID**: `688237f7f9e118de849dc274`
 - **域名**: `aiwenpai.authing.cn`
 - **开发环境回调**: `http://localhost:5173/callback`
 - **生产环境回调**: `https://wenpai.netlify.app/callback`
@@ -57,7 +57,7 @@ https://wenpai.netlify.app/
    - 使用您的账号登录
 
 2. **找到对应应用**
-   - 应用ID：`687cc2a82e907f6e8aea5848`
+   - 应用ID：`688237f7f9e118de849dc274`
    - 域名：`aiwenpai.authing.cn`
 
 3. **配置回调URL**

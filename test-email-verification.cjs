@@ -7,8 +7,8 @@ const { AuthenticationClient } = require('authing-js-sdk');
 
 // Authing 配置
 const config = {
-  appId: '687e0aafee2b84f86685b644',
-  host: 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644',
+  appId: '688237f7f9e118de849dc274',
+  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
   redirectUri: 'https://www.wenpai.xyz/callback',
 };
 

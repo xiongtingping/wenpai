@@ -74,7 +74,7 @@ const getAPIConfig = (): APIConfig => {
       apiKey: getEnvVar('VITE_CREEM_API_KEY', ''),
     },
     authing: {
-      baseURL: getEnvVar('VITE_AUTHING_BASE_URL', 'ai-wenpai.authing.cn/687e0aafee2b84f86685b644'),
+      baseURL: getEnvVar('VITE_AUTHING_BASE_URL', 'ai-wenpai.authing.cn/688237f7f9e118de849dc274'),
       apiKey: getEnvVar('VITE_AUTHING_API_KEY', ''),
     },
   };
