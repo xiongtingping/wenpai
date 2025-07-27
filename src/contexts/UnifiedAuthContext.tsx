@@ -23,7 +23,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Guard } from '@authing/guard';
-import * as AuthingWeb from '@authing/web';
+import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 
 /**
@@ -76,7 +76,7 @@ interface UnifiedAuthContextType {
 /**
  * 单例 Authing 客户端
  */
-let authingClient: any | null = null;
+let authingClient: Authing | null = null;
 let guardInstance: any = null;
 
 /**
@@ -85,7 +85,7 @@ let guardInstance: any = null;
 const getAuthingClient = () => {
   if (!authingClient) {
     const config = getAuthingConfig();
-    authingClient = new (AuthingWeb as any).Authing({
+    authingClient = new Authing({
       domain: config.host.replace('https://', ''),
       appId: config.appId,
       userPoolId: config.userPoolId || config.appId, // 添加必需的userPoolId
@@ -159,6 +159,7 @@ function getGuardInstance() {
       redirectUri: config.redirectUri,
       mode: 'modal',
       // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
+      autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
       maskCloseable: true
@@ -186,7 +187,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const guardRef = useRef<Guard | null>(null);
-  const authingRef = useRef<any | null>(null);
+  const authingRef = useRef<Authing | null>(null);
 
   /**
    * 初始化 Authing 实例

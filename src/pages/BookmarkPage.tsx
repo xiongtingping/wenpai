@@ -852,6 +852,23 @@ ${isImage ? '🖼️ **图片OCR识别**：已成功识别图片中的文字内�
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => {
+                              // 跳转到AI内容适配器并预填充内容
+                              navigate('/new-adapt', {
+                                state: {
+                                  prefilledContent: item.content || '暂无内容',
+                                  source: 'library',
+                                  sourceTitle: item.title || '未命名资料'
+                                }
+                              });
+                            }}
+                            title="快速创作"
+                          >
+                            <Zap className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => toggleFavorite(item.id)}
                           >
                             <Star className={`w-4 h-4 ${item.isFavorite ? 'text-yellow-500 fill-current' : ''}`} />

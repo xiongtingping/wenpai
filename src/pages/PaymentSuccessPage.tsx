@@ -12,6 +12,7 @@ import { CheckCircle, Crown, Star, ArrowRight, User } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * 支付成功页面组件
@@ -196,7 +197,7 @@ export default function PaymentSuccessPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">用户名：</span>
-                    <span>{user?.nickname || user?.username || '未知'}</span>
+                    <span>{getUserDisplayName(user, '未知用户')}</span>
                   </div>
                 </div>
               </div>

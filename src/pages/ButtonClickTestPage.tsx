@@ -60,7 +60,7 @@ export default function ButtonClickTestPage() {
                 </Badge>
                 {user && (
                   <span className="text-sm text-gray-600">
-                    用户: {user.nickname || user.username || user.email || user.id}
+                    用户: {user.nickname || user.username || user.email || user.id || '未知用户'}
                   </span>
                 )}
               </div>

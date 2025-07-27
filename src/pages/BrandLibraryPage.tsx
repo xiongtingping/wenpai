@@ -1381,6 +1381,20 @@ export default function BrandLibraryPage() {
                                                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={(e) => {
                                   e.stopPropagation();
+                                  // 跳转到AI内容适配器并预填充内容
+                                  navigate('/new-adapt', {
+                                    state: {
+                                      prefilledContent: asset.content || asset.extractedContent || `品牌资料：${asset.name || '未命名'}\n\n${asset.description || ''}`,
+                                      source: 'brand-library',
+                                      sourceTitle: asset.name || '未命名资料'
+                                    }
+                                  });
+                                }}>
+                                  <Zap className="h-4 w-4 mr-2" />
+                                  快速创作
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => {
+                                  e.stopPropagation();
                                   handleEditAsset(asset);
                                 }}>
                                   <Edit className="h-4 w-4 mr-2" />

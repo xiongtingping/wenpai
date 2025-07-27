@@ -104,7 +104,7 @@ export function StyleSelector({
       <div className="flex items-center gap-3 mb-4">
         <div className="flex items-center gap-2">
           <Palette className="h-5 w-5 text-gray-600" />
-          <h3 className="text-lg font-semibold">内容风格</h3>
+          <h3 className="text-lg font-semibold">表达风格</h3>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

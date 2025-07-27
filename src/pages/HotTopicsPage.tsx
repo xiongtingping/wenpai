@@ -1207,9 +1207,28 @@ export default function HotTopicsPage() {
                               </div>
                             </div>
                             <div className="flex items-center gap-1 ml-4">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // 跳转到AI内容适配器并预填充内容
+                                  navigate('/new-adapt', {
+                                    state: {
+                                      prefilledContent: `热门话题：${topic!.title || '未知话题'}\n\n平台：${getPlatformDisplayName(topic!.platform || '')}\n热度：${formatHotValue(topic!.hot || '0')}\n\n话题描述：${topic!.desc || '暂无描述'}`,
+                                      source: 'radar',
+                                      sourceTitle: topic!.title || '未知话题'
+                                    }
+                                  });
+                                }}
+                                title="快速创作"
+                              >
+                                <Zap className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="h-8 w-8 p-0"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -1218,9 +1237,9 @@ export default function HotTopicsPage() {
                               >
                                 <Bookmark className="w-4 h-4 text-yellow-500 fill-current" />
                               </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="h-8 w-8 p-0"
                                 onClick={(e) => {
                                   e.stopPropagation();

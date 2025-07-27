@@ -27,12 +27,12 @@ const HeroSection: React.FC = () => {
     console.log('navigate函数类型:', typeof navigate);
 
     if (isAuthenticated) {
-      console.log('用户已登录，直接跳转到创作页面');
-      navigate('/creative');
+      console.log('用户已登录，直接跳转到AI内容适配器页面');
+      navigate('/new-adapt');
     } else {
       console.log('用户未登录，直接跳转到Authing登录页面');
       // 直接调用登录方法，不进行复杂的网络检查
-      login('/creative');
+      login('/new-adapt');
     }
 
     console.log('=== Hero按钮点击事件完成 ===');

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authing 登录测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; }
+        .config-display { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .log { background: #000; color: #0f0; padding: 10px; border-radius: 5px; font-family: monospace; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Authing 登录系统测试</h1>
+    
+    <div class="test-section info">
+        <h3>📋 当前配置</h3>
+        <div class="config-display" id="config-display">
+            <p><strong>App ID:</strong> 68823897631e1ef8ff3720b2</p>
+            <p><strong>Domain:</strong> rzcswqd4sq0f.authing.cn</p>
+            <p><strong>Host:</strong> https://rzcswqd4sq0f.authing.cn</p>
+            <p><strong>Redirect URI:</strong> <span id="redirect-uri"></span></p>
+            <p><strong>当前URL:</strong> <span id="current-url"></span></p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>🧪 测试操作</h3>
+        <button onclick="testGuardInit()">测试 Guard 初始化</button>
+        <button onclick="testLogin()">测试登录</button>
+        <button onclick="testRegister()">测试注册</button>
+        <button onclick="clearLogs()">清除日志</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>📊 测试结果</h3>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>📝 实时日志</h3>
+        <div class="log" id="log-display"></div>
+    </div>
+
+    <script src="https://cdn.authing.co/packages/guard/5.1.5/guard.min.js"></script>
+    <script>
+        // 配置信息
+        const config = {
+            appId: '68823897631e1ef8ff3720b2',
+            domain: 'rzcswqd4sq0f.authing.cn',
+            host: 'https://rzcswqd4sq0f.authing.cn',
+            redirectUri: `${window.location.origin}/callback`
+        };
+
+        let guardInstance = null;
+
+        // 日志函数
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('log-display');
+            const color = type === 'error' ? '#f00' : type === 'success' ? '#0f0' : '#fff';
+            logDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function clearLogs() {
+            document.getElementById('log-display').innerHTML = '';
+        }
+
+        // 显示配置信息
+        function displayConfig() {
+            document.getElementById('redirect-uri').textContent = config.redirectUri;
+            document.getElementById('current-url').textContent = window.location.href;
+        }
+
+        // 测试 Guard 初始化
+        async function testGuardInit() {
+            const resultsDiv = document.getElementById('test-results');
+            log('🔄 开始测试 Guard 初始化...', 'info');
+
+            try {
+                log(`📋 配置参数: ${JSON.stringify(config, null, 2)}`, 'info');
+
+                // 初始化 Guard
+                guardInstance = new Guard({
+                    appId: config.appId,
+                    host: config.host,
+                    redirectUri: config.redirectUri,
+                    mode: 'modal'
+                });
+
+                log('✅ Guard 实例创建成功', 'success');
+
+                // 设置事件监听
+                guardInstance.on('login', (userInfo) => {
+                    log(`🔐 登录成功: ${JSON.stringify(userInfo, null, 2)}`, 'success');
+                    resultsDiv.innerHTML = `
+                        <div class="test-section success">
+                            <h4>✅ 登录成功</h4>
+                            <pre>${JSON.stringify(userInfo, null, 2)}</pre>
+                        </div>
+                    `;
+                });
+
+                guardInstance.on('register', (userInfo) => {
+                    log(`📝 注册成功: ${JSON.stringify(userInfo, null, 2)}`, 'success');
+                    resultsDiv.innerHTML = `
+                        <div class="test-section success">
+                            <h4>✅ 注册成功</h4>
+                            <pre>${JSON.stringify(userInfo, null, 2)}</pre>
+                        </div>
+                    `;
+                });
+
+                guardInstance.on('error', (error) => {
+                    log(`❌ Guard 错误: ${JSON.stringify(error, null, 2)}`, 'error');
+                    resultsDiv.innerHTML = `
+                        <div class="test-section error">
+                            <h4>❌ 错误</h4>
+                            <pre>${JSON.stringify(error, null, 2)}</pre>
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = `
+                    <div class="test-section success">
+                        <h4>✅ Guard 初始化成功</h4>
+                        <p>Guard 实例已创建并设置事件监听</p>
+                        <p>初始化时间: ${new Date().toLocaleString()}</p>
+                    </div>
+                `;
+
+                log('✅ Guard 初始化完成，事件监听已设置', 'success');
+
+            } catch (error) {
+                log(`❌ Guard 初始化失败: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `
+                    <div class="test-section error">
+                        <h4>❌ Guard 初始化失败</h4>
+                        <p><strong>错误信息:</strong> ${error.message}</p>
+                        <pre>${JSON.stringify(error, null, 2)}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // 测试登录
+        async function testLogin() {
+            if (!guardInstance) {
+                log('⚠️ 请先初始化 Guard', 'error');
+                await testGuardInit();
+            }
+
+            try {
+                log('🚀 启动登录流程...', 'info');
+                guardInstance.start();
+                log('✅ 登录弹窗已显示', 'success');
+            } catch (error) {
+                log(`❌ 登录启动失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试注册
+        async function testRegister() {
+            if (!guardInstance) {
+                log('⚠️ 请先初始化 Guard', 'error');
+                await testGuardInit();
+            }
+
+            try {
+                log('📝 启动注册流程...', 'info');
+                guardInstance.start('register');
+                log('✅ 注册弹窗已显示', 'success');
+            } catch (error) {
+                log(`❌ 注册启动失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            displayConfig();
+            log('🔧 Authing 登录测试页面已加载', 'info');
+            log(`📋 当前配置: ${JSON.stringify(config, null, 2)}`, 'info');
+        };
+    </script>
+</body>
+</html>

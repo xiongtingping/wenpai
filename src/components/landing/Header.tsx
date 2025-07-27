@@ -98,13 +98,13 @@ export function Header() {
             <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
               console.log('Header AI内容适配器按钮被点击');
               console.log('当前认证状态:', isAuthenticated);
-              
+
               if (isAuthenticated) {
-                console.log('用户已登录，跳转到适配页面');
-                navigate('/adapt');
+                console.log('用户已登录，跳转到AI内容适配器页面');
+                navigate('/new-adapt');
               } else {
                 console.log('用户未登录，直接弹出Authing Guard弹窗');
-                login('/adapt');
+                login('/new-adapt');
               }
             }}>
               AI内容适配器

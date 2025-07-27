@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * 简单测试页面
@@ -38,7 +39,7 @@ const SimpleTestPage: React.FC = () => {
           <div className="p-4 bg-blue-50 rounded">
             <h3 className="font-semibold">当前状态</h3>
             <p>认证状态: {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}</p>
-            {user && <p>用户: {user.nickname || user.username || user.id}</p>}
+            {user && <p>用户: {getUserDisplayName(user, user.id || '未知用户')}</p>}
           </div>
 
           <button

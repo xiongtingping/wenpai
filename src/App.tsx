@@ -92,6 +92,13 @@ function AppContent() {
               <AdaptPage />
             </PermissionGuard>
           } />
+
+          {/* AI内容适配器新版本 */}
+          <Route path="/new-adapt" element={
+            <PermissionGuard required="auth:required">
+              <AdaptPage />
+            </PermissionGuard>
+          } />
           
           {/* 需要专业版权限的页面 */}
           <Route path="/creative-studio" element={

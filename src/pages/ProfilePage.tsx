@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
+import { getUserDisplayName, getUserAvatarAlt } from '@/utils/userDisplayUtils';
 
 /**
  * 个人中心页面组件
@@ -59,7 +60,7 @@ export default function ProfilePage() {
 
   // 个人资料表单状态
   const [profileForm, setProfileForm] = useState({
-    nickname: user?.nickname || user?.username || '',
+    nickname: getUserDisplayName(user, ''),
     phone: user?.phone || '',
     email: user?.email || '',
     avatar: user?.avatar || ''
@@ -135,7 +136,7 @@ export default function ProfilePage() {
     if (profileForm.avatar) {
       return profileForm.avatar;
     }
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${profileForm.nickname || user.username}`;
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${profileForm.nickname || getUserDisplayName(user, 'User')}`;
   };
 
   /**
@@ -242,9 +243,9 @@ export default function ProfilePage() {
                 <div className="text-center md:text-left">
                   <div className="relative inline-block">
                     <Avatar className="w-24 h-24 border-4 border-white/20">
-                      <AvatarImage src={getUserAvatar()} alt={profileForm.nickname} />
+                      <AvatarImage src={getUserAvatar()} alt={getUserAvatarAlt(user)} />
                       <AvatarFallback className="text-2xl bg-white/20 text-white">
-                        {profileForm.nickname?.charAt(0) || user.username?.charAt(0) || 'U'}
+                        {profileForm.nickname?.charAt(0) || getUserDisplayName(user, 'U').charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-2 -right-2">

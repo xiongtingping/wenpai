@@ -206,6 +206,7 @@ export interface BrandAsset {
   description?: string;
   category?: string;
   extractedKeywords?: string[];
+  extractedContent?: string;
   processingStatus?: 'pending' | 'processing' | 'completed' | 'failed';
 }
 

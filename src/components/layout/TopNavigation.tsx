@@ -196,8 +196,13 @@ export const TopNavigation: React.FC = () => {
                 
                 {/* 用户头像 */}
                 <Avatar>
-                  <AvatarImage src={user?.avatar || ''} alt={user?.nickname || user?.username || ''} />
-                  <AvatarFallback>{user?.nickname?.charAt(0) || user?.username?.charAt(0) || 'U'}</AvatarFallback>
+                  <AvatarImage
+                    src={user?.avatar || ''}
+                    alt={user?.nickname || user?.username || '用户头像'}
+                  />
+                  <AvatarFallback>
+                    {(user?.nickname?.charAt(0) || user?.username?.charAt(0) || 'U').toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
               </div>
             ) : (

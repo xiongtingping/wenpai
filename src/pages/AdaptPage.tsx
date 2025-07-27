@@ -36,7 +36,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   generateAdaptedContent, 
   regenerateAdaptedContent,
@@ -45,6 +45,7 @@ import {
   type ContentAdaptationRequest
 } from "@/api/contentAdapter";
 import SchemeSelector from '@/components/creative/SchemeSelector';
+import QuickReferenceSelector from '@/components/creative/QuickReferenceSelector';
 import { 
   getAvailableModelsForTier, 
   getModelInfo, 
@@ -364,6 +365,7 @@ const platformStyles: Record<string, { name: string; description: string; maxLen
 export default function AdaptPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [results, setResults] = useState<PlatformResult[]>([]);
@@ -400,14 +402,48 @@ export default function AdaptPage() {
   
   // 处理模型选择
   const handleModelSelect = (modelId: string, disabled: boolean) => {
-    if (disabled) return;
+    if (disabled) {
+      toast({
+        title: "模型不可用",
+        description: "该模型需要升级订阅计划才能使用",
+        variant: "destructive"
+      });
+      return;
+    }
     setSelectedModel(modelId);
     setModel(modelId);
     // 自动切换API提供商
     const provider = getModelProvider(modelId);
     if (provider === 'OpenAI') setCurrentApiProvider('openai');
     if (provider === 'DeepSeek') setCurrentApiProvider('deepseek');
+    toast({
+      title: "模型已切换",
+      description: `已切换到 ${getModelInfo(modelId)?.name}`,
+    });
   };
+
+  // 处理升级功能点击
+  const handleUpgradeClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 阻止事件冒泡
+    navigate('/payment');
+  };
+
+  // 处理从其他页面传递的预填充内容
+  useEffect(() => {
+    if (location.state?.prefilledContent) {
+      const { prefilledContent, source, sourceTitle } = location.state;
+      setOriginalContent(prefilledContent);
+
+      // 显示来源提示
+      toast({
+        title: "内容已导入",
+        description: `已从${sourceTitle || source || '外部来源'}导入内容到编辑器`,
+      });
+
+      // 清除state以避免重复导入
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, toast]);
   
   // User store for usage tracking
   const usageRemaining = useAuthStore((state) => state.getUsageRemaining());
@@ -1585,12 +1621,32 @@ export default function AdaptPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Textarea 
-            placeholder="在此输入您的原始内容，我们将为您适配到不同平台..." 
-            className="min-h-[200px]"
-            value={originalContent}
-            onChange={(e) => setOriginalContent(e.target.value)}
-          />
+          <div className="space-y-3">
+            <Textarea
+              placeholder="在此输入您的原始内容，我们将为您适配到不同平台..."
+              className="min-h-[200px]"
+              value={originalContent}
+              onChange={(e) => setOriginalContent(e.target.value)}
+            />
+
+            {/* 快速引用功能 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <QuickReferenceSelector
+                  onSelect={(content) => {
+                    // 在当前内容后追加引用内容
+                    const newContent = originalContent ?
+                      `${originalContent}\n\n--- 引用内容 ---\n${content}` :
+                      content;
+                    setOriginalContent(newContent);
+                  }}
+                />
+                <span className="text-xs text-gray-500">
+                  从品牌库、资料库、雷达收藏快速导入内容
+                </span>
+              </div>
+            </div>
+          </div>
           <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
               <Checkbox 
@@ -1719,7 +1775,7 @@ export default function AdaptPage() {
                       return (
                         <div
                           key={model.id}
-                          className={`p-2 border rounded-md cursor-pointer transition-all hover:shadow-sm text-xs ${
+                          className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
                             selectedModel === model.id
                               ? 'border-blue-500 bg-blue-50'
                               : disabled
@@ -1729,25 +1785,28 @@ export default function AdaptPage() {
                           onClick={() => handleModelSelect(model.id, disabled)}
                         >
                           <div className="flex items-start space-x-2">
-                            <div className={`w-3 h-3 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
                               selectedModel === model.id
                                 ? 'border-blue-500 bg-blue-500'
                                 : 'border-gray-300'
                             }`}>
                               {selectedModel === model.id && (
-                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                <div className="w-2 h-2 bg-white rounded-full"></div>
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1 mb-1">
-                                <span className="font-medium text-blue-600 text-xs">{model.name}</span>
+                                <span className="font-medium text-blue-600 text-sm">{model.name}</span>
                                 {badge && (
                                   <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
                                 )}
                               </div>
                               <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
                               {showUpgradeTip && (
-                                <div className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+                                <div
+                                  className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 cursor-pointer hover:bg-yellow-100 transition-colors"
+                                  onClick={handleUpgradeClick}
+                                >
                                   <span className="mr-1">🔒</span>
                                   去解锁高级功能
                                 </div>
@@ -1806,27 +1865,7 @@ export default function AdaptPage() {
         </CardContent>
       </Card>
 
-
-
-      {/* Scheme Selection */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-lg">内容适配方案</CardTitle>
-          <CardDescription>
-            选择不同的方案和风格来获得最佳的内容生成效果
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SchemeSelector
-            selectedScheme={selectedSchemeId}
-            selectedStyle={selectedStyle}
-            onSchemeChange={setSelectedSchemeId}
-            onStyleChange={setSelectedStyle}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Platform Selection */}
+      {/* Platform Selection - 移动到这里 */}
       <div className="mb-8">
         <h2 className="text-lg font-medium mb-4">选择目标平台</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
@@ -1841,7 +1880,7 @@ export default function AdaptPage() {
             />
           ))}
         </div>
-        
+
         {/* Individual Platform Settings */}
         {selectedPlatforms.length > 0 && (
           <Card className="mt-6">
@@ -1855,16 +1894,16 @@ export default function AdaptPage() {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={saveSettings}
                   >
                     <Save className="h-3 w-3 mr-1" />
                     保存设置
                   </Button>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
                   >
@@ -1874,7 +1913,7 @@ export default function AdaptPage() {
                 </div>
               </div>
             </CardHeader>
-            
+
             {showAdvancedSettings && (
               <CardContent className="pt-0">
                 <div className="space-y-4">
@@ -1883,7 +1922,7 @@ export default function AdaptPage() {
                     <h4 className="text-sm font-medium mb-3 text-gray-700">全局设置</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id="global-emoji"
                           checked={globalSettings.globalEmoji}
                           onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
@@ -1893,9 +1932,9 @@ export default function AdaptPage() {
                           全局添加emoji表情
                         </Label>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id="global-md"
                           checked={globalSettings.globalMd}
                           onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
@@ -1905,9 +1944,9 @@ export default function AdaptPage() {
                           全局MD格式
                         </Label>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id="global-auto"
                           checked={true}
                           disabled
@@ -1927,19 +1966,19 @@ export default function AdaptPage() {
                       <Badge variant="outline" className="text-xs text-gray-500">进阶用户</Badge>
                     </div>
                     <p className="text-xs text-gray-500 mb-3">选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o</p>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {allModels.map((model) => {
                         const isAvailable = availableModels.some(m => m.id === model.id);
                         let disabled = !isAvailable;
                         let badge = '';
                         let showUpgradeTip = false;
-                        
+
                         if (model.id === 'gpt-4o' && userPlan === 'trial') {
                           badge = '专业版/高级版专属';
                           showUpgradeTip = true;
                         }
-                        
+
                         return (
                           <div
                             key={model.id}
@@ -1971,7 +2010,10 @@ export default function AdaptPage() {
                                 </div>
                                 <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
                                 {showUpgradeTip && (
-                                  <div className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+                                  <div
+                                    className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 cursor-pointer hover:bg-yellow-100 transition-colors"
+                                    onClick={handleUpgradeClick}
+                                  >
                                     <span className="mr-1">🔒</span>
                                     去解锁高级功能
                                   </div>
@@ -1982,14 +2024,14 @@ export default function AdaptPage() {
                         );
                       })}
                     </div>
-                    
+
                     {selectedModel && (
                       <div className="mt-2 text-xs text-muted-foreground">
                         <p className="font-medium">当前选择：{getModelInfo(selectedModel)?.name}</p>
                         <p>{getModelInfo(selectedModel)?.description}</p>
                       </div>
                     )}
-                    
+
                     {/* 开发环境订阅等级切换 */}
                     {import.meta.env.DEV && (
                       <div className="mt-3 flex gap-2 items-center">
@@ -2009,9 +2051,9 @@ export default function AdaptPage() {
                         const platform = platforms.find(p => p.id === platformId);
                         const settings = platformSettings[platformId] || {};
                         const isSpecialPlatform = ['zhihu', 'wechat', 'weibo', 'xiaohongshu'].includes(platformId);
-                        
+
                         if (!platform) return null;
-                        
+
                         return (
                           <div key={platformId} className="border rounded-lg p-3 bg-gray-50/50">
                             <div className="flex items-center gap-2 mb-3">
@@ -2021,7 +2063,7 @@ export default function AdaptPage() {
                                 <Badge variant="outline" className="text-xs">优化</Badge>
                               )}
                             </div>
-                            
+
                             <div className="space-y-3">
                               {/* 字符数设置 */}
                               <div>
@@ -2031,7 +2073,7 @@ export default function AdaptPage() {
                                     {getCharCountMin(platformId)}-{getCharCountMax(platformId)}
                                   </span>
                                 </div>
-                                <Slider 
+                                <Slider
                                   value={[settings.charCount || getCharCountMax(platformId)]}
                                   min={getCharCountMin(platformId)}
                                   max={getCharCountMax(platformId)}
@@ -2040,11 +2082,11 @@ export default function AdaptPage() {
                                   className="w-full"
                                 />
                               </div>
-                              
+
                               {/* 选项设置 */}
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="flex items-center space-x-2">
-                                  <Checkbox 
+                                  <Checkbox
                                     id={`${platformId}-emoji`}
                                     checked={settings.useEmoji}
                                     onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useEmoji', !!checked)}
@@ -2054,9 +2096,9 @@ export default function AdaptPage() {
                                     emoji
                                   </Label>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-2">
-                                  <Checkbox 
+                                  <Checkbox
                                     id={`${platformId}-md`}
                                     checked={settings.useMdFormat}
                                     onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useMdFormat', !!checked)}
@@ -2067,7 +2109,7 @@ export default function AdaptPage() {
                                   </Label>
                                 </div>
                               </div>
-                              
+
                               {/* 特殊平台提示 */}
                               {isSpecialPlatform && (
                                 <div className="bg-blue-50 p-2 rounded text-xs text-blue-600">
@@ -2089,6 +2131,26 @@ export default function AdaptPage() {
           </Card>
         )}
       </div>
+
+      {/* Scheme Selection */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg">内容适配方案</CardTitle>
+          <CardDescription>
+            选择不同的方案和风格来获得最佳的内容生成效果
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SchemeSelector
+            selectedScheme={selectedSchemeId}
+            selectedStyle={selectedStyle}
+            onSchemeChange={setSelectedSchemeId}
+            onStyleChange={setSelectedStyle}
+          />
+        </CardContent>
+      </Card>
+
+
 
       {/* Generate Button */}
       <div className="flex justify-center mb-12">

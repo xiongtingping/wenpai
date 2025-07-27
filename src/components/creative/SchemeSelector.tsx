@@ -68,7 +68,7 @@ export function SchemeSelector({
         <div className="flex items-center gap-3 mb-4">
           <div className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-gray-600" />
-            <h3 className="text-lg font-semibold">内容方案</h3>
+            <h3 className="text-lg font-semibold">内容形式</h3>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -94,7 +94,7 @@ export function SchemeSelector({
                   onClick={() => setActiveTab('scheme')}
                 >
                   <Settings className="h-4 w-4 mr-1" />
-                  内容方案
+                  内容形式
                 </Button>
                 <Button
                   variant={activeTab === 'style' ? 'default' : 'outline'}
@@ -343,7 +343,7 @@ export function SchemeSelector({
             <div>
               <h5 className="font-medium mb-2 flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                内容方案
+                内容形式
               </h5>
               <div className="flex items-center gap-2">
                 <span className="text-lg">{selectedSchemeInfo?.icon}</span>
@@ -360,7 +360,7 @@ export function SchemeSelector({
             <div>
               <h5 className="font-medium mb-2 flex items-center gap-2">
                 <Palette className="h-4 w-4" />
-                内容风格
+                表达风格
               </h5>
               <div className="flex items-center gap-2">
                 <span className="text-lg">
