@@ -214,6 +214,8 @@ interface PlatformResult {
   steps: ProgressStep[];
   source?: "ai";
   error?: string;
+  charCount?: number;
+  targetCharCount?: number;
 }
 
 // Platform settings
@@ -389,6 +391,11 @@ export default function AdaptPage() {
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
   const [translatedContent, setTranslatedContent] = useState<Record<string, string>>({});
   const [translatingPlatforms, setTranslatingPlatforms] = useState<Set<string>>(new Set());
+
+  // 对比内容相关状态
+  const [comparisonContent, setComparisonContent] = useState<Record<string, string>>({});
+  const [generatingComparison, setGeneratingComparison] = useState<Set<string>>(new Set());
+  const [showComparison, setShowComparison] = useState<Record<string, boolean>>({});
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     charCountPreset: 'auto',
     globalEmoji: false,
@@ -803,7 +810,8 @@ export default function AdaptPage() {
             originalContent: originalContent.trim(),
             platform: platformId,
             formId: selectedFormId,
-            style: selectedStyle
+            style: selectedStyle,
+            charCount: platformSettings[platformId]?.charCount || getCharCountMax(platformId)
           };
           
           const response = await generateAdaptedContent(request);
@@ -825,14 +833,31 @@ export default function AdaptPage() {
             });
 
             if (aiResult.success && aiResult.content) {
+              // 验证字符数是否符合设定
+              const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
+              const actualCharCount = aiResult.content.length;
+              const charCountDiff = Math.abs(actualCharCount - targetCharCount);
+              const charCountTolerance = targetCharCount * 0.2; // 20%容差
+
+              let finalContent = aiResult.content;
+              let warningMessage = '生成完成';
+
+              if (charCountDiff > charCountTolerance) {
+                warningMessage = `生成完成 (字符数: ${actualCharCount}/${targetCharCount})`;
+                console.warn(`平台${platformId}字符数偏差较大: 目标${targetCharCount}, 实际${actualCharCount}`);
+              }
+
               // 更新结果
               const updatedResults = [...newResults];
               const resultIndex = updatedResults.findIndex(r => r.platformId === platformId);
               if (resultIndex !== -1) {
-                updatedResults[resultIndex].content = aiResult.content;
+                updatedResults[resultIndex].content = finalContent;
                 updatedResults[resultIndex].source = 'ai';
                 updatedResults[resultIndex].steps[3].status = 'completed';
-                updatedResults[resultIndex].steps[3].message = '生成完成';
+                updatedResults[resultIndex].steps[3].message = warningMessage;
+                // 添加字符数信息
+                updatedResults[resultIndex].charCount = actualCharCount;
+                updatedResults[resultIndex].targetCharCount = targetCharCount;
               }
               setResults([...updatedResults]);
               newResults[resultIndex] = updatedResults[resultIndex];
@@ -1350,7 +1375,8 @@ export default function AdaptPage() {
         originalContent: originalContent.trim(),
         platform: platformId,
         formId: selectedFormId,
-        style: selectedStyle
+        style: selectedStyle,
+        charCount: platformSettings[platformId]?.charCount || getCharCountMax(platformId)
       };
       
       const response = await regenerateAdaptedContent(request);
@@ -1372,14 +1398,31 @@ export default function AdaptPage() {
         });
 
         if (aiResult.success && aiResult.content) {
+          // 验证字符数是否符合设定
+          const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
+          const actualCharCount = aiResult.content.length;
+          const charCountDiff = Math.abs(actualCharCount - targetCharCount);
+          const charCountTolerance = targetCharCount * 0.2; // 20%容差
+
+          let finalContent = aiResult.content;
+          let warningMessage = '重新生成完成';
+
+          if (charCountDiff > charCountTolerance) {
+            warningMessage = `重新生成完成 (字符数: ${actualCharCount}/${targetCharCount})`;
+            console.warn(`平台${platformId}重新生成字符数偏差较大: 目标${targetCharCount}, 实际${actualCharCount}`);
+          }
+
           // 更新结果
           const currentResults = [...results];
           if (currentResults[resultIndex]) {
-            currentResults[resultIndex].content = aiResult.content;
+            currentResults[resultIndex].content = finalContent;
             currentResults[resultIndex].source = 'ai';
             currentResults[resultIndex].error = undefined;
             currentResults[resultIndex].steps[3].status = 'completed';
-            currentResults[resultIndex].steps[3].message = '重新生成完成';
+            currentResults[resultIndex].steps[3].message = warningMessage;
+            // 添加字符数信息
+            currentResults[resultIndex].charCount = actualCharCount;
+            currentResults[resultIndex].targetCharCount = targetCharCount;
           }
           setResults([...currentResults]);
         } else {
@@ -1552,6 +1595,117 @@ export default function AdaptPage() {
       console.error('AI生成失败:', error);
       throw error;
     }
+  };
+
+  // 生成对比内容
+  const generateComparisonContent = async (platformId: string) => {
+    if (!originalContent.trim()) {
+      toast({
+        title: "无原始内容",
+        description: "请先输入原始内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setGeneratingComparison(prev => new Set(prev).add(platformId));
+
+    try {
+      // 使用不同的内容策略生成对比版本
+      const alternativeFormId = getAlternativeContentForm(platformId, selectedFormId);
+      const alternativeStyle = getAlternativeStyle(selectedStyle);
+
+      const request: ContentAdaptationRequest = {
+        originalContent: originalContent.trim(),
+        platform: platformId,
+        formId: alternativeFormId,
+        style: alternativeStyle,
+        charCount: platformSettings[platformId]?.charCount || getCharCountMax(platformId)
+      };
+
+      const response = await generateAdaptedContent(request);
+
+      if (response.success && response.data) {
+        // 使用统一AI服务生成对比内容
+        const aiResult = await callAI({
+          prompt: response.data.prompt,
+          model: selectedModel as any,
+          systemPrompt: '你是一个专业的内容适配专家，请生成与主要版本不同风格的替代内容。',
+          maxTokens: 2000,
+          temperature: 0.9 // 增加随机性以获得不同的结果
+        });
+
+        if (aiResult.success && aiResult.content) {
+          // 验证对比内容的字符数
+          const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
+          const actualCharCount = aiResult.content.length;
+          const charCountDiff = Math.abs(actualCharCount - targetCharCount);
+          const charCountTolerance = targetCharCount * 0.2; // 20%容差
+
+          setComparisonContent(prev => ({
+            ...prev,
+            [platformId]: aiResult.content
+          }));
+
+          setShowComparison(prev => ({
+            ...prev,
+            [platformId]: true
+          }));
+
+          const successMessage = charCountDiff > charCountTolerance
+            ? `已生成替代版本 (字符数: ${actualCharCount}/${targetCharCount})`
+            : `已为${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}生成替代版本`;
+
+          toast({
+            title: "对比内容生成成功",
+            description: successMessage,
+          });
+        } else {
+          throw new Error(aiResult.error || '对比内容生成失败');
+        }
+      } else {
+        throw new Error(response.error || '对比内容适配失败');
+      }
+    } catch (error) {
+      console.error(`生成${platformId}对比内容失败:`, error);
+      toast({
+        title: "对比内容生成失败",
+        description: error instanceof Error ? error.message : '生成对比内容时发生错误',
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingComparison(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(platformId);
+        return newSet;
+      });
+    }
+  };
+
+  // 获取替代内容形式
+  const getAlternativeContentForm = (platformId: string, currentFormId?: string): string | undefined => {
+    const platformAlternatives: Record<string, string[]> = {
+      'douyin': ['comedy-reversal', 'drama-script', 'tutorial-guide'],
+      'xiaohongshu': ['product-review', 'lifestyle-sharing', 'tutorial-guide'],
+      'weibo': ['hot-topic', 'emotional-resonance', 'trend-opinion'],
+      'zhihu': ['trend-opinion', 'emotional-resonance', 'deep-analysis'],
+      'wechat': ['trend-opinion', 'deep-analysis', 'emotional-resonance'],
+      'bilibili': ['drama-script', 'comedy-reversal', 'tutorial-guide']
+    };
+
+    const alternatives = platformAlternatives[platformId] || ['lifestyle-sharing', 'hot-topic'];
+    return alternatives.find(alt => alt !== currentFormId) || alternatives[0];
+  };
+
+  // 获取替代风格
+  const getAlternativeStyle = (currentStyle: StyleType): StyleType => {
+    const styleAlternatives: Record<StyleType, StyleType> = {
+      'professional': 'real',
+      'funny': 'professional',
+      'real': 'funny',
+      'hook': 'professional'
+    };
+    return styleAlternatives[currentStyle] || 'real';
   };
 
   return (
@@ -2173,11 +2327,24 @@ export default function AdaptPage() {
                                 }`}>
                                   {typeof result.content === 'string' ? result.content : JSON.stringify(result.content)}
                                 </div>
-                                {/* 平台标识 */}
-                                <div className="absolute top-4 right-4">
+                                {/* 平台标识和字符数信息 */}
+                                <div className="absolute top-4 right-4 space-y-2">
                                   <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
                                     {platformStyles[result.platformId as keyof typeof platformStyles]?.name || result.platformId}
                                   </div>
+                                  {/* 字符数信息 */}
+                                  {result.content && (
+                                    <div className={`bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium shadow-sm ${
+                                      (result as any).charCount && (result as any).targetCharCount &&
+                                      Math.abs((result as any).charCount - (result as any).targetCharCount) > (result as any).targetCharCount * 0.2
+                                        ? 'text-orange-700 bg-orange-100/90'
+                                        : 'text-green-700 bg-green-100/90'
+                                    }`}>
+                                      {result.content.length}
+                                      {(result as any).targetCharCount && ` / ${(result as any).targetCharCount}`}
+                                      字符
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             )
@@ -2196,33 +2363,46 @@ export default function AdaptPage() {
                         </div>
 
                         {/* 视觉连接线 */}
-                        {translatedContent[result.platformId] && (
+                        {(comparisonContent[result.platformId] || showComparison[result.platformId]) && (
                           <div className="hidden lg:flex items-center justify-center absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
                               <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-white"></div>
                             </div>
                           </div>
                         )}
 
-                        {/* 翻译内容 - 右侧 */}
-                        {translatedContent[result.platformId] && (
+                        {/* 对比内容 - 右侧 */}
+                        {showComparison[result.platformId] && (
                           <div className="space-y-4">
                             <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
-                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-gray-900">翻译内容</h4>
-                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                              <h4 className="text-lg font-semibold text-gray-900">对比版本</h4>
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                             </div>
-                            <div className="relative">
-                              <div className="whitespace-pre-wrap rounded-lg border-2 border-blue-200 p-6 bg-blue-50 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm">
-                                {translatedContent[result.platformId]}
-                              </div>
-                              {/* 翻译标识 */}
-                              <div className="absolute top-4 right-4">
-                                <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-blue-700 shadow-sm">
-                                  翻译版本
+                            {comparisonContent[result.platformId] ? (
+                              <div className="relative">
+                                <div className="whitespace-pre-wrap rounded-lg border-2 border-orange-200 p-6 bg-orange-50 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm">
+                                  {comparisonContent[result.platformId]}
+                                </div>
+                                {/* 对比标识 */}
+                                <div className="absolute top-4 right-4">
+                                  <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-orange-700 shadow-sm">
+                                    替代版本
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            ) : generatingComparison.has(result.platformId) ? (
+                              <div className="rounded-lg border-2 border-dashed border-orange-200 p-12 flex items-center justify-center bg-orange-50">
+                                <div className="text-center">
+                                  <RefreshCw className="h-8 w-8 animate-spin text-orange-500 mx-auto mb-2" />
+                                  <p className="text-orange-600 text-lg font-medium">正在生成对比版本...</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="rounded-lg border-2 border-dashed border-orange-200 p-12 flex items-center justify-center bg-orange-50">
+                                <p className="text-orange-600 text-lg">对比内容将显示在这里...</p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -2271,11 +2451,19 @@ export default function AdaptPage() {
                         <Button
                           size="lg"
                           variant="outline"
-                          onClick={() => handleTranslate(result.platformId, result.content)}
-                          disabled={translatingPlatforms.has(result.platformId)}
+                          onClick={() => generateComparisonContent(result.platformId)}
+                          disabled={generatingComparison.has(result.platformId)}
+                          className="bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
                         >
-                          <Languages className="h-5 w-5 mr-2" />
-                          一键翻译
+                          {generatingComparison.has(result.platformId) ? (
+                            <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+                          ) : (
+                            <div className="h-5 w-5 mr-2 flex items-center justify-center">
+                              <div className="w-3 h-3 border border-orange-500 rounded-sm"></div>
+                              <div className="w-3 h-3 border border-orange-500 rounded-sm ml-1"></div>
+                            </div>
+                          )}
+                          {showComparison[result.platformId] ? '重新对比' : '生成对比'}
                         </Button>
                         
                         <Button
