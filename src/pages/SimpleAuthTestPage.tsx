@@ -210,11 +210,11 @@ const SimpleAuthTestPage: React.FC = () => {
           }}>
             <h4 style={{ marginTop: 0 }}>用户信息</h4>
             <div style={{ fontSize: '14px' }}>
-              <p><strong>ID:</strong> {user.id}</p>
+              <p><strong>ID:</strong> {user.id || '未知'}</p>
               <p><strong>用户名:</strong> {user.username || '未设置'}</p>
               <p><strong>邮箱:</strong> {user.email || '未设置'}</p>
               <p><strong>昵称:</strong> {user.nickname || '未设置'}</p>
-              <p><strong>登录时间:</strong> {user.loginTime}</p>
+              <p><strong>登录时间:</strong> {user.loginTime || '未知'}</p>
             </div>
           </div>
         )}

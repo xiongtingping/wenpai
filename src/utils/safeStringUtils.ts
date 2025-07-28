@@ -119,7 +119,7 @@ export function safeUserDisplayName(
   }
   
   // 包含ID
-  if (includeId && user.id) {
+  if (includeId && user.id && user.id !== 'undefined') {
     displayName += ` (${user.id})`;
   }
   

@@ -134,10 +134,10 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}
                 style={{ height: `${Math.max(height, 10)}%` }}
-                title={`${data.date}: ${data.heat.toLocaleString()}`}
+                title={`${data.date || '未知日期'}: ${(data.heat || 0).toLocaleString()}`}
               />
               <span className="text-xs text-gray-500 mt-1 transform rotate-45 origin-left">
-                {data.date}
+                {data.date || '未知'}
               </span>
             </div>
           );

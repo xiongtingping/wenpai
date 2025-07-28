@@ -96,12 +96,12 @@ export const getBrandContentCheckPrompt: PromptTemplate = (input: any, options =
 
   const brandContext = brandProfile ? `
 ## 品牌档案
-- 品牌名称: ${brandProfile.brandName}
-- 核心价值: ${brandProfile.coreValues?.join(', ')}
-- 目标用户: ${brandProfile.targetAudience?.primary}
-- 品牌语调: ${brandProfile.brandPersonality?.tone}
-- 建议用词: ${brandProfile.communicationGuidelines?.doUse?.join(', ')}
-- 避免用词: ${brandProfile.communicationGuidelines?.dontUse?.join(', ')}
+- 品牌名称: ${brandProfile.brandName || '未知'}
+- 核心价值: ${brandProfile.coreValues?.join(', ') || '未设置'}
+- 目标用户: ${brandProfile.targetAudience?.primary || '未设置'}
+- 品牌语调: ${brandProfile.brandPersonality?.tone || '未设置'}
+- 建议用词: ${brandProfile.communicationGuidelines?.doUse?.join(', ') || '未设置'}
+- 避免用词: ${brandProfile.communicationGuidelines?.dontUse?.join(', ') || '未设置'}
 ` : '';
 
   return `你是专业的品牌内容审核专家，请对以下内容进行品牌一致性检查：

@@ -195,10 +195,10 @@ const AuthTestPage: React.FC = () => {
                   用户信息
                 </h4>
                 <div className="text-sm space-y-1">
-                  <p><strong>ID:</strong> {user.id}</p>
-                  <p><strong>用户名:</strong> {user.username}</p>
-                  <p><strong>邮箱:</strong> {user.email}</p>
-                  <p><strong>昵称:</strong> {user.nickname}</p>
+                  <p><strong>ID:</strong> {user.id || '未知'}</p>
+                  <p><strong>用户名:</strong> {user.username || '未设置'}</p>
+                  <p><strong>邮箱:</strong> {user.email || '未设置'}</p>
+                  <p><strong>昵称:</strong> {user.nickname || '未设置'}</p>
                 </div>
               </div>
             )}
