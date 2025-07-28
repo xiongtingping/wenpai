@@ -85,13 +85,25 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
     };
   } catch (error: any) {
     console.error('支付服务调用失败:', error);
-    
+
     // 提供更友好的错误信息
+    let userFriendlyError = '支付服务暂时不可用，请稍后重试';
+
     if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
-      throw new Error('支付服务暂时不可用，请稍后重试');
+      userFriendlyError = '🌐 网络连接失败，请检查网络设置后重试';
+    } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      userFriendlyError = '🔑 支付服务配置错误，请联系管理员';
+    } else if (error.message.includes('404') || error.message.includes('Not Found')) {
+      userFriendlyError = '📦 商品信息不存在，请重新选择套餐';
+    } else if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
+      userFriendlyError = '🚦 请求过于频繁，请稍后重试';
+    } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+      userFriendlyError = '⚠️ 支付服务器错误，请稍后重试';
+    } else if (error.message.includes('timeout')) {
+      userFriendlyError = '⏰ 请求超时，请检查网络后重试';
     }
-    
-    throw new Error(error.message || '支付服务暂时不可用');
+
+    throw new Error(userFriendlyError);
   }
 }
 

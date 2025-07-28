@@ -45,11 +45,20 @@ export const useUser = () => {
     },
     
     isVipUser: () => {
-      return !!(user?.isVip || user?.vipLevel || user?.isProUser);
+      // 安全的VIP用户检查，避免undefined拼接
+      return Boolean(
+        user?.isVip === true ||
+        (user?.vipLevel && user.vipLevel > 0) ||
+        user?.isProUser === true
+      );
     },
-    
+
     isProUserCheck: () => {
-      return !!(user?.isProUser || user?.plan === 'pro');
+      // 安全的Pro用户检查，避免undefined拼接
+      return Boolean(
+        user?.isProUser === true ||
+        user?.plan === 'pro'
+      );
     }
   };
 };

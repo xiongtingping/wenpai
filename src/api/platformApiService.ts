@@ -198,10 +198,14 @@ async function publishToWeibo(content: PublishContent, config: PlatformApiConfig
     const data = await response.json();
     
     if (data.id) {
+      // 安全构建发布URL，避免undefined拼接
+      const userId = data.user?.id || 'unknown';
+      const postId = data.id || 'unknown';
+
       return {
         success: true,
         publishId: data.id,
-        publishUrl: `https://weibo.com/${data.user?.id}/${data.id}`,
+        publishUrl: `https://weibo.com/${userId}/${postId}`,
         response: data
       };
     } else {

@@ -91,22 +91,36 @@ export default function AlipayQRCode({
       
       // 根据错误类型提供不同的错误信息
       let errorMessage = '二维码生成失败，请稍后重试';
-      
-      if (error.message.includes('网络连接')) {
-        errorMessage = '网络连接不可用，请检查网络设置';
-      } else if (error.message.includes('支付服务')) {
-        errorMessage = '支付服务暂时不可用，请稍后重试';
-      } else if (error.message.includes('配置')) {
-        errorMessage = '支付配置错误，请联系客服';
-      } else if (error.message.includes('产品')) {
-        errorMessage = '商品信息错误，请重新选择';
+
+      if (error.message.includes('网络连接') || error.message.includes('Failed to fetch')) {
+        errorMessage = '🌐 网络连接失败，请检查网络设置后重试';
+      } else if (error.message.includes('支付服务') || error.message.includes('暂时不可用')) {
+        errorMessage = '💳 支付服务暂时不可用，请稍后重试';
+      } else if (error.message.includes('配置') || error.message.includes('401') || error.message.includes('Unauthorized')) {
+        errorMessage = '🔑 支付服务配置错误，请联系管理员';
+      } else if (error.message.includes('产品') || error.message.includes('404')) {
+        errorMessage = '📦 商品信息不存在，请重新选择套餐';
+      } else if (error.message.includes('429')) {
+        errorMessage = '🚦 请求过于频繁，请稍后重试';
+      } else if (error.message.includes('500')) {
+        errorMessage = '⚠️ 支付服务器错误，请稍后重试';
+      } else if (error.message.includes('timeout') || error.message.includes('超时')) {
+        errorMessage = '⏰ 请求超时，请检查网络后重试';
       }
-      
+
       setError(errorMessage);
-      
+
       // 如果是重试，显示重试次数
       if (isRetry && newRetryCount < 3) {
         setError(`${errorMessage} (重试 ${newRetryCount}/3)`);
+      }
+
+      // 如果是网络错误且重试次数少于3次，自动重试
+      if ((error.message.includes('网络') || error.message.includes('Failed to fetch') || error.message.includes('timeout')) && newRetryCount < 3 && !isRetry) {
+        console.log(`网络错误，3秒后自动重试...`);
+        setTimeout(() => {
+          fetchQRCode(true);
+        }, 3000);
       }
     } finally {
       setLoading(false);

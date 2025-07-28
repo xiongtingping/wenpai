@@ -337,22 +337,6 @@ function setModel(modelId: string): void {
 
 // 平台样式配置
 const platformStyles: Record<string, { name: string; description: string; maxLength?: number; hashtagCount?: number; tone?: string; features?: string[] }> = {
-  wechat: {
-    name: '微信',
-    description: '微信公众号、朋友圈',
-    maxLength: 2000,
-    hashtagCount: 0,
-    tone: '专业、权威',
-    features: ['图文并茂', '深度内容', '专业术语']
-  },
-  weibo: {
-    name: '微博',
-    description: '新浪微博',
-    maxLength: 140,
-    hashtagCount: 3,
-    tone: '简洁、热点',
-    features: ['话题标签', '@用户', '转发互动']
-  },
   xiaohongshu: {
     name: '小红书',
     description: '小红书笔记',
@@ -360,14 +344,6 @@ const platformStyles: Record<string, { name: string; description: string; maxLen
     hashtagCount: 20,
     tone: '种草、分享',
     features: ['个人体验', '图片展示', '标签丰富']
-  },
-  douyin: {
-    name: '抖音',
-    description: '抖音短视频',
-    maxLength: 300,
-    hashtagCount: 5,
-    tone: '轻松、有趣',
-    features: ['视频脚本', '音乐配合', '互动引导']
   },
   zhihu: {
     name: '知乎',
@@ -377,13 +353,85 @@ const platformStyles: Record<string, { name: string; description: string; maxLen
     tone: '专业、深度',
     features: ['详细解答', '专业术语', '引用来源']
   },
+  douyin: {
+    name: '抖音',
+    description: '抖音短视频',
+    maxLength: 300,
+    hashtagCount: 5,
+    tone: '轻松、有趣',
+    features: ['视频脚本', '音乐配合', '互动引导']
+  },
+  weibo: {
+    name: '微博',
+    description: '新浪微博',
+    maxLength: 140,
+    hashtagCount: 3,
+    tone: '简洁、热点',
+    features: ['话题标签', '@用户', '转发互动']
+  },
+  wechat: {
+    name: '微信',
+    description: '微信公众号、朋友圈',
+    maxLength: 2000,
+    hashtagCount: 0,
+    tone: '专业、权威',
+    features: ['图文并茂', '深度内容', '专业术语']
+  },
   bilibili: {
-    name: 'B站',
+    name: '哔哩哔哩',
     description: 'B站视频',
     maxLength: 500,
     hashtagCount: 10,
     tone: '年轻、活力',
     features: ['弹幕互动', '视频标题', '分区标签']
+  },
+  twitter: {
+    name: '推特',
+    description: 'X（推特）',
+    maxLength: 280,
+    hashtagCount: 2,
+    tone: '简洁、国际化',
+    features: ['话题标签', '转推', '多语言']
+  },
+  video: {
+    name: '视频号',
+    description: '微信视频号',
+    maxLength: 300,
+    hashtagCount: 3,
+    tone: '亲和、互动',
+    features: ['视频内容', '互动引导', '社交分享']
+  },
+  baijia: {
+    name: '百家号',
+    description: '百度百家号',
+    maxLength: 3000,
+    hashtagCount: 5,
+    tone: '权威、专业',
+    features: ['长篇内容', 'SEO优化', '资讯类']
+  },
+  kuaishou: {
+    name: '快手',
+    description: '快手短视频',
+    maxLength: 300,
+    hashtagCount: 5,
+    tone: '真实、朴实',
+    features: ['生活记录', '接地气', '亲民风格']
+  },
+  wangyi: {
+    name: '网易号',
+    description: '网易小蜜蜂',
+    maxLength: 2000,
+    hashtagCount: 3,
+    tone: '原创、深度',
+    features: ['原创内容', '文笔流畅', '观点独特']
+  },
+  toutiao: {
+    name: '今日头条',
+    description: '头条号',
+    maxLength: 1500,
+    hashtagCount: 5,
+    tone: '热点、时效',
+    features: ['标题党', '热点敏感', '算法推荐']
   }
 };
 
@@ -464,6 +512,10 @@ export default function AdaptPage() {
     const creativePrompt = `${basePrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
 
     try {
+      console.log(`开始为平台 ${platformId} 生成多版本内容`);
+      console.log('使用模型:', selectedModel);
+      console.log('提示词长度:', basePrompt.length);
+
       // 并行生成两个版本
       const [standardResult, creativeResult] = await Promise.all([
         callAI({
@@ -472,6 +524,9 @@ export default function AdaptPage() {
           systemPrompt: '你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。',
           maxTokens: 2000,
           temperature: 0.7
+        }).catch(error => {
+          console.error('标准版本生成失败:', error);
+          return { success: false, error: error.message };
         }),
         callAI({
           prompt: creativePrompt,
@@ -479,8 +534,14 @@ export default function AdaptPage() {
           systemPrompt: '你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。',
           maxTokens: 2000,
           temperature: 0.9
+        }).catch(error => {
+          console.error('创意版本生成失败:', error);
+          return { success: false, error: error.message };
         })
       ]);
+
+      console.log('标准版本结果:', standardResult.success ? '成功' : `失败: ${standardResult.error}`);
+      console.log('创意版本结果:', creativeResult.success ? '成功' : `失败: ${creativeResult.error}`);
 
       if (standardResult.success && standardResult.content) {
         versions.push({
@@ -502,6 +563,32 @@ export default function AdaptPage() {
         });
       }
 
+      // 如果两个版本都失败了，尝试生成一个基础版本
+      if (versions.length === 0) {
+        console.log('两个版本都失败，尝试生成基础版本');
+        const fallbackResult = await callAI({
+          prompt: basePrompt,
+          model: selectedModel as any,
+          systemPrompt: '你是一个内容创作专家，请生成高质量的内容。',
+          maxTokens: 2000,
+          temperature: 0.8
+        }).catch(error => {
+          console.error('基础版本生成失败:', error);
+          return { success: false, error: error.message };
+        });
+
+        if (fallbackResult.success && fallbackResult.content) {
+          versions.push({
+            id: 'version-fallback',
+            content: fallbackResult.content,
+            style: 'standard',
+            title: '生成版本',
+            charCount: fallbackResult.content.length
+          });
+        }
+      }
+
+      console.log(`平台 ${platformId} 最终生成了 ${versions.length} 个版本`);
       return versions;
     } catch (error) {
       console.error('生成多版本内容失败:', error);
@@ -2222,11 +2309,11 @@ ${dimensions.join('\n\n')}
     <div className="min-h-screen bg-gray-50">
       {/* 页面导航 */}
       <PageNavigation
-        title="AI内容适配器"
+        title="内容适配器"
         description="智能分析内容，一键适配多平台格式"
         actions={
           <>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => window.location.href = "/history"}
             >
@@ -2379,11 +2466,38 @@ ${dimensions.join('\n\n')}
                   <div className="border-b pb-4">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-sm font-medium text-gray-700">全局设置</h4>
-                      {(settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform') && (
-                        <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
-                          已启用平台特定设置，全局设置已禁用
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {(settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform') && (
+                          <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                            已启用平台特定设置，全局设置已禁用
+                          </div>
+                        )}
+                        {(settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform') && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            onClick={() => {
+                              setSettingsMode({
+                                charCount: 'global',
+                                emoji: 'global',
+                                mdFormat: 'global'
+                              });
+                              // 重新启用全局设置的默认值
+                              setGlobalSettings(prev => ({
+                                ...prev,
+                                charCountPreset: prev.charCountPreset === 'auto' ? 'standard' : prev.charCountPreset,
+                                globalEmoji: true,
+                                globalMd: true
+                              }));
+                              // 应用全局设置到所有平台
+                              setTimeout(() => applyGlobalSettings(), 100);
+                            }}
+                          >
+                            切换到全局设置
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {/* 字符数限制 */}
@@ -2469,11 +2583,36 @@ ${dimensions.join('\n\n')}
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-sm font-medium text-gray-700">平台特定设置</h4>
-                      {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
-                        <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                          已启用全局设置，平台特定设置已禁用
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
+                          <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                            已启用全局设置，平台特定设置已禁用
+                          </div>
+                        )}
+                        {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            onClick={() => {
+                              setSettingsMode({
+                                charCount: 'platform',
+                                emoji: 'platform',
+                                mdFormat: 'platform'
+                              });
+                              // 禁用全局设置
+                              setGlobalSettings(prev => ({
+                                ...prev,
+                                charCountPreset: 'auto',
+                                globalEmoji: false,
+                                globalMd: false
+                              }));
+                            }}
+                          >
+                            切换到平台设置
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {selectedPlatforms.map(platformId => {
@@ -2626,7 +2765,7 @@ ${dimensions.join('\n\n')}
             <strong>当前配置：</strong>
             原始内容
             {useBrandLibrary && ' + 品牌库'}
-            {selectedPlatforms.length > 0 && ` + ${selectedPlatforms.join('、')}`}
+            {selectedPlatforms.length > 0 && ` + ${selectedPlatforms.map(id => platforms.find(p => p.id === id)?.name || id).join('、')}`}
             {selectedFormId && ` + ${getContentFormById(selectedFormId)?.name || '内容形式'}`}
             {` + ${getAvailableStyles().find(s => s.id === selectedStyle)?.name || '专业风格'}`}
             {customPrompt.trim() && ' + 自定义要求'}
@@ -2797,24 +2936,29 @@ ${dimensions.join('\n\n')}
           </div>
           
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
-            <TabsList className="mb-6 grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 h-12 overflow-x-auto">
+            <TabsList className="mb-6 flex w-full h-auto p-1 bg-muted rounded-lg overflow-x-auto">
               {results.map(result => (
-                <TabsTrigger key={result.platformId} value={result.platformId} className="text-xs sm:text-sm font-medium min-w-0">
-                  <div className="flex items-center">
-                    {getPlatformIcon(result.platformId)}
-                  </div>
+                <TabsTrigger
+                  key={result.platformId}
+                  value={result.platformId}
+                  className="flex-shrink-0 flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium whitespace-nowrap min-w-fit"
+                >
+                  {getPlatformIcon(result.platformId)}
+                  <span className="hidden sm:inline">
+                    {platformStyles[result.platformId as keyof typeof platformStyles]?.name || platforms.find(p => p.id === result.platformId)?.name || result.platformId}
+                  </span>
                 </TabsTrigger>
               ))}
             </TabsList>
             
             {results.map(result => (
               <TabsContent key={result.platformId} value={result.platformId}>
-                <Card className="p-8 shadow-lg border-2">
+                <Card className="p-4 sm:p-6 lg:p-8 shadow-lg border-2 bg-white">
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-2xl flex items-center">
                         {getPlatformIcon(result.platformId)}
-                        <span className="ml-3">{platformStyles[result.platformId as keyof typeof platformStyles]?.name || result.platformId}</span>
+                        <span className="ml-3">{platformStyles[result.platformId as keyof typeof platformStyles]?.name || platforms.find(p => p.id === result.platformId)?.name || result.platformId}</span>
                       </CardTitle>
                     </div>
                   </CardHeader>
@@ -2903,7 +3047,7 @@ ${dimensions.join('\n\n')}
                       </div>
                       
                       {/* 主要内容区域 */}
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
                         {/* 原始/编辑内容 - 左侧 */}
                         <div className="space-y-4">
                           <div className="flex items-center justify-center xl:justify-start gap-2 mb-3">
@@ -2962,7 +3106,7 @@ ${dimensions.join('\n\n')}
                                 {/* 平台标识和字符数信息 */}
                                 <div className="absolute top-4 right-4 space-y-2">
                                   <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
-                                    {platformStyles[result.platformId as keyof typeof platformStyles]?.name || result.platformId}
+                                    {platformStyles[result.platformId as keyof typeof platformStyles]?.name || platforms.find(p => p.id === result.platformId)?.name || result.platformId}
                                   </div>
                                   {/* 字符数信息 */}
                                   {result.content && (
