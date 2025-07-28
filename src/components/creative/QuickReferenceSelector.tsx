@@ -6,24 +6,26 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { 
-  AtSign, 
-  Database, 
-  Bookmark, 
-  Radar, 
-  FileText, 
-  Link, 
-  Image, 
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AtSign,
+  Database,
+  Bookmark,
+  Radar,
+  FileText,
+  Link,
+  Image,
   Search,
   Plus,
   Clock,
   Tag,
-  ExternalLink
+  ExternalLink,
+  Check
 } from "lucide-react";
 
 interface QuickReferenceItem {
@@ -41,18 +43,20 @@ interface QuickReferenceItem {
 interface QuickReferenceSelectorProps {
   onSelect: (content: string) => void;
   className?: string;
+  multiSelect?: boolean;
 }
 
 /**
  * 快速引用选择器组件
  */
-export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSelectorProps) {
+export function QuickReferenceSelector({ onSelect, className, multiSelect = false }: QuickReferenceSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('brand');
   const [brandItems, setBrandItems] = useState<QuickReferenceItem[]>([]);
   const [libraryItems, setLibraryItems] = useState<QuickReferenceItem[]>([]);
   const [radarItems, setRadarItems] = useState<QuickReferenceItem[]>([]);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
   // 初始化示例数据
   useEffect(() => {
@@ -155,9 +159,34 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
 
   // 处理选择项目
   const handleSelectItem = (item: QuickReferenceItem) => {
-    onSelect(item.content);
+    if (multiSelect) {
+      const newSelectedItems = new Set(selectedItems);
+      if (newSelectedItems.has(item.id)) {
+        newSelectedItems.delete(item.id);
+      } else {
+        newSelectedItems.add(item.id);
+      }
+      setSelectedItems(newSelectedItems);
+    } else {
+      onSelect(item.content);
+      setIsOpen(false);
+      setSearchQuery('');
+    }
+  };
+
+  // 处理确认选择（多选模式）
+  const handleConfirmSelection = () => {
+    const allItems = [...brandItems, ...libraryItems, ...radarItems];
+    const selectedContents = Array.from(selectedItems)
+      .map(id => allItems.find(item => item.id === id))
+      .filter(Boolean)
+      .map(item => item!.content)
+      .join('\n\n');
+
+    onSelect(selectedContents);
     setIsOpen(false);
     setSearchQuery('');
+    setSelectedItems(new Set());
   };
 
   // 获取格式图标
@@ -196,8 +225,8 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
           快速引用
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <AtSign className="h-5 w-5" />
             快速引用内容
@@ -207,9 +236,9 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex flex-col space-y-4 flex-1 overflow-hidden">
           {/* 搜索框 */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="搜索内容、标题或标签..."
@@ -220,8 +249,8 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
           </div>
 
           {/* 标签页 */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 overflow-hidden">
+            <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
               <TabsTrigger value="brand" className="flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 品牌库
@@ -236,9 +265,9 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="brand" className="mt-4">
-              <ScrollArea className="h-96">
-                <div className="space-y-3">
+            <TabsContent value="brand" className="mt-4 flex-1 overflow-hidden">
+              <ScrollArea className="h-full max-h-[50vh]">
+                <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <Database className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -246,13 +275,22 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
-                            <CardTitle className="text-sm font-medium flex items-center gap-2">
-                              {getFormatIcon(item.format)}
-                              {item.title}
-                            </CardTitle>
+                            <div className="flex items-center gap-2 flex-1">
+                              {multiSelect && (
+                                <Checkbox
+                                  checked={selectedItems.has(item.id)}
+                                  onChange={() => handleSelectItem(item)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                {getFormatIcon(item.format)}
+                                {item.title}
+                              </CardTitle>
+                            </div>
                             <Badge className={getTypeColor(item.type)}>
                               品牌库
                             </Badge>
@@ -284,9 +322,9 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="library" className="mt-4">
-              <ScrollArea className="h-96">
-                <div className="space-y-3">
+            <TabsContent value="library" className="mt-4 flex-1 overflow-hidden">
+              <ScrollArea className="h-full max-h-[50vh]">
+                <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <Bookmark className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -294,13 +332,22 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
-                            <CardTitle className="text-sm font-medium flex items-center gap-2">
-                              {getFormatIcon(item.format)}
-                              {item.title}
-                            </CardTitle>
+                            <div className="flex items-center gap-2 flex-1">
+                              {multiSelect && (
+                                <Checkbox
+                                  checked={selectedItems.has(item.id)}
+                                  onChange={() => handleSelectItem(item)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                {getFormatIcon(item.format)}
+                                {item.title}
+                              </CardTitle>
+                            </div>
                             <Badge className={getTypeColor(item.type)}>
                               资料库
                             </Badge>
@@ -338,9 +385,9 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="radar" className="mt-4">
-              <ScrollArea className="h-96">
-                <div className="space-y-3">
+            <TabsContent value="radar" className="mt-4 flex-1 overflow-hidden">
+              <ScrollArea className="h-full max-h-[50vh]">
+                <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <Radar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -348,13 +395,22 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
-                            <CardTitle className="text-sm font-medium flex items-center gap-2">
-                              {getFormatIcon(item.format)}
-                              {item.title}
-                            </CardTitle>
+                            <div className="flex items-center gap-2 flex-1">
+                              {multiSelect && (
+                                <Checkbox
+                                  checked={selectedItems.has(item.id)}
+                                  onChange={() => handleSelectItem(item)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                {getFormatIcon(item.format)}
+                                {item.title}
+                              </CardTitle>
+                            </div>
                             <Badge className={getTypeColor(item.type)}>
                               雷达收藏
                             </Badge>
@@ -393,6 +449,30 @@ export function QuickReferenceSelector({ onSelect, className }: QuickReferenceSe
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* 多选模式下的确认按钮 */}
+        {multiSelect && (
+          <DialogFooter className="flex-shrink-0">
+            <div className="flex items-center justify-between w-full">
+              <div className="text-sm text-gray-600">
+                已选择 {selectedItems.size} 项内容
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setSelectedItems(new Set())}>
+                  清空选择
+                </Button>
+                <Button
+                  onClick={handleConfirmSelection}
+                  disabled={selectedItems.size === 0}
+                  className="flex items-center gap-2"
+                >
+                  <Check className="h-4 w-4" />
+                  确认引用 ({selectedItems.size})
+                </Button>
+              </div>
+            </div>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

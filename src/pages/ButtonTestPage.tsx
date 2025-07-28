@@ -55,7 +55,7 @@ const ButtonTestPage: React.FC = () => {
                   </p>
                   {user && (
                     <p className="text-sm text-blue-600">
-                      用户: {user.nickname || user.username || user.email || user.id || '未知用户'}
+                      用户: {user.nickname || user.username || user.email || user.id}
                     </p>
                   )}
                 </div>

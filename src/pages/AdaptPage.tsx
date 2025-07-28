@@ -44,7 +44,7 @@ import {
   getAvailableStyles,
   type ContentAdaptationRequest
 } from "@/api/contentAdapter";
-import SchemeSelector from '@/components/creative/SchemeSelector';
+import ContentFormSelector from '@/components/creative/ContentFormSelector';
 import QuickReferenceSelector from '@/components/creative/QuickReferenceSelector';
 import { 
   getAvailableModelsForTier, 
@@ -69,6 +69,7 @@ import {
 } from '@/api/platformApiService';
 import { type StyleType } from '@/config/contentSchemes';
 import { request, callAI } from '@/api';
+import { MentionTextarea } from '@/components/ui/mention-textarea';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -251,15 +252,23 @@ function CheckboxCard({
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) {
+  const handleCardClick = (e: React.MouseEvent) => {
+    // 如果点击的是checkbox，不处理card的点击事件
+    if ((e.target as HTMLElement).closest('[role="checkbox"]')) {
+      return;
+    }
+    onChange(!checked);
+  };
+
   return (
-    <Card 
+    <Card
       className={cn(
-        "relative border cursor-pointer transition-all duration-200 h-36 flex flex-col", 
-        checked 
-          ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/20" 
+        "relative border cursor-pointer transition-all duration-200 h-36 flex flex-col",
+        checked
+          ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/20"
           : "bg-background hover:shadow-sm hover:border-gray-300"
       )}
-      onClick={() => onChange(!checked)}
+      onClick={handleCardClick}
     >
       <CardHeader className="pb-1 pt-4 flex-shrink-0">
         <div className="flex justify-between items-start">
@@ -270,9 +279,12 @@ function CheckboxCard({
             <CardTitle className="text-sm font-semibold truncate leading-tight">{title}</CardTitle>
           </div>
           <div className="flex-shrink-0">
-            <Checkbox 
+            <Checkbox
               checked={checked}
-              onCheckedChange={onChange}
+              onCheckedChange={(checked) => {
+                // 防止事件冒泡导致重复触发
+                onChange(!!checked);
+              }}
               className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
             />
           </div>
@@ -390,8 +402,8 @@ export default function AdaptPage() {
   // 订阅等级本地状态，后续可全局提升
   const [userPlan, setUserPlan] = useState<'trial' | 'pro' | 'premium'>('trial');
   
-  // 内容方案和风格选择
-  const [selectedSchemeId, setSelectedSchemeId] = useState('global-adaptation');
+  // 内容形式和风格选择
+  const [selectedFormId, setSelectedFormId] = useState<string | undefined>(undefined);
   const [selectedStyle, setSelectedStyle] = useState<StyleType>('professional');
   
   // 获取可用模型
@@ -559,7 +571,9 @@ export default function AdaptPage() {
     if (savedSelectedPlatforms) {
       try {
         const parsedSelectedPlatforms = JSON.parse(savedSelectedPlatforms);
-        setSelectedPlatforms(parsedSelectedPlatforms);
+        // 去重处理，确保没有重复的平台ID
+        const uniquePlatforms = Array.from(new Set(parsedSelectedPlatforms)) as string[];
+        setSelectedPlatforms(uniquePlatforms);
       } catch {
         console.error("Failed to parse saved selected platforms");
       }
@@ -573,9 +587,22 @@ export default function AdaptPage() {
     setShowSettings(initialShowSettings);
   }, [initializeDefaultSettings, platforms]);
 
+  // 清理重复的平台选择
+  const cleanupDuplicatePlatforms = useCallback(() => {
+    setSelectedPlatforms(prev => {
+      const uniquePlatforms = Array.from(new Set(prev));
+      if (uniquePlatforms.length !== prev.length) {
+        return uniquePlatforms;
+      }
+      return prev;
+    });
+  }, []);
+
   useEffect(() => {
     initializeDefaultSettings();
-  }, [initializeDefaultSettings]);
+    // 清理可能存在的重复平台选择
+    cleanupDuplicatePlatforms();
+  }, [initializeDefaultSettings, cleanupDuplicatePlatforms]);
 
   // Character count display
   const contentCharCount = originalContent.length;
@@ -603,10 +630,18 @@ export default function AdaptPage() {
     return true;
   };
 
+
+
   // Handle platform selection
   const togglePlatform = (platformId: string, isChecked: boolean) => {
     if (isChecked) {
-      setSelectedPlatforms(prev => [...prev, platformId]);
+      setSelectedPlatforms(prev => {
+        // 防止重复添加同一个平台
+        if (prev.includes(platformId)) {
+          return prev;
+        }
+        return [...prev, platformId];
+      });
     } else {
       setSelectedPlatforms(prev => prev.filter(id => id !== platformId));
     }
@@ -767,7 +802,7 @@ export default function AdaptPage() {
           const request: ContentAdaptationRequest = {
             originalContent: originalContent.trim(),
             platform: platformId,
-            schemeId: selectedSchemeId,
+            formId: selectedFormId,
             style: selectedStyle
           };
           
@@ -1339,7 +1374,7 @@ export default function AdaptPage() {
       const request: ContentAdaptationRequest = {
         originalContent: originalContent.trim(),
         platform: platformId,
-        schemeId: selectedSchemeId,
+        formId: selectedFormId,
         style: selectedStyle
       };
       
@@ -1622,21 +1657,22 @@ export default function AdaptPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <Textarea
-              placeholder="在此输入您的原始内容，我们将为您适配到不同平台..."
+            <MentionTextarea
+              placeholder="在此输入您的原始内容，输入 @ 可快速引用品牌库、资料库、雷达收藏的内容..."
               className="min-h-[200px]"
               value={originalContent}
-              onChange={(e) => setOriginalContent(e.target.value)}
+              onChange={setOriginalContent}
             />
 
             {/* 快速引用功能 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <QuickReferenceSelector
+                  multiSelect={true}
                   onSelect={(content) => {
                     // 在当前内容后追加引用内容
                     const newContent = originalContent ?
-                      `${originalContent}\n\n--- 引用内容 ---\n${content}` :
+                      `${originalContent}\n\n${content}` :
                       content;
                     setOriginalContent(newContent);
                   }}
@@ -1670,198 +1706,12 @@ export default function AdaptPage() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowAdvancedSettings(prev => !prev)}
-                className="text-xs rounded-lg shadow-sm border border-blue-200"
-              >
-                适配设置
-                {showAdvancedSettings ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />}
-              </Button>
               <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                 {contentCharCount} 字符
               </Badge>
             </div>
           </div>
-          
-          {/* 适配设置 - 重新调整布局 */}
-          {showAdvancedSettings && (
-            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  内容适配设置
-                </h4>
-                <p className="text-xs text-blue-700 mt-1">自定义内容生成参数，让AI更好地理解您的需求</p>
-              </div>
-              
-              <div className="space-y-4">
-                {/* 字符数限制 */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Hash className="h-3 w-3" />
-                    字符数限制
-                  </Label>
-                  <Select 
-                    value={globalSettings.charCountPreset}
-                    onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="选择字符数限制" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="auto">自动适配</SelectItem>
-                      <SelectItem value="mini">精简版 (50-200字)</SelectItem>
-                      <SelectItem value="standard">标准版 (200-800字)</SelectItem>
-                      <SelectItem value="detailed">详细版 (800字+)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-500">根据平台特点自动调整内容长度</p>
-                </div>
-                
-                {/* 内容格式 */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <FileText className="h-3 w-3" />
-                    内容格式
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox 
-                        id="global-emoji" 
-                        checked={globalSettings.globalEmoji}
-                        onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
-                      />
-                      <Label htmlFor="global-emoji" className="text-sm cursor-pointer flex items-center gap-2">
-                        <Smile className="h-3 w-3" />
-                        启用表情符号
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox 
-                        id="global-md"
-                        checked={globalSettings.globalMd}
-                        onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
-                      />
-                      <Label htmlFor="global-md" className="text-sm cursor-pointer flex items-center gap-2">
-                        <FileText className="h-3 w-3" />
-                        启用Markdown格式
-                      </Label>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500">增强内容的可读性和视觉效果</p>
-                </div>
-                
-                {/* AI模型选择 */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Cpu className="h-3 w-3" />
-                    AI模型选择
-                    <Badge variant="outline" className="text-xs text-gray-500">进阶用户</Badge>
-                  </Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {allModels.map((model) => {
-                      const isAvailable = availableModels.some(m => m.id === model.id);
-                      let disabled = !isAvailable;
-                      let badge = '';
-                      let showUpgradeTip = false;
-                      
-                      if (model.id === 'gpt-4o' && userPlan === 'trial') {
-                        badge = '专业版/高级版专属';
-                        showUpgradeTip = true;
-                      }
-                      
-                      return (
-                        <div
-                          key={model.id}
-                          className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
-                            selectedModel === model.id
-                              ? 'border-blue-500 bg-blue-50'
-                              : disabled
-                              ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
-                              : 'border-gray-200 hover:border-blue-300'
-                          }`}
-                          onClick={() => handleModelSelect(model.id, disabled)}
-                        >
-                          <div className="flex items-start space-x-2">
-                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                              selectedModel === model.id
-                                ? 'border-blue-500 bg-blue-500'
-                                : 'border-gray-300'
-                            }`}>
-                              {selectedModel === model.id && (
-                                <div className="w-2 h-2 bg-white rounded-full"></div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1 mb-1">
-                                <span className="font-medium text-blue-600 text-sm">{model.name}</span>
-                                {badge && (
-                                  <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
-                              {showUpgradeTip && (
-                                <div
-                                  className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 cursor-pointer hover:bg-yellow-100 transition-colors"
-                                  onClick={handleUpgradeClick}
-                                >
-                                  <span className="mr-1">🔒</span>
-                                  去解锁高级功能
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {selectedModel && (
-                    <div className="text-xs text-muted-foreground">
-                      <p className="font-medium">当前选择：{getModelInfo(selectedModel)?.name}</p>
-                      <p>{getModelInfo(selectedModel)?.description}</p>
-                    </div>
-                  )}
-                </div>
 
-                {/* 智能优化 */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Zap className="h-3 w-3" />
-                    智能优化
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <div className="flex items-center gap-2 text-xs text-blue-800 bg-blue-100 px-3 py-2 rounded">
-                      <Check className="h-3 w-3" />
-                      <span>自动排版优化</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-blue-800 bg-blue-100 px-3 py-2 rounded">
-                      <Check className="h-3 w-3" />
-                      <span>平台特色适配</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-blue-800 bg-blue-100 px-3 py-2 rounded">
-                      <Check className="h-3 w-3" />
-                      <span>关键词优化</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* 保存按钮 */}
-                <div className="pt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={saveSettings}
-                    className="w-full bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    保存设置
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -1920,6 +1770,30 @@ export default function AdaptPage() {
                   {/* 全局设置 */}
                   <div className="border-b pb-4">
                     <h4 className="text-sm font-medium mb-3 text-gray-700">全局设置</h4>
+
+                    {/* 字符数限制 */}
+                    <div className="mb-4">
+                      <Label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+                        <Hash className="h-3 w-3" />
+                        字符数限制
+                      </Label>
+                      <Select
+                        value={globalSettings.charCountPreset}
+                        onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
+                      >
+                        <SelectTrigger className="h-9 max-w-xs">
+                          <SelectValue placeholder="选择字符数限制" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="auto">自动适配</SelectItem>
+                          <SelectItem value="mini">精简版 (50-200字)</SelectItem>
+                          <SelectItem value="standard">标准版 (200-800字)</SelectItem>
+                          <SelectItem value="detailed">详细版 (800字+)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-gray-500 mt-1">根据平台特点自动调整内容长度</p>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
@@ -1959,13 +1833,10 @@ export default function AdaptPage() {
                     </div>
                   </div>
 
-                  {/* AI模型选择 - 进阶设置 */}
+                  {/* AI模型选择 */}
                   <div className="border-b pb-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-medium text-gray-700">AI模型选择</h4>
-                      <Badge variant="outline" className="text-xs text-gray-500">进阶用户</Badge>
-                    </div>
-                    <p className="text-xs text-gray-500 mb-3">选择您喜欢的AI模型生成内容，默认优先推荐GPT-4o</p>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">AI模型选择</h4>
+                    <p className="text-xs text-gray-500 mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {allModels.map((model) => {
@@ -2132,19 +2003,19 @@ export default function AdaptPage() {
         )}
       </div>
 
-      {/* Scheme Selection */}
+      {/* Content Form Selection */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-lg">内容适配方案</CardTitle>
+          <CardTitle className="text-lg">内容形式与表达风格</CardTitle>
           <CardDescription>
-            选择不同的方案和风格来获得最佳的内容生成效果
+            选择不同的内容形式和表达风格来获得最佳的内容生成效果
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SchemeSelector
-            selectedScheme={selectedSchemeId}
+          <ContentFormSelector
+            selectedFormId={selectedFormId}
             selectedStyle={selectedStyle}
-            onSchemeChange={setSelectedSchemeId}
+            onFormChange={setSelectedFormId}
             onStyleChange={setSelectedStyle}
           />
         </CardContent>

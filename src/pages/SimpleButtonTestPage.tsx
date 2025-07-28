@@ -74,7 +74,7 @@ const SimpleButtonTestPage: React.FC = () => {
                   <strong>认证状态:</strong> {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}
                   {user && (
                     <span className="ml-2">
-                      | <strong>用户:</strong> {user.nickname || user.username || user.email || '未知用户'}
+                      | <strong>用户:</strong> {user.nickname || user.username || user.email}
                     </span>
                   )}
                 </AlertDescription>

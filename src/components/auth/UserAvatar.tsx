@@ -17,7 +17,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogIn, LogOut, User, Settings, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getUserDisplayName, getUserInitials, getUserAvatarAlt } from '@/utils/userDisplayUtils';
 
 /**
  * 用户头像组件属性
@@ -50,8 +49,17 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     lg: 'h-12 w-12'
   };
 
-  // ✅ FIXED: 使用安全的用户信息显示工具函数，防止undefined字符串拼接
-  // 🔒 LOCKED: 请勿修改此逻辑，已封装稳定
+  // 获取用户头像
+  const getAvatarFallback = () => {
+    if (!user) return '?';
+    return user.nickname?.charAt(0)?.toUpperCase() || user.username?.charAt(0)?.toUpperCase() || 'U';
+  };
+
+  // 获取用户显示名称
+  const getDisplayName = () => {
+    if (!user) return '';
+    return user.nickname || user.username || '用户';
+  };
 
   // 处理登出
   const handleLogout = async () => {
@@ -97,7 +105,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     <div className={`flex items-center gap-2 ${className}`}>
       {showUsername && (
         <span className="text-sm text-gray-700 hidden sm:block">
-          {getUserDisplayName(user)}
+          {getDisplayName()}
         </span>
       )}
       
@@ -105,12 +113,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-auto p-0">
             <Avatar className={sizeClasses[size]}>
-              <AvatarImage
-                src={user?.avatar}
-                alt={getUserAvatarAlt(user)}
+              <AvatarImage 
+                src={user?.avatar} 
+                alt={getDisplayName()}
               />
               <AvatarFallback className="bg-blue-100 text-blue-600">
-                {getUserInitials(user)}
+                {getAvatarFallback()}
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -120,10 +128,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {getUserDisplayName(user)}
+                {getDisplayName()}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {user?.email || '未设置邮箱'}
+                {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>

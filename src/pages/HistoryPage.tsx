@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Clock, Copy, Trash2 } from 'lucide-react';
-import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * 历史记录项接口
@@ -34,7 +33,7 @@ export default function HistoryPage() {
   // 加载历史记录
   useEffect(() => {
     if (isAuthenticated && user) {
-      const username = getUserDisplayName(user, 'anonymous');
+      const username = user.username || user.email || 'anonymous';
       const historyKey = `history_${username}`;
       const storedHistory = localStorage.getItem(historyKey);
       
@@ -71,7 +70,7 @@ export default function HistoryPage() {
    */
   const deleteHistoryItem = (index: number) => {
     if (user) {
-      const username = getUserDisplayName(user, 'anonymous');
+      const username = user.username || user.email || 'anonymous';
       const historyKey = `history_${username}`;
       
       const newHistory = history.filter((_, i) => i !== index);
@@ -90,7 +89,7 @@ export default function HistoryPage() {
    */
   const clearAllHistory = () => {
     if (user) {
-      const username = getUserDisplayName(user, 'anonymous');
+      const username = user.username || user.email || 'anonymous';
       const historyKey = `history_${username}`;
       
       setHistory([]);

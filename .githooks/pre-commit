@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# 🛡️ Git Pre-commit Hook - Authing防护
+# 在每次提交前自动检查Authing相关代码
+
+echo "🔍 运行Authing健康检查..."
+
+# 检查是否修改了关键文件
+AUTHING_FILES="src/contexts/UnifiedAuthContext.tsx src/config/authing.ts package.json"
+MODIFIED_AUTHING_FILES=""
+
+for file in $AUTHING_FILES; do
+    if git diff --cached --name-only | grep -q "$file"; then
+        MODIFIED_AUTHING_FILES="$MODIFIED_AUTHING_FILES $file"
+    fi
+done
+
+# 如果修改了Authing相关文件，运行健康检查
+if [ -n "$MODIFIED_AUTHING_FILES" ]; then
+    echo "📝 检测到Authing相关文件修改:$MODIFIED_AUTHING_FILES"
+    echo "🔍 运行健康检查..."
+    
+    # 运行健康检查脚本
+    if ! node scripts/test-authing-health.js; then
+        echo ""
+        echo "❌ Authing健康检查失败！"
+        echo "🚫 提交被阻止，请修复问题后重新提交"
+        echo ""
+        echo "🔧 修复建议:"
+        echo "1. 检查Guard初始化格式是否正确"
+        echo "2. 确保使用 new Guard({...}) 而不是 new Guard(appId, {...})"
+        echo "3. 运行 npm run test:authing 查看详细错误"
+        echo ""
+        exit 1
+    fi
+    
+    echo "✅ Authing健康检查通过"
+else
+    echo "ℹ️  未修改Authing相关文件，跳过检查"
+fi
+
+echo "✅ Pre-commit检查完成"

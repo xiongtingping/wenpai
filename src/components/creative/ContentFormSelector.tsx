@@ -1,0 +1,266 @@
+/**
+ * 内容形式选择器组件
+ * 支持四大内容分类和多维提示词矩阵系统
+ */
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { 
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Check,
+  Sparkles,
+  Target,
+  Heart,
+  Zap
+} from "lucide-react";
+import { 
+  contentCategories, 
+  type ContentForm,
+  type ContentCategory,
+  getContentFormById
+} from '@/config/contentForms';
+import { 
+  getAvailableStyles,
+  type StyleType
+} from '@/config/contentSchemes';
+
+interface ContentFormSelectorProps {
+  selectedFormId?: string;
+  selectedStyle: StyleType;
+  onFormChange: (formId: string | undefined) => void;
+  onStyleChange: (style: StyleType) => void;
+  className?: string;
+}
+
+export function ContentFormSelector({ 
+  selectedFormId, 
+  selectedStyle, 
+  onFormChange, 
+  onStyleChange, 
+  className 
+}: ContentFormSelectorProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isContentFormOpen, setIsContentFormOpen] = useState(false);
+  const [isStyleOpen, setIsStyleOpen] = useState(false);
+
+  const selectedForm = selectedFormId ? getContentFormById(selectedFormId) : undefined;
+  const availableStyles = getAvailableStyles();
+
+  return (
+    <div className={className}>
+      {/* 内容形式选择区域 */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-gray-600" />
+            <h3 className="text-lg font-semibold">内容形式与表达风格</h3>
+          </div>
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Info className="h-4 w-4 mr-1" />
+                查看说明
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>内容形式与表达风格体系</DialogTitle>
+                <DialogDescription>
+                  选择不同的内容形式和表达风格来获得最佳的内容生成效果
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-6">
+                {contentCategories.map((category) => (
+                  <div key={category.id} className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{category.icon}</span>
+                      <h4 className="text-lg font-semibold">{category.name}</h4>
+                      <Badge variant="outline" className="text-xs">
+                        {category.outputDescription}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600">{category.description}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {category.forms.map((form) => (
+                        <Card key={form.id} className="p-3">
+                          <div className="flex items-start gap-2">
+                            <span className="text-lg">{form.icon}</span>
+                            <div className="flex-1">
+                              <h5 className="font-medium text-sm">{form.name}</h5>
+                              <p className="text-xs text-gray-600 mt-1">{form.description}</p>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* 内容形式选择 - 可折叠 */}
+        <Collapsible open={isContentFormOpen} onOpenChange={setIsContentFormOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                <span>内容形式</span>
+                {selectedForm && (
+                  <Badge variant="secondary" className="ml-2">
+                    {selectedForm.name}
+                  </Badge>
+                )}
+              </div>
+              {isContentFormOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="space-y-4 mt-4">
+            <div className="text-sm text-gray-600 mb-3">
+              选择内容形式来定制生成结构和风格（可选，不选择将使用平台默认结构）
+            </div>
+            
+            {contentCategories.map((category) => (
+              <div key={category.id} className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{category.icon}</span>
+                  <h4 className="font-medium">{category.name}</h4>
+                  <Badge variant="outline" className="text-xs">
+                    {category.outputDescription}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {category.forms.map((form) => (
+                    <Card 
+                      key={form.id} 
+                      className={`cursor-pointer transition-all hover:shadow-md p-3 ${
+                        selectedFormId === form.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                      }`}
+                      onClick={() => onFormChange(selectedFormId === form.id ? undefined : form.id)}
+                    >
+                      <div className="flex items-start gap-2">
+                        <span className="text-base">{form.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium text-sm">{form.name}</h5>
+                            {selectedFormId === form.id && (
+                              <Check className="h-4 w-4 text-blue-600" />
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">{form.description}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ))}
+            
+            {selectedFormId && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => onFormChange(undefined)}
+                  className="text-blue-700 hover:text-blue-800"
+                >
+                  清除选择，使用平台默认结构
+                </Button>
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* 表达风格选择 - 可折叠 */}
+        <Collapsible open={isStyleOpen} onOpenChange={setIsStyleOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              <div className="flex items-center gap-2">
+                <Heart className="h-4 w-4" />
+                <span>表达风格</span>
+                <Badge variant="secondary" className="ml-2">
+                  {availableStyles.find(s => s.id === selectedStyle)?.name}
+                </Badge>
+              </div>
+              {isStyleOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="space-y-3 mt-4">
+            <div className="text-sm text-gray-600 mb-3">
+              选择表达风格来调整语气、情绪和调性
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {availableStyles.map((style) => (
+                <Card 
+                  key={style.id} 
+                  className={`cursor-pointer transition-all hover:shadow-md p-3 ${
+                    selectedStyle === style.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                  }`}
+                  onClick={() => onStyleChange(style.id)}
+                >
+                  <div className="flex items-start gap-2">
+                    <span className="text-lg">{style.icon}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h5 className="font-medium text-sm">{style.name}</h5>
+                        {selectedStyle === style.id && (
+                          <Check className="h-4 w-4 text-blue-600" />
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 mt-1">{style.description}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* 组合效果预览 */}
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="h-4 w-4 text-gray-600" />
+            <span className="text-sm font-medium text-gray-700">组合效果预览</span>
+          </div>
+          <p className="text-sm text-gray-600">
+            <strong>当前配置：</strong>
+            {selectedForm ? `${selectedForm.name} + ` : '平台默认结构 + '}
+            {availableStyles.find(s => s.id === selectedStyle)?.name} = 
+            个性化内容生成
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            维度越多，生成内容越精准、差异化
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ContentFormSelector;
