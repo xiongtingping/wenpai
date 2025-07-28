@@ -209,6 +209,14 @@ interface ProgressStep {
   message: string;
 }
 
+interface ContentVersion {
+  id: string;
+  content: string;
+  style: 'standard' | 'creative';
+  title: string;
+  charCount: number;
+}
+
 interface PlatformResult {
   platformId: string;
   content: string;
@@ -217,6 +225,7 @@ interface PlatformResult {
   error?: string;
   charCount?: number;
   targetCharCount?: number;
+  versions?: ContentVersion[];
 }
 
 // Platform settings
@@ -406,6 +415,98 @@ export default function AdaptPage() {
     globalEmoji: false,
     globalMd: false
   });
+
+  // 设置模式状态：'global' | 'platform'
+  const [settingsMode, setSettingsMode] = useState<{
+    charCount: 'global' | 'platform';
+    emoji: 'global' | 'platform';
+    mdFormat: 'global' | 'platform';
+  }>({
+    charCount: 'platform',
+    emoji: 'platform',
+    mdFormat: 'platform'
+  });
+
+  // AI模型说明数据
+  const modelDescriptions = {
+    'gpt-4o': {
+      features: '最新GPT-4模型，理解能力强',
+      scenarios: '适合复杂内容创作、专业文案',
+      style: '逻辑清晰、表达准确',
+      speed: '响应速度：中等'
+    },
+    'deepseek-v3': {
+      features: '国产大模型，中文优化',
+      scenarios: '适合中文内容、本土化表达',
+      style: '自然流畅、符合中文习惯',
+      speed: '响应速度：较快'
+    },
+    'claude-3.5-sonnet': {
+      features: 'Anthropic最新模型，创意能力强',
+      scenarios: '适合创意写作、文学创作',
+      style: '富有创意、表达生动',
+      speed: '响应速度：中等'
+    }
+  };
+
+  // 当前选中模型的说明状态
+  const [selectedModelDescription, setSelectedModelDescription] = useState<any>(null);
+
+  // 生成多个版本的内容
+  const generateMultipleVersions = async (basePrompt: string, platformId: string): Promise<ContentVersion[]> => {
+    const versions: ContentVersion[] = [];
+
+    // 版本A：标准风格，结构化表达
+    const standardPrompt = `${basePrompt}\n\n【版本要求】请生成标准风格的内容，要求：\n- 结构清晰，逻辑严谨\n- 表达准确，用词规范\n- 重点突出，层次分明`;
+
+    // 版本B：创新风格，灵活化表达
+    const creativePrompt = `${basePrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
+
+    try {
+      // 并行生成两个版本
+      const [standardResult, creativeResult] = await Promise.all([
+        callAI({
+          prompt: standardPrompt,
+          model: selectedModel as any,
+          systemPrompt: '你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。',
+          maxTokens: 2000,
+          temperature: 0.7
+        }),
+        callAI({
+          prompt: creativePrompt,
+          model: selectedModel as any,
+          systemPrompt: '你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。',
+          maxTokens: 2000,
+          temperature: 0.9
+        })
+      ]);
+
+      if (standardResult.success && standardResult.content) {
+        versions.push({
+          id: 'version-a',
+          content: standardResult.content,
+          style: 'standard',
+          title: '版本A',
+          charCount: standardResult.content.length
+        });
+      }
+
+      if (creativeResult.success && creativeResult.content) {
+        versions.push({
+          id: 'version-b',
+          content: creativeResult.content,
+          style: 'creative',
+          title: '版本B',
+          charCount: creativeResult.content.length
+        });
+      }
+
+      return versions;
+    } catch (error) {
+      console.error('生成多版本内容失败:', error);
+      return [];
+    }
+  };
   
   // AI Model settings
   const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>('openai');
@@ -436,6 +537,8 @@ export default function AdaptPage() {
     }
     setSelectedModel(modelId);
     setModel(modelId);
+    // 更新模型说明
+    setSelectedModelDescription(modelDescriptions[modelId as keyof typeof modelDescriptions] || null);
     // 自动切换API提供商
     const provider = getModelProvider(modelId);
     if (provider === 'OpenAI') setCurrentApiProvider('openai');
@@ -676,6 +779,18 @@ export default function AdaptPage() {
         [key]: value
       }
     }));
+
+    // 当调整平台特定设置时，自动禁用对应的全局设置并切换模式
+    if (key === 'charCount') {
+      setSettingsMode(prev => ({ ...prev, charCount: 'platform' }));
+      setGlobalSettings(prev => ({ ...prev, charCountPreset: 'auto' }));
+    } else if (key === 'useEmoji') {
+      setSettingsMode(prev => ({ ...prev, emoji: 'platform' }));
+      setGlobalSettings(prev => ({ ...prev, globalEmoji: false }));
+    } else if (key === 'useMdFormat') {
+      setSettingsMode(prev => ({ ...prev, mdFormat: 'platform' }));
+      setGlobalSettings(prev => ({ ...prev, globalMd: false }));
+    }
   };
 
   // Update global settings
@@ -684,6 +799,26 @@ export default function AdaptPage() {
       ...prev,
       [key]: value
     }));
+
+    // 当启用全局设置时，切换到全局模式
+    if (value) {
+      if (key === 'charCountPreset' && value !== 'auto') {
+        setSettingsMode(prev => ({ ...prev, charCount: 'global' }));
+      } else if (key === 'globalEmoji') {
+        setSettingsMode(prev => ({ ...prev, emoji: 'global' }));
+      } else if (key === 'globalMd') {
+        setSettingsMode(prev => ({ ...prev, mdFormat: 'global' }));
+      }
+    } else {
+      // 当禁用全局设置时，切换到平台特定模式
+      if (key === 'charCountPreset') {
+        setSettingsMode(prev => ({ ...prev, charCount: 'platform' }));
+      } else if (key === 'globalEmoji') {
+        setSettingsMode(prev => ({ ...prev, emoji: 'platform' }));
+      } else if (key === 'globalMd') {
+        setSettingsMode(prev => ({ ...prev, mdFormat: 'platform' }));
+      }
+    }
   };
 
   // Apply global settings to all platforms
@@ -824,46 +959,27 @@ export default function AdaptPage() {
           // 步骤3: AI生成内容
           updateStep(2, 'loading');
 
-          // 使用统一AI服务生成最终内容
-          const aiResult = await callAI({
-            prompt: matrixPrompt,
-            model: selectedModel as any,
-            systemPrompt: '你是一个专业的多维度内容创作专家，严格按照多维矩阵要求生成内容。',
-            maxTokens: 2000,
-            temperature: 0.8 // 增加随机性以避免模板化
-          });
+          // 生成多个版本的内容
+          const versions = await generateMultipleVersions(matrixPrompt, platformId);
 
-          if (aiResult.success && aiResult.content) {
-              // 验证字符数是否符合设定
-              const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
-              const actualCharCount = aiResult.content.length;
-              const charCountDiff = Math.abs(actualCharCount - targetCharCount);
-              const charCountTolerance = targetCharCount * 0.2; // 20%容差
-
-              let finalContent = aiResult.content;
-              let warningMessage = '生成完成';
-
-              if (charCountDiff > charCountTolerance) {
-                warningMessage = `生成完成 (字符数: ${actualCharCount}/${targetCharCount})`;
-                console.warn(`平台${platformId}字符数偏差较大: 目标${targetCharCount}, 实际${actualCharCount}`);
-              }
-
-              // 更新结果
+          if (versions.length > 0) {
+              // 更新结果，包含多个版本
               const updatedResults = [...newResults];
               const resultIndex = updatedResults.findIndex(r => r.platformId === platformId);
               if (resultIndex !== -1) {
-                updatedResults[resultIndex].content = finalContent;
+                updatedResults[resultIndex].versions = versions;
+                updatedResults[resultIndex].content = versions[0].content; // 默认显示第一个版本
                 updatedResults[resultIndex].source = 'ai';
                 updatedResults[resultIndex].steps[3].status = 'completed';
-                updatedResults[resultIndex].steps[3].message = warningMessage;
+                updatedResults[resultIndex].steps[3].message = `已生成${versions.length}个不同风格版本`;
                 // 添加字符数信息
-                updatedResults[resultIndex].charCount = actualCharCount;
-                updatedResults[resultIndex].targetCharCount = targetCharCount;
+                updatedResults[resultIndex].charCount = versions[0].content.length;
+                updatedResults[resultIndex].targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
               }
               setResults([...updatedResults]);
               newResults[resultIndex] = updatedResults[resultIndex];
           } else {
-            throw new Error(aiResult.error || 'AI服务调用失败');
+            throw new Error('生成版本失败');
           }
         } catch (error) {
           console.error(`生成 ${platformId} 内容失败:`, error);
@@ -908,6 +1024,72 @@ export default function AdaptPage() {
       title: "已复制到剪贴板",
       description: "内容已成功复制，可直接粘贴使用",
     });
+  };
+
+  // 重新生成特定版本
+  const regenerateVersion = async (platformId: string, versionId: string) => {
+    const result = results.find(r => r.platformId === platformId);
+    if (!result || !result.versions) return;
+
+    const version = result.versions.find(v => v.id === versionId);
+    if (!version) return;
+
+    try {
+      // 构建提示词
+      const matrixPrompt = await generateMatrixPrompt(
+        originalContent.trim(),
+        platformId,
+        selectedFormId,
+        selectedStyle,
+        platformSettings[platformId]?.charCount || getCharCountMax(platformId),
+        customPrompt,
+        useBrandLibrary
+      );
+
+      // 根据版本类型生成新内容
+      const prompt = version.style === 'standard'
+        ? `${matrixPrompt}\n\n【版本要求】请生成标准风格的内容，要求：\n- 结构清晰，逻辑严谨\n- 表达准确，用词规范\n- 重点突出，层次分明`
+        : `${matrixPrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
+
+      const aiResult = await callAI({
+        prompt,
+        model: selectedModel as any,
+        systemPrompt: version.style === 'standard'
+          ? '你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。'
+          : '你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。',
+        maxTokens: 2000,
+        temperature: version.style === 'standard' ? 0.7 : 0.9
+      });
+
+      if (aiResult.success && aiResult.content) {
+        // 更新版本内容
+        setResults(current =>
+          current.map(r =>
+            r.platformId === platformId
+              ? {
+                  ...r,
+                  versions: r.versions?.map(v =>
+                    v.id === versionId
+                      ? { ...v, content: aiResult.content, charCount: aiResult.content.length }
+                      : v
+                  )
+                }
+              : r
+          )
+        );
+
+        toast({
+          title: "重新生成完成",
+          description: `${version.title}已更新`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "重新生成失败",
+        description: error instanceof Error ? error.message : '生成失败',
+        variant: "destructive"
+      });
+    }
   };
 
   // Edit content
@@ -2162,19 +2344,31 @@ ${dimensions.join('\n\n')}
                 <div className="space-y-4">
                   {/* 全局设置 */}
                   <div className="border-b pb-4">
-                    <h4 className="text-sm font-medium mb-3 text-gray-700">全局设置</h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-gray-700">全局设置</h4>
+                      {(settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform') && (
+                        <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                          已启用平台特定设置，全局设置已禁用
+                        </div>
+                      )}
+                    </div>
 
                     {/* 字符数限制 */}
                     <div className="mb-4">
-                      <Label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+                      <Label className={`text-sm font-medium flex items-center gap-2 mb-2 ${
+                        settingsMode.charCount === 'platform' ? 'text-gray-400' : 'text-gray-700'
+                      }`}>
                         <Hash className="h-3 w-3" />
                         字符数限制
                       </Label>
                       <Select
                         value={globalSettings.charCountPreset}
                         onValueChange={(value) => updateGlobalSetting('charCountPreset', value as 'auto' | 'mini' | 'standard' | 'detailed')}
+                        disabled={settingsMode.charCount === 'platform'}
                       >
-                        <SelectTrigger className="h-9 max-w-xs">
+                        <SelectTrigger className={`h-9 max-w-xs ${
+                          settingsMode.charCount === 'platform' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''
+                        }`}>
                           <SelectValue placeholder="选择字符数限制" />
                         </SelectTrigger>
                         <SelectContent>
@@ -2184,7 +2378,11 @@ ${dimensions.join('\n\n')}
                           <SelectItem value="detailed">详细版 (800字+)</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-gray-500 mt-1">根据平台特点自动调整内容长度</p>
+                      <p className={`text-xs mt-1 ${
+                        settingsMode.charCount === 'platform' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        {settingsMode.charCount === 'platform' ? '已禁用，使用平台特定设置' : '根据平台特点自动调整内容长度'}
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2193,8 +2391,11 @@ ${dimensions.join('\n\n')}
                           id="global-emoji"
                           checked={globalSettings.globalEmoji}
                           onCheckedChange={(checked) => updateGlobalSetting('globalEmoji', !!checked)}
+                          disabled={settingsMode.emoji === 'platform'}
                         />
-                        <Label htmlFor="global-emoji" className="text-sm cursor-pointer flex items-center">
+                        <Label htmlFor="global-emoji" className={`text-sm cursor-pointer flex items-center ${
+                          settingsMode.emoji === 'platform' ? 'text-gray-400' : ''
+                        }`}>
                           <Smile className="h-3 w-3 mr-1" />
                           全局添加emoji表情
                         </Label>
@@ -2205,8 +2406,11 @@ ${dimensions.join('\n\n')}
                           id="global-md"
                           checked={globalSettings.globalMd}
                           onCheckedChange={(checked) => updateGlobalSetting('globalMd', !!checked)}
+                          disabled={settingsMode.mdFormat === 'platform'}
                         />
-                        <Label htmlFor="global-md" className="text-sm cursor-pointer flex items-center">
+                        <Label htmlFor="global-md" className={`text-sm cursor-pointer flex items-center ${
+                          settingsMode.mdFormat === 'platform' ? 'text-gray-400' : ''
+                        }`}>
                           <FileText className="h-3 w-3 mr-1" />
                           全局MD格式
                         </Label>
@@ -2230,7 +2434,14 @@ ${dimensions.join('\n\n')}
 
                   {/* 平台特定设置 */}
                   <div>
-                    <h4 className="text-sm font-medium mb-3 text-gray-700">平台特定设置</h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-gray-700">平台特定设置</h4>
+                      {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
+                        <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                          已启用全局设置，平台特定设置已禁用
+                        </div>
+                      )}
+                    </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {selectedPlatforms.map(platformId => {
                         const platform = platforms.find(p => p.id === platformId);
@@ -2253,8 +2464,14 @@ ${dimensions.join('\n\n')}
                               {/* 字符数设置 */}
                               <div>
                                 <div className="flex justify-between items-center mb-1">
-                                  <Label className="text-xs">字符数: {settings.charCount || getCharCountMax(platformId)}</Label>
-                                  <span className="text-xs text-muted-foreground">
+                                  <Label className={`text-xs ${
+                                    settingsMode.charCount === 'global' ? 'text-gray-400' : ''
+                                  }`}>
+                                    字符数: {settings.charCount || getCharCountMax(platformId)}
+                                  </Label>
+                                  <span className={`text-xs ${
+                                    settingsMode.charCount === 'global' ? 'text-gray-400' : 'text-muted-foreground'
+                                  }`}>
                                     {getCharCountMin(platformId)}-{getCharCountMax(platformId)}
                                   </span>
                                 </div>
@@ -2264,8 +2481,14 @@ ${dimensions.join('\n\n')}
                                   max={getCharCountMax(platformId)}
                                   step={10}
                                   onValueChange={(value) => updatePlatformSetting(platformId, 'charCount', value[0])}
-                                  className="w-full"
+                                  className={`w-full ${
+                                    settingsMode.charCount === 'global' ? 'opacity-50 pointer-events-none' : ''
+                                  }`}
+                                  disabled={settingsMode.charCount === 'global'}
                                 />
+                                {settingsMode.charCount === 'global' && (
+                                  <p className="text-xs text-gray-400 mt-1">已禁用，使用全局字符数设置</p>
+                                )}
                               </div>
 
                               {/* 选项设置 */}
@@ -2275,8 +2498,11 @@ ${dimensions.join('\n\n')}
                                     id={`${platformId}-emoji`}
                                     checked={settings.useEmoji}
                                     onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useEmoji', !!checked)}
+                                    disabled={settingsMode.emoji === 'global'}
                                   />
-                                  <Label htmlFor={`${platformId}-emoji`} className="text-xs cursor-pointer flex items-center">
+                                  <Label htmlFor={`${platformId}-emoji`} className={`text-xs cursor-pointer flex items-center ${
+                                    settingsMode.emoji === 'global' ? 'text-gray-400' : ''
+                                  }`}>
                                     <Smile className="h-3 w-3 mr-1" />
                                     emoji
                                   </Label>
@@ -2287,13 +2513,28 @@ ${dimensions.join('\n\n')}
                                     id={`${platformId}-md`}
                                     checked={settings.useMdFormat}
                                     onCheckedChange={(checked) => updatePlatformSetting(platformId, 'useMdFormat', !!checked)}
+                                    disabled={settingsMode.mdFormat === 'global'}
                                   />
-                                  <Label htmlFor={`${platformId}-md`} className="text-xs cursor-pointer flex items-center">
+                                  <Label htmlFor={`${platformId}-md`} className={`text-xs cursor-pointer flex items-center ${
+                                    settingsMode.mdFormat === 'global' ? 'text-gray-400' : ''
+                                  }`}>
                                     <FileText className="h-3 w-3 mr-1" />
                                     MD格式
                                   </Label>
                                 </div>
                               </div>
+
+                              {/* 全局设置禁用提示 */}
+                              {(settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
+                                <div className="text-xs text-gray-400 mt-2 p-2 bg-gray-50 rounded">
+                                  {settingsMode.emoji === 'global' && settingsMode.mdFormat === 'global'
+                                    ? '已启用全局emoji和MD格式设置'
+                                    : settingsMode.emoji === 'global'
+                                    ? '已启用全局emoji设置'
+                                    : '已启用全局MD格式设置'
+                                  }
+                                </div>
+                              )}
 
                               {/* 特殊平台提示 */}
                               {isSpecialPlatform && (
@@ -2446,6 +2687,39 @@ ${dimensions.join('\n\n')}
         </CardContent>
       </Card>
 
+      {/* AI模型说明 */}
+      {selectedModelDescription && (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">模型详细说明</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">特点：</span>
+                    <span className="text-xs text-gray-700">{selectedModelDescription.features}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">场景：</span>
+                    <span className="text-xs text-gray-700">{selectedModelDescription.scenarios}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">风格：</span>
+                    <span className="text-xs text-gray-700">{selectedModelDescription.style}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">速度：</span>
+                    <span className="text-xs text-gray-700">{selectedModelDescription.speed}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Generate Button */}
 
       <div className="flex justify-center mb-12">
@@ -2586,8 +2860,13 @@ ${dimensions.join('\n\n')}
                     <div className="space-y-6">
                       {/* 内容展示区域标题 */}
                       <div className="text-center">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">生成结果</h3>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          {result.versions && result.versions.length > 1 ? '多版本生成结果' : '生成结果'}
+                        </h3>
                         <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
+                        {result.versions && result.versions.length > 1 && (
+                          <p className="text-sm text-gray-600 mt-2">已生成{result.versions.length}个不同风格版本，请选择您喜欢的内容</p>
+                        )}
                       </div>
                       
                       {/* 主要内容区域 */}

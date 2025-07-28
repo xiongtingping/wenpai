@@ -129,7 +129,7 @@ export function ContentFormSelector({
 
         {/* 内容形式选择 */}
         <div className="space-y-3">
-          <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+          <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-3">
             <Target className="h-4 w-4" />
             内容形式
           </h4>
@@ -138,7 +138,7 @@ export function ContentFormSelector({
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                <span>选择内容形式</span>
+                <span className="text-sm font-medium text-gray-600">选择内容形式</span>
                 {selectedForm && (
                   <Badge variant="secondary" className="ml-2">
                     {selectedForm.name}
@@ -210,7 +210,7 @@ export function ContentFormSelector({
 
         {/* 表达风格选择 */}
         <div className="space-y-3">
-          <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+          <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-3">
             <Heart className="h-4 w-4" />
             表达风格
           </h4>
@@ -219,7 +219,7 @@ export function ContentFormSelector({
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                <span>选择表达风格</span>
+                <span className="text-sm font-medium text-gray-600">选择表达风格</span>
                 <Badge variant="secondary" className="ml-2">
                   {availableStyles.find(s => s.id === selectedStyle)?.name}
                 </Badge>
