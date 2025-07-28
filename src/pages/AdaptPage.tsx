@@ -69,6 +69,7 @@ import {
   type PublishResult
 } from '@/api/platformApiService';
 import { type StyleType } from '@/config/contentSchemes';
+import { getContentFormById } from '@/config/contentForms';
 import { request, callAI } from '@/api';
 import { MentionTextarea } from '@/components/ui/mention-textarea';
 
@@ -385,7 +386,6 @@ export default function AdaptPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [results, setResults] = useState<PlatformResult[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [useBrandLibrary, setUseBrandLibrary] = useState(false);
   const [platformSettings, setPlatformSettings] = useState<Record<string, PlatformSettings>>({});
   const [showSettings, setShowSettings] = useState<Record<string, boolean>>({});
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
@@ -402,6 +402,7 @@ export default function AdaptPage() {
   const [showPromptPreview, setShowPromptPreview] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
+  const [useBrandLibrary, setUseBrandLibrary] = useState(false);
   const [brandProfile, setBrandProfile] = useState<any>(null);
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     charCountPreset: 'auto',
@@ -1749,6 +1750,87 @@ export default function AdaptPage() {
     loadBrandProfile();
   }, [useBrandLibrary]);
 
+  // 实时更新提示词预览
+  useEffect(() => {
+    const updatePromptPreview = async () => {
+      if (originalContent.trim() && selectedPlatforms.length > 0) {
+        try {
+          const previewPrompt = await generateMatrixPrompt(
+            originalContent.trim(),
+            selectedPlatforms[0], // 使用第一个选中的平台作为预览
+            selectedFormId,
+            selectedStyle,
+            platformSettings[selectedPlatforms[0]]?.charCount || getCharCountMax(selectedPlatforms[0]),
+            customPrompt,
+            useBrandLibrary
+          );
+          setSystemPrompt(previewPrompt);
+        } catch (error) {
+          console.error('更新提示词预览失败:', error);
+          setSystemPrompt('提示词预览生成失败，请检查参数设置');
+        }
+      } else {
+        setSystemPrompt('');
+      }
+    };
+
+    updatePromptPreview();
+  }, [originalContent, selectedPlatforms, selectedFormId, selectedStyle, customPrompt, useBrandLibrary, platformSettings]);
+
+  // 获取平台特色和差异化要求
+  const getPlatformCharacteristics = (platform: string): {
+    tone: string;
+    features: string[];
+    contentStyle: string;
+    interactionStyle: string;
+  } => {
+    const characteristics: Record<string, any> = {
+      'douyin': {
+        tone: '轻松有趣、节奏感强',
+        features: ['短视频脚本格式', '音乐节拍配合', '视觉冲击力', '15-60秒时长'],
+        contentStyle: '快节奏、高密度信息、强视觉效果',
+        interactionStyle: '引导点赞、评论、转发，使用热门话题和挑战'
+      },
+      'xiaohongshu': {
+        tone: '真实分享、种草推荐',
+        features: ['个人体验感', '图片配文', '标签丰富', '实用性强'],
+        contentStyle: '生活化、实用性、美学化表达',
+        interactionStyle: '鼓励收藏、分享，使用emoji和话题标签'
+      },
+      'weibo': {
+        tone: '简洁有力、热点敏感',
+        features: ['140字精炼', '话题标签', '@用户互动', '转发评论'],
+        contentStyle: '新闻性、时效性、观点鲜明',
+        interactionStyle: '引发讨论、转发传播，关注热点话题'
+      },
+      'zhihu': {
+        tone: '专业深度、逻辑清晰',
+        features: ['长文深度', '专业术语', '数据支撑', '逻辑论证'],
+        contentStyle: '知识性、专业性、思辨性强',
+        interactionStyle: '引发思考、专业讨论，提供价值观点'
+      },
+      'wechat': {
+        tone: '权威专业、深度解读',
+        features: ['图文并茂', '深度内容', '专业表达', '价值输出'],
+        contentStyle: '权威性、深度性、实用性',
+        interactionStyle: '引导关注、分享转发，建立专业形象'
+      },
+      'bilibili': {
+        tone: '年轻活力、创意十足',
+        features: ['视频脚本', '弹幕互动', '二次元文化', '创意表达'],
+        contentStyle: '娱乐性、创意性、互动性强',
+        interactionStyle: '引导三连、弹幕互动，融入B站文化'
+      }
+    };
+
+    return characteristics[platform] || {
+      tone: '自然真实',
+      features: ['内容适配'],
+      contentStyle: '平台化表达',
+      interactionStyle: '引导互动'
+    };
+  };
+
   // 多维矩阵提示词生成系统
   const generateMatrixPrompt = async (
     originalContent: string,
@@ -2062,6 +2144,51 @@ ${dimensions.join('\n\n')}
               </Badge>
             </div>
           </div>
+
+          {/* 自定义提示词输入 */}
+          <div className="mt-6 border-t pt-6">
+            <Label htmlFor="custom-prompt" className="text-sm font-medium">
+              自定义提示词（可选）
+            </Label>
+            <Textarea
+              id="custom-prompt"
+              placeholder="在这里添加您的自定义提示词，将与系统提示词结合使用..."
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              className="mt-2 min-h-[80px]"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              您的自定义提示词将与系统的多维矩阵提示词结合，为AI提供更精确的创作指导。
+            </p>
+          </div>
+
+          {/* 提示词预览区域 */}
+          {systemPrompt && (
+            <div className="mt-6 border-t pt-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-gray-900">AI提示词预览</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPromptPreview(!showPromptPreview)}
+                  className="text-xs"
+                >
+                  {showPromptPreview ? '收起' : '展开'}
+                  <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${showPromptPreview ? 'rotate-180' : ''}`} />
+                </Button>
+              </div>
+              {showPromptPreview && (
+                <div className="bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                  <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
+                    {systemPrompt}
+                  </pre>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-2">
+                这是AI将使用的完整提示词，包含了您选择的所有参数和设置。您可以在生成前确认提示词内容。
+              </p>
+            </div>
+          )}
 
         </CardContent>
       </Card>
