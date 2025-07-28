@@ -838,7 +838,7 @@ export default function AdaptPage() {
             temperature: 0.8 // 增加随机性以避免模板化
           });
 
-            if (aiResult.success && aiResult.content) {
+          if (aiResult.success && aiResult.content) {
               // 验证字符数是否符合设定
               const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
               const actualCharCount = aiResult.content.length;
@@ -867,11 +867,8 @@ export default function AdaptPage() {
               }
               setResults([...updatedResults]);
               newResults[resultIndex] = updatedResults[resultIndex];
-            } else {
-              throw new Error(aiResult.error || 'AI服务调用失败');
-            }
           } else {
-            throw new Error(response.error || '内容适配失败');
+            throw new Error(aiResult.error || 'AI服务调用失败');
           }
         } catch (error) {
           console.error(`生成 ${platformId} 内容失败:`, error);
@@ -1416,7 +1413,7 @@ export default function AdaptPage() {
         temperature: 0.9 // 重新生成时增加更多随机性
       });
 
-        if (aiResult.success && aiResult.content) {
+      if (aiResult.success && aiResult.content) {
           // 验证字符数是否符合设定
           const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
           const actualCharCount = aiResult.content.length;
@@ -1444,11 +1441,8 @@ export default function AdaptPage() {
             currentResults[resultIndex].targetCharCount = targetCharCount;
           }
           setResults([...currentResults]);
-        } else {
-          throw new Error(aiResult.error || 'AI服务调用失败');
-        }
       } else {
-        throw new Error(response.error || '重新生成失败');
+        throw new Error(aiResult.error || 'AI服务调用失败');
       }
     } catch (error) {
       console.error(`重新生成 ${platformId} 内容失败:`, error);
@@ -1634,25 +1628,25 @@ export default function AdaptPage() {
       const alternativeFormId = getAlternativeContentForm(platformId, selectedFormId);
       const alternativeStyle = getAlternativeStyle(selectedStyle);
 
-      const request: ContentAdaptationRequest = {
-        originalContent: originalContent.trim(),
-        platform: platformId,
-        formId: alternativeFormId,
-        style: alternativeStyle,
-        charCount: platformSettings[platformId]?.charCount || getCharCountMax(platformId)
-      };
+      // 使用多维矩阵提示词系统生成对比内容
+      const matrixPrompt = await generateMatrixPrompt(
+        originalContent.trim(),
+        platformId,
+        alternativeFormId,
+        alternativeStyle,
+        platformSettings[platformId]?.charCount || getCharCountMax(platformId),
+        customPrompt,
+        useBrandLibrary
+      );
 
-      const response = await generateAdaptedContent(request);
-
-      if (response.success && response.data) {
-        // 使用统一AI服务生成对比内容
-        const aiResult = await callAI({
-          prompt: response.data.prompt,
-          model: selectedModel as any,
-          systemPrompt: '你是一个专业的内容适配专家，请生成与主要版本不同风格的替代内容。',
-          maxTokens: 2000,
-          temperature: 0.9 // 增加随机性以获得不同的结果
-        });
+      // 使用统一AI服务生成对比内容
+      const aiResult = await callAI({
+        prompt: matrixPrompt,
+        model: selectedModel as any,
+        systemPrompt: '你是一个专业的多维度内容创作专家，请生成与主要版本不同风格的替代内容。',
+        maxTokens: 2000,
+        temperature: 0.9 // 增加随机性以获得不同的结果
+      });
 
         if (aiResult.success && aiResult.content) {
           // 验证对比内容的字符数
@@ -1679,11 +1673,8 @@ export default function AdaptPage() {
             title: "对比内容生成成功",
             description: successMessage,
           });
-        } else {
-          throw new Error(aiResult.error || '对比内容生成失败');
-        }
       } else {
-        throw new Error(response.error || '对比内容适配失败');
+        throw new Error(aiResult.error || '对比内容生成失败');
       }
     } catch (error) {
       console.error(`生成${platformId}对比内容失败:`, error);
