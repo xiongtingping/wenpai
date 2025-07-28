@@ -8,11 +8,11 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { isDevelopment } from '@/utils/env-validator';
+import { UserAvatar } from '@/components/auth/UserAvatar';
 import { 
   Home, 
   FileText, 
@@ -185,45 +185,23 @@ export const TopNavigation: React.FC = () => {
             )}
 
             {/* 用户头像和登录状态 */}
-            {isAuthenticated ? (
-              <div className="flex items-center gap-2">
-                {/* 专业用户标识 */}
-                {isPro && (
-                  <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
-                    {isDevelopment() ? 'DEV' : 'PRO'}
-                  </Badge>
-                )}
-                
-                {/* 用户头像 */}
-                <Avatar>
-                  <AvatarImage
-                    src={user?.avatar || ''}
-                    alt={user?.nickname || user?.username || '用户头像'}
-                  />
-                  <AvatarFallback>
-                    {(user?.nickname?.charAt(0) || user?.username?.charAt(0) || 'U').toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="hidden sm:inline-flex hover:bg-accent/50 text-sm font-medium"
-                  onClick={() => login()}
-                >
-                  登录
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-md text-sm font-medium"
-                  onClick={() => login()}
-                >
-                  注册
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              {/* 专业用户标识 */}
+              {isAuthenticated && isPro && (
+                <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
+                  {isDevelopment() ? 'DEV' : 'PRO'}
+                </Badge>
+              )}
+
+              {/* ✅ FIXED: 用户头像组件 - 包含完整的下拉菜单功能 */}
+              {/* 📌 修复问题：AI内容适配器等页面无法点击右上角个人中心 */}
+              {/* 🔒 LOCKED: 已将静态Avatar替换为功能完整的UserAvatar组件，请勿改动 */}
+              <UserAvatar
+                showUsername={false}
+                size="md"
+                className="flex items-center"
+              />
+            </div>
 
             {/* 移动端菜单按钮 */}
             {/* The Sheet component was removed from imports, so this block is removed. */}

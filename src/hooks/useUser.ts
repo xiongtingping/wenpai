@@ -19,16 +19,16 @@ export const useUser = () => {
     isLoggedIn: isAuthenticated, // 兼容旧接口
     
     // 用户属性
-    id: user?.id,
-    username: user?.username,
-    email: user?.email,
-    phone: user?.phone,
-    nickname: user?.nickname,
-    avatar: user?.avatar,
-    plan: user?.plan,
-    isProUser: user?.isProUser,
-    isVip: user?.isVip,
-    vipLevel: user?.vipLevel,
+    id: user?.id || '',
+    username: user?.username || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    nickname: user?.nickname || '',
+    avatar: user?.avatar || '',
+    plan: user?.plan || '',
+    isProUser: user?.isProUser || false,
+    isVip: user?.isVip || false,
+    vipLevel: user?.vipLevel || '',
     permissions: user?.permissions || [],
     roles: user?.roles || [],
     
