@@ -100,7 +100,7 @@ export default function PromptBuilder({
    * 复制批量prompts到剪贴板
    */
   const handleCopyBatchPrompts = async () => {
-    const promptsText = batchPrompts.map(p => `${p.emotion}: ${p.prompt}`).join('\n\n');
+    const promptsText = batchPrompts.map(p => `${p.emotion || '未知情感'}: ${p.prompt || '未知提示词'}`).join('\n\n');
     try {
       await navigator.clipboard.writeText(promptsText);
       toast({
