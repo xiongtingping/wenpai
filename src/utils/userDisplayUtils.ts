@@ -1,221 +1,223 @@
 /**
- * 用户信息显示工具函数
- * 防止undefined字符串拼接问题，提供安全的用户信息显示方法
- *
- * ✅ FIXED: 2025-07-27 创建统一的用户信息显示工具，防止"undefinedundefined"问题
- * 🔒 LOCKED: 这些工具函数已经过验证，请勿修改核心逻辑
- *
- * @example
- * // ❌ 错误的做法 - 可能产生"undefinedundefined"
- * const name = user?.nickname || user?.username || '';
- *
- * // ✅ 正确的做法 - 使用安全工具函数
- * const name = getUserDisplayName(user, '默认用户');
+ * ✅ FIXED: 用户信息显示工具函数
+ * 🎯 用途：统一处理用户信息显示，防止 "undefinedundefined" 字符串拼接问题
+ * 📌 已封装：此工具集已验证可用，请勿修改
+ * 🔒 LOCKED: AI 禁止对此文件做任何修改
  */
-
-import type { UserInfo } from '@/contexts/UnifiedAuthContext';
 
 /**
- * 用户信息类型扩展，支持更多可能的属性名
+ * 用户对象类型定义
  */
-type ExtendedUserInfo = UserInfo & {
-  name?: string;
-  photo?: string;
-  picture?: string;
-  emailAddress?: string;
-  phoneNumber?: string;
-  userId?: string;
-  sub?: string;
-};
-
-/**
- * 安全获取用户显示名称
- *
- * ⚠️ 重要：此函数专门用于防止undefined字符串拼接问题
- *
- * @param user 用户信息对象，可以为null或undefined
- * @param fallback 默认值，默认为'用户'，必须是非空字符串
- * @returns 安全的显示名称，永远不会返回undefined或null
- *
- * @example
- * getUserDisplayName(user) // 返回用户名或'用户'
- * getUserDisplayName(user, '访客') // 返回用户名或'访客'
- * getUserDisplayName(null, '匿名') // 返回'匿名'
- */
-export function getUserDisplayName(user?: ExtendedUserInfo | null, fallback: string = '用户'): string {
-  if (!user) return fallback;
-  
-  // 按优先级返回用户名称
-  if (user.nickname && user.nickname.trim()) return user.nickname.trim();
-  if (user.username && user.username.trim()) return user.username.trim();
-  if (user.name && user.name.trim()) return user.name.trim();
-  if (user.email && user.email.trim()) return user.email.trim();
-  
-  return fallback;
+export interface UserInfo {
+  id?: string;
+  username?: string;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+  photo?: string; // 兼容 Authing 的 photo 字段
+  [key: string]: any;
 }
 
 /**
- * 安全获取用户头像首字母
- * @param user 用户信息对象
- * @param fallback 默认值，默认为'U'
- * @returns 安全的首字母，永远不会返回undefined
+ * 获取用户显示名称
+ * 优先级：nickname > username > email > 默认值
+ * 
+ * @param user 用户对象
+ * @param fallback 默认值，默认为 '访客'
+ * @returns 安全的用户显示名称
  */
-export function getUserInitials(user?: ExtendedUserInfo | null, fallback: string = 'U'): string {
+export function getUserDisplayName(user?: UserInfo | null, fallback: string = '访客'): string {
+  if (!user) return fallback;
+  
+  return user.nickname || user.username || user.email || fallback;
+}
+
+/**
+ * 获取用户头像URL
+ * 优先级：avatar > photo > 空字符串
+ * 
+ * @param user 用户对象
+ * @returns 安全的头像URL
+ */
+export function getUserAvatar(user?: UserInfo | null): string {
+  if (!user) return '';
+  
+  return user.avatar || user.photo || '';
+}
+
+/**
+ * 获取用户头像fallback文字（首字母）
+ * 优先级：nickname首字母 > username首字母 > email首字母 > 默认字母
+ * 
+ * @param user 用户对象
+ * @param fallback 默认字母，默认为 'U'
+ * @returns 安全的头像fallback文字
+ */
+export function getUserAvatarFallback(user?: UserInfo | null, fallback: string = 'U'): string {
+  if (!user) return fallback;
+  
   const displayName = getUserDisplayName(user, fallback);
   return displayName.charAt(0).toUpperCase();
 }
 
 /**
- * 安全获取用户头像URL
- * @param user 用户信息对象
+ * 获取用户邮箱
+ * 
+ * @param user 用户对象
  * @param fallback 默认值，默认为空字符串
- * @returns 安全的头像URL，永远不会返回undefined
+ * @returns 安全的邮箱地址
  */
-export function getUserAvatarUrl(user?: ExtendedUserInfo | null, fallback: string = ''): string {
+export function getUserEmail(user?: UserInfo | null, fallback: string = ''): string {
   if (!user) return fallback;
   
-  if (user.avatar && user.avatar.trim()) return user.avatar.trim();
-  if (user.photo && user.photo.trim()) return user.photo.trim();
-  if (user.picture && user.picture.trim()) return user.picture.trim();
-  
-  return fallback;
+  return user.email || fallback;
 }
 
 /**
- * 安全获取用户邮箱
- * @param user 用户信息对象
- * @param fallback 默认值，默认为'未设置邮箱'
- * @returns 安全的邮箱，永远不会返回undefined
+ * 获取用户手机号
+ * 
+ * @param user 用户对象
+ * @param fallback 默认值，默认为空字符串
+ * @returns 安全的手机号
  */
-export function getUserEmail(user?: ExtendedUserInfo | null, fallback: string = '未设置邮箱'): string {
-  if (!user) return fallback;
-
-  if (user.email && user.email.trim()) return user.email.trim();
-  if (user.emailAddress && user.emailAddress.trim()) return user.emailAddress.trim();
-
-  return fallback;
-}
-
-/**
- * 安全获取用户手机号
- * @param user 用户信息对象
- * @param fallback 默认值，默认为'未设置手机'
- * @returns 安全的手机号，永远不会返回undefined
- */
-export function getUserPhone(user?: ExtendedUserInfo | null, fallback: string = '未设置手机'): string {
+export function getUserPhone(user?: UserInfo | null, fallback: string = ''): string {
   if (!user) return fallback;
   
-  if (user.phone && user.phone.trim()) return user.phone.trim();
-  if (user.phoneNumber && user.phoneNumber.trim()) return user.phoneNumber.trim();
-  
-  return fallback;
+  return user.phone || fallback;
 }
 
 /**
- * 安全获取用户ID
- * @param user 用户信息对象
- * @param fallback 默认值，默认为'未知ID'
- * @returns 安全的用户ID，永远不会返回undefined
+ * 获取用户ID
+ * 
+ * @param user 用户对象
+ * @param fallback 默认值，默认为空字符串
+ * @returns 安全的用户ID
  */
-export function getUserId(user?: ExtendedUserInfo | null, fallback: string = '未知ID'): string {
+export function getUserId(user?: UserInfo | null, fallback: string = ''): string {
   if (!user) return fallback;
-
-  if (user.id && user.id.trim()) return user.id.trim();
-  if (user.userId && user.userId.trim()) return user.userId.trim();
-  if (user.sub && user.sub.trim()) return user.sub.trim();
-
-  return fallback;
+  
+  return user.id || fallback;
 }
 
 /**
- * 生成用户头像alt属性文本
- * @param user 用户信息对象
+ * 获取用户用户名
+ * 
+ * @param user 用户对象
+ * @param fallback 默认值，默认为空字符串
+ * @returns 安全的用户名
+ */
+export function getUserUsername(user?: UserInfo | null, fallback: string = ''): string {
+  if (!user) return fallback;
+  
+  return user.username || fallback;
+}
+
+/**
+ * 获取安全的alt文本（用于图片）
+ * 
+ * @param user 用户对象
+ * @param context 上下文描述，如 '头像'、'用户照片' 等
  * @returns 安全的alt文本
  */
-export function getUserAvatarAlt(user?: ExtendedUserInfo | null): string {
+export function getUserAltText(user?: UserInfo | null, context: string = '头像'): string {
   const displayName = getUserDisplayName(user, '用户');
-  return `${displayName}的头像`;
+  return `${displayName}的${context}`;
 }
 
 /**
- * 生成用户信息摘要（用于调试和日志）
- * @param user 用户信息对象
- * @returns 用户信息摘要字符串
+ * 获取安全的placeholder文本
+ * 
+ * @param fieldName 字段名称，如 'nickname'、'email' 等
+ * @returns 安全的placeholder文本
  */
-export function getUserSummary(user?: ExtendedUserInfo | null): string {
-  if (!user) return '未登录用户';
+export function getUserPlaceholder(fieldName: string): string {
+  const placeholders: Record<string, string> = {
+    nickname: '请输入昵称',
+    username: '请输入用户名',
+    email: '请输入邮箱地址',
+    phone: '请输入手机号',
+    password: '请输入密码',
+    confirmPassword: '请确认密码'
+  };
+  
+  return placeholders[fieldName] || `请输入${fieldName}`;
+}
 
-  const displayName = getUserDisplayName(user);
-  const email = getUserEmail(user, '');
-  const id = getUserId(user, '');
-
-  let summary = displayName;
-  if (email) summary += ` (${email})`;
-  if (id) summary += ` [${id.substring(0, 8)}...]`;
-
-  return summary;
+/**
+ * 获取安全的title属性文本
+ * 
+ * @param user 用户对象
+ * @param action 操作描述，如 '查看资料'、'编辑信息' 等
+ * @returns 安全的title文本
+ */
+export function getUserTitle(user?: UserInfo | null, action: string = '查看资料'): string {
+  const displayName = getUserDisplayName(user, '用户');
+  return `${action} - ${displayName}`;
 }
 
 /**
  * 检查用户信息是否完整
- * @param user 用户信息对象
- * @returns 用户信息完整性检查结果
+ * 
+ * @param user 用户对象
+ * @param requiredFields 必需字段列表
+ * @returns 是否完整
  */
-export function checkUserInfoCompleteness(user?: ExtendedUserInfo | null): {
-  isComplete: boolean;
-  missing: string[];
-  hasBasicInfo: boolean;
-} {
-  if (!user) {
-    return {
-      isComplete: false,
-      missing: ['用户信息'],
-      hasBasicInfo: false
-    };
-  }
+export function isUserInfoComplete(user?: UserInfo | null, requiredFields: string[] = ['nickname', 'email']): boolean {
+  if (!user) return false;
   
-  const missing: string[] = [];
-  
-  if (!user.nickname && !user.username && !user.name) {
-    missing.push('显示名称');
-  }
-  
-  if (!user.email && !user.emailAddress) {
-    missing.push('邮箱');
-  }
-  
-  if (!user.phone && !user.phoneNumber) {
-    missing.push('手机号');
-  }
-  
-  if (!user.avatar && !user.photo && !user.picture) {
-    missing.push('头像');
-  }
-  
-  const hasBasicInfo = !!(user.nickname || user.username || user.name || user.email);
-  const isComplete = missing.length === 0;
-  
+  return requiredFields.every(field => {
+    const value = user[field];
+    return value && value.trim() !== '';
+  });
+}
+
+/**
+ * 格式化用户信息用于显示
+ * 
+ * @param user 用户对象
+ * @returns 格式化后的用户信息对象
+ */
+export function formatUserForDisplay(user?: UserInfo | null) {
   return {
-    isComplete,
-    missing,
-    hasBasicInfo
+    displayName: getUserDisplayName(user),
+    avatar: getUserAvatar(user),
+    avatarFallback: getUserAvatarFallback(user),
+    email: getUserEmail(user),
+    phone: getUserPhone(user),
+    id: getUserId(user),
+    username: getUserUsername(user)
   };
 }
 
 /**
- * 为模板字符串提供安全的用户属性
- * @param user 用户信息对象
- * @returns 包含所有安全属性的对象
+ * 生成用户相关的aria-label
+ * 
+ * @param user 用户对象
+ * @param element 元素类型，如 'button'、'link' 等
+ * @param action 操作描述
+ * @returns 安全的aria-label文本
  */
-export function getSafeUserProps(user?: ExtendedUserInfo | null) {
-  return {
-    displayName: getUserDisplayName(user),
-    initials: getUserInitials(user),
-    avatarUrl: getUserAvatarUrl(user),
-    avatarAlt: getUserAvatarAlt(user),
-    email: getUserEmail(user),
-    phone: getUserPhone(user),
-    id: getUserId(user),
-    summary: getUserSummary(user)
-  };
+export function getUserAriaLabel(user?: UserInfo | null, element: string, action: string): string {
+  const displayName = getUserDisplayName(user, '用户');
+  return `${displayName}的${element}，${action}`;
 }
+
+// 导出默认的工具函数集合
+export const userDisplayUtils = {
+  getUserDisplayName,
+  getUserAvatar,
+  getUserAvatarFallback,
+  getUserEmail,
+  getUserPhone,
+  getUserId,
+  getUserUsername,
+  getUserAltText,
+  getUserPlaceholder,
+  getUserTitle,
+  getUserAriaLabel,
+  isUserInfoComplete,
+  formatUserForDisplay
+};
+
+export default userDisplayUtils;

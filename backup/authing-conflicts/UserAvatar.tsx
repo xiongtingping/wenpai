@@ -18,6 +18,7 @@ import { ThemeSwitcher } from '@/components/ui/ThemeSwitcher';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
 import { User } from '@/types/user';
+import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 
 /**
  * 检查是否为开发环境
@@ -62,20 +63,20 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     );
   }
 
-  // 获取用户显示名称
-  const displayName = displayUser.nickname || displayUser.username || displayUser.email || '用户';
-  
-  // 获取头像首字母
-  const initials = displayName.slice(0, 2).toUpperCase();
-  
+  // ✅ FIXED: 获取用户显示信息 - 使用安全的用户信息获取函数
+  const displayName = getUserDisplayName(displayUser, '用户');
+  const avatarUrl = getUserAvatar(displayUser);
+  const avatarFallback = getUserAvatarFallback(displayUser);
+  const altText = getUserAltText(displayUser, '头像');
+
   // 开发环境下跳过权限检查
   const isPro = isDevelopment() || hasRole('premium') || hasRole('pro') || hasRole('admin');
 
   const avatarContent = (
     <Avatar className={`${size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'}`}>
-      <AvatarImage src={displayUser.avatar} alt={displayName} />
+      <AvatarImage src={avatarUrl} alt={altText} />
       <AvatarFallback className="bg-primary text-primary-foreground">
-        {initials}
+        {avatarFallback}
       </AvatarFallback>
     </Avatar>
   );

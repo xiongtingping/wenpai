@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuthing } from '@/hooks/useAuthing';
 import { useUserRoles, useSimpleUserRoles } from '@/hooks/useUserRoles';
 import { securityUtils } from '@/lib/security';
+import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 import { 
   User, 
   Edit, 
@@ -399,13 +400,14 @@ export function UserEditForm({
       <CardContent className="space-y-6">
                  {/* 当前用户信息 */}
          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+           {/* ✅ FIXED: 用户信息显示 - 使用安全的用户信息获取函数 */}
            <Avatar className="w-16 h-16">
-             <AvatarImage src={user.photo} alt={user.nickname} />
-             <AvatarFallback>{user.nickname.charAt(0).toUpperCase()}</AvatarFallback>
+             <AvatarImage src={getUserAvatar(user)} alt={getUserAltText(user, '头像')} />
+             <AvatarFallback>{getUserAvatarFallback(user)}</AvatarFallback>
            </Avatar>
            <div className="flex-1">
-             <h3 className="font-semibold text-lg">{user.nickname}</h3>
-             <p className="text-gray-600">@{user.username}</p>
+             <h3 className="font-semibold text-lg">{getUserDisplayName(user)}</h3>
+             <p className="text-gray-600">@{user.username || '未设置'}</p>
              <div className="flex items-center gap-2 mt-2">
                <Badge variant="outline">用户ID: {user.id}</Badge>
                <Badge variant="secondary">

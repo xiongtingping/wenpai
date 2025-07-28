@@ -28,6 +28,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * VIP页面组件
@@ -358,9 +359,10 @@ export default function VIPPage() {
                   <span className="text-gray-600">用户ID：</span>
                   <span className="font-mono text-sm">{user?.id}</span>
                 </div>
+                {/* ✅ FIXED: 用户名显示 - 使用安全的用户信息获取函数 */}
                 <div className="flex justify-between">
                   <span className="text-gray-600">用户名：</span>
-                  <span>{user?.nickname || user?.username}</span>
+                  <span>{getUserDisplayName(user, '未设置')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">邮箱：</span>

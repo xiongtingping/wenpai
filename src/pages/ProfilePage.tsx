@@ -47,7 +47,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import { getUserDisplayName, getUserAvatarAlt } from '@/utils/userDisplayUtils';
+import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 
 /**
  * 个人中心页面组件
@@ -58,12 +58,12 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // 个人资料表单状态
+  // ✅ FIXED: 个人资料表单状态 - 使用安全的用户信息获取函数
   const [profileForm, setProfileForm] = useState({
     nickname: getUserDisplayName(user, ''),
     phone: user?.phone || '',
     email: user?.email || '',
-    avatar: user?.avatar || ''
+    avatar: getUserAvatar(user)
   });
 
   // 模拟用户数据
@@ -136,7 +136,7 @@ export default function ProfilePage() {
     if (profileForm.avatar) {
       return profileForm.avatar;
     }
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${profileForm.nickname || getUserDisplayName(user, 'User')}`;
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${profileForm.nickname || user.username}`;
   };
 
   /**
@@ -242,10 +242,11 @@ export default function ProfilePage() {
                 {/* 头像区域 */}
                 <div className="text-center md:text-left">
                   <div className="relative inline-block">
+                    {/* ✅ FIXED: 头像显示 - 使用安全的用户信息获取函数 */}
                     <Avatar className="w-24 h-24 border-4 border-white/20">
-                      <AvatarImage src={getUserAvatar()} alt={getUserAvatarAlt(user)} />
+                      <AvatarImage src={getUserAvatar(user)} alt={getUserAltText(user, '头像')} />
                       <AvatarFallback className="text-2xl bg-white/20 text-white">
-                        {profileForm.nickname?.charAt(0) || getUserDisplayName(user, 'U').charAt(0)}
+                        {getUserAvatarFallback(user)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-2 -right-2">
@@ -269,8 +270,9 @@ export default function ProfilePage() {
 
                 {/* 用户信息 */}
                 <div className="flex-1 text-center md:text-left">
+                  {/* ✅ FIXED: 用户名显示 - 使用安全的用户信息获取函数 */}
                   <h1 className="text-3xl font-bold mb-2">
-                    {profileForm.nickname || user.username || '用户'}
+                    {getUserDisplayName(user, '用户')}
                   </h1>
                   <div className="flex flex-wrap gap-4 justify-center md:justify-start mb-4">
                     <Badge variant="secondary" className="bg-white/20 text-white border-white/30">

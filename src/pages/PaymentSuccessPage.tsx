@@ -195,6 +195,7 @@ export default function PaymentSuccessPage() {
                     <span className="text-gray-600">用户ID：</span>
                     <span className="font-mono text-sm">{user?.id || '未知'}</span>
                   </div>
+                  {/* ✅ FIXED: 用户名显示 - 使用安全的用户信息获取函数 */}
                   <div className="flex justify-between">
                     <span className="text-gray-600">用户名：</span>
                     <span>{getUserDisplayName(user, '未知用户')}</span>

@@ -26,6 +26,7 @@ import { useAuthing } from '@/hooks/useAuthing';
 import { secureStorage, dataMasking, securityUtils } from '@/lib/security';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 
 /**
  * 用户信息接口
@@ -223,14 +224,15 @@ export default function UserProfile({
       <Card className={className}>
         <CardContent className="p-4">
           <div className="flex items-center space-x-3">
+            {/* ✅ FIXED: 紧凑模式头像 - 使用安全的用户信息获取函数 */}
             <Avatar className="w-10 h-10">
-              <AvatarImage src={user.photo} alt={user.nickname} />
+              <AvatarImage src={getUserAvatar(user)} alt={getUserAltText(user, '头像')} />
               <AvatarFallback>
-                {user.nickname.charAt(0).toUpperCase()}
+                {getUserAvatarFallback(user)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.nickname}</p>
+              <p className="text-sm font-medium truncate">{getUserDisplayName(user)}</p>
               <p className="text-xs text-gray-500 truncate">
                 {user.email || user.phone || '未设置联系方式'}
               </p>
@@ -261,16 +263,17 @@ export default function UserProfile({
       <CardContent className="space-y-6">
         {/* 用户基本信息 */}
         <div className="flex items-start space-x-4">
+          {/* ✅ FIXED: 完整模式头像 - 使用安全的用户信息获取函数 */}
           <Avatar className="w-20 h-20">
-            <AvatarImage src={user.photo} alt={user.nickname} />
+            <AvatarImage src={getUserAvatar(user)} alt={getUserAltText(user, '头像')} />
             <AvatarFallback className="text-lg">
-              {user.nickname.charAt(0).toUpperCase()}
+              {getUserAvatarFallback(user)}
             </AvatarFallback>
           </Avatar>
-          
+
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              <h3 className="text-xl font-semibold">{user.nickname}</h3>
+              <h3 className="text-xl font-semibold">{getUserDisplayName(user)}</h3>
               <Badge variant={user.isProUser ? "default" : "secondary"}>
                 {user.isProUser ? (
                   <>
