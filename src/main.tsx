@@ -14,7 +14,8 @@ import App from './App.tsx';
 // 启用undefined拼接检测器（仅开发环境）
 if (import.meta.env.DEV) {
   import('./utils/undefinedConcatDetector');
-  import('./utils/advancedUndefinedDetector');
+  // 暂时禁用高级检测器，避免无限递归
+  // import('./utils/advancedUndefinedDetector');
 }
 
 // ✅ FIXED: 2025-07-25 React Router Future Flag配置已封装

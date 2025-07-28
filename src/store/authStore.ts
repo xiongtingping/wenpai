@@ -82,7 +82,11 @@ export const useAuthStore = create<AuthState>()(
 
       getUserInviteCode: () => {
         const state = get();
-        return state.user?.id ? `INVITE_${state.user.id.slice(-8)}` : 'INVITE_GUEST';
+        const userId = state.user?.id;
+        if (userId && userId !== 'undefined' && typeof userId === 'string') {
+          return `INVITE_${userId.slice(-8)}`;
+        }
+        return 'INVITE_GUEST';
       },
 
       trackInviteClick: () => {

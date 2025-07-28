@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-07-28T14:25:57.249Z",
+  "timestamp": "2025-07-28T14:47:36.399Z",
   "stats": {
     "filesScanned": 292,
-    "issuesFound": 12,
-    "criticalIssues": 3,
-    "highIssues": 9,
+    "issuesFound": 15,
+    "criticalIssues": 4,
+    "highIssues": 11,
     "mediumIssues": 0,
     "lowIssues": 0
   },
@@ -83,6 +83,18 @@
     },
     {
       "file": "/Users/xiong/wenpai/src/pages/ProfilePage.tsx",
+      "line": 492,
+      "column": 37,
+      "pattern": "模板字符串中的用户属性",
+      "severity": "critical",
+      "category": "template-string",
+      "description": "模板字符串中直接使用用户属性",
+      "match": "`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`",
+      "context": "                    <Label>邀请链接</Label>\n                    <div className=\"flex gap-2\">\n                      <Input value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`} readOnly className=\"text-xs\" />\n                      <Button variant=\"outline\" size=\"sm\" onClick={handleCopyInviteLink}>\n                        <Copy className=\"w-4 h-4\" />\n                      </Button>",
+      "suggestion": "在模板字符串中添加默认值: ${user?.property || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/pages/ProfilePage.tsx",
       "line": 62,
       "column": 50,
       "pattern": "JSX中的用户属性拼接",
@@ -91,6 +103,30 @@
       "description": "JSX中的用户属性逻辑或运算",
       "match": "{\n    nickname: getUserDisplayName(user, ''),\n    phone: user?.phone || '',\n    email: user?.email || '',\n    avatar: getUtilUserAvatar(user)\n  }",
       "context": "\n  // ✅ FIXED: 个人资料表单状态 - 使用安全的用户信息获取函数\n  const [profileForm, setProfileForm] = useState({\n    nickname: getUserDisplayName(user, ''),\n    phone: user?.phone || '',\n    email: user?.email || '',",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/pages/ProfilePage.tsx",
+      "line": 198,
+      "column": 38,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{\n    const safeUserId = userStats.userId || user?.id || 'unknown';\n    const inviteLink = `${window.location.origin}",
+      "context": "   * 复制邀请链接\n   */\n  const handleCopyInviteLink = () => {\n    const safeUserId = userStats.userId || user?.id || 'unknown';\n    const inviteLink = `${window.location.origin}?ref=${safeUserId}`;\n    navigator.clipboard.writeText(inviteLink);",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/pages/ProfilePage.tsx",
+      "line": 492,
+      "column": 69,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{userStats.userId || user?.id || 'unknown'}",
+      "context": "                    <Label>邀请链接</Label>\n                    <div className=\"flex gap-2\">\n                      <Input value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`} readOnly className=\"text-xs\" />\n                      <Button variant=\"outline\" size=\"sm\" onClick={handleCopyInviteLink}>\n                        <Copy className=\"w-4 h-4\" />\n                      </Button>",
       "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
     },
     {

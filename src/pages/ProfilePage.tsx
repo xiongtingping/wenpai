@@ -196,7 +196,8 @@ export default function ProfilePage() {
    * 复制邀请链接
    */
   const handleCopyInviteLink = () => {
-    const inviteLink = `${window.location.origin}?ref=${userStats.userId}`;
+    const safeUserId = userStats.userId || user?.id || 'unknown';
+    const inviteLink = `${window.location.origin}?ref=${safeUserId}`;
     navigator.clipboard.writeText(inviteLink);
     toast({
       title: "邀请链接已复制",
@@ -488,7 +489,7 @@ export default function ProfilePage() {
                   <div className="space-y-3">
                     <Label>邀请链接</Label>
                     <div className="flex gap-2">
-                      <Input value={`${window.location.origin}?ref=${userStats.userId}`} readOnly className="text-xs" />
+                      <Input value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`} readOnly className="text-xs" />
                       <Button variant="outline" size="sm" onClick={handleCopyInviteLink}>
                         <Copy className="w-4 h-4" />
                       </Button>

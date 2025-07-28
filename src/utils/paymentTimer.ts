@@ -15,8 +15,8 @@ export const PROMO_DURATION = 30 * 60 * 1000; // 30分钟
  * @returns 支付中心访问时间
  */
 export function getPaymentCenterAccessTime(userId?: string): Date | undefined {
-  if (!userId) return undefined;
-  
+  if (!userId || userId === 'undefined') return undefined;
+
   const accessTimeKey = `payment_center_access_time_${userId}`;
   const accessTime = localStorage.getItem(accessTimeKey);
   
@@ -82,8 +82,8 @@ export function formatTimeLeft(timeLeft: number): string {
  * @param userId 用户ID
  */
 export function resetPaymentCenterAccessTime(userId?: string): void {
-  if (!userId) return;
-  
+  if (!userId || userId === 'undefined') return;
+
   const accessTimeKey = `payment_center_access_time_${userId}`;
   localStorage.removeItem(accessTimeKey);
   console.log('🔄 支付中心访问时间已重置');

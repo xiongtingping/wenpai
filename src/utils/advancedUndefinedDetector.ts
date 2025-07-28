@@ -42,7 +42,7 @@ class AdvancedUndefinedDetector {
     if (!import.meta.env.DEV || this.isActive) return;
 
     this.isActive = true;
-    console.log('🛡️ 高级undefined拼接检测器已启动');
+    this.originalConsole.log('🛡️ 高级undefined拼接检测器已启动');
 
     if (this.config.enableConsoleMonitoring) {
       this.setupConsoleMonitoring();
@@ -65,31 +65,58 @@ class AdvancedUndefinedDetector {
     if (this.observer) {
       this.observer.disconnect();
     }
-    console.log('🛡️ undefined拼接检测器已停止');
+
+    // 恢复原始的console方法
+    Object.entries(this.originalConsole).forEach(([method, original]) => {
+      if (['log', 'warn', 'error', 'info'].includes(method)) {
+        (console as any)[method] = original;
+      }
+    });
+
+    this.originalConsole.log('🛡️ undefined拼接检测器已停止');
   }
 
+  private originalConsole = {
+    log: console.log,
+    warn: console.warn,
+    error: console.error,
+    info: console.info,
+    group: console.group,
+    groupEnd: console.groupEnd,
+    table: console.table
+  };
+
   private setupConsoleMonitoring(): void {
-    const originalMethods = {
-      log: console.log,
-      warn: console.warn,
-      error: console.error,
-      info: console.info
-    };
+    // 保存原始方法的引用
+    const originalMethods = { ...this.originalConsole };
 
     Object.entries(originalMethods).forEach(([method, original]) => {
-      (console as any)[method] = (...args: any[]) => {
-        args.forEach((arg, index) => {
-          if (this.containsUndefined(arg)) {
-            this.recordEvent({
-              source: 'console',
-              content: String(arg),
-              context: `console.${method}[${index}]`,
-              stackTrace: new Error().stack || ''
+      if (['log', 'warn', 'error', 'info'].includes(method)) {
+        (console as any)[method] = (...args: any[]) => {
+          // 避免检测自己的输出导致无限递归
+          const isOwnOutput = args.some(arg =>
+            typeof arg === 'string' &&
+            (arg.includes('🚨 undefined拼接检测') ||
+             arg.includes('🛡️ 高级undefined拼接检测器') ||
+             arg.includes('🔧 尝试自动修复'))
+          );
+
+          if (!isOwnOutput) {
+            args.forEach((arg, index) => {
+              if (this.containsUndefined(arg)) {
+                this.recordEvent({
+                  source: 'console',
+                  content: String(arg),
+                  context: `console.${method}[${index}]`,
+                  stackTrace: new Error().stack || ''
+                });
+              }
             });
           }
-        });
-        original.apply(console, args);
-      };
+
+          original.apply(console, args);
+        };
+      }
     });
   }
 
@@ -231,25 +258,26 @@ class AdvancedUndefinedDetector {
     // 这里可以实现一些自动修复逻辑
     // 例如：替换undefined为默认值
     if (event.source === 'dom-text' && event.content.includes('undefined')) {
-      console.log('🔧 尝试自动修复:', event.content);
+      this.originalConsole.log('🔧 尝试自动修复:', event.content);
       // 实际的修复逻辑需要根据具体情况实现
       event.fixed = true;
     }
   }
 
   private outputWarning(event: DetectionEvent): void {
-    console.group(`🚨 undefined拼接检测 [${event.id}]`);
-    console.warn('来源:', event.source);
-    console.warn('内容:', event.content);
-    console.warn('上下文:', event.context);
-    console.warn('时间:', new Date(event.timestamp).toISOString());
-    
+    // 使用原始的console方法避免无限递归
+    this.originalConsole.group(`🚨 undefined拼接检测 [${event.id}]`);
+    this.originalConsole.warn('来源:', event.source);
+    this.originalConsole.warn('内容:', event.content);
+    this.originalConsole.warn('上下文:', event.context);
+    this.originalConsole.warn('时间:', new Date(event.timestamp).toISOString());
+
     if (event.stackTrace) {
-      console.warn('调用栈:', event.stackTrace);
+      this.originalConsole.warn('调用栈:', event.stackTrace);
     }
-    
-    console.warn('修复建议:', this.getSuggestion(event.source));
-    console.groupEnd();
+
+    this.originalConsole.warn('修复建议:', this.getSuggestion(event.source));
+    this.originalConsole.groupEnd();
   }
 
   private getSuggestion(source: string): string {
@@ -273,8 +301,8 @@ class AdvancedUndefinedDetector {
       event.timestamp > Date.now() - 5 * 60 * 1000
     );
 
-    console.error('🚨 undefined拼接问题频发！');
-    console.table(recentEvents.map(event => ({
+    this.originalConsole.error('🚨 undefined拼接问题频发！');
+    this.originalConsole.table(recentEvents.map(event => ({
       ID: event.id,
       来源: event.source,
       内容: event.content.substring(0, 50) + '...',
@@ -306,7 +334,7 @@ class AdvancedUndefinedDetector {
 
   public clearEvents(): void {
     this.events = [];
-    console.log('🧹 检测事件已清空');
+    this.originalConsole.log('🧹 检测事件已清空');
   }
 
   public exportReport(): string {

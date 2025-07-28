@@ -189,6 +189,10 @@ export class PaymentService {
    * 获取用户支付历史
    */
   async getUserPaymentHistory(userId: string, limit: number = 10): Promise<PaymentOrder[]> {
+    if (!userId || userId === 'undefined') {
+      throw new Error('用户ID不能为空');
+    }
+
     try {
       const response = await fetch(`${this.apiBaseUrl}/payment/history?userId=${userId}&limit=${limit}`, {
         method: 'GET',

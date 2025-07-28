@@ -105,6 +105,10 @@ class UserDataService {
    * 获取或创建用户数据记录
    */
   private getOrCreateUserRecord(userId: string, isTempUser: boolean = false): UserDataRecord {
+    if (!userId || userId === 'undefined') {
+      throw new Error('用户ID不能为空');
+    }
+
     const storage = this.getLocalStorage();
     const key = isTempUser ? `${this.tempUserPrefix}${userId}` : userId;
     
@@ -131,6 +135,10 @@ class UserDataService {
    * 更新用户数据记录
    */
   private updateUserRecord(record: UserDataRecord): void {
+    if (!record.userId || record.userId === 'undefined') {
+      throw new Error('用户记录ID不能为空');
+    }
+
     const storage = this.getLocalStorage();
     const key = record.isTempUser ? `${this.tempUserPrefix}${record.userId}` : record.userId;
     
