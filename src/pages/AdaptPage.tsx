@@ -815,46 +815,21 @@ export default function AdaptPage() {
           updateStep(3, 'loading');
           
           if (response.success && response.data) {
-            // 使用AI服务生成最终内容
-            const aiResponse = await fetch('/api/ai/generate', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                messages: [
-                  {
-                    role: 'system',
-                    content: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。'
-                  },
-                  {
-                    role: 'user',
-                    content: response.data.prompt
-                  }
-                ],
-                model: selectedModel,
-                maxTokens: 2000,
-                temperature: 0.7
-              })
+            // 使用统一AI服务生成最终内容
+            const aiResult = await callAI({
+              prompt: response.data.prompt,
+              model: selectedModel as any,
+              systemPrompt: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。',
+              maxTokens: 2000,
+              temperature: 0.7
             });
 
-            if (aiResponse.ok) {
-              const aiData = await aiResponse.json();
-              let platformContent = '';
-              
-              if (aiData.data && aiData.data.choices && aiData.data.choices[0] && aiData.data.choices[0].message) {
-                platformContent = aiData.data.choices[0].message.content;
-              } else if (aiData.choices && aiData.choices[0] && aiData.choices[0].message) {
-                platformContent = aiData.choices[0].message.content;
-              } else {
-                platformContent = JSON.stringify(aiData);
-              }
-              
+            if (aiResult.success && aiResult.content) {
               // 更新结果
               const updatedResults = [...newResults];
               const resultIndex = updatedResults.findIndex(r => r.platformId === platformId);
               if (resultIndex !== -1) {
-                updatedResults[resultIndex].content = platformContent;
+                updatedResults[resultIndex].content = aiResult.content;
                 updatedResults[resultIndex].source = 'ai';
                 updatedResults[resultIndex].steps[3].status = 'completed';
                 updatedResults[resultIndex].steps[3].message = '生成完成';
@@ -862,7 +837,7 @@ export default function AdaptPage() {
               setResults([...updatedResults]);
               newResults[resultIndex] = updatedResults[resultIndex];
             } else {
-              throw new Error('AI服务调用失败');
+              throw new Error(aiResult.error || 'AI服务调用失败');
             }
           } else {
             throw new Error(response.error || '内容适配失败');
@@ -1387,45 +1362,20 @@ export default function AdaptPage() {
       updateStep(3, 'loading');
       
       if (response.success && response.data) {
-        // 使用AI服务生成最终内容
-        const aiResponse = await fetch('/api/ai/generate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messages: [
-              {
-                role: 'system',
-                content: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。'
-              },
-              {
-                role: 'user',
-                content: response.data.prompt
-              }
-            ],
-            model: selectedModel,
-            maxTokens: 2000,
-            temperature: 0.7
-          })
+        // 使用统一AI服务生成最终内容
+        const aiResult = await callAI({
+          prompt: response.data.prompt,
+          model: selectedModel as any,
+          systemPrompt: '你是一个专业的内容适配专家，能够将内容适配到不同的社交媒体平台。',
+          maxTokens: 2000,
+          temperature: 0.7
         });
 
-        if (aiResponse.ok) {
-          const aiData = await aiResponse.json();
-          let platformContent = '';
-          
-          if (aiData.data && aiData.data.choices && aiData.data.choices[0] && aiData.data.choices[0].message) {
-            platformContent = aiData.data.choices[0].message.content;
-          } else if (aiData.choices && aiData.choices[0] && aiData.choices[0].message) {
-            platformContent = aiData.choices[0].message.content;
-          } else {
-            platformContent = JSON.stringify(aiData);
-          }
-          
+        if (aiResult.success && aiResult.content) {
           // 更新结果
           const currentResults = [...results];
           if (currentResults[resultIndex]) {
-            currentResults[resultIndex].content = platformContent;
+            currentResults[resultIndex].content = aiResult.content;
             currentResults[resultIndex].source = 'ai';
             currentResults[resultIndex].error = undefined;
             currentResults[resultIndex].steps[3].status = 'completed';
@@ -1433,7 +1383,7 @@ export default function AdaptPage() {
           }
           setResults([...currentResults]);
         } else {
-          throw new Error('AI服务调用失败');
+          throw new Error(aiResult.error || 'AI服务调用失败');
         }
       } else {
         throw new Error(response.error || '重新生成失败');
