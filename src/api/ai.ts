@@ -177,10 +177,13 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     }
 
     // 使用统一请求模块发送请求
-    const data = await request.post('/chat/completions', requestBody, {
-      baseURL: apiConfig.openai.baseURL,
+    const data = await request.request({
+      method: 'POST',
+      url: `${apiConfig.openai.baseURL}/chat/completions`,
+      data: requestBody,
       headers: {
         'Authorization': `Bearer ${apiConfig.openai.apiKey}`,
+        'Content-Type': 'application/json',
         ...(userId && { 'X-User-ID': userId })
       }
     });

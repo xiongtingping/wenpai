@@ -3,8 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu,
-  Brain, Eye, EyeOff
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu
 } from "lucide-react";
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
@@ -399,8 +398,6 @@ export default function AdaptPage() {
   const [showComparison, setShowComparison] = useState<Record<string, boolean>>({});
 
   // 多维矩阵提示词系统状态
-  const [showPromptPreview, setShowPromptPreview] = useState(false);
-  const [systemPrompt, setSystemPrompt] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
   const [useBrandLibrary, setUseBrandLibrary] = useState(false);
   const [brandProfile, setBrandProfile] = useState<any>(null);
@@ -823,9 +820,6 @@ export default function AdaptPage() {
             customPrompt,
             useBrandLibrary
           );
-
-          // 更新系统提示词预览
-          setSystemPrompt(matrixPrompt);
 
           // 步骤3: AI生成内容
           updateStep(2, 'loading');
@@ -1402,9 +1396,6 @@ export default function AdaptPage() {
         useBrandLibrary
       );
 
-      // 更新系统提示词预览
-      setSystemPrompt(matrixPrompt);
-
       // 使用统一AI服务重新生成内容
       const aiResult = await callAI({
         prompt: matrixPrompt,
@@ -1750,32 +1741,7 @@ export default function AdaptPage() {
     loadBrandProfile();
   }, [useBrandLibrary]);
 
-  // 实时更新提示词预览
-  useEffect(() => {
-    const updatePromptPreview = async () => {
-      if (originalContent.trim() && selectedPlatforms.length > 0) {
-        try {
-          const previewPrompt = await generateMatrixPrompt(
-            originalContent.trim(),
-            selectedPlatforms[0], // 使用第一个选中的平台作为预览
-            selectedFormId,
-            selectedStyle,
-            platformSettings[selectedPlatforms[0]]?.charCount || getCharCountMax(selectedPlatforms[0]),
-            customPrompt,
-            useBrandLibrary
-          );
-          setSystemPrompt(previewPrompt);
-        } catch (error) {
-          console.error('更新提示词预览失败:', error);
-          setSystemPrompt('提示词预览生成失败，请检查参数设置');
-        }
-      } else {
-        setSystemPrompt('');
-      }
-    };
 
-    updatePromptPreview();
-  }, [originalContent, selectedPlatforms, selectedFormId, selectedStyle, customPrompt, useBrandLibrary, platformSettings]);
 
   // 获取平台特色和差异化要求
   const getPlatformCharacteristics = (platform: string): {
@@ -2145,51 +2111,6 @@ ${dimensions.join('\n\n')}
             </div>
           </div>
 
-          {/* 自定义提示词输入 */}
-          <div className="mt-6 border-t pt-6">
-            <Label htmlFor="custom-prompt" className="text-sm font-medium">
-              自定义提示词（可选）
-            </Label>
-            <Textarea
-              id="custom-prompt"
-              placeholder="在这里添加您的自定义提示词，将与系统提示词结合使用..."
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              className="mt-2 min-h-[80px]"
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              您的自定义提示词将与系统的多维矩阵提示词结合，为AI提供更精确的创作指导。
-            </p>
-          </div>
-
-          {/* 提示词预览区域 */}
-          {systemPrompt && (
-            <div className="mt-6 border-t pt-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-gray-900">AI提示词预览</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPromptPreview(!showPromptPreview)}
-                  className="text-xs"
-                >
-                  {showPromptPreview ? '收起' : '展开'}
-                  <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${showPromptPreview ? 'rotate-180' : ''}`} />
-                </Button>
-              </div>
-              {showPromptPreview && (
-                <div className="bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto">
-                  <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
-                    {systemPrompt}
-                  </pre>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground mt-2">
-                这是AI将使用的完整提示词，包含了您选择的所有参数和设置。您可以在生成前确认提示词内容。
-              </p>
-            </div>
-          )}
-
         </CardContent>
       </Card>
 
@@ -2496,86 +2417,27 @@ ${dimensions.join('\n\n')}
             onFormChange={setSelectedFormId}
             onStyleChange={setSelectedStyle}
           />
-        </CardContent>
-      </Card>
 
-
-
-      {/* Generate Button */}
-      {/* 多维矩阵提示词系统 */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" />
-            多维矩阵提示词系统
-          </CardTitle>
-          <CardDescription>
-            动态组合的AI提示词内容生成系统，提升内容适配的灵活性与个性化程度
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* 用户自定义提示词输入框 */}
-          <div className="space-y-2">
-            <Label htmlFor="custom-prompt" className="text-sm font-medium">
-              用户自定义提示词
+          {/* 简化的自定义提示词输入 */}
+          <div className="mt-6 pt-6 border-t">
+            <Label htmlFor="custom-prompt" className="text-sm font-medium text-gray-700">
+              补充要求（可选）
             </Label>
             <Textarea
               id="custom-prompt"
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="在此添加您的个性化要求，如：特定的表达方式、关键词、语气、风格等..."
-              className="min-h-[100px] resize-none"
+              placeholder="如有特殊要求，请在此补充说明..."
+              className="mt-2 min-h-[60px] text-sm"
             />
-            <p className="text-xs text-muted-foreground">
-              您的自定义要求将在系统提示词基础上进行融合，具有高优先级
-            </p>
-          </div>
-
-          {/* 系统提示词预览 */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">系统提示词预览</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPromptPreview(!showPromptPreview)}
-              >
-                {showPromptPreview ? (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-1" />
-                    隐藏预览
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 mr-1" />
-                    显示预览
-                  </>
-                )}
-              </Button>
-            </div>
-
-            {showPromptPreview && (
-              <div className="border rounded-lg p-4 bg-gray-50 max-h-[400px] overflow-y-auto">
-                {systemPrompt ? (
-                  <pre className="text-xs whitespace-pre-wrap text-gray-700 font-mono">
-                    {systemPrompt}
-                  </pre>
-                ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">系统提示词将在生成时动态构建</p>
-                    <p className="text-xs mt-1">包含品牌维度、平台维度、内容形式、表达风格等多个维度</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <p className="text-xs text-muted-foreground">
-              系统将根据您的选择动态构建多维度提示词，确保内容个性化且具有差异化特色
+            <p className="text-xs text-gray-500 mt-1">
+              补充的要求将融入AI生成过程中
             </p>
           </div>
         </CardContent>
       </Card>
+
+      {/* Generate Button */}
 
       <div className="flex justify-center mb-12">
         <Button
