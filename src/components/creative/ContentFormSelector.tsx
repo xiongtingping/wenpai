@@ -79,12 +79,7 @@ export function ContentFormSelector({
     <div className={className}>
       {/* 内容形式选择区域 */}
       <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-gray-600" />
-            <h3 className="text-lg font-semibold">内容形式与表达风格</h3>
-          </div>
-          
+        <div className="flex items-center justify-end">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -132,13 +127,18 @@ export function ContentFormSelector({
           </Dialog>
         </div>
 
-        {/* 内容形式选择 - 可折叠 */}
+        {/* 内容形式选择 */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            内容形式
+          </h4>
+
         <Collapsible open={isContentFormOpen} onOpenChange={setIsContentFormOpen}>
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                <span>内容形式</span>
+                <span>选择内容形式</span>
                 {selectedForm && (
                   <Badge variant="secondary" className="ml-2">
                     {selectedForm.name}
@@ -206,13 +206,20 @@ export function ContentFormSelector({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* 表达风格选择 - 可折叠 */}
+        </div>
+
+        {/* 表达风格选择 */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <Heart className="h-4 w-4" />
+            表达风格
+          </h4>
+
         <Collapsible open={isStyleOpen} onOpenChange={setIsStyleOpen}>
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                <span>表达风格</span>
+                <span>选择表达风格</span>
                 <Badge variant="secondary" className="ml-2">
                   {availableStyles.find(s => s.id === selectedStyle)?.name}
                 </Badge>
@@ -252,6 +259,7 @@ export function ContentFormSelector({
             </div>
           </CollapsibleContent>
         </Collapsible>
+        </div>
 
         {/* 自定义提示词输入 */}
         <div className="mt-6 pt-6 border-t">

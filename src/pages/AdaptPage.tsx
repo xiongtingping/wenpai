@@ -2024,38 +2024,29 @@ ${dimensions.join('\n\n')}
 
       <div className="container mx-auto py-6 px-4">
 
-      {/* Usage Counter */}
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-lg font-medium mb-2">内容创作</h2>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">剩余次数:</span>
-                <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
-                  {usageRemaining}
-                </Badge>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>每次多平台内容生成消耗1次使用额度</p>
-              <p>每月自动获得20次免费使用机会</p>
-              <p>通过邀请好友可获得额外使用次数</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
       {/* Content Creation Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-6">内容创作</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">输入原始内容</h1>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">剩余次数:</span>
+                  <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
+                    {usageRemaining}
+                  </Badge>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>每次多平台内容生成消耗1次使用额度</p>
+                <p>每月自动获得20次免费使用机会</p>
+                <p>通过邀请好友可获得额外使用次数</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">输入原始内容</CardTitle>
-            <CardDescription>
-              请输入您想要进行多平台适配的原始内容
-            </CardDescription>
-          </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <MentionTextarea
@@ -2119,7 +2110,7 @@ ${dimensions.join('\n\n')}
 
       {/* Platform Selection Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-6">选择目标平台</h2>
+        <h1 className="text-2xl font-bold mb-6">选择目标平台</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
           {platforms.map(platform => (
             <CheckboxCard
@@ -2140,7 +2131,7 @@ ${dimensions.join('\n\n')}
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <Settings className="h-4 w-4" />
-                  <CardTitle className="text-base">平台设置</CardTitle>
+                  <h3 className="text-lg font-semibold">平台设置</h3>
                   <Badge variant="secondary" className="text-xs">
                     {selectedPlatforms.length}个平台
                   </Badge>
@@ -2235,86 +2226,7 @@ ${dimensions.join('\n\n')}
                     </div>
                   </div>
 
-                  {/* AI模型选择 */}
-                  <div className="border-b pb-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">AI模型选择</h4>
-                    <p className="text-xs text-gray-500 mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {allModels.map((model) => {
-                        const isAvailable = availableModels.some(m => m.id === model.id);
-                        let disabled = !isAvailable;
-                        let badge = '';
-                        let showUpgradeTip = false;
-
-                        if (model.id === 'gpt-4o' && userPlan === 'trial') {
-                          badge = '专业版/高级版专属';
-                          showUpgradeTip = true;
-                        }
-
-                        return (
-                          <div
-                            key={model.id}
-                            className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
-                              selectedModel === model.id
-                                ? 'border-blue-500 bg-blue-50'
-                                : disabled
-                                ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
-                                : 'border-gray-200 hover:border-blue-300'
-                            }`}
-                            onClick={() => handleModelSelect(model.id, disabled)}
-                          >
-                            <div className="flex items-start space-x-2">
-                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                                selectedModel === model.id
-                                  ? 'border-blue-500 bg-blue-500'
-                                  : 'border-gray-300'
-                              }`}>
-                                {selectedModel === model.id && (
-                                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 mb-1">
-                                  <span className="font-medium text-blue-600 text-sm">{model.name}</span>
-                                  {badge && (
-                                    <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
-                                  )}
-                                </div>
-                                <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
-                                {showUpgradeTip && (
-                                  <div
-                                    className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 cursor-pointer hover:bg-yellow-100 transition-colors"
-                                    onClick={handleUpgradeClick}
-                                  >
-                                    <span className="mr-1">🔒</span>
-                                    去解锁高级功能
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {selectedModel && (
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        <p className="font-medium">当前选择：{getModelInfo(selectedModel)?.name}</p>
-                        <p>{getModelInfo(selectedModel)?.description}</p>
-                      </div>
-                    )}
-
-                    {/* 开发环境订阅等级切换 */}
-                    {import.meta.env.DEV && (
-                      <div className="mt-3 flex gap-2 items-center">
-                        <span className="text-xs text-gray-500">开发环境订阅等级：</span>
-                        <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
-                        <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
-                        <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
-                      </div>
-                    )}
-                  </div>
 
                   {/* 平台特定设置 */}
                   <div>
@@ -2407,7 +2319,7 @@ ${dimensions.join('\n\n')}
         {/* Content Form Selection */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">内容形式与表达风格</CardTitle>
+            <h3 className="text-lg font-semibold mb-2">内容形式与表达风格</h3>
             <CardDescription>
               选择不同的内容形式和表达风格来获得最佳的内容生成效果
             </CardDescription>
@@ -2448,6 +2360,92 @@ ${dimensions.join('\n\n')}
         </CardContent>
       </Card>
 
+      {/* AI模型选择 */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+            <Cpu className="h-4 w-4" />
+            AI模型选择
+          </h4>
+          <p className="text-xs text-gray-500 mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {allModels.map((model) => {
+              const isAvailable = availableModels.some(m => m.id === model.id);
+              let disabled = !isAvailable;
+              let badge = '';
+              let showUpgradeTip = false;
+
+              if (model.id === 'gpt-4o' && userPlan === 'trial') {
+                badge = '专业版/高级版专属';
+                showUpgradeTip = true;
+              }
+
+              return (
+                <div
+                  key={model.id}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
+                    selectedModel === model.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : disabled
+                      ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
+                      : 'border-gray-200 hover:border-blue-300'
+                  }`}
+                  onClick={() => handleModelSelect(model.id, disabled)}
+                >
+                  <div className="flex items-start space-x-2">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      selectedModel === model.id
+                        ? 'border-blue-500 bg-blue-500'
+                        : 'border-gray-300'
+                    }`}>
+                      {selectedModel === model.id && (
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="font-medium text-blue-600 text-sm">{model.name}</span>
+                        {badge && (
+                          <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
+                      {showUpgradeTip && (
+                        <div
+                          className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 cursor-pointer hover:bg-yellow-100 transition-colors"
+                          onClick={handleUpgradeClick}
+                        >
+                          <span className="mr-1">🔒</span>
+                          去解锁高级功能
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {selectedModel && (
+            <div className="mt-2 text-xs text-muted-foreground">
+              <p className="font-medium">当前选择：{getModelInfo(selectedModel)?.name}</p>
+              <p>{getModelInfo(selectedModel)?.description}</p>
+            </div>
+          )}
+
+          {/* 开发环境订阅等级切换 */}
+          {import.meta.env.DEV && (
+            <div className="mt-3 flex gap-2 items-center">
+              <span className="text-xs text-gray-500">开发环境订阅等级：</span>
+              <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
+              <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
+              <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Generate Button */}
 
       <div className="flex justify-center mb-12">
@@ -2475,7 +2473,7 @@ ${dimensions.join('\n\n')}
       {results.length > 0 && (
         <div className="mt-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold">平台适配结果</h2>
+            <h1 className="text-2xl font-bold">平台适配结果</h1>
             <Button
               size="lg"
               variant="default"
