@@ -226,6 +226,7 @@ interface PlatformResult {
   charCount?: number;
   targetCharCount?: number;
   versions?: ContentVersion[];
+  canRetry?: boolean;
 }
 
 // Platform settings
@@ -920,10 +921,10 @@ export default function AdaptPage() {
           platformId,
           content: '',
           steps: [
-            { status: 'waiting', message: '等待生成...' },
-            { status: 'waiting', message: '构建提示词...' },
-            { status: 'waiting', message: '调用AI服务...' },
-            { status: 'waiting', message: '处理响应...' }
+            { status: 'waiting', message: '🔄 正在准备生成...' },
+            { status: 'waiting', message: '🧠 构建多维提示词...' },
+            { status: 'waiting', message: '🤖 调用AI服务生成内容...' },
+            { status: 'waiting', message: '⚡ 处理生成结果...' }
           ]
         };
         
@@ -941,10 +942,10 @@ export default function AdaptPage() {
         try {
           // 步骤1: 开始生成
           updateStep(0, 'loading');
-          
+
           // 步骤2: 构建提示词
           updateStep(1, 'loading');
-          
+
           // 使用多维矩阵提示词系统生成内容
           const matrixPrompt = await generateMatrixPrompt(
             originalContent.trim(),
@@ -959,8 +960,16 @@ export default function AdaptPage() {
           // 步骤3: AI生成内容
           updateStep(2, 'loading');
 
-          // 生成多个版本的内容
-          const versions = await generateMultipleVersions(matrixPrompt, platformId);
+          // 添加30秒超时处理
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('生成超时，请重试')), 30000);
+          });
+
+          // 生成多个版本的内容（带超时）
+          const versions = await Promise.race([
+            generateMultipleVersions(matrixPrompt, platformId),
+            timeoutPromise
+          ]) as any;
 
           if (versions.length > 0) {
               // 更新结果，包含多个版本
@@ -971,7 +980,9 @@ export default function AdaptPage() {
                 updatedResults[resultIndex].content = versions[0].content; // 默认显示第一个版本
                 updatedResults[resultIndex].source = 'ai';
                 updatedResults[resultIndex].steps[3].status = 'completed';
-                updatedResults[resultIndex].steps[3].message = `已生成${versions.length}个不同风格版本`;
+                updatedResults[resultIndex].steps[3].message = versions.length > 1
+                  ? `✓ 已生成${versions.length}个不同风格版本`
+                  : '✓ 内容生成完成';
                 // 添加字符数信息
                 updatedResults[resultIndex].charCount = versions[0].content.length;
                 updatedResults[resultIndex].targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
@@ -983,16 +994,38 @@ export default function AdaptPage() {
           }
         } catch (error) {
           console.error(`生成 ${platformId} 内容失败:`, error);
-          
+
           const updatedResults = [...newResults];
           const resultIndex = updatedResults.findIndex(r => r.platformId === platformId);
           if (resultIndex !== -1) {
-            updatedResults[resultIndex].error = error instanceof Error ? error.message : '生成失败';
-            updatedResults[resultIndex].steps.forEach(step => {
+            // 提供用户友好的错误信息
+            let userFriendlyError = '生成失败，请重试';
+            const errorMessage = error instanceof Error ? error.message : String(error);
+
+            if (errorMessage.includes('超时')) {
+              userFriendlyError = '⏰ 生成超时，请检查网络后重试';
+            } else if (errorMessage.includes('API') || errorMessage.includes('401') || errorMessage.includes('403')) {
+              userFriendlyError = '🔑 AI服务认证失败，请联系管理员';
+            } else if (errorMessage.includes('429')) {
+              userFriendlyError = '🚦 请求过于频繁，请稍后重试';
+            } else if (errorMessage.includes('网络') || errorMessage.includes('network')) {
+              userFriendlyError = '🌐 网络连接失败，请检查网络设置';
+            }
+
+            updatedResults[resultIndex].error = userFriendlyError;
+            updatedResults[resultIndex].steps.forEach((step, stepIndex) => {
               if (step.status === 'loading') {
                 step.status = 'error';
+                // 更新错误状态的消息
+                if (stepIndex === 0) step.message = '❌ 准备生成失败';
+                else if (stepIndex === 1) step.message = '❌ 构建提示词失败';
+                else if (stepIndex === 2) step.message = '❌ AI服务调用失败';
+                else if (stepIndex === 3) step.message = '❌ 处理结果失败';
               }
             });
+
+            // 添加重试按钮数据
+            updatedResults[resultIndex].canRetry = true;
           }
           setResults([...updatedResults]);
         }
@@ -2687,8 +2720,8 @@ ${dimensions.join('\n\n')}
         </CardContent>
       </Card>
 
-      {/* AI模型说明 */}
-      {selectedModelDescription && (
+      {/* AI模型说明 - DeepSeek模型时隐藏 */}
+      {selectedModelDescription && !selectedModel.includes('deepseek') && (
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="space-y-3">

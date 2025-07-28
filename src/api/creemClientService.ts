@@ -4,22 +4,31 @@
  */
 
 import QRCode from "qrcode";
+import { createCreemCheckout as directCreateCheckout } from "./creemService";
 
 /**
  * 获取API端点
  * 根据环境自动选择正确的API端点
  */
 export function getAPIEndpoint(): string {
+  // 检查是否有自定义的API端点配置
+  const customEndpoint = import.meta.env.VITE_CREEM_API_ENDPOINT;
+  if (customEndpoint) {
+    console.log('🔧 使用自定义Creem API端点:', customEndpoint);
+    return customEndpoint;
+  }
+
+  // 开发环境：优先尝试直接使用Creem服务
+  if (import.meta.env.DEV) {
+    console.log('🔧 开发环境：使用直接Creem服务调用');
+    return '/api/creem/direct'; // 使用直接调用方式
+  }
+
   // 生产环境使用Netlify Functions
   if (import.meta.env.PROD) {
     return '/.netlify/functions/checkout';
   }
-  
-  // 开发环境使用本地Netlify Functions
-  if (import.meta.env.DEV) {
-    return 'http://localhost:8888/.netlify/functions/checkout';
-  }
-  
+
   // 默认使用相对路径（适用于大多数部署环境）
   return '/.netlify/functions/checkout';
 }
@@ -40,7 +49,12 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
     const apiEndpoint = getAPIEndpoint();
     console.log('使用API端点:', apiEndpoint);
 
-    // 调用后端API创建支付检查点
+    // 开发环境：直接使用Creem服务
+    if (import.meta.env.DEV && apiEndpoint === '/api/creem/direct') {
+      return await createDirectCreemCheckout(priceId, customerEmail);
+    }
+
+    // 生产环境：调用后端API创建支付检查点
     const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
@@ -230,4 +244,53 @@ export async function redirectToCheckout(priceId: string, customerEmail?: string
     console.log('跳转到支付页面失败，请稍后重试');
     throw error;
   }
-} 
+}
+
+/**
+ * 开发环境直接调用Creem服务
+ * @param priceId 价格ID
+ * @param customerEmail 客户邮箱（可选）
+ * @returns 支付检查点信息
+ */
+async function createDirectCreemCheckout(priceId: string, customerEmail?: string) {
+  try {
+    console.log('🔧 开发环境：直接调用Creem服务');
+
+    // 检查API密钥配置
+    const apiKey = import.meta.env.VITE_CREEM_API_KEY;
+    if (!apiKey || apiKey.includes('your-')) {
+      throw new Error('Creem API密钥未正确配置，请在.env.local文件中设置VITE_CREEM_API_KEY');
+    }
+
+    // 直接调用Creem服务
+    const result = await directCreateCheckout(priceId, customerEmail);
+
+    if (!result.success) {
+      throw new Error(result.error || '创建支付检查点失败');
+    }
+
+    // 转换为统一格式
+    return {
+      success: true,
+      checkout: result.checkout,
+      url: result.url,
+      qrCodeUrl: result.url,
+      price: result.checkout?.amount ? (typeof result.checkout.amount === 'number' ? result.checkout.amount / 100 : parseFloat(result.checkout.amount) / 100) : null
+    };
+  } catch (error: any) {
+    console.error('直接调用Creem服务失败:', error);
+
+    // 提供用户友好的错误信息
+    let userFriendlyError = '支付服务暂时不可用，请稍后重试';
+
+    if (error.message.includes('API密钥')) {
+      userFriendlyError = '支付配置错误，请联系管理员';
+    } else if (error.message.includes('网络')) {
+      userFriendlyError = '网络连接失败，请检查网络设置';
+    } else if (error.message.includes('产品')) {
+      userFriendlyError = '商品信息错误，请重新选择套餐';
+    }
+
+    throw new Error(userFriendlyError);
+  }
+}

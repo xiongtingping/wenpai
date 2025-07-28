@@ -48,6 +48,12 @@ export interface AICallParams {
   userId?: string;
   /** 额外参数 */
   extraParams?: Record<string, any>;
+  /** 重新生成种子值，确保每次生成不同 */
+  regenerationSeed?: string;
+  /** 变化程度：轻微/中等/显著 */
+  variationLevel?: 'slight' | 'moderate' | 'significant';
+  /** 风格变化选项 */
+  styleVariation?: 'tone' | 'structure' | 'vocabulary' | 'approach';
 }
 
 /**
@@ -146,27 +152,74 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     systemPrompt,
     stream = false,
     userId,
-    extraParams = {}
+    extraParams = {},
+    regenerationSeed,
+    variationLevel,
+    styleVariation
   } = params;
+
+  // 声明变量在函数顶层，确保在catch块中可访问
+  let selectedConfig: { baseURL: string; apiKey: string } = { baseURL: '', apiKey: '' };
+  let apiProvider: string = 'Unknown';
 
   try {
     // 获取API配置
     const apiConfig = getAPIConfig();
 
-    // 验证配置
-    if (!apiConfig.openai.apiKey || apiConfig.openai.apiKey.includes('{{') || apiConfig.openai.apiKey.includes('your-')) {
-      throw new Error('OpenAI API密钥未正确配置，请在.env.local文件中设置VITE_OPENAI_API_KEY');
+    // 根据模型选择对应的API配置
+    if (model.includes('deepseek')) {
+      selectedConfig = apiConfig.deepseek;
+      apiProvider = 'DeepSeek';
+      if (!selectedConfig.apiKey || selectedConfig.apiKey.includes('your-')) {
+        throw new Error('DeepSeek API密钥未正确配置，请在.env.local文件中设置VITE_DEEPSEEK_API_KEY');
+      }
+    } else if (model.includes('gemini')) {
+      selectedConfig = apiConfig.gemini;
+      apiProvider = 'Gemini';
+      if (!selectedConfig.apiKey || selectedConfig.apiKey.includes('your-')) {
+        throw new Error('Gemini API密钥未正确配置，请在.env.local文件中设置VITE_GEMINI_API_KEY');
+      }
+    } else {
+      // 默认使用OpenAI
+      selectedConfig = apiConfig.openai;
+      apiProvider = 'OpenAI';
+      if (!selectedConfig.apiKey || selectedConfig.apiKey.includes('{{') || selectedConfig.apiKey.includes('your-')) {
+        throw new Error('OpenAI API密钥未正确配置，请在.env.local文件中设置VITE_OPENAI_API_KEY');
+      }
+    }
+
+    console.log(`🤖 使用${apiProvider} API: ${selectedConfig.baseURL}`);
+
+    // 处理差异化参数，生成变化的提示词
+    let enhancedPrompt = prompt;
+    let enhancedSystemPrompt = systemPrompt;
+    let adjustedTemperature = temperature;
+
+    if (regenerationSeed || variationLevel || styleVariation) {
+      const { prompt: newPrompt, systemPrompt: newSystemPrompt, temperature: newTemperature } =
+        generateVariationPrompt(prompt, systemPrompt, {
+          regenerationSeed,
+          variationLevel,
+          styleVariation,
+          baseTemperature: temperature
+        });
+
+      enhancedPrompt = newPrompt;
+      enhancedSystemPrompt = newSystemPrompt;
+      adjustedTemperature = newTemperature;
+
+      console.log(`🔄 应用差异化策略: ${variationLevel || 'default'}, 风格变化: ${styleVariation || 'none'}`);
     }
 
     // 构建请求体
     const requestBody: any = {
       model: getModelMapping(model),
       messages: [
-        ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
-        { role: 'user', content: prompt }
+        ...(enhancedSystemPrompt ? [{ role: 'system', content: enhancedSystemPrompt }] : []),
+        { role: 'user', content: enhancedPrompt }
       ],
       max_tokens: maxTokens,
-      temperature,
+      temperature: adjustedTemperature,
       stream,
       ...extraParams
     };
@@ -179,10 +232,10 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     // 使用统一请求模块发送请求
     const data = await request.request({
       method: 'POST',
-      url: `${apiConfig.openai.baseURL}/chat/completions`,
+      url: `${selectedConfig.baseURL}/chat/completions`,
       data: requestBody,
       headers: {
-        'Authorization': `Bearer ${apiConfig.openai.apiKey}`,
+        'Authorization': `Bearer ${selectedConfig.apiKey}`,
         'Content-Type': 'application/json',
         ...(userId && { 'X-User-ID': userId })
       }
@@ -207,13 +260,42 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
 
   } catch (error) {
     console.error('AI API调用失败:', error);
-    
+
+    // 详细的错误分析和用户友好提示
+    let userFriendlyError = '未知错误';
+    const technicalError = error instanceof Error ? error.message : String(error);
+
+    if (technicalError.includes('404')) {
+      userFriendlyError = `${apiProvider || 'AI'} API端点不存在，请检查配置`;
+      console.error(`🚨 API端点错误: ${selectedConfig?.baseURL || 'unknown'}/chat/completions`);
+    } else if (technicalError.includes('401') || technicalError.includes('403')) {
+      userFriendlyError = `${apiProvider || 'AI'} API密钥无效或权限不足`;
+      console.error(`🚨 认证错误: API密钥可能无效`);
+    } else if (technicalError.includes('429')) {
+      userFriendlyError = `${apiProvider || 'AI'} API调用频率超限，请稍后重试`;
+    } else if (technicalError.includes('500') || technicalError.includes('502') || technicalError.includes('503')) {
+      userFriendlyError = `${apiProvider || 'AI'} 服务暂时不可用，请稍后重试`;
+    } else if (technicalError.includes('timeout') || technicalError.includes('TIMEOUT')) {
+      userFriendlyError = `${apiProvider || 'AI'} API调用超时，请检查网络连接`;
+    } else if (technicalError.includes('network') || technicalError.includes('NETWORK')) {
+      userFriendlyError = '网络连接失败，请检查网络设置';
+    }
+
+    // 记录详细错误信息用于调试
+    console.error(`🔍 详细错误信息:`, {
+      provider: apiProvider,
+      model,
+      endpoint: selectedConfig?.baseURL,
+      error: technicalError,
+      timestamp: new Date().toISOString()
+    });
+
     return {
       content: '',
       model,
       responseTime: Date.now() - startTime,
       success: false,
-      error: error instanceof Error ? error.message : '未知错误'
+      error: userFriendlyError
     };
   }
 }
@@ -529,4 +611,103 @@ export function estimateAICost(prompt: string, model: AIModel = 'gpt-4'): number
   
   const cost = costPer1kTokens[model] || 0.01;
   return (promptTokens + completionTokens) * cost / 1000;
-} 
+}
+
+/**
+ * 生成差异化提示词
+ * 确保重新生成的内容与之前的内容有明显差异
+ */
+function generateVariationPrompt(
+  originalPrompt: string,
+  originalSystemPrompt?: string,
+  options: {
+    regenerationSeed?: string;
+    variationLevel?: 'slight' | 'moderate' | 'significant';
+    styleVariation?: 'tone' | 'structure' | 'vocabulary' | 'approach';
+    baseTemperature?: number;
+  } = {}
+): { prompt: string; systemPrompt?: string; temperature: number } {
+  const {
+    regenerationSeed,
+    variationLevel = 'moderate',
+    styleVariation = 'tone',
+    baseTemperature = 0.7
+  } = options;
+
+  // 根据变化程度调整温度
+  const temperatureAdjustments = {
+    slight: 0.1,
+    moderate: 0.2,
+    significant: 0.3
+  };
+
+  const adjustedTemperature = Math.min(1.0, baseTemperature + temperatureAdjustments[variationLevel]);
+
+  // 生成差异化指令
+  const variationInstructions = generateVariationInstructions(variationLevel, styleVariation);
+
+  // 添加随机种子以确保差异
+  const seedInstruction = regenerationSeed
+    ? `\n\n【差异化要求】这是第${regenerationSeed}次生成，请确保与之前的版本有明显差异。`
+    : `\n\n【差异化要求】请生成与常规版本不同的内容变体。`;
+
+  // 构建增强的提示词
+  const enhancedPrompt = `${originalPrompt}${seedInstruction}\n\n${variationInstructions}`;
+
+  // 构建增强的系统提示词
+  const systemVariationPrompt = getSystemVariationPrompt(styleVariation);
+  const enhancedSystemPrompt = originalSystemPrompt
+    ? `${originalSystemPrompt}\n\n${systemVariationPrompt}`
+    : systemVariationPrompt;
+
+  return {
+    prompt: enhancedPrompt,
+    systemPrompt: enhancedSystemPrompt,
+    temperature: adjustedTemperature
+  };
+}
+
+/**
+ * 生成变化指令
+ */
+function generateVariationInstructions(
+  variationLevel: 'slight' | 'moderate' | 'significant',
+  styleVariation: 'tone' | 'structure' | 'vocabulary' | 'approach'
+): string {
+  const instructions = {
+    slight: {
+      tone: '请在保持核心内容不变的基础上，微调语气和表达方式。',
+      structure: '请保持主要结构，但调整段落顺序或小标题表述。',
+      vocabulary: '请使用同义词替换部分词汇，保持语义一致。',
+      approach: '请从稍微不同的角度阐述相同观点。'
+    },
+    moderate: {
+      tone: '请采用不同的语气风格（如更正式/更轻松/更专业），重新表达内容。',
+      structure: '请重新组织内容结构，采用不同的逻辑顺序或分段方式。',
+      vocabulary: '请使用更丰富的词汇表达，避免重复用词。',
+      approach: '请从不同的角度或层面来阐述主题。'
+    },
+    significant: {
+      tone: '请完全改变表达风格和语气，如从学术风格改为通俗风格，或反之。',
+      structure: '请采用全新的内容组织方式，如从列表改为叙述，或从问答改为分析。',
+      vocabulary: '请使用完全不同的词汇体系和表达方式。',
+      approach: '请从全新的视角和方法来处理这个主题。'
+    }
+  };
+
+  return `【变化要求】${instructions[variationLevel][styleVariation]}`;
+}
+
+/**
+ * 获取系统级变化提示
+ */
+function getSystemVariationPrompt(styleVariation: 'tone' | 'structure' | 'vocabulary' | 'approach'): string {
+  const systemPrompts = {
+    tone: '注意：请特别关注语气和情感色彩的变化，确保与之前的版本有明显的风格差异。',
+    structure: '注意：请重点关注内容的组织结构和逻辑顺序，采用不同的表述框架。',
+    vocabulary: '注意：请注重词汇选择的多样性，使用丰富的同义词和表达方式。',
+    approach: '注意：请从不同的思维角度和方法论来处理内容，提供新的视角。'
+  };
+
+  return systemPrompts[styleVariation];
+}
