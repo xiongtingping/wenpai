@@ -158,14 +158,11 @@ function getGuardInstance() {
       host: config.host,
       redirectUri: config.redirectUri,
       mode: 'modal',
-      // ✅ FIXED: 2025-01-27 修复aria-hidden焦点冲突问题
-      autoFocus: true,  // 修复：启用自动焦点管理
+      // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
+      autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
-      maskCloseable: true,
-      // 添加更多accessibility配置
-      isSSL: true,
-      lang: 'zh-CN'
+      maskCloseable: true
     });
 
     console.log('✅ Authing Guard实例初始化成功');

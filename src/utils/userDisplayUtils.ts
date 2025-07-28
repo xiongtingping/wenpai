@@ -198,7 +198,7 @@ export function formatUserForDisplay(user?: UserInfo | null) {
  * @param action 操作描述
  * @returns 安全的aria-label文本
  */
-export function getUserAriaLabel(user?: UserInfo | null, element: string, action: string): string {
+export function getUserAriaLabel(user: UserInfo | null | undefined, element: string, action: string): string {
   const displayName = getUserDisplayName(user, '用户');
   return `${displayName}的${element}，${action}`;
 }

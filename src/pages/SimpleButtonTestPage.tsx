@@ -3,6 +3,7 @@ import { useUnifiedAuth } from "../contexts/UnifiedAuthContext";
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Alert, AlertDescription } from '../components/ui/alert';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * 简化按钮测试页面
@@ -74,7 +75,7 @@ const SimpleButtonTestPage: React.FC = () => {
                   <strong>认证状态:</strong> {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}
                   {user && (
                     <span className="ml-2">
-                      | <strong>用户:</strong> {user.nickname || user.username || user.email}
+                      | <strong>用户:</strong> {getUserDisplayName(user, '未知用户')}
                     </span>
                   )}
                 </AlertDescription>

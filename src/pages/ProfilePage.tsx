@@ -47,7 +47,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
+import { getUserDisplayName, getUserAvatar as getUtilUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 
 /**
  * 个人中心页面组件
@@ -63,7 +63,7 @@ export default function ProfilePage() {
     nickname: getUserDisplayName(user, ''),
     phone: user?.phone || '',
     email: user?.email || '',
-    avatar: getUserAvatar(user)
+    avatar: getUtilUserAvatar(user)
   });
 
   // 模拟用户数据
@@ -244,7 +244,7 @@ export default function ProfilePage() {
                   <div className="relative inline-block">
                     {/* ✅ FIXED: 头像显示 - 使用安全的用户信息获取函数 */}
                     <Avatar className="w-24 h-24 border-4 border-white/20">
-                      <AvatarImage src={getUserAvatar(user)} alt={getUserAltText(user, '头像')} />
+                      <AvatarImage src={getUtilUserAvatar(user)} alt={getUserAltText(user, '头像')} />
                       <AvatarFallback className="text-2xl bg-white/20 text-white">
                         {getUserAvatarFallback(user)}
                       </AvatarFallback>

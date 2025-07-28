@@ -11,6 +11,7 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { useAuthStore } from '@/store/authStore';
 import { EnvChecker } from '@/utils/envChecker';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { 
   CheckCircle, 
   XCircle, 
@@ -173,7 +174,7 @@ const FunctionalityTestPage: React.FC = () => {
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">用户名</span>
-                    <span className="text-sm text-muted-foreground">{user.nickname || user.username}</span>
+                    <span className="text-sm text-muted-foreground">{getUserDisplayName(user, '未知用户')}</span>
                   </div>
                 </>
               )}

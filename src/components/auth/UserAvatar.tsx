@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogIn, LogOut, User, Settings, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 
 /**
  * 用户头像组件属性
@@ -49,17 +50,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     lg: 'h-12 w-12'
   };
 
-  // 获取用户头像
-  const getAvatarFallback = () => {
-    if (!user) return '?';
-    return user.nickname?.charAt(0)?.toUpperCase() || user.username?.charAt(0)?.toUpperCase() || 'U';
-  };
-
-  // 获取用户显示名称
-  const getDisplayName = () => {
-    if (!user) return '';
-    return user.nickname || user.username || '用户';
-  };
+  // ✅ FIXED: 使用安全的用户信息获取函数
+  // 📌 修复问题：防止 "undefinedundefined" 字符串拼接
+  // 🔒 LOCKED: 已封装稳定，请勿改动
 
   // 处理登出
   const handleLogout = async () => {
@@ -105,7 +98,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     <div className={`flex items-center gap-2 ${className}`}>
       {showUsername && (
         <span className="text-sm text-gray-700 hidden sm:block">
-          {getDisplayName()}
+          {getUserDisplayName(user, '用户')}
         </span>
       )}
       
@@ -113,12 +106,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-auto p-0">
             <Avatar className={sizeClasses[size]}>
-              <AvatarImage 
-                src={user?.avatar} 
-                alt={getDisplayName()}
+              <AvatarImage
+                src={getUserAvatar(user)}
+                alt={getUserDisplayName(user, '用户头像')}
               />
               <AvatarFallback className="bg-blue-100 text-blue-600">
-                {getAvatarFallback()}
+                {getUserAvatarFallback(user)}
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -128,10 +121,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {getDisplayName()}
+                {getUserDisplayName(user, '用户')}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {user?.email}
+                {user?.email || ''}
               </p>
             </div>
           </DropdownMenuLabel>

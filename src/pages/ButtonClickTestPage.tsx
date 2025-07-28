@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 interface TestButton {
   name: string;
@@ -60,7 +61,7 @@ export default function ButtonClickTestPage() {
                 </Badge>
                 {user && (
                   <span className="text-sm text-gray-600">
-                    用户: {user.nickname || user.username || user.email || user.id}
+                    用户: {getUserDisplayName(user, '未知用户')}
                   </span>
                 )}
               </div>

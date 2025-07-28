@@ -19,6 +19,7 @@ import { useUnifiedAuth } from '@/hooks/useUnifiedAuth';
 import { useAuthing } from '@/hooks/useAuthing';
 import { useToast } from '@/hooks/use-toast';
 import { securityUtils } from '@/lib/security';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 
 /**
@@ -116,7 +117,7 @@ export default function AuthModal({
               <div>
                 <h3 className="text-lg font-medium">欢迎回来！</h3>
                 <p className="text-sm text-muted-foreground">
-                  {user.nickname || user.username || user.email}
+                  {getUserDisplayName(user, '用户')}
                 </p>
               </div>
               <Button 

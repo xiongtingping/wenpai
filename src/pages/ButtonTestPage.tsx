@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * 按钮测试页面
@@ -55,7 +56,7 @@ const ButtonTestPage: React.FC = () => {
                   </p>
                   {user && (
                     <p className="text-sm text-blue-600">
-                      用户: {user.nickname || user.username || user.email || user.id}
+                      用户: {getUserDisplayName(user, '未知用户')}
                     </p>
                   )}
                 </div>
