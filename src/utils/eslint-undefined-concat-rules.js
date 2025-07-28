@@ -1,6 +1,6 @@
 /**
  * 🔒 ESLint自定义规则：防止undefined字符串拼接
- * 
+ *
  * 🎯 目标：自动检测可能导致"undefinedundefined"的代码模式
  * 📋 检测范围：
  * 1. user?.property || user?.property 模式
@@ -9,7 +9,11 @@
  * 4. JSX中的用户属性直接渲染
  */
 
-module.exports = {
+const plugin = {
+  meta: {
+    name: 'undefined-concat-prevention',
+    version: '1.0.0'
+  },
   rules: {
     /**
      * 禁止不安全的用户属性拼接
@@ -172,6 +176,8 @@ module.exports = {
     }
   }
 };
+
+module.exports = plugin;
 
 /**
  * 使用方法：

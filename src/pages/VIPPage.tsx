@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
+import { getUserUsername } from '@/utils/userDisplayUtils';
 import { 
   Crown, 
   Star, 
@@ -146,7 +147,7 @@ const VIPPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">用户名</span>
-                  <span className="text-sm">{user.username || '未设置'}</span>
+                  <span className="text-sm">{getUserUsername(user, '未设置')}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between">

@@ -40,8 +40,20 @@ export interface UserInfo {
  */
 export function getUserDisplayName(user?: UserInfo | null, fallback: string = '访客'): string {
   if (!user) return fallback;
-  
-  return user.nickname || user.username || user.email || fallback;
+
+  const result = user.nickname || user.username || user.email || fallback;
+
+  // 运行时检查：警告可能的undefined拼接
+  if (import.meta.env.DEV && (result === 'undefined' || result.includes('undefined'))) {
+    console.warn('⚠️ 检测到可能的undefined拼接问题:', {
+      user,
+      result,
+      fallback,
+      stack: new Error().stack
+    });
+  }
+
+  return result;
 }
 
 /**

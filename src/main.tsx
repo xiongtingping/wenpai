@@ -11,6 +11,11 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 
+// 启用undefined拼接检测器（仅开发环境）
+if (import.meta.env.DEV) {
+  import('./utils/undefinedConcatDetector');
+}
+
 // ✅ FIXED: 2025-07-25 React Router Future Flag配置已封装
 // 🐛 问题原因：React Router v6向v7迁移警告影响开发体验
 // 🔧 修复方式：添加future flags提前适配v7特性

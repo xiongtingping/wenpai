@@ -136,7 +136,9 @@ export default function ProfilePage() {
     if (profileForm.avatar) {
       return profileForm.avatar;
     }
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${profileForm.nickname || user.username}`;
+    // 使用安全的显示名称生成头像种子
+    const safeName = profileForm.nickname || getUserDisplayName(user, 'User');
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${safeName}`;
   };
 
   /**

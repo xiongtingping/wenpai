@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Shield, Lock, CheckCircle, XCircle } from 'lucide-react';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 const PermissionSystemTestPage: React.FC = () => {
   const { user, isAuthenticated, login, logout } = useUnifiedAuth();
@@ -62,7 +63,26 @@ const PermissionSystemTestPage: React.FC = () => {
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between"><span>认证状态:</span><Badge variant={isAuthenticated ? "default" : "secondary"}>{isAuthenticated ? "已登录" : "未登录"}</Badge></div>
-                    {user && (<><div className="flex items-center justify-between"><span>用户ID:</span><span className="text-sm font-mono">{user.id}</span></div><div className="flex items-center justify-between"><span>昵称:</span><span>{user.nickname || '未设置'}</span></div><div className="flex items-center justify-between"><span>角色:</span><span className="text-sm">{user.roles?.join(', ') || '无'}</span></div><div className="flex items-center justify-between"><span>权限:</span><span className="text-sm">{user.permissions?.join(', ') || '无'}</span></div></>)}</div>
+                    {user && (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span>用户ID:</span>
+                          <span className="text-sm font-mono">{user.id}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>昵称:</span>
+                          <span>{getUserDisplayName(user, '未设置')}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>角色:</span>
+                          <span className="text-sm">{user.roles?.join(', ') || '无'}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>权限:</span>
+                          <span className="text-sm">{user.permissions?.join(', ') || '无'}</span>
+                        </div>
+                      </>
+                    )}</div>
                 </CardContent>
               </Card>
               <Card>

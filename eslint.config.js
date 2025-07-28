@@ -3,6 +3,9 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const undefinedConcatPlugin = require('./src/utils/eslint-undefined-concat-rules.js');
 
 export default tseslint.config(
   {
@@ -28,6 +31,7 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      'undefined-concat': undefinedConcatPlugin,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -45,7 +49,10 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unsafe-declaration-merging': 'off',
-      'no-useless-escape': 'warn'
+      'no-useless-escape': 'warn',
+      // 自定义规则：防止undefined拼接
+      'undefined-concat/no-unsafe-user-concat': 'error',
+      'undefined-concat/require-safe-user-access': 'warn'
     },
   },
 )
