@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Dialog,
   DialogContent,
@@ -48,14 +50,23 @@ interface ContentFormSelectorProps {
   onFormChange: (formId: string | undefined) => void;
   onStyleChange: (style: StyleType) => void;
   className?: string;
+  // 新增props用于动态预览
+  selectedPlatforms?: string[];
+  useBrandLibrary?: boolean;
+  customPrompt?: string;
+  onCustomPromptChange?: (prompt: string) => void;
 }
 
-export function ContentFormSelector({ 
-  selectedFormId, 
-  selectedStyle, 
-  onFormChange, 
-  onStyleChange, 
-  className 
+export function ContentFormSelector({
+  selectedFormId,
+  selectedStyle,
+  onFormChange,
+  onStyleChange,
+  className,
+  selectedPlatforms = [],
+  useBrandLibrary = false,
+  customPrompt = '',
+  onCustomPromptChange
 }: ContentFormSelectorProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isContentFormOpen, setIsContentFormOpen] = useState(false);
@@ -242,22 +253,24 @@ export function ContentFormSelector({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* 组合效果预览 */}
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
-          <div className="flex items-center gap-2 mb-2">
-            <Zap className="h-4 w-4 text-gray-600" />
-            <span className="text-sm font-medium text-gray-700">组合效果预览</span>
-          </div>
-          <p className="text-sm text-gray-600">
-            <strong>当前配置：</strong>
-            {selectedForm ? `${selectedForm.name} + ` : '平台默认结构 + '}
-            {availableStyles.find(s => s.id === selectedStyle)?.name} = 
-            个性化内容生成
-          </p>
+        {/* 自定义提示词输入 */}
+        <div className="mt-6 pt-6 border-t">
+          <Label htmlFor="custom-prompt" className="text-sm font-medium text-gray-700">
+            自定义提示词（可选）
+          </Label>
+          <Textarea
+            id="custom-prompt"
+            value={customPrompt}
+            onChange={(e) => onCustomPromptChange?.(e.target.value)}
+            placeholder="如：特定的表达方式、关键词、语气风格等..."
+            className="mt-2 min-h-[60px] text-sm"
+          />
           <p className="text-xs text-gray-500 mt-1">
-            维度越多，生成内容越精准、差异化
+            输入您的个性化创作要求，将与系统提示词结合使用
           </p>
         </div>
+
+
       </div>
     </div>
   );

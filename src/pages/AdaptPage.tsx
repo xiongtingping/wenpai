@@ -2046,14 +2046,16 @@ ${dimensions.join('\n\n')}
         </TooltipProvider>
       </div>
 
-      {/* Content Input Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-lg">输入原始内容</CardTitle>
-          <CardDescription>
-            请输入您想要进行多平台适配的原始内容
-          </CardDescription>
-        </CardHeader>
+      {/* Content Creation Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-6">内容创作</h2>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">输入原始内容</CardTitle>
+            <CardDescription>
+              请输入您想要进行多平台适配的原始内容
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <MentionTextarea
@@ -2112,11 +2114,12 @@ ${dimensions.join('\n\n')}
           </div>
 
         </CardContent>
-      </Card>
+        </Card>
+      </div>
 
-      {/* Platform Selection - 移动到这里 */}
+      {/* Platform Selection Section */}
       <div className="mb-8">
-        <h2 className="text-lg font-medium mb-4">选择目标平台</h2>
+        <h2 className="text-xl font-semibold mb-6">选择目标平台</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
           {platforms.map(platform => (
             <CheckboxCard
@@ -2400,40 +2403,48 @@ ${dimensions.join('\n\n')}
             )}
           </Card>
         )}
+
+        {/* Content Form Selection */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">内容形式与表达风格</CardTitle>
+            <CardDescription>
+              选择不同的内容形式和表达风格来获得最佳的内容生成效果
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ContentFormSelector
+              selectedFormId={selectedFormId}
+              selectedStyle={selectedStyle}
+              onFormChange={setSelectedFormId}
+              onStyleChange={setSelectedStyle}
+              selectedPlatforms={selectedPlatforms}
+              useBrandLibrary={useBrandLibrary}
+              customPrompt={customPrompt}
+              onCustomPromptChange={setCustomPrompt}
+            />
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Content Form Selection */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-lg">内容形式与表达风格</CardTitle>
-          <CardDescription>
-            选择不同的内容形式和表达风格来获得最佳的内容生成效果
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ContentFormSelector
-            selectedFormId={selectedFormId}
-            selectedStyle={selectedStyle}
-            onFormChange={setSelectedFormId}
-            onStyleChange={setSelectedStyle}
-          />
 
-          {/* 简化的自定义提示词输入 */}
-          <div className="mt-6 pt-6 border-t">
-            <Label htmlFor="custom-prompt" className="text-sm font-medium text-gray-700">
-              补充要求（可选）
-            </Label>
-            <Textarea
-              id="custom-prompt"
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="如有特殊要求，请在此补充说明..."
-              className="mt-2 min-h-[60px] text-sm"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              补充的要求将融入AI生成过程中
-            </p>
+
+      {/* 组合效果预览 */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="h-4 w-4 text-gray-600" />
+            <span className="text-sm font-medium text-gray-700">组合效果预览</span>
           </div>
+          <p className="text-sm text-gray-600">
+            <strong>当前配置：</strong>
+            原始内容
+            {useBrandLibrary && ' + 品牌库'}
+            {selectedPlatforms.length > 0 && ` + ${selectedPlatforms.join('、')}`}
+            {selectedFormId && ` + ${getContentFormById(selectedFormId)?.name || '内容形式'}`}
+            {` + ${getAvailableStyles().find(s => s.id === selectedStyle)?.name || '专业风格'}`}
+            {customPrompt.trim() && ' + 自定义要求'}
+          </p>
         </CardContent>
       </Card>
 
