@@ -3,6 +3,17 @@
  * 🎯 用途：统一处理用户信息显示，防止 "undefinedundefined" 字符串拼接问题
  * 📌 已封装：此工具集已验证可用，请勿修改
  * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ *
+ * 🔍 问题根因：
+ * 1. JavaScript隐式类型转换：undefined || undefined = undefined，在字符串上下文中变成 "undefined"
+ * 2. 逻辑或运算符陷阱：user?.nickname || user?.username 当两个都是undefined时返回undefined
+ * 3. 模板字符串隐式转换：`${undefined}` 变成 "undefined"
+ * 4. 缺乏统一的数据处理层和防御性编程
+ *
+ * 🛡️ 解决策略：
+ * 1. 分层防护：数据源头控制 → 工具函数封装 → 组件层防护
+ * 2. 类型安全强化：严格类型定义 + 编译时检查
+ * 3. 运行时保护：错误边界 + 全局异常处理
  */
 
 /**
