@@ -124,7 +124,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 {getUserDisplayName(user, '用户')}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {user?.email || ''}
+                {user?.email || '未设置邮箱'}
               </p>
             </div>
           </DropdownMenuLabel>

@@ -1,0 +1,157 @@
+{
+  "timestamp": "2025-07-28T14:25:57.249Z",
+  "stats": {
+    "filesScanned": 292,
+    "issuesFound": 12,
+    "criticalIssues": 3,
+    "highIssues": 9,
+    "mediumIssues": 0,
+    "lowIssues": 0
+  },
+  "results": [
+    {
+      "file": "/Users/xiong/wenpai/src/api/platformApiService.ts",
+      "line": 200,
+      "column": 18,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{\n      // 安全构建发布URL，避免undefined拼接\n      const userId = data.user?.id || 'unknown';\n      const postId = data.id || 'unknown';\n\n      return {\n        success: true,\n        publishId: data.id,\n        publishUrl: `https://weibo.com/${userId}",
+      "context": "    const data = await response.json();\n    \n    if (data.id) {\n      // 安全构建发布URL，避免undefined拼接\n      const userId = data.user?.id || 'unknown';\n      const postId = data.id || 'unknown';",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/components/auth/UserAvatar.tsx",
+      "line": 127,
+      "column": 17,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{user?.email || '未设置邮箱'}",
+      "context": "              </p>\n              <p className=\"text-xs leading-none text-muted-foreground\">\n                {user?.email || '未设置邮箱'}\n              </p>\n            </div>\n          </DropdownMenuLabel>",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/hooks/usePermission.ts",
+      "line": 169,
+      "column": 20,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{\n            key,\n            userPermissions: user?.permissions || [],\n            userRoles: user?.roles || [],\n            isVip: !!user?.isVip,\n            isLoggedIn: isAuthenticated\n          }",
+      "context": "          reason: config.message || `缺少权限: ${config.description}`,\n          redirect: config.redirect,\n          details: {\n            key,\n            userPermissions: user?.permissions || [],\n            userRoles: user?.roles || [],",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/hooks/usePermission.ts",
+      "line": 181,
+      "column": 12,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{\n      pass: true,\n      details: {\n        key: keys.join(','),\n        userPermissions: user?.permissions || [],\n        userRoles: user?.roles || [],\n        isVip: !!user?.isVip,\n        isLoggedIn: isAuthenticated\n      }",
+      "context": "\n    // 所有权限检查通过\n    return {\n      pass: true,\n      details: {\n        key: keys.join(','),",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/hooks/useUser.ts",
+      "line": 15,
+      "column": 10,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{\n    // 用户信息\n    user,\n    isAuthenticated,\n    isLoggedIn: isAuthenticated, // 兼容旧接口\n    \n    // 用户属性\n    id: user?.id || '',\n    username: user?.username || '',\n    email: user?.email || '',\n    phone: user?.phone || '',\n    nickname: user?.nickname || '',\n    avatar: user?.avatar || '',\n    plan: user?.plan || '',\n    isProUser: user?.isProUser || false,\n    isVip: user?.isVip || false,\n    vipLevel: user?.vipLevel || '',\n    permissions: user?.permissions || [],\n    roles: user?.roles || [],\n    \n    // 用户方法\n    updateUser,\n    \n    // 用户状态检查\n    hasPermission: (permission: string) => {\n      return user?.permissions?.includes(permission) || false;\n    }",
+      "context": "  const { user, isAuthenticated, updateUser } = useUnifiedAuth();\n  \n  return {\n    // 用户信息\n    user,\n    isAuthenticated,",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/pages/PaymentSuccessPage.tsx",
+      "line": 196,
+      "column": 57,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{user?.id || '未知'}",
+      "context": "                  <div className=\"flex justify-between\">\n                    <span className=\"text-gray-600\">用户ID：</span>\n                    <span className=\"font-mono text-sm\">{user?.id || '未知'}</span>\n                  </div>\n                  {/* ✅ FIXED: 用户名显示 - 使用安全的用户信息获取函数 */}\n                  <div className=\"flex justify-between\">",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/pages/ProfilePage.tsx",
+      "line": 62,
+      "column": 50,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{\n    nickname: getUserDisplayName(user, ''),\n    phone: user?.phone || '',\n    email: user?.email || '',\n    avatar: getUtilUserAvatar(user)\n  }",
+      "context": "\n  // ✅ FIXED: 个人资料表单状态 - 使用安全的用户信息获取函数\n  const [profileForm, setProfileForm] = useState({\n    nickname: getUserDisplayName(user, ''),\n    phone: user?.phone || '',\n    email: user?.email || '',",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/pages/SettingsPage.tsx",
+      "line": 76,
+      "column": 43,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{user?.username || '未设置'}",
+      "context": "              <div className=\"flex justify-between items-center\">\n                <span className=\"text-sm text-gray-600\">用户名</span>\n                <span className=\"text-sm\">{user?.username || '未设置'}</span>\n              </div>\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-sm text-gray-600\">VIP状态</span>",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/utils/eslint-undefined-concat-rules.js",
+      "line": 6,
+      "column": 7,
+      "pattern": "用户属性逻辑或拼接",
+      "severity": "critical",
+      "category": "user-data",
+      "description": "用户属性的逻辑或运算可能导致undefined拼接",
+      "match": "user?.property || user?.property",
+      "context": " * 🎯 目标：自动检测可能导致\"undefinedundefined\"的代码模式\n * 📋 检测范围：\n * 1. user?.property || user?.property 模式\n * 2. 模板字符串中的用户属性直接使用\n * 3. 字符串拼接中的用户属性\n * 4. JSX中的用户属性直接渲染",
+      "suggestion": "import { getUserDisplayName } from \"@/utils/userDisplayUtils\"; 使用 getUserDisplayName(user, \"默认值\")"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/utils/eslint-undefined-concat-rules.js",
+      "line": 59,
+      "column": 17,
+      "pattern": "用户属性逻辑或拼接",
+      "severity": "critical",
+      "category": "user-data",
+      "description": "用户属性的逻辑或运算可能导致undefined拼接",
+      "match": "user?.nickname || user?.username",
+      "context": "        \n        return {\n          // 检测 user?.nickname || user?.username 模式\n          LogicalExpression(node) {\n            if (isDangerousLogicalExpression(node)) {\n              context.report({",
+      "suggestion": "import { getUserDisplayName } from \"@/utils/userDisplayUtils\"; 使用 getUserDisplayName(user, \"默认值\")"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/utils/eslint-undefined-concat-rules.js",
+      "line": 58,
+      "column": 16,
+      "pattern": "JSX中的用户属性拼接",
+      "severity": "high",
+      "category": "jsx",
+      "description": "JSX中的用户属性逻辑或运算",
+      "match": "{\n          // 检测 user?.nickname || user?.username 模式\n          LogicalExpression(node) {\n            if (isDangerousLogicalExpression(node)) {\n              context.report({\n                node,\n                message: '避免直接拼接用户属性，请使用 getUserDisplayName(user, fallback) 安全函数',\n                fix(fixer) {\n                  return fixer.replaceText(node, 'getUserDisplayName(user, \\'\\')');\n                }",
+      "context": "        }\n        \n        return {\n          // 检测 user?.nickname || user?.username 模式\n          LogicalExpression(node) {\n            if (isDangerousLogicalExpression(node)) {",
+      "suggestion": "使用安全的JSX表达式: {getUserDisplayName(user) || \"默认值\"}"
+    },
+    {
+      "file": "/Users/xiong/wenpai/src/utils/userDisplayUtils.ts",
+      "line": 9,
+      "column": 16,
+      "pattern": "用户属性逻辑或拼接",
+      "severity": "critical",
+      "category": "user-data",
+      "description": "用户属性的逻辑或运算可能导致undefined拼接",
+      "match": "user?.nickname || user?.username",
+      "context": " * 🔍 问题根因：\n * 1. JavaScript隐式类型转换：undefined || undefined = undefined，在字符串上下文中变成 \"undefined\"\n * 2. 逻辑或运算符陷阱：user?.nickname || user?.username 当两个都是undefined时返回undefined\n * 3. 模板字符串隐式转换：`${undefined}` 变成 \"undefined\"\n * 4. 缺乏统一的数据处理层和防御性编程\n *",
+      "suggestion": "import { getUserDisplayName } from \"@/utils/userDisplayUtils\"; 使用 getUserDisplayName(user, \"默认值\")"
+    }
+  ]
+}
