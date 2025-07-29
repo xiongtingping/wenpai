@@ -98,7 +98,8 @@ const createAxiosInstance = (): AxiosInstance => {
     (config) => {
       // 根据URL自动添加对应的API密钥
       const url = config.url || '';
-      
+
+      // 只对特定的AI API设置baseURL和认证，其他第三方API保持原样
       if (url.includes('openai') || url.includes('api.openai.com')) {
         config.headers.Authorization = `Bearer ${getAPIConfig().openai.apiKey}`;
         config.baseURL = getAPIConfig().openai.baseURL;
@@ -111,15 +112,18 @@ const createAxiosInstance = (): AxiosInstance => {
       } else if (url.includes('creem') || url.includes('api.creem.com')) {
         config.headers['x-api-key'] = getAPIConfig().creem.apiKey;
         config.baseURL = getAPIConfig().creem.baseURL;
+      } else {
+        // 对于第三方API（如热点数据API），不设置baseURL，保持完整URL
+        config.baseURL = undefined;
       }
-      
+
       console.log('🔧 API请求:', {
         method: config.method?.toUpperCase(),
         url: config.url,
         baseURL: config.baseURL,
         hasAuth: !!config.headers.Authorization || !!config.headers['x-goog-api-key'] || !!config.headers['x-api-key']
       });
-      
+
       return config;
     },
     (error) => {
