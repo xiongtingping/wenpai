@@ -49,47 +49,76 @@ const HeroSection: React.FC = () => {
             </div>
           </div>
           
-          {/* 主标题 - 优化设计 */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-              文派AI
-            </span>
-            <span className="block text-2xl sm:text-3xl lg:text-4xl font-medium text-gray-700 mt-3">
-              智能创作平台
-            </span>
-          </h1>
-          
-          {/* 核心价值主张 */}
-          <div className="max-w-4xl mx-auto mb-8">
-            <p className="text-xl sm:text-2xl text-gray-800 font-semibold mb-3">
-              🚀 让AI为您的品牌创作独特内容
-            </p>
-            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
-              智能分析 · 多平台适配 · 一键生成 · 提升营销效果
-            </p>
+          {/* 主标题 - 两段式结构优化 */}
+          <div className="mb-8">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+              🚀 <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                文派 AI 智能创作平台
+              </span>
+            </h1>
+
+            {/* 核心价值主张 - 优化排版结构 */}
+            <div className="max-w-4xl mx-auto text-center">
+              {/* 第一行：核心价值主张 */}
+              <div className="mb-6">
+                <p className="text-xl sm:text-2xl text-gray-800 font-bold leading-relaxed">
+                  <strong className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    让 AI 为您的品牌创作独特内容
+                  </strong>
+                </p>
+              </div>
+
+              {/* 第二行：四个要点 - 统一排版 */}
+              <div className="text-lg sm:text-xl text-gray-600 font-medium hero-subtitle-container">
+                <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 lg:gap-x-16">
+                  <span className="hero-feature-item">
+                    <span className="hero-feature-separator text-blue-500">·</span>
+                    <span className="whitespace-nowrap">智能分析</span>
+                  </span>
+                  <span className="hero-feature-item">
+                    <span className="hero-feature-separator text-indigo-500">·</span>
+                    <span className="whitespace-nowrap">多平台适配</span>
+                  </span>
+                  <span className="hero-feature-item">
+                    <span className="hero-feature-separator text-purple-500">·</span>
+                    <span className="whitespace-nowrap">一键生成</span>
+                  </span>
+                  <span className="hero-feature-item">
+                    <span className="hero-feature-separator text-pink-500">·</span>
+                    <span className="whitespace-nowrap">提升营销效果</span>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
           
-          {/* 主要行动按钮 */}
+          {/* 主要行动按钮 - 增强视觉效果 */}
           <div className="mb-16">
-            <Button
-              onClick={handleButtonClick}
-              size="lg"
-              className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white px-12 py-5 text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl border-0 overflow-hidden group"
-            >
-              <span className="relative z-10 flex items-center gap-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                开始创作
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </span>
-              {/* 动态背景效果 */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              {/* 光晕效果 */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-            </Button>
+            <div className="relative group inline-block">
+              <Button
+                onClick={handleButtonClick}
+                size="lg"
+                className="relative inline-flex items-center justify-center bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white px-14 py-6 text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-3xl border-0 overflow-hidden group/button min-h-[4rem]"
+              >
+                <span className="relative z-10 hero-button-content gap-3">
+                  <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span className="hero-button-text font-bold">AI 一键创作</span>
+                  <svg className="w-6 h-6 group-hover/button:translate-x-2 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
+                {/* 动态背景效果 */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
+                {/* 增强光晕效果 */}
+                <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur-lg opacity-40 group-hover/button:opacity-70 transition-all duration-300 animate-pulse"></div>
+                {/* 闪烁效果 */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
+              </Button>
+
+
+            </div>
           </div>
           
           {/* 核心优势 - 重新设计 */}
