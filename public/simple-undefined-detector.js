@@ -4,8 +4,12 @@
  */
 
 (function() {
+<<<<<<< HEAD
   console.log('🚫 简化版undefined拼接检测器已禁用，避免干扰Authing Guard');
   return; // 直接退出，不执行任何检测逻辑
+=======
+  console.log('🚨 启动简化版undefined拼接检测器...');
+>>>>>>> 1fb3fe96f8e6db3ef88fd66a79c17e013dccfb4a
   
   let detectionCount = 0;
   const detectedSources = [];
@@ -181,8 +185,13 @@
   
   console.error = function(...args) {
     args.forEach(arg => {
+<<<<<<< HEAD
       if (arg && arg.toString && arg.toString().includes('undefinedundefined') && !arg.toString().includes('Console.error 输出包含')) {
         originalConsoleError('🚨 Console.error 检测到问题字符串:', arg);
+=======
+      if (arg && arg.toString && arg.toString().includes('undefinedundefined')) {
+        originalConsoleError('🚨 Console.error 输出包含 "undefinedundefined":', arg);
+>>>>>>> 1fb3fe96f8e6db3ef88fd66a79c17e013dccfb4a
       }
     });
     return originalConsoleError.apply(console, args);
