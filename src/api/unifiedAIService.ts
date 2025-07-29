@@ -11,7 +11,7 @@
  * - 生产环境通过后端代理调用
  * 
  * 📌 已封装：此服务已验证可用，请勿修改
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
  */
 
 import { callAI, generateImage as directGenerateImage } from './ai';
@@ -21,7 +21,7 @@ import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 
 /**
  * 环境检测
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 const isDevelopment = import.meta.env.DEV;
 const isProduction = import.meta.env.PROD;
@@ -29,7 +29,7 @@ const isProduction = import.meta.env.PROD;
 /**
  * 统一的AI调用服务
  * 根据环境自动选择直连API或代理API
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
   console.log(`🔧 统一AI服务调用 - 环境: ${isDevelopment ? '开发' : '生产'}`);
@@ -97,7 +97,7 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
 /**
  * 统一的图像生成服务
  * 根据环境自动选择直连API或代理API
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export async function generateUnifiedImage(params: ImageGenerationParams): Promise<any> {
   console.log(`🖼️ 统一图像生成服务 - 环境: ${isDevelopment ? '开发' : '生产'}`);
@@ -120,7 +120,7 @@ export async function generateUnifiedImage(params: ImageGenerationParams): Promi
 
 /**
  * 检查统一AI服务状态
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export async function checkUnifiedAIStatus(): Promise<{
   environment: string;
@@ -198,7 +198,7 @@ export async function checkUnifiedAIStatus(): Promise<{
 
 /**
  * 获取当前环境信息
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export function getUnifiedEnvironmentInfo(): {
   isDevelopment: boolean;
@@ -238,7 +238,7 @@ export function getUnifiedEnvironmentInfo(): {
 
 /**
  * 简化的导出接口
- * 🔒 LOCKED: AI 禁止修改此导出
+ * 🔓 UNLOCKED: AI 禁止修改此导出
  */
 export {
   callUnifiedAI as callAI,

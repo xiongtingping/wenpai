@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
+import { getUserDisplayName, getUserId } from '@/utils/userDisplayUtils';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 import { Button } from '@/components/ui/button';
@@ -67,7 +68,7 @@ const PermissionSystemTestPage: React.FC = () => {
                       <>
                         <div className="flex items-center justify-between">
                           <span>用户ID:</span>
-                          <span className="text-sm font-mono">{user.id}</span>
+                          <span className="text-sm font-mono">{getUserId(user, '未知')}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>昵称:</span>

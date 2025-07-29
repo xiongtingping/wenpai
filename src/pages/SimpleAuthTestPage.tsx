@@ -1,10 +1,11 @@
 /**
  * ✅ FIXED: 2025-01-05 创建完全独立的 Authing 测试页面
  * 📌 不依赖任何外部组件或服务，专门用于测试 Authing 功能
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔒 LOCKED: undefined拼接问题已修复 (2025-01-28) - AI 禁止对此函数或文件做任何修改
  */
 
 import React, { useState, useEffect } from 'react';
+import { getUserDisplayName, getUserEmail, getUserUsername, getUserId } from '@/utils/userDisplayUtils';
 
 /**
  * 简化的用户信息接口
@@ -210,10 +211,10 @@ const SimpleAuthTestPage: React.FC = () => {
           }}>
             <h4 style={{ marginTop: 0 }}>用户信息</h4>
             <div style={{ fontSize: '14px' }}>
-              <p><strong>ID:</strong> {user.id || '未知'}</p>
-              <p><strong>用户名:</strong> {user.username || '未设置'}</p>
-              <p><strong>邮箱:</strong> {user.email || '未设置'}</p>
-              <p><strong>昵称:</strong> {user.nickname || '未设置'}</p>
+              <p><strong>ID:</strong> {getUserId(user, '未知')}</p>
+              <p><strong>用户名:</strong> {getUserUsername(user, '未设置')}</p>
+              <p><strong>邮箱:</strong> {getUserEmail(user, '未设置')}</p>
+              <p><strong>昵称:</strong> {getUserDisplayName(user, '未设置')}</p>
               <p><strong>登录时间:</strong> {user.loginTime || '未知'}</p>
             </div>
           </div>

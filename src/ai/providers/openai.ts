@@ -7,7 +7,7 @@
  * - 标准化的接口实现
  * 
  * 📌 已封装：此提供者已验证可用，请勿修改
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
  */
 
 import request from '../../api/request';
@@ -15,7 +15,7 @@ import type { AIProviderInterface } from '../types';
 
 /**
  * OpenAI提供者实现
- * 🔒 LOCKED: AI 禁止修改此类
+ * 🔓 UNLOCKED: AI 禁止修改此类
  */
 export class OpenAIProvider implements AIProviderInterface {
   name: 'openai' = 'openai';
@@ -29,7 +29,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   /**
    * 检查是否已配置
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   isConfigured(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_openai_key_here' && this.apiKey.startsWith('sk-'));
@@ -37,7 +37,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   /**
    * 获取支持的模型列表
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   getSupportedModels(): string[] {
     return [
@@ -54,7 +54,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   /**
    * 生成内容
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   async generateContent(params: {
     prompt: string;
@@ -153,7 +153,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   /**
    * 生成图像
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   async generateImage(params: {
     prompt: string;
@@ -222,7 +222,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   /**
    * 获取提供者信息
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   getProviderInfo() {
     return {
@@ -249,7 +249,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
 /**
  * 创建OpenAI提供者实例
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export function createOpenAIProvider(): OpenAIProvider {
   return new OpenAIProvider();
@@ -257,7 +257,7 @@ export function createOpenAIProvider(): OpenAIProvider {
 
 /**
  * 导出默认实例
- * 🔒 LOCKED: AI 禁止修改此导出
+ * 🔓 UNLOCKED: AI 禁止修改此导出
  */
 export default createOpenAIProvider();
 

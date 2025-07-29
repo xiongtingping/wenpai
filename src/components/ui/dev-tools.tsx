@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
+import { getUserDisplayName, getUserEmail, getUserUsername, getUserId } from '@/utils/userDisplayUtils';
 import { 
   Settings, 
   Database, 
@@ -98,9 +99,9 @@ export const DevTools: React.FC = () => {
                       <div className="space-y-1">
                         <p className="text-xs font-medium">用户信息</p>
                         <div className="text-xs space-y-1">
-                          <p>ID: {user.id || '未知'}</p>
-                          <p>邮箱: {user.email || '未设置'}</p>
-                          <p>用户名: {user.username || '未设置'}</p>
+                          <p>ID: {getUserId(user, '未知')}</p>
+                          <p>邮箱: {getUserEmail(user, '未设置')}</p>
+                          <p>用户名: {getUserUsername(user, '未设置')}</p>
                           <p>VIP: {user.isVip ? '是' : '否'}</p>
                         </div>
                       </div>

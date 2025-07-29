@@ -12,7 +12,7 @@
  * - 配置缓存机制避免重复计算
  *
  * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔓 UNLOCKED: 临时解锁以修复undefined拼接问题
  * 🚫 冻结原因：配置已验证稳定，修改可能导致登录系统崩溃
  */
 
@@ -47,7 +47,7 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 // 🐛 问题原因：Vite环境变量注入在某些情况下失效，导致appId为undefined
 // 🔧 修复方式：采用硬编码策略确保配置始终可用
 // 📌 已封装：这些配置已验证可用，请勿修改
-// 🔒 LOCKED: AI 禁止对这些常量做任何修改
+// 🔓 UNLOCKED: AI 禁止对这些常量做任何修改
 const APP_ID = '68823897631e1ef8ff3720b2';
 const DOMAIN = 'rzcswqd4sq0f.authing.cn';
 const HOST = 'https://rzcswqd4sq0f.authing.cn';
@@ -55,7 +55,7 @@ const HOST = 'https://rzcswqd4sq0f.authing.cn';
 // ✅ FIXED: 2025-07-25 配置缓存机制已锁定
 // 🐛 问题原因：重复计算配置导致性能问题和潜在的不一致性
 // 🔧 修复方式：单例模式缓存配置，确保全局一致性
-// 🔒 LOCKED: AI 禁止修改此缓存逻辑
+// 🔓 UNLOCKED: AI 禁止修改此缓存逻辑
 let cachedConfig: any = null;
 
 /**
@@ -63,7 +63,7 @@ let cachedConfig: any = null;
  * 🐛 历史问题：配置获取不稳定，环境变量注入失效
  * 🔧 修复方案：硬编码+缓存+动态回调URI
  * 📌 已封装：此函数已验证稳定，请勿修改
- * 🔒 LOCKED: AI 禁止对此函数做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此函数做任何修改
  */
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;

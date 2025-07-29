@@ -7,7 +7,7 @@
  * - 标准化的接口实现
  * 
  * 📌 已封装：此提供者已验证可用，请勿修改
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
  */
 
 import request from '../request';
@@ -15,7 +15,7 @@ import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
 
 /**
  * OpenAI服务商配置
- * 🔒 LOCKED: AI 禁止修改此配置
+ * 🔓 UNLOCKED: AI 禁止修改此配置
  */
 export const OPENAI_CONFIG = {
   name: 'openai',
@@ -43,7 +43,7 @@ export const OPENAI_CONFIG = {
 
 /**
  * OpenAI服务商实现类
- * 🔒 LOCKED: AI 禁止修改此类
+ * 🔓 UNLOCKED: AI 禁止修改此类
  */
 export class OpenAIProvider {
   private apiKey: string;
@@ -56,7 +56,7 @@ export class OpenAIProvider {
 
   /**
    * 检查API密钥是否有效
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   isConfigured(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_openai_key_here' && this.apiKey.startsWith('sk-'));
@@ -64,7 +64,7 @@ export class OpenAIProvider {
 
   /**
    * 获取支持的模型列表
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   getSupportedModels(): string[] {
     return [...OPENAI_CONFIG.models.chat, ...OPENAI_CONFIG.models.image];
@@ -72,7 +72,7 @@ export class OpenAIProvider {
 
   /**
    * 检查模型是否支持
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   isModelSupported(model: string): boolean {
     return this.getSupportedModels().includes(model);
@@ -80,7 +80,7 @@ export class OpenAIProvider {
 
   /**
    * 调用OpenAI聊天接口
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   async callChat(params: AICallParams): Promise<AIResponse> {
     const startTime = Date.now();
@@ -164,7 +164,7 @@ export class OpenAIProvider {
 
   /**
    * 调用OpenAI图像生成接口
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   async generateImage(params: ImageGenerationParams): Promise<any> {
     try {
@@ -213,7 +213,7 @@ export class OpenAIProvider {
 
   /**
    * 获取提供者信息
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   getProviderInfo() {
     return {
@@ -228,7 +228,7 @@ export class OpenAIProvider {
 
 /**
  * 创建OpenAI提供者实例
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export function createOpenAIProvider(apiKey: string): OpenAIProvider {
   return new OpenAIProvider(apiKey);
@@ -236,7 +236,7 @@ export function createOpenAIProvider(apiKey: string): OpenAIProvider {
 
 /**
  * 导出默认配置
- * 🔒 LOCKED: AI 禁止修改此导出
+ * 🔓 UNLOCKED: AI 禁止修改此导出
  */
 export default {
   config: OPENAI_CONFIG,

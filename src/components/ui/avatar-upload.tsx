@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, RefreshCw, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getUserAltText } from '@/utils/userDisplayUtils';
 
 /**
  * 头像上传组件属性
@@ -170,7 +171,7 @@ export function AvatarUpload({
       {/* 头像显示 */}
       <div className="relative">
         <Avatar className={getSizeClass()}>
-          <AvatarImage src={avatarUrl} alt={nickname} />
+          <AvatarImage src={avatarUrl} alt={getUserAltText({ nickname }, '头像')} />
           <AvatarFallback className="bg-blue-500 text-white text-lg font-semibold">
             {getInitials()}
           </AvatarFallback>

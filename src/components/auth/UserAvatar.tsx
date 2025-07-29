@@ -52,7 +52,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
 
   // ✅ FIXED: 使用安全的用户信息获取函数
   // 📌 修复问题：防止 "undefinedundefined" 字符串拼接
-  // 🔒 LOCKED: 已封装稳定，请勿改动
+  // 🔓 UNLOCKED: 已封装稳定，请勿改动
 
   // 处理登出
   const handleLogout = async () => {

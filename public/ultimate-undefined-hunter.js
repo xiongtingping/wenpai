@@ -4,7 +4,8 @@
  */
 
 (function() {
-  console.log('🚨 启动终极undefined拼接猎手...');
+  console.log('🚫 终极undefined拼接猎手已禁用，避免干扰Authing Guard');
+  return; // 直接退出，不执行任何检测逻辑
   
   let detectionCount = 0;
   const detectedSources = [];

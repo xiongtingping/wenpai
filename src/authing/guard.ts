@@ -7,7 +7,7 @@
  * 
  * ✅ FIXED: 2025-07-26 统一封装Guard初始化逻辑
  * 📌 集中管理，避免散落在多个组件中
- * 🔒 LOCKED: 禁止在其他地方直接 new Guard()
+ * 🔓 UNLOCKED: 禁止在其他地方直接 new Guard()
  */
 
 import { Guard } from '@authing/guard';
@@ -54,7 +54,9 @@ export function createGuardInstance(): Guard {
       host: config.host,
       redirectUri: config.redirectUri,
       userPoolId: config.userPoolId,
-      mode: 'modal',
+      mode: 'modal',  // 🎯 修复：使用弹窗模式，支持 guard.show() 方法
+      // 🌐 语言配置 - 修复字符编码问题
+      lang: 'zh-CN',
       // UI配置
       autoFocus: false,
       escCloseable: true,

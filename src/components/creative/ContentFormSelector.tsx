@@ -141,7 +141,7 @@ export function ContentFormSelector({
                 <span className="text-sm font-medium text-gray-600">选择内容形式</span>
                 {selectedForm && (
                   <Badge variant="secondary" className="ml-2">
-                    {selectedForm.name}
+                    已选择：{selectedForm.name}
                   </Badge>
                 )}
               </div>
@@ -171,7 +171,11 @@ export function ContentFormSelector({
                       className={`cursor-pointer transition-all hover:shadow-md p-3 ${
                         selectedFormId === form.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                       }`}
-                      onClick={() => onFormChange(selectedFormId === form.id ? undefined : form.id)}
+                      onClick={() => {
+                        const newFormId = selectedFormId === form.id ? undefined : form.id;
+                        onFormChange(newFormId);
+                        // 移除自动折叠逻辑，让用户手动决定何时收起
+                      }}
                     >
                       <div className="flex items-start gap-2">
                         <span className="text-base">{form.icon}</span>
@@ -192,14 +196,39 @@ export function ContentFormSelector({
             ))}
             
             {selectedFormId && (
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => onFormChange(undefined)}
                   className="text-blue-700 hover:text-blue-800"
                 >
                   清除选择，使用平台默认结构
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsContentFormOpen(false)}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  <ChevronUp className="h-4 w-4 mr-1" />
+                  收起选项
+                </Button>
+              </div>
+            )}
+
+            {/* 选择完成提示 */}
+            {!selectedFormId && isContentFormOpen && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                <span className="text-sm text-gray-600">选择一个内容形式，或收起此区域</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsContentFormOpen(false)}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  <ChevronUp className="h-4 w-4 mr-1" />
+                  收起选项
                 </Button>
               </div>
             )}
@@ -221,7 +250,7 @@ export function ContentFormSelector({
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-600">选择表达风格</span>
                 <Badge variant="secondary" className="ml-2">
-                  {availableStyles.find(s => s.id === selectedStyle)?.name}
+                  已选择：{availableStyles.find(s => s.id === selectedStyle)?.name}
                 </Badge>
               </div>
               {isStyleOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -240,7 +269,10 @@ export function ContentFormSelector({
                   className={`cursor-pointer transition-all hover:shadow-md p-3 ${
                     selectedStyle === style.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                   }`}
-                  onClick={() => onStyleChange(style.id)}
+                  onClick={() => {
+                    onStyleChange(style.id);
+                    // 移除自动折叠逻辑，让用户手动决定何时收起
+                  }}
                 >
                   <div className="flex items-start gap-2">
                     <span className="text-lg">{style.icon}</span>
@@ -256,6 +288,22 @@ export function ContentFormSelector({
                   </div>
                 </Card>
               ))}
+            </div>
+
+            {/* 表达风格收起按钮 */}
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+              <span className="text-sm text-gray-600">
+                当前风格：{availableStyles.find(s => s.id === selectedStyle)?.name}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsStyleOpen(false)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                <ChevronUp className="h-4 w-4 mr-1" />
+                收起选项
+              </Button>
             </div>
           </CollapsibleContent>
         </Collapsible>

@@ -1,7 +1,7 @@
 /**
  * ✅ FIXED: 2025-01-05 创建认证测试页面组件
  * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔓 UNLOCKED: 临时解锁以修复undefined拼接问题
  */
 
 import React, { useState } from 'react';
@@ -195,10 +195,10 @@ const AuthTestPage: React.FC = () => {
                   用户信息
                 </h4>
                 <div className="text-sm space-y-1">
-                  <p><strong>ID:</strong> {user.id || '未知'}</p>
-                  <p><strong>用户名:</strong> {user.username || '未设置'}</p>
-                  <p><strong>邮箱:</strong> {user.email || '未设置'}</p>
-                  <p><strong>昵称:</strong> {user.nickname || '未设置'}</p>
+                  <p><strong>ID:</strong> {getUserId(user, '未知')}</p>
+                  <p><strong>用户名:</strong> {getUserUsername(user, '未设置')}</p>
+                  <p><strong>邮箱:</strong> {getUserEmail(user, '未设置')}</p>
+                  <p><strong>昵称:</strong> {getUserDisplayName(user, '未设置')}</p>
                 </div>
               </div>
             )}

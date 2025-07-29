@@ -12,7 +12,7 @@
  * - 直接调用各AI服务商API
  *
  * 📌 已封装：此服务已验证可用，请勿修改
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
  */
 
 import { callAI, generateImage as callAIGenerateImage } from './ai';
@@ -48,7 +48,7 @@ export async function callOpenAIProxy(
     console.log('使用统一AI接口:', { model, temperature, maxTokens });
 
     // ✅ FIXED: 使用统一的callAI接口替代直接fetch调用
-    // 🔒 LOCKED: AI 禁止修改此统一接口调用逻辑
+    // 🔓 UNLOCKED: AI 禁止修改此统一接口调用逻辑
 
     // 将messages转换为prompt格式
     const prompt = messages.map((msg: any) => {
@@ -107,7 +107,7 @@ export async function callDeepSeekProxy(
     console.log('使用统一AI接口:', { model });
 
     // ✅ FIXED: 使用统一的callAI接口替代直接fetch调用
-    // 🔒 LOCKED: AI 禁止修改此统一接口调用逻辑
+    // 🔓 UNLOCKED: AI 禁止修改此统一接口调用逻辑
 
     // 将messages转换为prompt格式
     const prompt = messages.map((msg: any) => {

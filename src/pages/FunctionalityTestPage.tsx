@@ -11,7 +11,7 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { useAuthStore } from '@/store/authStore';
 import { EnvChecker } from '@/utils/envChecker';
-import { getUserDisplayName } from '@/utils/userDisplayUtils';
+import { getUserDisplayName, getUserId } from '@/utils/userDisplayUtils';
 import { 
   CheckCircle, 
   XCircle, 
@@ -169,7 +169,7 @@ const FunctionalityTestPage: React.FC = () => {
                 <>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">用户ID</span>
-                    <span className="text-sm text-muted-foreground">{user.id}</span>
+                    <span className="text-sm text-muted-foreground">{getUserId(user, '未知')}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">

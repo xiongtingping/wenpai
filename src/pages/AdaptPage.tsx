@@ -3,7 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles
 } from "lucide-react";
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
@@ -102,75 +102,44 @@ const platformUrls: Record<string, string> = {
   history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704'
 };
 
+// Helper function to get platform name consistently
+function getPlatformName(platformId: string, platforms: any[]): string {
+  const platform = platforms.find(p => p.id === platformId);
+  return platform?.name || platformId;
+}
+
 // Helper function to get platform icon
 function getPlatformIcon(platformId: string): JSX.Element {
-  const platformData = platformStyles[platformId as keyof typeof platformStyles];
-  const platformName = platformData?.name || platformId;
   
   switch (platformId) {
     case 'zhihu':
       return (
         <div className="flex items-center">
           <MessageSquare className="h-4 w-4 text-blue-500 mr-1" />
-          <span className="text-xs">{platformName}</span>
         </div>
       );
     case 'weibo':
-      return (
-        <div className="flex items-center">
-          <Send className="h-4 w-4 text-orange-500 mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <Send className="h-4 w-4 text-orange-500" />;
     case 'xiaohongshu':
-      return (
-        <div className="flex items-center">
-          <Book className="h-4 w-4 text-rose-500 mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <Book className="h-4 w-4 text-rose-500" />;
     case 'wechat':
-      return (
-        <div className="flex items-center">
-          <MessageSquare className="h-4 w-4 text-green-500 mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <MessageSquare className="h-4 w-4 text-green-500" />;
     case 'douyin':
-      return (
-        <div className="flex items-center">
-          <Video className="h-4 w-4 text-black mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <Video className="h-4 w-4 text-black" />;
     case 'video':
-      return (
-        <div className="flex items-center">
-          <SquarePlay className="h-4 w-4 text-green-600 mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <SquarePlay className="h-4 w-4 text-green-600" />;
     case 'twitter':
-      return (
-        <div className="flex items-center">
-          <Twitter className="h-4 w-4 text-black mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <Twitter className="h-4 w-4 text-black" />;
     case 'bilibili':
-      return (
-        <div className="flex items-center">
-          <Video className="h-4 w-4 text-blue-400 mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <Video className="h-4 w-4 text-blue-400" />;
+    case 'kuaishou':
+      return <Video className="h-4 w-4 text-yellow-500" />;
+    case 'wangyi':
+      return <Rss className="h-4 w-4 text-red-500" />;
+    case 'toutiao':
+      return <Globe className="h-4 w-4 text-purple-600" />;
     default:
-      return (
-        <div className="flex items-center">
-          <MessageSquare className="h-4 w-4 mr-1" />
-          <span className="text-xs">{platformName}</span>
-        </div>
-      );
+      return <MessageSquare className="h-4 w-4 text-gray-500" />;
   }
 }
 
@@ -242,6 +211,7 @@ interface GlobalSettings {
   charCountPreset: 'auto' | 'mini' | 'standard' | 'detailed';
   globalEmoji: boolean;
   globalMd: boolean;
+  globalAutoFormat: boolean;
 }
 
 /**
@@ -462,7 +432,8 @@ export default function AdaptPage() {
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     charCountPreset: 'auto',
     globalEmoji: false,
-    globalMd: false
+    globalMd: false,
+    globalAutoFormat: true
   });
 
   // 设置模式状态：'global' | 'platform'
@@ -675,7 +646,7 @@ export default function AdaptPage() {
   const platforms = useMemo(() => [
     { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-rose-500" /> },
     { id: "zhihu", name: "知乎", description: "适合专业知识分享和理性讨论，强调逻辑和论证", icon: <MessageSquare className="h-4 w-4 text-blue-500" /> },
-    { id: "douyin", name: "抖音脚本", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: <Video className="h-4 w-4 text-black" /> },
+    { id: "douyin", name: "抖音", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: <Video className="h-4 w-4 text-black" /> },
     { id: "weibo", name: "新浪微博", description: "简短有力的观点表达，适合热点话题讨论", icon: <Send className="h-4 w-4 text-orange-500" /> },
     { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: <MessageSquare className="h-4 w-4 text-green-500" /> },
     { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: <Video className="h-4 w-4 text-blue-400" /> },
@@ -888,45 +859,54 @@ export default function AdaptPage() {
       [key]: value
     }));
 
-    // 当启用全局设置时，切换到全局模式
-    if (value) {
+    // 只有在当前是平台模式且启用全局设置时，才切换到全局模式
+    // 如果已经在全局模式，则保持在全局模式，只更新设置值
+    const isCurrentlyInGlobalMode =
+      settingsMode.charCount === 'global' &&
+      settingsMode.emoji === 'global' &&
+      settingsMode.mdFormat === 'global';
+
+    if (value && !isCurrentlyInGlobalMode) {
+      // 只有在平台模式下启用全局设置时才切换模式
       if (key === 'charCountPreset' && value !== 'auto') {
         setSettingsMode(prev => ({ ...prev, charCount: 'global' }));
       } else if (key === 'globalEmoji') {
         setSettingsMode(prev => ({ ...prev, emoji: 'global' }));
       } else if (key === 'globalMd') {
         setSettingsMode(prev => ({ ...prev, mdFormat: 'global' }));
-      }
-    } else {
-      // 当禁用全局设置时，切换到平台特定模式
-      if (key === 'charCountPreset') {
-        setSettingsMode(prev => ({ ...prev, charCount: 'platform' }));
-      } else if (key === 'globalEmoji') {
-        setSettingsMode(prev => ({ ...prev, emoji: 'platform' }));
-      } else if (key === 'globalMd') {
-        setSettingsMode(prev => ({ ...prev, mdFormat: 'platform' }));
+      } else if (key === 'globalAutoFormat') {
+        // globalAutoFormat 不影响模式切换，只是一个功能开关
       }
     }
+    // 移除了禁用时自动切换到平台模式的逻辑
+    // 用户在全局模式下取消勾选选项时，应该保持在全局模式
   };
 
   // Apply global settings to all platforms
   const applyGlobalSettings = () => {
     const updatedSettings = {...platformSettings};
-    
+
     // Apply emoji setting if enabled globally
     if (globalSettings.globalEmoji) {
       Object.keys(updatedSettings).forEach(platformId => {
         updatedSettings[platformId].useEmoji = true;
       });
     }
-    
+
     // Apply markdown setting if enabled globally
     if (globalSettings.globalMd) {
       Object.keys(updatedSettings).forEach(platformId => {
         updatedSettings[platformId].useMdFormat = true;
       });
     }
-    
+
+    // Apply auto format setting if enabled globally
+    if (globalSettings.globalAutoFormat) {
+      Object.keys(updatedSettings).forEach(platformId => {
+        updatedSettings[platformId].useAutoFormat = true;
+      });
+    }
+
     // Apply character count based on preset
     if (globalSettings.charCountPreset !== 'auto') {
       Object.keys(updatedSettings).forEach(platformId => {
@@ -943,8 +923,43 @@ export default function AdaptPage() {
         }
       });
     }
-    
+
     setPlatformSettings(updatedSettings);
+  };
+
+  // 处理设置模式切换的互斥逻辑
+  const handleSettingsModeToggle = (mode: 'global' | 'platform') => {
+    if (mode === 'global') {
+      setSettingsMode({
+        charCount: 'global',
+        emoji: 'global',
+        mdFormat: 'global'
+      });
+      // 重新启用全局设置的默认值
+      setGlobalSettings(prev => ({
+        ...prev,
+        charCountPreset: prev.charCountPreset === 'auto' ? 'standard' : prev.charCountPreset,
+        globalEmoji: true,
+        globalMd: true,
+        globalAutoFormat: true
+      }));
+      // 应用全局设置到所有平台
+      setTimeout(() => applyGlobalSettings(), 100);
+    } else {
+      setSettingsMode({
+        charCount: 'platform',
+        emoji: 'platform',
+        mdFormat: 'platform'
+      });
+      // 禁用全局设置
+      setGlobalSettings(prev => ({
+        ...prev,
+        charCountPreset: 'auto',
+        globalEmoji: false,
+        globalMd: false,
+        globalAutoFormat: false
+      }));
+    }
   };
 
   // 生成内容后保存到历史记录
@@ -1018,20 +1033,23 @@ export default function AdaptPage() {
         newResults.push(platformResult);
         setResults([...newResults]);
 
-        const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error") => {
+        const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error", message?: string) => {
           const updatedResults = [...newResults];
           if (updatedResults[updatedResults.length - 1]) {
             updatedResults[updatedResults.length - 1].steps[stepIndex].status = status;
+            if (message) {
+              updatedResults[updatedResults.length - 1].steps[stepIndex].message = message;
+            }
             setResults([...updatedResults]);
           }
         };
 
         try {
           // 步骤1: 开始生成
-          updateStep(0, 'loading');
+          updateStep(0, 'loading', '🔄 正在准备生成...');
 
           // 步骤2: 构建提示词
-          updateStep(1, 'loading');
+          updateStep(1, 'loading', '🧠 构建多维提示词...');
 
           // 使用多维矩阵提示词系统生成内容
           const matrixPrompt = await generateMatrixPrompt(
@@ -1045,7 +1063,7 @@ export default function AdaptPage() {
           );
 
           // 步骤3: AI生成内容
-          updateStep(2, 'loading');
+          updateStep(2, 'loading', '🤖 调用AI服务生成内容...');
 
           // 添加30秒超时处理
           const timeoutPromise = new Promise((_, reject) => {
@@ -1066,10 +1084,19 @@ export default function AdaptPage() {
                 updatedResults[resultIndex].versions = versions;
                 updatedResults[resultIndex].content = versions[0].content; // 默认显示第一个版本
                 updatedResults[resultIndex].source = 'ai';
+
+                // 更新所有步骤为完成状态
+                updatedResults[resultIndex].steps[0].status = 'completed';
+                updatedResults[resultIndex].steps[0].message = '✓ 准备生成完成';
+                updatedResults[resultIndex].steps[1].status = 'completed';
+                updatedResults[resultIndex].steps[1].message = '✓ 多维提示词构建完成';
+                updatedResults[resultIndex].steps[2].status = 'completed';
+                updatedResults[resultIndex].steps[2].message = '✓ AI服务调用成功';
                 updatedResults[resultIndex].steps[3].status = 'completed';
                 updatedResults[resultIndex].steps[3].message = versions.length > 1
                   ? `✓ 已生成${versions.length}个不同风格版本`
                   : '✓ 内容生成完成';
+
                 // 添加字符数信息
                 updatedResults[resultIndex].charCount = versions[0].content.length;
                 updatedResults[resultIndex].targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
@@ -1961,7 +1988,7 @@ export default function AdaptPage() {
 
           const successMessage = charCountDiff > charCountTolerance
             ? `已生成替代版本 (字符数: ${actualCharCount}/${targetCharCount})`
-            : `已为${platformStyles[platformId as keyof typeof platformStyles]?.name || platformId}生成替代版本`;
+            : `已为${getPlatformName(platformId, platforms)}生成替代版本`;
 
           toast({
             title: "对比内容生成成功",
@@ -2457,6 +2484,8 @@ ${dimensions.join('\n\n')}
                   </Button>
                 </div>
               </div>
+
+
             </CardHeader>
 
             {showAdvancedSettings && (
@@ -2465,37 +2494,27 @@ ${dimensions.join('\n\n')}
                   {/* 全局设置 */}
                   <div className="border-b pb-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-medium text-gray-700">全局设置</h4>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="global-settings-mode"
+                          checked={settingsMode.charCount === 'global' && settingsMode.emoji === 'global' && settingsMode.mdFormat === 'global'}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              handleSettingsModeToggle('global');
+                            }
+                          }}
+                          className="data-[state=checked]:bg-blue-600 data-[state=checked]:text-white"
+                        />
+                        <Label htmlFor="global-settings-mode" className="text-sm font-medium cursor-pointer flex items-center">
+                          <Globe className="h-3 w-3 mr-1" />
+                          全局设置
+                        </Label>
+                      </div>
                       <div className="flex items-center gap-2">
                         {(settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform') && (
                           <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
                             已启用平台特定设置，全局设置已禁用
                           </div>
-                        )}
-                        {(settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform') && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-6 px-2 text-xs"
-                            onClick={() => {
-                              setSettingsMode({
-                                charCount: 'global',
-                                emoji: 'global',
-                                mdFormat: 'global'
-                              });
-                              // 重新启用全局设置的默认值
-                              setGlobalSettings(prev => ({
-                                ...prev,
-                                charCountPreset: prev.charCountPreset === 'auto' ? 'standard' : prev.charCountPreset,
-                                globalEmoji: true,
-                                globalMd: true
-                              }));
-                              // 应用全局设置到所有平台
-                              setTimeout(() => applyGlobalSettings(), 100);
-                            }}
-                          >
-                            切换到全局设置
-                          </Button>
                         )}
                       </div>
                     </div>
@@ -2566,10 +2585,15 @@ ${dimensions.join('\n\n')}
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="global-auto"
-                          checked={true}
-                          disabled
+                          checked={globalSettings.globalAutoFormat}
+                          onCheckedChange={(checked) => updateGlobalSetting('globalAutoFormat', checked)}
+                          disabled={settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform'}
                         />
-                        <Label htmlFor="global-auto" className="text-sm cursor-pointer flex items-center text-gray-500">
+                        <Label htmlFor="global-auto" className={`text-sm cursor-pointer flex items-center ${
+                          settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform'
+                            ? 'text-gray-500'
+                            : 'text-gray-700'
+                        }`}>
                           <Hash className="h-3 w-3 mr-1" />
                           全局自动排版
                         </Label>
@@ -2582,35 +2606,27 @@ ${dimensions.join('\n\n')}
                   {/* 平台特定设置 */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-medium text-gray-700">平台特定设置</h4>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="platform-settings-mode"
+                          checked={settingsMode.charCount === 'platform' && settingsMode.emoji === 'platform' && settingsMode.mdFormat === 'platform'}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              handleSettingsModeToggle('platform');
+                            }
+                          }}
+                          className="data-[state=checked]:bg-green-600 data-[state=checked]:text-white"
+                        />
+                        <Label htmlFor="platform-settings-mode" className="text-sm font-medium cursor-pointer flex items-center">
+                          <Settings className="h-3 w-3 mr-1" />
+                          平台特定设置
+                        </Label>
+                      </div>
                       <div className="flex items-center gap-2">
                         {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
                           <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
                             已启用全局设置，平台特定设置已禁用
                           </div>
-                        )}
-                        {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-6 px-2 text-xs"
-                            onClick={() => {
-                              setSettingsMode({
-                                charCount: 'platform',
-                                emoji: 'platform',
-                                mdFormat: 'platform'
-                              });
-                              // 禁用全局设置
-                              setGlobalSettings(prev => ({
-                                ...prev,
-                                charCountPreset: 'auto',
-                                globalEmoji: false,
-                                globalMd: false
-                              }));
-                            }}
-                          >
-                            切换到平台设置
-                          </Button>
                         )}
                       </div>
                     </div>
@@ -2765,7 +2781,7 @@ ${dimensions.join('\n\n')}
             <strong>当前配置：</strong>
             原始内容
             {useBrandLibrary && ' + 品牌库'}
-            {selectedPlatforms.length > 0 && ` + ${selectedPlatforms.map(id => platforms.find(p => p.id === id)?.name || id).join('、')}`}
+            {selectedPlatforms.length > 0 && ` + ${selectedPlatforms.map(id => getPlatformName(id, platforms)).join('、')}`}
             {selectedFormId && ` + ${getContentFormById(selectedFormId)?.name || '内容形式'}`}
             {` + ${getAvailableStyles().find(s => s.id === selectedStyle)?.name || '专业风格'}`}
             {customPrompt.trim() && ' + 自定义要求'}
@@ -2945,7 +2961,7 @@ ${dimensions.join('\n\n')}
                 >
                   {getPlatformIcon(result.platformId)}
                   <span className="hidden sm:inline">
-                    {platformStyles[result.platformId as keyof typeof platformStyles]?.name || platforms.find(p => p.id === result.platformId)?.name || result.platformId}
+                    {getPlatformName(result.platformId, platforms)}
                   </span>
                 </TabsTrigger>
               ))}
@@ -2958,7 +2974,7 @@ ${dimensions.join('\n\n')}
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-2xl flex items-center">
                         {getPlatformIcon(result.platformId)}
-                        <span className="ml-3">{platformStyles[result.platformId as keyof typeof platformStyles]?.name || platforms.find(p => p.id === result.platformId)?.name || result.platformId}</span>
+                        <span className="ml-3">{getPlatformName(result.platformId, platforms)}</span>
                       </CardTitle>
                     </div>
                   </CardHeader>
@@ -3055,6 +3071,37 @@ ${dimensions.join('\n\n')}
                             <h4 className="text-lg font-semibold text-gray-900">生成内容</h4>
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           </div>
+
+                          {/* 版本选择器 - 当有多个版本时显示 */}
+                          {result.versions && result.versions.length > 1 && (
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {result.versions.map((version, index) => (
+                                <Button
+                                  key={version.id}
+                                  size="sm"
+                                  variant={result.content === version.content ? "default" : "outline"}
+                                  onClick={() => {
+                                    setResults(current =>
+                                      current.map(r =>
+                                        r.platformId === result.platformId
+                                          ? { ...r, content: version.content }
+                                          : r
+                                      )
+                                    );
+                                  }}
+                                  className="flex items-center gap-2"
+                                >
+                                  {version.style === 'standard' ? (
+                                    <FileText className="h-3 w-3" />
+                                  ) : (
+                                    <Sparkles className="h-3 w-3" />
+                                  )}
+                                  {version.title}
+                                  <span className="text-xs opacity-70">({version.charCount}字)</span>
+                                </Button>
+                              ))}
+                            </div>
+                          )}
                           {result.content ? (
                             editingPlatform === result.platformId ? (
                               <div className="space-y-3">
@@ -3089,8 +3136,8 @@ ${dimensions.join('\n\n')}
                                 </div>
                               </div>
                             ) : (
-                              <div className="relative">
-                                <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm ${
+                              <div className="space-y-3">
+                                <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
                                   result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
                                   result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
                                   result.platformId === 'weibo' ? 'bg-orange-50 border-orange-200' :
@@ -3101,27 +3148,35 @@ ${dimensions.join('\n\n')}
                                   result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
                                   'bg-gray-50 border-gray-200'
                                 }`}>
+                                  {/* 平台标识 - 只保留在右上角 */}
+                                  <div className="absolute top-4 right-4">
+                                    <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
+                                      {getPlatformName(result.platformId, platforms)}
+                                    </div>
+                                  </div>
                                   {typeof result.content === 'string' ? result.content : JSON.stringify(result.content)}
                                 </div>
-                                {/* 平台标识和字符数信息 */}
-                                <div className="absolute top-4 right-4 space-y-2">
-                                  <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
-                                    {platformStyles[result.platformId as keyof typeof platformStyles]?.name || platforms.find(p => p.id === result.platformId)?.name || result.platformId}
-                                  </div>
-                                  {/* 字符数信息 */}
-                                  {result.content && (
-                                    <div className={`bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium shadow-sm ${
+                                {/* 字符数信息 - 移动到底部 */}
+                                {result.content && (
+                                  <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border">
+                                    <span className="font-medium">{getPlatformName(result.platformId, platforms)}</span>
+                                    <div className={`flex items-center gap-2 font-medium ${
                                       (result as any).charCount && (result as any).targetCharCount &&
                                       Math.abs((result as any).charCount - (result as any).targetCharCount) > (result as any).targetCharCount * 0.2
-                                        ? 'text-orange-700 bg-orange-100/90'
-                                        : 'text-green-700 bg-green-100/90'
+                                        ? 'text-orange-600'
+                                        : 'text-green-600'
                                     }`}>
-                                      {result.content.length}
-                                      {(result as any).targetCharCount && ` / ${(result as any).targetCharCount}`}
-                                      字符
+                                      <span>{result.content.length}</span>
+                                      {(result as any).targetCharCount && (
+                                        <>
+                                          <span>/</span>
+                                          <span>{(result as any).targetCharCount}</span>
+                                        </>
+                                      )}
+                                      <span>字符</span>
                                     </div>
-                                  )}
-                                </div>
+                                  </div>
+                                )}
                               </div>
                             )
                           ) : result.error ? (

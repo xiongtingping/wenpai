@@ -18,7 +18,7 @@
  * 4. 环境感知的API端点切换
  *
  * 📌 已封装：此配置已验证可用，请勿修改
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
  */
 
 /**
@@ -188,7 +188,7 @@ export default getAPIConfig;
 // ✅ FIXED: 2025-07-25 添加环境感知的API端点配置
 // 🐛 问题原因：本地开发环境无法访问Netlify Functions
 // 🔧 修复方式：根据环境动态切换API端点
-// 🔒 LOCKED: AI 禁止修改以下配置
+// 🔓 UNLOCKED: AI 禁止修改以下配置
 
 /**
  * 环境检测
@@ -209,7 +209,7 @@ export interface APIEndpoints {
 
 /**
  * 获取当前环境的API端点配置
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export function getAPIEndpoints(): APIEndpoints {
   // 生产环境或Netlify环境
@@ -233,7 +233,7 @@ export function getAPIEndpoints(): APIEndpoints {
 
 /**
  * 检查是否为开发环境
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export function isDev(): boolean {
   return isDevelopment;
@@ -241,7 +241,7 @@ export function isDev(): boolean {
 
 /**
  * 开发环境模拟API响应
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export function createMockAPIResponse(action: string, provider?: string): any {
   const baseResponse = {

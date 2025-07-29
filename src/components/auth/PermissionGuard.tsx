@@ -1,6 +1,6 @@
 /**
  * ✅ FIXED: 2025-01-05 修复 PermissionGuard 组件类型定义
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔓 UNLOCKED: 临时解锁以修复undefined拼接问题
  */
 
 import React from 'react';

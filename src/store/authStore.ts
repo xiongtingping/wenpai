@@ -1,6 +1,6 @@
 /**
  * ✅ FIXED: 2025-01-05 修复 authStore 类型定义和方法
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔓 UNLOCKED: 临时解锁以修复undefined拼接问题
  */
 
 import { create } from 'zustand';

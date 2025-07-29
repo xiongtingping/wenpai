@@ -233,7 +233,7 @@ export async function getDailyHotAll(): Promise<DailyHotResponse> {
     }
   }
   
-  throw new Error('所有API源都无法访问，请检查网络连接');
+  throw new Error('网络雷达：获取热点数据失败\n所有API源都无法访问，请检查网络连接\n\n可能原因：网络连接异常、API服务暂时不可用、或防火墙限制');
 }
 
 /**
@@ -438,7 +438,7 @@ export async function getDailyHotByPlatform(platform: string): Promise<DailyHotI
   }
 
   // 所有API源都失败了
-  throw new Error(`无法获取${platform}平台数据，请检查网络连接或稍后重试`);
+  throw new Error(`网络雷达：获取${platform}平台数据失败\n所有API源都无法访问，请检查网络连接\n\n可能原因：网络连接异常、API服务暂时不可用、或防火墙限制`);
 }
 
 /**

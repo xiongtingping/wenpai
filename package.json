@@ -20,7 +20,7 @@
     "check-authing-config": "node check-authing-config.js"
   },
   "dependencies": {
-    "@authing/guard": "^5.3.9",
+    "@authing/guard": "^5.1.0",
     "@authing/react18-ui-components": "^4.5.43",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-accordion": "^1.2.8",
@@ -106,7 +106,7 @@
     "zustand": "^4.0.0"
   },
   "devDependencies": {
-    "@authing/guard-react": "^5.3.9",
+    "@authing/guard-react": "^5.1.0",
     "@authing/web": "^5.1.20",
     "@eslint/js": "^9.22.0",
     "eslint": "^9.22.0",

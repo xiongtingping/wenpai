@@ -1,0 +1,53 @@
+/**
+ * Authing Guard 无障碍访问修复
+ * 解决 aria-hidden 焦点冲突警告
+ */
+
+/* 修复 Authing Guard 中的隐藏焦点元素 */
+[aria-hidden="true"] [tabindex="0"] {
+  /* 确保隐藏元素不会获得焦点 */
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* 特别针对 Authing Guard 的隐藏辅助元素 */
+[aria-hidden="true"] div[tabindex="0"][style*="width: 0px"][style*="height: 0px"] {
+  /* 完全移除这些元素的交互能力 */
+  display: none !important;
+}
+
+/* 确保 Authing Guard 弹窗的正确焦点管理 */
+.authing-guard-container [aria-hidden="true"] {
+  /* 防止隐藏容器内的元素获得焦点 */
+  pointer-events: none !important;
+}
+
+.authing-guard-container [aria-hidden="true"] * {
+  /* 防止隐藏容器内的所有子元素获得焦点 */
+  pointer-events: none !important;
+  tabindex: -1 !important;
+}
+
+/* 确保可见的 Authing Guard 元素正常工作 */
+.authing-guard-container:not([aria-hidden="true"]) {
+  pointer-events: auto !important;
+}
+
+.authing-guard-container:not([aria-hidden="true"]) * {
+  pointer-events: auto !important;
+}
+
+/* 修复可能的焦点陷阱 */
+[role="dialog"] [aria-hidden="true"] {
+  /* 在对话框中，隐藏元素不应该有焦点 */
+  visibility: hidden !important;
+}
+
+/* 确保屏幕阅读器正确处理 Authing Guard */
+.authing-guard-container[aria-modal="true"] [aria-hidden="true"] {
+  /* 在模态对话框中，隐藏元素应该完全不可访问 */
+  display: none !important;
+}

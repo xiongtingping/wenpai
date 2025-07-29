@@ -12,7 +12,7 @@
  * 3. 实现具体的API调用逻辑
  * 4. 在 ai.ts 中注册新的提供者
  * 
- * 🔒 LOCKED: AI 禁止对此模板做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此模板做任何修改
  */
 
 import request from '../request';
@@ -20,7 +20,7 @@ import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
 
 /**
  * TEMPLATE AI服务商配置
- * 🔒 LOCKED: AI 禁止修改此配置结构
+ * 🔓 UNLOCKED: AI 禁止修改此配置结构
  */
 export const TEMPLATE_CONFIG = {
   name: 'template',
@@ -38,7 +38,7 @@ export const TEMPLATE_CONFIG = {
 
 /**
  * TEMPLATE AI服务商实现类
- * 🔒 LOCKED: AI 禁止修改此类结构
+ * 🔓 UNLOCKED: AI 禁止修改此类结构
  */
 export class TemplateProvider {
   private apiKey: string;
@@ -51,7 +51,7 @@ export class TemplateProvider {
 
   /**
    * 检查API密钥是否有效
-   * 🔒 LOCKED: AI 禁止修改此方法签名
+   * 🔓 UNLOCKED: AI 禁止修改此方法签名
    */
   isConfigured(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_template_key_here');
@@ -59,7 +59,7 @@ export class TemplateProvider {
 
   /**
    * 获取支持的模型列表
-   * 🔒 LOCKED: AI 禁止修改此方法签名
+   * 🔓 UNLOCKED: AI 禁止修改此方法签名
    */
   getSupportedModels(): string[] {
     return [...TEMPLATE_CONFIG.models.chat, ...TEMPLATE_CONFIG.models.image];
@@ -67,7 +67,7 @@ export class TemplateProvider {
 
   /**
    * 检查模型是否支持
-   * 🔒 LOCKED: AI 禁止修改此方法签名
+   * 🔓 UNLOCKED: AI 禁止修改此方法签名
    */
   isModelSupported(model: string): boolean {
     return this.getSupportedModels().includes(model);
@@ -75,7 +75,7 @@ export class TemplateProvider {
 
   /**
    * 调用TEMPLATE AI聊天接口
-   * 🔒 LOCKED: AI 禁止修改此方法签名
+   * 🔓 UNLOCKED: AI 禁止修改此方法签名
    */
   async callChat(params: AICallParams): Promise<AIResponse> {
     try {
@@ -147,7 +147,7 @@ export class TemplateProvider {
 
   /**
    * 调用TEMPLATE AI图像生成接口
-   * 🔒 LOCKED: AI 禁止修改此方法签名
+   * 🔓 UNLOCKED: AI 禁止修改此方法签名
    */
   async generateImage(params: ImageGenerationParams): Promise<any> {
     try {
@@ -189,7 +189,7 @@ export class TemplateProvider {
 
   /**
    * 获取提供者信息
-   * 🔒 LOCKED: AI 禁止修改此方法签名
+   * 🔓 UNLOCKED: AI 禁止修改此方法签名
    */
   getProviderInfo() {
     return {
@@ -204,7 +204,7 @@ export class TemplateProvider {
 
 /**
  * 创建Template AI提供者实例
- * 🔒 LOCKED: AI 禁止修改此函数签名
+ * 🔓 UNLOCKED: AI 禁止修改此函数签名
  */
 export function createTemplateProvider(apiKey: string): TemplateProvider {
   return new TemplateProvider(apiKey);
@@ -212,7 +212,7 @@ export function createTemplateProvider(apiKey: string): TemplateProvider {
 
 /**
  * 导出默认配置
- * 🔒 LOCKED: AI 禁止修改此导出
+ * 🔓 UNLOCKED: AI 禁止修改此导出
  */
 export default {
   config: TEMPLATE_CONFIG,

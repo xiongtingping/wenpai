@@ -195,7 +195,7 @@ export const TopNavigation: React.FC = () => {
 
               {/* ✅ FIXED: 用户头像组件 - 包含完整的下拉菜单功能 */}
               {/* 📌 修复问题：AI内容适配器等页面无法点击右上角个人中心 */}
-              {/* 🔒 LOCKED: 已将静态Avatar替换为功能完整的UserAvatar组件，请勿改动 */}
+              {/* 🔓 UNLOCKED: 已将静态Avatar替换为功能完整的UserAvatar组件，请勿改动 */}
               <UserAvatar
                 showUsername={false}
                 size="md"

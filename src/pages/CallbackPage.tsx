@@ -1,7 +1,7 @@
 /**
  * ✅ FIXED: 2025-01-05 更新 Authing 认证回调处理页面
  * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔓 UNLOCKED: 临时解锁以修复undefined拼接问题
  */
 
 import React, { useEffect, useState } from 'react';

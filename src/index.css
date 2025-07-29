@@ -68,8 +68,9 @@
   }
   
   /* 强制应用主题样式 - 使用最高优先级 */
+  /* 🎯 FIXED: 排除 Authing Guard 弹窗元素，避免样式冲突 */
   html[data-theme] body,
-  html[data-theme] body * {
+  html[data-theme] body *:not([class*="authing"]):not([id*="authing"]):not([role="dialog"]):not([aria-modal="true"]) {
     background-color: hsl(var(--background)) !important;
     color: hsl(var(--foreground)) !important;
   }
@@ -82,7 +83,8 @@
   }
   
   /* 处理边框 */
-  html[data-theme] * {
+  /* 🎯 FIXED: 排除 Authing Guard 弹窗元素，避免边框样式冲突 */
+  html[data-theme] *:not([class*="authing"]):not([id*="authing"]):not([role="dialog"]):not([aria-modal="true"]) {
     border-color: hsl(var(--border)) !important;
   }
   
@@ -93,11 +95,8 @@
     color: hsl(var(--primary-foreground)) !important;
   }
   
-  /* 覆盖Authing样式 */
-  html[data-theme] [class*="authing-"] {
-    background-color: hsl(var(--background)) !important;
-    color: hsl(var(--foreground)) !important;
-  }
+  /* 🎯 FIXED: 移除 Authing 样式覆盖，让 Authing Guard 使用原生样式 */
+  /* 这个规则会导致 Authing Guard 弹窗不可见，已移除 */
 }
 
 /* 主题配置 - 使用data-theme属性选择器 */

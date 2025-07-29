@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单登录测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover { background: #0056b3; }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 简单登录测试</h1>
+        <p>测试登录功能是否正常工作</p>
+        
+        <div class="status info" id="status">
+            正在初始化...
+        </div>
+        
+        <button onclick="testLogin()">测试登录</button>
+        <button onclick="checkStatus()">检查状态</button>
+        <button onclick="clearLog()">清空日志</button>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script type="module">
+        let guard = null;
+        
+        // 日志函数
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        // 更新状态
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+        
+        // 暴露函数到全局
+        window.log = log;
+        window.updateStatus = updateStatus;
+        
+        // 初始化
+        async function init() {
+            try {
+                log('开始初始化...');
+                
+                // 动态导入 Guard
+                const { Guard } = await import('https://cdn.jsdelivr.net/npm/@authing/guard@latest/dist/esm/index.js');
+                log('Guard 模块加载成功');
+                
+                // 创建 Guard 实例
+                guard = new Guard({
+                    appId: '68823897631e1ef8ff3720b2',
+                    host: 'https://rzcswqd4sq0f.authing.cn',
+                    redirectUri: `${window.location.origin}/callback`,
+                    mode: 'modal',
+                    lang: 'zh-CN'
+                });
+                
+                log('Guard 实例创建成功');
+                
+                // 监听登录成功
+                guard.on('login', (userInfo) => {
+                    log('登录成功: ' + JSON.stringify(userInfo));
+                    updateStatus('登录成功！', 'success');
+                    
+                    // 自动关闭弹窗
+                    setTimeout(() => {
+                        guard.hide();
+                        log('弹窗已关闭');
+                    }, 2000);
+                });
+                
+                // 监听登录失败
+                guard.on('login-error', (error) => {
+                    log('登录失败: ' + JSON.stringify(error));
+                    updateStatus('登录失败', 'error');
+                });
+                
+                // 监听弹窗关闭
+                guard.on('close', () => {
+                    log('弹窗已关闭');
+                });
+                
+                window.guard = guard; // 暴露到全局
+                updateStatus('初始化成功，可以开始测试', 'success');
+                
+            } catch (error) {
+                log('初始化失败: ' + error.message);
+                updateStatus('初始化失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 测试登录
+        window.testLogin = function() {
+            if (!guard) {
+                log('Guard 未初始化');
+                updateStatus('Guard 未初始化', 'error');
+                return;
+            }
+            
+            try {
+                log('显示登录弹窗...');
+                guard.show();
+                updateStatus('登录弹窗已显示', 'info');
+            } catch (error) {
+                log('显示登录弹窗失败: ' + error.message);
+                updateStatus('显示登录弹窗失败', 'error');
+            }
+        };
+        
+        // 检查状态
+        window.checkStatus = async function() {
+            if (!guard) {
+                log('Guard 未初始化');
+                return;
+            }
+            
+            try {
+                const isLoggedIn = await guard.checkLoginStatus();
+                log('登录状态: ' + (isLoggedIn ? '已登录' : '未登录'));
+                
+                if (isLoggedIn) {
+                    const userInfo = await guard.trackSession();
+                    log('用户信息: ' + JSON.stringify(userInfo));
+                }
+            } catch (error) {
+                log('检查状态失败: ' + error.message);
+            }
+        };
+        
+        // 清空日志
+        window.clearLog = function() {
+            document.getElementById('log').innerHTML = '';
+            console.clear();
+        };
+        
+        // 页面加载完成后初始化
+        init();
+    </script>
+</body>
+</html>

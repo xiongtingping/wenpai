@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹窗可见性测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover { background: #0056b3; }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+        }
+        
+        .modal-test {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 弹窗可见性测试</h1>
+        <p>测试弹窗是否能正确显示</p>
+        
+        <div class="status info" id="status">
+            准备测试...
+        </div>
+        
+        <button onclick="testSimpleModal()">测试简单弹窗</button>
+        <button onclick="testAuthingModal()">测试 Authing 弹窗</button>
+        <button onclick="inspectStyles()">检查样式</button>
+        <button onclick="clearLog()">清空日志</button>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <!-- 简单测试弹窗 -->
+    <div class="modal-test" id="testModal">
+        <div class="modal-content">
+            <h3>测试弹窗</h3>
+            <p>如果你能看到这个弹窗，说明基本的弹窗功能正常。</p>
+            <button onclick="closeTestModal()">关闭</button>
+        </div>
+    </div>
+
+    <script type="module">
+        let guard = null;
+        
+        // 日志函数
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        // 更新状态
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+        
+        // 暴露函数到全局
+        window.log = log;
+        window.updateStatus = updateStatus;
+        
+        // 测试简单弹窗
+        window.testSimpleModal = function() {
+            log('显示简单测试弹窗...');
+            const modal = document.getElementById('testModal');
+            modal.style.display = 'flex';
+            updateStatus('简单弹窗已显示', 'success');
+        };
+        
+        // 关闭测试弹窗
+        window.closeTestModal = function() {
+            log('关闭简单测试弹窗...');
+            const modal = document.getElementById('testModal');
+            modal.style.display = 'none';
+            updateStatus('简单弹窗已关闭', 'info');
+        };
+        
+        // 测试 Authing 弹窗
+        window.testAuthingModal = async function() {
+            try {
+                log('开始测试 Authing 弹窗...');
+                updateStatus('正在加载 Authing Guard...', 'info');
+                
+                // 动态导入 Guard
+                const { Guard } = await import('https://cdn.jsdelivr.net/npm/@authing/guard@latest/dist/esm/index.js');
+                log('Authing Guard 模块加载成功');
+                
+                // 创建 Guard 实例
+                guard = new Guard({
+                    appId: '68823897631e1ef8ff3720b2',
+                    host: 'https://rzcswqd4sq0f.authing.cn',
+                    redirectUri: `${window.location.origin}/callback`,
+                    mode: 'modal',
+                    lang: 'zh-CN'
+                });
+                
+                log('Authing Guard 实例创建成功');
+                
+                // 监听事件
+                guard.on('load', () => {
+                    log('Guard load 事件触发');
+                });
+                
+                guard.on('show', () => {
+                    log('Guard show 事件触发 - 弹窗应该已显示');
+                    updateStatus('Authing 弹窗已显示！', 'success');
+                });
+                
+                guard.on('hide', () => {
+                    log('Guard hide 事件触发 - 弹窗已隐藏');
+                    updateStatus('Authing 弹窗已隐藏', 'info');
+                });
+                
+                guard.on('login', (userInfo) => {
+                    log('登录成功: ' + JSON.stringify(userInfo));
+                    updateStatus('登录成功！', 'success');
+                });
+                
+                guard.on('login-error', (error) => {
+                    log('登录失败: ' + JSON.stringify(error));
+                    updateStatus('登录失败', 'error');
+                });
+                
+                // 显示弹窗
+                log('调用 guard.show()...');
+                guard.show();
+                
+                // 检查 DOM
+                setTimeout(() => {
+                    inspectAuthingDOM();
+                }, 1000);
+                
+            } catch (error) {
+                log('Authing 弹窗测试失败: ' + error.message);
+                updateStatus('Authing 弹窗测试失败', 'error');
+            }
+        };
+        
+        // 检查 Authing DOM
+        function inspectAuthingDOM() {
+            log('检查 Authing DOM 元素...');
+            
+            const selectors = [
+                '[class*="authing"]',
+                '[id*="authing"]',
+                '[role="dialog"]',
+                '[aria-modal="true"]'
+            ];
+            
+            let found = false;
+            
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                if (elements.length > 0) {
+                    found = true;
+                    log(`找到 ${elements.length} 个 ${selector} 元素`);
+                    
+                    elements.forEach((el, index) => {
+                        const rect = el.getBoundingClientRect();
+                        const style = window.getComputedStyle(el);
+                        const isVisible = rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+                        
+                        log(`  元素 ${index + 1}: 可见=${isVisible}, 位置=(${rect.x}, ${rect.y}), 尺寸=${rect.width}x${rect.height}`);
+                        log(`  样式: display=${style.display}, visibility=${style.visibility}, opacity=${style.opacity}, z-index=${style.zIndex}`);
+                    });
+                }
+            });
+            
+            if (!found) {
+                log('未找到任何 Authing 相关的 DOM 元素');
+                updateStatus('未找到 Authing DOM 元素', 'error');
+            }
+        }
+        
+        // 检查样式
+        window.inspectStyles = function() {
+            log('检查页面样式...');
+            
+            // 检查是否有主题属性
+            const hasTheme = document.documentElement.hasAttribute('data-theme');
+            log(`页面是否有 data-theme 属性: ${hasTheme}`);
+            
+            if (hasTheme) {
+                const theme = document.documentElement.getAttribute('data-theme');
+                log(`当前主题: ${theme}`);
+            }
+            
+            // 检查 body 样式
+            const bodyStyle = window.getComputedStyle(document.body);
+            log(`body 背景色: ${bodyStyle.backgroundColor}`);
+            log(`body 文字颜色: ${bodyStyle.color}`);
+            
+            // 检查是否有可能影响弹窗的全局样式
+            const allElements = document.querySelectorAll('*');
+            let hasImportantStyles = 0;
+            
+            allElements.forEach(el => {
+                const style = window.getComputedStyle(el);
+                if (style.position === 'fixed' && style.zIndex && parseInt(style.zIndex) > 1000) {
+                    hasImportantStyles++;
+                }
+            });
+            
+            log(`发现 ${hasImportantStyles} 个高 z-index 的固定定位元素`);
+        };
+        
+        // 清空日志
+        window.clearLog = function() {
+            document.getElementById('log').innerHTML = '';
+            console.clear();
+        };
+        
+        // 页面加载完成
+        window.addEventListener('load', () => {
+            log('页面加载完成');
+            updateStatus('页面已加载，可以开始测试', 'info');
+        });
+    </script>
+</body>
+</html>

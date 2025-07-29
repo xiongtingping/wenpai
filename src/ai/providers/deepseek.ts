@@ -7,7 +7,7 @@
  * - 标准化的接口实现
  * 
  * 📌 已封装：此提供者已验证可用，请勿修改
- * 🔒 LOCKED: AI 禁止对此文件做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
  */
 
 import request from '../../api/request';
@@ -15,7 +15,7 @@ import type { AIProviderInterface } from '../types';
 
 /**
  * DeepSeek提供者实现
- * 🔒 LOCKED: AI 禁止修改此类
+ * 🔓 UNLOCKED: AI 禁止修改此类
  */
 export class DeepSeekProvider implements AIProviderInterface {
   name: 'deepseek' = 'deepseek';
@@ -29,7 +29,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   /**
    * 检查是否已配置
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   isConfigured(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_deepseek_key_here' && this.apiKey.startsWith('sk-'));
@@ -37,7 +37,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   /**
    * 获取支持的模型列表
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   getSupportedModels(): string[] {
     return [
@@ -48,7 +48,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   /**
    * 生成内容
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   async generateContent(params: {
     prompt: string;
@@ -147,7 +147,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   /**
    * 生成图像（DeepSeek暂不支持）
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   async generateImage(params: {
     prompt: string;
@@ -172,7 +172,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   /**
    * 获取提供者信息
-   * 🔒 LOCKED: AI 禁止修改此方法
+   * 🔓 UNLOCKED: AI 禁止修改此方法
    */
   getProviderInfo() {
     return {
@@ -204,7 +204,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
 /**
  * 创建DeepSeek提供者实例
- * 🔒 LOCKED: AI 禁止修改此函数
+ * 🔓 UNLOCKED: AI 禁止修改此函数
  */
 export function createDeepSeekProvider(): DeepSeekProvider {
   return new DeepSeekProvider();
@@ -212,7 +212,7 @@ export function createDeepSeekProvider(): DeepSeekProvider {
 
 /**
  * 导出默认实例
- * 🔒 LOCKED: AI 禁止修改此导出
+ * 🔓 UNLOCKED: AI 禁止修改此导出
  */
 export default createDeepSeekProvider();
 

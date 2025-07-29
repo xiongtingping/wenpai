@@ -28,6 +28,7 @@ import ProfilePage from '@/pages/ProfilePage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
 import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
+import { TestLoginPage } from '@/pages/TestLoginPage';
 import QRCodeTestPage from '@/pages/QRCodeTestPage';
 import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
@@ -37,6 +38,7 @@ import SettingsPage from '@/pages/SettingsPage';
 import AuthTestPage from '@/pages/AuthTestPage';
 import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
 import AuthingTestPage from '@/pages/AuthingTestPage';
+import UndefinedTestPage from '@/pages/UndefinedTestPage';
 
 /**
  * 条件性导航组件
@@ -152,6 +154,8 @@ function AppContent() {
           <Route path="/auth-test" element={<AuthTestPage />} />
           <Route path="/simple-auth-test" element={<SimpleAuthTestPage />} />
           <Route path="/authing-test" element={<AuthingTestPage />} />
+          <Route path="/undefined-test" element={<UndefinedTestPage />} />
+          <Route path="/test-login" element={<TestLoginPage />} />
           
           {/* 404页面 - 必须放在最后 */}
           <Route path="*" element={<NotFoundPage />} />

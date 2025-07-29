@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
-import { getUserUsername } from '@/utils/userDisplayUtils';
+import { getUserUsername, getUserEmail, getUserId } from '@/utils/userDisplayUtils';
 import { 
   Crown, 
   Star, 
@@ -139,11 +139,11 @@ const VIPPage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">用户ID</span>
-                  <span className="text-sm font-mono">{user.id}</span>
+                  <span className="text-sm font-mono">{getUserId(user, '未知')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">邮箱</span>
-                  <span className="text-sm">{user.email}</span>
+                  <span className="text-sm">{getUserEmail(user, '未设置')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">用户名</span>

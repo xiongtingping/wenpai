@@ -126,17 +126,11 @@ export function safeTemplate(template: string, values: Record<string, any>): str
   return result;
 }
 
-// 在开发环境中启动全局监控
+// 🎯 FIXED: 禁用全局字符串监控以避免干扰登录流程
+// 全局字符串拦截会干扰 Authing Guard 的正常工作，导致异常弹窗
+// 如需调试，请手动调用 checkUndefinedConcat() 函数
 if (import.meta.env.DEV) {
-  // 监控全局字符串操作
-  const originalStringConcat = String.prototype.concat;
-  String.prototype.concat = function(...args: any[]) {
-    const result = originalStringConcat.apply(this, args);
-    checkUndefinedConcat(result, 'String.concat');
-    return result;
-  };
-  
-  console.log('🔍 undefined拼接检测器已启动');
+  console.log('🔍 undefined拼接检测器已加载（全局监控已禁用）');
 }
 
 export default UndefinedConcatMonitor;

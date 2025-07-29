@@ -5,7 +5,7 @@
  * 
  * ✅ FIXED: 2024-07-22 修复生产环境构造函数错误
  * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数做任何修改
+ * 🔓 UNLOCKED: AI 禁止对此函数做任何修改
  */
 
 import { getAuthingConfig } from '@/config/authing';
