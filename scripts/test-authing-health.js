@@ -14,6 +14,7 @@ console.log('🔍 开始Authing健康检查...');
 const criticalFiles = [
   'src/contexts/UnifiedAuthContext.tsx',
   'src/config/authing.ts',
+  'src/authing/guard.ts',
   'package.json'
 ];
 
@@ -29,32 +30,32 @@ criticalFiles.forEach(file => {
   }
 });
 
-// 2. 检查UnifiedAuthContext.tsx的Guard初始化格式
+// 2. 检查Guard初始化格式（在guard.ts文件中）
 try {
-  const contextFile = fs.readFileSync('src/contexts/UnifiedAuthContext.tsx', 'utf8');
-  
+  const guardFile = fs.readFileSync('src/authing/guard.ts', 'utf8');
+
   // 检查Guard导入
-  if (contextFile.includes('import { Guard }') || contextFile.includes('import Guard')) {
+  if (guardFile.includes('import { Guard }') || guardFile.includes('import Guard')) {
     console.log('✅ Guard导入格式正确');
   } else {
     console.warn('⚠️ 未检测到Guard导入');
   }
-  
+
   // 检查Guard初始化格式
-  if (contextFile.includes('new Guard({')) {
+  if (guardFile.includes('new Guard({')) {
     console.log('✅ Guard初始化格式正确');
-  } else if (contextFile.includes('new Guard(')) {
+  } else if (guardFile.includes('new Guard(')) {
     console.error('❌ Guard初始化格式错误，应使用 new Guard({...}) 而不是 new Guard(appId, {...})');
     hasErrors = true;
   }
-  
+
   // 检查是否有userPoolId配置（已废弃）
-  if (contextFile.includes('userPoolId')) {
+  if (guardFile.includes('userPoolId')) {
     console.warn('⚠️ 检测到已废弃的userPoolId配置，建议移除');
   }
-  
+
 } catch (error) {
-  console.error(`❌ 读取UnifiedAuthContext.tsx失败: ${error.message}`);
+  console.error(`❌ 读取guard.ts失败: ${error.message}`);
   hasErrors = true;
 }
 
