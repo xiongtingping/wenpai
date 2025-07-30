@@ -249,9 +249,11 @@ export function ContentFormSelector({
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-600">选择表达风格</span>
-                <Badge variant="secondary" className="ml-2">
-                  已选择：{availableStyles.find(s => s.id === selectedStyle)?.name}
-                </Badge>
+                {selectedStyle && (
+                  <Badge variant="secondary" className="ml-2">
+                    已选择：{availableStyles.find(s => s.id === selectedStyle)?.name}
+                  </Badge>
+                )}
               </div>
               {isStyleOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
@@ -264,14 +266,18 @@ export function ContentFormSelector({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {availableStyles.map((style) => (
-                <Card 
-                  key={style.id} 
+                <Card
+                  key={style.id}
                   className={`cursor-pointer transition-all hover:shadow-md p-3 ${
                     selectedStyle === style.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                   }`}
                   onClick={() => {
-                    onStyleChange(style.id);
-                    // 移除自动折叠逻辑，让用户手动决定何时收起
+                    // 如果点击的是已选中的风格，则取消选择
+                    if (selectedStyle === style.id) {
+                      onStyleChange(undefined); // 完全取消选择
+                    } else {
+                      onStyleChange(style.id);
+                    }
                   }}
                 >
                   <div className="flex items-start gap-2">
@@ -284,6 +290,11 @@ export function ContentFormSelector({
                         )}
                       </div>
                       <p className="text-xs text-gray-600 mt-1">{style.description}</p>
+                      {selectedStyle === style.id && (
+                        <p className="text-xs text-blue-600 mt-1 font-medium">
+                          点击可取消选择
+                        </p>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -292,9 +303,16 @@ export function ContentFormSelector({
 
             {/* 表达风格收起按钮 */}
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-              <span className="text-sm text-gray-600">
-                当前风格：{availableStyles.find(s => s.id === selectedStyle)?.name}
-              </span>
+              {selectedStyle && (
+                <span className="text-sm text-gray-600">
+                  当前风格：{availableStyles.find(s => s.id === selectedStyle)?.name}
+                </span>
+              )}
+              {!selectedStyle && (
+                <span className="text-sm text-gray-500">
+                  点击上方选择表达风格
+                </span>
+              )}
               <Button
                 variant="ghost"
                 size="sm"

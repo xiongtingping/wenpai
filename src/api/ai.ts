@@ -14,10 +14,10 @@ import { getAPIConfig } from './request';
 /**
  * AI模型类型定义
  */
-export type AIModel = 
+export type AIModel =
   | 'gpt-4' | 'gpt-4-turbo' | 'gpt-3.5-turbo'
   | 'gemini-pro' | 'gemini-pro-vision'
-  | 'deepseek-chat' | 'deepseek-coder'
+  | 'deepseek-chat' | 'deepseek-coder' | 'deepseek-v3'
   | 'qwen' | 'llama' | 'mistral'
   | 'claude-3' | 'claude-3-sonnet' | 'claude-3-haiku';
 
@@ -348,6 +348,7 @@ function getModelMapping(model: AIModel): string {
     'gemini-pro-vision': 'gemini-pro-vision',
     'deepseek-chat': 'deepseek-chat',
     'deepseek-coder': 'deepseek-coder',
+    'deepseek-v3': 'deepseek-chat', // deepseek-v3 映射到 deepseek-chat
     'qwen': 'qwen-turbo',
     'llama': 'llama-2-70b-chat',
     'mistral': 'mistral-7b-instruct',
@@ -575,10 +576,11 @@ export async function checkAIStatus(): Promise<{
 export function getAvailableModels(): AIModel[] {
   return [
     'gpt-4',
-    'gpt-4-turbo', 
+    'gpt-4-turbo',
     'gpt-3.5-turbo',
     'gemini-pro',
     'deepseek-chat',
+    'deepseek-v3',
     'claude-3',
     'qwen',
     'llama',
@@ -603,6 +605,7 @@ export function estimateAICost(prompt: string, model: AIModel = 'gpt-4'): number
     'gpt-3.5-turbo': 0.002,
     'gemini-pro': 0.001,
     'deepseek-chat': 0.002,
+    'deepseek-v3': 0.00014, // DeepSeek V3的实际价格
     'claude-3': 0.015,
     'qwen': 0.001,
     'llama': 0.001,

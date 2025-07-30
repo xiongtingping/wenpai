@@ -3,7 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles, Bot
 } from "lucide-react";
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
@@ -102,10 +102,151 @@ const platformUrls: Record<string, string> = {
   history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704'
 };
 
+/**
+ * 平台字符数限制配置（基于官方规定的真实数据）
+ * 包含推荐值、最大值和安全区域计算
+ */
+interface PlatformCharacterLimits {
+  recommended: number;  // 推荐字符数
+  maximum: number;      // 平台最大限制
+  safetyMin: number;    // 安全区域最小值（90%）
+  safetyMax: number;    // 安全区域最大值（95%）
+  description: string;  // 限制说明
+}
+
+const platformCharacterLimits: Record<string, PlatformCharacterLimits> = {
+  weibo: {
+    recommended: 140,
+    maximum: 140,
+    safetyMin: 126,  // 90%
+    safetyMax: 133,  // 95%
+    description: '微博单条内容限制140字符'
+  },
+  xiaohongshu: {
+    recommended: 800,
+    maximum: 1000,
+    safetyMin: 720,  // 90%
+    safetyMax: 760,  // 95%
+    description: '小红书笔记正文限制1000字符'
+  },
+  zhihu: {
+    recommended: 1500,
+    maximum: 2000,
+    safetyMin: 1350, // 90%
+    safetyMax: 1425, // 95%
+    description: '知乎回答建议1500-2000字符'
+  },
+  bilibili: {
+    recommended: 800,
+    maximum: 1000,
+    safetyMin: 720,  // 90%
+    safetyMax: 760,  // 95%
+    description: 'B站动态限制1000字符'
+  },
+  douyin: {
+    recommended: 100,
+    maximum: 120,
+    safetyMin: 90,   // 90%
+    safetyMax: 95,   // 95%
+    description: '抖音视频文案限制120字符'
+  },
+  kuaishou: {
+    recommended: 100,
+    maximum: 120,
+    safetyMin: 90,   // 90%
+    safetyMax: 95,   // 95%
+    description: '快手视频文案限制120字符'
+  },
+  wechat: {
+    recommended: 1500,
+    maximum: 2000,
+    safetyMin: 1350, // 90%
+    safetyMax: 1425, // 95%
+    description: '微信公众号文章建议1500-2000字符'
+  },
+  baijiahao: {
+    recommended: 1200,
+    maximum: 1500,
+    safetyMin: 1080, // 90%
+    safetyMax: 1140, // 95%
+    description: '百家号文章建议1200-1500字符'
+  },
+  toutiao: {
+    recommended: 1000,
+    maximum: 1200,
+    safetyMin: 900,  // 90%
+    safetyMax: 950,  // 95%
+    description: '头条号文章建议1000-1200字符'
+  },
+  twitter: {
+    recommended: 250,
+    maximum: 280,
+    safetyMin: 225,  // 90%
+    safetyMax: 238,  // 95%
+    description: 'Twitter推文限制280字符'
+  }
+};
+
 // Helper function to get platform name consistently
 function getPlatformName(platformId: string, platforms: any[]): string {
   const platform = platforms.find(p => p.id === platformId);
   return platform?.name || platformId;
+}
+
+// Helper function to get platform character limits
+function getPlatformCharacterLimits(platformId: string): PlatformCharacterLimits {
+  return platformCharacterLimits[platformId] || {
+    recommended: 500,
+    maximum: 1000,
+    safetyMin: 450,
+    safetyMax: 475,
+    description: '默认字符数限制'
+  };
+}
+
+// Helper function to calculate safety range for content generation
+function calculateSafetyRange(userSetLimit: number, platformId: string): { min: number; max: number } {
+  const limits = getPlatformCharacterLimits(platformId);
+
+  // 确保用户设置不超过平台最大限制
+  const effectiveLimit = Math.min(userSetLimit, limits.maximum);
+
+  // 计算安全区域（90-95%）
+  const safetyMin = Math.floor(effectiveLimit * 0.9);
+  const safetyMax = Math.floor(effectiveLimit * 0.95);
+
+  return { min: safetyMin, max: safetyMax };
+}
+
+// Helper function to validate character count
+function validateCharacterCount(content: string, platformId: string, userSetLimit: number): {
+  isValid: boolean;
+  actualCount: number;
+  targetRange: { min: number; max: number };
+  warning?: string;
+} {
+  const actualCount = content.length;
+  const targetRange = calculateSafetyRange(userSetLimit, platformId);
+  const limits = getPlatformCharacterLimits(platformId);
+
+  let warning: string | undefined;
+
+  if (actualCount > limits.maximum) {
+    warning = `内容超出${getPlatformName(platformId, [])}平台最大限制${limits.maximum}字符`;
+  } else if (actualCount > userSetLimit) {
+    warning = `内容超出用户设置的${userSetLimit}字符限制`;
+  } else if (actualCount < targetRange.min) {
+    warning = `内容过短，建议增加到${targetRange.min}-${targetRange.max}字符`;
+  } else if (actualCount > targetRange.max) {
+    warning = `内容略长，建议控制在${targetRange.max}字符以内`;
+  }
+
+  return {
+    isValid: actualCount <= limits.maximum && actualCount <= userSetLimit,
+    actualCount,
+    targetRange,
+    warning
+  };
 }
 
 // Helper function to get platform icon
@@ -184,6 +325,12 @@ interface ContentVersion {
   style: 'standard' | 'creative';
   title: string;
   charCount: number;
+  validation?: {
+    isValid: boolean;
+    actualCount: number;
+    targetRange: { min: number; max: number };
+    warning?: string;
+  };
 }
 
 interface PlatformResult {
@@ -417,6 +564,7 @@ export default function AdaptPage() {
   const [showSettings, setShowSettings] = useState<Record<string, boolean>>({});
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
+  const [editingVersion, setEditingVersion] = useState<{platformId: string, versionId: string} | null>(null);
   const [translatedContent, setTranslatedContent] = useState<Record<string, string>>({});
   const [translatingPlatforms, setTranslatingPlatforms] = useState<Set<string>>(new Set());
 
@@ -428,6 +576,45 @@ export default function AdaptPage() {
   // 多维矩阵提示词系统状态
   const [customPrompt, setCustomPrompt] = useState('');
   const [useBrandLibrary, setUseBrandLibrary] = useState(false);
+
+  // AI调用重试机制
+  const callAIWithRetry = async (params: any, versionName: string, maxRetries: number = 3): Promise<any> => {
+    let lastError: any = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔄 ${versionName} - 第${attempt}次尝试调用AI (模型: ${params.model})`);
+
+        const result = await callAI(params);
+
+        if (result.success) {
+          console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
+          return result;
+        } else {
+          lastError = new Error(result.error || '未知错误');
+          console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${result.error}`);
+        }
+      } catch (error) {
+        lastError = error;
+        console.error(`🚨 ${versionName} - 第${attempt}次尝试异常:`, error);
+
+        // 如果是DeepSeek模型失败，尝试切换到备用模型
+        if (params.model.includes('deepseek') && attempt === 1) {
+          console.log(`🔄 ${versionName} - DeepSeek失败，尝试切换到GPT-4o-mini`);
+          params.model = 'gpt-4o-mini';
+        }
+      }
+
+      // 如果不是最后一次尝试，等待一段时间再重试
+      if (attempt < maxRetries) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // 指数退避，最大5秒
+        console.log(`⏳ ${versionName} - 等待${delay}ms后重试...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    throw lastError || new Error(`${versionName} - 所有重试都失败了`);
+  };
   const [brandProfile, setBrandProfile] = useState<any>(null);
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     charCountPreset: 'auto',
@@ -450,9 +637,9 @@ export default function AdaptPage() {
   // AI模型说明数据
   const modelDescriptions = {
     'gpt-4o': {
-      features: '最新GPT-4模型，理解能力强',
-      scenarios: '适合复杂内容创作、专业文案',
-      style: '逻辑清晰、表达准确',
+      features: 'GPT-4o模型',
+      scenarios: '通用内容创作',
+      style: '准确表达',
       speed: '响应速度：中等'
     },
     'deepseek-v3': {
@@ -489,23 +676,23 @@ export default function AdaptPage() {
 
       // 并行生成两个版本
       const [standardResult, creativeResult] = await Promise.all([
-        callAI({
+        callAIWithRetry({
           prompt: standardPrompt,
           model: selectedModel as any,
           systemPrompt: '你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。',
           maxTokens: 2000,
           temperature: 0.7
-        }).catch(error => {
+        }, '标准版本').catch(error => {
           console.error('标准版本生成失败:', error);
           return { success: false, error: error.message };
         }),
-        callAI({
+        callAIWithRetry({
           prompt: creativePrompt,
           model: selectedModel as any,
           systemPrompt: '你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。',
           maxTokens: 2000,
           temperature: 0.9
-        }).catch(error => {
+        }, '创意版本').catch(error => {
           console.error('创意版本生成失败:', error);
           return { success: false, error: error.message };
         })
@@ -515,35 +702,51 @@ export default function AdaptPage() {
       console.log('创意版本结果:', creativeResult.success ? '成功' : `失败: ${creativeResult.error}`);
 
       if (standardResult.success && standardResult.content) {
+        const userSetLimit = platformSettings[platformId]?.charCount || getPlatformCharacterLimits(platformId).recommended;
+        const validation = validateCharacterCount(standardResult.content, platformId, userSetLimit);
+
         versions.push({
           id: 'version-a',
           content: standardResult.content,
           style: 'standard',
           title: '版本A',
-          charCount: standardResult.content.length
+          charCount: standardResult.content.length,
+          validation: validation
         });
+
+        if (validation.warning) {
+          console.warn(`版本A字符数警告: ${validation.warning}`);
+        }
       }
 
       if (creativeResult.success && creativeResult.content) {
+        const userSetLimit = platformSettings[platformId]?.charCount || getPlatformCharacterLimits(platformId).recommended;
+        const validation = validateCharacterCount(creativeResult.content, platformId, userSetLimit);
+
         versions.push({
           id: 'version-b',
           content: creativeResult.content,
           style: 'creative',
           title: '版本B',
-          charCount: creativeResult.content.length
+          charCount: creativeResult.content.length,
+          validation: validation
         });
+
+        if (validation.warning) {
+          console.warn(`版本B字符数警告: ${validation.warning}`);
+        }
       }
 
       // 如果两个版本都失败了，尝试生成一个基础版本
       if (versions.length === 0) {
         console.log('两个版本都失败，尝试生成基础版本');
-        const fallbackResult = await callAI({
+        const fallbackResult = await callAIWithRetry({
           prompt: basePrompt,
           model: selectedModel as any,
           systemPrompt: '你是一个内容创作专家，请生成高质量的内容。',
           maxTokens: 2000,
           temperature: 0.8
-        }).catch(error => {
+        }, '基础版本').catch(error => {
           console.error('基础版本生成失败:', error);
           return { success: false, error: error.message };
         });
@@ -576,7 +779,7 @@ export default function AdaptPage() {
   
   // 内容形式和风格选择
   const [selectedFormId, setSelectedFormId] = useState<string | undefined>(undefined);
-  const [selectedStyle, setSelectedStyle] = useState<StyleType>('professional');
+  const [selectedStyle, setSelectedStyle] = useState<StyleType | undefined>(undefined);
   
   // 获取可用模型
   const availableModels = getAvailableModelsForTier(userPlan);
@@ -1065,9 +1268,9 @@ export default function AdaptPage() {
           // 步骤3: AI生成内容
           updateStep(2, 'loading', '🤖 调用AI服务生成内容...');
 
-          // 添加30秒超时处理
+          // 添加60秒超时处理
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('生成超时，请重试')), 30000);
+            setTimeout(() => reject(new Error('生成超时，请重试')), 60000);
           });
 
           // 生成多个版本的内容（带超时）
@@ -1116,8 +1319,12 @@ export default function AdaptPage() {
             let userFriendlyError = '生成失败，请重试';
             const errorMessage = error instanceof Error ? error.message : String(error);
 
-            if (errorMessage.includes('超时')) {
-              userFriendlyError = '⏰ 生成超时，请检查网络后重试';
+            if (errorMessage.includes('超时') || errorMessage.includes('timeout')) {
+              userFriendlyError = '⏰ 网络超时，启动智能重试...';
+              // 立即触发自动重试
+              setTimeout(() => {
+                autoRetryTimeoutPlatform(platformId);
+              }, 1000);
             } else if (errorMessage.includes('API') || errorMessage.includes('401') || errorMessage.includes('403')) {
               userFriendlyError = '🔑 AI服务认证失败，请联系管理员';
             } else if (errorMessage.includes('429')) {
@@ -1173,6 +1380,333 @@ export default function AdaptPage() {
     });
   };
 
+  // 版本重新生成状态
+  const [regeneratingVersions, setRegeneratingVersions] = useState<Set<string>>(new Set());
+
+  // 自动重试状态
+  const [autoRetryingPlatforms, setAutoRetryingPlatforms] = useState<Set<string>>(new Set());
+
+  // 自动化转发状态
+  const [automationRunning, setAutomationRunning] = useState(false);
+  const [automationResults, setAutomationResults] = useState<any[]>([]);
+
+  // 网络状态检测
+  const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'slow'>('online');
+
+  // 网络状态监听
+  useEffect(() => {
+    const handleOnline = () => {
+      setNetworkStatus('online');
+      console.log('🌐 网络已连接');
+    };
+
+    const handleOffline = () => {
+      setNetworkStatus('offline');
+      console.log('🚫 网络已断开');
+      toast({
+        title: "网络连接断开",
+        description: "请检查网络连接后重试",
+        variant: "destructive"
+      });
+    };
+
+    // 检测网络速度
+    const checkNetworkSpeed = async () => {
+      try {
+        const startTime = Date.now();
+        await fetch('/favicon.ico', { cache: 'no-cache' });
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+
+        if (duration > 3000) {
+          setNetworkStatus('slow');
+          console.log('🐌 网络连接较慢');
+        } else {
+          setNetworkStatus('online');
+        }
+      } catch (error) {
+        setNetworkStatus('offline');
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // 初始检测
+    if (!navigator.onLine) {
+      setNetworkStatus('offline');
+    } else {
+      checkNetworkSpeed();
+    }
+
+    // 定期检测网络状态
+    const interval = setInterval(checkNetworkSpeed, 30000); // 每30秒检测一次
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // 网络诊断工具
+  const runNetworkDiagnostic = async () => {
+    console.log('🔍 开始网络诊断...');
+
+    const diagnosticResults = {
+      basicConnectivity: false,
+      dnsResolution: false,
+      apiEndpoint: false,
+      latency: 0
+    };
+
+    try {
+      // 1. 基础连接测试
+      const startTime = Date.now();
+      await fetch('/favicon.ico', { cache: 'no-cache' });
+      diagnosticResults.basicConnectivity = true;
+      diagnosticResults.latency = Date.now() - startTime;
+
+      // 2. DNS解析测试
+      await fetch('https://www.google.com/favicon.ico', {
+        mode: 'no-cors',
+        cache: 'no-cache'
+      });
+      diagnosticResults.dnsResolution = true;
+
+      // 3. AI API端点测试
+      try {
+        const response = await fetch('https://api.deepseek.com/v1/models', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer test'
+          }
+        });
+        // 即使返回401，也说明端点可达
+        diagnosticResults.apiEndpoint = response.status === 401 || response.status === 200;
+      } catch (error) {
+        diagnosticResults.apiEndpoint = false;
+      }
+
+    } catch (error) {
+      console.error('网络诊断失败:', error);
+    }
+
+    // 输出诊断结果
+    console.log('📊 网络诊断结果:', diagnosticResults);
+
+    let message = '网络诊断完成:\n';
+    message += `• 基础连接: ${diagnosticResults.basicConnectivity ? '✅ 正常' : '❌ 失败'}\n`;
+    message += `• DNS解析: ${diagnosticResults.dnsResolution ? '✅ 正常' : '❌ 失败'}\n`;
+    message += `• AI服务端点: ${diagnosticResults.apiEndpoint ? '✅ 可达' : '❌ 不可达'}\n`;
+    message += `• 网络延迟: ${diagnosticResults.latency}ms`;
+
+    if (diagnosticResults.latency > 2000) {
+      message += '\n\n建议: 网络延迟较高，建议切换网络环境';
+    }
+
+    toast({
+      title: "网络诊断结果",
+      description: message,
+      duration: 8000
+    });
+
+    return diagnosticResults;
+  };
+
+  // 自动重试超时平台
+  const autoRetryTimeoutPlatform = async (platformId: string, retryCount: number = 1, maxRetries: number = 2) => {
+    if (retryCount > maxRetries) {
+      console.log(`平台 ${platformId} 已达到最大重试次数 ${maxRetries}`);
+      return;
+    }
+
+    console.log(`🔄 平台 ${platformId} 开始第 ${retryCount} 次自动重试...`);
+    setAutoRetryingPlatforms(prev => new Set(prev).add(platformId));
+
+    // 更新UI显示重试状态
+    setResults(current =>
+      current.map(result =>
+        result.platformId === platformId
+          ? {
+              ...result,
+              error: `🔄 智能重试中... (${retryCount}/${maxRetries}) - 正在切换到备用模型`,
+              steps: result.steps.map(step => ({ ...step, status: 'loading' as const }))
+            }
+          : result
+      )
+    );
+
+    try {
+      // 智能延迟策略：第一次重试2秒，第二次重试5秒
+      const delay = retryCount === 1 ? 2000 : 5000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+      // 重新生成内容
+      await generateSinglePlatformContent(platformId);
+
+      console.log(`✅ 平台 ${platformId} 第 ${retryCount} 次重试成功`);
+
+      // 显示成功消息
+      toast({
+        title: "自动重试成功",
+        description: `${getPlatformName(platformId, platforms)} 内容已重新生成`,
+      });
+
+    } catch (error) {
+      console.error(`❌ 平台 ${platformId} 第 ${retryCount} 次重试失败:`, error);
+
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if ((errorMessage.includes('超时') || errorMessage.includes('timeout')) && retryCount < maxRetries) {
+        // 继续重试，使用更长的延迟
+        setTimeout(() => {
+          autoRetryTimeoutPlatform(platformId, retryCount + 1, maxRetries);
+        }, 3000);
+      } else {
+        // 最终失败，提供用户友好的错误信息
+        const finalError = retryCount >= maxRetries
+          ? `⏰ 网络不稳定，已重试 ${maxRetries} 次。建议：1) 检查网络连接 2) 稍后手动重试 3) 尝试切换网络环境`
+          : errorMessage;
+
+        setResults(current =>
+          current.map(result =>
+            result.platformId === platformId
+              ? {
+                  ...result,
+                  error: finalError
+                }
+              : result
+          )
+        );
+
+        // 显示错误提示
+        if (retryCount >= maxRetries) {
+          toast({
+            title: "自动重试失败",
+            description: `${getPlatformName(platformId, platforms)} 生成失败，请检查网络后手动重试`,
+            variant: "destructive"
+          });
+        }
+      }
+    } finally {
+      setAutoRetryingPlatforms(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(platformId);
+        return newSet;
+      });
+    }
+  };
+
+  // 自动化转发处理函数
+  const handleAutomatedForward = async () => {
+    try {
+      setAutomationRunning(true);
+      setAutomationResults([]);
+
+      // 获取有内容的平台列表
+      const availablePlatforms = results
+        .filter(r => r.content || (r.versions && r.versions.length > 0))
+        .map(r => r.platformId);
+
+      if (availablePlatforms.length === 0) {
+        toast({
+          title: "无可转发内容",
+          description: "请先生成内容后再进行自动化转发",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "启动自动化转发",
+        description: `准备自动转发到 ${availablePlatforms.length} 个平台`,
+      });
+
+      // 动态导入自动化模块
+      const { executeBatchForward } = await import('@/automation/batchForward');
+
+      // 执行自动化转发
+      const automationResults = await executeBatchForward({
+        baseUrl: window.location.origin,
+        platforms: availablePlatforms,
+        headless: false, // 可视化模式，让用户看到过程
+        timeout: 30000,
+        retryCount: 2
+      });
+
+      setAutomationResults(automationResults);
+
+      // 统计结果
+      const successCount = automationResults.filter(r => r.success).length;
+      const failureCount = automationResults.length - successCount;
+
+      if (successCount > 0) {
+        toast({
+          title: "自动化转发完成",
+          description: `成功: ${successCount}个, 失败: ${failureCount}个`,
+        });
+      } else {
+        toast({
+          title: "自动化转发失败",
+          description: "所有平台转发都失败了，请检查网络连接和平台状态",
+          variant: "destructive"
+        });
+      }
+
+    } catch (error) {
+      console.error('自动化转发失败:', error);
+      toast({
+        title: "自动化转发失败",
+        description: error instanceof Error ? error.message : '未知错误',
+        variant: "destructive"
+      });
+    } finally {
+      setAutomationRunning(false);
+    }
+  };
+
+  // 生成单个平台内容（用于重试）
+  const generateSinglePlatformContent = async (platformId: string) => {
+    const matrixPrompt = await generateMatrixPrompt(
+      originalContent.trim(),
+      platformId,
+      selectedFormId,
+      selectedStyle,
+      platformSettings[platformId]?.charCount || getCharCountMax(platformId),
+      customPrompt,
+      useBrandLibrary
+    );
+
+    // 添加90秒超时处理
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('生成超时，请重试')), 90000);
+    });
+
+    // 生成多个版本的内容（带超时）
+    const versions = await Promise.race([
+      generateMultipleVersions(matrixPrompt, platformId),
+      timeoutPromise
+    ]) as any;
+
+    if (versions.length > 0) {
+      // 更新结果，包含多个版本
+      setResults(current =>
+        current.map(result =>
+          result.platformId === platformId
+            ? {
+                ...result,
+                versions,
+                error: undefined,
+                steps: result.steps.map(step => ({ ...step, status: 'completed' as const }))
+              }
+            : result
+        )
+      );
+    } else {
+      throw new Error('生成的版本为空');
+    }
+  };
+
   // 重新生成特定版本
   const regenerateVersion = async (platformId: string, versionId: string) => {
     const result = results.find(r => r.platformId === platformId);
@@ -1180,6 +1714,9 @@ export default function AdaptPage() {
 
     const version = result.versions.find(v => v.id === versionId);
     if (!version) return;
+
+    const versionKey = `${platformId}-${versionId}`;
+    setRegeneratingVersions(prev => new Set(prev).add(versionKey));
 
     try {
       // 构建提示词
@@ -1236,6 +1773,12 @@ export default function AdaptPage() {
         description: error instanceof Error ? error.message : '生成失败',
         variant: "destructive"
       });
+    } finally {
+      setRegeneratingVersions(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(versionKey);
+        return newSet;
+      });
     }
   };
 
@@ -1245,9 +1788,9 @@ export default function AdaptPage() {
   };
 
   const handleSaveEdit = (platformId: string, newContent: string) => {
-    setResults(current => 
-      current.map(result => 
-        result.platformId === platformId 
+    setResults(current =>
+      current.map(result =>
+        result.platformId === platformId
           ? { ...result, content: newContent }
           : result
       )
@@ -1259,10 +1802,70 @@ export default function AdaptPage() {
     });
   };
 
+  // Edit version content
+  const handleEditVersion = (platformId: string, versionId: string) => {
+    const currentEditing = editingVersion;
+    if (currentEditing && currentEditing.platformId === platformId && currentEditing.versionId === versionId) {
+      setEditingVersion(null);
+    } else {
+      setEditingVersion({ platformId, versionId });
+    }
+  };
+
+  const handleSaveVersionEdit = (platformId: string, versionId: string, newContent: string) => {
+    setResults(current =>
+      current.map(result =>
+        result.platformId === platformId
+          ? {
+              ...result,
+              versions: result.versions?.map(version =>
+                version.id === versionId
+                  ? { ...version, content: newContent, charCount: newContent.length }
+                  : version
+              )
+            }
+          : result
+      )
+    );
+    setEditingVersion(null);
+    toast({
+      title: "保存成功",
+      description: "版本内容已更新",
+    });
+  };
+
   // Favorite content
-  const handleFavorite = (platformId: string) => {
+  const handleFavorite = (platformId: string, versionId?: string) => {
     const result = results.find(r => r.platformId === platformId);
-    if (!result || !result.content) {
+    if (!result) {
+      toast({
+        title: "无法收藏",
+        description: "没有可收藏的内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    let content = '';
+    let versionTitle = '';
+
+    // 如果指定了版本ID，收藏特定版本
+    if (versionId && result.versions) {
+      const version = result.versions.find(v => v.id === versionId);
+      if (version) {
+        content = version.content;
+        versionTitle = ` - ${version.title}`;
+      }
+    } else if (result.content) {
+      // 收藏主内容
+      content = result.content;
+    } else if (result.versions && result.versions.length > 0) {
+      // 如果没有主内容，收藏第一个版本
+      content = result.versions[0].content;
+      versionTitle = ` - ${result.versions[0].title}`;
+    }
+
+    if (!content) {
       toast({
         title: "无法收藏",
         description: "没有可收藏的内容",
@@ -1275,14 +1878,14 @@ export default function AdaptPage() {
     const favoriteItem = {
       id: Date.now().toString(),
       platformId,
-      content: result.content,
-      platformName: platformId,
+      content,
+      platformName: platformId + versionTitle,
       timestamp: new Date().toISOString()
     };
-    
+
     favorites.push(favoriteItem);
     localStorage.setItem('favorites', JSON.stringify(favorites));
-    
+
     toast({
       title: "收藏成功",
       description: "内容已添加到收藏，可在我的页面查看",
@@ -1299,7 +1902,16 @@ export default function AdaptPage() {
    */
   const handlePublish = (platformId: string) => {
     const result = results.find(r => r.platformId === platformId);
-    if (!result || !result.content) {
+    let content = '';
+
+    // 支持版本内容和主内容
+    if (result?.content) {
+      content = result.content;
+    } else if (result?.versions && result.versions.length > 0) {
+      content = result.versions[0].content; // 使用第一个版本
+    }
+
+    if (!content) {
       toast({
         title: "无法发布",
         description: "没有可发布的内容",
@@ -1307,7 +1919,37 @@ export default function AdaptPage() {
       });
       return;
     }
-    setPendingPublish({ platformId, content: result.content });
+    setPendingPublish({ platformId, content });
+    setPublishDialogOpen(true);
+  };
+
+  /**
+   * 版本特定的发布函数
+   * @param platformId 平台ID
+   * @param versionId 版本ID
+   */
+  const handleVersionPublish = (platformId: string, versionId: string) => {
+    const result = results.find(r => r.platformId === platformId);
+    if (!result?.versions) {
+      toast({
+        title: "无法发布",
+        description: "没有可发布的内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const version = result.versions.find(v => v.id === versionId);
+    if (!version?.content) {
+      toast({
+        title: "无法发布",
+        description: "没有可发布的内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setPendingPublish({ platformId, content: version.content });
     setPublishDialogOpen(true);
   };
 
@@ -1804,8 +2446,10 @@ export default function AdaptPage() {
    * 打开批量一键转发弹窗
    */
   const handleBatchPublish = () => {
-    // 只展示有内容的平台
-    const available = results.filter(r => r.content).map(r => r.platformId);
+    // 只展示有内容的平台（包括版本内容）
+    const available = results.filter(r => {
+      return r.content || (r.versions && r.versions.length > 0 && r.versions[0].content);
+    }).map(r => r.platformId);
     setBatchSelectedPlatforms(available);
     setBatchPublishOpen(true);
   };
@@ -1817,18 +2461,62 @@ export default function AdaptPage() {
     // 构建转发队列
     const queue = batchSelectedPlatforms.map(pid => {
       const result = results.find(r => r.platformId === pid);
-      return result && result.content ? { platformId: pid, content: result.content } : null;
+      if (!result) return null;
+
+      // 优先使用版本内容，如果没有版本则使用主内容
+      let content = '';
+      if (result.versions && result.versions.length > 0) {
+        // 使用第一个版本的内容
+        content = result.versions[0].content;
+      } else if (result.content) {
+        content = result.content;
+      }
+
+      return content ? { platformId: pid, content } : null;
     }).filter(Boolean) as { platformId: string; content: string }[];
     
     if (publishMode === 'api') {
       handleBatchApiPublish(batchSelectedPlatforms);
       setBatchPublishOpen(false);
     } else {
-      setBatchQueue(queue);
+      // 批量复制所有内容并同时跳转到所有平台
+      const allContent = queue.map(item => {
+        const platformName = getPlatformName(item.platformId, platforms);
+        return `【${platformName}】\n${item.content}`;
+      }).join('\n\n---\n\n');
+
+      // 复制合并后的内容到剪贴板
+      navigator.clipboard.writeText(allContent);
+
+      // 保存到历史记录
+      const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+      queue.forEach(item => {
+        shareHistory.unshift({
+          id: Date.now().toString() + Math.random(),
+          platformId: item.platformId,
+          platformName: getPlatformName(item.platformId, platforms),
+          content: item.content,
+          time: new Date().toISOString()
+        });
+      });
+      localStorage.setItem('shareHistory', JSON.stringify(shareHistory.slice(0, 50)));
+
+      // 同时打开所有平台的发布页面
+      queue.forEach(item => {
+        const url = platformUrls[item.platformId];
+        if (url) {
+          window.open(url, '_blank');
+        }
+      });
+
+      const platformNames = queue.map(item => getPlatformName(item.platformId, platforms)).join('、');
+
+      toast({
+        title: "批量转发成功",
+        description: `已复制内容并跳转到 ${platformNames} 发布页面`,
+      });
+
       setBatchPublishOpen(false);
-      if (queue.length > 0) {
-        setBatchCurrent(queue[0]);
-      }
     }
   };
 
@@ -1947,7 +2635,7 @@ export default function AdaptPage() {
     try {
       // 使用不同的内容策略生成对比版本
       const alternativeFormId = getAlternativeContentForm(platformId, selectedFormId);
-      const alternativeStyle = getAlternativeStyle(selectedStyle);
+      const alternativeStyle = getAlternativeStyle(selectedStyle || 'professional');
 
       // 使用多维矩阵提示词系统生成对比内容
       const matrixPrompt = await generateMatrixPrompt(
@@ -2131,7 +2819,7 @@ export default function AdaptPage() {
     originalContent: string,
     platform: string,
     formId?: string,
-    style: StyleType = 'professional',
+    style?: StyleType,
     charCount?: number,
     customPromptText?: string,
     useBrand: boolean = false
@@ -2170,7 +2858,7 @@ export default function AdaptPage() {
 
     // ⭕ 字符数控制维度
     if (charCount) {
-      const charDimension = generateCharCountDimension(charCount);
+      const charDimension = generateCharCountDimension(charCount, platform);
       dimensions.push(`【字符数控制维度】\n${charDimension}`);
     }
 
@@ -2257,13 +2945,22 @@ ${dimensions.join('\n\n')}
   };
 
   // 生成风格维度
-  const generateStyleDimension = (style: StyleType, profile?: any): string => {
+  const generateStyleDimension = (style?: StyleType, profile?: any): string => {
     const styleMap = {
       'professional': '专业权威 - 用词准确、逻辑清晰、可信度高',
       'funny': '幽默风趣 - 轻松活泼、妙语连珠、娱乐性强',
       'real': '真实自然 - 贴近生活、真情实感、亲和力强',
       'hook': '吸引眼球 - 标题党风格、强烈冲击、引人注目'
     };
+
+    // 如果没有选择风格，使用自然表达
+    if (!style) {
+      const brandOverride = profile ? `\n- 品牌风格覆盖：${profile.tone}风格为主导风格` : '';
+      return `表达风格要求：
+- 选择风格：自然表达 - 根据内容特点自然选择最合适的表达方式
+- 风格特点：不强制特定风格，让内容本身决定最佳表达方式
+- 语言特色：自然流畅、符合内容调性${brandOverride}`;
+    }
 
     const brandOverride = profile ? `\n- 品牌风格覆盖：${profile.tone}风格优先于选择的${style}风格` : '';
 
@@ -2282,14 +2979,18 @@ ${dimensions.join('\n\n')}
 - 创意发挥：在满足用户要求基础上进行创意扩展`;
   };
 
-  // 生成字符数维度
-  const generateCharCountDimension = (charCount: number): string => {
-    const tolerance = Math.round(charCount * 0.1); // 10%容差
-    return `字符数精确控制：
-- 目标字符数：${charCount}字符
-- 容差范围：${charCount - tolerance} - ${charCount + tolerance}字符
-- 控制要求：严格控制在目标范围内，不得超出容差
-- 优化策略：通过调整表达方式和内容密度来控制字符数`;
+  // 生成字符数维度（使用安全区域控制）
+  const generateCharCountDimension = (charCount: number, platformId: string): string => {
+    const safetyRange = calculateSafetyRange(charCount, platformId);
+    const limits = getPlatformCharacterLimits(platformId);
+
+    return `字符数智能控制：
+- 用户设置：${charCount}字符
+- 平台限制：${limits.maximum}字符（${limits.description}）
+- 安全区域：${safetyRange.min} - ${safetyRange.max}字符（90-95%安全范围）
+- 生成目标：严格控制在安全区域内，确保不超出平台限制
+- 优化策略：通过精准的表达方式和内容密度控制，生成高质量且符合限制的内容
+- 质量保证：在字符数限制内最大化内容价值和表达效果`;
   };
 
   // 生成格式化维度
@@ -2336,7 +3037,7 @@ ${dimensions.join('\n\n')}
     <div className="min-h-screen bg-gray-50">
       {/* 页面导航 */}
       <PageNavigation
-        title="内容适配器"
+        title="AI内容适配器"
         description="智能分析内容，一键适配多平台格式"
         actions={
           <>
@@ -2649,31 +3350,79 @@ ${dimensions.join('\n\n')}
                             </div>
 
                             <div className="space-y-3">
-                              {/* 字符数设置 */}
+                              {/* 字符数设置 - 智能推荐版本 */}
                               <div>
                                 <div className="flex justify-between items-center mb-1">
                                   <Label className={`text-xs ${
                                     settingsMode.charCount === 'global' ? 'text-gray-400' : ''
                                   }`}>
-                                    字符数: {settings.charCount || getCharCountMax(platformId)}
+                                    字符数: {settings.charCount || getPlatformCharacterLimits(platformId).recommended}
                                   </Label>
-                                  <span className={`text-xs ${
-                                    settingsMode.charCount === 'global' ? 'text-gray-400' : 'text-muted-foreground'
-                                  }`}>
-                                    {getCharCountMin(platformId)}-{getCharCountMax(platformId)}
-                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-5 px-2 text-xs"
+                                      onClick={() => {
+                                        const limits = getPlatformCharacterLimits(platformId);
+                                        updatePlatformSetting(platformId, 'charCount', limits.recommended);
+                                      }}
+                                      disabled={settingsMode.charCount === 'global'}
+                                    >
+                                      推荐
+                                    </Button>
+                                    <span className={`text-xs ${
+                                      settingsMode.charCount === 'global' ? 'text-gray-400' : 'text-muted-foreground'
+                                    }`}>
+                                      最大{getPlatformCharacterLimits(platformId).maximum}
+                                    </span>
+                                  </div>
                                 </div>
+
                                 <Slider
-                                  value={[settings.charCount || getCharCountMax(platformId)]}
-                                  min={getCharCountMin(platformId)}
-                                  max={getCharCountMax(platformId)}
+                                  value={[settings.charCount || getPlatformCharacterLimits(platformId).recommended]}
+                                  min={50}
+                                  max={getPlatformCharacterLimits(platformId).maximum}
                                   step={10}
-                                  onValueChange={(value) => updatePlatformSetting(platformId, 'charCount', value[0])}
+                                  onValueChange={(value) => {
+                                    const limits = getPlatformCharacterLimits(platformId);
+                                    const newValue = Math.min(value[0], limits.maximum);
+                                    updatePlatformSetting(platformId, 'charCount', newValue);
+                                  }}
                                   className={`w-full ${
                                     settingsMode.charCount === 'global' ? 'opacity-50 pointer-events-none' : ''
                                   }`}
                                   disabled={settingsMode.charCount === 'global'}
                                 />
+
+                                {/* 字符数限制说明和警告 */}
+                                {settingsMode.charCount !== 'global' && (
+                                  <div className="mt-2 space-y-1">
+                                    <div className="text-xs text-gray-600">
+                                      {getPlatformCharacterLimits(platformId).description}
+                                    </div>
+                                    {(() => {
+                                      const currentValue = settings.charCount || getPlatformCharacterLimits(platformId).recommended;
+                                      const limits = getPlatformCharacterLimits(platformId);
+                                      const safetyRange = calculateSafetyRange(currentValue, platformId);
+
+                                      if (currentValue > limits.maximum) {
+                                        return (
+                                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                                            ⚠️ 超出平台最大限制！将自动调整为{limits.maximum}字符
+                                          </div>
+                                        );
+                                      } else {
+                                        return (
+                                          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                                            ✅ 安全区域：{safetyRange.min}-{safetyRange.max}字符（实际生成范围）
+                                          </div>
+                                        );
+                                      }
+                                    })()}
+                                  </div>
+                                )}
+
                                 {settingsMode.charCount === 'global' && (
                                   <p className="text-xs text-gray-400 mt-1">已禁用，使用全局字符数设置</p>
                                 )}
@@ -2756,7 +3505,7 @@ ${dimensions.join('\n\n')}
           <CardContent>
             <ContentFormSelector
               selectedFormId={selectedFormId}
-              selectedStyle={selectedStyle}
+              selectedStyle={selectedStyle || 'professional'}
               onFormChange={setSelectedFormId}
               onStyleChange={setSelectedStyle}
               selectedPlatforms={selectedPlatforms}
@@ -2783,7 +3532,7 @@ ${dimensions.join('\n\n')}
             {useBrandLibrary && ' + 品牌库'}
             {selectedPlatforms.length > 0 && ` + ${selectedPlatforms.map(id => getPlatformName(id, platforms)).join('、')}`}
             {selectedFormId && ` + ${getContentFormById(selectedFormId)?.name || '内容形式'}`}
-            {` + ${getAvailableStyles().find(s => s.id === selectedStyle)?.name || '专业风格'}`}
+            {selectedStyle && ` + ${getAvailableStyles().find(s => s.id === selectedStyle)?.name}`}
             {customPrompt.trim() && ' + 自定义要求'}
           </p>
         </CardContent>
@@ -2875,8 +3624,8 @@ ${dimensions.join('\n\n')}
         </CardContent>
       </Card>
 
-      {/* AI模型说明 - DeepSeek模型时隐藏 */}
-      {selectedModelDescription && !selectedModel.includes('deepseek') && (
+      {/* AI模型说明 - 完全隐藏，简化界面 */}
+      {false && selectedModelDescription && (
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="space-y-3">
@@ -2934,23 +3683,130 @@ ${dimensions.join('\n\n')}
       {/* Results Section */}
       {results.length > 0 && (
         <div className="mt-8">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold">平台适配结果</h1>
-            <Button
-              size="lg"
-              variant="default"
-              onClick={handleBatchPublish}
-              disabled={results.filter(r => r.content).length === 0}
-            >
-              {publishMode === 'api' ? (
-                <Zap className="h-5 w-5 mr-2" />
-              ) : (
-                <ExternalLink className="h-5 w-5 mr-2" />
-              )}
-              {publishMode === 'api' ? '批量API直发' : '批量一键转发'}
-            </Button>
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold">平台适配结果</h1>
+                {/* 网络状态指示器 */}
+                {networkStatus === 'offline' && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-lg text-xs">
+                      <span>🚫</span>
+                      <span>网络断开</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={runNetworkDiagnostic}
+                      className="h-6 px-2 text-xs"
+                    >
+                      诊断
+                    </Button>
+                  </div>
+                )}
+                {networkStatus === 'slow' && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs">
+                      <span>🐌</span>
+                      <span>网络较慢</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={runNetworkDiagnostic}
+                      className="h-6 px-2 text-xs"
+                    >
+                      诊断
+                    </Button>
+                  </div>
+                )}
+                {networkStatus === 'online' && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs">
+                    <span>🌐</span>
+                    <span>网络正常</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 批量转发按钮 */}
+              <Button
+                size="lg"
+                variant="default"
+                onClick={handleBatchPublish}
+                disabled={results.filter(r => r.content || (r.versions && r.versions.length > 0)).length === 0}
+                className="px-6 py-2 font-semibold"
+                data-testid="batch-forward-button"
+              >
+                {publishMode === 'api' ? (
+                  <Zap className="h-5 w-5 mr-2" />
+                ) : (
+                  <ExternalLink className="h-5 w-5 mr-2" />
+                )}
+                {publishMode === 'api' ? '批量API直发' : '批量一键转发'}
+                <span className="ml-2 text-sm opacity-80">
+                  ({results.filter(r => r.content || (r.versions && r.versions.length > 0)).length}个平台)
+                </span>
+              </Button>
+
+              {/* 自动化转发按钮 */}
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleAutomatedForward}
+                disabled={results.filter(r => r.content || (r.versions && r.versions.length > 0)).length === 0 || automationRunning}
+                className="px-6 py-2 font-semibold border-2 border-purple-200 hover:border-purple-300"
+                data-testid="automated-forward-button"
+              >
+                {automationRunning ? (
+                  <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+                ) : (
+                  <Bot className="h-5 w-5 mr-2" />
+                )}
+                {automationRunning ? '自动化进行中...' : '自动化转发'}
+                <span className="ml-2 text-sm opacity-80">
+                  (Playwright)
+                </span>
+              </Button>
+            </div>
           </div>
-          
+
+          {/* 自动化转发结果显示 */}
+          {automationResults.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold mb-4">自动化转发结果</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {automationResults.map((result, index) => (
+                  <Card key={index} className={`p-4 ${result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">{result.platform}</span>
+                      <span className={`text-sm px-2 py-1 rounded ${
+                        result.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      }`}>
+                        {result.success ? '✅ 成功' : '❌ 失败'}
+                      </span>
+                    </div>
+                    {result.success ? (
+                      <div className="text-sm text-gray-600">
+                        <div>已打开发布页面</div>
+                        {result.url && (
+                          <div className="mt-1">
+                            <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                              {result.url}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-red-600">
+                        {result.error || '未知错误'}
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
             <TabsList className="mb-6 flex w-full h-auto p-1 bg-muted rounded-lg overflow-x-auto">
               {results.map(result => (
@@ -2969,139 +3825,381 @@ ${dimensions.join('\n\n')}
             
             {results.map(result => (
               <TabsContent key={result.platformId} value={result.platformId}>
-                <Card className="p-4 sm:p-6 lg:p-8 shadow-lg border-2 bg-white">
-                  <CardHeader className="pb-4">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-2xl flex items-center">
+                <Card
+                  className="p-3 sm:p-4 lg:p-5 shadow-lg border-2 bg-white"
+                  data-testid="platform-card"
+                  data-platform-id={result.platformId}
+                >
+                  <CardHeader className="pb-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
                         {getPlatformIcon(result.platformId)}
-                        <span className="ml-3">{getPlatformName(result.platformId, platforms)}</span>
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-6">
-                    {/* Progress Steps */}
-                    <div className="space-y-3">
-                      {result.steps.map((step, index) => (
-                        <div key={index} className="flex items-center space-x-3">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                            step.status === "completed" ? "bg-green-500 text-white" :
-                            step.status === "loading" ? "bg-blue-500 text-white animate-spin" :
-                            step.status === "error" ? "bg-red-500 text-white" :
-                            "bg-gray-200 text-gray-600"
-                          }`}>
-                            {step.status === "completed" ? "✓" :
-                             step.status === "loading" ? "⟳" :
-                             step.status === "error" ? "✗" :
-                             index + 1}
-                          </div>
-                          <span className={`text-sm ${
-                            step.status === "completed" ? "text-green-600" :
-                            step.status === "loading" ? "text-blue-600" :
-                            step.status === "error" ? "text-red-600" :
-                            "text-gray-500"
-                          }`}>
-                            {step.message}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                        <h2 className="text-xl font-semibold" data-testid="platform-name">{getPlatformName(result.platformId, platforms)}</h2>
 
-                    {/* Error Display */}
-                    {result.error && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0">
-                            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                        {/* 内联状态显示 */}
+                        {generating && !result.content && !result.error && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
+                              ⟳
+                            </div>
+                            <span className="text-sm text-blue-600">正在生成...</span>
+                          </div>
+                        )}
+
+                        {result.error && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
                               <span className="text-white text-xs">✗</span>
                             </div>
+                            <span className="text-sm text-red-600">生成失败</span>
                           </div>
-                          <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">
-                              生成失败
-                            </h3>
-                            <div className="mt-1 text-sm text-red-700">
-                              {result.error}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                        )}
 
-                    {/* Success Indicator */}
-                    {result.content && !result.error && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0">
-                            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
                               <span className="text-white text-xs">✓</span>
                             </div>
+                            <span className="text-sm text-green-600">生成完成</span>
                           </div>
-                          <div className="ml-3">
-                            <h3 className="text-sm font-medium text-green-800">
-                              AI生成内容
-                            </h3>
-                            <div className="mt-1 text-sm text-green-700">
-                              内容已成功生成，您可以编辑、复制或收藏
-                            </div>
-                          </div>
-                        </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-3">
+                    {/* 详细错误信息 */}
+                    {result.error && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div className="text-sm text-red-700">{result.error}</div>
                       </div>
                     )}
                     
                     {/* Generated Content */}
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                       {/* 内容展示区域标题 */}
                       <div className="text-center">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">
                           {result.versions && result.versions.length > 1 ? '多版本生成结果' : '生成结果'}
                         </h3>
                         <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
                         {result.versions && result.versions.length > 1 && (
-                          <p className="text-sm text-gray-600 mt-2">已生成{result.versions.length}个不同风格版本，请选择您喜欢的内容</p>
+                          <p className="text-sm text-gray-600 mt-1">已生成{result.versions.length}个不同风格版本，请选择您喜欢的内容</p>
                         )}
                       </div>
                       
                       {/* 主要内容区域 */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
-                        {/* 原始/编辑内容 - 左侧 */}
+                      {result.versions && result.versions.length > 1 ? (
+                        /* 多版本左右对比展示 */
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
+                          {/* 版本A - 左侧 */}
+                          <div className="flex flex-col h-full">
+                            <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
+                              <FileText className="h-4 w-4 text-blue-500" />
+                              <h4 className="text-lg font-semibold text-gray-900">版本A (标准风格)</h4>
+                            </div>
+                            {result.versions[0] && (
+                              <div className="flex flex-col flex-1 space-y-2">
+                                {editingVersion?.platformId === result.platformId && editingVersion?.versionId === 'version-a' ? (
+                                  <div className="space-y-3">
+                                    <Textarea
+                                      value={result.versions[0].content}
+                                      onChange={(e) => {
+                                        setResults(current =>
+                                          current.map(r =>
+                                            r.platformId === result.platformId
+                                              ? {
+                                                  ...r,
+                                                  versions: r.versions?.map(v =>
+                                                    v.id === 'version-a'
+                                                      ? { ...v, content: e.target.value, charCount: e.target.value.length }
+                                                      : v
+                                                  )
+                                                }
+                                              : r
+                                          )
+                                        );
+                                      }}
+                                      className="min-h-[300px] text-base leading-relaxed"
+                                      placeholder="编辑版本A内容..."
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        onClick={() => handleSaveVersionEdit(result.platformId, 'version-a', result.versions![0].content)}
+                                      >
+                                        保存
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setEditingVersion(null)}
+                                      >
+                                        取消
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
+                                    result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
+                                    result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
+                                    result.platformId === 'weibo' ? 'bg-orange-50 border-orange-200' :
+                                    result.platformId === 'zhihu' ? 'bg-blue-50 border-blue-200' :
+                                    result.platformId === 'wechat' ? 'bg-green-50 border-green-200' :
+                                    result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
+                                    result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
+                                    result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
+                                    'bg-gray-50 border-gray-200'
+                                  }`}>
+                                    <div className="absolute top-4 right-4">
+                                      <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
+                                        版本A
+                                      </div>
+                                    </div>
+                                    <div data-testid="version-a-content">{result.versions[0].content}</div>
+                                  </div>
+                                )}
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border">
+                                    <span className="font-medium">版本A</span>
+                                    <span className="font-medium text-blue-600">{result.versions[0].charCount}字</span>
+                                  </div>
+                                  {/* 字符数验证信息 */}
+                                  {result.versions[0].validation && (
+                                    <div className={`text-xs px-3 py-2 rounded-lg border ${
+                                      result.versions[0].validation.isValid
+                                        ? 'bg-green-50 border-green-200 text-green-700'
+                                        : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                                    }`}>
+                                      {result.versions[0].validation.warning ? (
+                                        <div className="flex items-center gap-1">
+                                          <span>⚠️</span>
+                                          <span>{result.versions[0].validation.warning}</span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1">
+                                          <span>✅</span>
+                                          <span>字符数在安全范围内 ({result.versions[0].validation.targetRange.min}-{result.versions[0].validation.targetRange.max})</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex flex-wrap gap-2 mt-auto">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => regenerateVersion(result.platformId, 'version-a')}
+                                    disabled={regeneratingVersions.has(`${result.platformId}-version-a`)}
+                                  >
+                                    <RefreshCw className={`h-4 w-4 mr-1 ${regeneratingVersions.has(`${result.platformId}-version-a`) ? 'animate-spin' : ''}`} />
+                                    {regeneratingVersions.has(`${result.platformId}-version-a`) ? '生成中...' : '重新生成'}
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleEditVersion(result.platformId, 'version-a')}
+                                  >
+                                    <Edit className="h-4 w-4 mr-1" />
+                                    {editingVersion?.platformId === result.platformId && editingVersion?.versionId === 'version-a' ? '取消编辑' : '编辑'}
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleFavorite(result.platformId, 'version-a')}
+                                  >
+                                    <Heart className="h-4 w-4 mr-1" />
+                                    收藏
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => copyToClipboard(result.versions![0].content)}
+                                  >
+                                    <Copy className="h-4 w-4 mr-1" />
+                                    一键复制
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => handleVersionPublish(result.platformId, 'version-a')}
+                                    disabled={publishingPlatforms.has(result.platformId)}
+                                  >
+                                    <ExternalLink className="h-4 w-4 mr-1" />
+                                    {publishingPlatforms.has(result.platformId)
+                                      ? '发布中...'
+                                      : publishMode === 'api'
+                                        ? 'API直发'
+                                        : '立刻发布'
+                                    }
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* 版本B - 右侧 */}
+                          <div className="flex flex-col h-full">
+                            <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
+                              <Sparkles className="h-4 w-4 text-purple-500" />
+                              <h4 className="text-lg font-semibold text-gray-900">版本B (创意风格)</h4>
+                            </div>
+                            {result.versions[1] && (
+                              <div className="flex flex-col flex-1 space-y-2">
+                                {editingVersion?.platformId === result.platformId && editingVersion?.versionId === 'version-b' ? (
+                                  <div className="space-y-3">
+                                    <Textarea
+                                      value={result.versions[1].content}
+                                      onChange={(e) => {
+                                        setResults(current =>
+                                          current.map(r =>
+                                            r.platformId === result.platformId
+                                              ? {
+                                                  ...r,
+                                                  versions: r.versions?.map(v =>
+                                                    v.id === 'version-b'
+                                                      ? { ...v, content: e.target.value, charCount: e.target.value.length }
+                                                      : v
+                                                  )
+                                                }
+                                              : r
+                                          )
+                                        );
+                                      }}
+                                      className="min-h-[300px] text-base leading-relaxed"
+                                      placeholder="编辑版本B内容..."
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        onClick={() => handleSaveVersionEdit(result.platformId, 'version-b', result.versions![1].content)}
+                                      >
+                                        保存
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setEditingVersion(null)}
+                                      >
+                                        取消
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
+                                    result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
+                                    result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
+                                    result.platformId === 'weibo' ? 'bg-orange-50 border-orange-200' :
+                                    result.platformId === 'zhihu' ? 'bg-blue-50 border-blue-200' :
+                                    result.platformId === 'wechat' ? 'bg-green-50 border-green-200' :
+                                    result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
+                                    result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
+                                    result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
+                                    'bg-gray-50 border-gray-200'
+                                  }`}>
+                                    <div className="absolute top-4 right-4">
+                                      <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
+                                        版本B
+                                      </div>
+                                    </div>
+                                    <div data-testid="version-b-content">{result.versions[1].content}</div>
+                                  </div>
+                                )}
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border">
+                                    <span className="font-medium">版本B</span>
+                                    <span className="font-medium text-purple-600">{result.versions[1].charCount}字</span>
+                                  </div>
+                                  {/* 字符数验证信息 */}
+                                  {result.versions[1].validation && (
+                                    <div className={`text-xs px-3 py-2 rounded-lg border ${
+                                      result.versions[1].validation.isValid
+                                        ? 'bg-green-50 border-green-200 text-green-700'
+                                        : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                                    }`}>
+                                      {result.versions[1].validation.warning ? (
+                                        <div className="flex items-center gap-1">
+                                          <span>⚠️</span>
+                                          <span>{result.versions[1].validation.warning}</span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1">
+                                          <span>✅</span>
+                                          <span>字符数在安全范围内 ({result.versions[1].validation.targetRange.min}-{result.versions[1].validation.targetRange.max})</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex flex-wrap gap-2 mt-auto">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => regenerateVersion(result.platformId, 'version-b')}
+                                    disabled={regeneratingVersions.has(`${result.platformId}-version-b`)}
+                                  >
+                                    <RefreshCw className={`h-4 w-4 mr-1 ${regeneratingVersions.has(`${result.platformId}-version-b`) ? 'animate-spin' : ''}`} />
+                                    {regeneratingVersions.has(`${result.platformId}-version-b`) ? '生成中...' : '重新生成'}
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleEditVersion(result.platformId, 'version-b')}
+                                  >
+                                    <Edit className="h-4 w-4 mr-1" />
+                                    {editingVersion?.platformId === result.platformId && editingVersion?.versionId === 'version-b' ? '取消编辑' : '编辑'}
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleFavorite(result.platformId, 'version-b')}
+                                  >
+                                    <Heart className="h-4 w-4 mr-1" />
+                                    收藏
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => copyToClipboard(result.versions![1].content)}
+                                  >
+                                    <Copy className="h-4 w-4 mr-1" />
+                                    一键复制
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => handleVersionPublish(result.platformId, 'version-b')}
+                                    disabled={publishingPlatforms.has(result.platformId)}
+                                  >
+                                    <ExternalLink className="h-4 w-4 mr-1" />
+                                    {publishingPlatforms.has(result.platformId)
+                                      ? '发布中...'
+                                      : publishMode === 'api'
+                                        ? 'API直发'
+                                        : '立刻发布'
+                                    }
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        /* 单版本展示 */
                         <div className="space-y-4">
                           <div className="flex items-center justify-center xl:justify-start gap-2 mb-3">
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                             <h4 className="text-lg font-semibold text-gray-900">生成内容</h4>
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           </div>
-
-                          {/* 版本选择器 - 当有多个版本时显示 */}
-                          {result.versions && result.versions.length > 1 && (
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {result.versions.map((version, index) => (
-                                <Button
-                                  key={version.id}
-                                  size="sm"
-                                  variant={result.content === version.content ? "default" : "outline"}
-                                  onClick={() => {
-                                    setResults(current =>
-                                      current.map(r =>
-                                        r.platformId === result.platformId
-                                          ? { ...r, content: version.content }
-                                          : r
-                                      )
-                                    );
-                                  }}
-                                  className="flex items-center gap-2"
-                                >
-                                  {version.style === 'standard' ? (
-                                    <FileText className="h-3 w-3" />
-                                  ) : (
-                                    <Sparkles className="h-3 w-3" />
-                                  )}
-                                  {version.title}
-                                  <span className="text-xs opacity-70">({version.charCount}字)</span>
-                                </Button>
-                              ))}
-                            </div>
-                          )}
                           {result.content ? (
                             editingPlatform === result.platformId ? (
                               <div className="space-y-3">
@@ -3192,138 +4290,18 @@ ${dimensions.join('\n\n')}
                             </div>
                           )}
                         </div>
-
-                        {/* 视觉连接线 */}
-                        {(comparisonContent[result.platformId] || showComparison[result.platformId]) && (
-                          <div className="hidden lg:flex items-center justify-center absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
-                              <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-white"></div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 对比内容 - 右侧 */}
-                        {showComparison[result.platformId] && (
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-center lg:justify-start gap-2 mb-3">
-                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-gray-900">对比版本</h4>
-                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                            </div>
-                            {comparisonContent[result.platformId] ? (
-                              <div className="relative">
-                                <div className="whitespace-pre-wrap rounded-lg border-2 border-orange-200 p-6 bg-orange-50 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm">
-                                  {comparisonContent[result.platformId]}
-                                </div>
-                                {/* 对比标识 */}
-                                <div className="absolute top-4 right-4">
-                                  <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-orange-700 shadow-sm">
-                                    替代版本
-                                  </div>
-                                </div>
-                              </div>
-                            ) : generatingComparison.has(result.platformId) ? (
-                              <div className="rounded-lg border-2 border-dashed border-orange-200 p-12 flex items-center justify-center bg-orange-50">
-                                <div className="text-center">
-                                  <RefreshCw className="h-8 w-8 animate-spin text-orange-500 mx-auto mb-2" />
-                                  <p className="text-orange-600 text-lg font-medium">正在生成对比版本...</p>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="rounded-lg border-2 border-dashed border-orange-200 p-12 flex items-center justify-center bg-orange-50">
-                                <p className="text-orange-600 text-lg">对比内容将显示在这里...</p>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
 
                     {/* Action Buttons */}
-                    {result.content && (
-                      <div className="mt-6 flex flex-wrap gap-3">
-                        <Button
-                          size="lg"
-                          variant="outline"
-                          onClick={() => handleRegeneratePlatformContent(result.platformId)}
-                          disabled={generating}
-                        >
-                          <RefreshCw className="h-5 w-5 mr-2" />
-                          重新生成
-                        </Button>
-                        
-                        <Button
-                          size="lg"
-                          variant="outline"
-                          onClick={() => handleEdit(result.platformId)}
-                        >
-                          <Edit className="h-5 w-5 mr-2" />
-                          {editingPlatform === result.platformId ? '取消编辑' : '编辑'}
-                        </Button>
-                        
-                        <Button
-                          size="lg"
-                          variant="outline"
-                          onClick={() => handleFavorite(result.platformId)}
-                        >
-                          <Heart className="h-5 w-5 mr-2" />
-                          收藏
-                        </Button>
-                        
-                        <Button
-                          size="lg"
-                          variant="outline"
-                          onClick={() => copyToClipboard(result.content)}
-                        >
-                          <Copy className="h-5 w-5 mr-2" />
-                          一键复制
-                        </Button>
-                        
-                        <Button
-                          size="lg"
-                          variant="outline"
-                          onClick={() => generateComparisonContent(result.platformId)}
-                          disabled={generatingComparison.has(result.platformId)}
-                          className="bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
-                        >
-                          {generatingComparison.has(result.platformId) ? (
-                            <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
-                          ) : (
-                            <div className="h-5 w-5 mr-2 flex items-center justify-center">
-                              <div className="w-3 h-3 border border-orange-500 rounded-sm"></div>
-                              <div className="w-3 h-3 border border-orange-500 rounded-sm ml-1"></div>
-                            </div>
-                          )}
-                          {showComparison[result.platformId] ? '重新对比' : '生成对比'}
-                        </Button>
-                        
-                        <Button
-                          size="lg"
-                          variant="default"
-                          onClick={() => handlePublish(result.platformId)}
-                          disabled={publishingPlatforms.has(result.platformId)}
-                        >
-                          {publishingPlatforms.has(result.platformId) ? (
-                            <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
-                          ) : publishMode === 'api' ? (
-                            <Zap className="h-5 w-5 mr-2" />
-                          ) : (
-                            <ExternalLink className="h-5 w-5 mr-2" />
-                          )}
-                          {publishingPlatforms.has(result.platformId) 
-                            ? '发布中...' 
-                            : publishMode === 'api' 
-                              ? 'API直发' 
-                              : '立刻发布'
-                          }
-                        </Button>
-                      </div>
-                    )}
+
                   </CardContent>
                 </Card>
               </TabsContent>
             ))}
           </Tabs>
+
+
         </div>
       )}
     </div>
@@ -3358,14 +4336,38 @@ ${dimensions.join('\n\n')}
         </DialogHeader>
         <div className="py-2 text-gray-700">
           <p>请选择要批量转发的平台：</p>
+
+          {/* 全选/全不选按钮 */}
+          <div className="flex gap-2 mt-3 mb-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const availablePlatforms = results.filter(r => r.content).map(r => r.platformId);
+                setBatchSelectedPlatforms(availablePlatforms);
+              }}
+            >
+              全选
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setBatchSelectedPlatforms([])}
+            >
+              全不选
+            </Button>
+          </div>
+
           <div className="flex flex-wrap gap-2 mt-2">
             {results.filter(r => r.content).map(r => (
               <Button
                 key={r.platformId}
                 variant={batchSelectedPlatforms.includes(r.platformId) ? 'default' : 'outline'}
                 onClick={() => setBatchSelectedPlatforms(prev => prev.includes(r.platformId) ? prev.filter(p => p !== r.platformId) : [...prev, r.platformId])}
+                className="flex items-center gap-2"
               >
-                {r.platformId}
+                {getPlatformIcon(r.platformId)}
+                {getPlatformName(r.platformId, platforms)}
               </Button>
             ))}
           </div>
@@ -3382,7 +4384,7 @@ ${dimensions.join('\n\n')}
           <DialogTitle>批量一键转发</DialogTitle>
         </DialogHeader>
         <div className="py-2 text-gray-700">
-          <p>内容已复制到剪贴板，是否跳转到 {batchCurrent?.platformId} 发布页？</p>
+          <p>内容已复制到剪贴板，是否跳转到 {batchCurrent ? getPlatformName(batchCurrent.platformId, platforms) : ''} 发布页？</p>
           <div className="bg-gray-100 rounded p-2 mt-2 text-xs break-all max-h-32 overflow-auto">
             {batchCurrent?.content}
           </div>

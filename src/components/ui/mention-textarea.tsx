@@ -50,6 +50,7 @@ export function MentionTextarea({
   const [mentionQuery, setMentionQuery] = useState('');
   const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [mentionItems, setMentionItems] = useState<MentionItem[]>([]);
 
@@ -119,6 +120,38 @@ export function MentionTextarea({
     ]);
   }, []);
 
+  // 处理键盘事件
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!showMentions || filteredMentions.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedMentionIndex(prev =>
+          prev < filteredMentions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedMentionIndex(prev =>
+          prev > 0 ? prev - 1 : filteredMentions.length - 1
+        );
+        break;
+      case 'Enter':
+      case 'Tab':
+        e.preventDefault();
+        if (filteredMentions[selectedMentionIndex]) {
+          handleSelectMention(filteredMentions[selectedMentionIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setShowMentions(false);
+        setMentionQuery('');
+        break;
+    }
+  };
+
   // 处理文本变化
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -134,6 +167,7 @@ export function MentionTextarea({
     if (atMatch) {
       setMentionQuery(atMatch[1]);
       setShowMentions(true);
+      setSelectedMentionIndex(0); // 重置选中索引
       
       // 计算@符号的位置
       const textarea = e.target;
@@ -237,6 +271,7 @@ export function MentionTextarea({
         ref={textareaRef}
         value={value}
         onChange={handleTextChange}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={className}
         style={{ minHeight }}
@@ -244,43 +279,64 @@ export function MentionTextarea({
       
       {/* @引用下拉菜单 */}
       {showMentions && filteredMentions.length > 0 && (
-        <Card 
-          className="absolute z-50 w-80 max-h-60 shadow-lg border"
+        <Card
+          className="absolute z-50 w-96 max-h-80 shadow-lg border"
           style={{
             top: mentionPosition.top,
             left: mentionPosition.left
           }}
         >
-          <CardContent className="p-2">
-            <ScrollArea className="max-h-52">
-              <div className="space-y-1">
-                {filteredMentions.map((item) => (
+          <CardContent className="p-0">
+            <ScrollArea className="h-full max-h-72">
+              <div className="p-2 space-y-1">
+                {filteredMentions.map((item, index) => (
                   <div
                     key={item.id}
-                    className="p-2 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                    className={`p-3 rounded cursor-pointer transition-colors border-l-2 ${
+                      index === selectedMentionIndex
+                        ? 'bg-blue-50 border-blue-400'
+                        : 'border-transparent hover:bg-gray-100 hover:border-blue-400'
+                    }`}
                     onClick={() => handleSelectMention(item)}
+                    tabIndex={0}
+                    role="option"
+                    aria-selected={index === selectedMentionIndex}
                   >
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
                         {getTypeIcon(item.type)}
                         <span className="text-sm font-medium truncate">{item.title}</span>
                       </div>
-                      <Badge className={`${getTypeColor(item.type)} text-xs`}>
-                        {item.type === 'brand' ? '品牌库' : 
+                      <Badge className={`${getTypeColor(item.type)} text-xs flex-shrink-0`}>
+                        {item.type === 'brand' ? '品牌库' :
                          item.type === 'library' ? '资料库' : '雷达'}
                       </Badge>
                     </div>
-                    <p className="text-xs text-gray-600 line-clamp-2">
-                      {item.summary || (item.content ? item.content.substring(0, 60) + '...' : '暂无内容')}
+                    <p className="text-xs text-gray-600 leading-relaxed mb-2 whitespace-pre-wrap">
+                      {item.summary || (item.content ?
+                        (item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content)
+                        : '暂无内容')}
                     </p>
-                    <div className="flex items-center gap-1 mt-1">
-                      {getFormatIcon(item.format)}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-1">
+                        {getFormatIcon(item.format)}
+                        <span className="text-xs text-gray-500">
+                          {item.format === 'text' ? '文本' :
+                           item.format === 'link' ? '链接' :
+                           item.format === 'image' ? '图片' : 'PDF'}
+                        </span>
+                      </div>
                       <div className="flex flex-wrap gap-1">
-                        {item.tags.slice(0, 2).map((tag) => (
+                        {item.tags.slice(0, 3).map((tag) => (
                           <Badge key={tag} variant="outline" className="text-xs">
                             {tag}
                           </Badge>
                         ))}
+                        {item.tags.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{item.tags.length - 3}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -36,7 +36,26 @@ export default defineConfig({
   // 开发服务器配置
   server: {
     port: 5173,
-    host: true
+    host: true,
+    proxy: {
+      // 代理热点数据API，解决CORS问题
+      '/api/hot': {
+        target: 'https://api-hot.imsyy.top',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/hot/, ''),
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        },
+      }
+    }
   },
   // 预览服务器配置
   preview: {

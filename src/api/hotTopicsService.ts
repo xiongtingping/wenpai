@@ -1,8 +1,10 @@
 /**
- * 热点话题服务 - 简化版本
- * 提供全网热点话题相关API请求
+ * 全网雷达API服务 - 完整封装版本
+ * 提供全网热点话题相关API请求、缓存、错误处理、重试机制等完整功能
  */
 import request from './request';
+
+// ==================== 类型定义 ====================
 
 export interface DailyHotItem {
   title: string;
@@ -19,6 +21,13 @@ export interface DailyHotItem {
   preferenceScore?: number;
   matchedKeywords?: string[];
   isHighPriority?: boolean;
+  timestamp?: number;
+  category?: string;
+  tags?: string[];
+  source?: string;
+  heat_score?: number;
+  trend?: 'up' | 'down' | 'stable';
+  change_rate?: number;
 }
 
 export interface DailyHotResponse {
@@ -26,207 +35,492 @@ export interface DailyHotResponse {
   message?: string;
   data: Record<string, DailyHotItem[]>;
   updateTime?: string;
+  cacheTime?: number;
+  totalCount?: number;
+  platformStats?: Record<string, PlatformStats>;
+  metadata?: ResponseMetadata;
 }
 
-/**
- * 获取全网热点聚合数据
- */
-export async function getDailyHotAll(): Promise<DailyHotResponse> {
-  const platforms = ['weibo', 'zhihu', 'douyin', 'bilibili', 'baidu'];
-  const aggregatedData: Record<string, DailyHotItem[]> = {};
-  
-  const platformPromises = platforms.map(async (platform) => {
-    try {
-      const platformData = await getDailyHotByPlatform(platform);
-      return { platform, data: platformData };
-    } catch (error) {
-      console.warn(`获取${platform}数据失败:`, error);
-      return { platform, data: [] };
-    }
-  });
+export interface PlatformStats {
+  total: number;
+  avgHeat: number;
+  topHeat: number;
+  updateTime: string;
+  status: 'active' | 'error' | 'timeout';
+  errorCount: number;
+}
 
-  try {
-    const results = await Promise.allSettled(platformPromises);
+export interface ResponseMetadata {
+  requestId: string;
+  processingTime: number;
+  cacheHit: boolean;
+  dataSource: string;
+  version: string;
+}
+
+export interface CacheConfig {
+  ttl: number;
+  maxSize: number;
+  enablePersist: boolean;
+}
+
+export interface RetryConfig {
+  maxRetries: number;
+  retryDelay: number;
+  backoffMultiplier: number;
+  enableFallback: boolean;
+}
+
+export interface ApiConfig {
+  baseUrl: string;
+  timeout: number;
+  cache: CacheConfig;
+  retry: RetryConfig;
+  enableLogging: boolean;
+  enableMetrics: boolean;
+}
+
+// ==================== 缓存管理 ====================
+
+class SimpleCache {
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private maxSize = 100;
+  private defaultTtl = 5 * 60 * 1000; // 5分钟
+
+  set(key: string, data: any, customTtl?: number): void {
+    const ttl = customTtl || this.defaultTtl;
     
-    results.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value.data.length > 0) {
-        aggregatedData[result.value.platform] = result.value.data;
-      }
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
     });
+  }
 
-    if (Object.keys(aggregatedData).length === 0) {
-      throw new Error('所有平台数据获取失败');
+  get(key: string): any | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key);
+      return null;
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ 成功聚合${Object.keys(aggregatedData).length}个平台的数据`);
-    }
+    return item.data;
+  }
 
+  clear(): void {
+    this.cache.clear();
+  }
+
+  getStats() {
     return {
-      code: 200,
-      message: '获取成功',
-      data: aggregatedData,
-      updateTime: new Date().toISOString()
+      size: this.cache.size,
+      maxSize: this.maxSize
     };
-  } catch (error) {
-    console.error('聚合热点数据失败:', error);
-    throw new Error('获取热点数据失败，请稍后重试');
   }
 }
 
-/**
- * 获取指定平台热榜数据
- */
-export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
-  if (platform === 'weatheralarm' || platform === 'earthquake') {
-    return [];
+// ==================== 核心API类 ====================
+
+class HotTopicsAPI {
+  private static instance: HotTopicsAPI;
+  private cache = new SimpleCache();
+  private baseUrl = '/api/hot';
+  private enableLogging = process.env.NODE_ENV === 'development';
+
+  private constructor() {}
+
+  static getInstance(): HotTopicsAPI {
+    if (!HotTopicsAPI.instance) {
+      HotTopicsAPI.instance = new HotTopicsAPI();
+    }
+    return HotTopicsAPI.instance;
   }
 
-  const apiSources = [
-    {
-      name: 'direct-api',
-      url: `https://api-hot.imsyy.top/${platform}`,
-      method: 'GET' as const
+  private log(message: string, data?: any): void {
+    if (this.enableLogging) {
+      console.log(`[HotTopics] ${message}`, data || '');
     }
-  ];
+  }
 
-  for (const source of apiSources) {
-    try {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`尝试使用API源获取${platform}数据: ${source.name}`);
-      }
-      
-      const data = await request.get(source.url);
+  private async fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
+    let lastError: Error;
 
-      if (!data) {
-        throw new Error('API返回空数据');
-      }
-      
-      let items: any[] = [];
-      if (data.code === 200 && Array.isArray(data.data)) {
-        items = data.data;
-      } else if (Array.isArray(data)) {
-        items = data;
-      }
-      
-      if (items.length > 0) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`✅ 成功使用API源获取${platform}数据: ${source.name}`);
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const data = await request.get(`${this.baseUrl}${url}`);
+        if (!data) {
+          throw new Error('API返回空数据');
         }
-        
-        return items.map((item: any, index: number) => ({
-          ...item,
-          platform,
-          content: `"${item.title}"在${platform}上引发关注。`,
-          relatedTopics: [],
-          rank: index + 1,
-          desc: item.desc || item.title
-        }));
+        return data;
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
       }
+    }
+    
+    throw lastError!;
+  }
+
+  private processRawData(data: any, platform: string): DailyHotItem[] {
+    let items: any[] = [];
+    
+    if (data.code === 200 && Array.isArray(data.data)) {
+      items = data.data;
+    } else if (Array.isArray(data)) {
+      items = data;
+    }
+    
+    return items.map((item: any, index: number) => ({
+      ...item,
+      platform,
+      content: `"${item.title}"在${platform}上引发关注。`,
+      relatedTopics: [],
+      rank: index + 1,
+      desc: item.desc || item.title,
+      timestamp: Date.now(),
+      category: this.inferCategory(item.title),
+      tags: this.extractTags(item.title),
+      source: 'api',
+      heat_score: this.normalizeHeatScore(item.hot),
+      trend: 'stable' as const,
+      change_rate: 0
+    }));
+  }
+
+  private inferCategory(title: string): string {
+    const categories = {
+      '科技': ['AI', '人工智能', '科技', '技术', '互联网', '数码', '手机', '电脑'],
+      '娱乐': ['明星', '电影', '电视剧', '综艺', '音乐', '娱乐'],
+      '体育': ['足球', '篮球', '体育', '运动', '比赛', '奥运'],
+      '财经': ['股票', '经济', '金融', '投资', '创业', '公司'],
+      '社会': ['社会', '新闻', '事件', '政策', '民生'],
+      '游戏': ['游戏', '电竞', '手游', '网游']
+    };
+
+    for (const [category, keywords] of Object.entries(categories)) {
+      if (keywords.some(keyword => title.includes(keyword))) {
+        return category;
+      }
+    }
+    
+    return '其他';
+  }
+
+  private extractTags(title: string): string[] {
+    const tags: string[] = [];
+    
+    if (title.includes('热搜')) tags.push('热搜');
+    if (title.includes('爆料')) tags.push('爆料');
+    if (title.includes('官宣')) tags.push('官宣');
+    if (title.includes('首次')) tags.push('首次');
+    if (title.includes('突发')) tags.push('突发');
+    
+    return tags;
+  }
+
+  private normalizeHeatScore(hot: string): number {
+    const num = parseInt(hot) || 0;
+    return Math.log10(num + 1);
+  }
+
+  private calculateAverageHeat(items: DailyHotItem[]): number {
+    if (items.length === 0) return 0;
+    const total = items.reduce((sum, item) => sum + (parseInt(item.hot) || 0), 0);
+    return Math.round(total / items.length);
+  }
+
+  private getTopHeat(items: DailyHotItem[]): number {
+    if (items.length === 0) return 0;
+    return Math.max(...items.map(item => parseInt(item.hot) || 0));
+  }
+
+  private generateRequestId(): string {
+    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // ==================== 公共方法 ====================
+
+  async getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
+    const cacheKey = `platform_${platform}`;
+
+    try {
+      // 检查缓存
+      const cached = this.cache.get(cacheKey);
+      if (cached) {
+        this.log(`缓存命中: ${platform}`);
+        return cached;
+      }
+
+      // 特殊平台过滤
+      if (platform === 'weatheralarm' || platform === 'earthquake') {
+        return [];
+      }
+
+      const data = await this.fetchWithRetry(`/${platform}`);
+      const processedData = this.processRawData(data, platform);
       
-      continue;
+      // 缓存结果
+      this.cache.set(cacheKey, processedData);
+      
+      this.log(`成功获取${platform}数据`, { count: processedData.length });
+      return processedData;
+
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error(`API源 ${source.name} 获取${platform}数据失败:`, error);
+      this.log(`获取${platform}数据失败`, error);
+      throw new Error(`获取${platform}平台数据失败`);
+    }
+  }
+
+  async getDailyHotAll(): Promise<DailyHotResponse> {
+    const cacheKey = 'all_platforms';
+
+    try {
+      // 检查缓存
+      const cached = this.cache.get(cacheKey);
+      if (cached) {
+        this.log('全平台数据缓存命中');
+        return cached;
       }
-      continue;
+
+      const platforms = this.getSupportedPlatforms();
+      const aggregatedData: Record<string, DailyHotItem[]> = {};
+      const platformStats: Record<string, PlatformStats> = {};
+      
+      // 并发获取所有平台数据
+      const platformPromises = platforms.map(async (platform) => {
+        const startTime = Date.now();
+        try {
+          const platformData = await this.getDailyHotByPlatform(platform);
+          const processingTime = Date.now() - startTime;
+          
+          return { 
+            platform, 
+            data: platformData,
+            stats: {
+              total: platformData.length,
+              avgHeat: this.calculateAverageHeat(platformData),
+              topHeat: this.getTopHeat(platformData),
+              updateTime: new Date().toISOString(),
+              status: 'active' as const,
+              errorCount: 0
+            },
+            processingTime
+          };
+        } catch (error) {
+          this.log(`获取${platform}数据失败`, error);
+          return { 
+            platform, 
+            data: [],
+            stats: {
+              total: 0,
+              avgHeat: 0,
+              topHeat: 0,
+              updateTime: new Date().toISOString(),
+              status: 'error' as const,
+              errorCount: 1
+            },
+            processingTime: Date.now() - startTime
+          };
+        }
+      });
+
+      const results = await Promise.allSettled(platformPromises);
+      let totalProcessingTime = 0;
+      
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const { platform, data, stats, processingTime } = result.value;
+          if (data.length > 0) {
+            aggregatedData[platform] = data;
+          }
+          platformStats[platform] = stats;
+          totalProcessingTime += processingTime;
+        }
+      });
+
+      if (Object.keys(aggregatedData).length === 0) {
+        throw new Error('所有平台数据获取失败');
+      }
+
+      const response: DailyHotResponse = {
+        code: 200,
+        message: '获取成功',
+        data: aggregatedData,
+        updateTime: new Date().toISOString(),
+        cacheTime: Date.now(),
+        totalCount: Object.values(aggregatedData).reduce((sum, items) => sum + items.length, 0),
+        platformStats,
+        metadata: {
+          requestId: this.generateRequestId(),
+          processingTime: totalProcessingTime,
+          cacheHit: false,
+          dataSource: 'api',
+          version: '2.0.0'
+        }
+      };
+
+      // 缓存结果
+      this.cache.set(cacheKey, response);
+      
+      this.log(`成功聚合${Object.keys(aggregatedData).length}个平台的数据`, {
+        totalCount: response.totalCount,
+        processingTime: totalProcessingTime
+      });
+      
+      return response;
+
+    } catch (error) {
+      this.log('聚合热点数据失败', error);
+      throw new Error('获取热点数据失败，请稍后重试');
     }
   }
 
-  throw new Error(`获取${platform}平台数据失败`);
+  getSupportedPlatforms(): string[] {
+    return [
+      'weibo',
+      'zhihu', 
+      'douyin',
+      'bilibili',
+      'baidu',
+      '36kr',
+      'ithome'
+    ];
+  }
+
+  getPlatformDisplayName(platform: string): string {
+    const platformNames: Record<string, string> = {
+      'weibo': '微博',
+      'zhihu': '知乎',
+      'douyin': '抖音',
+      'bilibili': 'B站',
+      'baidu': '百度',
+      '36kr': '36氪',
+      'ithome': 'IT之家'
+    };
+    return platformNames[platform] || platform;
+  }
+
+  getPlatformIconClass(platform: string): string {
+    return `icon-${platform}`;
+  }
+
+  aggregateAndSortTopics(allData: Record<string, DailyHotItem[]>): DailyHotItem[] {
+    const allTopics: DailyHotItem[] = [];
+    
+    for (const [platform, items] of Object.entries(allData)) {
+      allTopics.push(...items.slice(0, 3));
+    }
+    
+    return allTopics.sort((a, b) => {
+      const hotA = parseInt(a.hot) || 0;
+      const hotB = parseInt(b.hot) || 0;
+      return hotB - hotA;
+    });
+  }
+
+  async fetchHotTopics(platform?: string): Promise<DailyHotItem[]> {
+    try {
+      if (platform) {
+        return await this.getDailyHotByPlatform(platform);
+      } else {
+        const allData = await this.getDailyHotAll();
+        return this.aggregateAndSortTopics(allData.data);
+      }
+    } catch (error) {
+      this.log('获取热点话题失败', error);
+      return [];
+    }
+  }
+
+  async fetchTopicDetail(topicId: string): Promise<DailyHotItem | null> {
+    try {
+      this.log('获取话题详情', { topicId });
+      return null;
+    } catch (error) {
+      this.log('获取话题详情失败', error);
+      return null;
+    }
+  }
+
+  async fetchMoyuCalendar() {
+    try {
+      const res = await request.get('https://api.vvhan.com/api/moyu');
+      return res.data;
+    } catch (error) {
+      this.log('获取摩鱼日历失败', error);
+      throw error;
+    }
+  }
+
+  clearCache(): void {
+    this.cache.clear();
+    this.log('缓存已清除');
+  }
+
+  getCacheStats(): any {
+    return this.cache.getStats();
+  }
 }
 
-/**
- * 获取支持的平台列表
- */
+// ==================== 公共API导出 ====================
+
+const hotTopicsAPI = HotTopicsAPI.getInstance();
+
+export async function getDailyHotAll(): Promise<DailyHotResponse> {
+  return hotTopicsAPI.getDailyHotAll();
+}
+
+export async function getDailyHotByPlatform(platform: string): Promise<DailyHotItem[]> {
+  return hotTopicsAPI.getDailyHotByPlatform(platform);
+}
+
 export function getSupportedPlatforms(): string[] {
-  return [
-    'weibo',
-    'zhihu', 
-    'douyin',
-    'bilibili',
-    'baidu',
-    '36kr',
-    'ithome'
-  ];
+  return hotTopicsAPI.getSupportedPlatforms();
 }
 
-/**
- * 获取平台显示名称
- */
 export function getPlatformDisplayName(platform: string): string {
-  const platformNames: Record<string, string> = {
-    'weibo': '微博',
-    'zhihu': '知乎',
-    'douyin': '抖音',
-    'bilibili': 'B站',
-    'baidu': '百度',
-    '36kr': '36氪',
-    'ithome': 'IT之家'
-  };
-  return platformNames[platform] || platform;
+  return hotTopicsAPI.getPlatformDisplayName(platform);
 }
 
-/**
- * 获取平台图标类名
- */
 export function getPlatformIconClass(platform: string): string {
-  return `icon-${platform}`;
+  return hotTopicsAPI.getPlatformIconClass(platform);
 }
 
-/**
- * 聚合所有平台数据并按综合热度排序
- */
 export function aggregateAndSortTopics(allData: Record<string, DailyHotItem[]>): DailyHotItem[] {
-  const allTopics: DailyHotItem[] = [];
-  
-  for (const [platform, items] of Object.entries(allData)) {
-    allTopics.push(...items.slice(0, 3));
-  }
-  
-  return allTopics.sort((a, b) => {
-    const hotA = parseInt(a.hot) || 0;
-    const hotB = parseInt(b.hot) || 0;
-    return hotB - hotA;
-  });
+  return hotTopicsAPI.aggregateAndSortTopics(allData);
 }
 
-/**
- * 获取热点话题列表
- */
 export async function fetchHotTopics(platform?: string): Promise<DailyHotItem[]> {
-  try {
-    if (platform) {
-      return await getDailyHotByPlatform(platform);
-    } else {
-      const allData = await getDailyHotAll();
-      return aggregateAndSortTopics(allData.data);
-    }
-  } catch (error) {
-    console.error('获取热点话题失败:', error);
-    return [];
-  }
+  return hotTopicsAPI.fetchHotTopics(platform);
 }
 
-/**
- * 获取话题详情
- */
 export async function fetchTopicDetail(topicId: string): Promise<DailyHotItem | null> {
-  try {
-    // 这里可以根据需要实现具体的话题详情获取逻辑
-    // 目前返回 null，表示功能暂未实现
-    console.log('获取话题详情:', topicId);
-    return null;
-  } catch (error) {
-    console.error('获取话题详情失败:', error);
-    return null;
-  }
+  return hotTopicsAPI.fetchTopicDetail(topicId);
 }
 
-/**
- * 获取摩鱼日历数据
- */
-export async function fetchMoyuCalendar() {
-  const res = await request.get('https://api.vvhan.com/api/moyu');
-  return res.data;
+export async function fetchMoyuCalendar(): Promise<any> {
+  return hotTopicsAPI.fetchMoyuCalendar();
 }
+
+export function clearCache(): void {
+  hotTopicsAPI.clearCache();
+}
+
+export function getCacheStats(): any {
+  return hotTopicsAPI.getCacheStats();
+}
+
+export function getAPIInstance(): HotTopicsAPI {
+  return hotTopicsAPI;
+}
+
+export default hotTopicsAPI;

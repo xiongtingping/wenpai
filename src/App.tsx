@@ -21,6 +21,7 @@ import PaymentStatusPage from '@/pages/PaymentStatusPage';
 import AdaptPage from '@/pages/AdaptPage';
 import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import HotTopicsPage from '@/pages/HotTopicsPage';
+import HotTopicsAPITestPage from '@/pages/HotTopicsAPITestPage';
 import BookmarkPage from '@/pages/BookmarkPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
 import ContentExtractorPage from '@/pages/ContentExtractorPage';
@@ -118,6 +119,12 @@ function AppContent() {
           <Route path="/hot-topics" element={
             <PermissionGuard required="auth:required">
               <HotTopicsPage />
+            </PermissionGuard>
+          } />
+
+          <Route path="/hot-topics-api-test" element={
+            <PermissionGuard required="auth:required">
+              <HotTopicsAPITestPage />
             </PermissionGuard>
           } />
           
