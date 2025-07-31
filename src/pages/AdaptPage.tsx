@@ -3,7 +3,7 @@ import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
-  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles, Bot
+  Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles, Bot, Info
 } from "lucide-react";
 import {
   getCharCountMax as getConfigCharCountMax,
@@ -22,6 +22,7 @@ import { HashtagManager, HashtagData, HashtagTemplate } from '../components/Hash
 import { PlatformHashtags } from '../components/PlatformHashtags';
 import { AIContentGenerationAnimation } from '../components/AIContentGenerationAnimation';
 import { PlatformStatusIndicator } from '../components/PlatformStatusIndicator';
+import TitleGenerator from '../components/TitleGenerator';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,6 +34,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   Tabs,
   TabsContent,
@@ -2187,8 +2196,18 @@ export default function AdaptPage() {
     });
   };
 
-  // Favorite content - 添加视觉反馈
+  // Favorite content - 修复持久化收藏状态
   const [favoriteStates, setFavoriteStates] = useState<Set<string>>(new Set());
+  const [persistentFavorites, setPersistentFavorites] = useState<Set<string>>(new Set());
+
+  // 初始化时加载已收藏的内容
+  useEffect(() => {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const favoriteKeys = new Set(favorites.map((fav: any) =>
+      fav.versionId ? `${fav.platformId}-${fav.versionId}` : fav.platformId
+    ));
+    setPersistentFavorites(favoriteKeys);
+  }, []);
 
   const handleFavorite = (platformId: string, versionId?: string) => {
     const result = results.find(r => r.platformId === platformId);
@@ -2229,33 +2248,60 @@ export default function AdaptPage() {
       return;
     }
 
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const favoriteItem = {
-      id: Date.now().toString(),
-      platformId,
-      content,
-      platformName: platformId + versionTitle,
-      timestamp: new Date().toISOString()
-    };
-
-    favorites.push(favoriteItem);
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-
-    // 添加视觉反馈
     const favoriteKey = versionId ? `${platformId}-${versionId}` : platformId;
-    setFavoriteStates(prev => new Set(prev).add(favoriteKey));
-    setTimeout(() => {
-      setFavoriteStates(prev => {
+
+    // 检查是否已收藏
+    if (persistentFavorites.has(favoriteKey)) {
+      // 取消收藏
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const updatedFavorites = favorites.filter((fav: any) => {
+        const key = fav.versionId ? `${fav.platformId}-${fav.versionId}` : fav.platformId;
+        return key !== favoriteKey;
+      });
+      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+
+      setPersistentFavorites(prev => {
         const newSet = new Set(prev);
         newSet.delete(favoriteKey);
         return newSet;
       });
-    }, 2000);
 
-    toast({
-      title: "收藏成功 ❤️",
-      description: "内容已添加到收藏，可在我的页面查看",
-    });
+      toast({
+        title: "取消收藏",
+        description: "已取消收藏该内容",
+      });
+    } else {
+      // 添加收藏
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const favoriteItem = {
+        id: Date.now().toString(),
+        platformId,
+        content,
+        platformName: platformId + versionTitle,
+        versionId,
+        timestamp: new Date().toISOString()
+      };
+
+      favorites.push(favoriteItem);
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+
+      setPersistentFavorites(prev => new Set(prev).add(favoriteKey));
+
+      // 临时视觉反馈（仅用于"已收藏"文字显示）
+      setFavoriteStates(prev => new Set(prev).add(favoriteKey));
+      setTimeout(() => {
+        setFavoriteStates(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(favoriteKey);
+          return newSet;
+        });
+      }, 2000);
+
+      toast({
+        title: "收藏成功 ❤️",
+        description: "内容已添加到收藏，可在我的页面查看",
+      });
+    }
   };
 
   // 弹窗状态
@@ -2867,22 +2913,15 @@ export default function AdaptPage() {
       });
       localStorage.setItem('shareHistory', JSON.stringify(shareHistory.slice(0, 50)));
 
-      // 同时打开所有平台的发布页面
-      queue.forEach(item => {
-        const url = platformUrls[item.platformId];
-        if (url) {
-          window.open(url, '_blank');
-        }
-      });
-
-      const platformNames = queue.map(item => getPlatformName(item.platformId, platforms)).join('、');
+      // 修复：使用序列化方式打开平台，避免浏览器阻止多个弹窗
+      setBatchQueue(queue);
+      setBatchCurrent(queue[0] || null);
+      setBatchPublishOpen(false);
 
       toast({
-        title: "批量转发成功",
-        description: `已复制内容并跳转到 ${platformNames} 发布页面`,
+        title: "内容已复制",
+        description: `将依次引导您到各平台发布。内容已复制到剪贴板，请在各平台粘贴发布。`,
       });
-
-      setBatchPublishOpen(false);
     }
   };
 
@@ -3903,6 +3942,33 @@ ${dimensions.join('\n\n')}
             <div className="flex items-center gap-2 mb-2">
               <h3 className="text-lg font-semibold">内容形式与表达风格</h3>
               <span className="text-sm text-gray-500 font-normal">(可选)</span>
+              {/* Help icon moved to proper position */}
+              <Dialog>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>查看详细说明</p>
+                  </TooltipContent>
+                </Tooltip>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>内容形式与表达风格体系</DialogTitle>
+                    <DialogDescription>
+                      选择不同的内容形式和表达风格来获得最佳的内容生成效果
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-6">
+                    {/* Content will be populated by ContentFormSelector */}
+                    <p className="text-sm text-gray-600">详细的内容形式和表达风格说明...</p>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
             <CardDescription>
               如果选择了会按照指定形式和风格生成内容，如果不选择就默认采用原始内容+平台默认风格
@@ -4210,6 +4276,18 @@ ${dimensions.join('\n\n')}
                       </div>
                     )}
                     
+                    {/* Title Generation Area */}
+                    {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
+                      <TitleGenerator
+                        content={result.content || (result.versions && result.versions[0]?.content) || ''}
+                        platformId={result.platformId}
+                        platformName={getPlatformName(result.platformId, platforms)}
+                        onTitleChange={(title) => {
+                          console.log(`${result.platformId} 标题已更新:`, title);
+                        }}
+                      />
+                    )}
+
                     {/* Generated Content */}
                     <div className="space-y-4">
                       {/* 内容展示区域标题 */}
@@ -4355,10 +4433,10 @@ ${dimensions.join('\n\n')}
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleFavorite(result.platformId, 'version-a')}
-                                    className={favoriteStates.has(`${result.platformId}-version-a`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
+                                    className={persistentFavorites.has(`${result.platformId}-version-a`) || favoriteStates.has(`${result.platformId}-version-a`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
                                   >
-                                    <Heart className={`h-4 w-4 mr-1 ${favoriteStates.has(`${result.platformId}-version-a`) ? 'fill-red-500 text-red-500' : ''}`} />
-                                    {favoriteStates.has(`${result.platformId}-version-a`) ? '已收藏 ❤️' : '收藏'}
+                                    <Heart className={`h-4 w-4 mr-1 ${persistentFavorites.has(`${result.platformId}-version-a`) || favoriteStates.has(`${result.platformId}-version-a`) ? 'fill-red-500 text-red-500' : ''}`} />
+                                    {persistentFavorites.has(`${result.platformId}-version-a`) ? '已收藏 ❤️' : favoriteStates.has(`${result.platformId}-version-a`) ? '已收藏 ❤️' : '收藏'}
                                   </Button>
 
                                   <Button
@@ -4518,10 +4596,10 @@ ${dimensions.join('\n\n')}
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleFavorite(result.platformId, 'version-b')}
-                                    className={favoriteStates.has(`${result.platformId}-version-b`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
+                                    className={persistentFavorites.has(`${result.platformId}-version-b`) || favoriteStates.has(`${result.platformId}-version-b`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
                                   >
-                                    <Heart className={`h-4 w-4 mr-1 ${favoriteStates.has(`${result.platformId}-version-b`) ? 'fill-red-500 text-red-500' : ''}`} />
-                                    {favoriteStates.has(`${result.platformId}-version-b`) ? '已收藏 ❤️' : '收藏'}
+                                    <Heart className={`h-4 w-4 mr-1 ${persistentFavorites.has(`${result.platformId}-version-b`) || favoriteStates.has(`${result.platformId}-version-b`) ? 'fill-red-500 text-red-500' : ''}`} />
+                                    {persistentFavorites.has(`${result.platformId}-version-b`) ? '已收藏 ❤️' : favoriteStates.has(`${result.platformId}-version-b`) ? '已收藏 ❤️' : '收藏'}
                                   </Button>
 
                                   <Button
@@ -4754,6 +4832,13 @@ ${dimensions.join('\n\n')}
           <DialogTitle>批量一键转发</DialogTitle>
         </DialogHeader>
         <div className="py-2 text-gray-700">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+            <h4 className="font-semibold text-amber-800 mb-2">📢 重要提示</h4>
+            <p className="text-sm text-amber-700">
+              跳转后请手动登录各平台，然后粘贴已复制的内容并发布。系统将依次引导您到各个平台。
+            </p>
+          </div>
+
           <p>请选择要批量转发的平台：</p>
 
           {/* 全选/全不选按钮 */}
@@ -4803,9 +4888,20 @@ ${dimensions.join('\n\n')}
           <DialogTitle>批量一键转发</DialogTitle>
         </DialogHeader>
         <div className="py-2 text-gray-700">
-          <p>内容已复制到剪贴板，是否跳转到 {batchCurrent ? getPlatformName(batchCurrent.platformId, platforms) : ''} 发布页？</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <h4 className="font-semibold text-blue-800 mb-2">📋 使用说明</h4>
+            <p className="text-sm text-blue-700">
+              内容已复制到剪贴板。跳转后请手动登录 {batchCurrent ? getPlatformName(batchCurrent.platformId, platforms) : ''} 平台，然后粘贴内容并发布。
+            </p>
+          </div>
+
+          <p className="mb-2">即将跳转到 <strong>{batchCurrent ? getPlatformName(batchCurrent.platformId, platforms) : ''}</strong> 发布页面</p>
           <div className="bg-gray-100 rounded p-2 mt-2 text-xs break-all max-h-32 overflow-auto">
             {batchCurrent?.content}
+          </div>
+
+          <div className="mt-3 text-xs text-gray-500">
+            剩余平台：{batchQueue.length - 1} 个
           </div>
         </div>
         <DialogFooter>
