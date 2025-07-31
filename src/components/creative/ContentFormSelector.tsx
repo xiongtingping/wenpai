@@ -133,19 +133,14 @@ export function ContentFormSelector({
                 <Target className="h-4 w-4" />
                 选择内容形式
               </h4>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
                         <Info className="h-4 w-4" />
                       </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>查看详细说明</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </DialogTrigger>
+                    </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>内容形式与表达风格体系</DialogTitle>
@@ -183,7 +178,12 @@ export function ContentFormSelector({
                     ))}
                   </div>
                 </DialogContent>
-              </Dialog>
+                  </Dialog>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>查看详细说明</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
 
           <Collapsible open={isContentFormOpen} onOpenChange={setIsContentFormOpen}>

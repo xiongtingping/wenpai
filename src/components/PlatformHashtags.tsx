@@ -25,6 +25,9 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
   const [newTag, setNewTag] = useState('');
   const [copyFeedback, setCopyFeedback] = useState(false);
 
+  // Debug log to ensure component is rendering
+  console.log(`🏷️ PlatformHashtags rendering for ${platformId}, content length: ${content.length}, tags: ${tags.length}`);
+
   // Platform-specific hashtag limits
   const getPlatformLimits = (platformId: string) => {
     const limits = {

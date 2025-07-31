@@ -191,11 +191,29 @@ function calculateOptimalCharCount(platformId: string, userSetLimit: number): { 
 function cleanGeneratedContent(content: string): string {
   let cleanedContent = content;
 
-  // 移除配图建议文案
+  // 移除配图建议及相关文案
   cleanedContent = cleanedContent.replace(/（配图建议：[^）]*）/g, '');
   cleanedContent = cleanedContent.replace(/\(配图建议：[^)]*\)/g, '');
   cleanedContent = cleanedContent.replace(/【配图建议：[^】]*】/g, '');
   cleanedContent = cleanedContent.replace(/\[配图建议：[^\]]*\]/g, '');
+
+  // 移除工具界面截图相关文案
+  cleanedContent = cleanedContent.replace(/（工具界面截图[^）]*）/g, '');
+  cleanedContent = cleanedContent.replace(/\(工具界面截图[^)]*\)/g, '');
+  cleanedContent = cleanedContent.replace(/【工具界面截图[^】]*】/g, '');
+  cleanedContent = cleanedContent.replace(/\[工具界面截图[^\]]*\]/g, '');
+
+  // 移除多平台内容对比拼图相关文案
+  cleanedContent = cleanedContent.replace(/（多平台内容对比拼图[^）]*）/g, '');
+  cleanedContent = cleanedContent.replace(/\(多平台内容对比拼图[^)]*\)/g, '');
+  cleanedContent = cleanedContent.replace(/【多平台内容对比拼图[^】]*】/g, '');
+  cleanedContent = cleanedContent.replace(/\[多平台内容对比拼图[^\]]*\]/g, '');
+
+  // 移除其他图片相关建议
+  cleanedContent = cleanedContent.replace(/（图片：[^）]*）/g, '');
+  cleanedContent = cleanedContent.replace(/\(图片：[^)]*\)/g, '');
+  cleanedContent = cleanedContent.replace(/【图片：[^】]*】/g, '');
+  cleanedContent = cleanedContent.replace(/\[图片：[^\]]*\]/g, '');
 
   // 移除字符数统计文案
   cleanedContent = cleanedContent.replace(/👉字符数：\d+[^。！？\n]*/g, '');
@@ -692,15 +710,15 @@ export default function AdaptPage() {
     globalAutoFormat: true
   });
 
-  // 设置模式状态：'global' | 'platform'
+  // 设置模式状态：'global' | 'platform' - 默认使用全局设置
   const [settingsMode, setSettingsMode] = useState<{
     charCount: 'global' | 'platform';
     emoji: 'global' | 'platform';
     mdFormat: 'global' | 'platform';
   }>({
-    charCount: 'platform',
-    emoji: 'platform',
-    mdFormat: 'platform'
+    charCount: 'global',
+    emoji: 'global',
+    mdFormat: 'global'
   });
 
   // AI模型说明数据
