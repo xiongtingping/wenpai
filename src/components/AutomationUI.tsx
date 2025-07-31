@@ -84,10 +84,31 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
 
   const handleStartAutomation = async () => {
     if (selectedPlatforms.length === 0) {
-      alert('请至少选择一个平台进行转发');
+      // 使用更友好的提示方式
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+        z-index: 10000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      `;
+
+      modal.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 12px; max-width: 400px; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+          <h3 style="margin: 0 0 15px 0; color: #333;">请选择转发平台</h3>
+          <p style="margin: 0 0 20px 0; color: #666; line-height: 1.5;">
+            请至少选择一个有内容的平台进行自动化转发
+          </p>
+          <button onclick="document.body.removeChild(this.closest('div').parentElement)"
+                  style="background: #007bff; color: white; border: none; padding: 10px 20px;
+                         border-radius: 6px; cursor: pointer;">我知道了</button>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
       return;
     }
-    
+
     await onStartAutomation(selectedPlatforms, options);
   };
 
@@ -285,7 +306,45 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
       {/* 结果列表 */}
       {progress && progress.results.length > 0 && (
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">转发结果</h4>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-900">转发结果</h4>
+            <div className="text-sm text-gray-600">
+              {progress.results.filter(r => r.success).length}/{progress.results.length} 成功
+            </div>
+          </div>
+
+          {/* 结果统计 */}
+          {progress.status === 'completed' && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-4">
+                  <span className="text-green-600 font-medium">
+                    ✅ {progress.results.filter(r => r.success).length} 个成功
+                  </span>
+                  {progress.results.filter(r => !r.success).length > 0 && (
+                    <span className="text-red-600 font-medium">
+                      ❌ {progress.results.filter(r => !r.success).length} 个失败
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    const successResults = progress.results.filter(r => r.success);
+                    if (successResults.length > 0) {
+                      const urls = successResults.map(r => r.url).filter(Boolean);
+                      if (urls.length > 0) {
+                        urls.forEach(url => window.open(url, '_blank'));
+                      }
+                    }
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800"
+                >
+                  打开所有成功页面
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             {progress.results.map((result, index) => (
               <div
@@ -302,30 +361,36 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
                   ) : (
                     <XCircle className="h-5 w-5 text-red-500" />
                   )}
-                  
+
                   <div>
                     <div className="font-medium text-gray-900">{result.platformName}</div>
-                    {result.error && (
+                    {result.success ? (
+                      <div className="text-sm text-green-600">
+                        已打开发布页面，请按照指引完成发布
+                      </div>
+                    ) : (
                       <div className="text-sm text-red-600">{result.error}</div>
                     )}
                     <div className="text-xs text-gray-500">
-                      {result.method === 'manual' ? '手动模式' : '自动模式'} • 
+                      {result.method === 'manual' ? '手动模式' :
+                       result.method === 'browser' ? '浏览器模式' :
+                       result.method === 'extension' ? '插件模式' : '自动模式'} •
                       {new Date(result.timestamp).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   {result.url && (
                     <button
                       onClick={() => window.open(result.url, '_blank')}
                       className="p-1 text-gray-400 hover:text-gray-600 rounded"
-                      title="打开链接"
+                      title="重新打开发布页面"
                     >
                       <ExternalLink className="h-4 w-4" />
                     </button>
                   )}
-                  
+
                   {!result.success && (
                     <button
                       onClick={() => onRetryPlatform(result.platformId)}
@@ -338,14 +403,52 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
               </div>
             ))}
           </div>
+
+          {/* 操作建议 */}
+          {progress.status === 'completed' && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <h5 className="text-sm font-medium text-blue-800 mb-2">📝 发布提醒：</h5>
+              <ul className="text-xs text-blue-700 space-y-1">
+                <li>• 内容已自动复制到剪贴板，可直接粘贴</li>
+                <li>• 请根据各平台要求添加图片、标签等</li>
+                <li>• 发布前请检查内容格式和平台规范</li>
+                <li>• 如有问题可点击"重试"或"重新打开"</li>
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
-      {/* 帮助信息 */}
-      {!isRunning && selectedPlatforms.length === 0 && (
+      {/* 帮助信息和状态提示 */}
+      {!isRunning && selectedPlatforms.length === 0 && availablePlatforms.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          <Bot className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+          <h3 className="text-lg font-medium text-gray-700 mb-2">等待内容生成</h3>
+          <p className="text-sm text-gray-500 mb-4">请先在上方生成平台内容，然后即可使用自动化转发功能</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left max-w-md mx-auto">
+            <h4 className="text-sm font-medium text-blue-800 mb-2">💡 使用提示：</h4>
+            <ul className="text-xs text-blue-700 space-y-1">
+              <li>• 支持多平台同时转发</li>
+              <li>• 自动复制内容到剪贴板</li>
+              <li>• 提供详细的操作指引</li>
+              <li>• 支持失败重试机制</li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {!isRunning && selectedPlatforms.length === 0 && availablePlatforms.length > 0 && (
         <div className="text-center py-8 text-gray-500">
           <Bot className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-          <p className="text-sm">请先生成内容，然后选择要转发的平台</p>
+          <p className="text-sm">请选择要转发的平台，然后点击"开始转发"</p>
+        </div>
+      )}
+
+      {isRunning && (
+        <div className="text-center py-6 text-blue-600">
+          <RefreshCw className="h-8 w-8 mx-auto mb-2 animate-spin" />
+          <p className="text-sm font-medium">自动化转发进行中...</p>
+          <p className="text-xs text-gray-500 mt-1">请按照弹出的指引完成发布操作</p>
         </div>
       )}
     </div>

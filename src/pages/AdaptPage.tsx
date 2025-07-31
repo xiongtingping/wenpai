@@ -274,16 +274,13 @@ function validateCharacterCount(content: string, platformId: string, userSetLimi
 
   let warning: string | undefined;
 
+  // 只在超过限制时显示警告，移除字符数建议提示
   if (actualCount > userSetLimit) {
     warning = `⚠️ 内容超出用户设置的${userSetLimit}字符限制，当前${actualCount}字符`;
   } else if (actualCount > limits.maximum) {
     warning = `⚠️ 内容超出${getPlatformName(platformId, [])}平台最大限制${limits.maximum}字符`;
-  } else if (actualCount < targetMin) {
-    warning = `💡 内容较短，可适当增加到${targetMin}-${targetMax}字符范围`;
-  } else if (actualCount >= targetMin && actualCount <= targetMax) {
-    // 在目标范围内，无警告
-    warning = undefined;
   }
+  // 移除了字符数建议提示，只保留超过限制时的警告
 
   return {
     isValid: actualCount <= userSetLimit && actualCount <= limits.maximum,
@@ -1905,10 +1902,10 @@ export default function AdaptPage() {
         const validation = validateCharCount(platformId, finalContent.length);
         const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
 
-        // 检查是否达到最低字符数要求
+        // 检查是否达到最低字符数要求（仅记录日志，不添加建议文案）
         if (finalContent.length < charCountConfig.min) {
           console.warn(`内容不足 ${finalContent.length}/${charCountConfig.min}字，需要补充内容`);
-          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求，建议重新生成或手动补充内容]`;
+          // 移除了建议文案的添加，保持内容原样
         }
 
         // 如果内容超出平台限制，自动截断并优化
@@ -3975,22 +3972,7 @@ ${dimensions.join('\n\n')}
             </div>
           </div>
 
-          {/* 自动化转发UI组件 */}
-          <div className="mb-8">
-            <AutomationUI
-              availablePlatforms={results.map(result => ({
-                id: result.platformId,
-                name: getPlatformName(result.platformId, platforms),
-                hasContent: !!(result.content || (result.versions && result.versions.length > 0)),
-                contentLength: result.content?.length || 0
-              }))}
-              onStartAutomation={handleStartAutomation}
-              onCancelAutomation={handleCancelAutomation}
-              onRetryPlatform={handleRetryPlatform}
-              progress={automationProgress}
-              isRunning={automationRunning}
-            />
-          </div>
+
 
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
             <TabsList className="mb-6 flex w-full h-auto p-1 bg-muted rounded-lg overflow-x-auto">
@@ -4486,6 +4468,33 @@ ${dimensions.join('\n\n')}
             ))}
           </Tabs>
 
+          {/* 自动化转发UI组件 - 移动到多版本生成结果下方 */}
+          <div className="mt-8">
+            <AutomationUI
+              availablePlatforms={results.map(result => {
+                // 获取内容长度 - 优先使用主内容，然后是版本内容
+                let contentLength = 0;
+                if (result.content) {
+                  contentLength = result.content.length;
+                } else if (result.versions && result.versions.length > 0) {
+                  // 使用第一个版本的内容长度
+                  contentLength = result.versions[0].content?.length || 0;
+                }
+
+                return {
+                  id: result.platformId,
+                  name: getPlatformName(result.platformId, platforms),
+                  hasContent: !!(result.content || (result.versions && result.versions.length > 0)),
+                  contentLength
+                };
+              })}
+              onStartAutomation={handleStartAutomation}
+              onCancelAutomation={handleCancelAutomation}
+              onRetryPlatform={handleRetryPlatform}
+              progress={automationProgress}
+              isRunning={automationRunning}
+            />
+          </div>
 
         </div>
       )}
