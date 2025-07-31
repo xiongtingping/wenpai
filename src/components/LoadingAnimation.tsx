@@ -191,12 +191,12 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
   }, []);
 
   return (
-    <div className="flex items-center justify-center py-8">
-      <div className="text-center">
-        {/* 小动物动画 */}
-        <div className="relative h-12 w-32 mx-auto mb-4 overflow-hidden bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+    <div className="flex items-center justify-center py-16">
+      <div className="text-center max-w-md mx-auto">
+        {/* 小动物动画 - 调整更大 */}
+        <div className="relative h-20 w-48 mx-auto mb-6 overflow-hidden bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-sm">
           <div
-            className="absolute top-1/2 transform -translate-y-1/2 text-2xl"
+            className="absolute top-1/2 transform -translate-y-1/2 text-4xl"
             style={{
               animation: `moveAnimal ${4 / currentAnimal.speed}s linear infinite`
             }}
@@ -205,17 +205,19 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
           </div>
         </div>
 
-        {/* 消息 */}
-        <p className="text-sm text-gray-600 mb-2">
-          {message || `${currentAnimal.name}正在创作中...`}
-        </p>
+        {/* 消息 - 调整样式和位置 */}
+        <div className="bg-white rounded-lg shadow-sm border p-4 mb-4">
+          <p className="text-base text-gray-700 font-medium">
+            {message || `${currentAnimal.name}正在创作中...`}
+          </p>
+        </div>
 
         {/* 进度点 */}
-        <div className="flex justify-center space-x-1">
+        <div className="flex justify-center space-x-2">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"
+              className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
               style={{ animationDelay: `${i * 0.2}s` }}
             ></div>
           ))}
@@ -225,10 +227,10 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
       <style>{`
         @keyframes moveAnimal {
           0% {
-            left: -30px;
+            left: -40px;
           }
           100% {
-            left: calc(100% + 10px);
+            left: calc(100% + 20px);
           }
         }
       `}</style>

@@ -1415,9 +1415,12 @@ export default function AdaptPage() {
           // 步骤3: AI生成内容
           updateStep(2, 'loading', '🤖 调用AI服务生成内容...');
 
-          // 添加60秒超时处理
+          // 根据平台设置不同的超时时间
+          const timeoutConfig = getPlatformTimeoutConfig(platformId);
+          const timeoutDuration = timeoutConfig.isLongContent ? 180000 : 90000; // 长内容平台3分钟，其他90秒
+
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('生成超时，请重试')), 60000);
+            setTimeout(() => reject(new Error('生成超时，请重试')), timeoutDuration);
           });
 
           // 生成多个版本的内容（带超时）
@@ -1922,9 +1925,12 @@ export default function AdaptPage() {
       useBrandLibrary
     );
 
-    // 添加90秒超时处理
+    // 根据平台设置不同的超时时间
+    const timeoutConfig = getPlatformTimeoutConfig(platformId);
+    const timeoutDuration = timeoutConfig.isLongContent ? 180000 : 120000; // 长内容平台3分钟，其他2分钟
+
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('生成超时，请重试')), 90000);
+      setTimeout(() => reject(new Error('生成超时，请重试')), timeoutDuration);
     });
 
     // 生成多个版本的内容（带超时）
@@ -4122,35 +4128,50 @@ ${dimensions.join('\n\n')}
 
                         {/* 内联状态显示 */}
                         {generating && !result.content && !result.error && (
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
-                                ⟳
-                              </div>
-                              <span className="text-sm text-blue-600">
-                                {platformLoadingMessages.get(result.platformId) ||
-                                 (longContentPlatforms.has(result.platformId) ? '正在生成长篇内容，请耐心等待...' : '正在生成...')}
-                              </span>
-                            </div>
-
-                            {/* 长内容平台的进度提示 */}
-                            {longContentPlatforms.has(result.platformId) && (
-                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                <div className="flex items-start space-x-2">
-                                  <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                                    <span className="text-blue-600 text-xs">📝</span>
+                          <div className="space-y-3">
+                            {/* 长内容平台的专门提示 */}
+                            {longContentPlatforms.has(result.platformId) ? (
+                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+                                <div className="flex items-start space-x-3">
+                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                                    <span className="text-blue-600 text-lg">📝</span>
                                   </div>
                                   <div className="flex-1">
-                                    <p className="text-sm text-blue-800 font-medium">
-                                      {result.platformId === 'wechat' ? '微信公众号长文生成中' : '知乎深度内容生成中'}
-                                    </p>
-                                    <p className="text-xs text-blue-600 mt-1">
-                                      {result.platformId === 'wechat'
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
+                                        ⟳
+                                      </div>
+                                      <p className="text-base text-blue-800 font-semibold">
+                                        {result.platformId === 'wechat' ? '微信公众号长文生成中' : '知乎深度内容生成中'}
+                                      </p>
+                                    </div>
+                                    <p className="text-sm text-blue-700 leading-relaxed">
+                                      {platformLoadingMessages.get(result.platformId) ||
+                                       (result.platformId === 'wechat'
                                         ? '正在创作专业的公众号文章，内容更丰富，生成时间较长，请耐心等待...'
-                                        : '正在撰写深度回答，确保内容有见解、有价值，请稍候...'}
+                                        : '正在撰写深度回答，确保内容有见解、有价值，请稍候...')}
                                     </p>
+                                    <div className="flex items-center space-x-1 mt-3">
+                                      <span className="text-xs text-blue-600">预计时间：2-3分钟</span>
+                                      <div className="flex space-x-1">
+                                        {[...Array(3)].map((_, i) => (
+                                          <div
+                                            key={i}
+                                            className="w-1 h-1 bg-blue-400 rounded-full animate-bounce"
+                                            style={{ animationDelay: `${i * 0.2}s` }}
+                                          ></div>
+                                        ))}
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-center space-x-2">
+                                <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
+                                  ⟳
+                                </div>
+                                <span className="text-sm text-blue-600">正在生成...</span>
                               </div>
                             )}
                           </div>
@@ -4632,7 +4653,7 @@ ${dimensions.join('\n\n')}
                           ) : (
                             <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
                               {generating ? (
-                                <InlineLoadingAnimation message="AI正在为您生成精彩内容..." />
+                                <InlineLoadingAnimation message="AI正在为多个平台生成专属内容..." />
                               ) : (
                                 <div className="p-12 flex items-center justify-center">
                                   <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>
