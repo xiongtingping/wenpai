@@ -46,9 +46,9 @@ import {
 
 interface ContentFormSelectorProps {
   selectedFormId?: string;
-  selectedStyle: StyleType;
+  selectedStyle?: StyleType;
   onFormChange: (formId: string | undefined) => void;
-  onStyleChange: (style: StyleType) => void;
+  onStyleChange: (style: StyleType | undefined) => void;
   className?: string;
   // 新增props用于动态预览
   selectedPlatforms?: string[];
@@ -249,10 +249,12 @@ export function ContentFormSelector({
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-600">选择表达风格</span>
-                {selectedStyle && (
+                {selectedStyle ? (
                   <Badge variant="secondary" className="ml-2">
                     已选择：{availableStyles.find(s => s.id === selectedStyle)?.name}
                   </Badge>
+                ) : (
+                  <span className="text-xs text-gray-500">请选择表达风格</span>
                 )}
               </div>
               {isStyleOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -301,18 +303,29 @@ export function ContentFormSelector({
               ))}
             </div>
 
-            {/* 表达风格收起按钮 */}
+            {/* 表达风格收起按钮和取消选择 */}
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-              {selectedStyle && (
-                <span className="text-sm text-gray-600">
-                  当前风格：{availableStyles.find(s => s.id === selectedStyle)?.name}
-                </span>
-              )}
-              {!selectedStyle && (
-                <span className="text-sm text-gray-500">
-                  点击上方选择表达风格
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {selectedStyle ? (
+                  <>
+                    <span className="text-sm text-gray-600">
+                      当前风格：{availableStyles.find(s => s.id === selectedStyle)?.name}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onStyleChange(undefined)}
+                      className="text-red-600 hover:text-red-800 text-xs"
+                    >
+                      点击可取消选择
+                    </Button>
+                  </>
+                ) : (
+                  <span className="text-sm text-gray-500">
+                    未选择表达风格，将使用自然表达方式
+                  </span>
+                )}
+              </div>
               <Button
                 variant="ghost"
                 size="sm"

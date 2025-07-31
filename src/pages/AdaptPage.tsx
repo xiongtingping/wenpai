@@ -218,6 +218,36 @@ function calculateSafetyRange(userSetLimit: number, platformId: string): { min: 
   return { min: safetyMin, max: safetyMax };
 }
 
+// Helper function to smart truncate content
+function smartTruncateContent(content: string, maxLength: number): string {
+  if (content.length <= maxLength) {
+    return content;
+  }
+
+  // 智能截断：尽量在句号、感叹号、问号处截断
+  const cutPoint = Math.floor(maxLength * 0.9); // 留10%缓冲
+  let truncatedContent = content.substring(0, cutPoint);
+
+  // 寻找最近的句子结束符
+  const sentenceEnders = ['。', '！', '？', '.', '!', '?'];
+  let lastSentenceEnd = -1;
+
+  for (const ender of sentenceEnders) {
+    const pos = truncatedContent.lastIndexOf(ender);
+    if (pos > lastSentenceEnd) {
+      lastSentenceEnd = pos;
+    }
+  }
+
+  if (lastSentenceEnd > cutPoint * 0.7) {
+    // 如果找到合适的句子结束位置，在此截断
+    return truncatedContent.substring(0, lastSentenceEnd + 1);
+  } else {
+    // 否则直接截断并添加省略号
+    return truncatedContent.trim() + '...';
+  }
+}
+
 // Helper function to validate character count
 function validateCharacterCount(content: string, platformId: string, userSetLimit: number): {
   isValid: boolean;
@@ -226,23 +256,28 @@ function validateCharacterCount(content: string, platformId: string, userSetLimi
   warning?: string;
 } {
   const actualCount = content.length;
-  const targetRange = calculateSafetyRange(userSetLimit, platformId);
   const limits = getPlatformCharacterLimits(platformId);
+
+  // 计算目标范围（基于用户设置）
+  const targetMin = Math.floor(userSetLimit * 0.8);
+  const targetMax = Math.floor(userSetLimit * 0.9);
+  const targetRange = { min: targetMin, max: targetMax };
 
   let warning: string | undefined;
 
-  if (actualCount > limits.maximum) {
-    warning = `内容超出${getPlatformName(platformId, [])}平台最大限制${limits.maximum}字符`;
-  } else if (actualCount > userSetLimit) {
-    warning = `内容超出用户设置的${userSetLimit}字符限制`;
-  } else if (actualCount < targetRange.min) {
-    warning = `内容过短，建议增加到${targetRange.min}-${targetRange.max}字符`;
-  } else if (actualCount > targetRange.max) {
-    warning = `内容略长，建议控制在${targetRange.max}字符以内`;
+  if (actualCount > userSetLimit) {
+    warning = `⚠️ 内容超出用户设置的${userSetLimit}字符限制，当前${actualCount}字符`;
+  } else if (actualCount > limits.maximum) {
+    warning = `⚠️ 内容超出${getPlatformName(platformId, [])}平台最大限制${limits.maximum}字符`;
+  } else if (actualCount < targetMin) {
+    warning = `💡 内容较短，可适当增加到${targetMin}-${targetMax}字符范围`;
+  } else if (actualCount >= targetMin && actualCount <= targetMax) {
+    // 在目标范围内，无警告
+    warning = undefined;
   }
 
   return {
-    isValid: actualCount <= limits.maximum && actualCount <= userSetLimit,
+    isValid: actualCount <= userSetLimit && actualCount <= limits.maximum,
     actualCount,
     targetRange,
     warning
@@ -703,14 +738,22 @@ export default function AdaptPage() {
 
       if (standardResult.success && standardResult.content) {
         const userSetLimit = platformSettings[platformId]?.charCount || getPlatformCharacterLimits(platformId).recommended;
-        const validation = validateCharacterCount(standardResult.content, platformId, userSetLimit);
+        let finalContent = standardResult.content;
+
+        // 如果内容超出用户设置的限制，自动截断并优化
+        if (finalContent.length > userSetLimit) {
+          console.warn(`标准版本内容超出限制 ${finalContent.length}/${userSetLimit}，自动截断`);
+          finalContent = smartTruncateContent(finalContent, userSetLimit);
+        }
+
+        const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
         versions.push({
           id: 'version-a',
-          content: standardResult.content,
+          content: finalContent,
           style: 'standard',
           title: '版本A',
-          charCount: standardResult.content.length,
+          charCount: finalContent.length,
           validation: validation
         });
 
@@ -721,14 +764,22 @@ export default function AdaptPage() {
 
       if (creativeResult.success && creativeResult.content) {
         const userSetLimit = platformSettings[platformId]?.charCount || getPlatformCharacterLimits(platformId).recommended;
-        const validation = validateCharacterCount(creativeResult.content, platformId, userSetLimit);
+        let finalContent = creativeResult.content;
+
+        // 如果内容超出用户设置的限制，自动截断并优化
+        if (finalContent.length > userSetLimit) {
+          console.warn(`创意版本内容超出限制 ${finalContent.length}/${userSetLimit}，自动截断`);
+          finalContent = smartTruncateContent(finalContent, userSetLimit);
+        }
+
+        const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
         versions.push({
           id: 'version-b',
-          content: creativeResult.content,
+          content: finalContent,
           style: 'creative',
           title: '版本B',
-          charCount: creativeResult.content.length,
+          charCount: finalContent.length,
           validation: validation
         });
 
@@ -1735,17 +1786,53 @@ export default function AdaptPage() {
         ? `${matrixPrompt}\n\n【版本要求】请生成标准风格的内容，要求：\n- 结构清晰，逻辑严谨\n- 表达准确，用词规范\n- 重点突出，层次分明`
         : `${matrixPrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
 
+      // 计算字符数限制对应的token数（中文约1.5字符=1token）
+      const userCharLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
+      const maxTokens = Math.min(Math.floor(userCharLimit / 1.5), 2000);
+
       const aiResult = await callAI({
         prompt,
         model: selectedModel as any,
         systemPrompt: version.style === 'standard'
-          ? '你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。'
-          : '你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。',
-        maxTokens: 2000,
+          ? `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。重要：生成的内容字符数必须严格控制在${userCharLimit}字符以内。`
+          : `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。重要：生成的内容字符数必须严格控制在${userCharLimit}字符以内。`,
+        maxTokens: maxTokens,
         temperature: version.style === 'standard' ? 0.7 : 0.9
       });
 
       if (aiResult.success && aiResult.content) {
+        let finalContent = aiResult.content;
+
+        // 如果内容超出用户设置的限制，自动截断并优化
+        if (finalContent.length > userCharLimit) {
+          console.warn(`内容超出限制 ${finalContent.length}/${userCharLimit}，自动截断`);
+
+          // 智能截断：尽量在句号、感叹号、问号处截断
+          const cutPoint = Math.floor(userCharLimit * 0.9); // 留10%缓冲
+          let truncatedContent = finalContent.substring(0, cutPoint);
+
+          // 寻找最近的句子结束符
+          const sentenceEnders = ['。', '！', '？', '.', '!', '?'];
+          let lastSentenceEnd = -1;
+
+          for (const ender of sentenceEnders) {
+            const pos = truncatedContent.lastIndexOf(ender);
+            if (pos > lastSentenceEnd) {
+              lastSentenceEnd = pos;
+            }
+          }
+
+          if (lastSentenceEnd > cutPoint * 0.7) {
+            // 如果找到合适的句子结束位置，在此截断
+            finalContent = truncatedContent.substring(0, lastSentenceEnd + 1);
+          } else {
+            // 否则直接截断并添加省略号
+            finalContent = truncatedContent.trim() + '...';
+          }
+
+          console.log(`内容已优化截断：${finalContent.length}字符`);
+        }
+
         // 更新版本内容
         setResults(current =>
           current.map(r =>
@@ -1754,7 +1841,7 @@ export default function AdaptPage() {
                   ...r,
                   versions: r.versions?.map(v =>
                     v.id === versionId
-                      ? { ...v, content: aiResult.content, charCount: aiResult.content.length }
+                      ? { ...v, content: finalContent, charCount: finalContent.length }
                       : v
                   )
                 }
@@ -2979,18 +3066,23 @@ ${dimensions.join('\n\n')}
 - 创意发挥：在满足用户要求基础上进行创意扩展`;
   };
 
-  // 生成字符数维度（使用安全区域控制）
+  // 生成字符数维度（使用严格控制）
   const generateCharCountDimension = (charCount: number, platformId: string): string => {
     const safetyRange = calculateSafetyRange(charCount, platformId);
     const limits = getPlatformCharacterLimits(platformId);
 
-    return `字符数智能控制：
-- 用户设置：${charCount}字符
+    // 计算更严格的目标范围（80-90%的用户设置值）
+    const strictMin = Math.floor(charCount * 0.8);
+    const strictMax = Math.floor(charCount * 0.9);
+
+    return `字符数严格控制：
+- 用户设置：${charCount}字符（必须严格遵守）
 - 平台限制：${limits.maximum}字符（${limits.description}）
-- 安全区域：${safetyRange.min} - ${safetyRange.max}字符（90-95%安全范围）
-- 生成目标：严格控制在安全区域内，确保不超出平台限制
-- 优化策略：通过精准的表达方式和内容密度控制，生成高质量且符合限制的内容
-- 质量保证：在字符数限制内最大化内容价值和表达效果`;
+- 目标范围：${strictMin} - ${strictMax}字符（严格控制在用户设置的80-90%范围内）
+- 生成要求：内容字符数必须在目标范围内，绝对不能超过${charCount}字符
+- 优化策略：通过精准的表达方式和内容密度控制，在限制内生成高质量内容
+- 质量保证：在字符数限制内最大化内容价值和表达效果
+- 重要提醒：如果内容超过${charCount}字符，必须删减至目标范围内`;
   };
 
   // 生成格式化维度
@@ -3505,7 +3597,7 @@ ${dimensions.join('\n\n')}
           <CardContent>
             <ContentFormSelector
               selectedFormId={selectedFormId}
-              selectedStyle={selectedStyle || 'professional'}
+              selectedStyle={selectedStyle}
               onFormChange={setSelectedFormId}
               onStyleChange={setSelectedStyle}
               selectedPlatforms={selectedPlatforms}

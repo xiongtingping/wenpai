@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "augment.vscode-augment"
+        "augment.vscode-augment",
+        "menglong.augment-infinity"
     ]
 }
