@@ -20,26 +20,51 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
 }) => {
   const [tags, setTags] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true); // Default to expanded
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newTag, setNewTag] = useState('');
+  const [copyFeedback, setCopyFeedback] = useState(false);
 
-  // 生成标签
+  // Platform-specific hashtag limits
+  const getPlatformLimits = (platformId: string) => {
+    const limits = {
+      'douyin': { min: 3, max: 5 },
+      'xiaohongshu': { min: 6, max: 10 },
+      'weibo': { min: 3, max: 5 },
+      'zhihu': { min: 2, max: 3 },
+      'bilibili': { min: 4, max: 8 }
+    };
+    return limits[platformId as keyof typeof limits] || { min: 3, max: 6 };
+  };
+
+  // 生成标签 - 改进的相关性算法
   const generateTags = async () => {
     if (!content.trim()) return;
-    
+
     setIsGenerating(true);
     try {
+      const limits = getPlatformLimits(platformId);
       const hashtags = await hashtagGenerator.generateHashtags(content, {
         platformId,
         includeBrands: true,
         includeIndustry: true,
         includePersona: true
       });
-      
-      const tagStrings = hashtags.map(h => h.tag);
-      setTags(tagStrings);
-      onTagsChange?.(tagStrings);
+
+      // 过滤高相关性标签并应用平台限制
+      const relevantTags = hashtags
+        .filter(h => h.relevance >= 0.6) // 只保留相关度>=0.6的标签
+        .sort((a, b) => b.relevance - a.relevance) // 按相关度排序
+        .slice(0, limits.max) // 应用平台最大限制
+        .map(h => h.tag);
+
+      // 确保至少有最小数量的标签
+      const finalTags = relevantTags.length >= limits.min
+        ? relevantTags
+        : hashtags.slice(0, limits.min).map(h => h.tag);
+
+      setTags(finalTags);
+      onTagsChange?.(finalTags);
     } catch (error) {
       console.error('标签生成失败:', error);
     } finally {
@@ -54,20 +79,13 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     }
   }, [content, platformId]);
 
-  // 复制所有标签
+  // 复制所有标签 - 改进的视觉反馈
   const copyAllTags = async () => {
     const formattedTags = hashtagGenerator.formatTagsForPlatform(tags, platformId);
     try {
       await navigator.clipboard.writeText(formattedTags);
-      // 简单的视觉反馈
-      const button = document.getElementById(`copy-tags-${platformId}`);
-      if (button) {
-        const originalText = button.textContent;
-        button.textContent = '已复制';
-        setTimeout(() => {
-          button.textContent = originalText;
-        }, 1500);
-      }
+      setCopyFeedback(true);
+      setTimeout(() => setCopyFeedback(false), 2000);
     } catch (error) {
       console.error('复制失败:', error);
     }
@@ -123,9 +141,11 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
         <div className="flex items-center space-x-2">
           <Tag className="h-4 w-4 text-blue-600" />
           <span className="text-sm font-medium text-gray-700">智能标签</span>
-          <span className="text-xs text-gray-500">({tags.length}个)</span>
+          <span className="text-xs text-gray-500">
+            ({tags.length}/{getPlatformLimits(platformId).max}个)
+          </span>
         </div>
-        
+
         <div className="flex items-center space-x-1">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -134,7 +154,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           >
             {isExpanded ? "收起" : "展开"}
           </button>
-          
+
           <button
             onClick={generateTags}
             className="p-1 text-gray-400 hover:text-gray-600 rounded"
@@ -142,13 +162,16 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           >
             <RotateCcw className="h-3 w-3" />
           </button>
-          
+
           <button
-            id={`copy-tags-${platformId}`}
             onClick={copyAllTags}
-            className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className={`px-2 py-1 text-xs rounded transition-all duration-200 ${
+              copyFeedback
+                ? 'bg-green-600 text-white'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
           >
-            复制
+            {copyFeedback ? '已复制 ✓' : '复制'}
           </button>
         </div>
       </div>
@@ -239,13 +262,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
               </button>
             </div>
 
-            {/* 格式化预览 */}
-            <div className="mt-2 p-2 bg-white rounded border text-xs">
-              <div className="text-gray-600 mb-1">格式化标签：</div>
-              <div className="text-gray-800 font-mono">
-                {hashtagGenerator.formatTagsForPlatform(tags, platformId)}
-              </div>
-            </div>
+
           </div>
         )}
       </div>

@@ -276,7 +276,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     } else if (technicalError.includes('500') || technicalError.includes('502') || technicalError.includes('503')) {
       userFriendlyError = `${apiProvider || 'AI'} 服务暂时不可用，请稍后重试`;
     } else if (technicalError.includes('timeout') || technicalError.includes('TIMEOUT')) {
-      userFriendlyError = `${apiProvider || 'AI'} API调用超时（超过120秒），可能是网络问题或请求过于复杂，建议简化内容或稍后重试`;
+      userFriendlyError = `${apiProvider || 'AI'} API调用超时（超过150秒），可能是网络问题或请求过于复杂，建议简化内容或稍后重试`;
     } else if (technicalError.includes('network') || technicalError.includes('NETWORK')) {
       userFriendlyError = '网络连接失败，请检查网络设置或稍后重试';
     } else if (technicalError.includes('content_filter') || technicalError.includes('content_policy')) {

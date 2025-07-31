@@ -228,7 +228,7 @@ function cleanGeneratedContent(content: string): string {
   return cleanedContent;
 }
 
-// Helper function to validate character count
+// Helper function to validate character count - 修复验证逻辑
 function validateCharacterCount(content: string, platformId: string, userSetLimit: number): {
   isValid: boolean;
   actualCount: number;
@@ -238,23 +238,25 @@ function validateCharacterCount(content: string, platformId: string, userSetLimi
   const actualCount = content.length;
   const limits = getPlatformLimit(platformId);
 
-  // 计算目标范围（基于用户设置）
-  const targetMin = Math.floor(userSetLimit * 0.8);
-  const targetMax = Math.floor(userSetLimit * 0.9);
+  // 修复：使用实际字符数计算合理的目标范围
+  const targetMin = Math.max(50, Math.floor(actualCount * 0.9)); // 实际字符数的90%作为下限
+  const targetMax = Math.floor(actualCount * 1.1); // 实际字符数的110%作为上限
   const targetRange = { min: targetMin, max: targetMax };
 
   let warning: string | undefined;
 
-  // 只在超过限制时显示警告，移除字符数建议提示
+  // 检查是否超出限制
   if (actualCount > userSetLimit) {
     warning = `⚠️ 内容超出用户设置的${userSetLimit}字符限制，当前${actualCount}字符`;
   } else if (limits && actualCount > limits.maxCharacters) {
     warning = `⚠️ 内容超出${getPlatformName(platformId, [])}平台最大限制${limits.maxCharacters}字符`;
   }
-  // 移除了字符数建议提示，只保留超过限制时的警告
+
+  // 判断是否在合理范围内（不超过用户设置和平台限制）
+  const isValid = actualCount <= userSetLimit && (limits ? actualCount <= limits.maxCharacters : true);
 
   return {
-    isValid: actualCount <= userSetLimit && (limits ? actualCount <= limits.maxCharacters : true),
+    isValid,
     actualCount,
     targetRange,
     warning
@@ -570,42 +572,58 @@ export default function AdaptPage() {
   const [customPrompt, setCustomPrompt] = useState('');
   const [useBrandLibrary, setUseBrandLibrary] = useState(false);
 
-  // AI调用重试机制
-  const callAIWithRetry = async (params: any, versionName: string, maxRetries: number = 3): Promise<any> => {
+  // 改进的AI调用重试机制 - 修复平台生成失败问题
+  const callAIWithRetry = async (params: any, versionName: string, maxRetries: number = 5): Promise<any> => {
     let lastError: any = null;
+    const originalModel = params.model;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`🔄 ${versionName} - 第${attempt}次尝试调用AI (模型: ${params.model})`);
 
-        const result = await callAI(params);
+        // 为WeChat和Zhihu使用更保守的参数
+        const adjustedParams = { ...params };
+        if (versionName.includes('wechat') || versionName.includes('zhihu')) {
+          adjustedParams.temperature = Math.min(adjustedParams.temperature || 0.7, 0.6);
+          adjustedParams.maxTokens = Math.min(adjustedParams.maxTokens || 2000, 1500);
+        }
 
-        if (result.success) {
+        const result = await callUnifiedAI(adjustedParams);
+
+        if (result.success && result.content && result.content.trim().length > 50) {
           console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
           return result;
         } else {
-          lastError = new Error(result.error || '未知错误');
-          console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${result.error}`);
+          const errorMsg = result.error || '生成内容为空或过短';
+          lastError = new Error(errorMsg);
+          console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${errorMsg}`);
         }
       } catch (error) {
         lastError = error;
         console.error(`🚨 ${versionName} - 第${attempt}次尝试异常:`, error);
 
-        // 如果是DeepSeek模型失败，尝试切换到备用模型
-        if (params.model.includes('deepseek') && attempt === 1) {
-          console.log(`🔄 ${versionName} - DeepSeek失败，尝试切换到GPT-4o-mini`);
-          params.model = 'gpt-4o-mini';
+        // 智能模型切换策略
+        if (attempt <= 2) {
+          if (params.model.includes('deepseek')) {
+            console.log(`🔄 ${versionName} - DeepSeek失败，切换到GPT-4o-mini`);
+            params.model = 'gpt-4o-mini';
+          } else if (params.model.includes('gpt-4o-mini')) {
+            console.log(`🔄 ${versionName} - GPT-4o-mini失败，切换到GPT-3.5-turbo`);
+            params.model = 'gpt-3.5-turbo';
+          }
         }
       }
 
       // 如果不是最后一次尝试，等待一段时间再重试
       if (attempt < maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // 指数退避，最大5秒
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 8000); // 指数退避，最大8秒
         console.log(`⏳ ${versionName} - 等待${delay}ms后重试...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
 
+    // 恢复原始模型设置
+    params.model = originalModel;
     throw lastError || new Error(`${versionName} - 所有重试都失败了`);
   };
   const [brandProfile, setBrandProfile] = useState<any>(null);
@@ -700,26 +718,45 @@ export default function AdaptPage() {
 4. 内容要完整、有价值，不要为了凑字数而添加无意义内容
 5. 如果内容自然长度不够，请增加具体细节、案例或深入分析`;
 
-      // 并行生成两个版本
+      // 改进的并行生成 - 针对WeChat和Zhihu优化
+      const getPlatformOptimizedParams = (baseParams: any, versionType: string) => {
+        const params = { ...baseParams };
+
+        // WeChat和Zhihu使用更保守的参数
+        if (['wechat', 'zhihu'].includes(platformId)) {
+          params.maxTokens = Math.min(params.maxTokens, 1200);
+          params.temperature = Math.min(params.temperature, 0.6);
+
+          // 添加平台特定的系统提示
+          if (platformId === 'wechat') {
+            params.systemPrompt += '\n注意：生成微信公众号内容，要求专业、易读、有价值。';
+          } else if (platformId === 'zhihu') {
+            params.systemPrompt += '\n注意：生成知乎内容，要求深度、专业、有见解。';
+          }
+        }
+
+        return params;
+      };
+
       const [standardResult, creativeResult] = await Promise.all([
-        callAIWithRetry({
+        callAIWithRetry(getPlatformOptimizedParams({
           prompt: standardPrompt,
           model: selectedModel as any,
           systemPrompt: `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`,
           maxTokens: maxTokens,
           temperature: 0.7
-        }, '标准版本').catch(error => {
-          console.error('标准版本生成失败:', error);
+        }, '标准版本'), `${platformId}-标准版本`).catch(error => {
+          console.error(`${platformId}-标准版本生成失败:`, error);
           return { success: false, error: error.message };
         }),
-        callAIWithRetry({
+        callAIWithRetry(getPlatformOptimizedParams({
           prompt: creativePrompt,
           model: selectedModel as any,
           systemPrompt: `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`,
           maxTokens: maxTokens,
           temperature: 0.9
-        }, '创意版本').catch(error => {
-          console.error('创意版本生成失败:', error);
+        }, '创意版本'), `${platformId}-创意版本`).catch(error => {
+          console.error(`${platformId}-创意版本生成失败:`, error);
           return { success: false, error: error.message };
         })
       ]);
@@ -731,11 +768,11 @@ export default function AdaptPage() {
         const userSetLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
         let finalContent = standardResult.content;
 
-        // 使用新的配置系统验证字符数
+        // 使用新的配置系统验证字符数（仅记录日志，不添加警告文案）
         const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
         if (finalContent.length < charCountConfig.min) {
           console.warn(`标准版本内容不足 ${finalContent.length}/${charCountConfig.min}字`);
-          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求]`;
+          // 移除警告文案，保持内容纯净
         }
 
         // 禁止截断：如果内容超出限制，记录警告但保持内容完整
@@ -766,11 +803,11 @@ export default function AdaptPage() {
         const userSetLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
         let finalContent = creativeResult.content;
 
-        // 使用新的配置系统验证字符数
+        // 使用新的配置系统验证字符数（仅记录日志，不添加警告文案）
         const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
         if (finalContent.length < charCountConfig.min) {
           console.warn(`创意版本内容不足 ${finalContent.length}/${charCountConfig.min}字`);
-          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求]`;
+          // 移除警告文案，保持内容纯净
         }
 
         // 清理生成内容中的多余文案
@@ -1425,13 +1462,37 @@ export default function AdaptPage() {
     }
   };
 
-  // Copy content to clipboard
-  const copyToClipboard = (content: string) => {
-    navigator.clipboard.writeText(content);
-    toast({
-      title: "已复制到剪贴板",
-      description: "内容已成功复制，可直接粘贴使用",
-    });
+  // Copy content to clipboard - 添加视觉反馈，确保不干扰收藏功能
+  const [copyStates, setCopyStates] = useState<Set<string>>(new Set());
+
+  const copyToClipboard = async (content: string, buttonId?: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+
+      // 添加视觉反馈
+      if (buttonId) {
+        setCopyStates(prev => new Set(prev).add(buttonId));
+        setTimeout(() => {
+          setCopyStates(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(buttonId);
+            return newSet;
+          });
+        }, 2000);
+      }
+
+      toast({
+        title: "已复制到剪贴板 📋",
+        description: "内容已成功复制，可直接粘贴使用",
+      });
+    } catch (error) {
+      console.error('复制失败:', error);
+      toast({
+        title: "复制失败",
+        description: "请手动选择并复制内容",
+        variant: "destructive"
+      });
+    }
   };
 
   // 版本重新生成状态
@@ -1570,10 +1631,13 @@ export default function AdaptPage() {
     return diagnosticResults;
   };
 
-  // 自动重试超时平台
-  const autoRetryTimeoutPlatform = async (platformId: string, retryCount: number = 1, maxRetries: number = 2) => {
-    if (retryCount > maxRetries) {
-      console.log(`平台 ${platformId} 已达到最大重试次数 ${maxRetries}`);
+  // 自动重试超时平台 - 改进的重试机制
+  const autoRetryTimeoutPlatform = async (platformId: string, retryCount: number = 1, maxRetries: number = 3) => {
+    // 为WeChat和Zhihu增加重试次数
+    const platformMaxRetries = ['wechat', 'zhihu'].includes(platformId) ? 4 : maxRetries;
+
+    if (retryCount > platformMaxRetries) {
+      console.log(`平台 ${platformId} 已达到最大重试次数 ${platformMaxRetries}`);
       return;
     }
 
@@ -1620,9 +1684,20 @@ export default function AdaptPage() {
         }, 3000);
       } else {
         // 最终失败，提供用户友好的错误信息
-        const finalError = retryCount >= maxRetries
-          ? `⏰ 网络不稳定，已重试 ${maxRetries} 次。建议：1) 检查网络连接 2) 稍后手动重试 3) 尝试切换网络环境`
-          : errorMessage;
+        const getPlatformSpecificError = (platformId: string, retryCount: number, maxRetries: number) => {
+          if (retryCount >= maxRetries) {
+            if (platformId === 'wechat') {
+              return `📱 微信公众号生成暂时失败，建议稍后重试或手动调整内容长度`;
+            } else if (platformId === 'zhihu') {
+              return `🎓 知乎内容生成暂时失败，建议稍后重试或简化内容要求`;
+            } else {
+              return `🔄 ${getPlatformName(platformId, platforms)}生成暂时失败，请稍后重试`;
+            }
+          }
+          return errorMessage;
+        };
+
+        const finalError = getPlatformSpecificError(platformId, retryCount, maxRetries);
 
         setResults(current =>
           current.map(result =>
@@ -2008,7 +2083,9 @@ export default function AdaptPage() {
     });
   };
 
-  // Favorite content
+  // Favorite content - 添加视觉反馈
+  const [favoriteStates, setFavoriteStates] = useState<Set<string>>(new Set());
+
   const handleFavorite = (platformId: string, versionId?: string) => {
     const result = results.find(r => r.platformId === platformId);
     if (!result) {
@@ -2060,8 +2137,19 @@ export default function AdaptPage() {
     favorites.push(favoriteItem);
     localStorage.setItem('favorites', JSON.stringify(favorites));
 
+    // 添加视觉反馈
+    const favoriteKey = versionId ? `${platformId}-${versionId}` : platformId;
+    setFavoriteStates(prev => new Set(prev).add(favoriteKey));
+    setTimeout(() => {
+      setFavoriteStates(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(favoriteKey);
+        return newSet;
+      });
+    }, 2000);
+
     toast({
-      title: "收藏成功",
+      title: "收藏成功 ❤️",
       description: "内容已添加到收藏，可在我的页面查看",
     });
   };
@@ -4159,18 +4247,20 @@ ${dimensions.join('\n\n')}
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleFavorite(result.platformId, 'version-a')}
+                                    className={favoriteStates.has(`${result.platformId}-version-a`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
                                   >
-                                    <Heart className="h-4 w-4 mr-1" />
-                                    收藏
+                                    <Heart className={`h-4 w-4 mr-1 ${favoriteStates.has(`${result.platformId}-version-a`) ? 'fill-red-500 text-red-500' : ''}`} />
+                                    {favoriteStates.has(`${result.platformId}-version-a`) ? '已收藏 ❤️' : '收藏'}
                                   </Button>
 
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => copyToClipboard(result.versions![0].content)}
+                                    onClick={() => copyToClipboard(result.versions![0].content, `copy-version-a-${result.platformId}`)}
+                                    className={copyStates.has(`copy-version-a-${result.platformId}`) ? 'bg-green-50 border-green-200 text-green-600' : ''}
                                   >
                                     <Copy className="h-4 w-4 mr-1" />
-                                    一键复制
+                                    {copyStates.has(`copy-version-a-${result.platformId}`) ? '已复制 ✓' : '一键复制'}
                                   </Button>
 
                                   <Button
@@ -4319,18 +4409,20 @@ ${dimensions.join('\n\n')}
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleFavorite(result.platformId, 'version-b')}
+                                    className={favoriteStates.has(`${result.platformId}-version-b`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
                                   >
-                                    <Heart className="h-4 w-4 mr-1" />
-                                    收藏
+                                    <Heart className={`h-4 w-4 mr-1 ${favoriteStates.has(`${result.platformId}-version-b`) ? 'fill-red-500 text-red-500' : ''}`} />
+                                    {favoriteStates.has(`${result.platformId}-version-b`) ? '已收藏 ❤️' : '收藏'}
                                   </Button>
 
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => copyToClipboard(result.versions![1].content)}
+                                    onClick={() => copyToClipboard(result.versions![1].content, `copy-version-b-${result.platformId}`)}
+                                    className={copyStates.has(`copy-version-b-${result.platformId}`) ? 'bg-green-50 border-green-200 text-green-600' : ''}
                                   >
                                     <Copy className="h-4 w-4 mr-1" />
-                                    一键复制
+                                    {copyStates.has(`copy-version-b-${result.platformId}`) ? '已复制 ✓' : '一键复制'}
                                   </Button>
 
                                   <Button
@@ -4666,12 +4758,7 @@ ${dimensions.join('\n\n')}
 
 
 
-      {/* 嵌入式加载动画 - 多平台生成时显示 */}
-      {generating && selectedPlatforms.length > 1 && (
-        <div className="mt-8">
-          <InlineLoadingAnimation message="AI正在为多个平台生成精彩内容，请稍候..." />
-        </div>
-      )}
+
     </div>
   );
 }

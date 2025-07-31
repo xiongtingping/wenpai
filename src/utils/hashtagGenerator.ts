@@ -127,7 +127,7 @@ export class HashtagGenerator {
   ]);
 
   /**
-   * 生成多维度话题标签建议
+   * 生成多维度话题标签建议 - 改进的语义分析
    */
   async generateHashtags(content: string, options: HashtagGeneratorOptions = {}): Promise<HashtagSuggestion[]> {
     const {
@@ -140,6 +140,9 @@ export class HashtagGenerator {
     // 获取平台配置
     const platformConfig = this.platformConfigs[platformId] || this.platformConfigs['douyin'];
 
+    // 改进的语义分析
+    const semanticKeywords = this.extractSemanticKeywords(content);
+
     // 生成多维度标签
     const multiDimensionTags = await this.generateMultiDimensionTags(content, platformId, {
       includeBrands,
@@ -147,8 +150,11 @@ export class HashtagGenerator {
       includePersona
     });
 
+    // 基于语义关键词过滤和评分
+    const relevantTags = this.filterBySemanticRelevance(multiDimensionTags, semanticKeywords, content);
+
     // 按维度分配标签
-    const finalTags = this.allocateTagsByDimensions(multiDimensionTags, platformConfig);
+    const finalTags = this.allocateTagsByDimensions(relevantTags, platformConfig);
 
     // 转换为HashtagSuggestion格式
     return finalTags.map(tag => ({
@@ -157,6 +163,79 @@ export class HashtagGenerator {
       relevance: tag.relevance,
       description: `${tag.dimension}维度标签: ${tag.description || ''}`
     }));
+  }
+
+  /**
+   * 提取语义关键词 - 改进的内容分析
+   */
+  private extractSemanticKeywords(content: string): string[] {
+    // 移除标点符号和特殊字符
+    const cleanContent = content.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, ' ');
+
+    // 分词（简单实现）
+    const words = cleanContent.split(/\s+/).filter(word =>
+      word.length >= 2 &&
+      !this.commonWords.has(word) &&
+      !/^\d+$/.test(word) // 排除纯数字
+    );
+
+    // 计算词频
+    const wordFreq = new Map<string, number>();
+    words.forEach(word => {
+      wordFreq.set(word, (wordFreq.get(word) || 0) + 1);
+    });
+
+    // 提取高频关键词
+    const keywords = Array.from(wordFreq.entries())
+      .filter(([word, freq]) => freq >= 1 && word.length <= 10) // 过滤过长的词
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20)
+      .map(([word]) => word);
+
+    return keywords;
+  }
+
+  /**
+   * 基于语义相关性过滤标签
+   */
+  private filterBySemanticRelevance(
+    tags: MultiDimensionTag[],
+    semanticKeywords: string[],
+    content: string
+  ): MultiDimensionTag[] {
+    return tags.map(tag => {
+      // 计算标签与内容的相关性
+      let relevanceScore = tag.relevance;
+
+      // 检查标签是否包含语义关键词
+      const tagLower = tag.tag.toLowerCase();
+      const contentLower = content.toLowerCase();
+
+      // 直接匹配加分
+      if (contentLower.includes(tagLower)) {
+        relevanceScore += 0.3;
+      }
+
+      // 语义关键词匹配加分
+      const keywordMatches = semanticKeywords.filter(keyword =>
+        tagLower.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(tagLower)
+      ).length;
+
+      relevanceScore += keywordMatches * 0.1;
+
+      // 标签长度惩罚（过长的标签相关性降低）
+      if (tag.tag.length > 8) {
+        relevanceScore -= 0.1;
+      }
+
+      // 确保相关性在0-1范围内
+      relevanceScore = Math.min(1, Math.max(0, relevanceScore));
+
+      return {
+        ...tag,
+        relevance: relevanceScore
+      };
+    }).filter(tag => tag.relevance >= 0.3); // 只保留相关性>=0.3的标签
   }
 
   /**
