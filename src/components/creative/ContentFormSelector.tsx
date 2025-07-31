@@ -86,46 +86,6 @@ export function ContentFormSelector({
       <div className={className}>
         {/* 内容形式选择区域 */}
         <div className="space-y-4">
-            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>内容形式与表达风格体系</DialogTitle>
-                <DialogDescription>
-                  选择不同的内容形式和表达风格来获得最佳的内容生成效果
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-6">
-                {contentCategories.map((category) => (
-                  <div key={category.id} className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{category.icon}</span>
-                      <h4 className="text-lg font-semibold">{category.name}</h4>
-                      <Badge variant="outline" className="text-xs">
-                        {category.outputDescription}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600">{category.description}</p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {category.forms.map((form) => (
-                        <Card key={form.id} className="p-3">
-                          <div className="flex items-start gap-2">
-                            <span className="text-lg">{form.icon}</span>
-                            <div className="flex-1">
-                              <h5 className="font-medium text-sm">{form.name}</h5>
-                              <p className="text-xs text-gray-600 mt-1">{form.description}</p>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
           {/* 内容形式选择 */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 mb-3">
@@ -133,14 +93,19 @@ export function ContentFormSelector({
                 <Target className="h-4 w-4" />
                 选择内容形式
               </h4>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
                         <Info className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>查看详细说明</p>
+                  </TooltipContent>
+                </Tooltip>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>内容形式与表达风格体系</DialogTitle>
@@ -178,12 +143,7 @@ export function ContentFormSelector({
                     ))}
                   </div>
                 </DialogContent>
-                  </Dialog>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>查看详细说明</p>
-                </TooltipContent>
-              </Tooltip>
+              </Dialog>
             </div>
 
           <Collapsible open={isContentFormOpen} onOpenChange={setIsContentFormOpen}>

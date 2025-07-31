@@ -649,7 +649,8 @@ export class HashtagGenerator {
     const suggestions: HashtagSuggestion[] = [];
 
     // 基于内容类型的推荐
-    const contentTypeRecommendations = this.analyzeContentType(content);
+    const contentAnalysis = this.analyzeContentType(content);
+    const contentTypeRecommendations = this.generateContentTypeRecommendations(contentAnalysis);
     suggestions.push(...contentTypeRecommendations);
 
     // 基于平台特性的推荐
@@ -808,66 +809,41 @@ export class HashtagGenerator {
     return tags;
   }
 
+
+
   /**
-   * 分析内容类型并推荐相关标签
+   * 基于内容分析生成推荐标签
    */
-  private analyzeContentType(content: string): HashtagSuggestion[] {
+  private generateContentTypeRecommendations(analysis: any): HashtagSuggestion[] {
     const suggestions: HashtagSuggestion[] = [];
 
-    const contentPatterns = [
-      {
-        pattern: /教程|方法|步骤|如何|怎么|技巧|攻略/,
-        tags: ['教程', '方法', '技巧', '攻略', '学习', '干货'],
-        type: '教程类内容'
-      },
-      {
-        pattern: /分享|推荐|安利|种草|好物|测评|体验/,
-        tags: ['分享', '推荐', '种草', '好物', '测评', '体验'],
-        type: '分享推荐类'
-      },
-      {
-        pattern: /生活|日常|记录|vlog|随拍|日记/,
-        tags: ['生活', '日常', '记录', 'vlog', '随拍', '生活记录'],
-        type: '生活记录类'
-      },
-      {
-        pattern: /美食|做菜|菜谱|料理|烹饪|食谱/,
-        tags: ['美食', '做菜', '菜谱', '料理', '烹饪', '美食分享'],
-        type: '美食类内容'
-      },
-      {
-        pattern: /旅行|旅游|出行|景点|攻略|游记/,
-        tags: ['旅行', '旅游', '出行', '景点', '旅行攻略', '游记'],
-        type: '旅行类内容'
-      },
-      {
-        pattern: /科技|数码|手机|电脑|软件|app/,
-        tags: ['科技', '数码', '手机', '电脑', '软件', '科技分享'],
-        type: '科技数码类'
-      },
-      {
-        pattern: /健身|运动|减肥|瑜伽|跑步|锻炼/,
-        tags: ['健身', '运动', '减肥', '瑜伽', '跑步', '健康生活'],
-        type: '健身运动类'
-      },
-      {
-        pattern: /穿搭|时尚|搭配|服装|造型|风格/,
-        tags: ['穿搭', '时尚', '搭配', '服装', '造型', '时尚穿搭'],
-        type: '时尚穿搭类'
-      }
-    ];
+    // 基于内容类型生成标签
+    const typeTagMap = {
+      'product': ['产品测评', '功能亮点', '真实体验', '使用心得', '产品推荐'],
+      'tutorial': ['实用教程', '干货分享', '技巧总结', '学习笔记', '方法论'],
+      'sharing': ['经验分享', '个人心得', '生活感悟', '真实故事', '成长记录'],
+      'recommendation': ['好物推荐', '种草清单', '购买指南', '性价比之选', '必买好物'],
+      'workplace': ['职场干货', '工作技巧', '效率提升', '职场成长', '工作心得']
+    };
 
-    contentPatterns.forEach(({ pattern, tags, type }) => {
-      if (pattern.test(content)) {
-        tags.forEach(tag => {
-          suggestions.push({
-            tag,
-            type: 'recommended',
-            relevance: 0.8,
-            description: `基于${type}推荐的标签`
-          });
-        });
-      }
+    const typeTags = typeTagMap[analysis.type as keyof typeof typeTagMap] || [];
+    typeTags.forEach(tag => {
+      suggestions.push({
+        tag,
+        type: 'recommended',
+        relevance: 0.8,
+        description: `基于内容类型"${analysis.type}"推荐`
+      });
+    });
+
+    // 基于主题生成标签
+    analysis.themes.forEach((theme: string) => {
+      suggestions.push({
+        tag: theme,
+        type: 'recommended',
+        relevance: 0.75,
+        description: `基于主题"${theme}"推荐`
+      });
     });
 
     return suggestions;
