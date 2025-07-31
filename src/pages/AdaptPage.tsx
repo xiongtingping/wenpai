@@ -14,6 +14,8 @@ import {
   calculateTargetCharCount
 } from '../config/platformLimits';
 import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '../components/AutomationUI';
+import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
+import { LoadingAnimation, InlineLoadingAnimation } from '../components/LoadingAnimation';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -227,34 +229,62 @@ function calculateSafetyRange(userSetLimit: number, platformId: string): { min: 
   return { min: safetyMin, max: safetyMax };
 }
 
-// Helper function to smart truncate content
-function smartTruncateContent(content: string, maxLength: number): string {
-  if (content.length <= maxLength) {
-    return content;
-  }
+// 新的字符数控制逻辑：生成目标范围内的内容，禁止截断
+function calculateOptimalCharCount(platformId: string, userSetLimit: number): { min: number; max: number } {
+  const limits = getPlatformCharCountAdvice(platformId);
 
-  // 智能截断：尽量在句号、感叹号、问号处截断
-  const cutPoint = Math.floor(maxLength * 0.9); // 留10%缓冲
-  let truncatedContent = content.substring(0, cutPoint);
+  // 目标范围：平台建议最低字符数 到 平台最高字符数的90%-95%
+  const platformMax = Math.min(limits.maximum, userSetLimit);
+  const targetMin = limits.minimum;
+  const targetMax = Math.floor(platformMax * 0.95); // 95%的平台最高限制
 
-  // 寻找最近的句子结束符
-  const sentenceEnders = ['。', '！', '？', '.', '!', '?'];
-  let lastSentenceEnd = -1;
+  return {
+    min: Math.max(targetMin, 100), // 最少100字符
+    max: Math.max(targetMax, targetMin + 50) // 确保max > min
+  };
+}
 
-  for (const ender of sentenceEnders) {
-    const pos = truncatedContent.lastIndexOf(ender);
-    if (pos > lastSentenceEnd) {
-      lastSentenceEnd = pos;
-    }
-  }
+// 清理AI生成内容中的多余文案
+function cleanGeneratedContent(content: string): string {
+  let cleanedContent = content;
 
-  if (lastSentenceEnd > cutPoint * 0.7) {
-    // 如果找到合适的句子结束位置，在此截断
-    return truncatedContent.substring(0, lastSentenceEnd + 1);
-  } else {
-    // 否则直接截断并添加省略号
-    return truncatedContent.trim() + '...';
-  }
+  // 移除配图建议文案
+  cleanedContent = cleanedContent.replace(/（配图建议：[^）]*）/g, '');
+  cleanedContent = cleanedContent.replace(/\(配图建议：[^)]*\)/g, '');
+  cleanedContent = cleanedContent.replace(/【配图建议：[^】]*】/g, '');
+  cleanedContent = cleanedContent.replace(/\[配图建议：[^\]]*\]/g, '');
+
+  // 移除字符数统计文案
+  cleanedContent = cleanedContent.replace(/👉字符数：\d+[^。！？\n]*/g, '');
+  cleanedContent = cleanedContent.replace(/字符数：\d+[^。！？\n]*/g, '');
+  cleanedContent = cleanedContent.replace(/\d+字符[^。！？\n]*/g, '');
+  cleanedContent = cleanedContent.replace(/（\d+字符）/g, '');
+  cleanedContent = cleanedContent.replace(/\(\d+字符\)/g, '');
+
+  // 移除其他元数据文案
+  cleanedContent = cleanedContent.replace(/【注意：[^】]*】/g, '');
+  cleanedContent = cleanedContent.replace(/\[注意：[^\]]*\]/g, '');
+  cleanedContent = cleanedContent.replace(/（注意：[^）]*）/g, '');
+  cleanedContent = cleanedContent.replace(/\(注意：[^)]*\)/g, '');
+
+  // 移除建议类文案
+  cleanedContent = cleanedContent.replace(/【建议：[^】]*】/g, '');
+  cleanedContent = cleanedContent.replace(/\[建议：[^\]]*\]/g, '');
+  cleanedContent = cleanedContent.replace(/（建议：[^）]*）/g, '');
+  cleanedContent = cleanedContent.replace(/\(建议：[^)]*\)/g, '');
+
+  // 移除提示类文案
+  cleanedContent = cleanedContent.replace(/【提示：[^】]*】/g, '');
+  cleanedContent = cleanedContent.replace(/\[提示：[^\]]*\]/g, '');
+  cleanedContent = cleanedContent.replace(/（提示：[^）]*）/g, '');
+  cleanedContent = cleanedContent.replace(/\(提示：[^)]*\)/g, '');
+
+  // 移除多余的空行和空格
+  cleanedContent = cleanedContent.replace(/\n{3,}/g, '\n\n');
+  cleanedContent = cleanedContent.replace(/\s+$/gm, '');
+  cleanedContent = cleanedContent.trim();
+
+  return cleanedContent;
 }
 
 // Helper function to validate character count
@@ -717,8 +747,9 @@ export default function AdaptPage() {
         maxTokens = Math.min(Math.floor(targetChars / 1.0), 3000);
       }
 
-      // 生成精确的字符数控制指令
-      const charCountInstruction = `【字符数精确控制】目标：${charCountConfig.min}-${charCountConfig.max}字符，重点目标：${targetChars}字符。${platformAdvice}。生成内容必须严格控制在此范围内。`;
+      // 使用新的字符数控制逻辑
+      const optimalRange = calculateOptimalCharCount(platformId, userCharLimit);
+      const charCountInstruction = `【字符数精确控制】目标范围：${optimalRange.min}-${optimalRange.max}字符（平台建议最低${optimalRange.min}字符到平台最高限制的95%）。${platformAdvice}。请生成在此范围内的完整内容，确保内容完整性和质量。`;
 
       // 并行生成两个版本
       const [standardResult, creativeResult] = await Promise.all([
@@ -758,20 +789,36 @@ export default function AdaptPage() {
           finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求]`;
         }
 
-        // 如果内容超出用户设置的限制，自动截断并优化
+        // 禁止截断：如果内容超出限制，记录警告但保持内容完整
         if (finalContent.length > userSetLimit) {
-          console.warn(`标准版本内容超出限制 ${finalContent.length}/${userSetLimit}，自动截断`);
-          finalContent = smartTruncateContent(finalContent, userSetLimit);
+          console.warn(`标准版本内容超出限制 ${finalContent.length}/${userSetLimit}，保持内容完整`);
         }
 
         const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
+        // 生成智能话题标签
+        let contentWithTags = finalContent;
+        try {
+          const hashtags = await hashtagGenerator.generateHashtags(finalContent, {
+            maxTags: 5,
+            platformId: platformId
+          });
+
+          if (hashtags.length > 0) {
+            const topTags = hashtags.slice(0, 3).map(h => h.tag);
+            const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
+            contentWithTags = finalContent + '\n\n' + formattedTags;
+          }
+        } catch (error) {
+          console.warn('话题标签生成失败:', error);
+        }
+
         versions.push({
           id: 'version-a',
-          content: finalContent,
+          content: contentWithTags,
           style: 'standard',
           title: '版本A',
-          charCount: finalContent.length,
+          charCount: contentWithTags.length,
           validation: validation
         });
 
@@ -791,20 +838,41 @@ export default function AdaptPage() {
           finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求]`;
         }
 
-        // 如果内容超出用户设置的限制，自动截断并优化
+        // 清理生成内容中的多余文案
+        finalContent = cleanGeneratedContent(finalContent);
+
+        // 禁止截断：如果内容超出限制，记录警告但保持内容完整
         if (finalContent.length > userSetLimit) {
-          console.warn(`创意版本内容超出限制 ${finalContent.length}/${userSetLimit}，自动截断`);
-          finalContent = smartTruncateContent(finalContent, userSetLimit);
+          console.warn(`创意版本内容超出限制 ${finalContent.length}/${userSetLimit}，保持内容完整`);
         }
 
         const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
+        // 生成智能话题标签
+        let contentWithTags = finalContent;
+        try {
+          const hashtags = await hashtagGenerator.generateHashtags(finalContent, {
+            maxTags: 5,
+            platformId: platformId,
+            includeRecommended: true,
+            includeTrending: true
+          });
+
+          if (hashtags.length > 0) {
+            const topTags = hashtags.slice(0, 3).map(h => h.tag);
+            const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
+            contentWithTags = finalContent + '\n\n' + formattedTags;
+          }
+        } catch (error) {
+          console.warn('话题标签生成失败:', error);
+        }
+
         versions.push({
           id: 'version-b',
-          content: finalContent,
+          content: contentWithTags,
           style: 'creative',
           title: '版本B',
-          charCount: finalContent.length,
+          charCount: contentWithTags.length,
           validation: validation
         });
 
@@ -1882,8 +1950,9 @@ export default function AdaptPage() {
         maxTokens = Math.min(Math.floor(targetChars / 1.0), 3000);
       }
 
-      // 生成精确的字符数控制指令
-      const charCountInstruction = `【字符数精确控制】目标：${charCountConfig.min}-${charCountConfig.max}字符，重点目标：${targetChars}字符。${platformAdvice}。生成内容必须严格控制在此范围内，不得超出平台${userCharLimit}字符限制。`;
+      // 使用新的字符数控制逻辑
+      const optimalRange = calculateOptimalCharCount(platformId, userCharLimit);
+      const charCountInstruction = `【字符数精确控制】目标范围：${optimalRange.min}-${optimalRange.max}字符（平台建议最低${optimalRange.min}字符到平台最高限制的95%）。${platformAdvice}。请生成在此范围内的完整内容，确保内容完整性和质量。`;
 
       const aiResult = await callAI({
         prompt,
@@ -1902,40 +1971,38 @@ export default function AdaptPage() {
         const validation = validateCharCount(platformId, finalContent.length);
         const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
 
+        // 清理生成内容中的多余文案
+        finalContent = cleanGeneratedContent(finalContent);
+
         // 检查是否达到最低字符数要求（仅记录日志，不添加建议文案）
         if (finalContent.length < charCountConfig.min) {
           console.warn(`内容不足 ${finalContent.length}/${charCountConfig.min}字，需要补充内容`);
           // 移除了建议文案的添加，保持内容原样
         }
 
-        // 如果内容超出平台限制，自动截断并优化
+        // 清理生成内容中的多余文案
+        finalContent = cleanGeneratedContent(finalContent);
+
+        // 禁止截断：如果内容超出限制，记录警告但保持内容完整
         if (finalContent.length > userCharLimit) {
-          console.warn(`内容超出限制 ${finalContent.length}/${userCharLimit}，自动截断`);
+          console.warn(`内容超出限制 ${finalContent.length}/${userCharLimit}，保持内容完整`);
+        }
 
-          // 智能截断：尽量在句号、感叹号、问号处截断
-          const cutPoint = Math.floor(userCharLimit * 0.9); // 留10%缓冲
-          let truncatedContent = finalContent.substring(0, cutPoint);
+        // 生成智能话题标签
+        let contentWithTags = finalContent;
+        try {
+          const hashtags = await hashtagGenerator.generateHashtags(finalContent, {
+            maxTags: 5,
+            platformId: platformId
+          });
 
-          // 寻找最近的句子结束符
-          const sentenceEnders = ['。', '！', '？', '.', '!', '?'];
-          let lastSentenceEnd = -1;
-
-          for (const ender of sentenceEnders) {
-            const pos = truncatedContent.lastIndexOf(ender);
-            if (pos > lastSentenceEnd) {
-              lastSentenceEnd = pos;
-            }
+          if (hashtags.length > 0) {
+            const topTags = hashtags.slice(0, 3).map(h => h.tag);
+            const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
+            contentWithTags = finalContent + '\n\n' + formattedTags;
           }
-
-          if (lastSentenceEnd > cutPoint * 0.7) {
-            // 如果找到合适的句子结束位置，在此截断
-            finalContent = truncatedContent.substring(0, lastSentenceEnd + 1);
-          } else {
-            // 否则直接截断并添加省略号
-            finalContent = truncatedContent.trim() + '...';
-          }
-
-          console.log(`内容已优化截断：${finalContent.length}字符`);
+        } catch (error) {
+          console.warn('话题标签生成失败:', error);
         }
 
         // 更新版本内容
@@ -1946,7 +2013,7 @@ export default function AdaptPage() {
                   ...r,
                   versions: r.versions?.map(v =>
                     v.id === versionId
-                      ? { ...v, content: finalContent, charCount: finalContent.length }
+                      ? { ...v, content: contentWithTags, charCount: contentWithTags.length }
                       : v
                   )
                 }
@@ -3948,25 +4015,7 @@ ${dimensions.join('\n\n')}
                 )}
               </div>
 
-              {/* 批量转发按钮 */}
-              <Button
-                size="lg"
-                variant="default"
-                onClick={handleBatchPublish}
-                disabled={results.filter(r => r.content || (r.versions && r.versions.length > 0)).length === 0}
-                className="px-6 py-2 font-semibold"
-                data-testid="batch-forward-button"
-              >
-                {publishMode === 'api' ? (
-                  <Zap className="h-5 w-5 mr-2" />
-                ) : (
-                  <ExternalLink className="h-5 w-5 mr-2" />
-                )}
-                {publishMode === 'api' ? '批量API直发' : '批量一键转发'}
-                <span className="ml-2 text-sm opacity-80">
-                  ({results.filter(r => r.content || (r.versions && r.versions.length > 0)).length}个平台)
-                </span>
-              </Button>
+
 
 
             </div>
@@ -4452,8 +4501,14 @@ ${dimensions.join('\n\n')}
                               </div>
                             </div>
                           ) : (
-                            <div className="rounded-lg border-2 border-dashed border-gray-200 p-12 flex items-center justify-center bg-gray-50">
-                              <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>
+                            <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
+                              {isGenerating ? (
+                                <InlineLoadingAnimation message="AI正在为您生成精彩内容..." />
+                              ) : (
+                                <div className="p-12 flex items-center justify-center">
+                                  <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -4468,34 +4523,39 @@ ${dimensions.join('\n\n')}
             ))}
           </Tabs>
 
-          {/* 自动化转发UI组件 - 移动到多版本生成结果下方 */}
-          <div className="mt-8">
-            <AutomationUI
-              availablePlatforms={results.map(result => {
-                // 获取内容长度 - 优先使用主内容，然后是版本内容
-                let contentLength = 0;
-                if (result.content) {
-                  contentLength = result.content.length;
-                } else if (result.versions && result.versions.length > 0) {
-                  // 使用第一个版本的内容长度
-                  contentLength = result.versions[0].content?.length || 0;
-                }
 
-                return {
-                  id: result.platformId,
-                  name: getPlatformName(result.platformId, platforms),
-                  hasContent: !!(result.content || (result.versions && result.versions.length > 0)),
-                  contentLength
-                };
-              })}
-              onStartAutomation={handleStartAutomation}
-              onCancelAutomation={handleCancelAutomation}
-              onRetryPlatform={handleRetryPlatform}
-              progress={automationProgress}
-              isRunning={automationRunning}
-            />
-          </div>
 
+        </div>
+      )}
+
+      {/* 自动化转发区域 - 独立的主要功能区域 */}
+      {results.length > 0 && (
+        <div className="mt-8">
+          <AutomationUI
+            availablePlatforms={results.map(result => {
+              // 获取内容长度 - 优先使用主内容，然后是版本内容
+              let contentLength = 0;
+              if (result.content) {
+                contentLength = result.content.length;
+              } else if (result.versions && result.versions.length > 0) {
+                // 使用第一个版本的内容长度
+                contentLength = result.versions[0].content?.length || 0;
+              }
+
+              return {
+                id: result.platformId,
+                name: getPlatformName(result.platformId, platforms),
+                hasContent: !!(result.content || (result.versions && result.versions.length > 0)),
+                contentLength
+              };
+            })}
+            onStartAutomation={handleStartAutomation}
+            onCancelAutomation={handleCancelAutomation}
+            onRetryPlatform={handleRetryPlatform}
+            progress={automationProgress}
+            isRunning={automationRunning}
+            onBatchPublish={handleBatchPublish}
+          />
         </div>
       )}
     </div>
@@ -4646,6 +4706,12 @@ ${dimensions.join('\n\n')}
       featureName={premiumFeatureInfo.name}
       featureDescription={premiumFeatureInfo.description}
     />
+
+      {/* 全屏加载动画 */}
+      <LoadingAnimation
+        isVisible={isGenerating && (generateMode === 'multi' || generateMode === 'batch')}
+        message="AI正在为多个平台生成精彩内容，请稍候..."
+      />
     </div>
   );
 }

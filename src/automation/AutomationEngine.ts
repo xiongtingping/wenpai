@@ -411,6 +411,37 @@ export class AutomationEngine {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
       } catch (error) {
+        console.error(`转发到 ${platformContent.platformName} 失败:`, error);
+
+        // 转发失败时，自动打开平台发布页面
+        try {
+          const platformUrls = {
+            'xiaohongshu': 'https://creator.xiaohongshu.com/publish/publish',
+            'weibo': 'https://weibo.com/compose',
+            'wechat': 'https://mp.weixin.qq.com',
+            'douyin': 'https://creator.douyin.com/creator-micro/content/upload',
+            'zhihu': 'https://zhuanlan.zhihu.com/write',
+            'bilibili': 'https://member.bilibili.com/platform/upload/text/edit',
+            'twitter': 'https://twitter.com/compose/tweet',
+            'video': 'https://channels.weixin.qq.com'
+          };
+
+          const url = platformUrls[platformContent.platformId as keyof typeof platformUrls];
+          if (url) {
+            // 复制内容到剪贴板
+            await navigator.clipboard.writeText(platformContent.content);
+
+            // 打开平台发布页面
+            window.open(url, `${platformContent.platformId}_fallback`,
+              'width=1200,height=800,scrollbars=yes,resizable=yes');
+
+            // 显示操作指引
+            this.showFallbackInstructions(platformContent, url);
+          }
+        } catch (fallbackError) {
+          console.error('降级方案也失败了:', fallbackError);
+        }
+
         const errorResult: ForwardResult = {
           platformId: platformContent.platformId,
           platformName: platformContent.platformName,
@@ -420,7 +451,7 @@ export class AutomationEngine {
           timestamp: Date.now(),
           retryCount: 0
         };
-        
+
         results.push(errorResult);
         this.updateProgress({
           completed: results.length,
@@ -792,6 +823,125 @@ export class AutomationEngine {
     } catch (error) {
       throw new Error(`手动转发失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
+  }
+
+  /**
+   * 显示失败平台的降级操作指引
+   */
+  private showFallbackInstructions(platformContent: PlatformContent, url: string) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+
+    const content = document.createElement('div');
+    content.style.cssText = `
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    `;
+
+    content.innerHTML = `
+      <h3 style="margin: 0 0 20px 0; color: #333; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 24px;">⚠️</span>
+        ${platformContent.platformName} 转发失败
+      </h3>
+
+      <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeaa7;">
+        <p style="margin: 0; font-weight: 500; color: #856404;">✅ 内容已复制到剪贴板</p>
+        <p style="margin: 5px 0 0 0; font-size: 14px; color: #856404;">
+          已自动打开 ${platformContent.platformName} 发布页面
+        </p>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; color: #495057; font-size: 16px;">📋 请手动完成发布：</h4>
+        <ol style="margin: 0; padding-left: 20px; color: #666; line-height: 1.6;">
+          <li>在打开的页面中找到内容输入框</li>
+          <li>粘贴内容 (Ctrl+V 或 Cmd+V)</li>
+          <li>根据平台要求添加图片、标签等</li>
+          <li>点击发布按钮完成发布</li>
+        </ol>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button id="copyAgain" style="
+          background: #6c757d;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+        ">重新复制</button>
+        <button id="openAgain" style="
+          background: #28a745;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+        ">重新打开页面</button>
+        <button id="closeFallback" style="
+          background: #007bff;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+        ">我知道了</button>
+      </div>
+    `;
+
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+
+    // 绑定事件
+    const closeBtn = content.querySelector('#closeFallback');
+    const copyBtn = content.querySelector('#copyAgain');
+    const openBtn = content.querySelector('#openAgain');
+
+    closeBtn?.addEventListener('click', () => {
+      document.body.removeChild(modal);
+    });
+
+    copyBtn?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(platformContent.content);
+        copyBtn.textContent = '已复制 ✓';
+        setTimeout(() => {
+          copyBtn.textContent = '重新复制';
+        }, 2000);
+      } catch (error) {
+        console.error('复制失败:', error);
+      }
+    });
+
+    openBtn?.addEventListener('click', () => {
+      window.open(url, `${platformContent.platformId}_retry`,
+        'width=1200,height=800,scrollbars=yes,resizable=yes');
+    });
+
+    // 点击背景关闭
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+      }
+    });
   }
 
   /**

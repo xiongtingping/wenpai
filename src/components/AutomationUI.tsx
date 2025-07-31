@@ -38,6 +38,7 @@ export interface AutomationUIProps {
   onStartAutomation: (selectedPlatforms: string[], options: AutomationOptions) => Promise<void>;
   onCancelAutomation: () => void;
   onRetryPlatform: (platformId: string) => Promise<void>;
+  onBatchPublish?: () => void;
   progress?: AutomationProgress;
   isRunning: boolean;
 }
@@ -54,6 +55,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
   onStartAutomation,
   onCancelAutomation,
   onRetryPlatform,
+  onBatchPublish,
   progress,
   isRunning
 }) => {
@@ -140,20 +142,19 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Bot className="h-6 w-6 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">自动化转发</h3>
+          <h2 className="text-2xl font-bold text-gray-900">自动化转发</h2>
           {progress && (
             <div className="flex items-center space-x-2">
               {getStatusIcon(progress.status)}
               <span className="text-sm text-gray-600">
                 {progress.status === 'running' && `正在处理: ${progress.current}`}
-                {progress.status === 'completed' && '转发完成'}
                 {progress.status === 'error' && '转发失败'}
                 {progress.status === 'cancelled' && '已取消'}
               </span>
             </div>
           )}
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowSettings(!showSettings)}
@@ -162,7 +163,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
           >
             <Settings className="h-4 w-4" />
           </button>
-          
+
           {isRunning ? (
             <button
               onClick={onCancelAutomation}
@@ -173,12 +174,15 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
             </button>
           ) : (
             <button
-              onClick={handleStartAutomation}
+              onClick={onBatchPublish || handleStartAutomation}
               disabled={selectedPlatforms.length === 0}
-              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center space-x-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold"
             >
-              <Play className="h-4 w-4" />
-              <span>开始转发</span>
+              <ExternalLink className="h-5 w-5" />
+              <span>批量一键转发</span>
+              <span className="ml-2 text-sm opacity-80">
+                ({selectedPlatforms.length}个平台)
+              </span>
             </button>
           )}
         </div>
@@ -357,21 +361,43 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
               >
                 <div className="flex items-center space-x-3">
                   {result.success ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    </div>
                   ) : (
-                    <XCircle className="h-5 w-5 text-red-500" />
+                    <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
+                      <XCircle className="h-5 w-5 text-red-600" />
+                    </div>
                   )}
 
-                  <div>
-                    <div className="font-medium text-gray-900">{result.platformName}</div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-gray-900">{result.platformName}</span>
+                      {result.success ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          ✅ 成功
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          ❌ 失败
+                        </span>
+                      )}
+                    </div>
+
                     {result.success ? (
-                      <div className="text-sm text-green-600">
-                        已打开发布页面，请按照指引完成发布
+                      <div className="text-sm text-green-600 mt-1">
+                        已打开发布页面，内容已复制到剪贴板，请粘贴发布
                       </div>
                     ) : (
-                      <div className="text-sm text-red-600">{result.error}</div>
+                      <div className="space-y-1">
+                        <div className="text-sm text-red-600">{result.error}</div>
+                        <div className="text-sm text-orange-600">
+                          📋 内容已复制到剪贴板，请在打开的页面中粘贴发布
+                        </div>
+                      </div>
                     )}
-                    <div className="text-xs text-gray-500">
+
+                    <div className="text-xs text-gray-500 mt-1">
                       {result.method === 'manual' ? '手动模式' :
                        result.method === 'browser' ? '浏览器模式' :
                        result.method === 'extension' ? '插件模式' : '自动模式'} •
