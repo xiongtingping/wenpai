@@ -4280,6 +4280,7 @@ ${dimensions.join('\n\n')}
 
                                 {/* 版本A专属智能标签 */}
                                 <PlatformHashtags
+                                  key={`${result.platformId}-version-a-${result.versions[0].content.length}`}
                                   platformId={result.platformId}
                                   content={result.versions[0].content}
                                   onTagsChange={(tags) => {
@@ -4442,6 +4443,7 @@ ${dimensions.join('\n\n')}
 
                                 {/* 版本B专属智能标签 */}
                                 <PlatformHashtags
+                                  key={`${result.platformId}-version-b-${result.versions[1].content.length}`}
                                   platformId={result.platformId}
                                   content={result.versions[1].content}
                                   onTagsChange={(tags) => {
@@ -4595,6 +4597,7 @@ ${dimensions.join('\n\n')}
                                 {/* 平台专属智能标签 */}
                                 {result.content && (
                                   <PlatformHashtags
+                                    key={`${result.platformId}-single-${result.content.length}`}
                                     platformId={result.platformId}
                                     content={result.content}
                                     onTagsChange={(tags) => {

@@ -127,41 +127,51 @@ export class HashtagGenerator {
   ]);
 
   /**
-   * 生成多维度话题标签建议 - 改进的语义分析
+   * 生成多维度话题标签建议 - 基于实际内容的精准分析
    */
   async generateHashtags(content: string, options: HashtagGeneratorOptions = {}): Promise<HashtagSuggestion[]> {
     const {
       platformId = 'general',
+      maxTags = 10,
       includeBrands = true,
       includeIndustry = true,
       includePersona = true
     } = options;
 
-    // 获取平台配置
-    const platformConfig = this.platformConfigs[platformId] || this.platformConfigs['douyin'];
+    // 禁止使用缓存或默认标签，每次都基于实际内容生成
+    if (!content || content.trim().length < 10) {
+      return [];
+    }
 
-    // 改进的语义分析
-    const semanticKeywords = this.extractSemanticKeywords(content);
+    // 深度内容分析
+    const contentAnalysis = this.analyzeContentType(content);
 
-    // 生成多维度标签
-    const multiDimensionTags = await this.generateMultiDimensionTags(content, platformId, {
-      includeBrands,
-      includeIndustry,
-      includePersona
-    });
+    // 基于内容分析生成标签
+    const contextualTags = this.generateContextualTags(content, contentAnalysis, platformId);
 
-    // 基于语义关键词过滤和评分
-    const relevantTags = this.filterBySemanticRelevance(multiDimensionTags, semanticKeywords, content);
+    // 提取高频关键词作为标签
+    const keywordTags = this.generateKeywordTags(contentAnalysis.keywords, content);
 
-    // 按维度分配标签
-    const finalTags = this.allocateTagsByDimensions(relevantTags, platformConfig);
+    // 生成主题相关标签
+    const themeTags = this.generateThemeTags(contentAnalysis.themes, contentAnalysis.type);
 
-    // 转换为HashtagSuggestion格式
+    // 生成风格标签
+    const styleTags = this.generateStyleTags(contentAnalysis.style, platformId);
+
+    // 合并所有标签
+    const allTags = [...contextualTags, ...keywordTags, ...themeTags, ...styleTags];
+
+    // 去重并按相关性排序
+    const uniqueTags = this.deduplicateAndRank(allTags, content);
+
+    // 限制标签数量
+    const finalTags = uniqueTags.slice(0, maxTags);
+
     return finalTags.map(tag => ({
       tag: tag.tag,
-      type: tag.type,
+      type: tag.type || 'contextual',
       relevance: tag.relevance,
-      description: `${tag.dimension}维度标签: ${tag.description || ''}`
+      description: tag.description || `基于内容"${content.substring(0, 20)}..."生成`
     }));
   }
 
@@ -169,7 +179,7 @@ export class HashtagGenerator {
    * 提取语义关键词 - 改进的内容分析
    */
   private extractSemanticKeywords(content: string): string[] {
-    // 移除标点符号和特殊字符
+    // 移除标点符号和特殊字符，保留中英文和数字
     const cleanContent = content.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, ' ');
 
     // 分词（简单实现）
@@ -193,6 +203,195 @@ export class HashtagGenerator {
       .map(([word]) => word);
 
     return keywords;
+  }
+
+  /**
+   * 分析内容类型和主题 - 新增精准内容分析
+   */
+  private analyzeContentType(content: string): {
+    type: string;
+    themes: string[];
+    style: string;
+    keywords: string[];
+  } {
+    const lowerContent = content.toLowerCase();
+
+    // 内容类型识别
+    let contentType = 'general';
+    if (lowerContent.includes('产品') || lowerContent.includes('功能') || lowerContent.includes('测评')) {
+      contentType = 'product';
+    } else if (lowerContent.includes('教程') || lowerContent.includes('方法') || lowerContent.includes('技巧')) {
+      contentType = 'tutorial';
+    } else if (lowerContent.includes('分享') || lowerContent.includes('经验') || lowerContent.includes('心得')) {
+      contentType = 'sharing';
+    } else if (lowerContent.includes('推荐') || lowerContent.includes('种草') || lowerContent.includes('好物')) {
+      contentType = 'recommendation';
+    } else if (lowerContent.includes('职场') || lowerContent.includes('工作') || lowerContent.includes('效率')) {
+      contentType = 'workplace';
+    }
+
+    // 主题提取
+    const themes: string[] = [];
+    const themeKeywords = {
+      '美食': ['美食', '食物', '菜谱', '料理', '餐厅'],
+      '旅行': ['旅行', '旅游', '景点', '攻略', '出行'],
+      '科技': ['科技', '数码', '手机', '电脑', '软件'],
+      '时尚': ['时尚', '穿搭', '服装', '搭配', '风格'],
+      '健康': ['健康', '运动', '健身', '养生', '医疗'],
+      '教育': ['教育', '学习', '知识', '技能', '培训'],
+      '生活': ['生活', '日常', '家居', '装修', '收纳']
+    };
+
+    Object.entries(themeKeywords).forEach(([theme, keywords]) => {
+      if (keywords.some(keyword => lowerContent.includes(keyword))) {
+        themes.push(theme);
+      }
+    });
+
+    // 表达风格识别
+    let style = 'neutral';
+    if (lowerContent.includes('！') || lowerContent.includes('超级') || lowerContent.includes('绝对')) {
+      style = 'enthusiastic';
+    } else if (lowerContent.includes('专业') || lowerContent.includes('分析') || lowerContent.includes('研究')) {
+      style = 'professional';
+    } else if (lowerContent.includes('可爱') || lowerContent.includes('萌') || lowerContent.includes('小仙女')) {
+      style = 'cute';
+    }
+
+    // 提取关键词
+    const keywords = this.extractSemanticKeywords(content);
+
+    return { type: contentType, themes, style, keywords };
+  }
+
+  /**
+   * 生成上下文相关标签
+   */
+  private generateContextualTags(content: string, analysis: any, platformId: string): any[] {
+    const tags: any[] = [];
+
+    // 基于内容类型生成标签
+    const typeTagMap = {
+      'product': ['产品测评', '功能亮点', '真实体验', '使用心得', '产品推荐'],
+      'tutorial': ['实用教程', '干货分享', '技巧总结', '学习笔记', '方法论'],
+      'sharing': ['经验分享', '个人心得', '生活感悟', '真实故事', '成长记录'],
+      'recommendation': ['好物推荐', '种草清单', '购买指南', '性价比之选', '必买好物'],
+      'workplace': ['职场干货', '工作技巧', '效率提升', '职场成长', '工作心得']
+    };
+
+    const typeTags = typeTagMap[analysis.type as keyof typeof typeTagMap] || [];
+    typeTags.forEach(tag => {
+      tags.push({
+        tag,
+        type: 'contextual',
+        relevance: 0.9,
+        description: `基于内容类型"${analysis.type}"生成`
+      });
+    });
+
+    return tags;
+  }
+
+  /**
+   * 生成关键词标签
+   */
+  private generateKeywordTags(keywords: string[], content: string): any[] {
+    return keywords.slice(0, 5).map(keyword => ({
+      tag: keyword,
+      type: 'keyword',
+      relevance: 0.8,
+      description: `从内容中提取的高频关键词`
+    }));
+  }
+
+  /**
+   * 生成主题标签
+   */
+  private generateThemeTags(themes: string[], contentType: string): any[] {
+    const tags: any[] = [];
+
+    themes.forEach(theme => {
+      // 基于主题和内容类型组合生成标签
+      const themeTagMap = {
+        '美食': ['美食探店', '料理分享', '美食推荐', '味蕾体验'],
+        '旅行': ['旅行攻略', '景点推荐', '出行指南', '旅游心得'],
+        '科技': ['科技前沿', '数码测评', '技术分享', '科技生活'],
+        '时尚': ['穿搭分享', '时尚搭配', '风格展示', '潮流趋势'],
+        '健康': ['健康生活', '运动健身', '养生心得', '健康管理'],
+        '教育': ['知识分享', '学习方法', '教育心得', '技能提升'],
+        '生活': ['生活技巧', '日常分享', '生活美学', '居家生活']
+      };
+
+      const themeTags = themeTagMap[theme as keyof typeof themeTagMap] || [theme];
+      themeTags.forEach(tag => {
+        tags.push({
+          tag,
+          type: 'theme',
+          relevance: 0.85,
+          description: `基于主题"${theme}"生成`
+        });
+      });
+    });
+
+    return tags;
+  }
+
+  /**
+   * 生成风格标签
+   */
+  private generateStyleTags(style: string, platformId: string): any[] {
+    const styleTagMap = {
+      'enthusiastic': ['热情推荐', '强烈安利', '超级好用', '必须拥有'],
+      'professional': ['专业分析', '深度解读', '客观评价', '理性推荐'],
+      'cute': ['可爱分享', '萌系推荐', '小仙女必备', '甜美风格'],
+      'neutral': ['真实分享', '客观体验', '个人感受', '使用心得']
+    };
+
+    const styleTags = styleTagMap[style as keyof typeof styleTagMap] || [];
+    return styleTags.map(tag => ({
+      tag,
+      type: 'style',
+      relevance: 0.75,
+      description: `基于表达风格"${style}"生成`
+    }));
+  }
+
+  /**
+   * 去重并按相关性排序
+   */
+  private deduplicateAndRank(tags: any[], content: string): any[] {
+    // 去重
+    const uniqueTagsMap = new Map();
+    tags.forEach(tag => {
+      if (!uniqueTagsMap.has(tag.tag)) {
+        // 计算与内容的相关性
+        const contentRelevance = this.calculateContentRelevance(tag.tag, content);
+        tag.relevance = (tag.relevance + contentRelevance) / 2;
+        uniqueTagsMap.set(tag.tag, tag);
+      }
+    });
+
+    // 按相关性排序
+    return Array.from(uniqueTagsMap.values())
+      .sort((a, b) => b.relevance - a.relevance);
+  }
+
+  /**
+   * 计算标签与内容的相关性
+   */
+  private calculateContentRelevance(tag: string, content: string): number {
+    const lowerContent = content.toLowerCase();
+    const lowerTag = tag.toLowerCase();
+
+    // 直接匹配
+    if (lowerContent.includes(lowerTag)) {
+      return 1.0;
+    }
+
+    // 部分匹配
+    const tagChars = lowerTag.split('');
+    const matchCount = tagChars.filter(char => lowerContent.includes(char)).length;
+    return matchCount / tagChars.length * 0.5;
   }
 
   /**

@@ -37,34 +37,36 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     return limits[platformId as keyof typeof limits] || { min: 3, max: 6 };
   };
 
-  // 生成标签 - 改进的相关性算法
-  const generateTags = async () => {
+  // 生成标签 - 基于当前内容的精准分析
+  const generateTags = async (forceRefresh = false) => {
     if (!content.trim()) return;
 
     setIsGenerating(true);
     try {
       const limits = getPlatformLimits(platformId);
+
+      console.log(`🏷️ 为${platformId}平台基于内容生成标签:`, content.substring(0, 50) + '...');
+
+      // 强制基于当前内容生成，禁用任何缓存
       const hashtags = await hashtagGenerator.generateHashtags(content, {
         platformId,
-        includeBrands: true,
+        maxTags: limits.max,
+        includeBrands: false, // 专注于内容相关性
         includeIndustry: true,
-        includePersona: true
+        includePersona: false // 避免通用标签
       });
 
-      // 过滤高相关性标签并应用平台限制
+      // 只保留高相关性标签
       const relevantTags = hashtags
-        .filter(h => h.relevance >= 0.6) // 只保留相关度>=0.6的标签
-        .sort((a, b) => b.relevance - a.relevance) // 按相关度排序
-        .slice(0, limits.max) // 应用平台最大限制
+        .filter(h => h.relevance >= 0.7) // 提高相关性阈值
+        .sort((a, b) => b.relevance - a.relevance)
+        .slice(0, Math.min(limits.max, 10)) // 限制最多10个
         .map(h => h.tag);
 
-      // 确保至少有最小数量的标签
-      const finalTags = relevantTags.length >= limits.min
-        ? relevantTags
-        : hashtags.slice(0, limits.min).map(h => h.tag);
+      console.log(`✅ 生成了${relevantTags.length}个相关标签:`, relevantTags);
 
-      setTags(finalTags);
-      onTagsChange?.(finalTags);
+      setTags(relevantTags);
+      onTagsChange?.(relevantTags);
     } catch (error) {
       console.error('标签生成失败:', error);
     } finally {
@@ -72,10 +74,18 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     }
   };
 
-  // 初始化时自动生成标签
+  // 内容变化时重新生成标签，确保标签与内容一致
   useEffect(() => {
-    if (content.trim()) {
-      generateTags();
+    if (content.trim() && content.length > 10) {
+      // 清空旧标签，避免显示不相关的缓存标签
+      setTags([]);
+      // 延迟生成，避免频繁调用
+      const timer = setTimeout(() => {
+        generateTags();
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setTags([]);
     }
   }, [content, platformId]);
 
@@ -121,10 +131,13 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
 
   if (isGenerating) {
     return (
-      <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
+      <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="flex items-center space-x-2 text-sm text-blue-700">
           <Tag className="h-4 w-4 animate-spin" />
-          <span>正在生成智能标签...</span>
+          <span>正在基于当前内容生成相关标签...</span>
+        </div>
+        <div className="text-xs text-blue-600 mt-1">
+          分析内容：{content.substring(0, 30)}...
         </div>
       </div>
     );
@@ -140,10 +153,15 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Tag className="h-4 w-4 text-blue-600" />
-          <span className="text-sm font-medium text-gray-700">智能标签</span>
+          <span className="text-sm font-medium text-gray-700">内容相关标签</span>
           <span className="text-xs text-gray-500">
-            ({tags.length}/{getPlatformLimits(platformId).max}个)
+            ({tags.length}/{Math.min(getPlatformLimits(platformId).max, 10)}个)
           </span>
+          {tags.length > 0 && (
+            <span className="text-xs text-green-600 bg-green-50 px-1 rounded">
+              ✓ 已匹配
+            </span>
+          )}
         </div>
 
         <div className="flex items-center space-x-1">
@@ -156,11 +174,12 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           </button>
 
           <button
-            onClick={generateTags}
-            className="p-1 text-gray-400 hover:text-gray-600 rounded"
-            title="重新生成"
+            onClick={() => generateTags(true)}
+            className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+            title="刷新标签 - 基于当前内容重新生成"
+            disabled={isGenerating}
           >
-            <RotateCcw className="h-3 w-3" />
+            <RotateCcw className={`h-3 w-3 ${isGenerating ? 'animate-spin' : ''}`} />
           </button>
 
           <button
