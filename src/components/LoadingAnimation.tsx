@@ -136,7 +136,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes moveAnimal {
           0% {
             left: -60px;
@@ -222,7 +222,7 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes moveAnimal {
           0% {
             left: -30px;

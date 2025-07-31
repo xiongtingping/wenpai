@@ -765,9 +765,8 @@ export default function AdaptPage() {
               description: h.description
             }));
 
-            // 保存标签数据
+            // 保存标签数据，不显示弹窗
             setCurrentHashtags(hashtagData);
-            setShowHashtagManager(true);
 
             const topTags = hashtags.slice(0, 3).map(h => h.tag);
             const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
@@ -3220,6 +3219,15 @@ ${dimensions.join('\n\n')}
     const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
     const platformAdvice = getPlatformCharCountAdvice(platformId);
 
+    // 添加空值检查，提供默认值
+    if (!limits) {
+      console.warn(`平台 ${platformId} 的配置未找到，使用默认配置`);
+      return `字符数控制指令：
+- 目标字符数：${charCount}字符
+- 平台：${platformId}
+- 要求：请生成符合目标字符数的高质量内容`;
+    }
+
     // 使用配置系统的字符数要求
     const targetMin = charCountConfig.min;
     const targetMax = charCountConfig.max;
@@ -3243,7 +3251,7 @@ ${dimensions.join('\n\n')}
     return `字符数严格控制指令：
 - 目标设置：${targetChar}字符（${description}）
 - 必须范围：${targetMin} - ${targetMax}字符（绝对不能少于${targetMin}字符）
-- 平台限制：最大${limits.maximum}字符（${limits.description}）
+- 平台限制：最大${limits?.maxCharacters || 2000}字符（${limits?.description || '平台字符数限制'}）
 - 平台建议：${platformAdvice}
 - 核心要求：生成的内容字符数必须达到${targetMin}字符以上，这是硬性要求
 - 内容策略：通过以下方式确保达到目标字符数：
@@ -4504,6 +4512,23 @@ ${dimensions.join('\n\n')}
         </div>
       )}
 
+      {/* 智能标签管理区域 - 嵌入在多版本生成结果下方 */}
+      {results.length > 0 && currentHashtags.length > 0 && (
+        <div className="mt-8">
+          <HashtagManager
+            initialTags={currentHashtags}
+            platformId={selectedPlatforms[0] || 'general'}
+            onTagsChange={(tags) => {
+              console.log('标签已更新:', tags);
+              // 这里可以更新内容中的标签
+            }}
+            onSaveTemplate={(template) => {
+              console.log('模板已保存:', template);
+            }}
+          />
+        </div>
+      )}
+
       {/* 自动化转发区域 - 独立的主要功能区域 */}
       {results.length > 0 && (
         <div className="mt-8">
@@ -4683,35 +4708,7 @@ ${dimensions.join('\n\n')}
       featureDescription={premiumFeatureInfo.description}
     />
 
-      {/* 智能标签管理模块 */}
-      {showHashtagManager && currentHashtags.length > 0 && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h2 className="text-xl font-bold">智能标签管理</h2>
-              <button
-                onClick={() => setShowHashtagManager(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-6">
-              <HashtagManager
-                initialTags={currentHashtags}
-                platformId={selectedPlatforms[0] || 'general'}
-                onTagsChange={(tags) => {
-                  console.log('标签已更新:', tags);
-                  // 这里可以更新内容中的标签
-                }}
-                onSaveTemplate={(template) => {
-                  console.log('模板已保存:', template);
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* 嵌入式加载动画 - 多平台生成时显示 */}
       {generating && selectedPlatforms.length > 1 && (
