@@ -588,7 +588,7 @@ export default function AdaptPage() {
           adjustedParams.maxTokens = Math.min(adjustedParams.maxTokens || 2000, 1500);
         }
 
-        const result = await callUnifiedAI(adjustedParams);
+        const result = await callAI(adjustedParams);
 
         if (result.success && result.content && result.content.trim().length > 50) {
           console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
