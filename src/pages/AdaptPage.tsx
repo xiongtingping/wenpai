@@ -5,6 +5,14 @@ import {
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
   Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles, Bot
 } from "lucide-react";
+import {
+  getCharCountMax as getConfigCharCountMax,
+  getCharCountMin as getConfigCharCountMin,
+  validateCharCount,
+  getCharCountByPreset,
+  getPlatformCharCountAdvice,
+  calculateTargetCharCount
+} from '../config/platformLimits';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -320,32 +328,13 @@ function getPlatformIcon(platformId: string): JSX.Element {
 }
 
 // Helper functions for character count ranges based on platform requirements
+// 使用统一的平台限制配置
 function getCharCountMin(platformId: string): number {
-  switch (platformId) {
-    case 'zhihu': return 200;    // 知乎内容通常较长，要求细致
-    case 'douyin': return 50;    // 抖音短视频脚本简短
-    case 'xiaohongshu': return 100;  // 小红书笔记有一定长度要求
-    case 'wechat': return 300;   // 公众号文章通常较长
-    case 'weibo': return 20;     // 微博简短内容
-    case 'twitter': return 10;   // Twitter(X)发文限制较短
-    case 'video': return 50;     // 视频号脚本简短
-    case 'bilibili': return 100; // B站视频脚本通常较详细
-    default: return 50;
-  }
+  return getConfigCharCountMin(platformId);
 }
 
 function getCharCountMax(platformId: string): number {
-  switch (platformId) {
-    case 'zhihu': return 10000;      // 知乎回答可以很长
-    case 'douyin': return 1000;      // 抖音脚本通常较短
-    case 'xiaohongshu': return 1000; // 小红书笔记字数限制1000字
-    case 'wechat': return 20000;     // 公众号文章可以很长
-    case 'weibo': return 2000;       // 微博有2000字上限
-    case 'twitter': return 280;      // Twitter(X)有280字符限制
-    case 'video': return 1000;       // 视频号脚本通常简短
-    case 'bilibili': return 5000;    // B站视频脚本可以较长
-    default: return 2000;
-  }
+  return getConfigCharCountMax(platformId);
 }
 
 // Progress step
@@ -709,31 +698,29 @@ export default function AdaptPage() {
       console.log('使用模型:', selectedModel);
       console.log('提示词长度:', basePrompt.length);
 
-      // 计算字符数限制和token数
+      // 使用新的配置系统计算字符数限制和token数
       const userCharLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
+      const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
+      const platformAdvice = getPlatformCharCountAdvice(platformId);
+
+      // 计算token数，确保有足够空间生成目标字符数的内容
       let maxTokens: number;
+      const targetChars = charCountConfig.target;
 
       if (globalSettings.charCountPreset === 'detailed') {
         const minTokensFor800Chars = 800;
-        const targetTokens = Math.max(minTokensFor800Chars, Math.floor(userCharLimit / 0.8));
+        const targetTokens = Math.max(minTokensFor800Chars, Math.floor(targetChars / 0.8));
         maxTokens = Math.min(targetTokens, 6000);
       } else if (globalSettings.charCountPreset === 'standard') {
-        maxTokens = Math.min(Math.floor(userCharLimit / 1.2), 3000);
+        maxTokens = Math.min(Math.floor(targetChars / 1.0), 4000);
+      } else if (globalSettings.charCountPreset === 'mini') {
+        maxTokens = Math.min(Math.floor(targetChars / 1.2), 2000);
       } else {
-        maxTokens = Math.min(Math.floor(userCharLimit / 1.5), 2000);
+        maxTokens = Math.min(Math.floor(targetChars / 1.0), 3000);
       }
 
-      // 生成字符数指令
-      let charCountInstruction = '';
-      if (globalSettings.charCountPreset === 'detailed') {
-        charCountInstruction = `【字符数硬性要求】生成的内容必须达到800字以上，目标字符数为${userCharLimit}字符。这是用户的明确要求，绝对不能少于800字。`;
-      } else if (globalSettings.charCountPreset === 'standard') {
-        charCountInstruction = `重要：生成的内容应在200-800字范围内，目标字符数为${userCharLimit}字符。`;
-      } else if (globalSettings.charCountPreset === 'mini') {
-        charCountInstruction = `重要：生成的内容应在50-200字范围内，目标字符数为${userCharLimit}字符。`;
-      } else {
-        charCountInstruction = `重要：生成的内容字符数应接近${userCharLimit}字符。`;
-      }
+      // 生成精确的字符数控制指令
+      const charCountInstruction = `【字符数精确控制】目标：${charCountConfig.min}-${charCountConfig.max}字符，重点目标：${targetChars}字符。${platformAdvice}。生成内容必须严格控制在此范围内。`;
 
       // 并行生成两个版本
       const [standardResult, creativeResult] = await Promise.all([
@@ -766,10 +753,11 @@ export default function AdaptPage() {
         const userSetLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
         let finalContent = standardResult.content;
 
-        // 检查详细版是否达到800字要求
-        if (globalSettings.charCountPreset === 'detailed' && finalContent.length < 800) {
-          console.warn(`标准版本详细版内容不足 ${finalContent.length}/800字`);
-          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到详细版800字要求]`;
+        // 使用新的配置系统验证字符数
+        const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
+        if (finalContent.length < charCountConfig.min) {
+          console.warn(`标准版本内容不足 ${finalContent.length}/${charCountConfig.min}字`);
+          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求]`;
         }
 
         // 如果内容超出用户设置的限制，自动截断并优化
@@ -798,10 +786,11 @@ export default function AdaptPage() {
         const userSetLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
         let finalContent = creativeResult.content;
 
-        // 检查详细版是否达到800字要求
-        if (globalSettings.charCountPreset === 'detailed' && finalContent.length < 800) {
-          console.warn(`创意版本详细版内容不足 ${finalContent.length}/800字`);
-          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到详细版800字要求]`;
+        // 使用新的配置系统验证字符数
+        const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
+        if (finalContent.length < charCountConfig.min) {
+          console.warn(`创意版本内容不足 ${finalContent.length}/${charCountConfig.min}字`);
+          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求]`;
         }
 
         // 如果内容超出用户设置的限制，自动截断并优化
@@ -1199,34 +1188,11 @@ export default function AdaptPage() {
       });
     }
 
-    // Apply character count based on preset with improved logic
+    // Apply character count based on preset using new configuration system
     if (globalSettings.charCountPreset !== 'auto') {
       Object.keys(updatedSettings).forEach(platformId => {
-        const platformMax = getCharCountMax(platformId);
-        const platformMin = getCharCountMin(platformId);
-
-        switch (globalSettings.charCountPreset) {
-          case 'mini':
-            // 精简版：50-200字，但不超过平台限制的90%
-            updatedSettings[platformId].charCount = Math.min(200, Math.floor(platformMax * 0.9));
-            break;
-          case 'standard':
-            // 标准版：200-800字，但不超过平台限制的90%
-            updatedSettings[platformId].charCount = Math.min(800, Math.floor(platformMax * 0.9));
-            break;
-          case 'detailed':
-            // 详细版：800字+，确保至少800字，目标为平台限制的85-95%
-            const detailedMin = 800; // 详细版最低要求
-            const detailedTarget = Math.floor(platformMax * 0.9); // 90%作为目标
-            // 确保目标至少是800字，如果平台限制太小则使用平台最大值
-            if (detailedTarget >= detailedMin) {
-              updatedSettings[platformId].charCount = detailedTarget;
-            } else {
-              // 如果平台限制小于800字，则使用平台最大值但在AI提示中强调尽量接近800字
-              updatedSettings[platformId].charCount = platformMax;
-            }
-            break;
-        }
+        const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
+        updatedSettings[platformId].charCount = charCountConfig.target;
       });
     }
 
@@ -1726,7 +1692,7 @@ export default function AdaptPage() {
       });
 
       // 动态导入自动化模块
-      const { executeBatchForward } = await import('@/automation/batchForward');
+      const { executeBatchForward } = await import('../automation/batchForward');
 
       // 执行自动化转发
       const automationResults = await executeBatchForward({
@@ -1838,33 +1804,30 @@ export default function AdaptPage() {
         ? `${matrixPrompt}\n\n【版本要求】请生成标准风格的内容，要求：\n- 结构清晰，逻辑严谨\n- 表达准确，用词规范\n- 重点突出，层次分明`
         : `${matrixPrompt}\n\n【版本要求】请生成创新风格的内容，要求：\n- 表达生动，富有创意\n- 语言灵活，贴近用户\n- 情感丰富，引人入胜`;
 
-      // 计算字符数限制对应的token数（中文约1.2字符=1token，为详细版预留更多token）
+      // 使用新的配置系统计算字符数和token限制
       const userCharLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
+      const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
+      const platformAdvice = getPlatformCharCountAdvice(platformId);
+
+      // 计算token数，确保有足够空间生成目标字符数的内容
       let maxTokens: number;
+      const targetChars = charCountConfig.target;
 
       if (globalSettings.charCountPreset === 'detailed') {
-        // 详细版需要更多token来生成800+字符的内容
-        // 确保至少有800字对应的token，中文约1字符=1token
+        // 详细版需要更多token，确保能生成800+字符
         const minTokensFor800Chars = 800;
-        const targetTokens = Math.max(minTokensFor800Chars, Math.floor(userCharLimit / 0.8));
-        maxTokens = Math.min(targetTokens, 6000); // 大幅增加token限制以支持详细内容
+        const targetTokens = Math.max(minTokensFor800Chars, Math.floor(targetChars / 0.8));
+        maxTokens = Math.min(targetTokens, 6000);
       } else if (globalSettings.charCountPreset === 'standard') {
-        maxTokens = Math.min(Math.floor(userCharLimit / 1.2), 3000);
+        maxTokens = Math.min(Math.floor(targetChars / 1.0), 4000);
+      } else if (globalSettings.charCountPreset === 'mini') {
+        maxTokens = Math.min(Math.floor(targetChars / 1.2), 2000);
       } else {
-        maxTokens = Math.min(Math.floor(userCharLimit / 1.5), 2000);
+        maxTokens = Math.min(Math.floor(targetChars / 1.0), 3000);
       }
 
-      // 根据字符数预设生成相应的系统提示词
-      let charCountInstruction = '';
-      if (globalSettings.charCountPreset === 'detailed') {
-        charCountInstruction = `【字符数硬性要求】生成的内容必须达到800字以上，目标字符数为${userCharLimit}字符。这是用户的明确要求，绝对不能少于800字。请通过以下方式确保达到要求：1)增加具体案例和详细说明 2)提供更多实用技巧 3)丰富背景信息 4)添加操作步骤 5)包含深入分析。内容要丰富详实，信息全面深入。`;
-      } else if (globalSettings.charCountPreset === 'standard') {
-        charCountInstruction = `重要：生成的内容应在200-800字范围内，目标字符数为${userCharLimit}字符。请确保内容完整详细。`;
-      } else if (globalSettings.charCountPreset === 'mini') {
-        charCountInstruction = `重要：生成的内容应在50-200字范围内，目标字符数为${userCharLimit}字符。请确保内容简洁精炼。`;
-      } else {
-        charCountInstruction = `重要：生成的内容字符数应接近${userCharLimit}字符，控制在85%-95%范围内。`;
-      }
+      // 生成精确的字符数控制指令
+      const charCountInstruction = `【字符数精确控制】目标：${charCountConfig.min}-${charCountConfig.max}字符，重点目标：${targetChars}字符。${platformAdvice}。生成内容必须严格控制在此范围内，不得超出平台${userCharLimit}字符限制。`;
 
       const aiResult = await callAI({
         prompt,
@@ -1879,15 +1842,17 @@ export default function AdaptPage() {
       if (aiResult.success && aiResult.content) {
         let finalContent = aiResult.content;
 
-        // 检查详细版是否达到800字要求
-        if (globalSettings.charCountPreset === 'detailed' && finalContent.length < 800) {
-          console.warn(`详细版内容不足 ${finalContent.length}/800字，需要补充内容`);
+        // 使用新的配置系统验证字符数
+        const validation = validateCharCount(platformId, finalContent.length);
+        const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
 
-          // 为详细版内容不足的情况添加警告标记
-          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到详细版800字要求，建议重新生成或手动补充内容]`;
+        // 检查是否达到最低字符数要求
+        if (finalContent.length < charCountConfig.min) {
+          console.warn(`内容不足 ${finalContent.length}/${charCountConfig.min}字，需要补充内容`);
+          finalContent = finalContent + `\n\n[注意：此内容为${finalContent.length}字符，未达到${globalSettings.charCountPreset}版${charCountConfig.min}字要求，建议重新生成或手动补充内容]`;
         }
 
-        // 如果内容超出用户设置的限制，自动截断并优化
+        // 如果内容超出平台限制，自动截断并优化
         if (finalContent.length > userCharLimit) {
           console.warn(`内容超出限制 ${finalContent.length}/${userCharLimit}，自动截断`);
 
@@ -3150,39 +3115,37 @@ ${dimensions.join('\n\n')}
 - 创意发挥：在满足用户要求基础上进行创意扩展`;
   };
 
-  // 生成字符数维度（根据预设模式优化）
+  // 生成字符数维度（使用新的配置系统）
   const generateCharCountDimension = (charCount: number, platformId: string): string => {
     const limits = getPlatformCharacterLimits(platformId);
+    const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
+    const platformAdvice = getPlatformCharCountAdvice(platformId);
 
-    // 根据全局设置确定字符数要求
-    let targetMin: number;
-    let targetMax: number;
+    // 使用配置系统的字符数要求
+    const targetMin = charCountConfig.min;
+    const targetMax = charCountConfig.max;
+    const targetChar = charCountConfig.target;
+
     let description: string;
-
-    if (globalSettings.charCountPreset === 'mini') {
-      targetMin = Math.max(50, Math.floor(charCount * 0.7));
-      targetMax = Math.min(200, charCount);
-      description = '精简版要求：内容简洁明了，重点突出';
-    } else if (globalSettings.charCountPreset === 'standard') {
-      targetMin = Math.max(200, Math.floor(charCount * 0.8));
-      targetMax = Math.min(800, charCount);
-      description = '标准版要求：内容详实完整，结构清晰';
-    } else if (globalSettings.charCountPreset === 'detailed') {
-      // 详细版必须至少800字，目标范围为800字到设定值
-      targetMin = 800; // 硬性要求最少800字
-      targetMax = Math.max(charCount, 800); // 确保最大值至少是800字
-      description = '详细版要求：内容必须达到800字以上，丰富深入，信息全面';
-    } else {
-      // 自动适配模式
-      targetMin = Math.floor(charCount * 0.85);
-      targetMax = Math.floor(charCount * 0.95);
-      description = '自动适配：根据平台特性优化字符数';
+    switch (globalSettings.charCountPreset) {
+      case 'mini':
+        description = '精简版要求：内容简洁明了，重点突出';
+        break;
+      case 'standard':
+        description = '标准版要求：内容详实完整，结构清晰';
+        break;
+      case 'detailed':
+        description = '详细版要求：内容必须达到800字以上，丰富深入，信息全面';
+        break;
+      default:
+        description = '自动适配：根据平台特性优化字符数';
     }
 
     return `字符数严格控制指令：
-- 目标设置：${charCount}字符（${description}）
+- 目标设置：${targetChar}字符（${description}）
 - 必须范围：${targetMin} - ${targetMax}字符（绝对不能少于${targetMin}字符）
 - 平台限制：最大${limits.maximum}字符（${limits.description}）
+- 平台建议：${platformAdvice}
 - 核心要求：生成的内容字符数必须达到${targetMin}字符以上，这是硬性要求
 - 内容策略：通过以下方式确保达到目标字符数：
   * 增加具体案例和详细说明
