@@ -12,6 +12,7 @@ export interface PlatformContent {
   content: string;
   charCount: number;
   versionType: 'A' | 'B';
+  hashtags?: string[];
 }
 
 export interface ForwardResult {
@@ -551,11 +552,24 @@ export class AutomationEngine {
     }
 
     try {
-      // 复制内容到剪贴板
-      await navigator.clipboard.writeText(platformContent.content);
+      // 准备复制内容
+      let contentToCopy = platformContent.content;
+      let hashtagsToCopy = '';
+
+      // 如果有标签，分别处理
+      if (platformContent.hashtags && platformContent.hashtags.length > 0) {
+        const formattedHashtags = this.formatHashtagsForPlatform(platformContent.hashtags, platformContent.platformId);
+        hashtagsToCopy = formattedHashtags;
+
+        // 将标签添加到内容末尾
+        contentToCopy = platformContent.content + '\n\n' + formattedHashtags;
+      }
+
+      // 复制完整内容到剪贴板
+      await navigator.clipboard.writeText(contentToCopy);
 
       // 显示用户指引
-      this.showPlatformInstructions(platformContent, config);
+      this.showPlatformInstructions(platformContent, config, hashtagsToCopy);
 
       // 打开平台发布页面
       const newWindow = window.open(config.url, `${platformContent.platformId}_publish`,
@@ -581,9 +595,26 @@ export class AutomationEngine {
   }
 
   /**
+   * 格式化标签为平台特定格式
+   */
+  private formatHashtagsForPlatform(hashtags: string[], platformId: string): string {
+    const formatters: Record<string, (tags: string[]) => string> = {
+      'xiaohongshu': (tags) => tags.map(tag => `#${tag}`).join(' '),
+      'weibo': (tags) => tags.map(tag => `#${tag}#`).join(' '),
+      'douyin': (tags) => tags.map(tag => `#${tag}`).join(' '),
+      'zhihu': (tags) => tags.map(tag => `#${tag}`).join(' '),
+      'bilibili': (tags) => tags.map(tag => `#${tag}`).join(' '),
+      'wechat': (tags) => tags.map(tag => `#${tag}`).join(' ')
+    };
+
+    const formatter = formatters[platformId] || formatters['xiaohongshu'];
+    return formatter(hashtags);
+  }
+
+  /**
    * 显示平台特定的操作指引
    */
-  private showPlatformInstructions(platformContent: PlatformContent, config: any) {
+  private showPlatformInstructions(platformContent: PlatformContent, config: any, hashtags?: string) {
     const modal = document.createElement('div');
     modal.style.cssText = `
       position: fixed;
@@ -621,11 +652,24 @@ export class AutomationEngine {
         <p style="margin: 5px 0 0 0; font-size: 14px; color: #6c757d;">
           字符数：${platformContent.content.length} 字符
         </p>
+        ${hashtags ? `
+          <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 6px;">
+            <p style="margin: 0; font-weight: 500; color: #1976d2; font-size: 14px;">🏷️ 智能标签已包含：</p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #1976d2;">${hashtags}</p>
+          </div>
+        ` : ''}
       </div>
 
       <div style="margin-bottom: 20px;">
         <h4 style="margin: 0 0 10px 0; color: #495057; font-size: 16px;">📋 操作步骤：</h4>
-        <p style="margin: 0; line-height: 1.6; color: #666;">${config.instructions}</p>
+        <ol style="margin: 0; padding-left: 20px; color: #666; line-height: 1.6;">
+          <li>在打开的页面中找到内容输入框</li>
+          <li>粘贴内容 (Ctrl+V 或 Cmd+V)</li>
+          ${hashtags ? '<li>标签已自动包含在内容中，无需单独添加</li>' : '<li>根据需要添加相关标签</li>'}
+          <li>根据平台要求添加图片、视频等媒体内容</li>
+          <li>检查内容格式和平台规范</li>
+          <li>点击发布按钮完成发布</li>
+        </ol>
       </div>
 
       <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">

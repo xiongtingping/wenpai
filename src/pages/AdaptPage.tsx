@@ -16,6 +16,7 @@ import {
 import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '../components/AutomationUI';
 import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
 import { LoadingAnimation, InlineLoadingAnimation } from '../components/LoadingAnimation';
+import { HashtagManager, HashtagData, HashtagTemplate } from '../components/HashtagManager';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -800,11 +801,27 @@ export default function AdaptPage() {
         let contentWithTags = finalContent;
         try {
           const hashtags = await hashtagGenerator.generateHashtags(finalContent, {
-            maxTags: 5,
-            platformId: platformId
+            platformId: platformId,
+            includeBrands: true,
+            includeIndustry: true,
+            includePersona: true
           });
 
           if (hashtags.length > 0) {
+            // 转换为HashtagData格式
+            const hashtagData: HashtagData[] = hashtags.map((h, index) => ({
+              id: `${platformId}_${index}`,
+              tag: h.tag,
+              dimension: h.description?.includes('维度') ? h.description.split('维度')[0] : 'general',
+              type: h.type,
+              relevance: h.relevance,
+              description: h.description
+            }));
+
+            // 保存标签数据
+            setCurrentHashtags(hashtagData);
+            setShowHashtagManager(true);
+
             const topTags = hashtags.slice(0, 3).map(h => h.tag);
             const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
             contentWithTags = finalContent + '\n\n' + formattedTags;
@@ -1524,6 +1541,10 @@ export default function AdaptPage() {
   // 自动化转发状态
   const [automationRunning, setAutomationRunning] = useState(false);
   const [automationProgress, setAutomationProgress] = useState<AutomationProgress | undefined>();
+
+  // 标签管理状态
+  const [currentHashtags, setCurrentHashtags] = useState<HashtagData[]>([]);
+  const [showHashtagManager, setShowHashtagManager] = useState(false);
 
   // 网络状态检测
   const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'slow'>('online');
@@ -4706,6 +4727,36 @@ ${dimensions.join('\n\n')}
       featureName={premiumFeatureInfo.name}
       featureDescription={premiumFeatureInfo.description}
     />
+
+      {/* 智能标签管理模块 */}
+      {showHashtagManager && currentHashtags.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h2 className="text-xl font-bold">智能标签管理</h2>
+              <button
+                onClick={() => setShowHashtagManager(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6">
+              <HashtagManager
+                initialTags={currentHashtags}
+                platformId={selectedPlatforms[0] || 'general'}
+                onTagsChange={(tags) => {
+                  console.log('标签已更新:', tags);
+                  // 这里可以更新内容中的标签
+                }}
+                onSaveTemplate={(template) => {
+                  console.log('模板已保存:', template);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 全屏加载动画 */}
       <LoadingAnimation
