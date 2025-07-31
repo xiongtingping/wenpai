@@ -20,6 +20,8 @@ import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
 import { LoadingAnimation, InlineLoadingAnimation } from '../components/LoadingAnimation';
 import { HashtagManager, HashtagData, HashtagTemplate } from '../components/HashtagManager';
 import { PlatformHashtags } from '../components/PlatformHashtags';
+import { AIContentGenerationAnimation } from '../components/AIContentGenerationAnimation';
+import { PlatformStatusIndicator } from '../components/PlatformStatusIndicator';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -4127,72 +4129,31 @@ ${dimensions.join('\n\n')}
                         <h2 className="text-xl font-semibold" data-testid="platform-name">{getPlatformName(result.platformId, platforms)}</h2>
 
                         {/* 内联状态显示 */}
+                        {/* 平台状态指示器 - 嵌入到卡片内部 */}
                         {generating && !result.content && !result.error && (
-                          <div className="space-y-3">
-                            {/* 长内容平台的专门提示 */}
-                            {longContentPlatforms.has(result.platformId) ? (
-                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
-                                <div className="flex items-start space-x-3">
-                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mt-1">
-                                    <span className="text-blue-600 text-lg">📝</span>
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center space-x-2 mb-2">
-                                      <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
-                                        ⟳
-                                      </div>
-                                      <p className="text-base text-blue-800 font-semibold">
-                                        {result.platformId === 'wechat' ? '微信公众号长文生成中' : '知乎深度内容生成中'}
-                                      </p>
-                                    </div>
-                                    <p className="text-sm text-blue-700 leading-relaxed">
-                                      {platformLoadingMessages.get(result.platformId) ||
-                                       (result.platformId === 'wechat'
-                                        ? '正在创作专业的公众号文章，内容更丰富，生成时间较长，请耐心等待...'
-                                        : '正在撰写深度回答，确保内容有见解、有价值，请稍候...')}
-                                    </p>
-                                    <div className="flex items-center space-x-1 mt-3">
-                                      <span className="text-xs text-blue-600">预计时间：2-3分钟</span>
-                                      <div className="flex space-x-1">
-                                        {[...Array(3)].map((_, i) => (
-                                          <div
-                                            key={i}
-                                            className="w-1 h-1 bg-blue-400 rounded-full animate-bounce"
-                                            style={{ animationDelay: `${i * 0.2}s` }}
-                                          ></div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-center space-x-2">
-                                <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
-                                  ⟳
-                                </div>
-                                <span className="text-sm text-blue-600">正在生成...</span>
-                              </div>
-                            )}
-                          </div>
+                          <PlatformStatusIndicator
+                            platformId={result.platformId}
+                            status="generating"
+                            message={platformLoadingMessages.get(result.platformId)}
+                            estimatedTime="2-3分钟"
+                            isLongContent={longContentPlatforms.has(result.platformId)}
+                          />
                         )}
 
                         {result.error && (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs">✗</span>
-                            </div>
-                            <span className="text-sm text-red-600">生成失败</span>
-                          </div>
+                          <PlatformStatusIndicator
+                            platformId={result.platformId}
+                            status="error"
+                            message={result.error}
+                          />
                         )}
 
                         {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs">✓</span>
-                            </div>
-                            <span className="text-sm text-green-600">生成完成</span>
-                          </div>
+                          <PlatformStatusIndicator
+                            platformId={result.platformId}
+                            status="success"
+                            message="内容生成完成"
+                          />
                         )}
                       </div>
                     </div>
@@ -4653,7 +4614,13 @@ ${dimensions.join('\n\n')}
                           ) : (
                             <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
                               {generating ? (
-                                <InlineLoadingAnimation message="AI正在为多个平台生成专属内容..." />
+                                <div className="p-8">
+                                  <AIContentGenerationAnimation
+                                    platforms={selectedPlatforms}
+                                    message="AI正在为多个平台生成专属内容..."
+                                    showProgress={true}
+                                  />
+                                </div>
                               ) : (
                                 <div className="p-12 flex items-center justify-center">
                                   <p className="text-muted-foreground text-lg">生成的内容将显示在这里...</p>
