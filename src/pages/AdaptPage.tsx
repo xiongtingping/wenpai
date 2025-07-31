@@ -12,8 +12,8 @@ import {
   getCharCountByPreset,
   getPlatformCharCountAdvice,
   calculateTargetCharCount,
-  getPlatformCharacterLimits,
-  getPlatformLimit
+  getPlatformLimit,
+  getRecommendedRange
 } from '../config/platformLimits';
 import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '../components/AutomationUI';
 import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
@@ -116,90 +116,7 @@ const platformUrls: Record<string, string> = {
   history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704'
 };
 
-/**
- * 平台字符数限制配置（基于官方规定的真实数据）
- * 包含推荐值、最大值和安全区域计算
- */
-interface PlatformCharacterLimits {
-  recommended: number;  // 推荐字符数
-  maximum: number;      // 平台最大限制
-  safetyMin: number;    // 安全区域最小值（90%）
-  safetyMax: number;    // 安全区域最大值（95%）
-  description: string;  // 限制说明
-}
 
-const platformCharacterLimits: Record<string, PlatformCharacterLimits> = {
-  weibo: {
-    recommended: 140,
-    maximum: 140,
-    safetyMin: 126,  // 90%
-    safetyMax: 133,  // 95%
-    description: '微博单条内容限制140字符'
-  },
-  xiaohongshu: {
-    recommended: 800,
-    maximum: 1000,
-    safetyMin: 720,  // 90%
-    safetyMax: 760,  // 95%
-    description: '小红书笔记正文限制1000字符'
-  },
-  zhihu: {
-    recommended: 1500,
-    maximum: 2000,
-    safetyMin: 1350, // 90%
-    safetyMax: 1425, // 95%
-    description: '知乎回答建议1500-2000字符'
-  },
-  bilibili: {
-    recommended: 800,
-    maximum: 1000,
-    safetyMin: 720,  // 90%
-    safetyMax: 760,  // 95%
-    description: 'B站动态限制1000字符'
-  },
-  douyin: {
-    recommended: 100,
-    maximum: 120,
-    safetyMin: 90,   // 90%
-    safetyMax: 95,   // 95%
-    description: '抖音视频文案限制120字符'
-  },
-  kuaishou: {
-    recommended: 100,
-    maximum: 120,
-    safetyMin: 90,   // 90%
-    safetyMax: 95,   // 95%
-    description: '快手视频文案限制120字符'
-  },
-  wechat: {
-    recommended: 1500,
-    maximum: 2000,
-    safetyMin: 1350, // 90%
-    safetyMax: 1425, // 95%
-    description: '微信公众号文章建议1500-2000字符'
-  },
-  baijiahao: {
-    recommended: 1200,
-    maximum: 1500,
-    safetyMin: 1080, // 90%
-    safetyMax: 1140, // 95%
-    description: '百家号文章建议1200-1500字符'
-  },
-  toutiao: {
-    recommended: 1000,
-    maximum: 1200,
-    safetyMin: 900,  // 90%
-    safetyMax: 950,  // 95%
-    description: '头条号文章建议1000-1200字符'
-  },
-  twitter: {
-    recommended: 250,
-    maximum: 280,
-    safetyMin: 225,  // 90%
-    safetyMax: 238,  // 95%
-    description: 'Twitter推文限制280字符'
-  }
-};
 
 // Helper function to get platform name consistently
 function getPlatformName(platformId: string, platforms: any[]): string {
@@ -207,23 +124,30 @@ function getPlatformName(platformId: string, platforms: any[]): string {
   return platform?.name || platformId;
 }
 
-// Helper function to get platform character limits
-function getPlatformCharacterLimits(platformId: string): PlatformCharacterLimits {
-  return platformCharacterLimits[platformId] || {
-    recommended: 500,
-    maximum: 1000,
-    safetyMin: 450,
-    safetyMax: 475,
-    description: '默认字符数限制'
-  };
+// Helper function to get platform recommended character count
+function getPlatformRecommendedCharCount(platformId: string): number {
+  const range = getRecommendedRange(platformId);
+  return Math.floor((range.min + range.max) / 2); // 取推荐范围的中间值
+}
+
+// Helper function to get platform max character count
+function getPlatformMaxCharCount(platformId: string): number {
+  const limit = getPlatformLimit(platformId);
+  return limit?.maxCharacters || 2000;
+}
+
+// Helper function to get platform description
+function getPlatformDescription(platformId: string): string {
+  const limit = getPlatformLimit(platformId);
+  return limit?.description || '平台字符数限制';
 }
 
 // Helper function to calculate safety range for content generation
 function calculateSafetyRange(userSetLimit: number, platformId: string): { min: number; max: number } {
-  const limits = getPlatformCharacterLimits(platformId);
+  const limits = getPlatformLimit(platformId);
 
   // 确保用户设置不超过平台最大限制
-  const effectiveLimit = Math.min(userSetLimit, limits.maximum);
+  const effectiveLimit = Math.min(userSetLimit, limits?.maxCharacters || 2000);
 
   // 计算安全区域（90-95%）
   const safetyMin = Math.floor(effectiveLimit * 0.9);
@@ -234,16 +158,14 @@ function calculateSafetyRange(userSetLimit: number, platformId: string): { min: 
 
 // 新的字符数控制逻辑：生成目标范围内的内容，禁止截断
 function calculateOptimalCharCount(platformId: string, userSetLimit: number): { min: number; max: number } {
-  const limits = getPlatformCharCountAdvice(platformId);
-
   // 使用平台建议的范围，而不是最大限制
-  const platformLimit = getPlatformCharacterLimits(platformId);
-  const recommendedRange = platformLimit?.recommendedRange;
+  const recommendedRange = getRecommendedRange(platformId);
+  const platformLimit = getPlatformLimit(platformId);
 
-  if (recommendedRange) {
+  if (recommendedRange && platformLimit) {
     // 使用平台推荐范围
     const targetMin = recommendedRange.min;
-    const targetMax = Math.min(recommendedRange.max, userSetLimit);
+    const targetMax = Math.min(recommendedRange.max, userSetLimit, platformLimit.maxCharacters);
 
     return {
       min: targetMin,
@@ -252,8 +174,8 @@ function calculateOptimalCharCount(platformId: string, userSetLimit: number): { 
   }
 
   // 降级到原有逻辑
-  const platformMax = Math.min(limits.maximum, userSetLimit);
-  const targetMin = limits.minimum;
+  const platformMax = Math.min(platformLimit?.maxCharacters || 2000, userSetLimit);
+  const targetMin = platformLimit?.minCharacters || 50;
   const targetMax = Math.floor(platformMax * 0.95);
 
   return {
@@ -313,7 +235,7 @@ function validateCharacterCount(content: string, platformId: string, userSetLimi
   warning?: string;
 } {
   const actualCount = content.length;
-  const limits = getPlatformCharacterLimits(platformId);
+  const limits = getPlatformLimit(platformId);
 
   // 计算目标范围（基于用户设置）
   const targetMin = Math.floor(userSetLimit * 0.8);
@@ -325,13 +247,13 @@ function validateCharacterCount(content: string, platformId: string, userSetLimi
   // 只在超过限制时显示警告，移除字符数建议提示
   if (actualCount > userSetLimit) {
     warning = `⚠️ 内容超出用户设置的${userSetLimit}字符限制，当前${actualCount}字符`;
-  } else if (actualCount > limits.maximum) {
-    warning = `⚠️ 内容超出${getPlatformName(platformId, [])}平台最大限制${limits.maximum}字符`;
+  } else if (limits && actualCount > limits.maxCharacters) {
+    warning = `⚠️ 内容超出${getPlatformName(platformId, [])}平台最大限制${limits.maxCharacters}字符`;
   }
   // 移除了字符数建议提示，只保留超过限制时的警告
 
   return {
-    isValid: actualCount <= userSetLimit && actualCount <= limits.maximum,
+    isValid: actualCount <= userSetLimit && (limits ? actualCount <= limits.maxCharacters : true),
     actualCount,
     targetRange,
     warning
@@ -3294,7 +3216,7 @@ ${dimensions.join('\n\n')}
 
   // 生成字符数维度（使用新的配置系统）
   const generateCharCountDimension = (charCount: number, platformId: string): string => {
-    const limits = getPlatformCharacterLimits(platformId);
+    const limits = getPlatformLimit(platformId);
     const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
     const platformAdvice = getPlatformCharCountAdvice(platformId);
 
@@ -3697,7 +3619,7 @@ ${dimensions.join('\n\n')}
                                   <Label className={`text-xs ${
                                     settingsMode.charCount === 'global' ? 'text-gray-400' : ''
                                   }`}>
-                                    字符数: {settings.charCount || getPlatformCharacterLimits(platformId).recommended}
+                                    字符数: {settings.charCount || getPlatformRecommendedCharCount(platformId)}
                                   </Label>
                                   <div className="flex items-center gap-2">
                                     <Button
@@ -3705,8 +3627,8 @@ ${dimensions.join('\n\n')}
                                       variant="outline"
                                       className="h-5 px-2 text-xs"
                                       onClick={() => {
-                                        const limits = getPlatformCharacterLimits(platformId);
-                                        updatePlatformSetting(platformId, 'charCount', limits.recommended);
+                                        const recommended = getPlatformRecommendedCharCount(platformId);
+                                        updatePlatformSetting(platformId, 'charCount', recommended);
                                       }}
                                       disabled={settingsMode.charCount === 'global'}
                                     >
@@ -3715,19 +3637,19 @@ ${dimensions.join('\n\n')}
                                     <span className={`text-xs ${
                                       settingsMode.charCount === 'global' ? 'text-gray-400' : 'text-muted-foreground'
                                     }`}>
-                                      最大{getPlatformCharacterLimits(platformId).maximum}
+                                      最大{getPlatformMaxCharCount(platformId)}
                                     </span>
                                   </div>
                                 </div>
 
                                 <Slider
-                                  value={[settings.charCount || getPlatformCharacterLimits(platformId).recommended]}
+                                  value={[settings.charCount || getPlatformRecommendedCharCount(platformId)]}
                                   min={50}
-                                  max={getPlatformCharacterLimits(platformId).maximum}
+                                  max={getPlatformMaxCharCount(platformId)}
                                   step={10}
                                   onValueChange={(value) => {
-                                    const limits = getPlatformCharacterLimits(platformId);
-                                    const newValue = Math.min(value[0], limits.maximum);
+                                    const maxChars = getPlatformMaxCharCount(platformId);
+                                    const newValue = Math.min(value[0], maxChars);
                                     updatePlatformSetting(platformId, 'charCount', newValue);
                                   }}
                                   className={`w-full ${
@@ -3740,17 +3662,17 @@ ${dimensions.join('\n\n')}
                                 {settingsMode.charCount !== 'global' && (
                                   <div className="mt-2 space-y-1">
                                     <div className="text-xs text-gray-600">
-                                      {getPlatformCharacterLimits(platformId).description}
+                                      {getPlatformDescription(platformId)}
                                     </div>
                                     {(() => {
-                                      const currentValue = settings.charCount || getPlatformCharacterLimits(platformId).recommended;
-                                      const limits = getPlatformCharacterLimits(platformId);
+                                      const currentValue = settings.charCount || getPlatformRecommendedCharCount(platformId);
+                                      const maxChars = getPlatformMaxCharCount(platformId);
                                       const safetyRange = calculateSafetyRange(currentValue, platformId);
 
-                                      if (currentValue > limits.maximum) {
+                                      if (currentValue > maxChars) {
                                         return (
                                           <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-                                            ⚠️ 超出平台最大限制！将自动调整为{limits.maximum}字符
+                                            ⚠️ 超出平台最大限制！将自动调整为{maxChars}字符
                                           </div>
                                         );
                                       } else {
