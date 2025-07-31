@@ -1169,16 +1169,38 @@ export default function AdaptPage() {
 
   // Handle platform selection
   const togglePlatform = (platformId: string, isChecked: boolean) => {
+    const platformName = getPlatformName(platformId, platforms);
+
     if (isChecked) {
       setSelectedPlatforms(prev => {
         // 防止重复添加同一个平台
         if (prev.includes(platformId)) {
           return prev;
         }
-        return [...prev, platformId];
+        const newPlatforms = [...prev, platformId];
+
+        // 显示确认提示
+        toast({
+          title: `已选择 ${platformName}`,
+          description: `将为 ${platformName} 平台生成专属内容`,
+          duration: 2000,
+        });
+
+        return newPlatforms;
       });
     } else {
-      setSelectedPlatforms(prev => prev.filter(id => id !== platformId));
+      setSelectedPlatforms(prev => {
+        const newPlatforms = prev.filter(id => id !== platformId);
+
+        // 显示移除提示
+        toast({
+          title: `已移除 ${platformName}`,
+          description: `不再为 ${platformName} 平台生成内容`,
+          duration: 2000,
+        });
+
+        return newPlatforms;
+      });
     }
   };
 
@@ -3860,9 +3882,12 @@ ${dimensions.join('\n\n')}
         {/* Content Form Selection */}
         <Card className="mt-6">
           <CardHeader>
-            <h3 className="text-lg font-semibold mb-2">内容形式与表达风格</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-lg font-semibold">内容形式与表达风格</h3>
+              <span className="text-sm text-gray-500 font-normal">(可选)</span>
+            </div>
             <CardDescription>
-              选择不同的内容形式和表达风格来获得最佳的内容生成效果
+              如果选择了会按照指定形式和风格生成内容，如果不选择就默认采用原始内容+平台默认风格
             </CardDescription>
           </CardHeader>
           <CardContent>

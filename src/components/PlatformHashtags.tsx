@@ -162,15 +162,18 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Tag className="h-4 w-4 text-gray-400" />
-            <span className="text-sm text-gray-500">暂无相关标签</span>
+            <span className="text-sm text-gray-500">
+              {content.trim() ? '点击生成内容相关标签' : '等待内容生成后可生成标签'}
+            </span>
           </div>
-          <button
-            onClick={() => generateTags(true)}
-            className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            disabled={!content.trim()}
-          >
-            生成标签
-          </button>
+          {content.trim() && (
+            <button
+              onClick={() => generateTags(true)}
+              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+              生成标签
+            </button>
+          )}
         </div>
       </div>
     );

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,6 +18,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { 
   Collapsible,
   CollapsibleContent,
@@ -76,17 +82,10 @@ export function ContentFormSelector({
   const availableStyles = getAvailableStyles();
 
   return (
-    <div className={className}>
-      {/* 内容形式选择区域 */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-end">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Info className="h-4 w-4 mr-1" />
-                查看说明
-              </Button>
-            </DialogTrigger>
+    <TooltipProvider>
+      <div className={className}>
+        {/* 内容形式选择区域 */}
+        <div className="space-y-4">
             <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>内容形式与表达风格体系</DialogTitle>
@@ -127,14 +126,67 @@ export function ContentFormSelector({
           </Dialog>
         </div>
 
-        {/* 内容形式选择 */}
-        <div className="space-y-3">
-          <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-3">
-            <Target className="h-4 w-4" />
-            内容形式
-          </h4>
+          {/* 内容形式选择 */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-3">
+              <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                选择内容形式
+              </h4>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>查看详细说明</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>内容形式与表达风格体系</DialogTitle>
+                    <DialogDescription>
+                      选择不同的内容形式和表达风格来获得最佳的内容生成效果
+                    </DialogDescription>
+                  </DialogHeader>
 
-        <Collapsible open={isContentFormOpen} onOpenChange={setIsContentFormOpen}>
+                  <div className="space-y-6">
+                    {contentCategories.map((category) => (
+                      <div key={category.id} className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{category.icon}</span>
+                          <h4 className="text-lg font-semibold">{category.name}</h4>
+                          <Badge variant="outline" className="text-xs">
+                            {category.outputDescription}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600">{category.description}</p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {category.forms.map((form) => (
+                            <Card key={form.id} className="p-3">
+                              <div className="flex items-start gap-2">
+                                <span className="text-lg">{form.icon}</span>
+                                <div className="flex-1">
+                                  <h5 className="font-medium text-sm">{form.name}</h5>
+                                  <p className="text-xs text-gray-600 mt-1">{form.description}</p>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+          <Collapsible open={isContentFormOpen} onOpenChange={setIsContentFormOpen}>
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
@@ -241,7 +293,7 @@ export function ContentFormSelector({
         <div className="space-y-3">
           <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-3">
             <Heart className="h-4 w-4" />
-            表达风格
+            请选择表达风格
           </h4>
 
         <Collapsible open={isStyleOpen} onOpenChange={setIsStyleOpen}>
@@ -360,8 +412,9 @@ export function ContentFormSelector({
         </div>
 
 
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
 
