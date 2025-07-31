@@ -11,7 +11,9 @@ import {
   validateCharCount,
   getCharCountByPreset,
   getPlatformCharCountAdvice,
-  calculateTargetCharCount
+  calculateTargetCharCount,
+  getPlatformCharacterLimits,
+  getPlatformLimit
 } from '../config/platformLimits';
 import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '../components/AutomationUI';
 import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
@@ -234,14 +236,29 @@ function calculateSafetyRange(userSetLimit: number, platformId: string): { min: 
 function calculateOptimalCharCount(platformId: string, userSetLimit: number): { min: number; max: number } {
   const limits = getPlatformCharCountAdvice(platformId);
 
-  // 目标范围：平台建议最低字符数 到 平台最高字符数的90%-95%
+  // 使用平台建议的范围，而不是最大限制
+  const platformLimit = getPlatformCharacterLimits(platformId);
+  const recommendedRange = platformLimit?.recommendedRange;
+
+  if (recommendedRange) {
+    // 使用平台推荐范围
+    const targetMin = recommendedRange.min;
+    const targetMax = Math.min(recommendedRange.max, userSetLimit);
+
+    return {
+      min: targetMin,
+      max: targetMax
+    };
+  }
+
+  // 降级到原有逻辑
   const platformMax = Math.min(limits.maximum, userSetLimit);
   const targetMin = limits.minimum;
-  const targetMax = Math.floor(platformMax * 0.95); // 95%的平台最高限制
+  const targetMax = Math.floor(platformMax * 0.95);
 
   return {
-    min: Math.max(targetMin, 100), // 最少100字符
-    max: Math.max(targetMax, targetMin + 50) // 确保max > min
+    min: Math.max(targetMin, 50), // 最少50字符
+    max: Math.max(targetMax, targetMin + 50)
   };
 }
 
@@ -750,7 +767,15 @@ export default function AdaptPage() {
 
       // 使用新的字符数控制逻辑
       const optimalRange = calculateOptimalCharCount(platformId, userCharLimit);
-      const charCountInstruction = `【字符数精确控制】目标范围：${optimalRange.min}-${optimalRange.max}字符（平台建议最低${optimalRange.min}字符到平台最高限制的95%）。${platformAdvice}。请生成在此范围内的完整内容，确保内容完整性和质量。`;
+      const charCountInstruction = `【字符数严格控制】
+目标字符数：${optimalRange.min}-${optimalRange.max}字符
+平台特性：${platformAdvice}
+重要要求：
+1. 生成的内容必须严格控制在${optimalRange.min}-${optimalRange.max}字符范围内
+2. 不得少于${optimalRange.min}字符，不得超过${optimalRange.max}字符
+3. 请在生成过程中实时计算字符数，确保符合要求
+4. 内容要完整、有价值，不要为了凑字数而添加无意义内容
+5. 如果内容自然长度不够，请增加具体细节、案例或深入分析`;
 
       // 并行生成两个版本
       const [standardResult, creativeResult] = await Promise.all([
@@ -1973,7 +1998,15 @@ export default function AdaptPage() {
 
       // 使用新的字符数控制逻辑
       const optimalRange = calculateOptimalCharCount(platformId, userCharLimit);
-      const charCountInstruction = `【字符数精确控制】目标范围：${optimalRange.min}-${optimalRange.max}字符（平台建议最低${optimalRange.min}字符到平台最高限制的95%）。${platformAdvice}。请生成在此范围内的完整内容，确保内容完整性和质量。`;
+      const charCountInstruction = `【字符数严格控制】
+目标字符数：${optimalRange.min}-${optimalRange.max}字符
+平台特性：${platformAdvice}
+重要要求：
+1. 生成的内容必须严格控制在${optimalRange.min}-${optimalRange.max}字符范围内
+2. 不得少于${optimalRange.min}字符，不得超过${optimalRange.max}字符
+3. 请在生成过程中实时计算字符数，确保符合要求
+4. 内容要完整、有价值，不要为了凑字数而添加无意义内容
+5. 如果内容自然长度不够，请增加具体细节、案例或深入分析`;
 
       const aiResult = await callAI({
         prompt,
@@ -4758,11 +4791,12 @@ ${dimensions.join('\n\n')}
         </div>
       )}
 
-      {/* 全屏加载动画 */}
-      <LoadingAnimation
-        isVisible={generating && selectedPlatforms.length > 1}
-        message="AI正在为多个平台生成精彩内容，请稍候..."
-      />
+      {/* 嵌入式加载动画 - 多平台生成时显示 */}
+      {generating && selectedPlatforms.length > 1 && (
+        <div className="mt-8">
+          <InlineLoadingAnimation message="AI正在为多个平台生成精彩内容，请稍候..." />
+        </div>
+      )}
     </div>
   );
 }

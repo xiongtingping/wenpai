@@ -87,7 +87,7 @@ const createAxiosInstance = (): AxiosInstance => {
   const config = getAPIConfig();
   
   const instance = axios.create({
-    timeout: 90000, // 90秒超时，给AI生成更多时间
+    timeout: 120000, // 增加到120秒超时，给AI生成更多时间
     headers: {
       'Content-Type': 'application/json',
     },

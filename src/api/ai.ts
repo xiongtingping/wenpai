@@ -276,9 +276,11 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     } else if (technicalError.includes('500') || technicalError.includes('502') || technicalError.includes('503')) {
       userFriendlyError = `${apiProvider || 'AI'} 服务暂时不可用，请稍后重试`;
     } else if (technicalError.includes('timeout') || technicalError.includes('TIMEOUT')) {
-      userFriendlyError = `${apiProvider || 'AI'} API调用超时，请检查网络连接`;
+      userFriendlyError = `${apiProvider || 'AI'} API调用超时（超过120秒），可能是网络问题或请求过于复杂，建议简化内容或稍后重试`;
     } else if (technicalError.includes('network') || technicalError.includes('NETWORK')) {
-      userFriendlyError = '网络连接失败，请检查网络设置';
+      userFriendlyError = '网络连接失败，请检查网络设置或稍后重试';
+    } else if (technicalError.includes('content_filter') || technicalError.includes('content_policy')) {
+      userFriendlyError = '内容被AI安全策略拦截，请调整内容后重试';
     }
 
     // 记录详细错误信息用于调试
@@ -525,9 +527,11 @@ export async function callAIWithRetry(
       lastError = error instanceof Error ? error : new Error('未知错误');
     }
     
-    // 等待一段时间后重试
+    // 等待一段时间后重试 - 使用指数退避策略
     if (i < maxRetries - 1) {
-      await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+      const delay = Math.min(Math.pow(2, i) * 1000, 10000); // 最大延迟10秒
+      console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
   
