@@ -4523,7 +4523,7 @@ ${dimensions.join('\n\n')}
                             </div>
                           ) : (
                             <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
-                              {isGenerating ? (
+                              {generating ? (
                                 <InlineLoadingAnimation message="AI正在为您生成精彩内容..." />
                               ) : (
                                 <div className="p-12 flex items-center justify-center">
@@ -4760,7 +4760,7 @@ ${dimensions.join('\n\n')}
 
       {/* 全屏加载动画 */}
       <LoadingAnimation
-        isVisible={isGenerating && (generateMode === 'multi' || generateMode === 'batch')}
+        isVisible={generating && (generateMode === 'multi' || generateMode === 'batch')}
         message="AI正在为多个平台生成精彩内容，请稍候..."
       />
     </div>
