@@ -13,6 +13,7 @@ import {
   getPlatformCharCountAdvice,
   calculateTargetCharCount
 } from '../config/platformLimits';
+import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '../components/AutomationUI';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -1457,7 +1458,7 @@ export default function AdaptPage() {
 
   // 自动化转发状态
   const [automationRunning, setAutomationRunning] = useState(false);
-  const [automationResults, setAutomationResults] = useState<any[]>([]);
+  const [automationProgress, setAutomationProgress] = useState<AutomationProgress | undefined>();
 
   // 网络状态检测
   const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'slow'>('online');
@@ -1666,29 +1667,21 @@ export default function AdaptPage() {
     }
   };
 
-  // 自动化转发处理函数
-  const handleAutomatedForward = async () => {
+  // 新的自动化转发处理函数
+  const handleStartAutomation = async (selectedPlatforms: string[], options: AutomationOptions) => {
     try {
       setAutomationRunning(true);
-      setAutomationResults([]);
-
-      // 获取有内容的平台列表
-      const availablePlatforms = results
-        .filter(r => r.content || (r.versions && r.versions.length > 0))
-        .map(r => r.platformId);
-
-      if (availablePlatforms.length === 0) {
-        toast({
-          title: "无可转发内容",
-          description: "请先生成内容后再进行自动化转发",
-          variant: "destructive"
-        });
-        return;
-      }
+      setAutomationProgress({
+        total: selectedPlatforms.length,
+        completed: 0,
+        current: '',
+        status: 'preparing',
+        results: []
+      });
 
       toast({
         title: "启动自动化转发",
-        description: `准备自动转发到 ${availablePlatforms.length} 个平台`,
+        description: `准备自动转发到 ${selectedPlatforms.length} 个平台`,
       });
 
       // 动态导入自动化模块
@@ -1697,17 +1690,39 @@ export default function AdaptPage() {
       // 执行自动化转发
       const automationResults = await executeBatchForward({
         baseUrl: window.location.origin,
-        platforms: availablePlatforms,
-        headless: false, // 可视化模式，让用户看到过程
-        timeout: 30000,
-        retryCount: 2
+        platforms: selectedPlatforms,
+        headless: false,
+        timeout: options.retryCount * 10000,
+        retryCount: options.retryCount,
+        enablePreview: options.enablePreview,
+        enableConfirmation: options.enableConfirmation,
+        method: options.method,
+        onProgress: (progress) => {
+          setAutomationProgress(progress);
+        }
       });
 
-      setAutomationResults(automationResults);
+      // 转换结果格式
+      const convertedResults: AutomationResult[] = automationResults.map(result => ({
+        platformId: result.platform,
+        platformName: result.platform,
+        success: result.success,
+        error: result.error,
+        url: result.url,
+        method: 'automation' as const,
+        timestamp: Date.now(),
+        retryCount: 0
+      }));
+
+      setAutomationProgress(prev => prev ? {
+        ...prev,
+        status: 'completed',
+        results: convertedResults
+      } : undefined);
 
       // 统计结果
-      const successCount = automationResults.filter(r => r.success).length;
-      const failureCount = automationResults.length - successCount;
+      const successCount = convertedResults.filter(r => r.success).length;
+      const failureCount = convertedResults.length - successCount;
 
       if (successCount > 0) {
         toast({
@@ -1724,6 +1739,11 @@ export default function AdaptPage() {
 
     } catch (error) {
       console.error('自动化转发失败:', error);
+      setAutomationProgress(prev => prev ? {
+        ...prev,
+        status: 'error'
+      } : undefined);
+
       toast({
         title: "自动化转发失败",
         description: error instanceof Error ? error.message : '未知错误',
@@ -1731,6 +1751,45 @@ export default function AdaptPage() {
       });
     } finally {
       setAutomationRunning(false);
+    }
+  };
+
+  // 取消自动化转发
+  const handleCancelAutomation = () => {
+    setAutomationRunning(false);
+    setAutomationProgress(prev => prev ? {
+      ...prev,
+      status: 'cancelled'
+    } : undefined);
+
+    toast({
+      title: "已取消自动化转发",
+      description: "自动化转发操作已被用户取消",
+    });
+  };
+
+  // 重试单个平台
+  const handleRetryPlatform = async (platformId: string) => {
+    try {
+      toast({
+        title: "重试转发",
+        description: `正在重试 ${platformId} 平台的转发`,
+      });
+
+      // 这里可以实现单个平台的重试逻辑
+      // 暂时显示提示信息
+      toast({
+        title: "重试功能",
+        description: "单个平台重试功能正在开发中",
+      });
+
+    } catch (error) {
+      console.error('重试失败:', error);
+      toast({
+        title: "重试失败",
+        description: error instanceof Error ? error.message : '未知错误',
+        variant: "destructive"
+      });
     }
   };
 
@@ -3912,61 +3971,26 @@ ${dimensions.join('\n\n')}
                 </span>
               </Button>
 
-              {/* 自动化转发按钮 */}
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={handleAutomatedForward}
-                disabled={results.filter(r => r.content || (r.versions && r.versions.length > 0)).length === 0 || automationRunning}
-                className="px-6 py-2 font-semibold border-2 border-purple-200 hover:border-purple-300"
-                data-testid="automated-forward-button"
-              >
-                {automationRunning ? (
-                  <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
-                ) : (
-                  <Bot className="h-5 w-5 mr-2" />
-                )}
-                {automationRunning ? '自动化进行中...' : '自动化转发'}
-              </Button>
+
             </div>
           </div>
 
-          {/* 自动化转发结果显示 */}
-          {automationResults.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl font-bold mb-4">自动化转发结果</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {automationResults.map((result, index) => (
-                  <Card key={index} className={`p-4 ${result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">{result.platform}</span>
-                      <span className={`text-sm px-2 py-1 rounded ${
-                        result.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                      }`}>
-                        {result.success ? '✅ 成功' : '❌ 失败'}
-                      </span>
-                    </div>
-                    {result.success ? (
-                      <div className="text-sm text-gray-600">
-                        <div>已打开发布页面</div>
-                        {result.url && (
-                          <div className="mt-1">
-                            <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                              {result.url}
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-red-600">
-                        {result.error || '未知错误'}
-                      </div>
-                    )}
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* 自动化转发UI组件 */}
+          <div className="mb-8">
+            <AutomationUI
+              availablePlatforms={results.map(result => ({
+                id: result.platformId,
+                name: getPlatformName(result.platformId, platforms),
+                hasContent: !!(result.content || (result.versions && result.versions.length > 0)),
+                contentLength: result.content?.length || 0
+              }))}
+              onStartAutomation={handleStartAutomation}
+              onCancelAutomation={handleCancelAutomation}
+              onRetryPlatform={handleRetryPlatform}
+              progress={automationProgress}
+              isRunning={automationRunning}
+            />
+          </div>
 
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
             <TabsList className="mb-6 flex w-full h-auto p-1 bg-muted rounded-lg overflow-x-auto">

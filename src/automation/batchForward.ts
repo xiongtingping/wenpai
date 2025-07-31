@@ -1,9 +1,12 @@
 /**
  * 批量转发自动化模块
- * 简化版本，不依赖Playwright，使用浏览器原生API
+ * 增强版本，集成多种自动化技术栈
  */
 
-interface ForwardResult {
+import { AutomationEngine, PlatformContent, ForwardResult, AutomationOptions, AutomationProgress } from './AutomationEngine';
+
+// 保持向后兼容的接口
+interface LegacyForwardResult {
   platform: string;
   success: boolean;
   error?: string;
@@ -17,6 +20,11 @@ interface BatchForwardOptions {
   headless?: boolean;
   timeout?: number;
   retryCount?: number;
+  // 新增选项
+  enablePreview?: boolean;
+  enableConfirmation?: boolean;
+  method?: 'auto' | 'browser' | 'extension' | 'script' | 'rpa';
+  onProgress?: (progress: AutomationProgress) => void;
 }
 
 /**
@@ -305,9 +313,54 @@ export class BatchForwardAutomation {
 }
 
 /**
- * 便捷函数：执行批量转发
+ * 执行批量转发自动化（主要入口函数）
+ * 增强版本，支持多种自动化方式
  */
-export async function executeBatchForward(options: BatchForwardOptions): Promise<ForwardResult[]> {
-  const automation = new BatchForwardAutomation(options);
-  return await automation.executeBatchForward();
+export async function executeBatchForward(options: BatchForwardOptions): Promise<LegacyForwardResult[]> {
+  console.log('🚀 启动增强版批量转发自动化...');
+  console.log('配置选项:', options);
+
+  try {
+    // 创建自动化引擎
+    const automationOptions: AutomationOptions = {
+      selectedPlatforms: options.platforms,
+      enablePreview: options.enablePreview ?? true,
+      enableConfirmation: options.enableConfirmation ?? true,
+      retryCount: options.retryCount ?? 3,
+      timeout: options.timeout ?? 30000,
+      method: options.method ?? 'auto'
+    };
+
+    const engine = new AutomationEngine(automationOptions);
+
+    // 设置进度回调
+    if (options.onProgress) {
+      engine.setProgressCallback(options.onProgress);
+    }
+
+    // 检测平台内容
+    const platformContents = await engine.detectPlatformContent();
+
+    if (platformContents.length === 0) {
+      throw new Error('未找到任何可转发的内容，请确保页面已生成内容');
+    }
+
+    console.log(`📋 检测到 ${platformContents.length} 个平台的内容`);
+
+    // 执行自动化转发
+    const results = await engine.executeForward(platformContents);
+
+    // 转换为向后兼容的格式
+    return results.map(result => ({
+      platform: result.platformName,
+      success: result.success,
+      error: result.error,
+      url: result.url,
+      content: platformContents.find(pc => pc.platformId === result.platformId)?.content
+    }));
+
+  } catch (error) {
+    console.error('❌ 批量转发失败:', error);
+    throw error;
+  }
 }
