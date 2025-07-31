@@ -572,53 +572,109 @@ export default function AdaptPage() {
   const [customPrompt, setCustomPrompt] = useState('');
   const [useBrandLibrary, setUseBrandLibrary] = useState(false);
 
-  // 改进的AI调用重试机制 - 修复平台生成失败问题
-  const callAIWithRetry = async (params: any, versionName: string, maxRetries: number = 5): Promise<any> => {
+  // 平台特定的超时和加载状态管理
+  const [longContentPlatforms, setLongContentPlatforms] = useState<Set<string>>(new Set());
+  const [platformLoadingMessages, setPlatformLoadingMessages] = useState<Map<string, string>>(new Map());
+
+  // 获取平台特定的超时配置
+  const getPlatformTimeoutConfig = (platformId: string) => {
+    const isLongContentPlatform = ['wechat', 'zhihu'].includes(platformId);
+    return {
+      isLongContent: isLongContentPlatform,
+      initialTimeout: isLongContentPlatform ? 90000 : 30000, // 90秒 vs 30秒
+      retryDelay: isLongContentPlatform ? 3000 : 1000, // 3秒 vs 1秒
+      maxRetries: isLongContentPlatform ? 4 : 3,
+      patientMessage: isLongContentPlatform ? '正在生成长篇内容，请耐心等待...' : '正在生成内容...'
+    };
+  };
+
+  // 改进的AI调用重试机制 - 针对WeChat和Zhihu优化
+  const callAIWithRetry = async (params: any, versionName: string, platformId?: string): Promise<any> => {
     let lastError: any = null;
     const originalModel = params.model;
+    const timeoutConfig = getPlatformTimeoutConfig(platformId || '');
+    const maxRetries = timeoutConfig.maxRetries;
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log(`🔄 ${versionName} - 第${attempt}次尝试调用AI (模型: ${params.model})`);
+    // 为长内容平台设置特殊状态
+    if (timeoutConfig.isLongContent && platformId) {
+      setLongContentPlatforms(prev => new Set(prev).add(platformId));
+      setPlatformLoadingMessages(prev => new Map(prev).set(platformId, timeoutConfig.patientMessage));
+    }
 
-        // 为WeChat和Zhihu使用更保守的参数
-        const adjustedParams = { ...params };
-        if (versionName.includes('wechat') || versionName.includes('zhihu')) {
-          adjustedParams.temperature = Math.min(adjustedParams.temperature || 0.7, 0.6);
-          adjustedParams.maxTokens = Math.min(adjustedParams.maxTokens || 2000, 1500);
-        }
+    try {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`🔄 ${versionName} - 第${attempt}次尝试调用AI (模型: ${params.model})`);
 
-        const result = await callAI(adjustedParams);
+          // 为WeChat和Zhihu使用优化的参数
+          const adjustedParams = { ...params };
+          if (timeoutConfig.isLongContent) {
+            adjustedParams.temperature = Math.min(adjustedParams.temperature || 0.7, 0.5);
+            adjustedParams.maxTokens = Math.max(adjustedParams.maxTokens || 2000, 2500); // 增加token限制
 
-        if (result.success && result.content && result.content.trim().length > 50) {
-          console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
-          return result;
-        } else {
-          const errorMsg = result.error || '生成内容为空或过短';
-          lastError = new Error(errorMsg);
-          console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${errorMsg}`);
-        }
-      } catch (error) {
-        lastError = error;
-        console.error(`🚨 ${versionName} - 第${attempt}次尝试异常:`, error);
+            // 添加平台特定的系统提示
+            if (platformId === 'wechat') {
+              adjustedParams.systemPrompt += '\n重要：生成微信公众号专业长文，内容要深入、有价值、结构清晰。';
+            } else if (platformId === 'zhihu') {
+              adjustedParams.systemPrompt += '\n重要：生成知乎深度回答，要有专业见解、逻辑清晰、内容丰富。';
+            }
+          }
 
-        // 智能模型切换策略
-        if (attempt <= 2) {
-          if (params.model.includes('deepseek')) {
-            console.log(`🔄 ${versionName} - DeepSeek失败，切换到GPT-4o-mini`);
-            params.model = 'gpt-4o-mini';
-          } else if (params.model.includes('gpt-4o-mini')) {
-            console.log(`🔄 ${versionName} - GPT-4o-mini失败，切换到GPT-3.5-turbo`);
-            params.model = 'gpt-3.5-turbo';
+          const result = await callAI(adjustedParams);
+
+          if (result.success && result.content && result.content.trim().length > 100) {
+            console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
+            return result;
+          } else {
+            const errorMsg = result.error || '生成内容为空或过短';
+            lastError = new Error(errorMsg);
+            console.log(`❌ ${versionName} - 第${attempt}次尝试失败: ${errorMsg}`);
+          }
+        } catch (error) {
+          lastError = error;
+          console.error(`🚨 ${versionName} - 第${attempt}次尝试异常:`, error);
+
+          // 智能模型切换策略 - 为长内容平台优化
+          if (attempt <= 2) {
+            if (params.model.includes('deepseek')) {
+              console.log(`🔄 ${versionName} - DeepSeek失败，切换到GPT-4o-mini`);
+              params.model = 'gpt-4o-mini';
+            } else if (params.model.includes('gpt-4o-mini')) {
+              console.log(`🔄 ${versionName} - GPT-4o-mini失败，切换到GPT-3.5-turbo`);
+              params.model = 'gpt-3.5-turbo';
+            }
           }
         }
-      }
 
-      // 如果不是最后一次尝试，等待一段时间再重试
-      if (attempt < maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 8000); // 指数退避，最大8秒
-        console.log(`⏳ ${versionName} - 等待${delay}ms后重试...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        // 如果不是最后一次尝试，等待一段时间再重试
+        if (attempt < maxRetries) {
+          const delay = Math.min(timeoutConfig.retryDelay * Math.pow(2, attempt - 1), 10000);
+          console.log(`⏳ ${versionName} - 等待${delay}ms后重试...`);
+
+          // 更新加载消息
+          if (timeoutConfig.isLongContent && platformId && attempt > 1) {
+            setPlatformLoadingMessages(prev => new Map(prev).set(
+              platformId,
+              `${timeoutConfig.patientMessage} (重试 ${attempt}/${maxRetries})`
+            ));
+          }
+
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    } finally {
+      // 清理状态
+      if (platformId) {
+        setLongContentPlatforms(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(platformId);
+          return newSet;
+        });
+        setPlatformLoadingMessages(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(platformId);
+          return newMap;
+        });
       }
     }
 
@@ -745,7 +801,7 @@ export default function AdaptPage() {
           systemPrompt: `你是一个专业的内容创作专家，擅长生成结构化、标准化的内容。${charCountInstruction}`,
           maxTokens: maxTokens,
           temperature: 0.7
-        }, '标准版本'), `${platformId}-标准版本`).catch(error => {
+        }, '标准版本'), `${platformId}-标准版本`, platformId).catch(error => {
           console.error(`${platformId}-标准版本生成失败:`, error);
           return { success: false, error: error.message };
         }),
@@ -755,7 +811,7 @@ export default function AdaptPage() {
           systemPrompt: `你是一个富有创意的内容创作专家，擅长生成生动、有趣的内容。${charCountInstruction}`,
           maxTokens: maxTokens,
           temperature: 0.9
-        }, '创意版本'), `${platformId}-创意版本`).catch(error => {
+        }, '创意版本'), `${platformId}-创意版本`, platformId).catch(error => {
           console.error(`${platformId}-创意版本生成失败:`, error);
           return { success: false, error: error.message };
         })
@@ -846,7 +902,7 @@ export default function AdaptPage() {
           systemPrompt: '你是一个内容创作专家，请生成高质量的内容。',
           maxTokens: 2000,
           temperature: 0.8
-        }, '基础版本').catch(error => {
+        }, '基础版本', platformId).catch(error => {
           console.error('基础版本生成失败:', error);
           return { success: false, error: error.message };
         });
@@ -1687,9 +1743,9 @@ export default function AdaptPage() {
         const getPlatformSpecificError = (platformId: string, retryCount: number, maxRetries: number) => {
           if (retryCount >= maxRetries) {
             if (platformId === 'wechat') {
-              return `📱 微信公众号生成暂时失败，建议稍后重试或手动调整内容长度`;
+              return `📱 微信公众号长文生成失败\n\n可能原因：\n• 内容要求过于复杂\n• 网络连接不稳定\n• AI服务暂时繁忙\n\n建议：\n• 稍后重试\n• 简化内容要求\n• 检查网络连接`;
             } else if (platformId === 'zhihu') {
-              return `🎓 知乎内容生成暂时失败，建议稍后重试或简化内容要求`;
+              return `🎓 知乎深度内容生成失败\n\n可能原因：\n• 深度内容生成时间较长\n• 网络超时\n• 服务器负载较高\n\n建议：\n• 稍后重试\n• 降低内容复杂度\n• 分段生成内容`;
             } else {
               return `🔄 ${getPlatformName(platformId, platforms)}生成暂时失败，请稍后重试`;
             }
@@ -4066,11 +4122,37 @@ ${dimensions.join('\n\n')}
 
                         {/* 内联状态显示 */}
                         {generating && !result.content && !result.error && (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
-                              ⟳
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center animate-spin text-xs">
+                                ⟳
+                              </div>
+                              <span className="text-sm text-blue-600">
+                                {platformLoadingMessages.get(result.platformId) ||
+                                 (longContentPlatforms.has(result.platformId) ? '正在生成长篇内容，请耐心等待...' : '正在生成...')}
+                              </span>
                             </div>
-                            <span className="text-sm text-blue-600">正在生成...</span>
+
+                            {/* 长内容平台的进度提示 */}
+                            {longContentPlatforms.has(result.platformId) && (
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <div className="flex items-start space-x-2">
+                                  <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                                    <span className="text-blue-600 text-xs">📝</span>
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-sm text-blue-800 font-medium">
+                                      {result.platformId === 'wechat' ? '微信公众号长文生成中' : '知乎深度内容生成中'}
+                                    </p>
+                                    <p className="text-xs text-blue-600 mt-1">
+                                      {result.platformId === 'wechat'
+                                        ? '正在创作专业的公众号文章，内容更丰富，生成时间较长，请耐心等待...'
+                                        : '正在撰写深度回答，确保内容有见解、有价值，请稍候...'}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
 

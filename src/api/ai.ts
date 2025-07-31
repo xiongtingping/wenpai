@@ -229,6 +229,20 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       requestBody.user = userId;
     }
 
+    // 检查是否为长内容生成请求
+    const isLongContentRequest = systemPrompt?.includes('微信公众号') ||
+                                systemPrompt?.includes('知乎') ||
+                                maxTokens > 2000;
+
+    console.log('🔧 API请求:', {
+      url: selectedConfig.baseURL,
+      model: model,
+      promptLength: prompt.length,
+      maxTokens,
+      temperature,
+      isLongContent: isLongContentRequest
+    });
+
     // 使用统一请求模块发送请求
     const data = await request.request({
       method: 'POST',
@@ -238,7 +252,8 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
         'Authorization': `Bearer ${selectedConfig.apiKey}`,
         'Content-Type': 'application/json',
         ...(userId && { 'X-User-ID': userId })
-      }
+      },
+      timeout: isLongContentRequest ? 180000 : 150000 // 长内容3分钟，普通内容2.5分钟
     });
 
     // 处理流式响应
