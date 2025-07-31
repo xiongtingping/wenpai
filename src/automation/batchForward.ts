@@ -105,19 +105,37 @@ export class BatchForwardAutomation {
           content: string;
         }> = [];
 
-        // 查找所有平台结果卡片
-        const resultCards = document.querySelectorAll('[data-testid*="platform-result"], .platform-card, .result-card');
+        // 查找所有平台结果卡片（基于实际DOM结构）
+        const resultCards = document.querySelectorAll('[data-testid="platform-card"]');
 
         resultCards.forEach((card, index) => {
-          const platformId = card.getAttribute('data-platform-id') ||
-                           card.getAttribute('data-platform') ||
-                           `platform-${index}`;
+          const platformId = card.getAttribute('data-platform-id') || `platform-${index}`;
 
-          const platformNameElement = card.querySelector('.platform-name, [data-testid="platform-name"], .platform-title');
+          const platformNameElement = card.querySelector('[data-testid="platform-name"]');
           const platformName = platformNameElement?.textContent?.trim() || `平台${index + 1}`;
 
-          const contentElement = card.querySelector('.platform-content, .content-display, [data-testid="content-text"], .generated-content');
-          const content = contentElement?.textContent?.trim() || '';
+          // 查找版本内容（优先版本A，如果没有则查找版本B）
+          let content = '';
+          const versionAElement = card.querySelector('[data-testid="version-a-content"]');
+          const versionBElement = card.querySelector('[data-testid="version-b-content"]');
+
+          if (versionAElement && versionAElement.textContent?.trim()) {
+            content = versionAElement.textContent.trim();
+          } else if (versionBElement && versionBElement.textContent?.trim()) {
+            content = versionBElement.textContent.trim();
+          }
+
+          // 如果找不到版本内容，尝试查找其他可能的内容元素
+          if (!content) {
+            const fallbackElements = card.querySelectorAll('.content-display, .generated-content, .platform-content');
+            for (const element of fallbackElements) {
+              const text = element.textContent?.trim();
+              if (text && text.length > 20) {
+                content = text;
+                break;
+              }
+            }
+          }
 
           if (content && content.length > 20) { // 确保有有效内容
             platformData.push({
@@ -130,22 +148,45 @@ export class BatchForwardAutomation {
 
         // 如果没有找到标准的卡片，尝试查找版本内容
         if (platformData.length === 0) {
-          console.log('尝试查找版本内容...');
-          const versionElements = document.querySelectorAll('[data-testid*="version"], .version-content, .content-version');
+          console.log('🔍 未找到平台卡片，尝试查找版本内容...');
 
-          versionElements.forEach((element, index) => {
+          // 查找所有版本内容元素
+          const versionAElements = document.querySelectorAll('[data-testid="version-a-content"]');
+          const versionBElements = document.querySelectorAll('[data-testid="version-b-content"]');
+
+          versionAElements.forEach((element, index) => {
             const content = element.textContent?.trim() || '';
             if (content.length > 20) {
               platformData.push({
-                platformId: `version-${index}`,
-                platformName: `版本${index + 1}`,
+                platformId: `version-a-${index}`,
+                platformName: `版本A-${index + 1}`,
+                content
+              });
+            }
+          });
+
+          versionBElements.forEach((element, index) => {
+            const content = element.textContent?.trim() || '';
+            if (content.length > 20) {
+              platformData.push({
+                platformId: `version-b-${index}`,
+                platformName: `版本B-${index + 1}`,
                 content
               });
             }
           });
         }
 
+        // 调试信息
         console.log(`📋 提取到 ${platformData.length} 个平台的内容`);
+        if (platformData.length === 0) {
+          console.warn('⚠️ 未找到任何可用内容，请确保页面已生成内容');
+          console.log('🔍 页面调试信息：');
+          console.log('- 平台卡片数量：', document.querySelectorAll('[data-testid="platform-card"]').length);
+          console.log('- 版本A内容数量：', document.querySelectorAll('[data-testid="version-a-content"]').length);
+          console.log('- 版本B内容数量：', document.querySelectorAll('[data-testid="version-b-content"]').length);
+        }
+
         resolve(platformData);
       } catch (error) {
         console.error('提取平台数据失败:', error);

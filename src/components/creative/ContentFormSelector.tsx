@@ -248,13 +248,15 @@ export function ContentFormSelector({
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-600">选择表达风格</span>
                 {selectedStyle ? (
-                  <Badge variant="secondary" className="ml-2">
-                    已选择：{availableStyles.find(s => s.id === selectedStyle)?.name}
-                  </Badge>
+                  <>
+                    <span className="text-sm font-medium text-gray-600">表达风格</span>
+                    <Badge variant="secondary" className="ml-2">
+                      {availableStyles.find(s => s.id === selectedStyle)?.name}
+                    </Badge>
+                  </>
                 ) : (
-                  <span className="text-xs text-gray-500">请选择表达风格</span>
+                  <span className="text-sm font-medium text-gray-600">请选择表达风格</span>
                 )}
               </div>
               {isStyleOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
