@@ -19,6 +19,7 @@ import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions }
 import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
 import { LoadingAnimation, InlineLoadingAnimation } from '../components/LoadingAnimation';
 import { HashtagManager, HashtagData, HashtagTemplate } from '../components/HashtagManager';
+import { PlatformHashtags } from '../components/PlatformHashtags';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -744,37 +745,8 @@ export default function AdaptPage() {
 
         const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
-        // 生成智能话题标签
+        // 智能话题标签现在由PlatformHashtags组件独立处理
         let contentWithTags = finalContent;
-        try {
-          const hashtags = await hashtagGenerator.generateHashtags(finalContent, {
-            platformId: platformId,
-            includeBrands: true,
-            includeIndustry: true,
-            includePersona: true
-          });
-
-          if (hashtags.length > 0) {
-            // 转换为HashtagData格式
-            const hashtagData: HashtagData[] = hashtags.map((h, index) => ({
-              id: `${platformId}_${index}`,
-              tag: h.tag,
-              dimension: h.description?.includes('维度') ? h.description.split('维度')[0] : 'general',
-              type: h.type,
-              relevance: h.relevance,
-              description: h.description
-            }));
-
-            // 保存标签数据，不显示弹窗
-            setCurrentHashtags(hashtagData);
-
-            const topTags = hashtags.slice(0, 3).map(h => h.tag);
-            const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
-            contentWithTags = finalContent + '\n\n' + formattedTags;
-          }
-        } catch (error) {
-          console.warn('话题标签生成失败:', error);
-        }
 
         versions.push({
           id: 'version-a',
@@ -811,24 +783,8 @@ export default function AdaptPage() {
 
         const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
-        // 生成智能话题标签
+        // 智能话题标签现在由PlatformHashtags组件独立处理
         let contentWithTags = finalContent;
-        try {
-          const hashtags = await hashtagGenerator.generateHashtags(finalContent, {
-            maxTags: 5,
-            platformId: platformId,
-            includeRecommended: true,
-            includeTrending: true
-          });
-
-          if (hashtags.length > 0) {
-            const topTags = hashtags.slice(0, 3).map(h => h.tag);
-            const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
-            contentWithTags = finalContent + '\n\n' + formattedTags;
-          }
-        } catch (error) {
-          console.warn('话题标签生成失败:', error);
-        }
 
         versions.push({
           id: 'version-b',
@@ -1488,9 +1444,7 @@ export default function AdaptPage() {
   const [automationRunning, setAutomationRunning] = useState(false);
   const [automationProgress, setAutomationProgress] = useState<AutomationProgress | undefined>();
 
-  // 标签管理状态
-  const [currentHashtags, setCurrentHashtags] = useState<HashtagData[]>([]);
-  const [showHashtagManager, setShowHashtagManager] = useState(false);
+
 
   // 网络状态检测
   const [networkStatus, setNetworkStatus] = useState<'online' | 'offline' | 'slow'>('online');
@@ -1963,22 +1917,8 @@ export default function AdaptPage() {
           console.warn(`内容超出限制 ${finalContent.length}/${userCharLimit}，保持内容完整`);
         }
 
-        // 生成智能话题标签
+        // 智能话题标签现在由PlatformHashtags组件独立处理
         let contentWithTags = finalContent;
-        try {
-          const hashtags = await hashtagGenerator.generateHashtags(finalContent, {
-            maxTags: 5,
-            platformId: platformId
-          });
-
-          if (hashtags.length > 0) {
-            const topTags = hashtags.slice(0, 3).map(h => h.tag);
-            const formattedTags = hashtagGenerator.formatTagsForPlatform(topTags, platformId);
-            contentWithTags = finalContent + '\n\n' + formattedTags;
-          }
-        } catch (error) {
-          console.warn('话题标签生成失败:', error);
-        }
 
         // 更新版本内容
         setResults(current =>
@@ -4185,6 +4125,16 @@ ${dimensions.join('\n\n')}
                                     </div>
                                   )}
                                 </div>
+
+                                {/* 版本A专属智能标签 */}
+                                <PlatformHashtags
+                                  platformId={result.platformId}
+                                  content={result.versions[0].content}
+                                  onTagsChange={(tags) => {
+                                    console.log(`${result.platformId} 版本A 标签已更新:`, tags);
+                                  }}
+                                />
+
                                 <div className="flex flex-wrap gap-2 mt-auto">
                                   <Button
                                     size="sm"
@@ -4335,6 +4285,16 @@ ${dimensions.join('\n\n')}
                                     </div>
                                   )}
                                 </div>
+
+                                {/* 版本B专属智能标签 */}
+                                <PlatformHashtags
+                                  platformId={result.platformId}
+                                  content={result.versions[1].content}
+                                  onTagsChange={(tags) => {
+                                    console.log(`${result.platformId} 版本B 标签已更新:`, tags);
+                                  }}
+                                />
+
                                 <div className="flex flex-wrap gap-2 mt-auto">
                                   <Button
                                     size="sm"
@@ -4475,6 +4435,17 @@ ${dimensions.join('\n\n')}
                                     </div>
                                   </div>
                                 )}
+
+                                {/* 平台专属智能标签 */}
+                                {result.content && (
+                                  <PlatformHashtags
+                                    platformId={result.platformId}
+                                    content={result.content}
+                                    onTagsChange={(tags) => {
+                                      console.log(`${result.platformId} 标签已更新:`, tags);
+                                    }}
+                                  />
+                                )}
                               </div>
                             )
                           ) : result.error ? (
@@ -4512,22 +4483,7 @@ ${dimensions.join('\n\n')}
         </div>
       )}
 
-      {/* 智能标签管理区域 - 嵌入在多版本生成结果下方 */}
-      {results.length > 0 && currentHashtags.length > 0 && (
-        <div className="mt-8">
-          <HashtagManager
-            initialTags={currentHashtags}
-            platformId={selectedPlatforms[0] || 'general'}
-            onTagsChange={(tags) => {
-              console.log('标签已更新:', tags);
-              // 这里可以更新内容中的标签
-            }}
-            onSaveTemplate={(template) => {
-              console.log('模板已保存:', template);
-            }}
-          />
-        </div>
-      )}
+
 
       {/* 自动化转发区域 - 独立的主要功能区域 */}
       {results.length > 0 && (
