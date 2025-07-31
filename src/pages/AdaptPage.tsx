@@ -4760,7 +4760,7 @@ ${dimensions.join('\n\n')}
 
       {/* 全屏加载动画 */}
       <LoadingAnimation
-        isVisible={generating && (generateMode === 'multi' || generateMode === 'batch')}
+        isVisible={generating && selectedPlatforms.length > 1}
         message="AI正在为多个平台生成精彩内容，请稍候..."
       />
     </div>
