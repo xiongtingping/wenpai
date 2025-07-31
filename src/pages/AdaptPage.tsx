@@ -4617,10 +4617,10 @@ ${dimensions.join('\n\n')}
                           ) : (
                             <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
                               {generating ? (
-                                <div className="p-8">
+                                <div className="p-6">
                                   <AIContentGenerationAnimation
                                     platforms={selectedPlatforms}
-                                    message="AI正在为多个平台生成专属内容..."
+                                    message="多平台内容适配引擎运行中..."
                                     showProgress={true}
                                   />
                                 </div>

@@ -33,13 +33,13 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
   const [activePlatforms, setActivePlatforms] = useState<Set<string>>(new Set());
   const [brainPulse, setBrainPulse] = useState(false);
 
-  // 动态文案
+  // 动态文案 - 专注于整体流程，避免与平台状态重复
   const dynamicMessages = [
+    "AI内容引擎启动中...",
     "正在分析内容特征...",
-    "为微博、小红书、知乎等平台生成内容...",
-    "正在优化平台适配性...",
-    "内容适配中，请稍等~",
-    "正在为你打造多平台爆款文案"
+    "多平台适配算法运行中...",
+    "内容优化处理中...",
+    "即将完成内容生成..."
   ];
 
   const [currentMessage, setCurrentMessage] = useState(message);
@@ -115,11 +115,11 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
               <div className="absolute inset-0 rounded-full border border-indigo-300 opacity-20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
             </div>
 
-            {/* 动态文案 */}
+            {/* 动态文案 - 简化以避免重复 */}
             <div className="text-center mb-4">
               <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center justify-center gap-2">
                 <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
-                AI内容生成中
+                AI内容引擎
                 <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
               </h3>
               <p className="text-sm text-gray-600 transition-all duration-500 min-h-[20px]">

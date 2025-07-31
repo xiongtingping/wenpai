@@ -143,8 +143,37 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     );
   }
 
-  if (tags.length === 0) {
-    return null;
+  // 确保即使没有标签也显示组件框架
+  if (!content.trim()) {
+    return (
+      <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <Tag className="h-4 w-4" />
+          <span>等待内容生成后自动生成标签...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 即使没有标签也显示组件，提供生成按钮
+  if (tags.length === 0 && !isGenerating) {
+    return (
+      <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Tag className="h-4 w-4 text-gray-400" />
+            <span className="text-sm text-gray-500">暂无相关标签</span>
+          </div>
+          <button
+            onClick={() => generateTags(true)}
+            className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            disabled={!content.trim()}
+          >
+            生成标签
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

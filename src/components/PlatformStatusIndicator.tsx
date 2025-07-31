@@ -141,72 +141,72 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   };
 
   return (
-    <div className={`relative bg-gradient-to-r ${getBgClasses()} border rounded-xl p-4 mb-4 transition-all duration-300`}>
-      {/* 顶部状态栏 */}
-      <div className="flex items-center gap-3 mb-3">
-        {/* 平台图标 */}
-        <div className="flex items-center gap-2">
-          <span className="text-lg">{platform?.icon}</span>
-          <span className="font-medium text-sm">{platform?.name}</span>
-        </div>
-        
-        {/* 状态图标 */}
-        <div className="ml-auto">
-          {getStatusIcon()}
-        </div>
-      </div>
-
-      {/* 状态消息 */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">
-          {getStatusMessage()}{status === 'generating' ? dots : ''}
-        </p>
-
-        {/* 长内容生成的额外信息 */}
-        {status === 'generating' && isLongContent && (
-          <div className="flex items-center gap-2 text-xs opacity-75">
-            <Clock className="w-3 h-3" />
-            <span>预计时间：{estimatedTime}</span>
+    <div className={`relative bg-gradient-to-r ${getBgClasses()} border rounded-lg p-3 mb-3 transition-all duration-300`}>
+      {/* 水平布局的状态信息 */}
+      <div className="flex items-center justify-between gap-4">
+        {/* 左侧：平台信息和状态 */}
+        <div className="flex items-center gap-3 flex-1">
+          {/* 平台图标和名称 */}
+          <div className="flex items-center gap-2">
+            <span className="text-base">{platform?.icon}</span>
+            <span className="font-medium text-sm">{platform?.name}</span>
           </div>
-        )}
 
-        {/* 进度条 */}
-        {status === 'generating' && (
-          <div className="space-y-1">
-            <div className="w-full h-1.5 bg-white/50 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-current rounded-full transition-all duration-1000 ease-out"
-                style={{ 
-                  width: progress > 0 ? `${progress}%` : '30%',
-                  animation: progress === 0 ? 'indeterminate 2s ease-in-out infinite' : 'none'
-                }}
-              />
+          {/* 状态图标 */}
+          <div className="flex items-center">
+            {getStatusIcon()}
+          </div>
+
+          {/* 状态消息 */}
+          <div className="flex-1">
+            <span className="text-sm font-medium">
+              {getStatusMessage()}{status === 'generating' ? dots : ''}
+            </span>
+          </div>
+        </div>
+
+        {/* 右侧：时间和进度信息 */}
+        <div className="flex items-center gap-4">
+          {/* 长内容生成的时间信息 */}
+          {status === 'generating' && isLongContent && (
+            <div className="flex items-center gap-1 text-xs opacity-75 whitespace-nowrap">
+              <Clock className="w-3 h-3" />
+              <span>{estimatedTime}</span>
             </div>
-            {progress > 0 && (
-              <div className="text-xs opacity-75 text-right">
-                {progress}%
+          )}
+
+          {/* 生成中的动态效果 */}
+          {status === 'generating' && (
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-3 h-3 animate-pulse" />
+              <div className="flex gap-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1 h-1 bg-current rounded-full animate-bounce opacity-60"
+                    style={{ animationDelay: `${i * 0.2}s` }}
+                  />
+                ))}
               </div>
-            )}
-          </div>
-        )}
-
-        {/* 生成中的动态效果 */}
-        {status === 'generating' && (
-          <div className="flex items-center gap-1 mt-2">
-            <Sparkles className="w-3 h-3 animate-pulse" />
-            <span className="text-xs opacity-75">AI正在思考中</span>
-            <div className="flex gap-1 ml-2">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-1 h-1 bg-current rounded-full animate-bounce opacity-60"
-                  style={{ animationDelay: `${i * 0.2}s` }}
-                />
-              ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* 进度条（仅在生成时显示，水平布局） */}
+      {status === 'generating' && (
+        <div className="mt-2">
+          <div className="w-full h-1 bg-white/50 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-current rounded-full transition-all duration-1000 ease-out"
+              style={{
+                width: progress > 0 ? `${progress}%` : '30%',
+                animation: progress === 0 ? 'indeterminate 2s ease-in-out infinite' : 'none'
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* 成功状态的庆祝效果 */}
       {status === 'success' && (
