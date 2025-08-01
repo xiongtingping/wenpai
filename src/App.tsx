@@ -22,6 +22,7 @@ import AdaptPage from '@/pages/AdaptPage';
 import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import HotTopicsPage from '@/pages/HotTopicsPage';
 import HotTopicsAPITestPage from '@/pages/HotTopicsAPITestPage';
+import TitleGeneratorTestPage from '@/pages/TitleGeneratorTestPage';
 import BookmarkPage from '@/pages/BookmarkPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
 import ContentExtractorPage from '@/pages/ContentExtractorPage';
@@ -40,6 +41,7 @@ import AuthTestPage from '@/pages/AuthTestPage';
 import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
 import AuthingTestPage from '@/pages/AuthingTestPage';
 import UndefinedTestPage from '@/pages/UndefinedTestPage';
+import TitleGrammarTestPage from '@/pages/TitleGrammarTestPage';
 
 /**
  * 条件性导航组件
@@ -127,6 +129,12 @@ function AppContent() {
               <HotTopicsAPITestPage />
             </PermissionGuard>
           } />
+
+          <Route path="/title-generator-test" element={
+            <PermissionGuard required="auth:required">
+              <TitleGeneratorTestPage />
+            </PermissionGuard>
+          } />
           
           <Route path="/library" element={
             <PermissionGuard required="auth:required">
@@ -163,6 +171,7 @@ function AppContent() {
           <Route path="/authing-test" element={<AuthingTestPage />} />
           <Route path="/undefined-test" element={<UndefinedTestPage />} />
           <Route path="/test-login" element={<TestLoginPage />} />
+          <Route path="/title-grammar-test" element={<TitleGrammarTestPage />} />
           
           {/* 404页面 - 必须放在最后 */}
           <Route path="*" element={<NotFoundPage />} />

@@ -188,22 +188,19 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           id: '1',
           title: generateMockTitle(sourceContent, platformId, 'engaging'),
           length: 0,
-          style: '吸引眼球',
-          sourceInfo: versions.length > 0 ? '基于版本A/B内容' : '基于原始内容'
+          style: 'engaging'
         },
         {
-          id: '2', 
+          id: '2',
           title: generateMockTitle(sourceContent, platformId, 'informative'),
           length: 0,
-          style: '信息丰富',
-          sourceInfo: versions.length > 0 ? '基于版本A/B内容' : '基于原始内容'
+          style: 'informative'
         },
         {
           id: '3',
           title: generateMockTitle(sourceContent, platformId, 'emotional'),
           length: 0,
-          style: '情感共鸣',
-          sourceInfo: versions.length > 0 ? '基于版本A/B内容' : '基于原始内容'
+          style: 'emotional'
         }
       ].map(title => {
         const relevanceScore = calculateTitleRelevance(title.title, sourceContent);
@@ -235,7 +232,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     }
   };
 
-  // 智能标题生成逻辑 - 基于版本A/B内容生成准确标题
+  // 智能标题生成逻辑 - 基于内容生成准确标题
   const generateMockTitle = (content: string, platform: string, style: string): string => {
     console.log('🎯 开始标题生成流程:', {
       contentLength: content.length,
@@ -308,102 +305,304 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       .trim();
   };
 
-  // 生成吸引眼球风格标题
+  // 中文语法验证函数 - 增强版本
+  const validateChineseGrammar = (title: string): boolean => {
+    // 检查常见语病模式
+    const grammarErrors = [
+      /\d+[个种款项次倍人家]的[^，。！？]+/,  // "X个的..."模式 - 语病
+      /[工具软件平台应用]$/,                // 词汇截断问题
+      /的的/,                              // 重复"的"字
+      /！！/,                              // 重复感叹号
+      /^的/,                               // 开头就是"的"
+      /让我真的$/,                         // 不完整结尾
+      /我超爱它让我真的$/,                 // 典型截断问题
+      /推荐200%发现宝藏.*真的$/,           // 另一种截断
+      /音脚本直接给到热方法详解/,          // 语序错误
+      /[，。！？]{2,}/,                    // 重复标点
+      /^[，。！？]/,                       // 开头标点错误
+      /\s{2,}/,                           // 多余空格
+      /[\u4e00-\u9fa5][\u4e00-\u9fa5]的的/, // 连续"的"字
+      /真的真的/,                          // 重复词汇
+      /让我让我/,                          // 重复短语
+    ];
+
+    // 检查长度合理性
+    if (title.length < 2 || title.length > titleLimit + 5) {
+      console.warn('⚠️ 标题长度异常:', title, '长度:', title.length);
+      return false;
+    }
+
+    // 检查是否为空或只有标点
+    if (!title.trim() || /^[，。！？\s]*$/.test(title)) {
+      console.warn('⚠️ 标题内容为空或只有标点:', title);
+      return false;
+    }
+
+    const hasError = grammarErrors.some(pattern => pattern.test(title));
+    if (hasError) {
+      console.warn('⚠️ 检测到语病:', title, '匹配的错误模式:', grammarErrors.find(p => p.test(title)));
+    }
+    return !hasError;
+  };
+
+  // 测试语病修复效果 - 仅开发环境使用
+  const testGrammarFix = () => {
+    if (process.env.NODE_ENV !== 'development') return;
+
+    const testContent = "这里有5个发现宝藏AI工具，真的很好用！还有3种新软件推荐。";
+    console.log('🧪 测试语病修复:');
+    console.log('测试内容:', testContent);
+
+    const numbers = extractNumbersFromContent(testContent);
+    const products = extractProductsFromContent(testContent);
+    console.log('提取结果:', { numbers, products });
+
+    const title = generateEngagingTitle(testContent, 'xiaohongshu');
+    console.log('生成标题:', title);
+    console.log('语法检查:', validateChineseGrammar(title) ? '✅ 通过' : '❌ 有语病');
+  };
+
+  // 生成吸引眼球风格标题 - 重构版本
   const generateEngagingTitle = (content: string, platform: string): string => {
-    // 提取数字、产品、情感词
+    // 提取关键信息
     const numbers = extractNumbersFromContent(content);
     const products = extractProductsFromContent(content);
     const emotions = extractEmotionsFromContent(content);
     const achievements = extractAchievementsFromContent(content);
-
-    console.log('🎯 吸引眼球风格分析:', { numbers, products, emotions, achievements });
-
-    // 构建标题模板
-    if (numbers.length > 0 && products.length > 0) {
-      return `${numbers[0]}的${products[0]}！${emotions[0] || '绝了'}`;
-    }
-    if (achievements.length > 0) {
-      return `${achievements[0]}！${emotions[0] || '太棒了'}`;
-    }
-    if (products.length > 0) {
-      return `${products[0]}${emotions[0] || '真的好用'}！必须安利`;
-    }
-    if (numbers.length > 0) {
-      return `${numbers[0]}！${emotions[0] || '震惊了'}`;
-    }
-
-    // 回退到内容关键词
     const keywords = extractKeywordsFromContent(content);
-    if (keywords.length > 0) {
-      return `${keywords[0]}！${emotions[0] || '绝了'}`;
+
+    console.log('🎯 吸引眼球风格分析:', { numbers, products, emotions, achievements, keywords });
+
+    // 构建完整的标题候选列表
+    const titleCandidates: string[] = [];
+
+    // 1. 数字+产品组合模板（修复语法问题）
+    if (numbers.length > 0 && products.length > 0) {
+      const emotion = emotions[0] || '真的很棒';
+      titleCandidates.push(
+        `发现${numbers[0]}${products[0]}！${emotion}`,
+        `推荐${numbers[0]}${products[0]}！${emotion}`,
+        `分享${numbers[0]}${products[0]}！${emotion}`,
+        `${numbers[0]}${products[0]}合集！${emotion}`,
+        `盘点${numbers[0]}${products[0]}！${emotion}`
+      );
     }
 
+    // 2. 成就+情感组合
+    if (achievements.length > 0) {
+      const emotion = emotions[0] || '太棒了';
+      titleCandidates.push(
+        `${achievements[0]}！${emotion}`,
+        `终于${achievements[0]}！${emotion}`
+      );
+    }
+
+    // 3. 产品+情感组合
+    if (products.length > 0) {
+      const emotion = emotions[0] || '真的好用';
+      titleCandidates.push(
+        `${products[0]}${emotion}！必须安利`,
+        `这个${products[0]}${emotion}！`,
+        `安利一个${products[0]}！${emotion}`
+      );
+    }
+
+    // 4. 关键词+情感组合
+    if (keywords.length > 0) {
+      const emotion = emotions[0] || '绝了';
+      titleCandidates.push(
+        `${keywords[0]}！${emotion}`,
+        `关于${keywords[0]}，${emotion}`,
+        `${keywords[0]}真的${emotion}！`
+      );
+    }
+
+    // 5. 纯情感表达（兜底方案）
+    if (emotions.length > 0) {
+      titleCandidates.push(
+        `这个${emotions[0]}！`,
+        `真的${emotions[0]}！`,
+        `${emotions[0]}到不行！`
+      );
+    }
+
+    // 验证并选择最佳标题
+    for (const candidate of titleCandidates) {
+      if (validateChineseGrammar(candidate) && candidate.length <= titleLimit) {
+        console.log('✅ 选中标题:', candidate);
+        return candidate;
+      }
+    }
+
+    // 最终兜底
     return getDefaultTitleByStyle('engaging', platform);
   };
 
-  // 生成信息丰富风格标题
+  // 生成信息丰富风格标题 - 重构版本
   const generateInformativeTitle = (content: string, platform: string): string => {
-    // 提取关键点、方法、教程要素
+    // 提取关键信息
     const methods = extractMethodsFromContent(content);
     const keyPoints = extractKeyPointsFromContent(content);
     const tutorials = extractTutorialElementsFromContent(content);
     const topics = extractTopicsFromContent(content);
-
-    console.log('📚 信息丰富风格分析:', { methods, keyPoints, tutorials, topics });
-
-    // 构建标题模板
-    if (methods.length > 0) {
-      return `${methods[0]}方法详解｜实用指南`;
-    }
-    if (tutorials.length > 0) {
-      return `${tutorials[0]}教程｜完整攻略`;
-    }
-    if (keyPoints.length > 0) {
-      return `${keyPoints[0]}｜干货分享`;
-    }
-    if (topics.length > 0) {
-      return `${topics[0]}深度解析｜专业指南`;
-    }
-
-    // 回退到内容关键词
     const keywords = extractKeywordsFromContent(content);
-    if (keywords.length > 0) {
-      return `${keywords[0]}详细解析｜实用攻略`;
+
+    console.log('📚 信息丰富风格分析:', { methods, keyPoints, tutorials, topics, keywords });
+
+    // 构建标题候选列表
+    const titleCandidates: string[] = [];
+
+    // 1. 方法类标题
+    if (methods.length > 0) {
+      const method = methods[0];
+      titleCandidates.push(
+        `${method}方法详解｜实用指南`,
+        `${method}完整教程｜干货分享`,
+        `${method}实战指南｜建议收藏`,
+        `掌握${method}的正确方法`,
+        `${method}全攻略｜新手必看`
+      );
     }
 
+    // 2. 教程类标题
+    if (tutorials.length > 0) {
+      const tutorial = tutorials[0];
+      titleCandidates.push(
+        `${tutorial}教程｜完整攻略`,
+        `${tutorial}详细步骤｜手把手教学`,
+        `${tutorial}从入门到精通`,
+        `${tutorial}实操指南｜建议收藏`
+      );
+    }
+
+    // 3. 要点类标题
+    if (keyPoints.length > 0) {
+      const keyPoint = keyPoints[0];
+      titleCandidates.push(
+        `${keyPoint}｜干货分享`,
+        `${keyPoint}深度解析`,
+        `关于${keyPoint}的重要提醒`,
+        `${keyPoint}详细说明｜专业解读`
+      );
+    }
+
+    // 4. 主题类标题
+    if (topics.length > 0) {
+      const topic = topics[0];
+      titleCandidates.push(
+        `${topic}深度解析｜专业指南`,
+        `${topic}全面解读｜干货整理`,
+        `${topic}详细分析｜值得收藏`,
+        `关于${topic}你需要知道的事`
+      );
+    }
+
+    // 5. 关键词兜底
+    if (keywords.length > 0) {
+      const keyword = keywords[0];
+      titleCandidates.push(
+        `${keyword}详解｜实用指南`,
+        `${keyword}完整攻略｜干货分享`,
+        `${keyword}深度分析｜专业解读`
+      );
+    }
+
+    // 验证并选择最佳标题
+    for (const candidate of titleCandidates) {
+      if (validateChineseGrammar(candidate) && candidate.length <= titleLimit) {
+        console.log('✅ 选中标题:', candidate);
+        return candidate;
+      }
+    }
+
+    // 最终兜底
     return getDefaultTitleByStyle('informative', platform);
   };
 
-  // 生成情感共鸣风格标题
+  // 生成情感共鸣风格标题 - 重构版本
   const generateEmotionalTitle = (content: string, platform: string): string => {
-    // 提取个人体验、感受、情感表达
+    // 提取关键信息
     const experiences = extractPersonalExperiencesFromContent(content);
     const feelings = extractFeelingsFromContent(content);
     const emotions = extractEmotionsFromContent(content);
     const stories = extractStoriesFromContent(content);
-
-    console.log('💝 情感共鸣风格分析:', { experiences, feelings, emotions, stories });
-
-    // 构建标题模板
-    if (experiences.length > 0 && feelings.length > 0) {
-      return `${experiences[0]}，${feelings[0]}`;
-    }
-    if (stories.length > 0) {
-      return `${stories[0]}｜真实分享`;
-    }
-    if (feelings.length > 0) {
-      return `${feelings[0]}｜真心话`;
-    }
-    if (emotions.length > 0 && experiences.length > 0) {
-      return `${experiences[0]}让我${emotions[0]}`;
-    }
-
-    // 回退到内容关键词
     const keywords = extractKeywordsFromContent(content);
-    if (keywords.length > 0) {
-      return `关于${keywords[0]}，想说的真心话`;
+
+    console.log('💝 情感共鸣风格分析:', { experiences, feelings, emotions, stories, keywords });
+
+    // 构建标题候选列表
+    const titleCandidates: string[] = [];
+
+    // 1. 体验+感受组合
+    if (experiences.length > 0 && feelings.length > 0) {
+      titleCandidates.push(
+        `${experiences[0]}，${feelings[0]}`,
+        `${experiences[0]}后，${feelings[0]}`,
+        `${experiences[0]}的真实感受：${feelings[0]}`
+      );
     }
 
+    // 2. 故事类标题
+    if (stories.length > 0) {
+      const story = stories[0];
+      titleCandidates.push(
+        `${story}｜真实分享`,
+        `${story}｜我的经历`,
+        `${story}｜想和你分享`,
+        `${story}的故事`
+      );
+    }
+
+    // 3. 感受类标题
+    if (feelings.length > 0) {
+      const feeling = feelings[0];
+      titleCandidates.push(
+        `${feeling}｜真心话`,
+        `${feeling}｜内心独白`,
+        `说说${feeling}这件事`,
+        `关于${feeling}的思考`
+      );
+    }
+
+    // 4. 体验+情感组合
+    if (experiences.length > 0 && emotions.length > 0) {
+      titleCandidates.push(
+        `${experiences[0]}让我${emotions[0]}`,
+        `${experiences[0]}真的${emotions[0]}`,
+        `${experiences[0]}的感受：${emotions[0]}`
+      );
+    }
+
+    // 5. 纯情感表达
+    if (emotions.length > 0) {
+      const emotion = emotions[0];
+      titleCandidates.push(
+        `真的${emotion}！`,
+        `${emotion}到想哭`,
+        `${emotion}的不行了`
+      );
+    }
+
+    // 6. 关键词+情感兜底
+    if (keywords.length > 0) {
+      const keyword = keywords[0];
+      titleCandidates.push(
+        `关于${keyword}，想说的真心话`,
+        `${keyword}让我想起的事`,
+        `说说${keyword}这个话题`,
+        `${keyword}的真实感受`
+      );
+    }
+
+    // 验证并选择最佳标题
+    for (const candidate of titleCandidates) {
+      if (validateChineseGrammar(candidate) && candidate.length <= titleLimit) {
+        console.log('✅ 选中标题:', candidate);
+        return candidate;
+      }
+    }
+
+    // 最终兜底
     return getDefaultTitleByStyle('emotional', platform);
   };
 
@@ -429,21 +628,32 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return [...new Set(numbers)].slice(0, 3);
   };
 
-  // 提取产品信息
+  // 提取产品信息 - 修复版本，避免截断关键词
   const extractProductsFromContent = (content: string): string[] => {
     const patterns = [
-      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}[产品软件工具APP应用平台系统])/g,
-      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}[品牌牌子])/g,
-      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}[手机电脑相机])/g,
+      // 修复：保留完整的产品名称，不截断"工具"等关键词
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}工具)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}软件)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}平台)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}应用)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}APP)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}系统)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}产品)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}品牌)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}手机)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}电脑)/g,
+      /([A-Za-z0-9\u4e00-\u9fa5]{2,8}相机)/g,
     ];
 
     const products: string[] = [];
     patterns.forEach(pattern => {
       const matches = content.match(pattern) || [];
-      products.push(...matches.map(m => m.replace(/[产品软件工具APP应用平台系统品牌牌子手机电脑相机]$/, '')));
+      // 修复：不再截断，保留完整匹配结果
+      products.push(...matches);
     });
 
-    return [...new Set(products)].filter(p => p.length >= 2).slice(0, 3);
+    console.log('🔍 产品提取结果:', products);
+    return [...new Set(products)].filter(p => p.length >= 3).slice(0, 3);
   };
 
   // 提取情感词
@@ -719,9 +929,58 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     setIsEditing(false);
   };
 
+  // 重新生成单个标题
+  const handleRegenerateTitle = async (titleId: string, style: string) => {
+    const sourceContent = getContentForTitleGeneration();
+    if (!sourceContent || sourceContent.trim().length < 10) {
+      toast({
+        title: "内容不足",
+        description: "请提供更多内容以重新生成标题",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // 生成新标题
+      const newTitle = generateMockTitle(sourceContent, platformId, style);
+      const relevanceScore = calculateTitleRelevance(newTitle, sourceContent);
+
+      // 更新标题列表
+      setTitles(prev => prev.map(title =>
+        title.id === titleId
+          ? {
+              ...title,
+              title: newTitle,
+              length: newTitle.length,
+              relevanceScore
+            }
+          : title
+      ));
+
+      // 如果重新生成的是当前选中的标题，更新选中状态
+      const currentTitle = titles.find(t => t.id === titleId);
+      if (currentTitle && selectedTitle === currentTitle.title) {
+        setSelectedTitle(newTitle);
+        onTitleChange?.(newTitle);
+      }
+
+      toast({
+        title: "重新生成成功",
+        description: "已为您生成新的标题选项",
+      });
+    } catch (error) {
+      toast({
+        title: "重新生成失败",
+        description: "请稍后重试",
+        variant: "destructive"
+      });
+    }
+  };
+
   // === React Hooks ===
 
-  // 初始生成标题 - 基于版本内容或原始内容
+  // 初始生成标题 - 基于内容智能生成
   useEffect(() => {
     const sourceContent = getContentForTitleGeneration();
 
@@ -749,23 +1008,18 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
   return (
     <Card className="w-full">
-      <CardHeader>
+      <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-yellow-500" />
-          智能标题生成
+          标题生成
           <Badge variant="outline" className="text-xs">
             {platformName} (限{titleLimit}字)
           </Badge>
-          {versions.length > 0 && (
-            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
-              基于版本A/B内容
-            </Badge>
-          )}
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* 生成按钮 */}
+      <CardContent className="space-y-3">
+        {/* 生成按钮 - 简化版本 */}
         <div className="flex items-center gap-2">
           <Button
             onClick={generateTitles}
@@ -780,107 +1034,110 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             )}
             {isGenerating ? '生成中...' : '重新生成'}
           </Button>
-
-          {selectedTitle && (
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleCopyTitle(selectedTitle)}
-                className="flex items-center gap-1"
-              >
-                <Copy className="h-3 w-3" />
-                复制
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleStartEdit}
-                className="flex items-center gap-1"
-              >
-                <Edit2 className="h-3 w-3" />
-                编辑
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* 加载状态 */}
         {isGenerating && (
-          <div className="flex items-center justify-center py-8">
+          <div className="flex items-center justify-center py-6">
             <div className="text-center">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-blue-500" />
-              <p className="text-sm text-gray-600">正在基于内容生成标题...</p>
+              <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-blue-500" />
+              <p className="text-sm text-gray-600">正在生成标题...</p>
             </div>
           </div>
         )}
 
-        {/* 当前选中的标题 */}
-        {selectedTitle && !isGenerating && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-blue-700">当前标题</span>
-              <Badge variant="outline" className="text-xs">
-                {selectedTitle.length}/{titleLimit} 字符
-              </Badge>
-            </div>
-
-            {isEditing ? (
-              <div className="space-y-2">
-                <Textarea
-                  value={editingTitle}
-                  onChange={(e) => setEditingTitle(e.target.value)}
-                  placeholder="编辑标题..."
-                  className="min-h-[60px] resize-none"
-                  maxLength={titleLimit}
-                />
-                <div className="flex items-center gap-2">
-                  <Button size="sm" onClick={handleSaveEdit} className="flex items-center gap-1">
-                    <Check className="h-3 w-3" />
-                    保存
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={handleCancelEdit} className="flex items-center gap-1">
-                    <X className="h-3 w-3" />
-                    取消
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-blue-900 font-medium">{selectedTitle}</p>
-            )}
-          </div>
-        )}
-
-        {/* 标题选项列表 */}
+        {/* 标题选项列表 - 重构版本 */}
         {!isGenerating && titles.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-700">标题选项</h4>
-            <div className="space-y-2">
-              {titles.map((title) => (
-                <div
-                  key={title.id}
-                  className={`border rounded-lg p-3 cursor-pointer transition-colors ${
-                    selectedTitle === title.title
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => handleTitleSelect(title.title)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">{title.title}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {title.style}
-                    </Badge>
+            {titles.map((title) => (
+              <div
+                key={title.id}
+                className={`border rounded-lg p-3 transition-colors ${
+                  selectedTitle === title.title
+                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div
+                    className="flex-1 cursor-pointer"
+                    onClick={() => handleTitleSelect(title.title)}
+                  >
+                    <p className="text-sm font-medium text-gray-900 leading-relaxed">
+                      {title.title}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-gray-500">
+                        {title.length}/{titleLimit} 字符
+                      </span>
+                      {selectedTitle === title.title && (
+                        <Badge variant="default" className="text-xs">
+                          已选中
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-gray-500">
-                      {title.length}/{titleLimit} 字符
-                    </span>
+
+                  {/* 每个标题的独立操作按钮 */}
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleRegenerateTitle(title.id, title.style)}
+                      className="h-7 w-7 p-0"
+                      title="重新生成此标题"
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleCopyTitle(title.title)}
+                      className="h-7 w-7 p-0"
+                      title="复制标题"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+
+                    {selectedTitle === title.title && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleStartEdit}
+                        className="h-7 w-7 p-0"
+                        title="编辑标题"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+
+                {/* 编辑模式 */}
+                {isEditing && selectedTitle === title.title && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <Textarea
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      placeholder="编辑标题..."
+                      className="min-h-[60px] resize-none text-sm"
+                      maxLength={titleLimit}
+                    />
+                    <div className="flex items-center gap-2 mt-2">
+                      <Button size="sm" onClick={handleSaveEdit} className="flex items-center gap-1">
+                        <Check className="h-3 w-3" />
+                        保存
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelEdit} className="flex items-center gap-1">
+                        <X className="h-3 w-3" />
+                        取消
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
@@ -894,38 +1151,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           </div>
         )}
 
-        {/* 内容参考区域 */}
-        {titles.length > 0 && versions.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-medium text-gray-600">📝 标题生成依据</span>
-              <Badge variant="outline" className="text-xs">
-                基于版本A/B内容
-              </Badge>
-            </div>
-            <div className="space-y-2">
-              {versions.map((version, index) => (
-                <div key={version.id} className="bg-gray-50 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-gray-700">
-                      {version.title} ({version.style === 'standard' ? '标准风格' : '创意风格'})
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {version.content.length} 字符
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600 line-clamp-2">
-                    {version.content.substring(0, 120)}
-                    {version.content.length > 120 ? '...' : ''}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              💡 标题基于上述实际生成内容的关键词、主题和情感进行智能生成，确保标题与内容高度匹配
-            </p>
-          </div>
-        )}
+
       </CardContent>
     </Card>
   );
