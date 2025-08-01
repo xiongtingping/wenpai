@@ -22,7 +22,7 @@ import { HashtagManager, HashtagData, HashtagTemplate } from '../components/Hash
 import { PlatformHashtags } from '../components/PlatformHashtags';
 import { AIContentGenerationAnimation } from '../components/AIContentGenerationAnimation';
 import { PlatformStatusIndicator } from '../components/PlatformStatusIndicator';
-import TitleGenerator from '../components/TitleGeneratorFixed';
+import TitleGenerator from '../components/TitleGeneratorSimple';
 import { BatchForwardModal } from '../components/BatchForwardModal';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";

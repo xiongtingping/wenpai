@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import TitleGenerator from '../components/TitleGeneratorFixed';
+import TitleGenerator from '../components/TitleGeneratorSimple';
 
 const TitleFixTestPage: React.FC = () => {
   const [testContent, setTestContent] = useState(`发现3小打工人必备效率工具！真的
