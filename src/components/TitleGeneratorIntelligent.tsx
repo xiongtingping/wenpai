@@ -12,6 +12,7 @@ import {
   TITLE_STYLES
 } from '@/ai/prompts/titleGeneration';
 import type { TitleGenerationResponse, TitleQualityCheck } from '@/ai/types';
+import { detectTemplatePatterns, checkDimensionCoverage, checkTitleQuality } from '@/utils/titleGenerationUtils';
 
 // 使用统一的平台限制配置（从AI prompt系统导入）
 const PLATFORM_TITLE_LIMITS = PLATFORM_LIMITS;
@@ -77,6 +78,7 @@ interface ContentAnalysis {
   useScenarios: string[]; // 使用场景（具体平台/场景）
   keyActions: string[]; // 关键动作（具体操作）
   quantifiedEffects: string[]; // 量化效果（具体数据）
+  userPainPoints: string[]; // 用户痛点（具体问题）
 }
 
 // 标题风格枚举
@@ -263,6 +265,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     const useScenarios = extractUseScenarios(cleanText);
     const keyActions = extractKeyActions(cleanText);
     const quantifiedEffects = extractQuantifiedEffects(cleanText);
+    const userPainPoints = extractUserPainPoints(cleanText);
 
     const analysis = {
       mainTopic,
@@ -279,7 +282,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       userBenefits,
       useScenarios,
       keyActions,
-      quantifiedEffects
+      quantifiedEffects,
+      userPainPoints
     };
 
     console.log('✅ 内容分析完成:', analysis);
@@ -534,6 +538,28 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return [...new Set(effects)].filter(effect => effect.length >= 1);
   };
 
+  // 提取用户痛点（具体问题）
+  const extractUserPainPoints = (text: string): string[] => {
+    const painPoints: string[] = [];
+
+    // 匹配痛点描述
+    const painPatterns = [
+      /([^\s]{2,6}(?:太累|很累|麻烦|困难|复杂))/g,
+      /([^\s]{2,6}(?:不一致|不统一|不匹配))/g,
+      /(效率低|速度慢|耗时长|浪费时间)/g,
+      /(重复|繁琐|机械|无聊)([^\s]{2,6})/g,
+      /([^\s]{2,6}(?:问题|痛点|难点|瓶颈))/g,
+      /(缺少|缺乏|没有)([^\s]{2,6})/g
+    ];
+
+    painPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      painPoints.push(...matches);
+    });
+
+    return [...new Set(painPoints)].filter(pain => pain.length >= 2);
+  };
+
   // 生成自然、内容感知的标题（符合Prompt文档规范）
   const generateNaturalTitle = (analysis: ContentAnalysis, style: TitleStyle): GeneratedTitle => {
     const { mainTopic, keyPoints, valueProposition, tone, entities, actionWords, coreMessage, semanticSimilarity } = analysis;
@@ -576,11 +602,33 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // 确保标题符合平台限制和质量要求
     title = ensureTitleQuality(title, style);
 
+    // 🚫 模板化行为检测
+    const templateCheck = detectTemplatePatterns(title);
+    if (templateCheck.isTemplatePattern) {
+      console.warn(`⚠️ 检测到模板化行为:`, templateCheck.detectedPatterns);
+      // 如果检测到模板化，重新生成
+      return generateNaturalTitle(analysis, style); // 递归重新生成
+    }
+
+    // ✅ 维度覆盖检查
+    const dimensionCheck = checkDimensionCoverage(
+      title,
+      analysis.coreObjects,
+      analysis.useScenarios,
+      analysis.userPainPoints
+    );
+
+    if (!dimensionCheck.isQualified) {
+      console.warn(`⚠️ 维度覆盖不足:`, dimensionCheck);
+      // 如果维度覆盖不足，重新生成
+      return generateNaturalTitle(analysis, style); // 递归重新生成
+    }
+
     // 计算综合评分
     const scores = calculateTitleScores(title, analysis);
 
     // 生成理由和提取内容
-    const generationReason = `基于${primaryElement}的${tone}内容，采用${styleDescription}风格生成`;
+    const generationReason = `基于${primaryElement}的${tone}内容，采用${styleDescription}风格生成，覆盖维度：${dimensionCheck.coveredDimensions.join('、')}`;
     const extractedContent = coreMessage.substring(0, 50) + (coreMessage.length > 50 ? '...' : '');
 
     const generatedTitle: GeneratedTitle = {
@@ -605,9 +653,9 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return generatedTitle;
   };
 
-  // 🎯 结果导向型标题生成 - 修复语义完整性
+  // 🎯 结果导向型标题生成 - 强化避免偏离主旨
   const generateResultOrientedTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
-    const { valueProposition, userBenefits, quantifiedEffects, useScenarios, coreObjects } = analysis;
+    const { valueProposition, userBenefits, quantifiedEffects, useScenarios, coreObjects, userPainPoints } = analysis;
 
     // 优先使用具体的核心对象
     const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
@@ -621,25 +669,36 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // 优先使用具体场景
     const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
 
-    // 🔧 确保语义完整的模板（修复主谓搭配问题）
-    if (quantifiedEffect && specificBenefit) {
+    // 优先使用用户痛点
+    const painPoint = userPainPoints.length > 0 ? userPainPoints[0] : '';
+
+    // 🔧 强制覆盖至少2个维度（核心对象+场景+痛点）
+    if (mainObject && scenario && specificBenefit) {
+      return `${mainObject}解决${scenario}${specificBenefit}问题`;
+    }
+
+    if (mainObject && painPoint && quantifiedEffect) {
+      return `${mainObject}解决${painPoint}，${quantifiedEffect}`;
+    }
+
+    if (scenario && quantifiedEffect && specificBenefit) {
+      return `用${mainObject}做${scenario}，${specificBenefit}${quantifiedEffect}`;
+    }
+
+    if (mainObject && specificBenefit && quantifiedEffect) {
       return `${mainObject}帮我${specificBenefit}${quantifiedEffect}`;
     }
 
+    // 确保至少包含核心对象+一个具体维度
     if (scenario && specificBenefit) {
       return `用${mainObject}做${scenario}，${specificBenefit}`;
     }
 
-    if (specificBenefit && specificBenefit !== '提升效率') {
-      return `${mainObject}让我${specificBenefit}，效果很棒`;
-    }
-
-    // 兜底模板（确保语义完整）
+    // 兜底模板（确保语义完整且具体）
     const fallbackPatterns = [
-      `${mainObject}真的提升了我的工作效率`,
-      `用${mainObject}后工作变轻松了`,
-      `${mainObject}帮我解决了大问题`,
-      `${mainObject}使用效果超出预期`
+      `${mainObject}提升了我的${scenario || '工作'}效率`,
+      `用${mainObject}后${scenario || '工作'}变轻松了`,
+      `${mainObject}帮我解决了${painPoint || '效率'}问题`
     ];
 
     return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];

@@ -141,17 +141,98 @@ export const cleanAndNormalizeTitle = (title: string): string => {
 };
 
 /**
- * 📊 标题质量检查（按规范标准）
+ * 🚫 检测模板化行为（避免偏离主旨）
+ */
+export const detectTemplatePatterns = (title: string): {
+  isTemplatePattern: boolean;
+  detectedPatterns: string[];
+  severity: 'low' | 'medium' | 'high';
+} => {
+  // 严禁的模板化句型
+  const prohibitedPatterns = [
+    '写文案神器',
+    'AI太好用了，救命',
+    '朋友推荐了我这个工具',
+    '现在我省了3小时',
+    '这个工具拯救了我',
+    '效率神器推荐',
+    '必须安利给大家',
+    'AI神器',
+    '救命神器',
+    '太好用了',
+    '强烈推荐',
+    '必须收藏'
+  ];
+
+  const detectedPatterns = prohibitedPatterns.filter(pattern => title.includes(pattern));
+  const patternCount = detectedPatterns.length;
+
+  return {
+    isTemplatePattern: patternCount >= 2, // 超过2处视为偏离主旨
+    detectedPatterns,
+    severity: patternCount >= 3 ? 'high' : patternCount >= 2 ? 'medium' : 'low'
+  };
+};
+
+/**
+ * ✅ 检查维度覆盖（至少2个维度）
+ */
+export const checkDimensionCoverage = (
+  title: string,
+  coreObjects: string[],
+  useScenarios: string[],
+  userPainPoints: string[]
+): {
+  coveredDimensions: string[];
+  coverageScore: number;
+  isQualified: boolean;
+} => {
+  const coveredDimensions: string[] = [];
+
+  // 检查核心对象覆盖
+  if (coreObjects.some(obj => title.includes(obj))) {
+    coveredDimensions.push('核心对象');
+  }
+
+  // 检查使用场景覆盖
+  if (useScenarios.some(scenario => title.includes(scenario))) {
+    coveredDimensions.push('使用场景');
+  }
+
+  // 检查用户痛点覆盖
+  if (userPainPoints.some(pain => title.includes(pain))) {
+    coveredDimensions.push('用户痛点');
+  }
+
+  const coverageScore = coveredDimensions.length / 3;
+  const isQualified = coveredDimensions.length >= 2; // 至少覆盖2个维度
+
+  return {
+    coveredDimensions,
+    coverageScore,
+    isQualified
+  };
+};
+
+/**
+ * 📊 标题质量检查（强化避免偏离主旨）
  */
 export const checkTitleQuality = (
   title: string,
   semanticFit: number,
   platformId: string,
-  platformLimits: Record<string, number>
+  platformLimits: Record<string, number>,
+  contentAnalysis?: {
+    coreObjects: string[];
+    useScenarios: string[];
+    userPainPoints: string[];
+  }
 ): {
   isQualified: boolean;
   issues: string[];
   suggestions: string[];
+  templateCheck?: any;
+  dimensionCheck?: any;
 } => {
   const issues: string[] = [];
   const suggestions: string[] = [];
@@ -174,6 +255,29 @@ export const checkTitleQuality = (
     suggestions.push('清理标题中的无效字符');
   }
 
+  // 🚫 模板化行为检测
+  const templateCheck = detectTemplatePatterns(title);
+  if (templateCheck.isTemplatePattern) {
+    issues.push(`检测到${templateCheck.detectedPatterns.length}个模板化句型`);
+    suggestions.push('避免使用通用模板，结合具体产品和场景');
+  }
+
+  // ✅ 维度覆盖检查
+  let dimensionCheck;
+  if (contentAnalysis) {
+    dimensionCheck = checkDimensionCoverage(
+      title,
+      contentAnalysis.coreObjects,
+      contentAnalysis.useScenarios,
+      contentAnalysis.userPainPoints
+    );
+
+    if (!dimensionCheck.isQualified) {
+      issues.push('未覆盖足够维度（需至少2个：核心对象、使用场景、用户痛点）');
+      suggestions.push('增加具体产品名称、使用场景或痛点描述');
+    }
+  }
+
   // 空泛检查
   const genericWords = ['AI真强', '神器推荐', '这个工具', '很好用'];
   if (genericWords.some(word => title.includes(word))) {
@@ -184,7 +288,9 @@ export const checkTitleQuality = (
   return {
     isQualified: issues.length === 0,
     issues,
-    suggestions
+    suggestions,
+    templateCheck,
+    dimensionCheck
   };
 };
 
