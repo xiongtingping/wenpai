@@ -99,23 +99,27 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const [titleFeedback, setTitleFeedback] = useState<Record<string, 'like' | 'dislike'>>({});
   const { toast } = useToast();
 
-  // 监听平台切换，重置状态
-  useEffect(() => {
-    console.log(`🔄 平台切换到: ${platformId} (${platformName})`);
-
-    // 平台切换时重置状态，但保留已生成的标题（如果内容相同）
-    const currentContent = versions.length > 0
+  // 🔄 标准化内容来源获取函数（符合规范）
+  const getSourceContent = (): string => {
+    return versions.length > 0
       ? versions.map(v => v.content).join('\n\n')
       : content;
+  };
 
-    // 检查是否需要重新生成标题
+  // 🔄 平台切换触发机制（按规范优化）
+  useEffect(() => {
+    console.log(`🔄 平台切换触发: ${platformId} (${platformName})`);
+
+    const currentContent = getSourceContent();
+
+    // 检查是否需要重新生成标题（按规范逻辑）
     const needsRegeneration = titles.length === 0 ||
       titles.some(title => title.platform !== platformId) ||
       currentContent.trim().length < 10;
 
     if (needsRegeneration && currentContent.trim().length >= 10) {
       console.log(`🎯 平台${platformId}需要重新生成标题`);
-      // 延迟生成，避免频繁切换时的重复调用
+      // 防抖延迟300ms（按规范建议）
       const timer = setTimeout(() => {
         generateTitles();
       }, 300);
@@ -126,26 +130,25 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         prevTitles.map(title => ({
           ...title,
           platform: platformId,
-          utilizationScore: title.length / titleLimit // 重新计算字符利用率
+          utilizationScore: title.length / titleLimit
         }))
       );
     }
-  }, [platformId, platformName]); // 只监听平台变化
+  }, [platformId, platformName]);
 
-  // 监听内容变化
+  // 📝 内容变化首轮触发（按规范优化）
   useEffect(() => {
-    const currentContent = versions.length > 0
-      ? versions.map(v => v.content).join('\n\n')
-      : content;
+    const currentContent = getSourceContent();
 
     if (currentContent.trim().length >= 10 && titles.length === 0) {
-      console.log(`📝 内容变化，为平台${platformId}生成标题`);
+      console.log(`📝 内容变化首轮触发，为平台${platformId}生成标题`);
+      // 防抖延迟500ms（按规范建议）
       const timer = setTimeout(() => {
         generateTitles();
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [content, versions]); // 只监听内容变化
+  }, [content, versions, platformId]);
 
   const titleLimit = PLATFORM_TITLE_LIMITS[platformId] || 25;
   const minTitleLength = Math.max(8, Math.floor(titleLimit * 0.7)); // 最短不少于8字，建议≥平台限制的70%
@@ -690,8 +693,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     semanticScore += (commonWords.length / Math.max(titleWords.length, 1)) * 0.15;
     semanticScore = Math.min(0.95, semanticScore);
 
-    // 2. 情绪吸引力评分 (30%)
-    const emotionalKeywords = ['惊到', '太好用', '救命', '惊艳', '没想到', '真的', '超出预期', '相见恨晚'];
+    // 2. 情绪吸引力评分 (30%) - 按规范优化关键词
+    const emotionalKeywords = ['惊到', '太好用', '救命', '惊艳', '出乎意料', '涨粉', '效率翻倍', '没想到', '真的', '超出预期', '相见恨晚'];
     const questionWords = ['为什么', '如何', '真的吗', '怎么样'];
     const resultWords = ['后', '让我', '帮我', '效果', '提升', '翻倍'];
 
@@ -755,28 +758,48 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return patterns;
   };
 
-  // AI智能标题生成函数 - 集成强化主旨对齐约束
+  // 🤖 AI模式：标题生成主函数（按规范优化）
   const generateTitles = async () => {
     setIsGenerating(true);
 
     try {
-      console.log('🚀 开始AI智能标题生成（基于强化主旨对齐约束）');
+      console.log('🚀 开始标题生成流程（AI优先+本地回退模式）');
 
-      // 准备内容
-      const sourceContent = versions.length > 0
-        ? versions.map(v => v.content).join('\n\n')
-        : content;
+      // Step 1: 标准化内容来源获取（按规范）
+      const sourceContent = getSourceContent();
 
       if (!sourceContent || sourceContent.trim().length < 10) {
         toast({
           title: "内容不足",
-          description: "请提供更多内容以生成标题",
+          description: "请提供更多内容以生成标题（最少10字符）",
           variant: "destructive"
         });
         return;
       }
 
-      // 构建AI调用参数
+      console.log(`📝 内容来源: ${sourceContent.length}字符，平台: ${platformId}`);
+
+      // Step 2: AI模式优先尝试
+      await attemptAIGeneration(sourceContent);
+
+    } catch (error) {
+      console.error('标题生成流程失败:', error);
+      toast({
+        title: "生成失败",
+        description: "标题生成失败，请稍后重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 🤖 AI模式：尝试AI生成（按规范Step 1-4）
+  const attemptAIGeneration = async (sourceContent: string) => {
+    try {
+
+      // Step 1: 构建Prompt（按规范）
+      console.log('🧠 Step 1: 构建AI Prompt');
       const systemPrompt = getTitleGenerationSystemPrompt();
       const userPrompt = getTitleGenerationPrompt({
         content: sourceContent,
@@ -787,9 +810,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         ensureDiversity
       });
 
-      console.log(`🧠 为平台${platformId}(${platformName})调用AI生成标题，使用强化主旨对齐约束...`);
-
-      // 调用AI生成标题
+      // Step 2: 调用AI（按规范）
+      console.log(`🤖 Step 2: 调用GPT-4 API (平台: ${platformId})`);
       const aiResponse = await callAI({
         prompt: userPrompt,
         systemPrompt: systemPrompt,
@@ -802,19 +824,25 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         throw new Error(aiResponse.error || 'AI调用失败');
       }
 
-      // 解析AI响应
+      // Step 3: 解析AI响应格式（按规范推荐结构）
+      console.log('📊 Step 3: 解析AI响应JSON格式');
       let aiResult: TitleGenerationResponse;
       try {
-        // 提取JSON部分
         const jsonMatch = aiResponse.content.match(/```json\s*([\s\S]*?)\s*```/);
         const jsonContent = jsonMatch ? jsonMatch[1] : aiResponse.content;
         aiResult = JSON.parse(jsonContent);
+
+        // 验证响应结构
+        if (!aiResult.contentAnalysis || !aiResult.titles || !Array.isArray(aiResult.titles)) {
+          throw new Error('AI响应结构不完整');
+        }
       } catch (parseError) {
         console.error('AI响应解析失败:', parseError);
         throw new Error('AI响应格式错误，请重试');
       }
 
-      // 转换为组件所需格式
+      // Step 4: 标题过滤逻辑（按规范）
+      console.log('🔍 Step 4: 应用质量过滤逻辑');
       const newTitles: GeneratedTitle[] = aiResult.titles.map((titleData, index) => ({
         id: `ai-${Date.now()}-${index}`,
         title: titleData.title,
@@ -837,84 +865,98 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         extractedContent: aiResult.contentAnalysis.mainTheme
       }));
 
-      // 过滤质量不达标的标题（语义贴合度≥75%）
-      const qualifiedTitles = newTitles.filter(title => title.semanticFit >= 0.75);
+      // 按规范过滤：semanticFit >= 0.75 && isValidLength
+      const qualifiedTitles = newTitles.filter(title =>
+        title.semanticFit >= 0.75 && isTitleValidForPlatform(title)
+      );
 
       if (qualifiedTitles.length === 0) {
-        throw new Error('生成的标题质量不达标，请重试');
+        throw new Error('AI生成的标题质量不达标，切换到本地模式');
       }
 
-      console.log(`✅ 平台${platformId} AI标题生成完成:`, qualifiedTitles.map(t => t.title));
+      console.log(`✅ AI模式成功: 平台${platformId}生成${qualifiedTitles.length}个标题`);
       console.log('📊 内容分析结果:', aiResult.contentAnalysis);
 
-      // 过滤掉不适用于当前平台的标题
-      const validTitles = qualifiedTitles.filter(isTitleValidForPlatform);
-
-      setTitles(validTitles);
-      if (validTitles.length > 0) {
-        setSelectedTitle(validTitles[0].title);
-        onTitleChange?.(validTitles[0].title);
+      // 设置最终结果
+      setTitles(qualifiedTitles);
+      if (qualifiedTitles.length > 0) {
+        setSelectedTitle(qualifiedTitles[0].title);
+        onTitleChange?.(qualifiedTitles[0].title);
       }
 
       toast({
-        title: `${platformName}标题生成完成`,
-        description: `基于强化主旨对齐约束生成了${validTitles.length}个高质量标题（语义贴合度≥75%）`,
+        title: `${platformName} AI标题生成完成`,
+        description: `生成了${qualifiedTitles.length}个高质量标题（语义贴合度≥75%）`,
       });
-    } catch (error) {
-      console.error('AI标题生成失败:', error);
 
-      // 如果AI调用失败，回退到本地生成逻辑
-      console.log('🔄 回退到本地标题生成逻辑...');
-      await generateTitlesLocally();
-    } finally {
-      setIsGenerating(false);
+    } catch (error) {
+      console.error('AI模式失败:', error);
+      console.log('🔄 切换到本地回退模式...');
+      await attemptLocalGeneration(sourceContent);
     }
   };
 
-  // 本地标题生成逻辑（作为AI调用失败时的回退方案）
-  const generateTitlesLocally = async () => {
+  // 🧠 本地模式：回退标题生成逻辑（按规范优化）
+  const attemptLocalGeneration = async (sourceContent: string) => {
     try {
-      const sourceContent = versions.length > 0
-        ? versions.map(v => v.content).join(' ')
-        : content;
+      console.log('🧠 本地模式启动：内容分析+模板生成策略');
 
+      // Step 1: 内容语义分析（按规范）
+      console.log('📊 Step 1: 本地内容语义分析');
       const analysis = analyzeContent(sourceContent);
+      console.log('分析结果:', {
+        mainTopic: analysis.mainTopic,
+        entities: analysis.entities,
+        valueProposition: analysis.valueProposition,
+        tone: analysis.tone
+      });
 
+      // Step 2: 五种风格生成逻辑（按规范）
+      console.log('🎨 Step 2: 五种标准风格生成');
       const allStyles: TitleStyle[] = ['result-oriented', 'question-guided', 'professional', 'experience-based', 'emotional-trigger'];
       const newTitles: GeneratedTitle[] = [];
 
       for (const style of allStyles.slice(0, outputCount)) {
         const generatedTitle = generateNaturalTitle(analysis, style);
+
+        // Step 3: 本地质量评分（按规范）
         const updatedScores = calculateTitleScores(generatedTitle.title, analysis, newTitles);
         generatedTitle.diversityScore = updatedScores.diversityScore;
         generatedTitle.overallScore = updatedScores.overallScore;
 
-        if (generatedTitle.semanticFit >= 0.7 && generatedTitle.isComplete) {
+        // 按规范过滤：semanticFit >= 0.7（本地模式稍低于AI的0.75）
+        if (generatedTitle.semanticFit >= 0.7 &&
+            generatedTitle.isComplete &&
+            isTitleValidForPlatform(generatedTitle)) {
           newTitles.push(generatedTitle);
         }
       }
 
+      // 按综合评分排序
       newTitles.sort((a, b) => b.overallScore - a.overallScore);
 
-      // 过滤掉不适用于当前平台的标题
-      const validTitles = newTitles.filter(isTitleValidForPlatform);
+      if (newTitles.length === 0) {
+        throw new Error('本地模式也无法生成合格标题');
+      }
 
-      setTitles(validTitles);
+      console.log(`✅ 本地模式成功: 生成${newTitles.length}个标题`);
 
-      if (validTitles.length > 0) {
-        setSelectedTitle(validTitles[0].title);
-        onTitleChange?.(validTitles[0].title);
+      setTitles(newTitles);
+      if (newTitles.length > 0) {
+        setSelectedTitle(newTitles[0].title);
+        onTitleChange?.(newTitles[0].title);
       }
 
       toast({
-        title: `${platformName}标题生成完成`,
-        description: `生成了${validTitles.length}个标题（本地算法）`,
+        title: `${platformName} 本地模式完成`,
+        description: `生成了${newTitles.length}个标题（本地算法回退）`,
       });
+
     } catch (error) {
-      console.error('本地标题生成也失败:', error);
+      console.error('本地模式也失败:', error);
       toast({
         title: "生成失败",
-        description: "标题生成失败，请检查内容后重试",
+        description: "AI和本地模式都失败，请检查内容后重试",
         variant: "destructive"
       });
     }
