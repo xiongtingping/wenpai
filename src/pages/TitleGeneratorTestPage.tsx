@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import TitleGenerator from '../components/TitleGeneratorSimple';
+import TitleGenerator from '../components/TitleGeneratorIntelligent';
 import { testContents, runTitleGenerationTest, testSpecificGrammarFixes } from '../test/titleGeneratorTest';
 
 const TitleGeneratorTestPage: React.FC = () => {
