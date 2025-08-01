@@ -51,10 +51,10 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
   const titleLimit = PLATFORM_TITLE_LIMITS[platformId] || 30;
 
-  // 从版本A和B中提取关键词
+  // 从版本A和B中提取关键词 - 改进版本
   const extractKeywords = (): string[] => {
     let sourceText = '';
-    
+
     if (versions && versions.length > 0) {
       sourceText = versions.map(v => v.content).join(' ');
       console.log('🔍 从版本A/B提取关键词:', { 版本数量: versions.length });
@@ -69,79 +69,158 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     const cleanText = sourceText
       .replace(/【配图建议】[\s\S]*?(?=\n\n|\n$|$)/g, '')
       .replace(/#[^#\s]+#/g, '')
-      .replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ')
-      .replace(/\s+/g, ' ')
       .trim();
+
+    console.log('📝 清理后的文本:', cleanText.substring(0, 200) + '...');
 
     const keywords: string[] = [];
 
-    // 提取常见词汇
-    const commonWords = ['工具', '软件', '应用', '方法', '技巧', '攻略', '教程', '指南'];
-    commonWords.forEach(word => {
-      if (cleanText.includes(word)) {
-        keywords.push(word);
-      }
+    // 1. 提取具体的产品/工具名称（优先级最高）
+    const productPatterns = [
+      /([A-Za-z][A-Za-z0-9]*(?:[A-Za-z][A-Za-z0-9]*)*)/g, // 英文产品名
+      /([A-Za-z]+[工具软件平台应用])/g, // 英文+中文组合
+      /([^\s]{2,8}[工具软件平台应用])/g, // 具体工具名
+    ];
+
+    productPatterns.forEach(pattern => {
+      const matches = cleanText.match(pattern) || [];
+      matches.forEach(match => {
+        if (match.length >= 3 && match.length <= 10) {
+          keywords.push(match);
+        }
+      });
     });
 
-    // 提取情感词
-    const emotionWords = ['好用', '棒', '推荐', '必备', '实用', '赞', '爱了'];
-    emotionWords.forEach(word => {
-      if (cleanText.includes(word)) {
-        keywords.push(word);
-      }
+    // 2. 提取数字+名词组合
+    const numberMatches = cleanText.match(/\d+[个种款项次倍][^\s]{2,8}/g) || [];
+    numberMatches.forEach(match => {
+      keywords.push(match);
     });
 
-    // 提取2-4字高频词
-    const words = cleanText.split(' ').filter(w => w.length >= 2 && w.length <= 4);
+    // 3. 提取主题词汇
+    const topicPatterns = [
+      /([^\s]{2,6}[方法技巧秘诀攻略指南教程])/g,
+      /([^\s]{2,6}[测评评测体验分享推荐])/g,
+      /([^\s]{2,6}[问题解决方案思路])/g,
+    ];
+
+    topicPatterns.forEach(pattern => {
+      const matches = cleanText.match(pattern) || [];
+      matches.forEach(match => {
+        if (match.length >= 3 && match.length <= 8) {
+          keywords.push(match);
+        }
+      });
+    });
+
+    // 4. 提取高频有意义词汇（2-5字）
+    const words = cleanText.match(/[\u4e00-\u9fa5a-zA-Z0-9]{2,5}/g) || [];
     const wordCount: Record<string, number> = {};
+
+    // 过滤掉通用词汇
+    const stopWords = ['工具', '软件', '应用', '平台', '方法', '技巧', '这个', '一个', '可以', '非常', '真的', '很好', '不错'];
+
     words.forEach(word => {
-      wordCount[word] = (wordCount[word] || 0) + 1;
+      if (!stopWords.includes(word) && word.length >= 2 && word.length <= 5) {
+        wordCount[word] = (wordCount[word] || 0) + 1;
+      }
     });
 
     const frequentWords = Object.entries(wordCount)
       .filter(([word, count]) => count >= 2)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
+      .slice(0, 5)
       .map(([word]) => word);
 
     keywords.push(...frequentWords);
 
-    const result = [...new Set(keywords)].slice(0, 5);
-    console.log('✅ 关键词提取完成:', result);
-    return result;
+    // 去重并优先选择更具体的关键词
+    const uniqueKeywords = [...new Set(keywords)]
+      .filter(keyword => keyword.length >= 2)
+      .sort((a, b) => {
+        // 优先选择包含英文或数字的关键词（更具体）
+        const aHasSpecific = /[A-Za-z0-9]/.test(a);
+        const bHasSpecific = /[A-Za-z0-9]/.test(b);
+        if (aHasSpecific && !bHasSpecific) return -1;
+        if (!aHasSpecific && bHasSpecific) return 1;
+        return b.length - a.length; // 长度优先
+      })
+      .slice(0, 5);
+
+    console.log('✅ 关键词提取完成:', uniqueKeywords);
+    return uniqueKeywords;
   };
 
-  // 生成标题
+  // 生成标题 - 改进版本
   const generateTitle = (keywords: string[], style: string): string => {
-    const keyword = keywords.length > 0 ? keywords[0] : '内容';
+    // 如果没有关键词，使用默认标题
+    if (keywords.length === 0) {
+      const defaultTitles = {
+        engaging: ['发现好内容！值得分享', '推荐给大家！真的不错', '分享一个好东西！'],
+        informative: ['实用指南｜干货分享', '详细教程｜建议收藏', '完整攻略｜新手必看'],
+        emotional: ['真实感受｜想和你分享', '我的经历｜真心话', '内心独白｜值得思考']
+      };
+      const defaults = defaultTitles[style as keyof typeof defaultTitles] || defaultTitles.engaging;
+      return defaults[Math.floor(Math.random() * defaults.length)];
+    }
+
+    // 选择最佳关键词
+    const primaryKeyword = keywords[0];
+    const secondaryKeyword = keywords.length > 1 ? keywords[1] : '';
+
+    console.log(`🎯 生成${style}风格标题，主关键词: ${primaryKeyword}, 次关键词: ${secondaryKeyword}`);
 
     const templates = {
       engaging: [
-        `发现${keyword}！真的很棒`,
-        `推荐${keyword}！必须安利`,
-        `分享${keyword}！超级好用`
+        `发现${primaryKeyword}！真的很棒`,
+        `推荐${primaryKeyword}！必须安利`,
+        `分享${primaryKeyword}！超级好用`,
+        `${primaryKeyword}合集！值得收藏`,
+        `盘点${primaryKeyword}！干货满满`,
+        secondaryKeyword ? `${primaryKeyword}+${secondaryKeyword}！绝了` : `${primaryKeyword}！绝了`
       ],
       informative: [
-        `${keyword}详解｜实用指南`,
-        `${keyword}完整教程｜干货分享`,
-        `${keyword}实战指南｜建议收藏`
+        `${primaryKeyword}详解｜实用指南`,
+        `${primaryKeyword}完整教程｜干货分享`,
+        `${primaryKeyword}实战指南｜建议收藏`,
+        `掌握${primaryKeyword}的正确方法`,
+        `${primaryKeyword}全攻略｜新手必看`,
+        secondaryKeyword ? `${primaryKeyword}vs${secondaryKeyword}｜对比分析` : `${primaryKeyword}深度解析`
       ],
       emotional: [
-        `${keyword}的真实感受`,
-        `关于${keyword}的思考`,
-        `${keyword}｜真心话分享`
+        `${primaryKeyword}让我很感动`,
+        `${primaryKeyword}的真实感受`,
+        `关于${primaryKeyword}的思考`,
+        `${primaryKeyword}｜真心话分享`,
+        `${primaryKeyword}｜我的经历`,
+        secondaryKeyword ? `从${primaryKeyword}到${secondaryKeyword}的感悟` : `${primaryKeyword}改变了我`
       ]
     };
 
     const styleTemplates = templates[style as keyof typeof templates] || templates.engaging;
     const template = styleTemplates[Math.floor(Math.random() * styleTemplates.length)];
 
-    // 调整长度
-    if (template.length <= titleLimit) {
-      return template;
+    // 智能调整长度
+    let finalTitle = template;
+    if (template.length > titleLimit) {
+      // 如果太长，尝试简化
+      if (template.includes('｜')) {
+        finalTitle = template.split('｜')[0]; // 只保留主要部分
+      } else if (template.includes('！')) {
+        finalTitle = template.split('！')[0] + '！'; // 保留感叹号
+      } else {
+        finalTitle = template.substring(0, titleLimit - 1) + '…';
+      }
     }
 
-    return template.substring(0, titleLimit - 1) + '…';
+    console.log(`✅ ${style}风格标题生成:`, {
+      原始: template,
+      最终: finalTitle,
+      长度: finalTitle.length,
+      限制: titleLimit
+    });
+
+    return finalTitle;
   };
 
   // 生成标题列表
