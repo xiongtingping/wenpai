@@ -175,13 +175,24 @@ function fixUndefinedInGuardDOM(container: Element) {
     textNodes.forEach(textNode => {
       if (textNode.textContent && textNode.textContent.includes('undefinedundefined')) {
         console.log('🛡️ 发现undefinedundefined文本，进行修复:', textNode.textContent);
+        const originalText = textNode.textContent;
         textNode.textContent = textNode.textContent.replace(/undefinedundefined/g, '用户');
+        console.log('🛡️ 修复完成:', originalText, '->', textNode.textContent);
       }
 
       // 修复单独的undefined
       if (textNode.textContent === 'undefined') {
         console.log('🛡️ 发现undefined文本，进行修复');
         textNode.textContent = '';
+      }
+
+      // 🚨 特别处理 g2-error-message-text 类的元素
+      const parentElement = textNode.parentElement;
+      if (parentElement && parentElement.classList.contains('g2-error-message-text')) {
+        if (textNode.textContent && textNode.textContent.includes('undefined')) {
+          console.log('🚨 修复 g2-error-message-text 中的 undefined:', textNode.textContent);
+          textNode.textContent = textNode.textContent.replace(/undefined/g, '');
+        }
       }
     });
 
@@ -224,10 +235,28 @@ export function createSafeGuardConfig(originalConfig: any) {
         display: none !important;
       }
 
+      /* 🚨 特别处理 g2-error-message-text 类 */
+      .authing-guard .g2-error-message-text {
+        font-size: 0 !important;
+        line-height: 0 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+      }
+
+      /* 隐藏包含 undefinedundefined 的文本 */
+      .authing-guard *:contains("undefinedundefined") {
+        display: none !important;
+      }
+
       /* 修复可能的undefined伪元素内容 */
       .authing-guard *:before,
       .authing-guard *:after {
         content: none !important;
+      }
+
+      /* 隐藏 authing-ant-modal-root 中的错误文本 */
+      .authing-ant-modal-root *:contains("undefinedundefined") {
+        display: none !important;
       }
     `,
 
@@ -252,6 +281,45 @@ export function createSafeGuardConfig(originalConfig: any) {
             characterData: true
           });
         }
+
+        // 🚨 额外监控 authing-ant-modal-root
+        const modalRoot = document.querySelector('.authing-ant-modal-root');
+        if (modalRoot) {
+          fixUndefinedInGuardDOM(modalRoot);
+
+          const modalObserver = new MutationObserver(() => {
+            fixUndefinedInGuardDOM(modalRoot);
+          });
+
+          modalObserver.observe(modalRoot, {
+            childList: true,
+            subtree: true,
+            characterData: true
+          });
+        }
+
+        // 🚨 全局监控所有可能的 Authing 相关元素
+        const globalObserver = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+              mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                  const element = node as Element;
+                  if (element.classList.contains('authing-ant-modal-root') ||
+                      element.classList.contains('g2-error-message-text') ||
+                      element.querySelector('.g2-error-message-text')) {
+                    fixUndefinedInGuardDOM(element);
+                  }
+                }
+              });
+            }
+          });
+        });
+
+        globalObserver.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
       }, 100);
 
       // 调用原始onLoad

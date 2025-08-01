@@ -17,9 +17,9 @@ import App from './App.tsx';
 if (import.meta.env.DEV) {
   // 启用控制台警告过滤器，过滤已知无害警告
   import('./utils/consoleWarningFilter');
-  // 🎉 问题已解决：禁用了 UndefinedTestPage 路由，避免意外触发测试代码
-  // import('./utils/realTimeUndefinedDetector');
-  console.log('🔧 开发环境已启动，undefinedundefined 问题已彻底解决');
+  // 🚨 用户坚持问题仍然存在！启用激进检测器
+  import('./utils/aggressiveUndefinedDetector');
+  console.log('🔧 开发环境已启动，激进检测器已启用');
 }
 
 // ✅ FIXED: 2025-07-25 React Router Future Flag配置已封装
