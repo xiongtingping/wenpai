@@ -142,6 +142,84 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return emotionWords.filter(word => text.includes(word));
   };
 
+  // 从版本A和B中提取核心关键词 - 最简单策略
+  const extractCoreKeywordsFromVersions = (): string[] => {
+    if (!versions || versions.length === 0) {
+      return extractSimpleKeywords(content || '');
+    }
+
+    console.log('🔍 开始从版本A/B提取核心关键词');
+
+    // 合并所有版本内容
+    const allContent = versions.map(v => v.content).join(' ');
+
+    // 提取关键词
+    const keywords = extractSimpleKeywords(allContent);
+
+    console.log('✅ 关键词提取完成:', {
+      版本数量: versions.length,
+      提取的关键词: keywords,
+      关键词数量: keywords.length
+    });
+
+    return keywords;
+  };
+
+  // 简单关键词提取函数
+  const extractSimpleKeywords = (text: string): string[] => {
+    if (!text || text.trim().length === 0) return [];
+
+    // 清理文本
+    const cleanText = text
+      .replace(/【配图建议】[\s\S]*?(?=\n\n|\n$|$)/g, '')
+      .replace(/#[^#\s]+#/g, '')
+      .replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // 提取关键词的简单策略
+    const keywords: string[] = [];
+
+    // 1. 提取数字+名词组合
+    const numberPatterns = cleanText.match(/\d+[个种款项次倍人家][^\s]{1,6}/g) || [];
+    keywords.push(...numberPatterns.map(p => p.replace(/\d+/, '').trim()));
+
+    // 2. 提取常见产品/工具词
+    const productWords = ['工具', '软件', '应用', '平台', '方法', '技巧', '秘诀', '攻略'];
+    productWords.forEach(word => {
+      if (cleanText.includes(word)) {
+        keywords.push(word);
+      }
+    });
+
+    // 3. 提取情感词
+    const emotionWords = ['好用', '棒', '赞', '爱了', '绝了', '推荐', '必备', '实用'];
+    emotionWords.forEach(word => {
+      if (cleanText.includes(word)) {
+        keywords.push(word);
+      }
+    });
+
+    // 4. 提取2-4字的高频词
+    const words = cleanText.split(' ').filter(w => w.length >= 2 && w.length <= 4);
+    const wordCount: Record<string, number> = {};
+    words.forEach(word => {
+      wordCount[word] = (wordCount[word] || 0) + 1;
+    });
+
+    // 取出现频率最高的词
+    const frequentWords = Object.entries(wordCount)
+      .filter(([word, count]) => count >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([word]) => word);
+
+    keywords.push(...frequentWords);
+
+    // 去重并返回前8个关键词
+    return [...new Set(keywords)].slice(0, 8);
+  };
+
   // 获取用于标题生成的内容源
   const getContentForTitleGeneration = (): string => {
     // 优先使用版本A和版本B的内容
@@ -155,7 +233,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       });
       return combinedContent;
     }
-    
+
     // 回退到原始内容
     console.log('⚠️ 回退到原始内容生成标题:', {
       contentLength: content.length,
@@ -164,10 +242,71 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return content;
   };
 
-  // 生成标题的函数
+  // 基于关键词生成简单标题 - 最简单策略
+  const generateSimpleTitle = (keywords: string[], style: 'engaging' | 'informative' | 'emotional'): string => {
+    if (keywords.length === 0) {
+      return getDefaultTitleByStyle(style, platformId);
+    }
+
+    console.log(`🎯 生成${style}风格标题，使用关键词:`, keywords);
+
+    // 根据风格选择模板
+    const templates = {
+      engaging: [
+        `发现${keywords[0]}！真的很棒`,
+        `推荐${keywords[0]}！必须安利`,
+        `分享${keywords[0]}！超级好用`,
+        `${keywords[0]}合集！值得收藏`,
+        `盘点${keywords[0]}！干货满满`
+      ],
+      informative: [
+        `${keywords[0]}详解｜实用指南`,
+        `${keywords[0]}完整教程｜干货分享`,
+        `${keywords[0]}实战指南｜建议收藏`,
+        `掌握${keywords[0]}的正确方法`,
+        `${keywords[0]}全攻略｜新手必看`
+      ],
+      emotional: [
+        `${keywords[0]}让我很感动`,
+        `${keywords[0]}的真实感受`,
+        `关于${keywords[0]}的思考`,
+        `${keywords[0]}｜真心话分享`,
+        `${keywords[0]}｜我的经历`
+      ]
+    };
+
+    // 随机选择一个模板
+    const styleTemplates = templates[style];
+    const randomTemplate = styleTemplates[Math.floor(Math.random() * styleTemplates.length)];
+
+    // 调整标题长度
+    const finalTitle = adjustTitleLength(randomTemplate, titleLimit);
+
+    console.log(`✅ ${style}风格标题生成完成:`, {
+      原始: randomTemplate,
+      最终: finalTitle,
+      长度: finalTitle.length
+    });
+
+    return finalTitle;
+  };
+
+  // 获取默认标题
+  const getDefaultTitleByStyle = (style: string, platform: string): string => {
+    const defaultTitles = {
+      engaging: ['发现好内容！值得分享', '推荐给大家！真的不错', '分享一个好东西！'],
+      informative: ['实用指南｜干货分享', '详细教程｜建议收藏', '完整攻略｜新手必看'],
+      emotional: ['真实感受｜想和你分享', '我的经历｜真心话', '内心独白｜值得思考']
+    };
+
+    const styleDefaults = defaultTitles[style as keyof typeof defaultTitles] || defaultTitles.engaging;
+    return styleDefaults[Math.floor(Math.random() * styleDefaults.length)];
+  };
+
+  // 生成标题的函数 - 重构为基于关键词的简单策略
   const generateTitles = async () => {
     const sourceContent = getContentForTitleGeneration();
-    
+
     if (!sourceContent || sourceContent.trim().length < 10) {
       toast({
         title: "内容太短",
@@ -178,27 +317,37 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     }
 
     setIsGenerating(true);
-    
+
     try {
-      // 模拟AI生成标题
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      console.log('🚀 开始生成标题，基于关键词策略');
+
+      // 提取核心关键词
+      const keywords = extractCoreKeywordsFromVersions();
+
+      if (keywords.length === 0) {
+        console.warn('⚠️ 未提取到关键词，使用默认策略');
+      }
+
+      // 模拟生成时间
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      // 生成三种风格的标题
       const mockTitles: GeneratedTitle[] = [
         {
           id: '1',
-          title: generateMockTitle(sourceContent, platformId, 'engaging'),
+          title: generateSimpleTitle(keywords, 'engaging'),
           length: 0,
           style: 'engaging'
         },
         {
           id: '2',
-          title: generateMockTitle(sourceContent, platformId, 'informative'),
+          title: generateSimpleTitle(keywords, 'informative'),
           length: 0,
           style: 'informative'
         },
         {
           id: '3',
-          title: generateMockTitle(sourceContent, platformId, 'emotional'),
+          title: generateSimpleTitle(keywords, 'emotional'),
           length: 0,
           style: 'emotional'
         }
@@ -211,6 +360,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         };
       });
 
+      console.log('✅ 标题生成完成:', mockTitles.map(t => ({ style: t.style, title: t.title })));
+
       setTitles(mockTitles);
       if (mockTitles.length > 0) {
         setSelectedTitle(mockTitles[0].title);
@@ -219,12 +370,13 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
       toast({
         title: "标题生成成功",
-        description: `基于实际生成内容为${platformName || '当前平台'}生成了${mockTitles.length}个标题选项`,
+        description: `基于版本A/B内容提取关键词生成了${mockTitles.length}个标题选项`,
       });
     } catch (error) {
+      console.error('标题生成失败:', error);
       toast({
         title: "生成失败",
-        description: "标题生成失败，请重试",
+        description: "请稍后重试",
         variant: "destructive"
       });
     } finally {
