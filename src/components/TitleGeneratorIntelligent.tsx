@@ -3,17 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, RefreshCw, Copy } from "lucide-react";
+import { Sparkles, RefreshCw, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
 
-// Platform title length limits (按中文全角字符计算)
+// Platform title length limits (按中文全角字符计算) - V2优化版
 const PLATFORM_TITLE_LIMITS: { [key: string]: number } = {
-  'xiaohongshu': 20,    // 小红书
-  'wechat': 28,         // 公众号
-  'weibo': 25,          // 微博
-  'bilibili': 30,       // B站
-  'douyin': 18,         // 抖音
+  'xiaohongshu': 20,    // 小红书：20字以内
+  'wechat': 28,         // 公众号：28字以内
+  'weibo': 25,          // 微博：25字以内
+  'douyin': 18,         // 抖音：18字以内
+  'bilibili': 30,       // B站：30字以内
   'zhihu': 50,          // 知乎
   'default': 25
+};
+
+// 标题质量评估权重配置
+const QUALITY_WEIGHTS = {
+  semanticSimilarity: 0.4,    // 内容主旨相似度 40%
+  emotionalAttraction: 0.3,   // 情绪吸引力评分 30%
+  structuralDiversity: 0.2,   // 表达结构多样性 20%
+  characterUtilization: 0.1   // 字符利用率 10%
 };
 
 interface ContentVersion {
@@ -30,6 +38,9 @@ interface TitleGeneratorProps {
   platformId: string;
   platformName: string;
   onTitleChange?: (title: string) => void;
+  stylePreference?: TitleStyle[]; // 用户偏好的风格类型
+  outputCount?: number; // 输出标题数量
+  ensureDiversity?: boolean; // 确保多样性
 }
 
 interface GeneratedTitle {
@@ -42,6 +53,12 @@ interface GeneratedTitle {
   platform: string;
   isComplete: boolean; // 表达完整性
   styleDescription: string;
+  emotionalScore: number; // 情绪吸引力评分
+  diversityScore: number; // 结构多样性评分
+  utilizationScore: number; // 字符利用率评分
+  overallScore: number; // 综合评分
+  generationReason: string; // 生成理由
+  extractedContent: string; // 提取的内容片段
 }
 
 interface ContentAnalysis {
@@ -71,47 +88,51 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   versions = [],
   platformId,
   platformName,
-  onTitleChange
+  onTitleChange,
+  stylePreference = [],
+  outputCount = 5,
+  ensureDiversity = true
 }) => {
   const [titles, setTitles] = useState<GeneratedTitle[]>([]);
   const [selectedTitle, setSelectedTitle] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [titleFeedback, setTitleFeedback] = useState<Record<string, 'like' | 'dislike'>>({});
   const { toast } = useToast();
 
   const titleLimit = PLATFORM_TITLE_LIMITS[platformId] || 25;
   const minTitleLength = Math.max(8, Math.floor(titleLimit * 0.7)); // 最短不少于8字，建议≥平台限制的70%
 
-  // 标题风格配置
+  // 标题风格配置 - V2优化版（符合新Prompt规范）
   const titleStyles: Record<TitleStyle, TitleStyleConfig> = {
     'result-oriented': {
-      name: '结果导向型',
-      description: '强调效果和结果',
+      name: '🎯 结果导向型',
+      description: '强调效果和结果，具备钩子效应',
       minLength: 10,
-      patterns: ['用{tool}后{result}', '{action}让我{result}', '{tool}帮我{achievement}']
+      patterns: ['我用{tool}后{result}，真的惊到我了', '{tool}让我{result}', '用{tool}{result}，效果超预期']
     },
     'question-guided': {
-      name: '提问引导型',
-      description: '通过问题引发思考',
+      name: '🤔 提问引导型',
+      description: '通过问题引发思考，激发点击欲望',
       minLength: 8,
-      patterns: ['为什么{reason}', '如何{action}', '{tool}真的{effect}吗']
+      patterns: ['为什么大家都在用{tool}', '{tool}真的{effect}吗', '如何用{tool}{action}']
     },
     'professional': {
-      name: '专业理性型',
-      description: '客观专业的表达',
+      name: '📘 专业理性型',
+      description: '客观专业的表达，信息密度高',
       minLength: 10,
-      patterns: ['{tool}功能解析', '{topic}对比评测', '{field}实用指南']
+      patterns: ['{tool}功能深度解析', '{topic}优劣对比', '{field}实用指南']
     },
     'experience-based': {
-      name: '经验总结型',
-      description: '个人体验和总结',
+      name: '💡 经验总结型',
+      description: '个人体验和总结，实用性强',
       minLength: 9,
-      patterns: ['我的{tool}使用心得', '{tool}实测体验', '用{tool}的感受']
+      patterns: ['我的{tool}{number}大技巧', '{tool}实测心得', '用{tool}的{number}个感受']
     },
     'emotional-trigger': {
-      name: '情绪激发型',
-      description: '激发情感共鸣',
+      name: '📣 情绪钩子型',
+      description: '激发情感共鸣，强吸引力',
       minLength: 8,
-      patterns: ['{feeling}！{tool}{effect}', '{tool}{surprise}', '没想到{tool}{result}']
+      patterns: ['太好用了！{tool}简直救命', '{tool}让我惊艳了', '没想到{tool}这么强']
     }
   };
 
@@ -361,8 +382,12 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // 确保标题符合平台限制和质量要求
     title = ensureTitleQuality(title, style);
 
-    // 计算语义贴合度
-    const semanticFit = calculateTitleSemanticFit(title, analysis);
+    // 计算综合评分
+    const scores = calculateTitleScores(title, analysis);
+
+    // 生成理由和提取内容
+    const generationReason = `基于${primaryElement}的${tone}内容，采用${styleDescription}风格生成`;
+    const extractedContent = coreMessage.substring(0, 50) + (coreMessage.length > 50 ? '...' : '');
 
     const generatedTitle: GeneratedTitle = {
       id: `${style}-${Date.now()}`,
@@ -370,33 +395,39 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       length: title.length,
       style,
       confidence: semanticSimilarity,
-      semanticFit,
+      semanticFit: scores.semanticFit,
       platform: platformId,
       isComplete: isCompleteTitle(title),
-      styleDescription
+      styleDescription,
+      emotionalScore: scores.emotionalScore,
+      diversityScore: scores.diversityScore,
+      utilizationScore: scores.utilizationScore,
+      overallScore: scores.overallScore,
+      generationReason,
+      extractedContent
     };
 
     console.log(`✅ 生成${styleDescription}标题:`, generatedTitle);
     return generatedTitle;
   };
 
-  // 🎯 结果导向型标题生成
+  // 🎯 结果导向型标题生成 - V2优化版
   const generateResultOrientedTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
     const { valueProposition, entities } = analysis;
 
     const patterns = [
-      `用${primary}后效率提升3倍`,
-      `${primary}让我工作轻松了`,
-      `${primary}帮我解决了大问题`,
-      `${primary}使用效果超预期`,
-      `${primary}真的改变了我`,
-      `${primary}让工作变简单`,
-      `${primary}效果立竿见影`
+      `我用${primary}后涨粉3倍，真的惊到我了`,
+      `${primary}让我效率翻倍，太香了`,
+      `用${primary}后工作轻松了一半`,
+      `${primary}帮我解决了大难题`,
+      `${primary}使用效果超出预期`,
+      `${primary}真的改变了我的工作`,
+      `${primary}效果立竿见影，推荐`
     ];
 
-    // 如果有具体的价值主张，优先使用
+    // 如果有具体的价值主张，优先使用钩子型表达
     if (valueProposition && valueProposition !== '提升效率') {
-      return `${primary}让我${valueProposition}`;
+      return `我用${primary}后${valueProposition}，真的很棒`;
     }
 
     return patterns[Math.floor(Math.random() * patterns.length)];
@@ -449,16 +480,16 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return patterns[Math.floor(Math.random() * patterns.length)];
   };
 
-  // 📣 情绪激发型标题生成
+  // 📣 情绪钩子型标题生成 - V2优化版
   const generateEmotionalTriggerTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
     const patterns = [
-      `太好用了！${primary}真香`,
-      `${primary}让我惊艳了`,
-      `没想到${primary}这么强`,
-      `${primary}真的太棒了`,
-      `${primary}超出我的预期`,
-      `${primary}让我相见恨晚`,
-      `${primary}真是神器啊`
+      `太好用了！${primary}简直救命`,
+      `${primary}让我惊艳了，必须安利`,
+      `没想到${primary}这么强大`,
+      `${primary}真的太棒了，爱了`,
+      `${primary}超出我的预期太多`,
+      `${primary}让我相见恨晚啊`,
+      `${primary}真是神器，推荐给大家`
     ];
 
     return patterns[Math.floor(Math.random() * patterns.length)];
@@ -569,31 +600,85 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return title;
   };
 
-  // 计算标题语义贴合度
-  const calculateTitleSemanticFit = (title: string, analysis: ContentAnalysis): number => {
+  // 计算标题综合评分 - V2优化版（按权重配置）
+  const calculateTitleScores = (title: string, analysis: ContentAnalysis, existingTitles: GeneratedTitle[] = []) => {
     const { entities, mainTopic, coreMessage } = analysis;
 
-    let fitScore = 0.5; // 基础分
-
-    // 检查是否包含核心实体
+    // 1. 内容主旨相似度 (40%)
+    let semanticScore = 0.5;
     entities.forEach(entity => {
-      if (title.includes(entity)) {
-        fitScore += 0.2;
-      }
+      if (title.includes(entity)) semanticScore += 0.2;
     });
-
-    // 检查是否包含主题词
-    if (title.includes(mainTopic)) {
-      fitScore += 0.15;
-    }
-
-    // 检查与核心信息的相关性
+    if (title.includes(mainTopic)) semanticScore += 0.15;
     const titleWords = title.split('');
     const coreWords = coreMessage.split('');
     const commonWords = titleWords.filter(word => coreWords.includes(word));
-    fitScore += (commonWords.length / Math.max(titleWords.length, 1)) * 0.15;
+    semanticScore += (commonWords.length / Math.max(titleWords.length, 1)) * 0.15;
+    semanticScore = Math.min(0.95, semanticScore);
 
-    return Math.min(0.95, fitScore);
+    // 2. 情绪吸引力评分 (30%)
+    const emotionalKeywords = ['惊到', '太好用', '救命', '惊艳', '没想到', '真的', '超出预期', '相见恨晚'];
+    const questionWords = ['为什么', '如何', '真的吗', '怎么样'];
+    const resultWords = ['后', '让我', '帮我', '效果', '提升', '翻倍'];
+
+    let emotionalScore = 0.3;
+    if (emotionalKeywords.some(word => title.includes(word))) emotionalScore += 0.4;
+    if (questionWords.some(word => title.includes(word))) emotionalScore += 0.2;
+    if (resultWords.some(word => title.includes(word))) emotionalScore += 0.1;
+    emotionalScore = Math.min(0.95, emotionalScore);
+
+    // 3. 表达结构多样性 (20%)
+    let diversityScore = 0.8;
+    existingTitles.forEach(existing => {
+      const similarity = calculateStructuralSimilarity(title, existing.title);
+      if (similarity > 0.7) diversityScore -= 0.2;
+    });
+    diversityScore = Math.max(0.1, diversityScore);
+
+    // 4. 字符利用率 (10%)
+    const utilizationScore = Math.min(0.95, title.length / titleLimit);
+
+    // 综合评分
+    const overallScore =
+      semanticScore * QUALITY_WEIGHTS.semanticSimilarity +
+      emotionalScore * QUALITY_WEIGHTS.emotionalAttraction +
+      diversityScore * QUALITY_WEIGHTS.structuralDiversity +
+      utilizationScore * QUALITY_WEIGHTS.characterUtilization;
+
+    return {
+      semanticFit: semanticScore,
+      emotionalScore,
+      diversityScore,
+      utilizationScore,
+      overallScore
+    };
+  };
+
+  // 计算结构相似度
+  const calculateStructuralSimilarity = (title1: string, title2: string): number => {
+    const patterns1 = extractStructuralPatterns(title1);
+    const patterns2 = extractStructuralPatterns(title2);
+
+    let matchCount = 0;
+    patterns1.forEach(pattern => {
+      if (patterns2.includes(pattern)) matchCount++;
+    });
+
+    return matchCount / Math.max(patterns1.length, patterns2.length, 1);
+  };
+
+  // 提取结构模式
+  const extractStructuralPatterns = (title: string): string[] => {
+    const patterns: string[] = [];
+
+    if (title.includes('我用') && title.includes('后')) patterns.push('我用X后Y');
+    if (title.includes('为什么')) patterns.push('为什么X');
+    if (title.includes('如何')) patterns.push('如何X');
+    if (title.includes('太好用了')) patterns.push('太好用了X');
+    if (title.includes('让我')) patterns.push('X让我Y');
+    if (title.includes('真的')) patterns.push('X真的Y');
+
+    return patterns;
   };
 
   // Main title generation function
@@ -620,36 +705,49 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       // Analyze content semantically
       const analysis = analyzeContent(sourceContent);
       
-      // 基于分析生成多样化风格的标题
+      // 基于分析生成多样化风格的标题 - V2优化版
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      const titleStyles: TitleStyle[] = ['result-oriented', 'question-guided', 'professional', 'experience-based', 'emotional-trigger'];
+      const allStyles: TitleStyle[] = ['result-oriented', 'question-guided', 'professional', 'experience-based', 'emotional-trigger'];
+      const targetStyles = stylePreference.length > 0 ? stylePreference : allStyles;
       const newTitles: GeneratedTitle[] = [];
 
-      // 生成3-5个不同风格的标题
-      for (let i = 0; i < Math.min(5, titleStyles.length); i++) {
-        const style = titleStyles[i];
+      // 确保至少包含3种风格
+      const stylesToGenerate = ensureDiversity ?
+        [...new Set([...targetStyles, ...allStyles])].slice(0, Math.max(3, outputCount)) :
+        targetStyles.slice(0, outputCount);
+
+      // 生成指定数量的不同风格标题
+      for (const style of stylesToGenerate) {
         const generatedTitle = generateNaturalTitle(analysis, style);
 
-        // 质量检查：语义贴合度必须≥70%
+        // 重新计算评分（考虑已有标题的多样性）
+        const updatedScores = calculateTitleScores(generatedTitle.title, analysis, newTitles);
+        generatedTitle.diversityScore = updatedScores.diversityScore;
+        generatedTitle.overallScore = updatedScores.overallScore;
+
+        // 质量检查：语义贴合度≥70% 且表达完整
         if (generatedTitle.semanticFit >= 0.7 && generatedTitle.isComplete) {
           newTitles.push(generatedTitle);
         }
       }
 
-      // 如果生成的标题不足3个，补充生成
-      while (newTitles.length < 3) {
-        const randomStyle = titleStyles[Math.floor(Math.random() * titleStyles.length)];
+      // 如果生成的标题不足最小要求，补充生成
+      while (newTitles.length < Math.min(3, outputCount)) {
+        const randomStyle = allStyles[Math.floor(Math.random() * allStyles.length)];
         const generatedTitle = generateNaturalTitle(analysis, randomStyle);
 
         // 避免重复标题
         if (!newTitles.some(t => t.title === generatedTitle.title)) {
+          const updatedScores = calculateTitleScores(generatedTitle.title, analysis, newTitles);
+          generatedTitle.diversityScore = updatedScores.diversityScore;
+          generatedTitle.overallScore = updatedScores.overallScore;
           newTitles.push(generatedTitle);
         }
       }
 
-      // 按语义贴合度排序
-      newTitles.sort((a, b) => b.semanticFit - a.semanticFit);
+      // 按综合评分排序（考虑所有维度）
+      newTitles.sort((a, b) => b.overallScore - a.overallScore);
 
       console.log('✅ All titles generated:', newTitles.map(t => t.title));
 
@@ -661,7 +759,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
       toast({
         title: "智能标题生成完成",
-        description: `基于语义分析生成了${newTitles.length}个高质量标题（语义贴合度≥70%）`,
+        description: `基于V2算法生成了${newTitles.length}个高质量标题（综合评分排序，语义贴合度≥70%）`,
       });
     } catch (error) {
       console.error('Title generation failed:', error);
@@ -687,6 +785,25 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     toast({
       title: "已复制",
       description: "标题已复制到剪贴板",
+    });
+  };
+
+  // Handle title feedback
+  const handleTitleFeedback = (titleId: string, feedback: 'like' | 'dislike') => {
+    setTitleFeedback(prev => ({
+      ...prev,
+      [titleId]: feedback
+    }));
+
+    console.log(`📊 标题反馈收集:`, {
+      titleId,
+      feedback,
+      title: titles.find(t => t.id === titleId)?.title
+    });
+
+    toast({
+      title: feedback === 'like' ? "感谢反馈" : "已记录反馈",
+      description: feedback === 'like' ? "我们会继续优化标题质量" : "我们会改进这类标题的生成",
     });
   };
 
@@ -764,11 +881,14 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                         {title.length}/{titleLimit} 字符
                       </span>
                       <span className="text-xs text-gray-400">
-                        语义贴合: {Math.round(title.semanticFit * 100)}%
+                        综合评分: {Math.round(title.overallScore * 100)}%
                       </span>
                       <Badge variant="outline" className="text-xs">
                         {title.styleDescription}
                       </Badge>
+                      <span className="text-xs text-gray-400" title={`语义贴合:${Math.round(title.semanticFit * 100)}% | 情绪吸引:${Math.round(title.emotionalScore * 100)}% | 结构多样:${Math.round(title.diversityScore * 100)}% | 字符利用:${Math.round(title.utilizationScore * 100)}%`}>
+                        详细评分
+                      </span>
                       {title.isComplete && (
                         <Badge variant="secondary" className="text-xs">
                           表达完整
@@ -780,20 +900,55 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                         </Badge>
                       )}
                     </div>
+
+                    {/* 生成理由和内容片段（鼠标悬停显示） */}
+                    <div className="text-xs text-gray-400 mt-1" title={`生成理由: ${title.generationReason}\n提取内容: ${title.extractedContent}`}>
+                      基于: {title.extractedContent}
+                    </div>
                   </div>
 
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyTitle(title.title);
-                    }}
-                    className="h-7 w-7 p-0"
-                    title="复制标题"
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {/* 反馈按钮 */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTitleFeedback(title.id, 'like');
+                      }}
+                      className={`h-7 w-7 p-0 ${titleFeedback[title.id] === 'like' ? 'text-green-600 bg-green-50' : ''}`}
+                      title="👍 这个标题很好"
+                    >
+                      <ThumbsUp className="h-3 w-3" />
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTitleFeedback(title.id, 'dislike');
+                      }}
+                      className={`h-7 w-7 p-0 ${titleFeedback[title.id] === 'dislike' ? 'text-red-600 bg-red-50' : ''}`}
+                      title="👎 这个标题需要改进"
+                    >
+                      <ThumbsDown className="h-3 w-3" />
+                    </Button>
+
+                    {/* 复制按钮 */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyTitle(title.title);
+                      }}
+                      className="h-7 w-7 p-0"
+                      title="复制标题"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
