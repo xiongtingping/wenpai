@@ -219,7 +219,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
       toast({
         title: "标题生成成功",
-        description: `基于实际生成内容为${platformName}生成了${mockTitles.length}个标题选项`,
+        description: `基于实际生成内容为${platformName || '当前平台'}生成了${mockTitles.length}个标题选项`,
       });
     } catch (error) {
       toast({

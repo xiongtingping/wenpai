@@ -147,7 +147,7 @@ const platformUrls: Record<string, string> = {
 // Helper function to get platform name consistently
 function getPlatformName(platformId: string, platforms: any[]): string {
   const platform = platforms.find(p => p.id === platformId);
-  return platform?.name || platformId;
+  return platform?.name || platformId || '未知平台';
 }
 
 // Helper function to get platform recommended character count
