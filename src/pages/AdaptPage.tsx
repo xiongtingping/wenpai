@@ -4432,6 +4432,7 @@ ${dimensions.join('\n\n')}
                           <div className="p-6">
                             <TitleGenerator
                               content={result.content || (result.versions && result.versions[0]?.content) || ''}
+                              versions={result.versions || []}
                               platformId={result.platformId}
                               platformName={getPlatformName(result.platformId, platforms)}
                               onTitleChange={(title) => {

@@ -13,8 +13,17 @@ import {
   Sparkles 
 } from "lucide-react";
 
+interface ContentVersion {
+  id: string;
+  content: string;
+  style: 'standard' | 'creative';
+  title: string;
+  charCount: number;
+}
+
 interface TitleGeneratorProps {
   content: string;
+  versions?: ContentVersion[]; // 新增：版本A和版本B的内容
   platformId: string;
   platformName: string;
   onTitleChange?: (title: string) => void;
@@ -25,6 +34,8 @@ interface GeneratedTitle {
   title: string;
   length: number;
   style: string;
+  relevanceScore?: number; // 新增：相关度评分 (0-1)
+  sourceInfo?: string; // 新增：来源信息
 }
 
 // 平台标题字符限制
@@ -45,6 +56,7 @@ const PLATFORM_TITLE_LIMITS: Record<string, number> = {
 
 export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   content,
+  versions = [],
   platformId,
   platformName,
   onTitleChange
@@ -59,9 +71,118 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
   const titleLimit = PLATFORM_TITLE_LIMITS[platformId] || 50;
 
-  // 生成标题的模拟函数
+  // 计算标题与内容的相关度
+  const calculateTitleRelevance = (title: string, content: string): number => {
+    if (!title || !content) return 0;
+
+    let score = 0;
+    let maxScore = 0;
+
+    // 1. 关键词匹配 (权重: 0.4)
+    const titleWords = title.match(/[\u4e00-\u9fa5a-zA-Z0-9]+/g) || [];
+    const contentWords = content.match(/[\u4e00-\u9fa5a-zA-Z0-9]+/g) || [];
+
+    if (titleWords.length > 0 && contentWords.length > 0) {
+      const matchingWords = titleWords.filter(word =>
+        word.length >= 2 && contentWords.some(cWord => cWord.includes(word) || word.includes(cWord))
+      );
+      score += (matchingWords.length / titleWords.length) * 0.4;
+    }
+    maxScore += 0.4;
+
+    // 2. 主题一致性 (权重: 0.3)
+    const titleThemes = extractThemeWords(title);
+    const contentThemes = extractThemeWords(content);
+
+    if (titleThemes.length > 0 && contentThemes.length > 0) {
+      const themeMatches = titleThemes.filter(theme =>
+        contentThemes.some(cTheme => cTheme.includes(theme) || theme.includes(cTheme))
+      );
+      score += (themeMatches.length / titleThemes.length) * 0.3;
+    }
+    maxScore += 0.3;
+
+    // 3. 情感词匹配 (权重: 0.2)
+    const titleEmotions = extractEmotionWords(title);
+    const contentEmotions = extractEmotionWords(content);
+
+    if (titleEmotions.length > 0) {
+      const emotionMatches = titleEmotions.filter(emotion =>
+        contentEmotions.includes(emotion)
+      );
+      score += (emotionMatches.length / titleEmotions.length) * 0.2;
+    }
+    maxScore += 0.2;
+
+    // 4. 数字信息匹配 (权重: 0.1)
+    const titleNumbers = title.match(/\d+/g) || [];
+    const contentNumbers = content.match(/\d+/g) || [];
+
+    if (titleNumbers.length > 0) {
+      const numberMatches = titleNumbers.filter(num => contentNumbers.includes(num));
+      score += (numberMatches.length / titleNumbers.length) * 0.1;
+    }
+    maxScore += 0.1;
+
+    return maxScore > 0 ? Math.min(score / maxScore, 1) : 0;
+  };
+
+  // 提取主题词
+  const extractThemeWords = (text: string): string[] => {
+    const themePatterns = [
+      /[\u4e00-\u9fa5]{2,6}(方法|技巧|攻略|指南|教程)/g,
+      /[\u4e00-\u9fa5]{2,6}(测评|评测|体验|使用)/g,
+      /[\u4e00-\u9fa5]{2,6}(分享|推荐|安利)/g,
+      /[\u4e00-\u9fa5]{2,6}(问题|困扰|疑问)/g
+    ];
+
+    const themes: string[] = [];
+    themePatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      themes.push(...matches);
+    });
+
+    return [...new Set(themes)];
+  };
+
+  // 提取情感词
+  const extractEmotionWords = (text: string): string[] => {
+    const emotionWords = [
+      '震惊', '惊艳', '爱了', '绝了', '太棒', '完美', '神奇',
+      '感动', '治愈', '温暖', '开心', '兴奋', '满意', '不错',
+      '超级', '非常', '特别', '真的', '确实', '居然', '竟然'
+    ];
+
+    return emotionWords.filter(word => text.includes(word));
+  };
+
+  // 获取用于标题生成的内容源
+  const getContentForTitleGeneration = (): string => {
+    // 优先使用版本A和版本B的内容
+    if (versions && versions.length > 0) {
+      // 合并版本A和版本B的内容，用于更全面的标题生成
+      const combinedContent = versions.map(v => v.content).join('\n\n');
+      console.log('🎯 使用版本内容生成标题:', {
+        versionsCount: versions.length,
+        combinedLength: combinedContent.length,
+        preview: combinedContent.substring(0, 100) + '...'
+      });
+      return combinedContent;
+    }
+
+    // 回退到原始内容
+    console.log('⚠️ 回退到原始内容生成标题:', {
+      contentLength: content.length,
+      preview: content.substring(0, 100) + '...'
+    });
+    return content;
+  };
+
+  // 生成标题的函数
   const generateTitles = async () => {
-    if (!content || content.trim().length < 10) {
+    const sourceContent = getContentForTitleGeneration();
+
+    if (!sourceContent || sourceContent.trim().length < 10) {
       toast({
         title: "内容太短",
         description: "请提供更多内容以生成标题",
@@ -71,34 +192,41 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     }
 
     setIsGenerating(true);
-    
+
     try {
       // 模拟AI生成标题
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       const mockTitles: GeneratedTitle[] = [
         {
           id: '1',
-          title: generateMockTitle(content, platformId, 'engaging'),
+          title: generateMockTitle(sourceContent, platformId, 'engaging'),
           length: 0,
-          style: '吸引眼球'
+          style: '吸引眼球',
+          sourceInfo: versions.length > 0 ? '基于版本A/B内容' : '基于原始内容'
         },
         {
-          id: '2', 
-          title: generateMockTitle(content, platformId, 'informative'),
+          id: '2',
+          title: generateMockTitle(sourceContent, platformId, 'informative'),
           length: 0,
-          style: '信息丰富'
+          style: '信息丰富',
+          sourceInfo: versions.length > 0 ? '基于版本A/B内容' : '基于原始内容'
         },
         {
           id: '3',
-          title: generateMockTitle(content, platformId, 'emotional'),
+          title: generateMockTitle(sourceContent, platformId, 'emotional'),
           length: 0,
-          style: '情感共鸣'
+          style: '情感共鸣',
+          sourceInfo: versions.length > 0 ? '基于版本A/B内容' : '基于原始内容'
         }
-      ].map(title => ({
-        ...title,
-        length: title.title.length
-      }));
+      ].map(title => {
+        const relevanceScore = calculateTitleRelevance(title.title, sourceContent);
+        return {
+          ...title,
+          length: title.title.length,
+          relevanceScore
+        };
+      });
 
       setTitles(mockTitles);
       if (mockTitles.length > 0) {
@@ -108,7 +236,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
       toast({
         title: "标题生成成功",
-        description: `为${platformName}生成了${mockTitles.length}个标题选项`,
+        description: `基于实际生成内容为${platformName}生成了${mockTitles.length}个标题选项`,
       });
     } catch (error) {
       toast({
@@ -1665,14 +1793,31 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     }
   };
 
-  // 初始生成标题 - 修复：只在内容变化且未初始化时生成，避免切换平台时重复生成
+  // 初始生成标题 - 基于版本内容或原始内容
   useEffect(() => {
-    if (content && content.trim().length >= 10 && !hasInitialized) {
-      console.log('🎯 初始化标题生成 - 内容长度:', content.length);
+    const sourceContent = getContentForTitleGeneration();
+
+    if (sourceContent && sourceContent.trim().length >= 10 && !hasInitialized) {
+      console.log('🎯 初始化标题生成:', {
+        hasVersions: versions.length > 0,
+        sourceLength: sourceContent.length,
+        versionsInfo: versions.map(v => ({ id: v.id, style: v.style, length: v.content.length }))
+      });
       generateTitles();
       setHasInitialized(true);
     }
-  }, [content, hasInitialized]); // 只依赖content和初始化状态
+  }, [content, versions, hasInitialized]); // 依赖content、versions和初始化状态
+
+  // 当版本内容更新时，重新生成标题
+  useEffect(() => {
+    if (hasInitialized && versions.length > 0) {
+      const sourceContent = getContentForTitleGeneration();
+      if (sourceContent && sourceContent.trim().length >= 10) {
+        console.log('🔄 版本内容更新，重新生成标题');
+        generateTitles();
+      }
+    }
+  }, [versions]); // 只依赖versions变化
 
   return (
     <Card className="mb-4">
@@ -1684,6 +1829,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             <Badge variant="outline" className="text-xs">
               {platformName} (限{titleLimit}字)
             </Badge>
+            {versions.length > 0 && (
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                基于版本A/B内容
+              </Badge>
+            )}
           </CardTitle>
           <Button
             size="sm"
@@ -1771,15 +1921,26 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{title.title}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {title.style}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <Badge variant="outline" className="text-xs">
+                        {title.style}
+                      </Badge>
+                      {title.relevanceScore !== undefined && (
+                        <Badge
+                          variant={title.relevanceScore >= 0.7 ? "default" : title.relevanceScore >= 0.5 ? "secondary" : "outline"}
+                          className="text-xs"
+                        >
+                          匹配度 {Math.round(title.relevanceScore * 100)}%
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <span className="text-xs text-gray-500">
                       {title.length}/{titleLimit} 字符
+                      {title.sourceInfo && ` • ${title.sourceInfo}`}
                     </span>
-                    <Badge 
+                    <Badge
                       variant={title.length > titleLimit ? "destructive" : "secondary"}
                       className="text-xs"
                     >
@@ -1809,6 +1970,39 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             <Button size="sm" variant="outline" onClick={generateTitles} className="mt-2">
               开始生成标题
             </Button>
+          </div>
+        )}
+
+        {/* 内容参考区域 */}
+        {titles.length > 0 && versions.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-medium text-gray-600">📝 标题生成依据</span>
+              <Badge variant="outline" className="text-xs">
+                基于版本A/B内容
+              </Badge>
+            </div>
+            <div className="space-y-2">
+              {versions.map((version, index) => (
+                <div key={version.id} className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-medium text-gray-700">
+                      {version.title} ({version.style === 'standard' ? '标准风格' : '创意风格'})
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {version.content.length} 字符
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600 line-clamp-2">
+                    {version.content.substring(0, 120)}
+                    {version.content.length > 120 ? '...' : ''}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              💡 标题基于上述实际生成内容的关键词、主题和情感进行智能生成，确保标题与内容高度匹配
+            </p>
           </div>
         )}
       </CardContent>
