@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * 登录测试页面
@@ -130,7 +131,7 @@ export const TestLoginPage: React.FC = () => {
             <h2 className="text-lg font-semibold text-blue-900 mb-2">当前状态</h2>
             <div className="space-y-1 text-sm">
               <p><strong>认证状态:</strong> {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}</p>
-              <p><strong>用户信息:</strong> {user ? `${user.nickname || user.username || '用户'}` : '无'}</p>
+              <p><strong>用户信息:</strong> {user ? getUserDisplayName(user, '用户') : '无'}</p>
             </div>
           </div>
 

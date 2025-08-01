@@ -17,7 +17,9 @@ import App from './App.tsx';
 if (import.meta.env.DEV) {
   // 启用控制台警告过滤器，过滤已知无害警告
   import('./utils/consoleWarningFilter');
-  console.log('🔧 开发环境已启动，调试脚本已禁用以确保登录流程正常');
+  // 🔧 undefined拼接检测器已禁用，避免干扰正常运行
+  // import('./utils/emergencyUndefinedDetector');
+  console.log('🔧 开发环境已启动，undefined拼接问题已修复');
 }
 
 // ✅ FIXED: 2025-07-25 React Router Future Flag配置已封装

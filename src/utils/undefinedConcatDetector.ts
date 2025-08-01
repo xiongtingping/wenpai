@@ -126,11 +126,37 @@ export function safeTemplate(template: string, values: Record<string, any>): str
   return result;
 }
 
-// 🎯 FIXED: 禁用全局字符串监控以避免干扰登录流程
-// 全局字符串拦截会干扰 Authing Guard 的正常工作，导致异常弹窗
-// 如需调试，请手动调用 checkUndefinedConcat() 函数
+// 🚨 临时启用全局监控来定位 undefinedundefined 问题
 if (import.meta.env.DEV) {
-  console.log('🔍 undefined拼接检测器已加载（全局监控已禁用）');
+  console.log('🔍 undefined拼接检测器已加载（临时启用全局监控）');
+
+  // 监控所有字符串操作
+  const originalToString = Object.prototype.toString;
+  Object.prototype.toString = function() {
+    const result = originalToString.call(this);
+    if (typeof this === 'string' && this.includes('undefinedundefined')) {
+      console.group('🚨 检测到 undefinedundefined');
+      console.warn('字符串值:', this);
+      console.trace('调用栈:');
+      console.groupEnd();
+    }
+    return result;
+  };
+
+  // 监控模板字符串
+  const originalStringConcat = String.prototype.concat;
+  String.prototype.concat = function(...args) {
+    const result = originalStringConcat.apply(this, args);
+    if (result.includes('undefinedundefined')) {
+      console.group('🚨 String.concat 检测到 undefinedundefined');
+      console.warn('原始字符串:', this);
+      console.warn('拼接参数:', args);
+      console.warn('结果:', result);
+      console.trace('调用栈:');
+      console.groupEnd();
+    }
+    return result;
+  };
 }
 
 export default UndefinedConcatMonitor;
