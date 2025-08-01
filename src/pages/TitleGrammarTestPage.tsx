@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TitleGeneratorFixed } from '@/components/TitleGeneratorFixed';
+import TitleGenerator from '@/components/TitleGeneratorFixed';
 
 const TitleGrammarTestPage: React.FC = () => {
   const [testResults, setTestResults] = useState<Array<{
@@ -167,7 +167,7 @@ const TitleGrammarTestPage: React.FC = () => {
           <CardTitle>实际组件测试</CardTitle>
         </CardHeader>
         <CardContent>
-          <TitleGeneratorFixed
+          <TitleGenerator
             content="这里有5个发现宝藏AI工具，真的很好用！包括ChatGPT、Claude等强大的AI工具。还有3种新软件推荐，都是很棒的开发工具。"
             platformId="xiaohongshu"
             versions={[
