@@ -127,15 +127,15 @@ export class HashtagGenerator {
   ]);
 
   /**
-   * 生成多维度话题标签建议 - 基于实际内容的精准分析
+   * 生成多维度话题标签建议 - 完全基于实际内容的精准分析
    */
   async generateHashtags(content: string, options: HashtagGeneratorOptions = {}): Promise<HashtagSuggestion[]> {
     const {
       platformId = 'general',
       maxTags = 10,
-      includeBrands = true,
+      includeBrands = false, // 强制禁用品牌标签
       includeIndustry = true,
-      includePersona = true
+      includePersona = false // 强制禁用通用人设标签
     } = options;
 
     // 禁止使用缓存或默认标签，每次都基于实际内容生成
@@ -143,36 +143,215 @@ export class HashtagGenerator {
       return [];
     }
 
-    // 深度内容分析
-    const contentAnalysis = this.analyzeContentType(content);
+    console.log('🏷️ 开始分析内容生成标签:', content.substring(0, 50));
 
-    // 基于内容分析生成标签
-    const contextualTags = this.generateContextualTags(content, contentAnalysis, platformId);
+    // 1. 提取内容核心关键词
+    const coreKeywords = this.extractContentKeywords(content);
+    console.log('🔍 提取的核心关键词:', coreKeywords);
 
-    // 提取高频关键词作为标签
-    const keywordTags = this.generateKeywordTags(contentAnalysis.keywords, content);
+    // 2. 识别内容主题
+    const contentThemes = this.identifyContentThemes(content);
+    console.log('🎯 识别的内容主题:', contentThemes);
 
-    // 生成主题相关标签
-    const themeTags = this.generateThemeTags(contentAnalysis.themes, contentAnalysis.type);
+    // 3. 生成基于内容的标签
+    const contentBasedTags = this.generateContentBasedTags(coreKeywords, contentThemes, content);
+    console.log('🏷️ 生成的内容标签:', contentBasedTags);
 
-    // 生成风格标签
-    const styleTags = this.generateStyleTags(contentAnalysis.style, platformId);
+    // 4. 过滤和排序
+    const filteredTags = this.filterAndRankTags(contentBasedTags, content, maxTags);
+    console.log('✅ 最终标签:', filteredTags.map(t => t.tag));
 
-    // 合并所有标签
-    const allTags = [...contextualTags, ...keywordTags, ...themeTags, ...styleTags];
+    return filteredTags;
+  }
 
-    // 去重并按相关性排序
-    const uniqueTags = this.deduplicateAndRank(allTags, content);
+  /**
+   * 提取内容核心关键词 - 排除品牌词和无意义词汇
+   */
+  private extractContentKeywords(content: string): string[] {
+    // 品牌词和无意义词汇黑名单
+    const blacklist = [
+      '文派', 'AI', '内容', '创作者', '大家好', '但自从', '作为一名',
+      '系统', '平台', '工具', '软件', '应用', '技术', '智能',
+      '我们', '你们', '他们', '这个', '那个', '什么', '怎么',
+      '非常', '特别', '真的', '觉得', '应该', '可能', '需要',
+      '评测', '分享', '推荐', '教程', '技巧' // 添加通用词汇到黑名单
+    ];
 
-    // 限制标签数量
-    const finalTags = uniqueTags.slice(0, maxTags);
+    // 清理内容 - 移除所有特殊符号和emoji
+    const cleanContent = content
+      .replace(/[#@\*\[\]✔️❌⭐🔥💡📝🎯]/g, '') // 移除特殊符号和emoji
+      .replace(/[，。！？；：""''（）【】]/g, ' ') // 替换标点为空格
+      .replace(/[\u2600-\u27BF]|[\uE000-\uF8FF]|[\u2011-\u26FF]/g, '') // 移除emoji
+      .trim();
 
-    return finalTags.map(tag => ({
-      tag: tag.tag,
-      type: tag.type || 'contextual',
-      relevance: tag.relevance,
-      description: tag.description || `基于内容"${content.substring(0, 20)}..."生成`
-    }));
+    // 分词并过滤
+    const words = cleanContent
+      .split(/\s+/)
+      .filter(word => {
+        // 基础过滤
+        if (word.length < 2 || word.length > 8) return false;
+
+        // 排除黑名单词汇
+        if (blacklist.some(black => word.includes(black))) return false;
+
+        // 排除纯英文、纯数字
+        if (/^[a-zA-Z]+$/.test(word) || /^\d+$/.test(word)) return false;
+
+        // 排除常用词
+        if (this.commonWords.has(word)) return false;
+
+        // 排除包含特殊符号的词
+        if (/[✔️❌⭐🔥💡📝🎯#@\*\[\]]/.test(word)) return false;
+
+        // 只保留中文词汇
+        if (!/[\u4e00-\u9fa5]/.test(word)) return false;
+
+        return true;
+      });
+
+    // 统计词频并返回高频词
+    const wordCount: Record<string, number> = {};
+    words.forEach(word => {
+      wordCount[word] = (wordCount[word] || 0) + 1;
+    });
+
+    return Object.entries(wordCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 6) // 减少到6个关键词
+      .map(([word]) => word);
+  }
+
+  /**
+   * 识别内容主题 - 提取具体领域而非通用词汇
+   */
+  private identifyContentThemes(content: string): string[] {
+    const themes: string[] = [];
+
+    // 具体领域识别规则 - 避免通用词汇
+    const themePatterns = [
+      // 科技数码
+      { pattern: /手机|电脑|笔记本|iPad|iPhone|安卓|iOS|软件|APP/, theme: '数码科技' },
+      { pattern: /编程|代码|开发|前端|后端|Python|JavaScript/, theme: '编程开发' },
+
+      // 生活方式
+      { pattern: /美食|料理|烹饪|食谱|餐厅|小吃|甜品/, theme: '美食料理' },
+      { pattern: /旅行|旅游|景点|攻略|酒店|机票/, theme: '旅行攻略' },
+      { pattern: /时尚|穿搭|美妆|护肤|化妆品|服装/, theme: '时尚美妆' },
+      { pattern: /健身|运动|锻炼|减肥|瑜伽|跑步/, theme: '健身运动' },
+
+      // 学习成长
+      { pattern: /读书|阅读|书籍|小说|文学/, theme: '读书学习' },
+      { pattern: /工作|职场|效率|管理|创业|副业/, theme: '职场发展' },
+      { pattern: /投资|理财|股票|基金|保险/, theme: '投资理财' },
+
+      // 兴趣爱好
+      { pattern: /摄影|拍照|相机|修图|后期/, theme: '摄影技巧' },
+      { pattern: /音乐|歌曲|乐器|吉他|钢琴/, theme: '音乐艺术' },
+      { pattern: /游戏|电竞|手游|主机|Steam/, theme: '游戏娱乐' },
+
+      // 家居生活
+      { pattern: /装修|家居|收纳|清洁|家电/, theme: '家居生活' },
+      { pattern: /育儿|亲子|教育|孩子|宝宝/, theme: '育儿教育' },
+      { pattern: /宠物|猫|狗|养宠|宠物用品/, theme: '宠物生活' }
+    ];
+
+    themePatterns.forEach(({ pattern, theme }) => {
+      if (pattern.test(content)) {
+        themes.push(theme);
+      }
+    });
+
+    // 如果没有匹配到具体主题，尝试提取内容中的具体名词
+    if (themes.length === 0) {
+      const specificNouns = this.extractSpecificNouns(content);
+      themes.push(...specificNouns.slice(0, 2));
+    }
+
+    return themes.slice(0, 2); // 最多返回2个主题
+  }
+
+  /**
+   * 提取具体名词
+   */
+  private extractSpecificNouns(content: string): string[] {
+    // 常见的具体名词模式
+    const nounPatterns = [
+      /([一-龯]{2,4})(产品|品牌|公司|平台|网站|应用)/g,
+      /([一-龯]{2,6})(方案|策略|模式|系统)/g,
+      /([一-龯]{2,4})(行业|领域|市场)/g
+    ];
+
+    const nouns: string[] = [];
+    nounPatterns.forEach(pattern => {
+      const matches = content.match(pattern);
+      if (matches) {
+        matches.forEach(match => {
+          const noun = match.replace(/(产品|品牌|公司|平台|网站|应用|方案|策略|模式|系统|行业|领域|市场)/, '');
+          if (noun.length >= 2 && noun.length <= 6) {
+            nouns.push(noun);
+          }
+        });
+      }
+    });
+
+    return [...new Set(nouns)]; // 去重
+  }
+
+  /**
+   * 生成基于内容的标签
+   */
+  private generateContentBasedTags(keywords: string[], themes: string[], content: string): HashtagSuggestion[] {
+    const tags: HashtagSuggestion[] = [];
+
+    // 1. 基于关键词生成标签
+    keywords.forEach((keyword, index) => {
+      tags.push({
+        tag: keyword,
+        type: 'extracted',
+        relevance: 0.9 - (index * 0.1), // 按词频排序给分
+        description: `从内容中提取的关键词`
+      });
+    });
+
+    // 2. 基于主题生成标签
+    themes.forEach(theme => {
+      tags.push({
+        tag: theme,
+        type: 'recommended',
+        relevance: 0.8,
+        description: `基于内容类型识别的主题`
+      });
+    });
+
+    // 3. 生成组合标签（关键词+主题）
+    if (keywords.length > 0 && themes.length > 0) {
+      const mainKeyword = keywords[0];
+      const mainTheme = themes[0];
+      tags.push({
+        tag: `${mainKeyword}${mainTheme}`,
+        type: 'recommended',
+        relevance: 0.85,
+        description: `关键词与主题的组合标签`
+      });
+    }
+
+    return tags;
+  }
+
+  /**
+   * 过滤和排序标签
+   */
+  private filterAndRankTags(tags: HashtagSuggestion[], content: string, maxTags: number): HashtagSuggestion[] {
+    // 去重
+    const uniqueTags = tags.filter((tag, index, self) =>
+      self.findIndex(t => t.tag === tag.tag) === index
+    );
+
+    // 按相关性排序
+    const sortedTags = uniqueTags.sort((a, b) => b.relevance - a.relevance);
+
+    // 限制数量
+    return sortedTags.slice(0, maxTags);
   }
 
   /**
@@ -438,7 +617,7 @@ export class HashtagGenerator {
   }
 
   /**
-   * 生成多维度标签
+   * 生成多维度标签 - 移除话题标签，将其移动到智能标签生成中
    */
   private async generateMultiDimensionTags(
     content: string,
@@ -453,35 +632,57 @@ export class HashtagGenerator {
       tags.push(...industryTags);
     }
 
-    // 2. 话题标签
-    const topicTags = this.generateTopicTags(content);
-    tags.push(...topicTags);
-
-    // 3. 内容标签
+    // 2. 内容标签
     const contentTags = this.generateContentTags(content);
     tags.push(...contentTags);
 
-    // 4. 账号标签
+    // 3. 账号标签
     const accountTags = this.generateAccountTags(content, platformId);
     tags.push(...accountTags);
 
-    // 5. 人设标签
+    // 4. 人设标签
     if (options.includePersona) {
       const personaTags = this.generatePersonaTags(content);
       tags.push(...personaTags);
     }
 
-    // 6. 热点话题
+    // 5. 热点话题
     const trendingTags = await this.generateTrendingTags(platformId);
     tags.push(...trendingTags);
 
-    // 7. 品牌标签
+    // 6. 品牌标签
     if (options.includeBrands) {
       const brandTags = this.generateBrandTags(content);
       tags.push(...brandTags);
     }
 
     return tags;
+  }
+
+  /**
+   * 专门为智能标签生成提供话题标签功能
+   * 这个方法将被PlatformHashtags组件调用
+   */
+  async generateTopicTagsForSmartTagging(content: string, platformId: string = 'general'): Promise<HashtagSuggestion[]> {
+    if (!content || content.trim().length < 10) {
+      return [];
+    }
+
+    console.log('🏷️ 为智能标签生成话题标签:', content.substring(0, 50));
+
+    // 生成话题标签
+    const topicTags = this.generateTopicTags(content);
+
+    // 转换为HashtagSuggestion格式
+    const suggestions: HashtagSuggestion[] = topicTags.map(tag => ({
+      tag: tag.tag,
+      type: 'recommended' as const,
+      relevance: tag.relevance,
+      description: tag.description
+    }));
+
+    console.log('✅ 生成话题标签:', suggestions.map(s => s.tag));
+    return suggestions;
   }
 
   /**

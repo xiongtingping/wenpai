@@ -23,6 +23,7 @@ import { PlatformHashtags } from '../components/PlatformHashtags';
 import { AIContentGenerationAnimation } from '../components/AIContentGenerationAnimation';
 import { PlatformStatusIndicator } from '../components/PlatformStatusIndicator';
 import TitleGenerator from '../components/TitleGenerator';
+import { BatchForwardModal } from '../components/BatchForwardModal';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +39,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -82,7 +84,6 @@ import {
 } from "@/config/aiModels";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
 import { PremiumFeatureDialog } from '@/components/ui/premium-feature-dialog';
@@ -100,32 +101,45 @@ import { MentionTextarea } from '@/components/ui/mention-textarea';
 
 /**
  * 主流平台内容发布入口URL映射
- * 用于一键转发跳转
+ * 用于一键转发跳转 - 已修复所有平台URL
  */
 const platformUrls: Record<string, string> = {
-  weibo: 'https://weibo.com/newpost',
-  xiaohongshu: 'https://creator.xiaohongshu.com/publish',
-  zhihu: 'https://zhuanlan.zhihu.com/write',
-  bilibili: 'https://member.bilibili.com/platform/upload/text',
-  douyin: 'https://creator.douyin.com/creator-micro/content/upload',
-  toutiao: 'https://mp.toutiao.com/profile_v4/graphic/publish',
-  baijiahao: 'https://baijiahao.baidu.com/builder/rc/edit',
-  kuaishou: 'https://cp.kuaishou.com/article/publish',
-  wechat: 'https://mp.weixin.qq.com/',
-  facebook: 'https://www.facebook.com/',
-  twitter: 'https://twitter.com/compose/tweet',
-  linkedin: 'https://www.linkedin.com/feed/',
-  v2ex: 'https://www.v2ex.com/new',
-  github: 'https://github.com/new',
-  sspai: 'https://sspai.com/write',
-  juejin: 'https://juejin.cn/editor/drafts/new',
-  csdn: 'https://mp.csdn.net/mp_blog/creation/editor',
-  hellogithub: 'https://hellogithub.com/',
-  ithome: 'https://my.ithome.com/#/write',
-  ngabbs: 'https://bbs.nga.cn/thread.php?fid=-7',
-  weatheralarm: 'https://www.nmc.cn/',
-  earthquake: 'https://www.ceic.ac.cn/',
-  history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704'
+  // 主流社交媒体平台
+  weibo: 'https://weibo.com/compose',                                    // 微博发布页
+  xiaohongshu: 'https://creator.xiaohongshu.com/publish/publish',       // 小红书创作者中心
+  zhihu: 'https://zhuanlan.zhihu.com/write',                           // 知乎专栏写作
+  douyin: 'https://creator.douyin.com/creator-micro/content/upload',    // 抖音创作者中心
+  wechat: 'https://mp.weixin.qq.com/',                                 // 微信公众号后台（已修复）
+
+  // 视频平台
+  bilibili: 'https://member.bilibili.com/platform/upload/text/edit',   // B站专栏发布
+  kuaishou: 'https://cp.kuaishou.com/article/publish',                 // 快手创作者平台
+
+  // 资讯平台
+  toutiao: 'https://mp.toutiao.com/profile_v4/graphic/publish',         // 今日头条
+  baijiahao: 'https://baijiahao.baidu.com/builder/rc/edit',           // 百家号
+
+  // 国际平台
+  facebook: 'https://www.facebook.com/pages/create/',                   // Facebook页面创建
+  twitter: 'https://twitter.com/compose/tweet',                         // Twitter发推
+  linkedin: 'https://www.linkedin.com/feed/',                          // LinkedIn动态
+
+  // 技术社区
+  v2ex: 'https://www.v2ex.com/new',                                     // V2EX发帖
+  github: 'https://github.com/new',                                     // GitHub新建仓库
+  juejin: 'https://juejin.cn/editor/drafts/new',                       // 掘金编辑器
+  csdn: 'https://mp.csdn.net/mp_blog/creation/editor',                 // CSDN博客
+
+  // 其他平台
+  sspai: 'https://sspai.com/write',                                     // 少数派写作
+  hellogithub: 'https://hellogithub.com/',                             // HelloGitHub
+  ithome: 'https://my.ithome.com/#/write',                             // IT之家
+  ngabbs: 'https://bbs.nga.cn/thread.php?fid=-7',                      // NGA论坛
+
+  // 工具类（保留原有）
+  weatheralarm: 'https://www.nmc.cn/',                                 // 天气预警
+  earthquake: 'https://www.ceic.ac.cn/',                               // 地震信息
+  history: 'https://baike.baidu.com/item/%E5%8E%86%E5%8F%B2%E4%B8%8A%E7%9A%84%E4%BB%8A%E5%A4%A9/42704' // 历史上的今天
 };
 
 
@@ -2854,6 +2868,10 @@ export default function AdaptPage() {
   const [batchQueue, setBatchQueue] = useState<{ platformId: string; content: string }[]>([]);
   const [batchCurrent, setBatchCurrent] = useState<{ platformId: string; content: string } | null>(null);
 
+  // 新的批量转发工作台状态
+  const [batchForwardModalOpen, setBatchForwardModalOpen] = useState(false);
+  const [batchForwardPlatforms, setBatchForwardPlatforms] = useState<any[]>([]);
+
   /**
    * 打开批量一键转发弹窗
    */
@@ -2867,62 +2885,100 @@ export default function AdaptPage() {
   };
 
   /**
-   * 确认批量转发平台
+   * 确认批量转发平台 - 使用新的工作台模式
    */
-  const confirmBatchPlatforms = () => {
-    // 构建转发队列
-    const queue = batchSelectedPlatforms.map(pid => {
-      const result = results.find(r => r.platformId === pid);
-      if (!result) return null;
-
-      // 优先使用版本内容，如果没有版本则使用主内容
-      let content = '';
-      if (result.versions && result.versions.length > 0) {
-        // 使用第一个版本的内容
-        content = result.versions[0].content;
-      } else if (result.content) {
-        content = result.content;
-      }
-
-      return content ? { platformId: pid, content } : null;
-    }).filter(Boolean) as { platformId: string; content: string }[];
-    
+  const confirmBatchPlatforms = async () => {
     if (publishMode === 'api') {
       handleBatchApiPublish(batchSelectedPlatforms);
       setBatchPublishOpen(false);
-    } else {
-      // 批量复制所有内容并同时跳转到所有平台
-      const allContent = queue.map(item => {
-        const platformName = getPlatformName(item.platformId, platforms);
-        return `【${platformName}】\n${item.content}`;
-      }).join('\n\n---\n\n');
+      return;
+    }
 
-      // 复制合并后的内容到剪贴板
-      navigator.clipboard.writeText(allContent);
+    // 构建批量转发平台数据
+    const forwardPlatforms = await Promise.all(
+      batchSelectedPlatforms.map(async (pid) => {
+        const result = results.find(r => r.platformId === pid);
+        if (!result) return null;
 
-      // 保存到历史记录
-      const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
-      queue.forEach(item => {
+        // 获取内容
+        let content = '';
+        if (result.versions && result.versions.length > 0) {
+          content = result.versions[0].content;
+        } else if (result.content) {
+          content = result.content;
+        }
+
+        if (!content) return null;
+
+        // 获取平台信息
+        const platform = platforms.find(p => p.id === pid);
+        if (!platform) return null;
+
+        // 生成标题（从TitleGenerator获取）
+        const titleResult = results.find(r => r.platformId === pid);
+        let title = `${content.substring(0, 30)}...`; // 默认标题
+
+        // 生成标签（从PlatformHashtags获取）
+        const tags: string[] = [];
+        try {
+          // 这里可以调用标签生成逻辑
+          const { hashtagGenerator } = await import('@/utils/hashtagGenerator');
+          const hashtagSuggestions = await hashtagGenerator.generateHashtags(content, {
+            platformId: pid,
+            maxTags: 5
+          });
+          tags.push(...hashtagSuggestions.map(h => `#${h.tag}`));
+        } catch (error) {
+          console.error('生成标签失败:', error);
+        }
+
+        return {
+          id: pid,
+          name: platform.name,
+          icon: platform.name.charAt(0),
+          url: platformUrls[pid] || `https://${pid}.com`,
+          title,
+          content,
+          tags
+        };
+      })
+    );
+
+    const validPlatforms = forwardPlatforms.filter(Boolean);
+
+    if (validPlatforms.length === 0) {
+      toast({
+        title: "错误",
+        description: "没有找到有效的平台内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 保存到历史记录
+    const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+    validPlatforms.forEach(platform => {
+      if (platform) {
         shareHistory.unshift({
           id: Date.now().toString() + Math.random(),
-          platformId: item.platformId,
-          platformName: getPlatformName(item.platformId, platforms),
-          content: item.content,
+          platformId: platform.id,
+          platformName: platform.name,
+          content: platform.content,
           time: new Date().toISOString()
         });
-      });
-      localStorage.setItem('shareHistory', JSON.stringify(shareHistory.slice(0, 50)));
+      }
+    });
+    localStorage.setItem('shareHistory', JSON.stringify(shareHistory.slice(0, 50)));
 
-      // 修复：使用序列化方式打开平台，避免浏览器阻止多个弹窗
-      setBatchQueue(queue);
-      setBatchCurrent(queue[0] || null);
-      setBatchPublishOpen(false);
+    // 打开新的批量转发工作台
+    setBatchForwardPlatforms(validPlatforms);
+    setBatchForwardModalOpen(true);
+    setBatchPublishOpen(false);
 
-      toast({
-        title: "内容已复制",
-        description: `将依次引导您到各平台发布。内容已复制到剪贴板，请在各平台粘贴发布。`,
-      });
-    }
+    toast({
+      title: "批量转发工作台已启动",
+      description: `已为${validPlatforms.length}个平台准备好内容，平台页面将自动打开`,
+    });
   };
 
   /**
@@ -3944,18 +4000,20 @@ ${dimensions.join('\n\n')}
               <span className="text-sm text-gray-500 font-normal">(可选)</span>
               {/* Help icon moved to proper position */}
               <Dialog>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
-                        <Info className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>查看详细说明</p>
-                  </TooltipContent>
-                </Tooltip>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>查看详细说明</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>内容形式与表达风格体系</DialogTitle>
@@ -4276,30 +4334,60 @@ ${dimensions.join('\n\n')}
                       </div>
                     )}
                     
-                    {/* Title Generation Area */}
-                    {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
-                      <TitleGenerator
-                        content={result.content || (result.versions && result.versions[0]?.content) || ''}
-                        platformId={result.platformId}
-                        platformName={getPlatformName(result.platformId, platforms)}
-                        onTitleChange={(title) => {
-                          console.log(`${result.platformId} 标题已更新:`, title);
-                        }}
-                      />
-                    )}
+                    {/* 三个同层级智能组件管理区域 */}
+                    <div className="space-y-6">
 
-                    {/* Generated Content */}
-                    <div className="space-y-4">
-                      {/* 内容展示区域标题 */}
-                      <div className="text-center">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
-                          {result.versions && result.versions.length > 1 ? '多版本生成结果' : '生成结果'}
-                        </h3>
-                        <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
-                        {result.versions && result.versions.length > 1 && (
-                          <p className="text-sm text-gray-600 mt-1">已生成{result.versions.length}个不同风格版本，请选择您喜欢的内容</p>
-                        )}
-                      </div>
+                      {/* 1. 智能标题生成 */}
+                      {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
+                        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                          <div className="px-6 py-4 border-b border-gray-100">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                                  <span className="text-white text-sm font-bold">标</span>
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-gray-900">智能标题生成</h3>
+                                  <p className="text-sm text-gray-500">基于内容智能生成吸引眼球的标题</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-6">
+                            <TitleGenerator
+                              content={result.content || (result.versions && result.versions[0]?.content) || ''}
+                              platformId={result.platformId}
+                              platformName={getPlatformName(result.platformId, platforms)}
+                              onTitleChange={(title) => {
+                                console.log(`${result.platformId} 标题已更新:`, title);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 2. 智能内容生成 */}
+                      <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                        <div className="px-6 py-4 border-b border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                                <span className="text-white text-sm font-bold">容</span>
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-semibold text-gray-900">智能内容生成</h3>
+                                <p className="text-sm text-gray-500">
+                                  {result.versions && result.versions.length > 1
+                                    ? `已生成${result.versions.length}个不同风格版本，请选择您喜欢的内容`
+                                    : '基于您的输入智能生成适配内容'
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="p-6">
+                          <div className="space-y-4">
                       
                       {/* 主要内容区域 */}
                       {result.versions && result.versions.length > 1 ? (
@@ -4399,15 +4487,7 @@ ${dimensions.join('\n\n')}
                                   )}
                                 </div>
 
-                                {/* 版本A专属智能标签 */}
-                                <PlatformHashtags
-                                  key={`${result.platformId}-version-a-${result.versions[0].content.length}`}
-                                  platformId={result.platformId}
-                                  content={result.versions[0].content}
-                                  onTagsChange={(tags) => {
-                                    console.log(`${result.platformId} 版本A 标签已更新:`, tags);
-                                  }}
-                                />
+
 
                                 <div className="flex flex-wrap gap-2 mt-auto">
                                   <Button
@@ -4562,15 +4642,7 @@ ${dimensions.join('\n\n')}
                                   )}
                                 </div>
 
-                                {/* 版本B专属智能标签 */}
-                                <PlatformHashtags
-                                  key={`${result.platformId}-version-b-${result.versions[1].content.length}`}
-                                  platformId={result.platformId}
-                                  content={result.versions[1].content}
-                                  onTagsChange={(tags) => {
-                                    console.log(`${result.platformId} 版本B 标签已更新:`, tags);
-                                  }}
-                                />
+
 
                                 <div className="flex flex-wrap gap-2 mt-auto">
                                   <Button
@@ -4715,17 +4787,7 @@ ${dimensions.join('\n\n')}
                                   </div>
                                 )}
 
-                                {/* 平台专属智能标签 */}
-                                {result.content && (
-                                  <PlatformHashtags
-                                    key={`${result.platformId}-single-${result.content.length}`}
-                                    platformId={result.platformId}
-                                    content={result.content}
-                                    onTagsChange={(tags) => {
-                                      console.log(`${result.platformId} 标签已更新:`, tags);
-                                    }}
-                                  />
-                                )}
+
                               </div>
                             )
                           ) : result.error ? (
@@ -4754,6 +4816,39 @@ ${dimensions.join('\n\n')}
                           )}
                         </div>
                       )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3. 智能标签生成 */}
+                      {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
+                        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                          <div className="px-6 py-4 border-b border-gray-100">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                  <span className="text-white text-sm font-bold">签</span>
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-gray-900">智能标签生成</h3>
+                                  <p className="text-sm text-gray-500">基于内容智能生成话题标签，包含从智能内容生成移动过来的话题标签功能</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-6">
+                            <PlatformHashtags
+                              key={`${result.platformId}-unified-${(result.content || (result.versions && result.versions[0]?.content) || '').length}`}
+                              platformId={result.platformId}
+                              content={result.content || (result.versions && result.versions[0]?.content) || ''}
+                              onTagsChange={(tags) => {
+                                console.log(`${result.platformId} 统一标签已更新:`, tags);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
                     </div>
 
                     {/* Action Buttons */}
@@ -4968,8 +5063,12 @@ ${dimensions.join('\n\n')}
       featureDescription={premiumFeatureInfo.description}
     />
 
-
-
+    {/* 批量转发工作台弹窗 */}
+    <BatchForwardModal
+      open={batchForwardModalOpen}
+      onOpenChange={setBatchForwardModalOpen}
+      platforms={batchForwardPlatforms}
+    />
 
     </div>
   );

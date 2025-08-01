@@ -1,6 +1,7 @@
 /**
- * 平台专属的紧凑标签组件
- * 显示在每个平台内容下方，占用空间小
+ * 平台专属的话题标签组件
+ * 显示在每个平台内容下方，专门生成话题标签
+ * 注意：话题标签功能已从智能内容生成移动到此组件中
  */
 
 import React, { useState, useEffect } from 'react';
@@ -40,7 +41,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     return limits[platformId as keyof typeof limits] || { min: 3, max: 6 };
   };
 
-  // 生成标签 - 基于当前内容的精准分析
+  // 生成话题标签 - 从智能内容生成移动过来的功能
   const generateTags = async (forceRefresh = false) => {
     if (!content.trim()) return;
 
@@ -48,30 +49,24 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     try {
       const limits = getPlatformLimits(platformId);
 
-      console.log(`🏷️ 为${platformId}平台基于内容生成标签:`, content.substring(0, 50) + '...');
+      console.log(`🏷️ 为${platformId}平台生成话题标签:`, content.substring(0, 50) + '...');
 
-      // 强制基于当前内容生成，禁用任何缓存
-      const hashtags = await hashtagGenerator.generateHashtags(content, {
-        platformId,
-        maxTags: limits.max,
-        includeBrands: false, // 专注于内容相关性
-        includeIndustry: true,
-        includePersona: false // 避免通用标签
-      });
+      // 使用新的话题标签生成功能
+      const topicTags = await hashtagGenerator.generateTopicTagsForSmartTagging(content, platformId);
 
-      // 只保留高相关性标签
-      const relevantTags = hashtags
-        .filter(h => h.relevance >= 0.7) // 提高相关性阈值
+      // 只保留高相关性话题标签
+      const relevantTags = topicTags
+        .filter(h => h.relevance >= 0.6) // 话题标签相关性阈值稍低
         .sort((a, b) => b.relevance - a.relevance)
-        .slice(0, Math.min(limits.max, 10)) // 限制最多10个
+        .slice(0, Math.min(limits.max, 8)) // 限制最多8个话题标签
         .map(h => h.tag);
 
-      console.log(`✅ 生成了${relevantTags.length}个相关标签:`, relevantTags);
+      console.log(`✅ 生成了${relevantTags.length}个话题标签:`, relevantTags);
 
       setTags(relevantTags);
       onTagsChange?.(relevantTags);
     } catch (error) {
-      console.error('标签生成失败:', error);
+      console.error('话题标签生成失败:', error);
     } finally {
       setIsGenerating(false);
     }
@@ -137,7 +132,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
       <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
         <div className="flex items-center space-x-2 text-sm text-blue-700">
           <Tag className="h-4 w-4 animate-spin" />
-          <span>正在基于当前内容生成相关标签...</span>
+          <span>正在基于当前内容生成话题标签...</span>
         </div>
         <div className="text-xs text-blue-600 mt-1">
           分析内容：{content.substring(0, 30)}...
@@ -166,7 +161,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           <div className="flex items-center space-x-2">
             <Tag className="h-4 w-4 text-gray-400" />
             <span className="text-sm text-gray-500">
-              {content.trim() ? '点击生成内容相关标签' : '等待内容生成后可生成标签'}
+              {content.trim() ? '点击生成话题标签' : '等待内容生成后可生成话题标签'}
             </span>
           </div>
           {content.trim() && (
@@ -174,7 +169,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
               onClick={() => generateTags(true)}
               className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             >
-              生成标签
+              生成话题标签
             </button>
           )}
         </div>
@@ -188,13 +183,13 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Tag className="h-4 w-4 text-blue-600" />
-          <span className="text-sm font-medium text-gray-700">内容相关标签</span>
+          <span className="text-sm font-medium text-gray-700">话题标签</span>
           <span className="text-xs text-gray-500">
-            ({tags.length}/{Math.min(getPlatformLimits(platformId).max, 10)}个)
+            ({tags.length}/{Math.min(getPlatformLimits(platformId).max, 8)}个)
           </span>
           {tags.length > 0 && (
             <span className="text-xs text-green-600 bg-green-50 px-1 rounded">
-              ✓ 已匹配
+              ✓ 已生成
             </span>
           )}
         </div>
@@ -211,7 +206,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           <button
             onClick={() => generateTags(true)}
             className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
-            title="刷新标签 - 基于当前内容重新生成"
+            title="刷新话题标签 - 基于当前内容重新生成"
             disabled={isGenerating}
           >
             <RotateCcw className={`h-3 w-3 ${isGenerating ? 'animate-spin' : ''}`} />
