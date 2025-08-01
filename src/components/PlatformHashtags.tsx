@@ -11,12 +11,14 @@ import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
 export interface PlatformHashtagsProps {
   platformId: string;
   content: string;
+  extractedTags?: string[]; // 从智能内容生成中提取的标签
   onTagsChange?: (tags: string[]) => void;
 }
 
 export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
   platformId,
   content,
+  extractedTags = [],
   onTagsChange
 }) => {
   const [tags, setTags] = useState<string[]>([]);
@@ -72,12 +74,16 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     }
   };
 
-  // 内容变化时重新生成标签，确保标签与内容一致
+  // 处理提取的标签和内容变化
   useEffect(() => {
-    if (content.trim() && content.length > 10) {
-      // 清空旧标签，避免显示不相关的缓存标签
+    if (extractedTags && extractedTags.length > 0) {
+      // 优先使用从智能内容生成中提取的标签
+      console.log('🏷️ 使用从智能内容生成提取的标签:', extractedTags);
+      setTags(extractedTags);
+      onTagsChange?.(extractedTags);
+    } else if (content.trim() && content.length > 10) {
+      // 如果没有提取的标签，则生成话题标签
       setTags([]);
-      // 延迟生成，避免频繁调用
       const timer = setTimeout(() => {
         generateTags();
       }, 500);
@@ -85,7 +91,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     } else {
       setTags([]);
     }
-  }, [content, platformId]);
+  }, [content, platformId, extractedTags]);
 
   // 复制所有标签 - 改进的视觉反馈
   const copyAllTags = async () => {
@@ -161,7 +167,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           <div className="flex items-center space-x-2">
             <Tag className="h-4 w-4 text-gray-400" />
             <span className="text-sm text-gray-500">
-              {content.trim() ? '点击生成话题标签' : '等待内容生成后可生成话题标签'}
+              {content.trim() ? '点击生成话题标签（或从内容中自动提取）' : '等待内容生成后可生成话题标签'}
             </span>
           </div>
           {content.trim() && (
@@ -189,7 +195,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           </span>
           {tags.length > 0 && (
             <span className="text-xs text-green-600 bg-green-50 px-1 rounded">
-              ✓ 已生成
+              {extractedTags && extractedTags.length > 0 ? '✓ 已提取' : '✓ 已生成'}
             </span>
           )}
         </div>

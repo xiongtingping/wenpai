@@ -769,6 +769,64 @@ export default function AdaptPage() {
   // 当前选中模型的说明状态
   const [selectedModelDescription, setSelectedModelDescription] = useState<any>(null);
 
+  // 提取和清理内容中的标签和配图建议
+  const extractAndCleanContent = (content: string): { cleanContent: string; extractedTags: string[] } => {
+    if (!content) return { cleanContent: '', extractedTags: [] };
+
+    let cleanContent = content;
+    const extractedTags: string[] = [];
+
+    // 1. 提取所有话题标签（#标签名格式）
+    const hashtagRegex = /#[\u4e00-\u9fa5a-zA-Z0-9_]+/g;
+    const hashtags = content.match(hashtagRegex) || [];
+
+    // 去掉#号，只保留标签名
+    hashtags.forEach(tag => {
+      const tagName = tag.substring(1); // 去掉#号
+      if (tagName && !extractedTags.includes(tagName)) {
+        extractedTags.push(tagName);
+      }
+    });
+
+    // 从内容中移除所有话题标签
+    cleanContent = cleanContent.replace(hashtagRegex, '').trim();
+
+    // 2. 移除配图建议文案（多种格式）
+    const imagePatterns = [
+      /（配图建议：[^）]*）/g,
+      /\(配图建议：[^)]*\)/g,
+      /【配图建议：[^】]*】/g,
+      /\[配图建议：[^]]*\]/g,
+      /配图建议：[^\n]*/g,
+      /（配图：[^）]*）/g,
+      /\(配图：[^)]*\)/g,
+      /【配图：[^】]*】/g,
+      /\[配图：[^]]*\]/g,
+      /配图：[^\n]*/g
+    ];
+
+    imagePatterns.forEach(pattern => {
+      cleanContent = cleanContent.replace(pattern, '');
+    });
+
+    // 3. 清理多余的空行和空格
+    cleanContent = cleanContent
+      .replace(/\n\s*\n\s*\n/g, '\n\n') // 多个连续空行变为两个
+      .replace(/\s+$/gm, '') // 移除行尾空格
+      .trim();
+
+    console.log('🧹 内容清理完成:', {
+      原始长度: content.length,
+      清理后长度: cleanContent.length,
+      提取标签: extractedTags
+    });
+
+    return { cleanContent, extractedTags };
+  };
+
+  // 存储提取的标签，用于传递给PlatformHashtags组件
+  const [extractedTagsMap, setExtractedTagsMap] = useState<Record<string, string[]>>({});
+
   // 生成多个版本的内容
   const generateMultipleVersions = async (basePrompt: string, platformId: string): Promise<ContentVersion[]> => {
     const versions: ContentVersion[] = [];
@@ -881,16 +939,22 @@ export default function AdaptPage() {
 
         const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
-        // 智能话题标签现在由PlatformHashtags组件独立处理
-        let contentWithTags = finalContent;
+        // 提取标签并清理内容
+        const { cleanContent: cleanContentA, extractedTags: tagsA } = extractAndCleanContent(finalContent);
+
+        // 存储提取的标签
+        setExtractedTagsMap(prev => ({
+          ...prev,
+          [`${platformId}-version-a`]: tagsA
+        }));
 
         versions.push({
           id: 'version-a',
-          content: contentWithTags,
+          content: cleanContentA,
           style: 'standard',
           title: '版本A',
-          charCount: contentWithTags.length,
-          validation: validation
+          charCount: cleanContentA.length,
+          validation: validateCharacterCount(cleanContentA, platformId, userSetLimit)
         });
 
         if (validation.warning) {
@@ -919,16 +983,22 @@ export default function AdaptPage() {
 
         const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
 
-        // 智能话题标签现在由PlatformHashtags组件独立处理
-        let contentWithTags = finalContent;
+        // 提取标签并清理内容
+        const { cleanContent: cleanContentB, extractedTags: tagsB } = extractAndCleanContent(finalContent);
+
+        // 存储提取的标签
+        setExtractedTagsMap(prev => ({
+          ...prev,
+          [`${platformId}-version-b`]: tagsB
+        }));
 
         versions.push({
           id: 'version-b',
-          content: contentWithTags,
+          content: cleanContentB,
           style: 'creative',
           title: '版本B',
-          charCount: contentWithTags.length,
-          validation: validation
+          charCount: cleanContentB.length,
+          validation: validateCharacterCount(cleanContentB, platformId, userSetLimit)
         });
 
         if (validation.warning) {
@@ -2119,8 +2189,14 @@ export default function AdaptPage() {
           console.warn(`内容超出限制 ${finalContent.length}/${userCharLimit}，保持内容完整`);
         }
 
-        // 智能话题标签现在由PlatformHashtags组件独立处理
-        let contentWithTags = finalContent;
+        // 提取标签并清理内容
+        const { cleanContent, extractedTags } = extractAndCleanContent(finalContent);
+
+        // 存储提取的标签
+        setExtractedTagsMap(prev => ({
+          ...prev,
+          [`${platformId}-${versionId}`]: extractedTags
+        }));
 
         // 更新版本内容
         setResults(current =>
@@ -2130,7 +2206,7 @@ export default function AdaptPage() {
                   ...r,
                   versions: r.versions?.map(v =>
                     v.id === versionId
-                      ? { ...v, content: contentWithTags, charCount: contentWithTags.length }
+                      ? { ...v, content: cleanContent, charCount: cleanContent.length }
                       : v
                   )
                 }
@@ -4841,6 +4917,10 @@ ${dimensions.join('\n\n')}
                               key={`${result.platformId}-unified-${(result.content || (result.versions && result.versions[0]?.content) || '').length}`}
                               platformId={result.platformId}
                               content={result.content || (result.versions && result.versions[0]?.content) || ''}
+                              extractedTags={[
+                                ...(extractedTagsMap[`${result.platformId}-version-a`] || []),
+                                ...(extractedTagsMap[`${result.platformId}-version-b`] || [])
+                              ].filter((tag, index, arr) => arr.indexOf(tag) === index)} // 去重
                               onTagsChange={(tags) => {
                                 console.log(`${result.platformId} 统一标签已更新:`, tags);
                               }}
