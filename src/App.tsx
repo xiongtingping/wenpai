@@ -40,7 +40,8 @@ import SettingsPage from '@/pages/SettingsPage';
 import AuthTestPage from '@/pages/AuthTestPage';
 import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
 import AuthingTestPage from '@/pages/AuthingTestPage';
-import UndefinedTestPage from '@/pages/UndefinedTestPage';
+// 🚨 临时禁用 UndefinedTestPage 导入，避免意外触发 undefinedundefined 问题
+// import UndefinedTestPage from '@/pages/UndefinedTestPage';
 import TitleGrammarTestPage from '@/pages/TitleGrammarTestPage';
 
 /**
@@ -169,7 +170,8 @@ function AppContent() {
           <Route path="/auth-test" element={<AuthTestPage />} />
           <Route path="/simple-auth-test" element={<SimpleAuthTestPage />} />
           <Route path="/authing-test" element={<AuthingTestPage />} />
-          <Route path="/undefined-test" element={<UndefinedTestPage />} />
+          {/* 🚨 临时禁用 UndefinedTestPage 路由，避免意外触发 undefinedundefined 问题 */}
+          {/* <Route path="/undefined-test" element={<UndefinedTestPage />} /> */}
           <Route path="/test-login" element={<TestLoginPage />} />
           <Route path="/title-grammar-test" element={<TitleGrammarTestPage />} />
           
