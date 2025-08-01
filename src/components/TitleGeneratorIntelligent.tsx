@@ -99,8 +99,82 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const [titleFeedback, setTitleFeedback] = useState<Record<string, 'like' | 'dislike'>>({});
   const { toast } = useToast();
 
+  // 监听平台切换，重置状态
+  useEffect(() => {
+    console.log(`🔄 平台切换到: ${platformId} (${platformName})`);
+
+    // 平台切换时重置状态，但保留已生成的标题（如果内容相同）
+    const currentContent = versions.length > 0
+      ? versions.map(v => v.content).join('\n\n')
+      : content;
+
+    // 检查是否需要重新生成标题
+    const needsRegeneration = titles.length === 0 ||
+      titles.some(title => title.platform !== platformId) ||
+      currentContent.trim().length < 10;
+
+    if (needsRegeneration && currentContent.trim().length >= 10) {
+      console.log(`🎯 平台${platformId}需要重新生成标题`);
+      // 延迟生成，避免频繁切换时的重复调用
+      const timer = setTimeout(() => {
+        generateTitles();
+      }, 300);
+      return () => clearTimeout(timer);
+    } else if (titles.length > 0) {
+      // 更新现有标题的平台信息
+      setTitles(prevTitles =>
+        prevTitles.map(title => ({
+          ...title,
+          platform: platformId,
+          utilizationScore: title.length / titleLimit // 重新计算字符利用率
+        }))
+      );
+    }
+  }, [platformId, platformName]); // 只监听平台变化
+
+  // 监听内容变化
+  useEffect(() => {
+    const currentContent = versions.length > 0
+      ? versions.map(v => v.content).join('\n\n')
+      : content;
+
+    if (currentContent.trim().length >= 10 && titles.length === 0) {
+      console.log(`📝 内容变化，为平台${platformId}生成标题`);
+      const timer = setTimeout(() => {
+        generateTitles();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [content, versions]); // 只监听内容变化
+
   const titleLimit = PLATFORM_TITLE_LIMITS[platformId] || 25;
   const minTitleLength = Math.max(8, Math.floor(titleLimit * 0.7)); // 最短不少于8字，建议≥平台限制的70%
+
+  // 平台切换时更新字符限制
+  useEffect(() => {
+    console.log(`📏 平台${platformId}字符限制: ${titleLimit}字`);
+
+    // 如果已有标题，重新计算字符利用率
+    if (titles.length > 0) {
+      setTitles(prevTitles =>
+        prevTitles.map(title => {
+          const newUtilizationScore = title.length / titleLimit;
+          const newOverallScore =
+            title.semanticFit * QUALITY_WEIGHTS.semanticSimilarity +
+            title.emotionalScore * QUALITY_WEIGHTS.emotionalAttraction +
+            title.diversityScore * QUALITY_WEIGHTS.structuralDiversity +
+            newUtilizationScore * QUALITY_WEIGHTS.characterUtilization;
+
+          return {
+            ...title,
+            platform: platformId,
+            utilizationScore: newUtilizationScore,
+            overallScore: newOverallScore
+          };
+        })
+      );
+    }
+  }, [titleLimit, platformId]); // 监听字符限制变化
 
   // 标题风格配置 - V2优化版（符合新Prompt规范）
   const titleStyles: Record<TitleStyle, TitleStyleConfig> = {
@@ -713,7 +787,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         ensureDiversity
       });
 
-      console.log('🧠 调用AI生成标题，使用强化主旨对齐约束...');
+      console.log(`🧠 为平台${platformId}(${platformName})调用AI生成标题，使用强化主旨对齐约束...`);
 
       // 调用AI生成标题
       const aiResponse = await callAI({
@@ -770,18 +844,21 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         throw new Error('生成的标题质量不达标，请重试');
       }
 
-      console.log('✅ AI标题生成完成:', qualifiedTitles.map(t => t.title));
+      console.log(`✅ 平台${platformId} AI标题生成完成:`, qualifiedTitles.map(t => t.title));
       console.log('📊 内容分析结果:', aiResult.contentAnalysis);
 
-      setTitles(qualifiedTitles);
-      if (qualifiedTitles.length > 0) {
-        setSelectedTitle(qualifiedTitles[0].title);
-        onTitleChange?.(qualifiedTitles[0].title);
+      // 过滤掉不适用于当前平台的标题
+      const validTitles = qualifiedTitles.filter(isTitleValidForPlatform);
+
+      setTitles(validTitles);
+      if (validTitles.length > 0) {
+        setSelectedTitle(validTitles[0].title);
+        onTitleChange?.(validTitles[0].title);
       }
 
       toast({
-        title: "AI智能标题生成完成",
-        description: `基于强化主旨对齐约束生成了${qualifiedTitles.length}个高质量标题（语义贴合度≥75%）`,
+        title: `${platformName}标题生成完成`,
+        description: `基于强化主旨对齐约束生成了${validTitles.length}个高质量标题（语义贴合度≥75%）`,
       });
     } catch (error) {
       console.error('AI标题生成失败:', error);
@@ -818,16 +895,20 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       }
 
       newTitles.sort((a, b) => b.overallScore - a.overallScore);
-      setTitles(newTitles);
 
-      if (newTitles.length > 0) {
-        setSelectedTitle(newTitles[0].title);
-        onTitleChange?.(newTitles[0].title);
+      // 过滤掉不适用于当前平台的标题
+      const validTitles = newTitles.filter(isTitleValidForPlatform);
+
+      setTitles(validTitles);
+
+      if (validTitles.length > 0) {
+        setSelectedTitle(validTitles[0].title);
+        onTitleChange?.(validTitles[0].title);
       }
 
       toast({
-        title: "本地标题生成完成",
-        description: `生成了${newTitles.length}个标题（本地算法）`,
+        title: `${platformName}标题生成完成`,
+        description: `生成了${validTitles.length}个标题（本地算法）`,
       });
     } catch (error) {
       console.error('本地标题生成也失败:', error);
@@ -864,13 +945,30 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     console.log(`📊 标题反馈收集:`, {
       titleId,
       feedback,
-      title: titles.find(t => t.id === titleId)?.title
+      title: titles.find(t => t.id === titleId)?.title,
+      platform: platformId
     });
 
     toast({
       title: feedback === 'like' ? "感谢反馈" : "已记录反馈",
       description: feedback === 'like' ? "我们会继续优化标题质量" : "我们会改进这类标题的生成",
     });
+  };
+
+  // 清理平台切换时的状态
+  const resetTitleGeneratorState = () => {
+    console.log(`🧹 重置标题生成器状态 (平台: ${platformId})`);
+    setTitles([]);
+    setSelectedTitle('');
+    setTitleFeedback({});
+    setIsGenerating(false);
+  };
+
+  // 检查标题是否适用于当前平台
+  const isTitleValidForPlatform = (title: GeneratedTitle): boolean => {
+    return title.platform === platformId &&
+           title.length <= titleLimit &&
+           title.length >= minTitleLength;
   };
 
   // Initialize generation
@@ -910,7 +1008,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             ) : (
               <Sparkles className="h-4 w-4" />
             )}
-            {isGenerating ? '智能分析中...' : '重新生成'}
+            {isGenerating ? `为${platformName}分析中...` : `为${platformName}生成标题`}
           </Button>
         </div>
 

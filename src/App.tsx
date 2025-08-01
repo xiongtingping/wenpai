@@ -45,6 +45,7 @@ import AuthingTestPage from '@/pages/AuthingTestPage';
 import UndefinedTestPage from '@/pages/UndefinedTestPage';
 import TitleGrammarTestPage from '@/pages/TitleGrammarTestPage';
 import TitleFixTestPage from '@/pages/TitleFixTestPage';
+import TitlePlatformSwitchTestPage from '@/pages/TitlePlatformSwitchTestPage';
 
 /**
  * 条件性导航组件
@@ -177,6 +178,7 @@ function AppContent() {
           <Route path="/test-login" element={<TestLoginPage />} />
           <Route path="/title-grammar-test" element={<TitleGrammarTestPage />} />
           <Route path="/title-fix-test" element={<TitleFixTestPage />} />
+          <Route path="/title-platform-test" element={<TitlePlatformSwitchTestPage />} />
 
           {/* 404页面 - 必须放在最后 */}
           <Route path="*" element={<NotFoundPage />} />
