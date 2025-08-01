@@ -82,7 +82,7 @@ interface ContentAnalysis {
 }
 
 // 标题风格枚举
-type TitleStyle = 'result-oriented' | 'question-guided' | 'professional' | 'experience-based' | 'emotional-trigger';
+type TitleStyle = 'result-emotion' | 'question-hook' | 'reason-action' | 'experience-contrast' | 'tool-value';
 
 interface TitleStyleConfig {
   name: string;
@@ -187,37 +187,37 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     }
   }, [titleLimit, platformId]); // 监听字符限制变化
 
-  // 标题风格配置 - V2优化版（符合新Prompt规范）
+  // 标题风格配置（V3规范）
   const titleStyles: Record<TitleStyle, TitleStyleConfig> = {
-    'result-oriented': {
-      name: '🎯 结果导向型',
-      description: '强调效果和结果，具备钩子效应',
+    'result-emotion': {
+      name: '✅ 结果+情绪型',
+      description: '强调使用结果 + 情感评价',
       minLength: 10,
-      patterns: ['我用{tool}后{result}，真的惊到我了', '{tool}让我{result}', '用{tool}{result}，效果超预期']
+      patterns: ['只用1次，{result}！太爽了！', '{tool}让我{result}，太惊艳了', '用{tool}后{result}，没想到这么好']
     },
-    'question-guided': {
-      name: '🤔 提问引导型',
-      description: '通过问题引发思考，激发点击欲望',
+    'question-hook': {
+      name: '🤔 提问钩子型',
+      description: '用好奇心驱动点击',
       minLength: 8,
-      patterns: ['为什么大家都在用{tool}', '{tool}真的{effect}吗', '如何用{tool}{action}']
+      patterns: ['{scenario}怎么{action}最省事？我找到答案了', '为什么{tool}能{result}？', '{tool}真的能{benefit}吗？']
     },
-    'professional': {
-      name: '📘 专业理性型',
-      description: '客观专业的表达，信息密度高',
+    'reason-action': {
+      name: '🎯 原因+行动型',
+      description: '讲述为什么用 + 得到了什么',
       minLength: 10,
-      patterns: ['{tool}功能深度解析', '{topic}优劣对比', '{field}实用指南']
+      patterns: ['因为用{tool}，我再也不用{pain}', '用了{tool}才知道，{result}', '有了{tool}，{benefit}变简单了']
     },
-    'experience-based': {
-      name: '💡 经验总结型',
-      description: '个人体验和总结，实用性强',
-      minLength: 9,
-      patterns: ['我的{tool}{number}大技巧', '{tool}实测心得', '用{tool}的{number}个感受']
+    'experience-contrast': {
+      name: '💡 体验+反差型',
+      description: '从"以前"到"现在"的转变',
+      minLength: 12,
+      patterns: ['以前要{old_way}，现在{new_way}', '{tool}前后对比：{contrast}', '没用{tool}前{before}，用了后{after}']
     },
-    'emotional-trigger': {
-      name: '📣 情绪钩子型',
-      description: '激发情感共鸣，强吸引力',
+    'tool-value': {
+      name: '🛠️ 工具+明确价值型',
+      description: '工具名称 + 功能/收益',
       minLength: 8,
-      patterns: ['太好用了！{tool}简直救命', '{tool}让我惊艳了', '没想到{tool}这么强']
+      patterns: ['{tool}：{value}，{benefit}', '{tool}帮我{action}，{result}', '{tool}的{feature}功能，{benefit}']
     }
   };
 
@@ -574,29 +574,29 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     let styleDescription = '';
 
     switch (style) {
-      case 'result-oriented':
-        title = generateResultOrientedTitle(primaryElement, secondaryElement, analysis);
-        styleDescription = '结果导向型';
+      case 'result-emotion':
+        title = generateResultEmotionTitle(primaryElement, secondaryElement, analysis);
+        styleDescription = '结果+情绪型';
         break;
-      case 'question-guided':
-        title = generateQuestionGuidedTitle(primaryElement, secondaryElement, analysis);
-        styleDescription = '提问引导型';
+      case 'question-hook':
+        title = generateQuestionHookTitle(primaryElement, secondaryElement, analysis);
+        styleDescription = '提问钩子型';
         break;
-      case 'professional':
-        title = generateProfessionalTitle(primaryElement, secondaryElement, analysis);
-        styleDescription = '专业理性型';
+      case 'reason-action':
+        title = generateReasonActionTitle(primaryElement, secondaryElement, analysis);
+        styleDescription = '原因+行动型';
         break;
-      case 'experience-based':
-        title = generateExperienceBasedTitle(primaryElement, secondaryElement, analysis);
-        styleDescription = '经验总结型';
+      case 'experience-contrast':
+        title = generateExperienceContrastTitle(primaryElement, secondaryElement, analysis);
+        styleDescription = '体验+反差型';
         break;
-      case 'emotional-trigger':
-        title = generateEmotionalTriggerTitle(primaryElement, secondaryElement, analysis);
-        styleDescription = '情绪激发型';
+      case 'tool-value':
+        title = generateToolValueTitle(primaryElement, secondaryElement, analysis);
+        styleDescription = '工具+明确价值型';
         break;
       default:
-        title = generateResultOrientedTitle(primaryElement, secondaryElement, analysis);
-        styleDescription = '结果导向型';
+        title = generateResultEmotionTitle(primaryElement, secondaryElement, analysis);
+        styleDescription = '结果+情绪型';
     }
 
     // 确保标题符合平台限制和质量要求
@@ -653,8 +653,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return generatedTitle;
   };
 
-  // 🎯 结果导向型标题生成 - 强化避免偏离主旨
-  const generateResultOrientedTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
+  // ✅ 结果+情绪型标题生成（V3规范）
+  const generateResultEmotionTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
     const { valueProposition, userBenefits, quantifiedEffects, useScenarios, coreObjects, userPainPoints } = analysis;
 
     // 优先使用具体的核心对象
@@ -672,130 +672,162 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // 优先使用用户痛点
     const painPoint = userPainPoints.length > 0 ? userPainPoints[0] : '';
 
-    // 🔧 强制覆盖至少2个维度（核心对象+场景+痛点）
+    // ✅ V3规范：结果+情绪型（强调使用结果 + 情感评价）
+    if (quantifiedEffect && specificBenefit) {
+      return `只用1次，${specificBenefit}${quantifiedEffect}！太爽了！`;
+    }
+
     if (mainObject && scenario && specificBenefit) {
-      return `${mainObject}解决${scenario}${specificBenefit}问题`;
+      return `${mainObject}让我${scenario}${specificBenefit}，太惊艳了`;
     }
 
-    if (mainObject && painPoint && quantifiedEffect) {
-      return `${mainObject}解决${painPoint}，${quantifiedEffect}`;
+    if (mainObject && quantifiedEffect) {
+      return `用${mainObject}后${quantifiedEffect}，没想到这么好`;
     }
 
-    if (scenario && quantifiedEffect && specificBenefit) {
-      return `用${mainObject}做${scenario}，${specificBenefit}${quantifiedEffect}`;
-    }
-
-    if (mainObject && specificBenefit && quantifiedEffect) {
-      return `${mainObject}帮我${specificBenefit}${quantifiedEffect}`;
-    }
-
-    // 确保至少包含核心对象+一个具体维度
     if (scenario && specificBenefit) {
-      return `用${mainObject}做${scenario}，${specificBenefit}`;
+      return `${scenario}用${mainObject}，${specificBenefit}！居然这么简单`;
     }
 
-    // 兜底模板（确保语义完整且具体）
+    // 兜底模板（确保情绪+结果结构）
     const fallbackPatterns = [
-      `${mainObject}提升了我的${scenario || '工作'}效率`,
-      `用${mainObject}后${scenario || '工作'}变轻松了`,
-      `${mainObject}帮我解决了${painPoint || '效率'}问题`
+      `${mainObject}效果太好了！${specificBenefit || '效率提升'}`,
+      `用${mainObject}后，${scenario || '工作'}变轻松了！`,
+      `${mainObject}让我惊艳，${painPoint || '问题'}解决了`
     ];
 
     return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
-  // 🤔 提问引导型标题生成 - 修复语义完整性
-  const generateQuestionGuidedTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
+  // 🤔 提问钩子型标题生成（V3规范）
+  const generateQuestionHookTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
     const { coreObjects, useScenarios, userBenefits } = analysis;
 
     const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
     const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
     const benefit = userBenefits.length > 0 ? userBenefits[0] : '';
 
-    // 🔧 结合具体场景和收益的提问
+    // 🤔 V3规范：提问钩子型（用好奇心驱动点击）
     if (scenario && benefit) {
-      return `为什么用${mainObject}做${scenario}能${benefit}`;
+      return `${scenario}怎么${benefit}最省事？我找到答案了`;
     }
 
-    if (scenario) {
-      return `如何用${mainObject}优化${scenario}`;
+    if (mainObject && benefit) {
+      return `为什么${mainObject}能${benefit}？`;
     }
 
-    if (benefit) {
-      return `${mainObject}真的能${benefit}吗`;
+    if (scenario && mainObject) {
+      return `${scenario}用${mainObject}真的能解决问题吗？`;
     }
 
-    // 兜底模板
+    // 兜底模板（确保钩子效果）
     const fallbackPatterns = [
-      `为什么大家都在用${mainObject}`,
-      `${mainObject}真的好用吗`,
-      `如何用${mainObject}提升效率`,
-      `${mainObject}值得入手吗`
+      `${scenario || '多平台'}怎么发内容最省事？我找到答案了`,
+      `为什么${mainObject}这么受欢迎？`,
+      `${mainObject}真的能${benefit || '提升效率'}吗？`,
+      `${scenario || '内容创作'}有什么神器推荐？`
     ];
 
     return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
-  // 📘 专业理性型标题生成 - 修复语义完整性
-  const generateProfessionalTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
-    const { coreObjects, useScenarios, keyActions } = analysis;
+  // 🎯 原因+行动型标题生成（V3规范）
+  const generateReasonActionTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
+    const { coreObjects, useScenarios, userPainPoints, userBenefits } = analysis;
 
     const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
     const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
-    const action = keyActions.length > 0 ? keyActions[0] : '';
+    const painPoint = userPainPoints.length > 0 ? userPainPoints[0] : '';
+    const benefit = userBenefits.length > 0 ? userBenefits[0] : '';
 
-    // 🔧 结合具体场景和功能的专业表达
-    if (scenario && action) {
-      return `${mainObject}${scenario}${action}功能解析`;
+    // 🎯 V3规范：原因+行动型（讲述为什么用 + 得到了什么）
+    if (mainObject && painPoint) {
+      return `因为用${mainObject}，我再也不用${painPoint}`;
     }
 
-    if (scenario) {
-      return `${mainObject}在${scenario}中的应用指南`;
+    if (mainObject && benefit) {
+      return `用了${mainObject}才知道，${benefit}`;
     }
 
-    if (action) {
-      return `${mainObject}${action}功能详解`;
+    if (mainObject && scenario) {
+      return `有了${mainObject}，${scenario}变简单了`;
     }
 
-    // 兜底模板
+    // 兜底模板（确保原因+行动结构）
     const fallbackPatterns = [
-      `${mainObject}功能深度解析`,
-      `${mainObject}使用指南详解`,
-      `${mainObject}实用技巧汇总`,
-      `${mainObject}完整使用教程`
+      `因为用${mainObject}，${scenario || '工作'}效率翻倍`,
+      `用了${mainObject}才知道，${benefit || '这么方便'}`,
+      `有了${mainObject}，${painPoint || '重复工作'}不再烦恼`,
+      `因为${mainObject}，我的${scenario || '内容创作'}变轻松了`
     ];
 
     return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
-  // 💡 经验总结型标题生成
-  const generateExperienceBasedTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
-    const patterns = [
-      `我的${primary}使用心得`,
-      `${primary}实测体验分享`,
-      `用${primary}的真实感受`,
-      `${primary}使用经验总结`,
-      `${primary}踩坑经验分享`,
-      `${primary}使用技巧心得`,
-      `${primary}深度使用感受`
+  // 💡 体验+反差型标题生成（V3规范）
+  const generateExperienceContrastTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
+    const { coreObjects, useScenarios, userBenefits, quantifiedEffects } = analysis;
+
+    const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
+    const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
+    const benefit = userBenefits.length > 0 ? userBenefits[0] : '';
+    const effect = quantifiedEffects.length > 0 ? quantifiedEffects[0] : '';
+
+    // 💡 V3规范：体验+反差型（从"以前"到"现在"的转变）
+    if (scenario && benefit) {
+      return `以前要${scenario}很麻烦，现在${mainObject}一键搞定`;
+    }
+
+    if (mainObject && effect) {
+      return `${mainObject}前后对比：${effect}的提升`;
+    }
+
+    if (scenario && mainObject) {
+      return `没用${mainObject}前${scenario}很累，用了后轻松多了`;
+    }
+
+    // 兜底模板（确保反差结构）
+    const fallbackPatterns = [
+      `以前要发3遍内容，现在${mainObject}1次搞定`,
+      `${mainObject}前后对比：效率翻倍`,
+      `没用${mainObject}前${scenario || '工作'}很累，用了后轻松多了`,
+      `以前${scenario || '内容创作'}要半天，现在${mainObject}10分钟`
     ];
 
-    return patterns[Math.floor(Math.random() * patterns.length)];
+    return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
-  // 📣 情绪钩子型标题生成 - V2优化版
-  const generateEmotionalTriggerTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
-    const patterns = [
-      `太好用了！${primary}简直救命`,
-      `${primary}让我惊艳了，必须安利`,
-      `没想到${primary}这么强大`,
-      `${primary}真的太棒了，爱了`,
-      `${primary}超出我的预期太多`,
-      `${primary}让我相见恨晚啊`,
-      `${primary}真是神器，推荐给大家`
+  // 🛠️ 工具+明确价值型标题生成（V3规范）
+  const generateToolValueTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
+    const { coreObjects, useScenarios, userBenefits, quantifiedEffects } = analysis;
+
+    const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
+    const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
+    const benefit = userBenefits.length > 0 ? userBenefits[0] : '';
+    const effect = quantifiedEffects.length > 0 ? quantifiedEffects[0] : '';
+
+    // 🛠️ V3规范：工具+明确价值型（工具名称 + 功能/收益）
+    if (mainObject && benefit && effect) {
+      return `${mainObject}：${benefit}，${effect}`;
+    }
+
+    if (mainObject && scenario && benefit) {
+      return `${mainObject}帮我${scenario}，${benefit}`;
+    }
+
+    if (mainObject && benefit) {
+      return `${mainObject}的核心功能，${benefit}`;
+    }
+
+    // 兜底模板（确保工具+价值结构）
+    const fallbackPatterns = [
+      `${mainObject}：多平台适配神器，1次搞定5个平台`,
+      `${mainObject}帮我${scenario || '内容创作'}，${benefit || '效率翻倍'}`,
+      `${mainObject}的${scenario || '适配'}功能，${benefit || '省时省力'}`,
+      `${mainObject}：${benefit || '内容创作'}利器，${effect || '效率提升'}`
     ];
 
-    return patterns[Math.floor(Math.random() * patterns.length)];
+    return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
   // 确保标题质量（符合Prompt文档要求 + 修复语义完整性）
@@ -1107,11 +1139,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         id: `ai-${Date.now()}-${index}`,
         title: titleData.title,
         length: titleData.length,
-        style: titleData.style.includes('🎯') ? 'result-oriented' :
-               titleData.style.includes('🤔') ? 'question-guided' :
-               titleData.style.includes('📘') ? 'professional' :
-               titleData.style.includes('💡') ? 'experience-based' :
-               titleData.style.includes('📣') ? 'emotional-trigger' : 'result-oriented',
+        style: titleData.style.includes('✅') ? 'result-emotion' :
+               titleData.style.includes('🤔') ? 'question-hook' :
+               titleData.style.includes('🎯') ? 'reason-action' :
+               titleData.style.includes('💡') ? 'experience-contrast' :
+               titleData.style.includes('🛠️') ? 'tool-value' : 'result-emotion',
         confidence: titleData.semanticFit,
         semanticFit: titleData.semanticFit,
         platform: platformId,
@@ -1173,7 +1205,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
       // Step 2: 五种风格生成逻辑（按规范）
       console.log('🎨 Step 2: 五种标准风格生成');
-      const allStyles: TitleStyle[] = ['result-oriented', 'question-guided', 'professional', 'experience-based', 'emotional-trigger'];
+      const allStyles: TitleStyle[] = ['result-emotion', 'question-hook', 'reason-action', 'experience-contrast', 'tool-value'];
       const newTitles: GeneratedTitle[] = [];
 
       for (const style of allStyles.slice(0, outputCount)) {
