@@ -71,6 +71,12 @@ interface ContentAnalysis {
   semanticSimilarity: number; // 语义相似度评分
   contentLength: number;
   coreMessage: string; // 核心信息提炼
+  // 新增强化字段
+  coreObjects: string[]; // 核心对象（具体工具名）
+  userBenefits: string[]; // 用户收益（具体效果）
+  useScenarios: string[]; // 使用场景（具体平台/场景）
+  keyActions: string[]; // 关键动作（具体操作）
+  quantifiedEffects: string[]; // 量化效果（具体数据）
 }
 
 // 标题风格枚举
@@ -251,6 +257,13 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // 计算语义相似度（模拟embedding向量计算）
     const semanticSimilarity = calculateSemanticSimilarity(cleanText, mainTopic);
 
+    // 🔧 新增强化分析（修复语义不完整问题）
+    const coreObjects = extractCoreObjects(cleanText);
+    const userBenefits = extractUserBenefits(cleanText);
+    const useScenarios = extractUseScenarios(cleanText);
+    const keyActions = extractKeyActions(cleanText);
+    const quantifiedEffects = extractQuantifiedEffects(cleanText);
+
     const analysis = {
       mainTopic,
       keyPoints,
@@ -260,7 +273,13 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       actionWords,
       semanticSimilarity,
       contentLength: cleanText.length,
-      coreMessage
+      coreMessage,
+      // 新增强化字段
+      coreObjects,
+      userBenefits,
+      useScenarios,
+      keyActions,
+      quantifiedEffects
     };
 
     console.log('✅ 内容分析完成:', analysis);
@@ -417,6 +436,104 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return Math.min(0.95, Math.max(0.5, matchCount / Math.max(topicWords.length, 1)));
   };
 
+  // 🔧 新增强化分析函数（修复语义不完整问题）
+
+  // 提取核心对象（具体工具名、产品名）
+  const extractCoreObjects = (text: string): string[] => {
+    const objects: string[] = [];
+
+    // 匹配具体工具名
+    const toolPatterns = [
+      /([^\s]{2,8}(?:AI|GPT|工具|助手|平台|系统|软件|应用))/g,
+      /(文派|ChatGPT|Claude|Midjourney|Figma|Notion|飞书|钉钉)/g,
+      /([^\s]{2,6}(?:生成器|适配器|编辑器|创作器))/g
+    ];
+
+    toolPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      objects.push(...matches);
+    });
+
+    return [...new Set(objects)].filter(obj => obj.length >= 2 && obj.length <= 10);
+  };
+
+  // 提取用户收益（具体效果、价值）
+  const extractUserBenefits = (text: string): string[] => {
+    const benefits: string[] = [];
+
+    // 匹配效果描述
+    const benefitPatterns = [
+      /(?:节省|提升|增加|减少|优化)([^\s]{2,8})/g,
+      /([^\s]{2,8})(?:翻倍|倍增|提升|增长)/g,
+      /(\d+%?)(?:的?(?:时间|效率|质量|速度))/g,
+      /(一键|自动|智能|快速)([^\s]{2,6})/g
+    ];
+
+    benefitPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      benefits.push(...matches);
+    });
+
+    return [...new Set(benefits)].filter(benefit => benefit.length >= 2);
+  };
+
+  // 提取使用场景（具体平台、场景）
+  const extractUseScenarios = (text: string): string[] => {
+    const scenarios: string[] = [];
+
+    // 匹配平台和场景
+    const scenarioPatterns = [
+      /(小红书|微博|抖音|B站|公众号|知乎|朋友圈)/g,
+      /([^\s]{2,6}(?:发文|创作|写作|营销|推广))/g,
+      /(职场|工作|学习|生活|商务)([^\s]{2,6})/g
+    ];
+
+    scenarioPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      scenarios.push(...matches);
+    });
+
+    return [...new Set(scenarios)].filter(scenario => scenario.length >= 2);
+  };
+
+  // 提取关键动作（具体操作）
+  const extractKeyActions = (text: string): string[] => {
+    const actions: string[] = [];
+
+    // 匹配动作词
+    const actionPatterns = [
+      /(一键|自动|智能|批量)([^\s]{2,6})/g,
+      /([^\s]{2,6}(?:生成|创建|制作|编辑|修改|优化))/g,
+      /(适配|转换|改写|调整|定制)([^\s]{2,6})?/g
+    ];
+
+    actionPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      actions.push(...matches);
+    });
+
+    return [...new Set(actions)].filter(action => action.length >= 2);
+  };
+
+  // 提取量化效果（具体数据）
+  const extractQuantifiedEffects = (text: string): string[] => {
+    const effects: string[] = [];
+
+    // 匹配数字和效果
+    const effectPatterns = [
+      /(\d+(?:\.\d+)?[%倍]?)(?:的?(?:时间|效率|质量|速度|提升|增长))/g,
+      /(?:节省|提升|增加)(\d+(?:\.\d+)?[%倍]?)/g,
+      /(\d+(?:分钟|小时|天|秒))(?:内|完成)/g
+    ];
+
+    effectPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      effects.push(...matches);
+    });
+
+    return [...new Set(effects)].filter(effect => effect.length >= 1);
+  };
+
   // 生成自然、内容感知的标题（符合Prompt文档规范）
   const generateNaturalTitle = (analysis: ContentAnalysis, style: TitleStyle): GeneratedTitle => {
     const { mainTopic, keyPoints, valueProposition, tone, entities, actionWords, coreMessage, semanticSimilarity } = analysis;
@@ -488,58 +605,108 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return generatedTitle;
   };
 
-  // 🎯 结果导向型标题生成 - V2优化版
+  // 🎯 结果导向型标题生成 - 修复语义完整性
   const generateResultOrientedTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
-    const { valueProposition, entities } = analysis;
+    const { valueProposition, userBenefits, quantifiedEffects, useScenarios, coreObjects } = analysis;
 
-    const patterns = [
-      `我用${primary}后涨粉3倍，真的惊到我了`,
-      `${primary}让我效率翻倍，太香了`,
-      `用${primary}后工作轻松了一半`,
-      `${primary}帮我解决了大难题`,
-      `${primary}使用效果超出预期`,
-      `${primary}真的改变了我的工作`,
-      `${primary}效果立竿见影，推荐`
-    ];
+    // 优先使用具体的核心对象
+    const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
 
-    // 如果有具体的价值主张，优先使用钩子型表达
-    if (valueProposition && valueProposition !== '提升效率') {
-      return `我用${primary}后${valueProposition}，真的很棒`;
+    // 优先使用具体的用户收益
+    const specificBenefit = userBenefits.length > 0 ? userBenefits[0] : valueProposition;
+
+    // 优先使用量化效果
+    const quantifiedEffect = quantifiedEffects.length > 0 ? quantifiedEffects[0] : '';
+
+    // 优先使用具体场景
+    const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
+
+    // 🔧 确保语义完整的模板（修复主谓搭配问题）
+    if (quantifiedEffect && specificBenefit) {
+      return `${mainObject}帮我${specificBenefit}${quantifiedEffect}`;
     }
 
-    return patterns[Math.floor(Math.random() * patterns.length)];
+    if (scenario && specificBenefit) {
+      return `用${mainObject}做${scenario}，${specificBenefit}`;
+    }
+
+    if (specificBenefit && specificBenefit !== '提升效率') {
+      return `${mainObject}让我${specificBenefit}，效果很棒`;
+    }
+
+    // 兜底模板（确保语义完整）
+    const fallbackPatterns = [
+      `${mainObject}真的提升了我的工作效率`,
+      `用${mainObject}后工作变轻松了`,
+      `${mainObject}帮我解决了大问题`,
+      `${mainObject}使用效果超出预期`
+    ];
+
+    return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
-  // 🤔 提问引导型标题生成
+  // 🤔 提问引导型标题生成 - 修复语义完整性
   const generateQuestionGuidedTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
-    const patterns = [
-      `为什么大家都在用${primary}`,
-      `${primary}真的好用吗`,
-      `如何用${primary}提升效率`,
-      `${primary}值得入手吗`,
-      `${primary}和其他工具比怎样`,
-      `${primary}适合什么人用`,
-      `${primary}有什么优势`
+    const { coreObjects, useScenarios, userBenefits } = analysis;
+
+    const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
+    const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
+    const benefit = userBenefits.length > 0 ? userBenefits[0] : '';
+
+    // 🔧 结合具体场景和收益的提问
+    if (scenario && benefit) {
+      return `为什么用${mainObject}做${scenario}能${benefit}`;
+    }
+
+    if (scenario) {
+      return `如何用${mainObject}优化${scenario}`;
+    }
+
+    if (benefit) {
+      return `${mainObject}真的能${benefit}吗`;
+    }
+
+    // 兜底模板
+    const fallbackPatterns = [
+      `为什么大家都在用${mainObject}`,
+      `${mainObject}真的好用吗`,
+      `如何用${mainObject}提升效率`,
+      `${mainObject}值得入手吗`
     ];
 
-    return patterns[Math.floor(Math.random() * patterns.length)];
+    return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
-  // 📘 专业理性型标题生成
+  // 📘 专业理性型标题生成 - 修复语义完整性
   const generateProfessionalTitle = (primary: string, secondary: string, analysis: ContentAnalysis): string => {
-    const { mainTopic } = analysis;
+    const { coreObjects, useScenarios, keyActions } = analysis;
 
-    const patterns = [
-      `${primary}功能深度解析`,
-      `${primary}使用指南详解`,
-      `${primary}产品评测报告`,
-      `${primary}操作方法总结`,
-      `${primary}实用技巧汇总`,
-      `${primary}完整使用教程`,
-      `${primary}功能特点分析`
+    const mainObject = coreObjects.length > 0 ? coreObjects[0] : primary;
+    const scenario = useScenarios.length > 0 ? useScenarios[0] : '';
+    const action = keyActions.length > 0 ? keyActions[0] : '';
+
+    // 🔧 结合具体场景和功能的专业表达
+    if (scenario && action) {
+      return `${mainObject}${scenario}${action}功能解析`;
+    }
+
+    if (scenario) {
+      return `${mainObject}在${scenario}中的应用指南`;
+    }
+
+    if (action) {
+      return `${mainObject}${action}功能详解`;
+    }
+
+    // 兜底模板
+    const fallbackPatterns = [
+      `${mainObject}功能深度解析`,
+      `${mainObject}使用指南详解`,
+      `${mainObject}实用技巧汇总`,
+      `${mainObject}完整使用教程`
     ];
 
-    return patterns[Math.floor(Math.random() * patterns.length)];
+    return fallbackPatterns[Math.floor(Math.random() * fallbackPatterns.length)];
   };
 
   // 💡 经验总结型标题生成
@@ -572,7 +739,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return patterns[Math.floor(Math.random() * patterns.length)];
   };
 
-  // 确保标题质量（符合Prompt文档要求）
+  // 确保标题质量（符合Prompt文档要求 + 修复语义完整性）
   const ensureTitleQuality = (title: string, style: TitleStyle): string => {
     let finalTitle = title;
 
@@ -593,7 +760,41 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       finalTitle = makeCompleteTitle(finalTitle);
     }
 
+    // 🔧 4. 语义完整性检查（新增）
+    finalTitle = ensureSemanticCompleteness(finalTitle);
+
     return finalTitle;
+  };
+
+  // 🔧 确保语义完整性（修复主谓搭配问题）
+  const ensureSemanticCompleteness = (title: string): string => {
+    let fixedTitle = title;
+
+    // 检查"我用X后Y"模式的完整性
+    if (title.includes('我用') && title.includes('后')) {
+      const afterMatch = title.match(/我用([^后]+)后(.+)/);
+      if (afterMatch) {
+        const tool = afterMatch[1];
+        const effect = afterMatch[2];
+
+        // 如果效果部分不完整（如只有数字或符号）
+        if (/^[\d%🚀！\s]*$/.test(effect)) {
+          fixedTitle = `我用${tool}后效率提升了`;
+        }
+      }
+    }
+
+    // 检查量化表达的完整性
+    if (/\d+%?[🚀！]*$/.test(title)) {
+      if (!title.includes('效率') && !title.includes('时间') && !title.includes('质量')) {
+        fixedTitle = title.replace(/(\d+%?)[🚀！]*$/, '$1效率');
+      }
+    }
+
+    // 移除无意义的符号
+    fixedTitle = fixedTitle.replace(/[🚀]{2,}/g, '').replace(/[！]{3,}/g, '！');
+
+    return fixedTitle;
   };
 
   // 智能截断保持语义完整
