@@ -68,18 +68,19 @@ export function getUserDisplayName(user: any): string {
   if (!user || typeof user !== 'object') {
     return '用户';
   }
-  
-  // 优先级：nickname > username > email前缀 > 默认值
+
+  // 🚨 FIXED: 强制修复 undefinedundefined 问题
   const nickname = safeString(user.nickname);
   const username = safeString(user.username);
   const email = safeString(user.email);
-  
-  if (nickname) return nickname;
-  if (username) return username;
-  if (email && email.includes('@')) {
+
+  // 额外检查：确保没有 undefined 字符串
+  if (nickname && nickname !== 'undefined') return nickname;
+  if (username && username !== 'undefined') return username;
+  if (email && email !== 'undefined' && email.includes('@')) {
     return email.split('@')[0];
   }
-  
+
   return '用户';
 }
 

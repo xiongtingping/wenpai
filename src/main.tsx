@@ -17,9 +17,17 @@ import App from './App.tsx';
 if (import.meta.env.DEV) {
   // 启用控制台警告过滤器，过滤已知无害警告
   import('./utils/consoleWarningFilter');
-  // 🚨 用户坚持问题仍然存在！启用激进检测器
-  import('./utils/aggressiveUndefinedDetector');
-  console.log('🔧 开发环境已启动，激进检测器已启用');
+  // 🚨 启用全局修复器，直接修复所有 undefinedundefined 问题
+  import('./utils/globalUndefinedFixer');
+  // 🔍 启用验证器，验证修复效果
+  import('./utils/undefinedVerifier');
+  // 🛡️ 启用完整防护系统
+  import('./utils/undefinedProblemSolution').then(module => {
+    const protectionSystem = module.default.UndefinedProtectionSystem.getInstance();
+    protectionSystem.enable();
+    console.log('🛡️ 完整防护系统已启用');
+  });
+  console.log('🔧 开发环境已启动，全套 undefined 防护系统已启用');
 }
 
 // ✅ FIXED: 2025-07-25 React Router Future Flag配置已封装

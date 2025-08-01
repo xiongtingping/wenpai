@@ -33,7 +33,7 @@ export interface UserInfo {
 /**
  * 获取用户显示名称
  * 优先级：nickname > username > email > 默认值
- * 
+ *
  * @param user 用户对象
  * @param fallback 默认值，默认为 '访客'
  * @returns 安全的用户显示名称
@@ -41,7 +41,18 @@ export interface UserInfo {
 export function getUserDisplayName(user?: UserInfo | null, fallback: string = '访客'): string {
   if (!user) return fallback;
 
-  const result = user.nickname || user.username || user.email || fallback;
+  // 🚨 FIXED: 强制修复 undefinedundefined 问题
+  const safeNickname = user.nickname && user.nickname !== 'undefined' ? user.nickname : '';
+  const safeUsername = user.username && user.username !== 'undefined' ? user.username : '';
+  const safeEmail = user.email && user.email !== 'undefined' ? user.email : '';
+
+  const result = safeNickname || safeUsername || safeEmail || fallback;
+
+  // 最终安全检查：如果仍然包含 undefined，强制返回 fallback
+  if (result === 'undefined' || result.includes('undefined')) {
+    console.warn('🛠️ 强制修复 undefined 问题，返回 fallback:', fallback);
+    return fallback;
+  }
 
   // 运行时检查：警告可能的undefined拼接
   if (import.meta.env.DEV && (result === 'undefined' || result.includes('undefined'))) {

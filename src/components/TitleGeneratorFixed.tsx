@@ -378,52 +378,78 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
     // 1. 数字+产品组合模板（修复语法问题）
     if (numbers.length > 0 && products.length > 0) {
+      const number = numbers[0];
+      const product = products[0];
       const emotion = emotions[0] || '真的很棒';
-      titleCandidates.push(
-        `发现${numbers[0]}${products[0]}！${emotion}`,
-        `推荐${numbers[0]}${products[0]}！${emotion}`,
-        `分享${numbers[0]}${products[0]}！${emotion}`,
-        `${numbers[0]}${products[0]}合集！${emotion}`,
-        `盘点${numbers[0]}${products[0]}！${emotion}`
-      );
+
+      // 确保数字和产品不为空且长度合理
+      if (number && product && number.length <= 5 && product.length <= 8) {
+        titleCandidates.push(
+          `发现${number}个${product}！${emotion}`,
+          `推荐${number}个${product}！${emotion}`,
+          `分享${number}个${product}！${emotion}`,
+          `${number}个${product}合集！${emotion}`,
+          `盘点${number}个${product}！${emotion}`
+        );
+      }
     }
 
     // 2. 成就+情感组合
     if (achievements.length > 0) {
+      const achievement = achievements[0];
       const emotion = emotions[0] || '太棒了';
-      titleCandidates.push(
-        `${achievements[0]}！${emotion}`,
-        `终于${achievements[0]}！${emotion}`
-      );
+
+      // 确保成就描述不为空且长度合理
+      if (achievement && achievement.trim().length > 0 && achievement.length <= 10) {
+        titleCandidates.push(
+          `${achievement}！${emotion}`,
+          `终于${achievement}！${emotion}`
+        );
+      }
     }
 
     // 3. 产品+情感组合
     if (products.length > 0) {
+      const product = products[0];
       const emotion = emotions[0] || '真的好用';
-      titleCandidates.push(
-        `${products[0]}${emotion}！必须安利`,
-        `这个${products[0]}${emotion}！`,
-        `安利一个${products[0]}！${emotion}`
-      );
+
+      // 确保产品名称不为空且长度合理
+      if (product && product.trim().length > 0 && product.length <= 8) {
+        titleCandidates.push(
+          `${product}${emotion}！必须安利`,
+          `这个${product}${emotion}！`,
+          `安利一个${product}！${emotion}`
+        );
+      }
     }
 
     // 4. 关键词+情感组合
     if (keywords.length > 0) {
+      const keyword = keywords[0];
       const emotion = emotions[0] || '绝了';
-      titleCandidates.push(
-        `${keywords[0]}！${emotion}`,
-        `关于${keywords[0]}，${emotion}`,
-        `${keywords[0]}真的${emotion}！`
-      );
+
+      // 确保关键词不为空且长度合理
+      if (keyword && keyword.trim().length > 0 && keyword.length <= 8) {
+        titleCandidates.push(
+          `${keyword}！${emotion}`,
+          `关于${keyword}，${emotion}`,
+          `${keyword}真的${emotion}！`
+        );
+      }
     }
 
     // 5. 纯情感表达（兜底方案）
     if (emotions.length > 0) {
-      titleCandidates.push(
-        `这个${emotions[0]}！`,
-        `真的${emotions[0]}！`,
-        `${emotions[0]}到不行！`
-      );
+      const emotion = emotions[0];
+
+      // 确保情感词不为空且长度合理
+      if (emotion && emotion.trim().length > 0 && emotion.length <= 6) {
+        titleCandidates.push(
+          `这个${emotion}！`,
+          `真的${emotion}！`,
+          `${emotion}到不行！`
+        );
+      }
     }
 
     // 验证并选择最佳标题
@@ -452,59 +478,74 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     // 构建标题候选列表
     const titleCandidates: string[] = [];
 
-    // 1. 方法类标题
+    // 1. 方法类标题 - 修复格式问题
     if (methods.length > 0) {
       const method = methods[0];
-      titleCandidates.push(
-        `${method}方法详解｜实用指南`,
-        `${method}完整教程｜干货分享`,
-        `${method}实战指南｜建议收藏`,
-        `掌握${method}的正确方法`,
-        `${method}全攻略｜新手必看`
-      );
+      // 确保方法名称不为空且长度合理
+      if (method && method.trim().length > 0 && method.length <= 10) {
+        titleCandidates.push(
+          `${method}详解｜实用指南`,
+          `${method}完整教程｜干货分享`,
+          `${method}实战指南｜建议收藏`,
+          `掌握${method}的正确方法`,
+          `${method}全攻略｜新手必看`
+        );
+      }
     }
 
-    // 2. 教程类标题
+    // 2. 教程类标题 - 修复格式问题
     if (tutorials.length > 0) {
       const tutorial = tutorials[0];
-      titleCandidates.push(
-        `${tutorial}教程｜完整攻略`,
-        `${tutorial}详细步骤｜手把手教学`,
-        `${tutorial}从入门到精通`,
-        `${tutorial}实操指南｜建议收藏`
-      );
+      // 确保教程名称不为空且长度合理
+      if (tutorial && tutorial.trim().length > 0 && tutorial.length <= 8) {
+        titleCandidates.push(
+          `${tutorial}教程｜完整攻略`,
+          `${tutorial}详细步骤｜手把手教学`,
+          `${tutorial}从入门到精通`,
+          `${tutorial}实操指南｜建议收藏`
+        );
+      }
     }
 
-    // 3. 要点类标题
+    // 3. 要点类标题 - 修复格式问题
     if (keyPoints.length > 0) {
       const keyPoint = keyPoints[0];
-      titleCandidates.push(
-        `${keyPoint}｜干货分享`,
-        `${keyPoint}深度解析`,
-        `关于${keyPoint}的重要提醒`,
-        `${keyPoint}详细说明｜专业解读`
-      );
+      // 确保关键点不为空且长度合理
+      if (keyPoint && keyPoint.trim().length > 0 && keyPoint.length <= 8) {
+        titleCandidates.push(
+          `${keyPoint}｜干货分享`,
+          `${keyPoint}深度解析`,
+          `关于${keyPoint}的重要提醒`,
+          `${keyPoint}详细说明｜专业解读`
+        );
+      }
     }
 
-    // 4. 主题类标题
+    // 4. 主题类标题 - 修复格式问题
     if (topics.length > 0) {
       const topic = topics[0];
-      titleCandidates.push(
-        `${topic}深度解析｜专业指南`,
-        `${topic}全面解读｜干货整理`,
-        `${topic}详细分析｜值得收藏`,
-        `关于${topic}你需要知道的事`
-      );
+      // 确保主题不为空且长度合理
+      if (topic && topic.trim().length > 0 && topic.length <= 8) {
+        titleCandidates.push(
+          `${topic}深度解析｜专业指南`,
+          `${topic}全面解读｜干货整理`,
+          `${topic}详细分析｜值得收藏`,
+          `关于${topic}你需要知道的事`
+        );
+      }
     }
 
-    // 5. 关键词兜底
+    // 5. 关键词兜底 - 修复格式问题
     if (keywords.length > 0) {
       const keyword = keywords[0];
-      titleCandidates.push(
-        `${keyword}详解｜实用指南`,
-        `${keyword}完整攻略｜干货分享`,
-        `${keyword}深度分析｜专业解读`
-      );
+      // 确保关键词不为空且长度合理
+      if (keyword && keyword.trim().length > 0 && keyword.length <= 8) {
+        titleCandidates.push(
+          `${keyword}详解｜实用指南`,
+          `${keyword}完整攻略｜干货分享`,
+          `${keyword}深度分析｜专业解读`
+        );
+      }
     }
 
     // 验证并选择最佳标题
@@ -535,42 +576,62 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
     // 1. 体验+感受组合
     if (experiences.length > 0 && feelings.length > 0) {
-      titleCandidates.push(
-        `${experiences[0]}，${feelings[0]}`,
-        `${experiences[0]}后，${feelings[0]}`,
-        `${experiences[0]}的真实感受：${feelings[0]}`
-      );
+      const experience = experiences[0];
+      const feeling = feelings[0];
+
+      // 确保体验和感受不为空且长度合理
+      if (experience && feeling && experience.length <= 10 && feeling.length <= 8) {
+        titleCandidates.push(
+          `${experience}，${feeling}`,
+          `${experience}后，${feeling}`,
+          `${experience}的真实感受：${feeling}`
+        );
+      }
     }
 
     // 2. 故事类标题
     if (stories.length > 0) {
       const story = stories[0];
-      titleCandidates.push(
-        `${story}｜真实分享`,
-        `${story}｜我的经历`,
-        `${story}｜想和你分享`,
-        `${story}的故事`
-      );
+
+      // 确保故事描述不为空且长度合理
+      if (story && story.trim().length > 0 && story.length <= 12) {
+        titleCandidates.push(
+          `${story}｜真实分享`,
+          `${story}｜我的经历`,
+          `${story}｜想和你分享`,
+          `${story}的故事`
+        );
+      }
     }
 
     // 3. 感受类标题
     if (feelings.length > 0) {
       const feeling = feelings[0];
-      titleCandidates.push(
-        `${feeling}｜真心话`,
-        `${feeling}｜内心独白`,
-        `说说${feeling}这件事`,
-        `关于${feeling}的思考`
-      );
+
+      // 确保感受描述不为空且长度合理
+      if (feeling && feeling.trim().length > 0 && feeling.length <= 8) {
+        titleCandidates.push(
+          `${feeling}｜真心话`,
+          `${feeling}｜内心独白`,
+          `说说${feeling}这件事`,
+          `关于${feeling}的思考`
+        );
+      }
     }
 
     // 4. 体验+情感组合
     if (experiences.length > 0 && emotions.length > 0) {
-      titleCandidates.push(
-        `${experiences[0]}让我${emotions[0]}`,
-        `${experiences[0]}真的${emotions[0]}`,
-        `${experiences[0]}的感受：${emotions[0]}`
-      );
+      const experience = experiences[0];
+      const emotion = emotions[0];
+
+      // 确保体验和情感不为空且长度合理
+      if (experience && emotion && experience.length <= 10 && emotion.length <= 6) {
+        titleCandidates.push(
+          `${experience}让我${emotion}`,
+          `${experience}真的${emotion}`,
+          `${experience}的感受：${emotion}`
+        );
+      }
     }
 
     // 5. 纯情感表达
@@ -829,26 +890,41 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return [...new Set(stories)].slice(0, 2);
   };
 
-  // 调整标题长度
+  // 调整标题长度 - 修复版本
   const adjustTitleLength = (title: string, limit: number): string => {
+    // 如果标题长度符合要求，直接返回
     if (title.length <= limit) {
       return title;
     }
 
-    // 智能截断，保留完整词汇
+    console.log('⚠️ 标题超长，需要截断:', { 原标题: title, 原长度: title.length, 限制: limit });
+
+    // 智能截断策略
     let truncated = title.substring(0, limit - 1);
-    const lastPunctuation = Math.max(
+
+    // 寻找合适的截断点（标点符号）
+    const punctuationPositions = [
       truncated.lastIndexOf('｜'),
       truncated.lastIndexOf('！'),
       truncated.lastIndexOf('？'),
-      truncated.lastIndexOf('。')
-    );
+      truncated.lastIndexOf('。'),
+      truncated.lastIndexOf('，'),
+      truncated.lastIndexOf('：')
+    ];
 
-    if (lastPunctuation > limit * 0.6) {
-      return truncated.substring(0, lastPunctuation + 1);
+    const lastPunctuation = Math.max(...punctuationPositions);
+
+    // 如果找到合适的标点符号位置（不能太靠前）
+    if (lastPunctuation > limit * 0.5) {
+      const result = truncated.substring(0, lastPunctuation + 1);
+      console.log('✅ 在标点处截断:', { 结果: result, 长度: result.length });
+      return result;
     }
 
-    return truncated + '…';
+    // 否则直接截断并添加省略号
+    const result = truncated + '…';
+    console.log('✅ 直接截断:', { 结果: result, 长度: result.length });
+    return result;
   };
 
   // 获取默认标题（按风格）

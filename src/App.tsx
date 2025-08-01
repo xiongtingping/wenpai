@@ -5,6 +5,7 @@ import { ScrollManager } from '@/components/layout/ScrollManager';
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import PageTracker from '@/components/analytics/PageTracker';
+import UndefinedFixer from '@/components/UndefinedFixer';
 
 // 页面组件导入
 import HomePage from '@/pages/HomePage';
@@ -40,9 +41,10 @@ import SettingsPage from '@/pages/SettingsPage';
 import AuthTestPage from '@/pages/AuthTestPage';
 import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
 import AuthingTestPage from '@/pages/AuthingTestPage';
-// 🚨 临时禁用 UndefinedTestPage 导入，避免意外触发 undefinedundefined 问题
-// import UndefinedTestPage from '@/pages/UndefinedTestPage';
+// 🚨 重新启用 UndefinedTestPage 用于验证修复效果
+import UndefinedTestPage from '@/pages/UndefinedTestPage';
 import TitleGrammarTestPage from '@/pages/TitleGrammarTestPage';
+import TitleFixTestPage from '@/pages/TitleFixTestPage';
 
 /**
  * 条件性导航组件
@@ -65,14 +67,14 @@ const ConditionalNavigation: React.FC = () => {
  */
 function AppContent() {
   return (
-    <>
+    <UndefinedFixer>
       {/* 滚动管理组件 - 启用自动滚动到顶部 */}
       <ScrollManager autoScrollToTop={true} />
       <PageTracker />
-      
+
       {/* 条件性顶部导航栏 - 首页隐藏，二级页面显示 */}
       <ConditionalNavigation />
-      
+
       <div className="min-h-screen bg-background">
         <Routes>
           {/* 公开页面 */}
@@ -170,16 +172,17 @@ function AppContent() {
           <Route path="/auth-test" element={<AuthTestPage />} />
           <Route path="/simple-auth-test" element={<SimpleAuthTestPage />} />
           <Route path="/authing-test" element={<AuthingTestPage />} />
-          {/* 🚨 临时禁用 UndefinedTestPage 路由，避免意外触发 undefinedundefined 问题 */}
-          {/* <Route path="/undefined-test" element={<UndefinedTestPage />} /> */}
+          {/* 🚨 重新启用 UndefinedTestPage 路由用于验证修复效果 */}
+          <Route path="/undefined-test" element={<UndefinedTestPage />} />
           <Route path="/test-login" element={<TestLoginPage />} />
           <Route path="/title-grammar-test" element={<TitleGrammarTestPage />} />
-          
+          <Route path="/title-fix-test" element={<TitleFixTestPage />} />
+
           {/* 404页面 - 必须放在最后 */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
-    </>
+    </UndefinedFixer>
   );
 }
 
