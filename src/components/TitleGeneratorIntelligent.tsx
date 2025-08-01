@@ -4,17 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, RefreshCw, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
+import { callAI } from '@/api/ai';
+import {
+  getTitleGenerationSystemPrompt,
+  getTitleGenerationPrompt,
+  PLATFORM_LIMITS,
+  TITLE_STYLES
+} from '@/ai/prompts/titleGeneration';
+import type { TitleGenerationResponse, TitleQualityCheck } from '@/ai/types';
 
-// Platform title length limits (按中文全角字符计算) - V2优化版
-const PLATFORM_TITLE_LIMITS: { [key: string]: number } = {
-  'xiaohongshu': 20,    // 小红书：20字以内
-  'wechat': 28,         // 公众号：28字以内
-  'weibo': 25,          // 微博：25字以内
-  'douyin': 18,         // 抖音：18字以内
-  'bilibili': 30,       // B站：30字以内
-  'zhihu': 50,          // 知乎
-  'default': 25
-};
+// 使用统一的平台限制配置（从AI prompt系统导入）
+const PLATFORM_TITLE_LIMITS = PLATFORM_LIMITS;
 
 // 标题质量评估权重配置
 const QUALITY_WEIGHTS = {
@@ -681,15 +681,15 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return patterns;
   };
 
-  // Main title generation function
+  // AI智能标题生成函数 - 集成强化主旨对齐约束
   const generateTitles = async () => {
     setIsGenerating(true);
 
     try {
-      console.log('🚀 Starting intelligent title generation...');
-      
-      // Get source content
-      const sourceContent = versions.length > 0 
+      console.log('🚀 开始AI智能标题生成（基于强化主旨对齐约束）');
+
+      // 准备内容
+      const sourceContent = versions.length > 0
         ? versions.map(v => v.content).join('\n\n')
         : content;
 
@@ -702,74 +702,140 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         return;
       }
 
-      // Analyze content semantically
+      // 构建AI调用参数
+      const systemPrompt = getTitleGenerationSystemPrompt();
+      const userPrompt = getTitleGenerationPrompt({
+        content: sourceContent,
+        versions,
+        platform: platformId,
+        stylePreference,
+        outputCount,
+        ensureDiversity
+      });
+
+      console.log('🧠 调用AI生成标题，使用强化主旨对齐约束...');
+
+      // 调用AI生成标题
+      const aiResponse = await callAI({
+        prompt: userPrompt,
+        systemPrompt: systemPrompt,
+        model: 'gpt-4',
+        temperature: 0.7,
+        maxTokens: 2000
+      });
+
+      if (!aiResponse.success || !aiResponse.content) {
+        throw new Error(aiResponse.error || 'AI调用失败');
+      }
+
+      // 解析AI响应
+      let aiResult: TitleGenerationResponse;
+      try {
+        // 提取JSON部分
+        const jsonMatch = aiResponse.content.match(/```json\s*([\s\S]*?)\s*```/);
+        const jsonContent = jsonMatch ? jsonMatch[1] : aiResponse.content;
+        aiResult = JSON.parse(jsonContent);
+      } catch (parseError) {
+        console.error('AI响应解析失败:', parseError);
+        throw new Error('AI响应格式错误，请重试');
+      }
+
+      // 转换为组件所需格式
+      const newTitles: GeneratedTitle[] = aiResult.titles.map((titleData, index) => ({
+        id: `ai-${Date.now()}-${index}`,
+        title: titleData.title,
+        length: titleData.length,
+        style: titleData.style.includes('🎯') ? 'result-oriented' :
+               titleData.style.includes('🤔') ? 'question-guided' :
+               titleData.style.includes('📘') ? 'professional' :
+               titleData.style.includes('💡') ? 'experience-based' :
+               titleData.style.includes('📣') ? 'emotional-trigger' : 'result-oriented',
+        confidence: titleData.semanticFit,
+        semanticFit: titleData.semanticFit,
+        platform: platformId,
+        isComplete: titleData.title.length >= 8 && !titleData.title.includes('...'),
+        styleDescription: titleData.style,
+        emotionalScore: titleData.semanticFit > 0.8 ? 0.9 : 0.7,
+        diversityScore: 0.8,
+        utilizationScore: titleData.length / titleLimit,
+        overallScore: titleData.semanticFit,
+        generationReason: titleData.reasoning,
+        extractedContent: aiResult.contentAnalysis.mainTheme
+      }));
+
+      // 过滤质量不达标的标题（语义贴合度≥75%）
+      const qualifiedTitles = newTitles.filter(title => title.semanticFit >= 0.75);
+
+      if (qualifiedTitles.length === 0) {
+        throw new Error('生成的标题质量不达标，请重试');
+      }
+
+      console.log('✅ AI标题生成完成:', qualifiedTitles.map(t => t.title));
+      console.log('📊 内容分析结果:', aiResult.contentAnalysis);
+
+      setTitles(qualifiedTitles);
+      if (qualifiedTitles.length > 0) {
+        setSelectedTitle(qualifiedTitles[0].title);
+        onTitleChange?.(qualifiedTitles[0].title);
+      }
+
+      toast({
+        title: "AI智能标题生成完成",
+        description: `基于强化主旨对齐约束生成了${qualifiedTitles.length}个高质量标题（语义贴合度≥75%）`,
+      });
+    } catch (error) {
+      console.error('AI标题生成失败:', error);
+
+      // 如果AI调用失败，回退到本地生成逻辑
+      console.log('🔄 回退到本地标题生成逻辑...');
+      await generateTitlesLocally();
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 本地标题生成逻辑（作为AI调用失败时的回退方案）
+  const generateTitlesLocally = async () => {
+    try {
+      const sourceContent = versions.length > 0
+        ? versions.map(v => v.content).join(' ')
+        : content;
+
       const analysis = analyzeContent(sourceContent);
-      
-      // 基于分析生成多样化风格的标题 - V2优化版
-      await new Promise(resolve => setTimeout(resolve, 800));
 
       const allStyles: TitleStyle[] = ['result-oriented', 'question-guided', 'professional', 'experience-based', 'emotional-trigger'];
-      const targetStyles = stylePreference.length > 0 ? stylePreference : allStyles;
       const newTitles: GeneratedTitle[] = [];
 
-      // 确保至少包含3种风格
-      const stylesToGenerate = ensureDiversity ?
-        [...new Set([...targetStyles, ...allStyles])].slice(0, Math.max(3, outputCount)) :
-        targetStyles.slice(0, outputCount);
-
-      // 生成指定数量的不同风格标题
-      for (const style of stylesToGenerate) {
+      for (const style of allStyles.slice(0, outputCount)) {
         const generatedTitle = generateNaturalTitle(analysis, style);
-
-        // 重新计算评分（考虑已有标题的多样性）
         const updatedScores = calculateTitleScores(generatedTitle.title, analysis, newTitles);
         generatedTitle.diversityScore = updatedScores.diversityScore;
         generatedTitle.overallScore = updatedScores.overallScore;
 
-        // 质量检查：语义贴合度≥70% 且表达完整
         if (generatedTitle.semanticFit >= 0.7 && generatedTitle.isComplete) {
           newTitles.push(generatedTitle);
         }
       }
 
-      // 如果生成的标题不足最小要求，补充生成
-      while (newTitles.length < Math.min(3, outputCount)) {
-        const randomStyle = allStyles[Math.floor(Math.random() * allStyles.length)];
-        const generatedTitle = generateNaturalTitle(analysis, randomStyle);
-
-        // 避免重复标题
-        if (!newTitles.some(t => t.title === generatedTitle.title)) {
-          const updatedScores = calculateTitleScores(generatedTitle.title, analysis, newTitles);
-          generatedTitle.diversityScore = updatedScores.diversityScore;
-          generatedTitle.overallScore = updatedScores.overallScore;
-          newTitles.push(generatedTitle);
-        }
-      }
-
-      // 按综合评分排序（考虑所有维度）
       newTitles.sort((a, b) => b.overallScore - a.overallScore);
-
-      console.log('✅ All titles generated:', newTitles.map(t => t.title));
-
       setTitles(newTitles);
+
       if (newTitles.length > 0) {
         setSelectedTitle(newTitles[0].title);
         onTitleChange?.(newTitles[0].title);
       }
 
       toast({
-        title: "智能标题生成完成",
-        description: `基于V2算法生成了${newTitles.length}个高质量标题（综合评分排序，语义贴合度≥70%）`,
+        title: "本地标题生成完成",
+        description: `生成了${newTitles.length}个标题（本地算法）`,
       });
     } catch (error) {
-      console.error('Title generation failed:', error);
+      console.error('本地标题生成也失败:', error);
       toast({
         title: "生成失败",
-        description: "请稍后重试",
+        description: "标题生成失败，请检查内容后重试",
         variant: "destructive"
       });
-    } finally {
-      setIsGenerating(false);
     }
   };
 
