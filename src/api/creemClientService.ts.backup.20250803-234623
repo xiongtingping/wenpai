@@ -278,7 +278,7 @@ async function createDirectCreemCheckout(priceId: string, customerEmail?: string
     const result = await directCreateCheckout(priceId, customerEmail);
 
     if (!result.success) {
-      throw new Error('创建支付检查点失败');
+      throw new Error(result.error || '创建支付检查点失败');
     }
 
     // 转换为统一格式

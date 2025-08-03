@@ -846,7 +846,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             console.log('⚠️ 直接JSON解析失败，尝试清理内容后重新解析');
             
             // 3. 清理可能的markdown格式和多余字符
-            let cleanedContent = jsonContent
+            const cleanedContent = jsonContent
               .replace(/^```json\s*/i, '')  // 移除开头的```json
               .replace(/\s*```$/i, '')      // 移除结尾的```
               .replace(/^```\s*/i, '')      // 移除开头的```

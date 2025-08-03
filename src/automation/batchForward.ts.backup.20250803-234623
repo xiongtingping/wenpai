@@ -225,7 +225,7 @@ export class BatchForwardAutomation {
       const publishUrl = this.getPlatformPublishUrl(platformData.platformId);
       if (!publishUrl) {
         return {
-          platformId: platformData.platformId,
+          platform: platformData.platformId,
           success: false,
           error: '未找到该平台的发布URL'
         };

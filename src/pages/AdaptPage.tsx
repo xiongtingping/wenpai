@@ -977,7 +977,7 @@ export default function AdaptPage() {
 
       if (standardResult.success && standardResult.content) {
         const userSetLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
-        let finalContent = standardResult.content;
+        const finalContent = standardResult.content;
 
         // 静默验证字符数，不显示任何提示文案
         const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
@@ -2863,7 +2863,7 @@ export default function AdaptPage() {
           const charCountDiff = Math.abs(actualCharCount - targetCharCount);
           const charCountTolerance = targetCharCount * 0.2; // 20%容差
 
-          let finalContent = aiResult.content;
+          const finalContent = aiResult.content;
           let warningMessage = '重新生成完成';
 
           if (charCountDiff > charCountTolerance) {
@@ -2970,7 +2970,7 @@ export default function AdaptPage() {
 
         // 生成标题（从TitleGenerator获取）
         const titleResult = results.find(r => r.platformId === pid);
-        let title = `${content.substring(0, 30)}...`; // 默认标题
+        const title = `${content.substring(0, 30)}...`; // 默认标题
 
         // 生成标签（从PlatformHashtags获取）
         const tags: string[] = [];
@@ -4140,7 +4140,7 @@ ${dimensions.join('\n\n')}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {allModels.map((model) => {
               const isAvailable = availableModels.some(m => m.id === model.id);
-              let disabled = !isAvailable;
+              const disabled = !isAvailable;
               let badge = '';
               let showUpgradeTip = false;
 

@@ -1,4 +1,3 @@
-import { Clock } from "lucide-react";
 /**
  * 关于我们页面
  */

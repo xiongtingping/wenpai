@@ -53,7 +53,7 @@ export function createGuardInstance(): Guard {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      // userPoolId: // 已移除 - 使用 appId config.userPoolId,
+      userPoolId: config.userPoolId,
       mode: 'modal',  // 🎯 修复：使用弹窗模式，支持 guard.show() 方法
       // 🌐 语言配置 - 修复字符编码问题
       lang: 'zh-CN',
