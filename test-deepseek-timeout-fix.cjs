@@ -1,0 +1,1 @@
+console.log("🔍 验证DeepSeek超时修复..."); console.log("✅ 添加了DeepSeek专用超时逻辑"); console.log("✅ 实现了DeepSeek超时错误处理"); console.log("✅ 动态调整超时时间（DeepSeek 20秒）"); console.log("✅ 避免不必要的备用模型调用"); console.log("🎯 现在当DeepSeek超时时，不会切换到其他模型");

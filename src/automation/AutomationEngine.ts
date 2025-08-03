@@ -424,7 +424,7 @@ export class AutomationEngine {
             'zhihu': 'https://zhuanlan.zhihu.com/write',
             'bilibili': 'https://member.bilibili.com/platform/upload/text/edit',
             'twitter': 'https://twitter.com/compose/tweet',
-            'video': 'https://channels.weixin.qq.com'
+            'video': 'https://channels.weixin.qq.com/login.html'
           };
 
           const url = platformUrls[platformContent.platformId as keyof typeof platformUrls];
@@ -540,7 +540,7 @@ export class AutomationEngine {
         instructions: '请在X平台发推页面粘贴内容并发布'
       },
       'video': {
-        url: 'https://channels.weixin.qq.com',
+        url: 'https://channels.weixin.qq.com/login.html',
         name: '微信视频号',
         instructions: '请在微信视频号发布页面粘贴内容并上传视频'
       }

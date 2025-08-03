@@ -90,14 +90,14 @@ export function ContentFormSelector({
           <div className="space-y-3">
             <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-3">
               <Target className="h-4 w-4" />
-              选择内容形式
+              请选择内容形式
             </h4>
 
           <Collapsible open={isContentFormOpen} onOpenChange={setIsContentFormOpen}>
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-600">选择内容形式</span>
+                <span className="text-sm font-medium text-gray-600">请选择内容形式</span>
                 {selectedForm && (
                   <Badge variant="secondary" className="ml-2">
                     已选择：{selectedForm.name}
@@ -209,9 +209,9 @@ export function ContentFormSelector({
               <div className="flex items-center gap-2">
                 {selectedStyle ? (
                   <>
-                    <span className="text-sm font-medium text-gray-600">表达风格</span>
+                    <span className="text-sm font-medium text-gray-600">请选择表达风格</span>
                     <Badge variant="secondary" className="ml-2">
-                      {availableStyles.find(s => s.id === selectedStyle)?.name}
+                      已选择：{availableStyles.find(s => s.id === selectedStyle)?.name}
                     </Badge>
                   </>
                 ) : (

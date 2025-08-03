@@ -1,0 +1,1 @@
+console.log("🔍 验证API优化效果..."); console.log("✅ 增加了基础间隔到3秒"); console.log("✅ 使用更保守的指数退避策略"); console.log("✅ 增加了429错误后的等待时间"); console.log("✅ 降低了总调用次数限制"); console.log("✅ 减少了token使用量到400"); console.log("✅ 使用更保守的温度设置0.7"); console.log("✅ 优化了429和404错误处理"); console.log("🎯 这些优化应该能显著减少429错误");

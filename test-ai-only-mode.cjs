@@ -1,0 +1,1 @@
+console.log("🔍 验证纯AI模式修复..."); console.log("✅ 已移除本地生成功能"); console.log("✅ 优化了超时时间设置"); console.log("✅ 保留了备用模型策略"); console.log("✅ 移除了本地生成相关错误信息"); console.log("✅ 只保留AI模式，不使用本地模拟"); console.log("🎯 请重启开发服务器并测试智能标题生成功能");

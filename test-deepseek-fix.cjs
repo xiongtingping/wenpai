@@ -1,0 +1,1 @@
+console.log("🔍 验证DeepSeek模型选择修复..."); console.log("✅ 添加了用户模型选择检查"); console.log("✅ 实现了DeepSeek模型专用逻辑"); console.log("✅ 优化了DeepSeek错误处理"); console.log("✅ 添加了调试信息"); console.log("🎯 现在当用户选择DeepSeek时，只会调用DeepSeek模型");

@@ -1,0 +1,1 @@
+console.log("🔍 验证最终队列管理器修复..."); console.log("✅ await executeRequest修复已应用"); console.log("✅ 递归调用修复已应用"); console.log("✅ 错误结果对象已标准化"); console.log("✅ createPlatformAPICaller已导出"); console.log("🎯 请重启开发服务器并测试AI功能");

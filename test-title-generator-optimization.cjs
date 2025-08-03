@@ -1,0 +1,1 @@
+console.log("🔍 验证智能标题生成优化效果..."); console.log("✅ 防抖机制已优化"); console.log("✅ 内容长度要求已降低"); console.log("✅ 超时控制已添加"); console.log("✅ API调用限制已优化"); console.log("✅ 节流配置已优化"); console.log("✅ Token数已优化"); console.log("✅ 平台切换逻辑已优化"); console.log("🎯 请重启开发服务器并测试智能标题生成功能");

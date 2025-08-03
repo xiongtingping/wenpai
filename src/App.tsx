@@ -49,6 +49,7 @@ import TitlePlatformSwitchTestPage from '@/pages/TitlePlatformSwitchTestPage';
 import TitleSemanticTestPage from '@/pages/TitleSemanticTestPage';
 import TitleAntiTemplateTestPage from '@/pages/TitleAntiTemplateTestPage';
 import TitleV3TestPage from '@/pages/TitleV3TestPage';
+import HistoryPage from '@/pages/HistoryPage';
 
 /**
  * 条件性导航组件
@@ -185,6 +186,13 @@ function AppContent() {
           <Route path="/title-semantic-test" element={<TitleSemanticTestPage />} />
           <Route path="/title-anti-template-test" element={<TitleAntiTemplateTestPage />} />
           <Route path="/title-v3-test" element={<TitleV3TestPage />} />
+
+          {/* 历史记录页面 */}
+          <Route path="/history" element={
+            <PermissionGuard required="auth:required">
+              <HistoryPage />
+            </PermissionGuard>
+          } />
 
           {/* 404页面 - 必须放在最后 */}
           <Route path="*" element={<NotFoundPage />} />
