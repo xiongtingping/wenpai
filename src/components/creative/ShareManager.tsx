@@ -446,9 +446,14 @@ const ShareManager: React.FC = () => {
             {/* 内容编辑 */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Edit className="w-5 h-5" />
-                  内容编辑
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Edit className="w-5 h-5" />
+                    <span>内容编辑</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    多平台
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -510,9 +515,14 @@ const ShareManager: React.FC = () => {
             {/* 平台选择 */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Share2 className="w-5 h-5" />
-                  选择平台
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Share2 className="w-5 h-5" />
+                    <span>选择平台</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    批量发布
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>

@@ -1528,9 +1528,14 @@ Your output must feel like it was written by a real KOC or content strategist �
       {/* 九宫格创意魔方 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            九宫格创意魔方
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              <span>九宫格创意魔方</span>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              AI创意
+            </Badge>
           </CardTitle>
           <CardDescription>
             选择不同维度的元素，AI将为你生成可直接使用的创意内容

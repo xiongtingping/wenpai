@@ -3609,9 +3609,8 @@ ${dimensions.join('\n\n')}
           </CardContent>
         </Card>
         <Card className="mt-4">
-          <CardContent>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
               <Checkbox 
                 id="use-brand-library" 
                 checked={useBrandLibrary}
@@ -3622,27 +3621,24 @@ ${dimensions.join('\n\n')}
                   setUseBrandLibrary(!!checked);
                 }}
               />
-              <div>
+              <div className="flex-1">
                 <Label htmlFor="use-brand-library" className="text-sm cursor-pointer">
                   使用品牌库资料进行创作
                 </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  上传您的品牌资料库，AI在创作时会自动遵循您的语言规范，融入品牌价值，规避公关风险。分发再多平台，品牌形象始终如一。
+                  AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
                   <span className="text-xs text-amber-500 ml-1">（需开通高级功能）</span>
                 </p>
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex-shrink-0">
                 {contentCharCount} 字符
               </Badge>
             </div>
-          </div>
-        </CardContent>
+          </CardContent>
         </Card>
 
       {/* Platform Selection Section */}
-      <div className="mb-8">
+      <div className="mb-8 mt-8">
         <h1 className="text-2xl font-bold mb-6">选择目标平台</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
           {platforms.map(platform => (
@@ -4350,15 +4346,21 @@ ${dimensions.join('\n\n')}
 
                       {/* 1. 智能标题生成 */}
                       {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
-                        <div className="bg-white rounded-lg border border-gray-200 shadow-md min-h-[120px] mb-4">
+                        <div className="bg-white rounded-lg border border-gray-200 shadow-md mb-4">
                           <div className="px-3 py-2 border-b border-gray-100">
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">标</span>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                                  <span className="text-white text-xs font-bold">标</span>
+                                </div>
+                                <div>
+                                  <h3 className="text-base font-semibold text-gray-900">智能标题生成</h3>
+                                  <p className="text-xs text-gray-500">基于内容智能生成吸引眼球的标题</p>
+                                </div>
                               </div>
-                              <div>
-                                <h3 className="text-base font-semibold text-gray-900">智能标题生成</h3>
-                                <p className="text-xs text-gray-500">基于内容智能生成吸引眼球的标题</p>
+                              <div className="flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                                <span>{getPlatformName(result.platformId, platforms)}</span>
+                                <span className="text-gray-400">(限{getPlatformMaxCharCount(result.platformId)}字)</span>
                               </div>
                             </div>
                           </div>
@@ -4831,19 +4833,25 @@ ${dimensions.join('\n\n')}
 
                       {/* 3. 智能标签生成 */}
                       {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
-                        <div className="bg-white rounded-lg border border-gray-200 shadow-md min-h-[120px] mb-4">
+                        <div className="bg-white rounded-lg border border-gray-200 shadow-md mb-4">
                           <div className="px-3 py-2 border-b border-gray-100">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
-                                <span className="text-white text-sm font-bold">签</span>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                  <span className="text-white text-xs font-bold">签</span>
+                                </div>
+                                <div>
+                                  <h3 className="text-base font-semibold text-gray-900">智能标签生成</h3>
+                                  <p className="text-xs text-gray-500">基于以上内容智能生成话题标签</p>
+                                </div>
                               </div>
-                              <div>
-                                <h3 className="text-lg font-semibold text-gray-900">智能标签生成</h3>
-                                <p className="text-sm text-gray-500">基于以上内容智能生成话题标签</p>
+                              <div className="flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                                <span>{getPlatformName(result.platformId, platforms)}</span>
+                                <span className="text-gray-400">标签生成</span>
                               </div>
                             </div>
                           </div>
-                          <div className="p-6">
+                          <div className="p-3">
                             <PlatformHashtags
                               key={`${result.platformId}-unified-${(result.content || (result.versions && result.versions[0]?.content) || '').length}`}
                               platformId={result.platformId}

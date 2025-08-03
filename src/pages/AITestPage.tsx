@@ -215,7 +215,10 @@ const AITestPage: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>测试结果</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Clipboard className="h-5 w-5" />
+                测试结果
+              </CardTitle>
               <CardDescription>
                 功能测试的执行结果
               </CardDescription>
@@ -314,7 +317,10 @@ const AITestPage: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>支持的文件类型</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                支持的文件类型
+              </CardTitle>
               <CardDescription>
                 AI分析功能支持的文件格式
               </CardDescription>

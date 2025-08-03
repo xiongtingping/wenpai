@@ -144,9 +144,14 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          品牌内容生成器
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Brain className="h-5 w-5" />
+            <span>品牌内容生成器</span>
+          </div>
+          <Badge variant="outline" className="text-xs">
+            AI生成
+          </Badge>
         </CardTitle>
         <CardDescription>
           基于品牌档案自动生成符合品牌调性的内容

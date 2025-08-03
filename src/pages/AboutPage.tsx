@@ -161,7 +161,10 @@ const AboutPage: React.FC = () => {
         {/* 发展历程 */}
         <Card>
           <CardHeader>
-            <CardTitle>发展历程</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              发展历程
+            </CardTitle>
             <CardDescription>
               文派平台的重要发展节点
             </CardDescription>

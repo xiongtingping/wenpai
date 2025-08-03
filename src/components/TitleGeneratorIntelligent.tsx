@@ -1279,8 +1279,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     return (
       <Card className="w-full">
         <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-yellow-500" />
+                  <CardTitle className="text-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-yellow-500" />
+            <span>智能标题生成</span>
+          </div>
           <Badge variant="outline" className="text-xs">
             {memoizedPlatformName} (限{titleLimit}字)
           </Badge>
@@ -1305,8 +1308,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-yellow-500" />
+        <CardTitle className="text-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-yellow-500" />
+            <span>智能标题生成</span>
+          </div>
           <Badge variant="outline" className="text-xs">
             {memoizedPlatformName} (限{titleLimit}字)
           </Badge>

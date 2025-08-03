@@ -295,9 +295,14 @@ export default function MarketingCalendar() {
       {/* 日期导航 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            营销日历
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              <span>营销日历</span>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              农历营销
+            </Badge>
           </CardTitle>
           <CardDescription>
             基于农历信息提供营销建议，帮助您选择最佳营销时机
@@ -384,10 +389,15 @@ export default function MarketingCalendar() {
       {/* 营销建议 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            营销建议
-              </CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              <span>营销建议</span>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              智能推荐
+            </Badge>
+          </CardTitle>
           <CardDescription>
             基于当前日期的营销机会和建议
           </CardDescription>
