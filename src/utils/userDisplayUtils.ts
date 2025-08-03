@@ -77,7 +77,7 @@ export function getUserDisplayName(user?: UserInfo | null, fallback: string = 'è
 export function getUserAvatar(user?: UserInfo | null): string {
   if (!user) return '';
   
-  return user.avatar || user.photo || '';
+  return getUserDisplayName(user, '') || '';
 }
 
 /**

@@ -82,7 +82,7 @@ export function AIConnectionTest() {
       };
     });
 
-    setServices(updatedServices);
+    setServices(updatedServices as AIServiceStatus[]);
     
     // 获取可用模型列表
     const models = getAvailableModels();

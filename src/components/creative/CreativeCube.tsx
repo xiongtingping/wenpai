@@ -178,7 +178,7 @@ function DimensionCard({
               variant={selectedItem === item ? "default" : "outline"}
               className="w-full justify-start text-xs h-7"
               onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
-              disabled={selectedItem && selectedItem !== item}
+              disabled={!!selectedItem && selectedItem !== item}
             >
               {item}
             </Button>
@@ -700,7 +700,7 @@ ${extensions}`;
   const generateHumorousTitle = () => {
     const { target_audience, use_case, pain_point, core_value, industry } = selectedItems;
     
-    const titleTemplates = {
+    const titleTemplates: Record<string, Record<string, string>> = {
       '美妆': {
         '健身': `🏃‍♀️健身没时间？这款美妆神器让${target_audience}也能一秒出门自带光！`,
         '通勤': `🚇通勤路上补妆难？${target_audience}专属美妆神器，地铁上也能精致在线！`,
@@ -755,7 +755,7 @@ ${highlights}`;
   const generateOpeningPain = () => {
     const { target_audience, use_case, pain_point, industry } = selectedItems;
     
-    const painTemplates = {
+    const painTemplates: Record<string, Record<string, string>> = {
       '美妆': {
         '健身': `作为${target_audience}，每天上课、打工、健身三点一线，哪还有时间化妆？\n尤其健完身还要赶图书馆、见朋友，时间根本不够用！`,
         '通勤': `作为${target_audience}，每天地铁公交来回奔波，哪有时间精致化妆？\n尤其早晚高峰，连补妆的时间都没有！`,
@@ -793,7 +793,7 @@ ${highlights}`;
   const generateProductHighlights = () => {
     const { industry, use_case, core_value } = selectedItems;
     
-    const highlightTemplates = {
+    const highlightTemplates: Record<string, Record<string, string>> = {
       '美妆': {
         '健身': `💨 5秒上妆，零卡粉、不脱妆，健身完照样在线状态！\n🌿 养肤级底妆，汗后肌肤也不崩，提升气色不假面。\n🎒 迷你便携，一支搞定出门妆 + 补妆 + 气场加持！`,
         '通勤': `⚡ 3秒补妆，地铁上也能精致在线！\n🌿 持久不脱妆，早晚高峰也不怕！\n🎒 口袋大小，通勤路上随时补妆！`,
@@ -823,7 +823,7 @@ ${highlights}`;
   const generateVideoSuggestions = () => {
     const { target_audience, use_case, industry } = selectedItems;
     
-    const videoTemplates = {
+    const videoTemplates: Record<string, Record<string, string>> = {
       '美妆': {
         '健身': `• 镜头1：${target_audience}宿舍，闹钟响起，时间紧张\n• 镜头2：健身房镜头，快速出汗、看表\n• 镜头3：快速上妆镜头（BGM轻快节奏感）\n• 镜头4：见朋友状态在线，画面定格品牌产品`,
         '通勤': `• 镜头1：${target_audience}匆忙起床，时间不够\n• 镜头2：地铁站镜头，人潮拥挤\n• 镜头3：快速补妆镜头（BGM都市节奏）\n• 镜头4：精致妆容，自信走出地铁`,
@@ -870,7 +870,7 @@ ${getIndustryTags().join(' ')} #${target_audience} #${use_case} #${industry}`;
    */
   const getIndustryTags = () => {
     const { industry } = selectedItems;
-    const industryTags = {
+    const industryTags: Record<string, string[]> = {
       '母婴': ['#宝妈日常', '#育儿经验', '#省钱妙招', '#亲子时光'],
       '美妆': ['#美妆分享', '#护肤心得', '#变美秘籍', '#美妆测评'],
       '旅游': ['#旅行攻略', '#省钱旅游', '#旅行日记', '#穷游风也能很美'],
@@ -895,7 +895,7 @@ ${getIndustryTags().join(' ')} #${target_audience} #${use_case} #${industry}`;
   const generateHumorousCallToAction = () => {
     const { target_audience, use_case, pain_point, industry } = selectedItems;
     
-    const callToActions = {
+    const callToActions: Record<string, Record<string, string>> = {
       '美妆': {
         '健身': `⌛ 谁说健身和精致不能兼得？快评论区告诉我你的 #健身速妆秘籍 吧！`,
         '通勤': `🚇 通勤路上有什么补妆妙招？快来分享你的 #通勤美妆秘籍 ！`,
@@ -973,7 +973,7 @@ ${generateStandardCallToAction()}
   const generateIndustrySpecificContent = () => {
     const { industry, target_audience, core_value } = selectedItems;
     
-    const industryContent = {
+    const industryContent: Record<string, string> = {
       '母婴': `在育儿过程中，${core_value}为${target_audience}提供贴心的服务和解决方案。`,
       '美妆': `在个人形象塑造中，${core_value}帮助${target_audience}展现最佳状态。`,
       '旅游': `无论是家庭出游还是商务出行，${core_value}都能为${target_audience}提供更优质的旅行体验。`,
@@ -1033,7 +1033,7 @@ ${generateStandardCallToAction()}
     
     // 场景设定
     const getVideoSetting = () => {
-      const settings = {
+      const settings: Record<string, Record<string, string>> = {
         '旅游': {
           '通勤': '地铁车厢，上班族对着手机屏幕叹气',
           '旅游途中': '旅游景点，游客们排队等待拍照',
@@ -1061,7 +1061,7 @@ ${generateStandardCallToAction()}
 
     // 镜头脚本
     const getShotScript = () => {
-      const shots = {
+      const shots: Record<string, string[]> = {
         '旅游': [
           '镜头1：特写手机屏幕，显示机票价格，表情震惊',
           '镜头2：全景地铁车厢，上班族瘫在座位上叹气',
@@ -1108,7 +1108,7 @@ ${generateStandardCallToAction()}
 
     // 台词脚本
     const getDialogueScript = () => {
-      const dialogues = {
+      const dialogues: Record<string, string[]> = {
         '旅游': [
           '旁白：通勤路上，钱包瘦了一圈💸',
           '上班族：旅游途中，消费比工资还高😵‍💫',
@@ -1155,7 +1155,7 @@ ${generateStandardCallToAction()}
 
     // BGM建议
     const getBGM = () => {
-      const bgm = {
+      const bgm: Record<string, string> = {
         '旅游': '轻快旅行音乐，营造轻松愉快的氛围',
         '母婴': '温馨亲子音乐，营造温馨有爱的氛围',
         '美妆': '时尚美妆音乐，营造精致优雅的氛围',

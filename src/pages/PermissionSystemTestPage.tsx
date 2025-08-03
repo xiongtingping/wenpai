@@ -15,7 +15,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Shield, Lock, CheckCircle, XCircle } from 'lucide-react';
-import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 const PermissionSystemTestPage: React.FC = () => {
   const { user, isAuthenticated, login, logout } = useUnifiedAuth();

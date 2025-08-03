@@ -932,3 +932,45 @@
   margin-right: 0.5rem;
   line-height: 1;
 }
+
+/* Tab状态动画 */
+@keyframes tabGlow {
+  0% { 
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0.8); 
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.8); 
+    transform: scale(1.02);
+  }
+  100% { 
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0); 
+    transform: scale(1);
+  }
+}
+
+.animate-tabGlow {
+  animation: tabGlow 1s ease-in-out;
+}
+
+/* Tab状态样式增强 */
+.tab-completed {
+  border: 2px solid #22c55e !important;
+  background-color: #f0fdf4 !important;
+  color: #15803d !important;
+  font-weight: 600 !important;
+}
+
+.tab-error {
+  border: 2px solid #ef4444 !important;
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  font-weight: 600 !important;
+}
+
+.tab-generating {
+  border: 2px solid #eab308 !important;
+  background-color: #fefce8 !important;
+  color: #a16207 !important;
+  font-weight: 600 !important;
+}

@@ -19,7 +19,7 @@ if (import.meta.env.DEV) {
 
     const textNodes = [];
     let node;
-    while (node = walker.nextNode()) {
+    while ((node = walker.nextNode()) !== null) {
       textNodes.push(node);
     }
 

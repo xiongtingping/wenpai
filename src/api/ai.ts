@@ -261,9 +261,10 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       return handleStreamResponse(data, model, startTime);
     }
 
+    // ✅ FIXED: 2025-08-02 修复响应处理逻辑
     // 处理普通响应
-    const content = data.choices[0]?.message?.content || '';
-    const usage = data.usage;
+    const content = data?.choices?.[0]?.message?.content || '';
+    const usage = data?.usage;
 
     return {
       content,
@@ -275,6 +276,29 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
 
   } catch (error) {
     console.error('AI API调用失败:', error);
+    console.log(`🔍 callAI catch块调试: error=${error}, type=${typeof error}, message=${error instanceof Error ? error.message : 'N/A'}`);
+
+    // ✅ FIXED: 2025-08-02 增强浏览器网络错误处理
+    // 导入浏览器网络诊断模块
+    try {
+      import('../utils/browserNetworkFix').then(module => {
+        if (module && typeof module.diagnoseBrowserNetworkIssue === 'function') {
+          const diagnostic = module.diagnoseBrowserNetworkIssue(error);
+          console.log('🔍 浏览器网络问题诊断:', diagnostic);
+          
+          if (diagnostic.canAutoFix) {
+            console.log('🔄 尝试自动修复浏览器网络问题...');
+            module.applyBrowserNetworkFix();
+          }
+        } else {
+          console.warn('⚠️ 浏览器网络诊断模块加载失败');
+        }
+      }).catch(importError => {
+        console.warn('⚠️ 浏览器网络诊断模块导入失败:', importError);
+      });
+    } catch (diagnosticError) {
+      console.warn('⚠️ 浏览器网络诊断执行失败:', diagnosticError);
+    }
 
     // 详细的错误分析和用户友好提示
     let userFriendlyError = '未知错误';
@@ -287,13 +311,13 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
       userFriendlyError = `${apiProvider || 'AI'} API密钥无效或权限不足`;
       console.error(`🚨 认证错误: API密钥可能无效`);
     } else if (technicalError.includes('429')) {
-      userFriendlyError = `${apiProvider || 'AI'} API调用频率超限，请稍后重试`;
+      userFriendlyError = `${apiProvider || 'AI'} API调用频率超限（429错误），请稍后重试`;
     } else if (technicalError.includes('500') || technicalError.includes('502') || technicalError.includes('503')) {
       userFriendlyError = `${apiProvider || 'AI'} 服务暂时不可用，请稍后重试`;
     } else if (technicalError.includes('timeout') || technicalError.includes('TIMEOUT')) {
       userFriendlyError = `${apiProvider || 'AI'} API调用超时（超过150秒），可能是网络问题或请求过于复杂，建议简化内容或稍后重试`;
-    } else if (technicalError.includes('network') || technicalError.includes('NETWORK')) {
-      userFriendlyError = '网络连接失败，请检查网络设置或稍后重试';
+    } else if (technicalError.includes('network') || technicalError.includes('NETWORK') || technicalError.includes('ERR_PROXY_CONNECTION_FAILED')) {
+      userFriendlyError = '网络连接失败，请检查网络设置或代理配置，建议禁用浏览器代理后重试';
     } else if (technicalError.includes('content_filter') || technicalError.includes('content_policy')) {
       userFriendlyError = '内容被AI安全策略拦截，请调整内容后重试';
     }
@@ -524,11 +548,14 @@ export async function callAIBatch(
  */
 export async function callAIWithRetry(
   params: AICallParams, 
-  maxRetries: number = 3
+  maxRetries: number = 8
 ): Promise<AIResponse> {
   let lastError: Error | null = null;
-  
+
+  console.log(`🚀 callAIWithRetry 开始: 最大重试次数=${maxRetries}`);
+
   for (let i = 0; i < maxRetries; i++) {
+    console.log(`🔄 第${i + 1}次尝试调用AI...`);
     try {
       const result = await callAI(params);
       
@@ -536,17 +563,54 @@ export async function callAIWithRetry(
         return result;
       }
       
+      // ✅ FIXED: 处理非异常错误（如429）
       lastError = new Error(result.error || '调用失败');
       
+      // 检查是否是429错误
+      const is429Error = result.error && result.error.includes('429');
+      
+      // 调试日志
+      console.log(`🔍 重试机制调试: result.error="${result.error}", is429Error=${is429Error}, 重试次数=${i+1}/${maxRetries}`);
+      
+      // 等待一段时间后重试 - 使用指数退避策略，针对429错误增加延迟
+      if (i < maxRetries - 1) {
+        let delay = Math.min(Math.pow(2, i) * 1000, 10000); // 基础延迟
+        
+        // 如果是429错误，增加更长的延迟
+        if (is429Error) {
+          delay = Math.min(Math.pow(2, i) * 3000, 60000); // 429错误延迟更长，最大60秒
+          console.log(`🔄 第${i + 1}次重试失败（429错误），${delay/1000}秒后进行第${i + 2}次重试...`);
+        } else {
+          console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error('未知错误');
-    }
-    
-    // 等待一段时间后重试 - 使用指数退避策略
-    if (i < maxRetries - 1) {
-      const delay = Math.min(Math.pow(2, i) * 1000, 10000); // 最大延迟10秒
-      console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      // 确保429错误能正确传递
+      if (error instanceof Error) {
+        lastError = error;
+      } else if (typeof error === 'string') {
+        lastError = new Error(error);
+      } else {
+        lastError = new Error('未知错误');
+      }
+      
+      // 等待一段时间后重试
+      if (i < maxRetries - 1) {
+        let delay = Math.min(Math.pow(2, i) * 1000, 10000); // 基础延迟
+        
+        // 如果是429错误，增加更长的延迟
+        if (lastError && lastError.message.includes('429')) {
+          delay = Math.min(Math.pow(2, i) * 3000, 60000); // 429错误延迟更长，最大60秒
+          console.log(`🔄 第${i + 1}次重试失败（429错误），${delay/1000}秒后进行第${i + 2}次重试...`);
+        } else {
+          console.log(`🔄 第${i + 1}次重试失败，${delay/1000}秒后进行第${i + 2}次重试...`);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
   }
   
@@ -623,9 +687,13 @@ export function estimateAICost(prompt: string, model: AIModel = 'gpt-4'): number
     'gpt-4-turbo': 0.01,
     'gpt-3.5-turbo': 0.002,
     'gemini-pro': 0.001,
+    'gemini-pro-vision': 0.001,
     'deepseek-chat': 0.002,
+    'deepseek-coder': 0.002,
     'deepseek-v3': 0.00014, // DeepSeek V3的实际价格
     'claude-3': 0.015,
+    'claude-3-sonnet': 0.015,
+    'claude-3-haiku': 0.015,
     'qwen': 0.001,
     'llama': 0.001,
     'mistral': 0.001

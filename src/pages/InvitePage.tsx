@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Share2, 
   Copy, 
   Gift, 
   ArrowLeft,
@@ -18,7 +17,7 @@ function InvitePage() {
   const { toast } = useToast();
   // TODO: 登录系统已移除，后续可接入新的认证平台
   const userId = null; // TODO: 已移除 Authing 实现，待接入新认证系统
-  const isTempUser = !userId; // 如果没有邮箱，认为是临时用户
+  const _isTempUser = !userId; // 如果没有邮箱，认为是临时用户
   const userInviteCode = useAuthStore((state) => state.getUserInviteCode());
   const trackInviteClick = useAuthStore((state) => state.trackInviteClick);
   const navigate = useNavigate();
@@ -38,7 +37,7 @@ function InvitePage() {
         title: "邀请链接已复制",
         description: "去发给好友吧！",
       });
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "复制失败",
         description: "请手动复制邀请链接",

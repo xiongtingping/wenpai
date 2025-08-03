@@ -14,7 +14,7 @@ import {
   getPlatformDisplayName,
   clearCache,
   getCacheStats,
-  getAPIInstance,
+
   type DailyHotResponse,
   type DailyHotItem
 } from '@/api/hotTopicsService';
@@ -32,7 +32,7 @@ import {
 
 export default function HotTopicsAPITestPage() {
   const [allData, setAllData] = useState<DailyHotResponse | null>(null);
-  const [platformData, setPlatformData] = useState<Record<string, DailyHotItem[]>>({});
+  const [_platformData, setPlatformData] = useState<Record<string, DailyHotItem[]>>({});
   const [loading, setLoading] = useState(false);
   const [cacheStats, setCacheStats] = useState<any>(null);
   const [testResults, setTestResults] = useState<any[]>([]);

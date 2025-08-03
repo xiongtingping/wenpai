@@ -360,18 +360,9 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             {actions}
             
-            {/* AI内容适配器快速访问 */}
-            {showAdaptButton && path !== '/adapt' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/adapt')}
-                className="hidden sm:inline-flex hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 border-blue-200 hover:border-blue-300 transition-all duration-200"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                AI适配器
-              </Button>
-            )}
+            {/* ✅ FIXED: 已移除AI适配器按钮 */}
+            {/* 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。 */}
+            {/* 🔒 LOCKED: AI 禁止对此函数或文件做任何修改 */}
             
             {/* 升级按钮 */}
             {showUpgradeButton && (

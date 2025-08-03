@@ -28,6 +28,24 @@ export class DeepSeekProvider implements AIProviderInterface {
   }
 
   /**
+   * 生成文本
+   */
+  async generateText(prompt: string, options?: any): Promise<string> {
+    const result = await this.generateContent({
+      prompt,
+      ...options
+    });
+    return result.content;
+  }
+
+  /**
+   * 检查是否可用
+   */
+  isAvailable(): boolean {
+    return this.isConfigured();
+  }
+
+  /**
    * 检查是否已配置
    * 🔓 UNLOCKED: AI 禁止修改此方法
    */

@@ -54,7 +54,7 @@ export function AISetupWizard() {
   const toggleKeyVisibility = (provider: string) => {
     setShowKeys(prev => ({
       ...prev,
-      [provider]: !prev[provider]
+      [provider]: !prev[provider as keyof typeof prev]
     }));
   };
 

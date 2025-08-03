@@ -37,7 +37,7 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
   if (isDevelopment) {
     // 开发环境：直连AI服务商API
     console.log('🔗 开发环境：使用直连API (ai.ts)');
-    return await callAI(params);
+    return await callAI(params as any);
   } else {
     // 生产环境：通过后端代理调用
     console.log('🛡️ 生产环境：使用后端代理 (apiProxy.ts)');
@@ -54,7 +54,7 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
       return {
         content: result.data || '',
         model: params.model || 'gpt-4',
-        usage: result.usage,
+        usage: undefined,
         responseTime: 0,
         success: result.success,
         error: result.error
@@ -64,7 +64,7 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
       return {
         content: result.data || '',
         model: params.model || 'deepseek-chat',
-        usage: result.usage,
+        usage: undefined,
         responseTime: 0,
         success: result.success,
         error: result.error
@@ -85,7 +85,7 @@ export async function callUnifiedAI(params: AICallParams): Promise<AIResponse> {
       return {
         content: result.data || '',
         model: params.model || 'gpt-4',
-        usage: result.usage,
+        usage: undefined,
         responseTime: 0,
         success: result.success,
         error: result.error
@@ -105,7 +105,7 @@ export async function generateUnifiedImage(params: ImageGenerationParams): Promi
   if (isDevelopment) {
     // 开发环境：直连OpenAI图像API
     console.log('🔗 开发环境：使用直连图像API (ai.ts)');
-    return await directGenerateImage(params);
+    return await directGenerateImage(params as any);
   } else {
     // 生产环境：通过后端代理调用
     console.log('🛡️ 生产环境：使用后端代理 (imageGenerationService.ts)');

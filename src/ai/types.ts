@@ -3,6 +3,15 @@
  */
 
 /**
+ * AI提供商接口
+ */
+export interface AIProviderInterface {
+  generateText(prompt: string, options?: any): Promise<string>;
+  generateImage(params: { prompt: string; model?: string; size?: string; n?: number; quality?: string }): Promise<{ success: boolean; images: string[]; model: string; error?: string }>;
+  isAvailable(): boolean;
+}
+
+/**
  * Prompt 模板函数类型
  */
 export type PromptTemplate = (input: any, options?: any) => string;

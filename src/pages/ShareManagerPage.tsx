@@ -480,7 +480,7 @@ export default function ShareManagerPage() {
   /**
    * 使用模板
    */
-  const useTemplate = (template: ContentTemplate) => {
+  const applyTemplate = (template: ContentTemplate) => {
     setPublishContent({
       title: template.title,
       content: template.content,
@@ -870,7 +870,7 @@ export default function ShareManagerPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => useTemplate(template)}
+                              onClick={() => applyTemplate(template)}
                             >
                               <Play className="w-4 h-4 mr-2" />
                               使用模板
@@ -981,7 +981,7 @@ export default function ShareManagerPage() {
                       variant="outline"
                       size="sm"
                       className="w-full"
-                      onClick={() => useTemplate(template)}
+                      onClick={() => applyTemplate(template)}
                     >
                       <Play className="w-4 h-4 mr-2" />
                       使用此模板

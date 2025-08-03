@@ -120,11 +120,12 @@ export class CreemOptimizer {
           xApiKey: apiKey,
         });
         
-      case 'constructor':
+      case 'constructor': {
         const creemWithConfig = new Creem({ apiKey });
         return await creemWithConfig.createCheckout({
           productId,
         });
+      }
         
       case 'headers':
         return await creem.createCheckout({

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Bot, RefreshCw, CheckCircle, XCircle, AlertCircle, 
-  Play, Pause, Square, Settings, Eye, Copy, ExternalLink 
+  Play, Pause, Square, Eye, Copy, ExternalLink 
 } from 'lucide-react';
 
 export interface AutomationProgress {
@@ -60,8 +60,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
   isRunning
 }) => {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [showSettings, setShowSettings] = useState(false);
-  const [options, setOptions] = useState<AutomationOptions>({
+  const [options] = useState<AutomationOptions>({
     enablePreview: true,
     enableConfirmation: true,
     method: 'auto',
@@ -156,13 +155,6 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
         </div>
 
         <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-            title="设置"
-          >
-            <Settings className="h-4 w-4" />
-          </button>
 
           {isRunning ? (
             <button
@@ -188,65 +180,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
         </div>
       </div>
 
-      {/* 设置面板 */}
-      {showSettings && (
-        <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-          <h4 className="font-medium text-gray-900">转发设置</h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={options.enablePreview}
-                  onChange={(e) => setOptions(prev => ({ ...prev, enablePreview: e.target.checked }))}
-                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                />
-                <span className="text-sm text-gray-700">启用内容预览</span>
-              </label>
-            </div>
-            
-            <div>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={options.enableConfirmation}
-                  onChange={(e) => setOptions(prev => ({ ...prev, enableConfirmation: e.target.checked }))}
-                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                />
-                <span className="text-sm text-gray-700">发布前确认</span>
-              </label>
-            </div>
-            
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">转发方式</label>
-              <select
-                value={options.method}
-                onChange={(e) => setOptions(prev => ({ ...prev, method: e.target.value as any }))}
-                className="w-full rounded border-gray-300 text-sm focus:ring-purple-500 focus:border-purple-500"
-              >
-                <option value="auto">自动选择</option>
-                <option value="browser">浏览器原生</option>
-                <option value="manual">手动模式</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">重试次数</label>
-              <select
-                value={options.retryCount}
-                onChange={(e) => setOptions(prev => ({ ...prev, retryCount: parseInt(e.target.value) }))}
-                className="w-full rounded border-gray-300 text-sm focus:ring-purple-500 focus:border-purple-500"
-              >
-                <option value={1}>1次</option>
-                <option value={2}>2次</option>
-                <option value={3}>3次</option>
-                <option value={5}>5次</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* 平台选择 */}
       <div>
@@ -399,8 +333,8 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
 
                     <div className="text-xs text-gray-500 mt-1">
                       {result.method === 'manual' ? '手动模式' :
-                       result.method === 'browser' ? '浏览器模式' :
-                       result.method === 'extension' ? '插件模式' : '自动模式'} •
+                       result.method === 'api' ? 'API模式' :
+                       result.method === 'automation' ? '自动模式' : '其他模式'} •
                       {new Date(result.timestamp).toLocaleTimeString()}
                     </div>
                   </div>

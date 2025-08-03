@@ -3,9 +3,7 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const undefinedConcatPlugin = require('./src/utils/eslint-undefined-concat-rules.js');
+import undefinedConcatPlugin from './src/utils/eslint-undefined-concat-rules.js';
 
 export default tseslint.config(
   {

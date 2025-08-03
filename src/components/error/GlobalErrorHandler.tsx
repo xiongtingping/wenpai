@@ -31,7 +31,7 @@ interface GlobalErrorState {
 }
 
 // 全局错误状态
-let globalErrorState: GlobalErrorState = {
+const globalErrorState: GlobalErrorState = {
   errors: [],
   isVisible: false
 };
@@ -114,8 +114,8 @@ export function clearAllErrors() {
  */
 export function createErrorFromAPIError(error: any, url?: string): Omit<ErrorInfo, 'id' | 'timestamp'> {
   let type: ErrorInfo['type'] = 'unknown';
-  let message = error.message || '未知错误';
-  let suggestion = error.suggestion || '';
+  const message = error.message || '未知错误';
+  const suggestion = error.suggestion || '';
   
   // 根据错误特征判断类型
   if (error.code === 'ERR_NETWORK' || error.code === 'ECONNABORTED') {

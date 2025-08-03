@@ -156,7 +156,7 @@ class AdvancedUndefinedDetector {
     // 监控React DevTools
     if (typeof window !== 'undefined') {
       const originalSetTimeout = window.setTimeout;
-      window.setTimeout = (callback: any, delay?: number) => {
+      window.setTimeout = function(callback: TimerHandler, delay?: number, ...args: any[]): number {
         const wrappedCallback = (...args: any[]) => {
           try {
             return callback.apply(this, args);

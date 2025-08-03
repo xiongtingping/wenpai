@@ -16,7 +16,8 @@
  */
 
 import { callAI, generateImage as callAIGenerateImage } from './ai';
-import type { AICallParams, AIResponse } from './types';
+import type { AICallParams, AIResponse } from './ai';
+import { getAPIEndpoints } from '@/config/apiConfig';
 
 /**
  * 代理响应接口
@@ -60,7 +61,7 @@ export async function callOpenAIProxy(
 
     const params: AICallParams = {
       prompt,
-      model,
+      model: model as any,
       temperature,
       maxTokens
     };
@@ -71,9 +72,7 @@ export async function callOpenAIProxy(
       console.log('AI调用成功');
       return {
         success: true,
-        data: result.content,
-        model: result.model,
-        usage: result.usage
+        data: result.content
       };
     } else {
       console.error('AI调用失败:', result.error);
@@ -119,36 +118,23 @@ export async function callDeepSeekProxy(
 
     const params: AICallParams = {
       prompt,
-      model,
+      model: model as any,
       temperature: 0.7
     };
 
     const result: AIResponse = await callAI(params);
 
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
+    if (result.success) {
+      return {
+        success: true,
+        data: result.content
+      };
+    } else {
       return {
         success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
+        error: result.error || '调用失败'
       };
     }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
-
-    return {
-      success: true,
-      data
-    };
   } catch (error) {
     return {
       success: false,
@@ -164,7 +150,8 @@ export async function callDeepSeekProxy(
  */
 export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
+    const API_ENDPOINTS = getAPIEndpoints();
+    const response = await fetch(API_ENDPOINTS.api, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -214,7 +201,8 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
  */
 export async function testApiConnectivity(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
+    const API_ENDPOINTS = getAPIEndpoints();
+    const response = await fetch(API_ENDPOINTS.api, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -260,7 +248,8 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
  */
 export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
+    const API_ENDPOINTS = getAPIEndpoints();
+    const response = await fetch(API_ENDPOINTS.api, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -309,7 +298,8 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
  */
 export async function checkGeminiAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
+    const API_ENDPOINTS = getAPIEndpoints();
+    const response = await fetch(API_ENDPOINTS.api, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -358,7 +348,8 @@ export async function checkGeminiAvailability(): Promise<ProxyResponse> {
  */
 export async function checkDeepSeekAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
+    const API_ENDPOINTS = getAPIEndpoints();
+    const response = await fetch(API_ENDPOINTS.api, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -73,7 +73,7 @@ export function TrustSection() {
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
             <Twitter className="h-8 w-8 text-blue-400 mb-2" />
-            <span className="text-sm font-medium text-gray-700">Twitter</span>
+            <span className="text-sm font-medium text-gray-700">X（Twitter）</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
             <Linkedin className="h-8 w-8 text-blue-700 mb-2" />
@@ -87,22 +87,7 @@ export function TrustSection() {
             <User className="h-8 w-8 text-green-700 mb-2" />
             <span className="text-sm font-medium text-gray-700">豆瓣</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Hash className="h-8 w-8 text-gray-700 mb-2" />
-            <span className="text-sm font-medium text-gray-700">V2EX</span>
-          </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Hash className="h-8 w-8 text-blue-500 mb-2" />
-            <span className="text-sm font-medium text-gray-700">掘金</span>
-          </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Hash className="h-8 w-8 text-orange-500 mb-2" />
-            <span className="text-sm font-medium text-gray-700">CSDN</span>
-          </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <MessageSquare className="h-8 w-8 text-blue-400 mb-2" />
-            <span className="text-sm font-medium text-gray-700">知乎专栏</span>
-          </div>
+
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
             <SquarePlay className="h-8 w-8 text-green-600 mb-2" />
             <span className="text-sm font-medium text-gray-700">视频号</span>
@@ -112,7 +97,7 @@ export function TrustSection() {
         <div className="mt-12 text-center">
           <span className="inline-flex items-center text-sm text-gray-500 bg-blue-50 px-4 py-2 rounded-full">
             <span className="text-blue-600 mr-2">🔍</span>
-            支持18+主流平台，AI智能适配平台特性与用户习惯
+            支持14+主流平台，AI智能适配平台特性与用户习惯
           </span>
         </div>
       </div>

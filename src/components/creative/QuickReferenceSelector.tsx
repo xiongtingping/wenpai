@@ -250,16 +250,25 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
 
           {/* 标签页 */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 overflow-hidden">
-            <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
-              <TabsTrigger value="brand" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-3 flex-shrink-0 bg-gray-50 rounded-lg shadow-sm mb-2">
+              <TabsTrigger
+                value="brand"
+                className={activeTab === 'brand' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+              >
                 <Database className="h-4 w-4" />
                 品牌库
               </TabsTrigger>
-              <TabsTrigger value="library" className="flex items-center gap-2">
+              <TabsTrigger
+                value="library"
+                className={activeTab === 'library' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+              >
                 <Bookmark className="h-4 w-4" />
                 我的资料库
               </TabsTrigger>
-              <TabsTrigger value="radar" className="flex items-center gap-2">
+              <TabsTrigger
+                value="radar"
+                className={activeTab === 'radar' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+              >
                 <Radar className="h-4 w-4" />
                 全网雷达
               </TabsTrigger>

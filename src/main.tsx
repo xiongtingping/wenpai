@@ -21,12 +21,19 @@ if (import.meta.env.DEV) {
   import('./utils/globalUndefinedFixer');
   // 🔍 启用验证器，验证修复效果
   import('./utils/undefinedVerifier');
-  // 🛡️ 启用完整防护系统
-  import('./utils/undefinedProblemSolution').then(module => {
-    const protectionSystem = module.default.UndefinedProtectionSystem.getInstance();
-    protectionSystem.enable();
-    console.log('🛡️ 完整防护系统已启用');
+  // ✅ FIXED: 2025-08-02 启用网络优化和代理检测
+  import('./utils/networkProxyFix').then(module => {
+    module.applyNetworkProxyFix();
+    module.startNetworkMonitoring();
+    console.log('🌐 网络代理修复和监控已启用');
   });
+  // 🚨 DISABLED: 防护系统的字符串拦截功能有问题，会导致错误
+  // 暂时禁用，只使用全局修复器和验证器
+  // import('./utils/undefinedProblemSolution').then(module => {
+  //   const protectionSystem = module.default.UndefinedProtectionSystem.getInstance();
+  //   protectionSystem.enable();
+  //   console.log('🛡️ 完整防护系统已启用');
+  // });
   console.log('🔧 开发环境已启动，全套 undefined 防护系统已启用');
 }
 

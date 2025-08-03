@@ -6,7 +6,21 @@
 
 import React, { useState } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { Button } from '@/components/ui/button';
+
+// 用户信息获取函数
+const getUserId = (user: any, fallback: string = '未知'): string => {
+  return user?.id || user?.userId || user?.sub || fallback;
+};
+
+const getUserUsername = (user: any, fallback: string = '未设置'): string => {
+  return user?.username || user?.name || fallback;
+};
+
+const getUserEmail = (user: any, fallback: string = '未设置'): string => {
+  return user?.email || user?.emailAddress || fallback;
+};
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';

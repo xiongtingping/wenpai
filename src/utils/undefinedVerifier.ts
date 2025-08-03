@@ -17,8 +17,8 @@ export const verifyUndefinedFix = () => {
   );
   
   const textNodes = [];
-  let node;
-  while (node = walker.nextNode()) {
+        let node;
+      while ((node = walker.nextNode()) !== null) {
     textNodes.push(node);
   }
   

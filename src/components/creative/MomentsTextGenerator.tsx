@@ -442,18 +442,17 @@ export function MomentsTextGenerator() {
       // 调用真实AI服务生成文案
       const aiService = (await import('@/api/aiService')).callAI;
       
-      const lengthMap = {
-        'short': '简短精练，50字以内',
-        'medium': '适中深度，50-100字',
-        'long': '详细丰富，100字以上'
+      const styleMap: Record<string, string> = {
+        casual: '轻松随性',
+        romantic: '浪漫温馨',
+        motivational: '励志正能量',
+        funny: '幽默搞笑',
+        thoughtful: '深度思考'
       };
-
-      const styleMap = {
-        'casual': '轻松随性',
-        'romantic': '浪漫温馨',
-        'motivational': '励志正能量',
-        'funny': '幽默搞笑',
-        'thoughtful': '深度思考'
+      const lengthMap: Record<string, string> = {
+        short: '简短精练，50字以内',
+        medium: '适中深度，50-100字',
+        long: '详细丰富，100字以上'
       };
 
       const prompt = `请为我生成一条朋友圈文案，要求：

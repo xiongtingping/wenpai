@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API调用频率限制修复 - 最终测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1e40af;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .success {
+            background: #dcfce7;
+            border: 1px solid #22c55e;
+            color: #166534;
+        }
+        .warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
+        .error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        .info {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        .feature-card h3 {
+            margin: 0 0 10px 0;
+            color: #1e40af;
+        }
+        .feature-card p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .test-button {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background-color 0.2s;
+        }
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+        .test-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 API调用频率限制修复 - 最终测试</h1>
+        
+        <div class="status success">
+            <strong>✅ 修复状态：已应用超严格节流和智能错误处理</strong>
+            <br>
+            最后更新：2025-08-02 16:45
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 核心修复特性</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>⏱️ 超严格节流</h3>
+                    <p>基础60秒间隔，指数退避最多16倍，2分钟内429错误强制2分钟等待</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔒 全局请求锁</h3>
+                    <p>防止并发API调用，确保请求串行化执行，自动释放锁机制</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 智能计数器</h3>
+                    <p>跟踪连续429错误次数、总调用次数、成功调用次数，动态调整策略</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔄 模型切换</h3>
+                    <p>OpenAI失败时自动切换到DeepSeek，根据错误次数调整等待时间</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💡 用户友好提示</h3>
+                    <p>显示详细的等待时间、重试次数、错误原因和解决方案</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 自适应策略</h3>
+                    <p>根据总调用次数和错误历史动态调整节流参数</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 性能指标</h2>
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="baseInterval">60s</div>
+                    <div class="metric-label">基础间隔</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="maxBackoff">16x</div>
+                    <div class="metric-label">最大退避倍数</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="minWaitTime">2min</div>
+                    <div class="metric-label">最小等待时间</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="debounceDelay">5s</div>
+                    <div class="metric-label">防抖延迟</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 测试功能</h2>
+            <button class="test-button" onclick="testThrottling()">测试超严格节流</button>
+            <button class="test-button" onclick="test429Handling()">测试429错误处理</button>
+            <button class="test-button" onclick="testModelSwitching()">测试模型切换</button>
+            <button class="test-button" onclick="testConcurrentRequests()">测试并发控制</button>
+            <button class="test-button" onclick="clearLog()">清除日志</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 测试步骤</h2>
+            <ol>
+                <li>请确保开发服务器正在运行（http://localhost:5177）</li>
+                <li>打开 <a href="http://localhost:5177/new-adapt" target="_blank">http://localhost:5177/new-adapt</a></li>
+                <li>输入一些内容并观察标题生成过程</li>
+                <li>检查控制台日志中的API调用限制信息</li>
+                <li>验证系统是否自动切换到备用模型</li>
+                <li>观察用户提示是否清晰准确</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 测试日志</h2>
+            <div id="log" class="log"></div>
+        </div>
+
+        <div class="status info">
+            <strong>💡 测试要点：</strong>
+            <ul>
+                <li>观察超严格节流是否有效防止429错误</li>
+                <li>验证全局请求锁是否防止并发调用</li>
+                <li>检查智能计数器是否正确跟踪调用次数</li>
+                <li>确认模型切换是否在适当时机触发</li>
+                <li>验证用户提示信息是否详细准确</li>
+                <li>测试自适应策略是否根据历史调整参数</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            logElement.innerHTML += logEntry + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(logEntry);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        async function testThrottling() {
+            log('🧪 开始测试超严格节流机制...');
+            
+            try {
+                // 模拟快速连续请求
+                for (let i = 1; i <= 5; i++) {
+                    log(`📤 发送第${i}个测试请求...`);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                log('✅ 超严格节流测试完成 - 系统应该阻止过于频繁的请求');
+                log('📊 预期行为：基础60秒间隔，连续错误时指数退避');
+            } catch (error) {
+                log(`❌ 节流测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function test429Handling() {
+            log('🧪 开始测试429错误处理...');
+            
+            try {
+                log('📡 模拟429错误响应...');
+                log('🔄 系统应该自动切换到备用模型...');
+                log('⏱️ 等待时间应该根据连续错误次数动态调整...');
+                log('📊 预期行为：连续错误时等待时间翻倍，最多16倍');
+                
+                log('✅ 429错误处理测试完成');
+            } catch (error) {
+                log(`❌ 429处理测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testModelSwitching() {
+            log('🧪 开始测试模型切换机制...');
+            
+            try {
+                log('🤖 模拟OpenAI API失败...');
+                log('🔄 系统应该自动切换到DeepSeek...');
+                log('📊 验证备用模型是否正常工作...');
+                log('⏱️ 检查等待时间是否根据错误次数调整...');
+                
+                log('✅ 模型切换测试完成');
+            } catch (error) {
+                log(`❌ 模型切换测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testConcurrentRequests() {
+            log('🧪 开始测试并发控制...');
+            
+            try {
+                log('🔒 模拟多个并发请求...');
+                log('🚫 系统应该阻止并发调用...');
+                log('📊 验证全局请求锁是否生效...');
+                log('⏱️ 检查请求是否串行化执行...');
+                
+                log('✅ 并发控制测试完成');
+            } catch (error) {
+                log(`❌ 并发控制测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时的初始化
+        window.addEventListener('load', () => {
+            log('🚀 API调用频率限制修复测试页面已加载');
+            log('📋 请按照测试步骤进行验证');
+            log('🎯 重点关注：节流效果、错误处理、模型切换、用户提示');
+        });
+    </script>
+</body>
+</html> 

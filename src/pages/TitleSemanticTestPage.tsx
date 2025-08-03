@@ -75,7 +75,7 @@ export default function TitleSemanticTestPage() {
       const afterMatch = title.match(/我用([^后]+)后(.+)/);
       if (afterMatch) {
         const effect = afterMatch[2];
-        if (/^[\d%🚀！\s]*$/.test(effect)) {
+        if (/^[\d%🚀！\s]*$/u.test(effect)) {
           issues.push('效果描述不完整：只有数字或符号');
         } else {
           strengths.push('主谓搭配完整');

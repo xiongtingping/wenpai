@@ -49,7 +49,7 @@ export const getUserDisplayName = (user: any): string => {
 
 // 全局字符串拦截器
 const originalStringify = JSON.stringify;
-JSON.stringify = function(value, replacer, space) {
+JSON.stringify = function(value: any, replacer?: ((this: any, key: string, value: any) => any) | (string | number)[] | null, space?: string | number) {
   const result = originalStringify.call(this, value, replacer, space);
   if (result && result.includes('undefinedundefined')) {
     console.warn('🛠️ JSON.stringify 产生了 undefinedundefined，已修复');

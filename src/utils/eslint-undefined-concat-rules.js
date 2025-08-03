@@ -9,7 +9,7 @@
  * 4. JSX中的用户属性直接渲染
  */
 
-const plugin = {
+export const plugin = {
   meta: {
     name: 'undefined-concat-prevention',
     version: '1.0.0'
@@ -172,12 +172,12 @@ const plugin = {
             }
           }
         };
+              }
       }
     }
-  }
-};
-
-module.exports = plugin;
+  };
+  
+  export default plugin;
 
 /**
  * 使用方法：

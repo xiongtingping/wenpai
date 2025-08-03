@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Platform {
@@ -125,12 +125,12 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
       {!isMinimized && (
         <Dialog open={open} onOpenChange={() => {}}>
           <DialogContent
-            className="max-w-6xl max-h-[90vh] overflow-hidden h-[90vh] p-0"
+            className="max-w-6xl max-h-[90vh] overflow-hidden h-[90vh] p-0 [&>button]:hidden"
             onPointerDownOutside={(e) => e.preventDefault()}
             onEscapeKeyDown={(e) => e.preventDefault()}
           >
-            {/* 优化后的紧凑头部 */}
-            <DialogHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-2 border-b bg-gray-50/50">
+            {/* 优化后的紧凑头部 - 去除冗余留白 */}
+            <DialogHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3 border-b bg-gray-50/50">
               <DialogTitle className="text-lg font-semibold text-gray-800">
                 批量转发工作台 ({platforms.length}个平台)
               </DialogTitle>
@@ -157,122 +157,122 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
             </DialogHeader>
 
             {/* 优化后的紧凑内容区域 */}
-            <div className="flex-1 overflow-y-auto px-3 py-2">
-              {/* 紧凑的使用说明 */}
-              <div className="text-xs text-gray-600 mb-2 p-2 bg-blue-50/80 rounded border border-blue-200/60">
-                <div className="flex items-center gap-1 mb-0.5">
-                  <ExternalLink className="h-3 w-3 text-blue-600" />
-                  <span className="font-medium text-blue-800">使用说明</span>
-                </div>
-                <div className="text-blue-700 leading-tight text-xs">
-                  点击"发布"→复制内容→粘贴至平台→发布→重复下一个
-                </div>
+            <div className="flex-1 overflow-y-auto px-4 py-3">
+              {/* 优化后的使用说明 - 移至主标题下方，单行展示 */}
+              <div className="flex items-center gap-2 mb-4 p-3 bg-blue-50/80 rounded-lg border border-blue-200/60">
+                <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                <span className="text-sm text-blue-800 font-medium">使用说明：</span>
+                <span className="text-sm text-blue-700">
+                  点击"跳转"→跳转至对应平台→分别复制标题、内容和标签→粘贴至对应平台→在对应平台完成发布→返回重复下一个平台
+                </span>
               </div>
 
-              {/* 优化后的紧凑平台网格 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-1.5">
+              {/* 优化后的平台网格 - 增加分组边框 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {platforms.map((platform) => (
-                  <Card key={platform.id} className="border hover:border-blue-300 transition-colors shadow-sm">
-                    {/* 紧凑的卡片头部 */}
-                    <CardHeader className="pb-0.5 pt-1.5 px-2">
-                      <CardTitle className="flex items-center gap-1 text-sm">
-                        <div className="w-4 h-4 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">
+                  <Card key={platform.id} className="border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm">
+                    {/* 优化后的卡片头部 */}
+                    <CardHeader className="pb-3 pt-4 px-4 border-b border-gray-100 bg-gray-50/30">
+                      <CardTitle className="flex items-center gap-3 text-base">
+                        <div className="w-6 h-6 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">
                             {platform.icon}
                           </span>
                         </div>
-                        <span className="flex-1 text-xs font-medium">{platform.name}</span>
+                        <span className="flex-1 font-semibold text-gray-800">{platform.name}</span>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => openPlatformPage(platform)}
-                          className="h-4 px-1 text-xs border-gray-300 hover:border-blue-400"
+                          className="h-7 px-3 text-sm border-blue-300 hover:border-blue-400 hover:bg-blue-50"
                         >
-                          <ExternalLink className="h-2 w-2 mr-0.5" />
-                          发布
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          跳转平台
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => togglePlatformExpanded(platform.id)}
-                          className="h-4 w-4 p-0 hover:bg-gray-100"
+                          className="h-7 w-7 p-0 hover:bg-gray-100"
                         >
                           {expandedPlatforms.has(platform.id) ?
-                            <ChevronUp className="h-2 w-2" /> :
-                            <ChevronDown className="h-2 w-2" />
+                            <ChevronUp className="h-4 w-4" /> :
+                            <ChevronDown className="h-4 w-4" />
                           }
                         </Button>
                       </CardTitle>
                     </CardHeader>
-                    {/* 紧凑的卡片内容 */}
-                    <CardContent className="pt-0 pb-1.5 px-2">
-                      {/* 紧凑的快速复制按钮区域 */}
-                      <div className="flex gap-0.5 mb-1.5">
+                    
+                    {/* 优化后的卡片内容 */}
+                    <CardContent className="pt-4 pb-4 px-4">
+                      {/* 优化后的快速复制按钮区域 */}
+                      <div className="flex gap-2 mb-4">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(platform.title, '标题', platform.name)}
-                          className="flex-1 h-5 text-xs border-gray-300 hover:border-blue-400"
+                          className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                         >
                           {getCopyButtonState(platform.name, '标题') ? (
-                            <Check className="h-2 w-2 text-green-600" />
+                            <Check className="h-3 w-3 text-green-600 mr-1" />
                           ) : (
-                            <Copy className="h-2 w-2" />
+                            <Copy className="h-3 w-3 mr-1" />
                           )}
-                          <span className="ml-0.5">标题</span>
+                          复制标题
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(platform.content, '内容', platform.name)}
-                          className="flex-1 h-5 text-xs border-gray-300 hover:border-blue-400"
+                          className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                         >
                           {getCopyButtonState(platform.name, '内容') ? (
-                            <Check className="h-2 w-2 text-green-600" />
+                            <Check className="h-3 w-3 text-green-600 mr-1" />
                           ) : (
-                            <Copy className="h-2 w-2" />
+                            <Copy className="h-3 w-3 mr-1" />
                           )}
-                          <span className="ml-0.5">内容</span>
+                          复制内容
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(platform.tags.join(' '), '标签', platform.name)}
-                          className="flex-1 h-5 text-xs border-gray-300 hover:border-blue-400"
+                          className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                         >
                           {getCopyButtonState(platform.name, '标签') ? (
-                            <Check className="h-2 w-2 text-green-600" />
+                            <Check className="h-3 w-3 text-green-600 mr-1" />
                           ) : (
-                            <Copy className="h-2 w-2" />
+                            <Copy className="h-3 w-3 mr-1" />
                           )}
-                          <span className="ml-0.5">标签</span>
+                          复制标签
                         </Button>
                       </div>
 
-                      {/* 紧凑的详细内容区域 - 可折叠 */}
+                      {/* 优化后的详细内容区域 - 可折叠，增加小标题标注 */}
                       {expandedPlatforms.has(platform.id) && (
-                        <div className="space-y-1.5 border-t border-gray-200 pt-1.5 mt-1.5">
+                        <div className="space-y-4 border-t border-gray-200 pt-4">
                           <div>
-                            <label className="text-xs font-medium text-gray-600 block mb-0.5">标题</label>
-                            <div className="p-1 bg-gray-50/80 rounded text-xs max-h-6 overflow-y-auto border">
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">📝 标题</label>
+                            <div className="p-3 bg-gray-50/80 rounded-lg text-sm border border-gray-200 max-h-20 overflow-y-auto">
                               {platform.title}
                             </div>
                           </div>
                           <div>
-                            <label className="text-xs font-medium text-gray-600 block mb-0.5">内容</label>
-                            <div className="p-1 bg-gray-50/80 rounded text-xs max-h-12 overflow-y-auto border">
-                              {platform.content.length > 60 ? platform.content.substring(0, 60) + '...' : platform.content}
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">📄 内容</label>
+                            <div className="p-3 bg-gray-50/80 rounded-lg text-sm border border-gray-200 max-h-32 overflow-y-auto">
+                              {platform.content}
                             </div>
                           </div>
                           <div>
-                            <label className="text-xs font-medium text-gray-600 block mb-0.5">标签</label>
-                            <div className="p-1 bg-gray-50/80 rounded text-xs min-h-[1rem] flex flex-wrap gap-0.5 border">
-                              {platform.tags.slice(0, 3).map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="text-xs h-3 px-1 py-0">{tag}</Badge>
-                              ))}
-                              {platform.tags.length > 3 && (
-                                <span className="text-gray-500 text-xs">+{platform.tags.length - 3}</span>
-                              )}
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">🏷️ 标签</label>
+                            <div className="p-3 bg-gray-50/80 rounded-lg border border-gray-200">
+                              <div className="flex flex-wrap gap-1">
+                                {platform.tags.map((tag, index) => (
+                                  <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>

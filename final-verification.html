@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能标题生成功能验证</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #374151;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .status.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .status.warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        .button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #2563eb;
+        }
+        .button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .result {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .log {
+            background-color: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 智能标题生成功能验证</h1>
+            <p>验证修复后的智能标题生成功能是否正常工作</p>
+        </div>
+
+        <div class="test-section">
+            <h3>1. 环境检查</h3>
+            <div id="envStatus"></div>
+            <button class="button" onclick="checkEnvironment()">检查环境</button>
+        </div>
+
+        <div class="test-section">
+            <h3>2. AI API连接测试</h3>
+            <div id="apiStatus"></div>
+            <button class="button" onclick="testAPIConnection()">测试API连接</button>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 标题生成功能测试</h3>
+            <div id="generationStatus"></div>
+            <button class="button" onclick="testTitleGeneration()">测试标题生成</button>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 测试日志</h3>
+            <div id="log" class="log"></div>
+            <button class="button" onclick="clearLog()">清空日志</button>
+        </div>
+    </div>
+
+    <script>
+        let logElement;
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}\n`;
+            logElement.textContent += logMessage;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            logElement.textContent = '';
+        }
+
+        function setStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function checkEnvironment() {
+            log('🔍 开始环境检查...');
+            
+            try {
+                // 检查开发服务器
+                const response = await fetch('http://localhost:5174');
+                if (response.ok) {
+                    setStatus('envStatus', 'success', '✅ 开发服务器运行正常 (端口5174)');
+                    log('✅ 开发服务器运行正常');
+                } else {
+                    setStatus('envStatus', 'error', '❌ 开发服务器连接失败');
+                    log('❌ 开发服务器连接失败');
+                    return;
+                }
+
+                // 检查API配置页面
+                const configResponse = await fetch('http://localhost:5174/ai-config-test');
+                if (configResponse.ok) {
+                    setStatus('envStatus', 'success', '✅ AI配置页面可访问');
+                    log('✅ AI配置页面可访问');
+                } else {
+                    setStatus('envStatus', 'warning', '⚠️ AI配置页面不可访问');
+                    log('⚠️ AI配置页面不可访问');
+                }
+
+                log('🎉 环境检查完成');
+            } catch (error) {
+                setStatus('envStatus', 'error', `❌ 环境检查失败: ${error.message}`);
+                log(`❌ 环境检查失败: ${error.message}`);
+            }
+        }
+
+        async function testAPIConnection() {
+            log('🔍 开始AI API连接测试...');
+            
+            try {
+                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer sk-56c02f3de6fe4a04a346cc14f3c5d310'
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [
+                            {
+                                role: 'user',
+                                content: '请生成一个关于AI工具的标题，要求：1. 吸引眼球 2. 不超过20字 3. 符合小红书风格'
+                            }
+                        ],
+                        max_tokens: 100,
+                        temperature: 0.8
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const title = data.choices?.[0]?.message?.content || '无内容';
+                    
+                    setStatus('apiStatus', 'success', `✅ AI API连接成功，生成标题: "${title}"`);
+                    log(`✅ AI API连接成功`);
+                    log(`📝 生成的标题: "${title}"`);
+                } else {
+                    setStatus('apiStatus', 'error', `❌ AI API连接失败: ${response.status} ${response.statusText}`);
+                    log(`❌ AI API连接失败: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                setStatus('apiStatus', 'error', `❌ API测试失败: ${error.message}`);
+                log(`❌ API测试失败: ${error.message}`);
+            }
+        }
+
+        async function testTitleGeneration() {
+            log('🔍 开始标题生成功能测试...');
+            
+            const testContent = `
+我发现了一个超级好用的AI工具，它可以帮助我快速生成各种内容。
+这个工具支持多种平台，包括小红书、微博、抖音等。
+使用后我的工作效率提升了3倍，真的很推荐给大家！
+            `.trim();
+
+            try {
+                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer sk-56c02f3de6fe4a04a346cc14f3c5d310'
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: `你是一个擅长生成"高吸引力内容标题"的AI助手。请根据用户提供的正文内容生成符合平台要求、表达自然完整、具备点击吸引力的标题。
+
+## 🎯 核心目标
+- 与正文主旨强关联，不能跑题
+- 表达自然流畅、语言完整
+- 包含情绪/场景/动作/转变等吸引要素
+- 标题必须符合目标平台的字符数限制
+
+## 🧩 推荐结构风格
+1. 结果+情绪型：强调使用结果 + 情感评价
+2. 提问钩子型：用好奇心驱动点击
+3. 原因+行动型：讲述为什么用 + 得到了什么
+4. 体验+反差型：从"以前"到"现在"的转变
+5. 工具+明确价值型：工具名称 + 功能/收益
+
+## 🛠 标题质量要求
+- 长度 ≥ 8 字，建议 ≤ 20字
+- 不能语义残缺
+- 不得使用模板化结构
+- 不得使用滥情词语
+
+请严格按照以上规范生成标题。`
+                            },
+                            {
+                                role: 'user',
+                                content: `请为以下内容生成3个不同风格的标题，要求：
+1. 符合小红书平台风格
+2. 不超过20字
+3. 吸引眼球
+4. 与内容主旨强相关
+
+内容：${testContent}
+
+请以JSON格式返回：
+{
+  "titles": [
+    {
+      "title": "标题1",
+      "style": "风格描述",
+      "reasoning": "生成理由"
+    }
+  ]
+}`
+                            }
+                        ],
+                        max_tokens: 500,
+                        temperature: 0.8
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = data.choices?.[0]?.message?.content || '';
+                    
+                    log('✅ AI标题生成成功');
+                    log(`📝 原始响应: ${content}`);
+                    
+                    // 尝试解析JSON
+                    try {
+                        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+                        const jsonContent = jsonMatch ? jsonMatch[1] : content;
+                        const result = JSON.parse(jsonContent);
+                        
+                        let resultHtml = '<div class="result">';
+                        resultHtml += '<h4>🎉 生成的标题：</h4>';
+                        result.titles?.forEach((title, index) => {
+                            resultHtml += `<p><strong>${index + 1}. ${title.title}</strong> (${title.style})</p>`;
+                            resultHtml += `<p style="color: #666; font-size: 14px;">理由: ${title.reasoning}</p>`;
+                        });
+                        resultHtml += '</div>';
+                        
+                        setStatus('generationStatus', 'success', '✅ 标题生成功能正常');
+                        document.getElementById('generationStatus').innerHTML += resultHtml;
+                        
+                        log('🎉 标题生成功能测试完成');
+                    } catch (parseError) {
+                        setStatus('generationStatus', 'warning', '⚠️ JSON解析失败，但AI响应正常');
+                        log(`⚠️ JSON解析失败: ${parseError.message}`);
+                    }
+                } else {
+                    setStatus('generationStatus', 'error', `❌ 标题生成失败: ${response.status} ${response.statusText}`);
+                    log(`❌ 标题生成失败: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                setStatus('generationStatus', 'error', `❌ 标题生成测试失败: ${error.message}`);
+                log(`❌ 标题生成测试失败: ${error.message}`);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            logElement = document.getElementById('log');
+            log('🚀 智能标题生成功能验证页面已加载');
+            log('📋 请按顺序执行测试步骤');
+        });
+    </script>
+</body>
+</html> 

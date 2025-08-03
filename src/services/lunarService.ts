@@ -44,7 +44,7 @@ const SOLAR_TERMS = [
 /**
  * 2024年节假日数据
  */
-const HOLIDAYS_2024 = {
+const HOLIDAYS_2024: Record<string, { name: string; isWorkday: boolean }> = {
   '2024-01-01': { name: '元旦', isWorkday: false },
   '2024-02-10': { name: '春节', isWorkday: false },
   '2024-02-11': { name: '春节', isWorkday: false },
@@ -85,7 +85,7 @@ const HOLIDAYS_2024 = {
 /**
  * 2025年节假日数据
  */
-const HOLIDAYS_2025 = {
+const HOLIDAYS_2025: Record<string, { name: string; isWorkday: boolean }> = {
   '2025-01-01': { name: '元旦', isWorkday: false },
   '2025-01-29': { name: '春节', isWorkday: false },
   '2025-01-30': { name: '春节', isWorkday: false },
@@ -115,7 +115,7 @@ const HOLIDAYS_2025 = {
 /**
  * 历史事件数据
  */
-const HISTORICAL_EVENTS = {
+const HISTORICAL_EVENTS: Record<string, { name: string; description: string }> = {
   '01-01': { name: '元旦', description: '新年第一天' },
   '02-14': { name: '情人节', description: '西方情人节' },
   '03-08': { name: '妇女节', description: '国际劳动妇女节' },

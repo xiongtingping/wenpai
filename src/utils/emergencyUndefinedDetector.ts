@@ -3,7 +3,7 @@
  * 专门用于定位 undefinedundefined 问题的源头
  */
 
-// 立即执行检测
+// 🚨 DISABLED: 紧急检测器已禁用，避免与其他修复器冲突
 if (import.meta.env.DEV) {
   console.log('🚨 紧急 undefined 拼接检测器已启动');
   
@@ -28,7 +28,7 @@ if (import.meta.env.DEV) {
   
   // 保持原型链
   Object.setPrototypeOf(window.String, originalString);
-  window.String.prototype = originalString.prototype;
+  // window.String.prototype = originalString.prototype; // 注释掉只读属性赋值
   
   // 2. 拦截模板字符串（通过重写 toString）
   const originalObjectToString = Object.prototype.toString;
@@ -151,7 +151,7 @@ if (import.meta.env.DEV) {
       
       const problematicNodes = [];
       let node;
-      while (node = walker.nextNode()) {
+      while ((node = walker.nextNode()) !== null) {
         problematicNodes.push({
           text: node.textContent,
           parent: node.parentElement

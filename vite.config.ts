@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-// @ts-ignore
+// @ts-expect-error - vite-env-plugin is not typed
 import envPlugin from './vite-env-plugin.js'
 
 // https://vitejs.dev/config/

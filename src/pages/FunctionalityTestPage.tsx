@@ -1,11 +1,10 @@
 /**
  * 功能测试页面
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
@@ -13,22 +12,11 @@ import { useAuthStore } from '@/store/authStore';
 import { EnvChecker } from '@/utils/envChecker';
 import { getUserDisplayName, getUserId } from '@/utils/userDisplayUtils';
 import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  Info,
   User,
-  Shield,
   Crown,
-  Star,
-  Zap,
-  Settings,
   Database,
   Globe,
-  Smartphone,
-  Monitor,
   TestTube,
-  AlertCircle,
   Sparkles,
   FileText
 } from 'lucide-react';

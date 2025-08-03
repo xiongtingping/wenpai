@@ -71,19 +71,19 @@ export function sanitizeUserInfo(userInfo: any): any {
 
   // 二次检查：确保没有任何字段是undefined或'undefined'字符串
   Object.keys(safeUserInfo).forEach(key => {
-    const value = safeUserInfo[key];
+    const value = (safeUserInfo as Record<string, any>)[key];
     if (value === undefined || value === 'undefined' || value === null || value === 'null') {
       // 根据字段类型提供合适的默认值
       if (['username', 'nickname', 'name'].includes(key)) {
-        safeUserInfo[key] = '用户';
+        (safeUserInfo as Record<string, any>)[key] = '用户';
       } else if (['email', 'phone', 'avatar', 'photo', 'picture'].includes(key)) {
-        safeUserInfo[key] = '';
+        (safeUserInfo as Record<string, any>)[key] = '';
       } else if (['roles', 'permissions'].includes(key)) {
-        safeUserInfo[key] = [];
+        (safeUserInfo as Record<string, any>)[key] = [];
       } else if (key === 'id') {
-        safeUserInfo[key] = `user_${Date.now()}`;
+        (safeUserInfo as Record<string, any>)[key] = `user_${Date.now()}`;
       } else {
-        safeUserInfo[key] = '';
+        (safeUserInfo as Record<string, any>)[key] = '';
       }
     }
   });
@@ -167,7 +167,7 @@ function fixUndefinedInGuardDOM(container: Element) {
 
     const textNodes: Text[] = [];
     let node;
-    while (node = walker.nextNode()) {
+    while ((node = walker.nextNode()) !== null) {
       textNodes.push(node as Text);
     }
 

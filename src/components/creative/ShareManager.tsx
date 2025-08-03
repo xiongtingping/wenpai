@@ -413,11 +413,31 @@ const ShareManager: React.FC = () => {
     <div className="space-y-6">
       {/* 标签页导航 */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="publish">发布内容</TabsTrigger>
-          <TabsTrigger value="history">发布历史</TabsTrigger>
-          <TabsTrigger value="templates">内容模板</TabsTrigger>
-          <TabsTrigger value="settings">平台设置</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-gray-50 rounded-lg shadow-sm mb-2">
+          <TabsTrigger
+            value="publish"
+            className={activeTab === 'publish' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+          >
+            发布内容
+          </TabsTrigger>
+          <TabsTrigger
+            value="history"
+            className={activeTab === 'history' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+          >
+            发布历史
+          </TabsTrigger>
+          <TabsTrigger
+            value="templates"
+            className={activeTab === 'templates' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+          >
+            内容模板
+          </TabsTrigger>
+          <TabsTrigger
+            value="settings"
+            className={activeTab === 'settings' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+          >
+            平台设置
+          </TabsTrigger>
         </TabsList>
 
         {/* 发布内容标签页 */}

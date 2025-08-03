@@ -100,7 +100,7 @@ export class DataMasking {
   static maskValue(value: string, type: 'email' | 'phone' | 'id' | 'default' = 'default'): string {
     if (!value) return value;
 
-    const maskRule = SECURITY_CONFIG.MASK_RULES[type];
+    const maskRule = SECURITY_CONFIG.MASK_RULES[type as keyof typeof SECURITY_CONFIG.MASK_RULES] || SECURITY_CONFIG.MASK_RULES.default;
     if (maskRule) {
       return maskRule(value);
     }

@@ -73,9 +73,13 @@ export class BatchForwardAutomation {
         const platformContent = platformData.find(p => p.platformId === platformId);
         if (!platformContent) {
           results.push({
-            platform: platformId,
+            platformId: platformId,
+            platformName: platformId,
             success: false,
-            error: '未找到该平台的内容'
+            error: '未找到该平台的内容',
+            method: 'manual',
+            timestamp: Date.now(),
+            retryCount: 0
           });
           continue;
         }
@@ -232,10 +236,13 @@ export class BatchForwardAutomation {
 
       if (success) {
         return {
-          platform: platformData.platformId,
+          platformId: platformData.platformId,
+          platformName: platformData.platformName,
           success: true,
           url: publishUrl,
-          content: platformData.content
+          method: 'manual',
+          timestamp: Date.now(),
+          retryCount: 0
         };
       } else {
         throw new Error('无法打开发布页面');
@@ -244,9 +251,13 @@ export class BatchForwardAutomation {
     } catch (error) {
       console.error(`平台 ${platformData.platformId} 处理失败:`, error);
       return {
-        platform: platformData.platformId,
+        platformId: platformData.platformId,
+        platformName: platformData.platformName,
         success: false,
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : '未知错误',
+        method: 'manual',
+        timestamp: Date.now(),
+        retryCount: 0
       };
     }
   }

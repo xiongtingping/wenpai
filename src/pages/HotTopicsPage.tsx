@@ -207,7 +207,7 @@ export default function HotTopicsPage() {
 
       // 计算偏好分数
       let preferenceScore = 0;
-      let matchedKeywords: string[] = [];
+      const matchedKeywords: string[] = [];
 
       // 偏好关键词加分
       interestFilters.preferredKeywords.forEach(keyword => {

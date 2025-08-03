@@ -35,8 +35,8 @@ const UndefinedTestPage: React.FC = () => {
   useEffect(() => {
     // 监听全局的undefined检测器
     const checkForUndefined = () => {
-      if (window.__runtimeUndefinedDetector) {
-        const count = window.__runtimeUndefinedDetector.getCount();
+      if ((window as any).__runtimeUndefinedDetector) {
+        const count = (window as any).__runtimeUndefinedDetector.getCount();
         if (count > 0) {
           setDetectedIssues(prev => [...prev, `检测到 ${count} 个undefined拼接问题`]);
         }
@@ -115,7 +115,7 @@ const UndefinedTestPage: React.FC = () => {
 
     // 测试真实用户数据
     try {
-      const dangerousResult = user.nickname || user.username;
+      const dangerousResult = getUserDisplayName(user, '访客');
       results.push(`真实用户逻辑或结果: "${dangerousResult}"`);
       if (dangerousResult === undefined) {
         issues.push('真实用户: 逻辑或返回undefined');
@@ -125,7 +125,7 @@ const UndefinedTestPage: React.FC = () => {
     }
 
     try {
-      const stringConcat = String(user.nickname) + String(user.username);
+      const stringConcat = getUserDisplayName(user, '访客') + getUserDisplayName(user, '用户');
       results.push(`真实用户字符串拼接: "${stringConcat}"`);
       if (stringConcat.includes('undefined')) {
         issues.push(`真实用户: 字符串拼接包含undefined - "${stringConcat}"`);
@@ -135,7 +135,7 @@ const UndefinedTestPage: React.FC = () => {
     }
 
     try {
-      const templateResult = `${user.nickname}${user.username}`;
+      const templateResult = `${getUserDisplayName(user, '访客')}${getUserDisplayName(user, '用户')}`;
       results.push(`真实用户模板字符串: "${templateResult}"`);
       if (templateResult.includes('undefined')) {
         issues.push(`真实用户: 模板字符串包含undefined - "${templateResult}"`);
@@ -158,14 +158,14 @@ const UndefinedTestPage: React.FC = () => {
   const clearResults = () => {
     setTestResults([]);
     setDetectedIssues([]);
-    if (window.__runtimeUndefinedDetector) {
-      window.__runtimeUndefinedDetector.reset();
+    if ((window as any).__runtimeUndefinedDetector) {
+      (window as any).__runtimeUndefinedDetector.reset();
     }
   };
 
   const forceCheck = () => {
-    if (window.__runtimeUndefinedDetector) {
-      const count = window.__runtimeUndefinedDetector.forceCheck();
+    if ((window as any).__runtimeUndefinedDetector) {
+      const count = (window as any).__runtimeUndefinedDetector.forceCheck();
       setDetectedIssues(prev => [...prev, `强制检查发现 ${count} 个问题`]);
     } else {
       setDetectedIssues(prev => [...prev, '运行时检测器未加载']);
@@ -267,8 +267,8 @@ const UndefinedTestPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="text-sm space-y-1">
-            <p>运行时检测器: {typeof window !== 'undefined' && window.__runtimeUndefinedDetector ? '✅ 已加载' : '❌ 未加载'}</p>
-            <p>简化检测器: {typeof window !== 'undefined' && window.__simpleUndefinedDetector ? '✅ 已加载' : '❌ 未加载'}</p>
+            <p>运行时检测器: {typeof window !== 'undefined' && (window as any).__runtimeUndefinedDetector ? '✅ 已加载' : '❌ 未加载'}</p>
+            <p>简化检测器: {typeof window !== 'undefined' && (window as any).__simpleUndefinedDetector ? '✅ 已加载' : '❌ 未加载'}</p>
             <p>页面URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}</p>
             <p>时间戳: {new Date().toISOString()}</p>
           </div>

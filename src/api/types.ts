@@ -20,6 +20,8 @@ export interface AICallParams {
   stream?: boolean;
   /** 用户ID */
   userId?: string;
+  /** 上下文 */
+  context?: Array<{ role: string; content: string }>;
   /** 额外参数 */
   extraParams?: Record<string, any>;
 }
@@ -34,9 +36,9 @@ export interface AIResponse {
   model: string;
   /** 使用情况 */
   usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
   };
   /** 响应时间 */
   responseTime: number;
@@ -90,6 +92,28 @@ export interface ReferralRewardResponse {
   error?: string;
   /** 详细信息 */
   details?: any;
+}
+
+/**
+ * 图像生成参数
+ */
+export interface ImageGenerationParams {
+  /** 提示词 */
+  prompt: string;
+  /** 模型名称 */
+  model?: string;
+  /** 图像尺寸 */
+  size?: '256x256' | '512x512' | '1024x1024';
+  /** 图像质量 */
+  quality?: 'standard' | 'hd';
+  /** 图像风格 */
+  style?: 'vivid' | 'natural';
+  /** 生成数量 */
+  n?: number;
+  /** 响应格式 */
+  response_format?: 'url' | 'b64_json';
+  /** 用户ID */
+  userId?: string;
 }
 
 /**

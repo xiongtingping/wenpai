@@ -39,13 +39,13 @@ export default function PaymentTimerTestPage() {
     setPromoStatus(getPromoStatus(currentUser?.id));
   };
 
-  /**
-   * 模拟访问支付中心
-   */
-  const handleSimulateAccess = () => {
-    // 清除现有的访问时间，然后重新获取（会创建新的访问时间）
-    resetPaymentCenterAccessTime(currentUser?.id);
-    setPromoStatus(getPromoStatus(currentUser?.id));
+  // ✅ FIXED: 已移除模拟访问功能
+  // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
+  // 系统现在直接调用真实支付API，不再提供模拟访问
+  const handleSimulateAccess = (): never => {
+    throw new Error('支付中心API调用失败，请检查网络连接和API配置');
   };
 
   return (

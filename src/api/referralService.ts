@@ -57,39 +57,13 @@ interface ReferralStats {
   monthlyRewards: number;
 }
 
-/**
- * 模拟后端推荐奖励处理
- * @param request 推荐奖励请求
- * @returns 模拟响应
- */
-export async function mockReferralReward(request: ReferralRewardRequest): Promise<ReferralRewardResponse> {
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // 模拟成功率90%
-  const isSuccess = Math.random() > 0.1;
-  
-  if (isSuccess) {
-    return {
-      success: true,
-      message: '推荐奖励发放成功',
-      referrerReward: {
-        referrerId: request.referrerId,
-        rewardAmount: request.rewardAmount,
-        newUsageCount: 30 // 模拟新使用次数
-      },
-      referredUserReward: {
-        referredUserId: request.referredUserId,
-        rewardAmount: request.rewardAmount,
-        newUsageCount: 30 // 模拟新使用次数
-      }
-    };
-  } else {
-    return {
-      success: false,
-      message: '推荐奖励发放失败，请稍后重试'
-    };
-  }
+// ✅ FIXED: 已移除模拟推荐奖励功能
+// 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+// 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+// 
+// 系统现在直接调用真实推荐API，不再提供模拟奖励
+export async function mockReferralReward(request: ReferralRewardRequest): Promise<never> {
+  throw new Error('推荐奖励API调用失败，请检查网络连接和API配置');
 }
 
 /**
@@ -112,14 +86,12 @@ export async function sendReferralReward(request: ReferralRewardRequest): Promis
       const result = await response.json();
       return result;
     } else {
-      console.warn('真实API调用失败，使用模拟响应:', response.status);
-      // 如果真实API失败，使用模拟响应
-      return await mockReferralReward(request);
+      console.error('推荐奖励API调用失败:', response.status);
+      throw new Error(`推荐奖励API调用失败: ${response.status}`);
     }
   } catch (error) {
-    console.warn('API调用错误，使用模拟响应:', error);
-    // 如果网络错误，使用模拟响应
-    return await mockReferralReward(request);
+    console.error('推荐奖励API调用错误:', error);
+    throw new Error(`推荐奖励API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
   }
 }
 

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重试机制测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 重试机制测试页面</h1>
+        
+        <div class="test-section">
+            <h3>测试说明</h3>
+            <p>这个页面用于测试智能标题生成的重试机制是否正常工作。</p>
+            <p><strong>预期行为：</strong></p>
+            <ul>
+                <li>当遇到429错误时，应该看到重试日志</li>
+                <li>重试次数应该从1次增加到8次</li>
+                <li>每次重试之间应该有延迟</li>
+                <li>最终应该成功生成标题或显示明确的错误信息</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>测试操作</h3>
+            <button onclick="testRetryMechanism()">🧪 测试重试机制</button>
+            <button onclick="clearLogs()">🗑️ 清除日志</button>
+            <button onclick="openAdaptPage()">📄 打开适配页面</button>
+        </div>
+
+        <div class="test-section">
+            <h3>测试状态</h3>
+            <div id="status" class="status info">等待测试...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>控制台日志</h3>
+            <div id="log" class="log">日志将在这里显示...</div>
+        </div>
+    </div>
+
+    <script>
+        let logElement = document.getElementById('log');
+        let statusElement = document.getElementById('status');
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function clearLogs() {
+            logElement.innerHTML = '日志已清除...\n';
+            updateStatus('日志已清除', 'info');
+        }
+
+        function openAdaptPage() {
+            window.open('http://localhost:5173/new-adapt', '_blank');
+        }
+
+        async function testRetryMechanism() {
+            updateStatus('开始测试重试机制...', 'info');
+            addLog('🧪 开始测试重试机制...');
+
+            try {
+                // 模拟一个会触发429错误的请求
+                const response = await fetch('http://localhost:5173/new-adapt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'test-retry',
+                        prompt: '测试重试机制',
+                        model: 'gpt-4'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addLog(`✅ 测试成功: ${JSON.stringify(data)}`);
+                    updateStatus('测试成功！', 'success');
+                } else {
+                    addLog(`❌ 测试失败: HTTP ${response.status}`);
+                    updateStatus('测试失败', 'error');
+                }
+            } catch (error) {
+                addLog(`❌ 测试异常: ${error.message}`);
+                updateStatus('测试异常', 'error');
+            }
+        }
+
+        // 页面加载时自动添加一些说明
+        addLog('📋 测试页面已加载');
+        addLog('💡 提示：打开浏览器开发者工具查看详细的控制台日志');
+        addLog('🔍 观察控制台中的重试机制调试日志');
+    </script>
+</body>
+</html> 

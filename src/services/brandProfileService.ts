@@ -420,7 +420,7 @@ class BrandProfileService {
       return null;
     }
 
-    return profile.platformStrategies[platform] || null;
+    return profile.platformStrategies[platform as string] || null;
   }
 
   /**
@@ -438,7 +438,7 @@ class BrandProfileService {
     if (!profile.platformStrategies) {
       profile.platformStrategies = {};
     }
-    profile.platformStrategies[platform] = strategy;
+    profile.platformStrategies[platform as string] = strategy;
     profile.updatedAt = new Date();
 
     // 保存更新

@@ -110,14 +110,14 @@ export function sanitizeObject<T extends Record<string, any>>(
     
     if (isDangerous) {
       if (rule.required) {
-        result[rule.field] = rule.fallback;
+        (result as any)[rule.field] = rule.fallback;
       } else {
         delete result[rule.field];
       }
     } else {
       // 确保字符串字段安全
       if (typeof value === 'string') {
-        result[rule.field] = safeString(value);
+        (result as any)[rule.field] = safeString(value);
       }
     }
   });
@@ -171,7 +171,7 @@ export function SafeText({
 }) {
   const safeContent = safeString(children, { fallback });
   
-  return React.createElement('span', { 
+  return (window as any).React.createElement('span', { 
     className,
     'data-safe-text': 'true'
   }, safeContent);
@@ -197,21 +197,21 @@ export function createSafeThirdPartyConfig<T extends Record<string, any>>(
   // 处理字符串字段
   stringFields.forEach(field => {
     if (field in safeConfig) {
-      safeConfig[field] = safeString(safeConfig[field]);
+      (safeConfig as any)[field] = safeString((safeConfig as any)[field]);
     }
   });
   
   // 处理对象字段
   objectFields.forEach(field => {
     if (field in safeConfig && typeof safeConfig[field] === 'object') {
-      safeConfig[field] = sanitizeObject(safeConfig[field], []);
+      (safeConfig as any)[field] = sanitizeObject((safeConfig as any)[field], []);
     }
   });
   
   // 应用自定义清理器
   Object.entries(customSanitizers).forEach(([field, sanitizer]) => {
     if (field in safeConfig) {
-      safeConfig[field] = sanitizer(safeConfig[field]);
+      (safeConfig as any)[field] = sanitizer((safeConfig as any)[field]);
     }
   });
   
@@ -267,11 +267,11 @@ export class UndefinedConcatDetector {
       element,
       NodeFilter.SHOW_TEXT,
       null,
-      false
+      false,
     );
     
-    let node;
-    while (node = walker.nextNode()) {
+          let node;
+      while ((node = walker.nextNode()) !== null) {
       if (node.textContent?.includes('undefinedundefined')) {
         console.warn('🚨 检测到 undefined 拼接:', {
           element: node.parentElement,

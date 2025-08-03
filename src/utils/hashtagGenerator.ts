@@ -131,11 +131,11 @@ export class HashtagGenerator {
    */
   async generateHashtags(content: string, options: HashtagGeneratorOptions = {}): Promise<HashtagSuggestion[]> {
     const {
-      platformId = 'general',
+      platformId: _platformId = 'general',
       maxTags = 10,
-      includeBrands = false, // 强制禁用品牌标签
-      includeIndustry = true,
-      includePersona = false // 强制禁用通用人设标签
+      includeBrands: _includeBrands = false, // 强制禁用品牌标签
+      includeIndustry: _includeIndustry = true,
+      includePersona: _includePersona = false // 强制禁用通用人设标签
     } = options;
 
     // 禁止使用缓存或默认标签，每次都基于实际内容生成
@@ -179,9 +179,10 @@ export class HashtagGenerator {
 
     // 清理内容 - 移除所有特殊符号和emoji
     const cleanContent = content
-      .replace(/[#@\*\[\]✔️❌⭐🔥💡📝🎯]/g, '') // 移除特殊符号和emoji
+      .replace(/[#@*[\]]/g, '') // 移除特殊符号
       .replace(/[，。！？；：""''（）【】]/g, ' ') // 替换标点为空格
-      .replace(/[\u2600-\u27BF]|[\uE000-\uF8FF]|[\u2011-\u26FF]/g, '') // 移除emoji
+      .replace(/[✔️❌⭐🔥💡📝🎯]/g, '') // 单独移除 emoji
+      .replace(/\u2600-\u27BF|\uE000-\uF8FF|\u2011-\u26FF/g, '') // 移除emoji区间
       .trim();
 
     // 分词并过滤
@@ -201,7 +202,8 @@ export class HashtagGenerator {
         if (this.commonWords.has(word)) return false;
 
         // 排除包含特殊符号的词
-        if (/[✔️❌⭐🔥💡📝🎯#@\*\[\]]/.test(word)) return false;
+        const forbidden = ['✔️', '❌', '⭐', '🔥', '💡', '📝', '🎯', '#', '@', '*', '[', ']'];
+        if (forbidden.some(sym => word.includes(sym))) return false;
 
         // 只保留中文词汇
         if (!/[\u4e00-\u9fa5]/.test(word)) return false;

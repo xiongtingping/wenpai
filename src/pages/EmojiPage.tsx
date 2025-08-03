@@ -8,14 +8,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
 import { 
   Download, 
   Copy, 
@@ -42,7 +39,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
-import { notoEmojiService, UNICODE_EMOJI_GROUPS, SKIN_TONE_MODIFIERS, NOTO_STYLES, type NotoEmojiData } from '@/services/notoEmojiService';
+import { notoEmojiService, UNICODE_EMOJI_GROUPS, NOTO_STYLES, type NotoEmojiData } from '@/services/notoEmojiService';
 import { callAI } from '@/api/aiService';
 import PersonalizedEmojiGenerator from '@/components/creative/PersonalizedEmojiGenerator';
 
@@ -55,7 +52,7 @@ const EmojiPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStyle, setSelectedStyle] = useState<keyof typeof NOTO_STYLES>('color');
-  const [selectedEmoji, setSelectedEmoji] = useState<NotoEmojiData | null>(null);
+  const [_selectedEmoji, _setSelectedEmoji] = useState<NotoEmojiData | null>(null);
   const [activeTab, setActiveTab] = useState('gallery');
   const [isGenerating, setIsGenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -120,7 +117,7 @@ const EmojiPage: React.FC = () => {
         title: "复制成功",
         description: `已复制 ${emojiToCopy} 到剪贴板`,
       });
-    } catch (err) {
+    } catch (_err) {
       toast({
         title: "复制失败",
         description: "请手动复制",
@@ -155,7 +152,7 @@ const EmojiPage: React.FC = () => {
         title: "下载成功",
         description: `已下载 ${emoji.name}`,
       });
-    } catch (err) {
+    } catch (_err) {
       toast({
         title: "下载失败",
         description: "图片资源可能不可用，请稍后重试",
@@ -196,7 +193,7 @@ const EmojiPage: React.FC = () => {
         title: "批量生成完成",
         description: `已为 ${urls.length} 个emoji生成图片`,
       });
-    } catch (err) {
+    } catch (_err) {
       toast({
         title: "生成失败",
         description: "请稍后重试",
@@ -305,7 +302,7 @@ const EmojiPage: React.FC = () => {
         title: "复制成功",
         description: `已复制推荐的emoji: ${emojiString}`,
       });
-    } catch (err) {
+    } catch (_err) {
       toast({
         title: "复制失败",
         description: "请手动复制",

@@ -71,7 +71,7 @@ const EnhancedCreemAlipayQRCode: React.FC<{
       setQrUrl(alipayQr);
       setCheckoutId(checkout.id);
       
-      let amount = checkout.amount;
+      const amount = checkout.amount;
       if (typeof amount === "number") {
         setPrice(amount / 100);
       } else if (typeof amount === "string") {

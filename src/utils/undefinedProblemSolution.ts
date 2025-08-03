@@ -127,6 +127,8 @@ export class UndefinedProtectionSystem {
    * 全局字符串拦截
    */
   private enableGlobalStringInterception(): void {
+    // 使用箭头函数保持this上下文
+
     // 拦截模板字符串
     const originalToString = Object.prototype.toString;
     Object.prototype.toString = function() {
@@ -136,10 +138,10 @@ export class UndefinedProtectionSystem {
       }
       return result;
     };
-    
+
     // 拦截字符串拼接
     const originalStringConcat = String.prototype.concat;
-    String.prototype.concat = function(...args) {
+    String.prototype.concat = (...args) => {
       const result = originalStringConcat.apply(this, args);
       if (result.includes('undefinedundefined')) {
         this.fixCount++;

@@ -152,10 +152,10 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
     const result = await createCreemCheckout(priceId, customerEmail);
     
     // 优先使用后端返回的二维码图片
-    if (result.qrCodeDataURL) {
+    if ((result as any).qrCodeDataURL) {
       return {
         success: true,
-        qrCodeDataURL: result.qrCodeDataURL,
+        qrCodeDataURL: (result as any).qrCodeDataURL,
         price: result.price,
         originalUrl: result.qrCodeUrl || result.url
       };
@@ -223,7 +223,7 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
     const data = await response.json();
 
     if (!data.success || !data.url) {
-      throw new Error('无法获取支付页面URL');
+      throw new Error((data as any).error || '无法获取支付页面URL');
     }
 
     return {

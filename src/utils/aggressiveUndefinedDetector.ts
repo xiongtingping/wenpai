@@ -3,8 +3,10 @@
  * 用户报告问题仍然存在，需要更强力的检测
  */
 
-if (import.meta.env.DEV) {
-  console.log('🚨 激进的 undefinedundefined 检测器已启动');
+function setupAggressiveUndefinedDetector() {
+  // 🚨 DISABLED: 激进检测器已禁用，避免与其他修复器冲突
+  if (import.meta.env.DEV) {
+    console.log('🚨 激进的 undefinedundefined 检测器已启动');
   
   let detectionCount = 0;
   const MAX_DETECTIONS = 20;
@@ -88,7 +90,7 @@ if (import.meta.env.DEV) {
   // 5. 监控所有DOM变化
   const observer = new MutationObserver((mutations) => {
     if (detectionCount >= MAX_DETECTIONS) return;
-    
+
     mutations.forEach((mutation) => {
       // 检查新增的文本节点
       if (mutation.type === 'childList') {
@@ -97,39 +99,37 @@ if (import.meta.env.DEV) {
             const text = node.textContent || '';
             if (text.includes('undefinedundefined')) {
               detectionCount++;
-              console.group('🚨 DOM文本节点检测到 undefinedundefined');
-              console.error('文本内容:', text);
-              console.error('父元素:', node.parentElement);
-              console.error('父元素类名:', node.parentElement?.className);
-              console.error('父元素ID:', node.parentElement?.id);
-              
-              // 查找React组件信息
-              let element = node.parentElement;
-              while (element) {
-                const fiberKey = Object.keys(element).find(key => key.startsWith('__reactFiber'));
-                if (fiberKey) {
-                  const fiber = (element as any)[fiberKey];
-                  console.error('React组件:', {
-                    type: fiber.type,
-                    elementType: fiber.elementType,
-                    key: fiber.key,
-                    props: fiber.memoizedProps
-                  });
-                  break;
+              if (detectionCount < MAX_DETECTIONS) {
+                console.group('🚨 DOM文本节点检测到 undefinedundefined');
+                console.error('文本内容:', text);
+                console.error('父元素:', node.parentElement);
+                console.error('父元素类名:', node.parentElement?.className);
+                console.error('父元素ID:', node.parentElement?.id);
+                // 查找React组件信息
+                let element = node.parentElement;
+                while (element) {
+                  const fiberKey = Object.keys(element).find(key => key.startsWith('__reactFiber'));
+                  if (fiberKey) {
+                    const fiber = (element as any)[fiberKey];
+                    console.error('React组件:', {
+                      type: fiber.type,
+                      elementType: fiber.elementType,
+                      key: fiber.key,
+                      props: fiber.memoizedProps
+                    });
+                    break;
+                  }
+                  element = element.parentElement;
                 }
-                element = element.parentElement;
+                console.error('调用栈:');
+                console.trace();
+                console.groupEnd();
+                // 立即修复
+                node.textContent = text.replace(/undefinedundefined/g, '用户');
+                console.log('✅ 已自动修复该文本节点');
               }
-              
-              console.error('调用栈:');
-              console.trace();
-              console.groupEnd();
-              
-              // 立即修复
-              node.textContent = text.replace(/undefinedundefined/g, '用户');
-              console.log('✅ 已自动修复该文本节点');
             }
           }
-          
           // 检查元素节点
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as Element;
@@ -148,7 +148,6 @@ if (import.meta.env.DEV) {
           }
         });
       }
-      
       // 检查属性变化
       if (mutation.type === 'attributes' && mutation.target) {
         const element = mutation.target as Element;
@@ -218,7 +217,7 @@ if (import.meta.env.DEV) {
       
       const problematicNodes = [];
       let node;
-      while (node = walker.nextNode()) {
+      while ((node = walker.nextNode()) !== null) {
         problematicNodes.push({
           text: node.textContent,
           parent: node.parentElement,
@@ -252,6 +251,10 @@ if (import.meta.env.DEV) {
   }
   
   console.log('🔍 激进检测器设置完成，最多检测', MAX_DETECTIONS, '次');
+  }
 }
+
+// 启动激进检测器
+setupAggressiveUndefinedDetector();
 
 export {};

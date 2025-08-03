@@ -126,7 +126,7 @@ export function safeTemplate(template: string, values: Record<string, any>): str
   return result;
 }
 
-// 🚨 临时启用全局监控来定位 undefinedundefined 问题
+// 🚨 DISABLED: 全局监控已禁用，避免与其他修复器冲突
 if (import.meta.env.DEV) {
   console.log('🔍 undefined拼接检测器已加载（临时启用全局监控）');
 

@@ -109,9 +109,9 @@ export function safeUserDisplayName(
   let displayName = '';
   
   if (preferNickname) {
-    displayName = user.nickname || user.username || user.email || '';
+    displayName = safeUserDisplayName(user, '') || user.email || '';
   } else {
-    displayName = user.username || user.nickname || user.email || '';
+    displayName = safeUserDisplayName(user, '') || user.email || '';
   }
   
   if (!displayName) {
@@ -166,7 +166,7 @@ export function safeObjectProps<T extends Record<string, any>>(
   
   if (!obj) {
     Object.keys(fallbacks).forEach(key => {
-      result[key] = String(fallbacks[key] || '');
+      (result as any)[key] = String((fallbacks as any)[key] || '');
     });
     return result;
   }
@@ -176,9 +176,9 @@ export function safeObjectProps<T extends Record<string, any>>(
     const fallback = fallbacks[key];
     
     if (value === undefined || value === null || value === '') {
-      result[key] = String(fallback || '');
+      (result as any)[key] = String(fallback || '');
     } else {
-      result[key] = String(value);
+      (result as any)[key] = String(value);
     }
   });
   

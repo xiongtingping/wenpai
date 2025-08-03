@@ -243,20 +243,13 @@ export function StyleSelector({
                 </div>
                 
                 <div className="flex flex-wrap gap-1">
-                  {getStylePromptTemplate(style.id)?.characteristics.slice(0, 2).map((characteristic) => (
-                    <Badge 
-                      key={characteristic} 
-                      variant="secondary" 
-                      className="text-xs"
-                    >
-                      {characteristic}
-                    </Badge>
-                  ))}
-                  {getStylePromptTemplate(style.id)?.characteristics.length > 2 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{getStylePromptTemplate(style.id)!.characteristics.length - 2}
-                    </Badge>
-                  )}
+                  {getStylePromptTemplate(style.id)?.characteristics &&
+                    getStylePromptTemplate(style.id)!.characteristics.length > 2 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{getStylePromptTemplate(style.id)!.characteristics.length - 2}
+                      </Badge>
+                    )
+                  }
                 </div>
               </div>
             </CardContent>

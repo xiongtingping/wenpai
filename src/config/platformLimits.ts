@@ -269,7 +269,7 @@ export function getPlatformCharCountAdvice(platformId: string): string {
   const limit = getPlatformLimit(platformId);
   if (!limit) return '建议控制在合理范围内';
   
-  const advice = {
+  const advice: Record<string, string> = {
     zhihu: '知乎用户喜欢深度内容，建议300字以上，详细版可达8000字',
     douyin: '抖音重视视觉内容，文案简洁有力，50-200字最佳',
     xiaohongshu: '小红书注重生活分享，建议100-500字，配合精美图片',

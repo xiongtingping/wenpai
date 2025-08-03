@@ -126,7 +126,7 @@ if (import.meta.env.DEV) {
       
       const problematicNodes = [];
       let node;
-      while (node = walker.nextNode()) {
+      while ((node = walker.nextNode()) !== null) {
         problematicNodes.push({
           text: node.textContent,
           parent: node.parentElement,
@@ -173,8 +173,8 @@ if (import.meta.env.DEV) {
     
     // 拦截React的渲染过程
     const originalCreateElement = window.React.createElement;
-    window.React.createElement = function(type, props, ...children) {
-      const result = originalCreateElement.apply(this, arguments);
+    (window as any).React.createElement = function(type: any, props: any, ...children: any[]) {
+      const result = originalCreateElement.apply(this, [type, props, ...children]);
       
       // 检查props中是否有undefinedundefined
       if (props) {
@@ -194,7 +194,7 @@ if (import.meta.env.DEV) {
       }
       
       // 检查children中是否有undefinedundefined
-      children.forEach(child => {
+      children.forEach((child: unknown) => {
         if (typeof child === 'string' && child.includes('undefinedundefined')) {
           if (detectionCount < MAX_DETECTIONS) {
             detectionCount++;

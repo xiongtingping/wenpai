@@ -6,6 +6,7 @@
  */
 
 import type { ContentVersion } from '@/ai/types';
+import { safeTrimTitle } from './safeTrimTitle';
 
 /**
  * 📦 内容预处理模块（按规范）
@@ -45,33 +46,38 @@ export const calculateSemanticFit = (
 };
 
 /**
- * 🎯 情绪吸引力评分（按规范关键词参考）
+ * ✅ V3.2 情绪吸引力评分
+ * 🎯 识别是否包含"冲突感、对比感、转变、情绪词"等吸引点
+ * @param title 标题
+ * @returns 情绪吸引力评分 (0-1)
  */
-export const calculateEmotionalScore = (title: string): number => {
-  // 按规范的情绪关键词
-  const emotionalKeywords = [
-    '惊到', '太好用', '救命', '惊艳', '出乎意料', 
-    '涨粉', '效率翻倍', '没想到', '真的', '超出预期', '相见恨晚'
+export const calculateEmotionalAppeal = (title: string): number => {
+  let score = 0.3; // 基础分
+
+  // 冲突感关键词 - 强化惊讶和意外
+  const conflictWords = ['没想到', '出乎意料', '竟然', '居然', '意外', '没想到', '没想到'];
+  const conflictMatches = conflictWords.filter(word => title.includes(word));
+  score += (conflictMatches.length > 0 ? 0.25 : 0);
+
+  // 对比感关键词 - 强化前后对比
+  const contrastWords = ['之前', '现在', '从', '到', '比', '更', '最', '原来', '现在'];
+  const contrastMatches = contrastWords.filter(word => title.includes(word));
+  score += (contrastMatches.length > 0 ? 0.2 : 0);
+
+  // 转变关键词 - 强化效果转变
+  const transformationWords = ['改变', '提升', '改善', '优化', '翻倍', '节省', '提升', '改善'];
+  const transformationMatches = transformationWords.filter(word => title.includes(word));
+  score += (transformationMatches.length > 0 ? 0.2 : 0);
+
+  // 情绪词 - 强化情感表达
+  const emotionalWords = [
+    '惊艳', '太棒了', '救命', '真的', '超预期', '相见恨晚',
+    '太好用', '效率', '效果', '值得', '推荐', '安利', '太爽了', '太惊艳了'
   ];
-  
-  const questionWords = ['为什么', '如何', '真的吗', '怎么样'];
-  const resultWords = ['后', '让我', '帮我', '效果', '提升', '翻倍'];
+  const emotionalMatches = emotionalWords.filter(word => title.includes(word));
+  score += (emotionalMatches.length > 0 ? 0.25 : 0);
 
-  let emotionalScore = 0.3; // 基础分
-
-  // 情绪关键词匹配
-  const emotionalMatches = emotionalKeywords.filter(word => title.includes(word));
-  emotionalScore += (emotionalMatches.length > 0 ? 0.4 : 0);
-
-  // 提问引导词匹配
-  const questionMatches = questionWords.filter(word => title.includes(word));
-  emotionalScore += (questionMatches.length > 0 ? 0.2 : 0);
-
-  // 结果导向词匹配
-  const resultMatches = resultWords.filter(word => title.includes(word));
-  emotionalScore += (resultMatches.length > 0 ? 0.1 : 0);
-
-  return Math.min(0.95, emotionalScore);
+  return Math.min(0.95, score);
 };
 
 /**
@@ -95,22 +101,117 @@ export const isValidTitleForPlatform = (
 /**
  * 📈 综合质量评分（按规范权重）
  */
+/**
+ * ✅ FIXED: 2025-08-02 统一权重配置计算 - V3.3增强版
+ * 🎯 使用统一的V3.3权重配置，确保评分一致性，强化语义相关性
+ * 🔒 LOCKED: 该函数已优化，请勿随意修改权重配置
+ */
 export const calculateOverallScore = (
   semanticFit: number,
-  emotionalScore: number,
+  emotionalAppeal: number,
   diversityScore: number,
-  utilizationScore: number,
+  semanticCompleteness: number,
+  characterUtilization: number,
   weights = {
-    semanticSimilarity: 0.5,    // 50% - 按规范提升
-    emotionalAttraction: 0.3,   // 30%
-    structuralDiversity: 0.15,  // 15%
-    characterUtilization: 0.05  // 5%
+    semanticRelevance: 0.50,        // 50% - 主旨拟合度
+    emotionalAppeal: 0.20,          // 20% - 情绪吸引力
+    structuralDiversity: 0.15,      // 15% - 表达结构多样性
+    semanticCompleteness: 0.10,     // 10% - 语义完整性
+    characterUtilization: 0.05      // 5% - 字符利用率
   }
 ): number => {
-  return semanticFit * weights.semanticSimilarity +
-         emotionalScore * weights.emotionalAttraction +
+  return semanticFit * weights.semanticRelevance +
+         emotionalAppeal * weights.emotionalAppeal +
          diversityScore * weights.structuralDiversity +
-         utilizationScore * weights.characterUtilization;
+         semanticCompleteness * weights.semanticCompleteness +
+         characterUtilization * weights.characterUtilization;
+};
+
+/**
+ * ✅ V3.2 语义完整性评分
+ * 🎯 检查句末是否闭合，语法是否通顺，避免"..."断尾或缺动词
+ * @param title 标题
+ * @returns 语义完整性评分 (0-1)
+ */
+export const calculateSemanticCompleteness = (title: string): number => {
+  let score = 0.5; // 基础分
+
+  // 检查句末闭合性 - V3.2 强化规则
+  const goodEndings = ['了', '的', '！', '？', '。', '吧', '呢', '啊', '哦', '呢', '吧'];
+  const badEndings = [
+    '、', '的', '是', '我', '和', '让', '要', '在', '对', '为', '把', '给', '向',
+    '从', '到', '由', '被', '得', '着', '过', '了', '吗', '呢', '啊', '哦', '吧',
+    '这', '那', '它', '他', '她', '们', '个', '种', '些', '点', '下', '上', '里',
+    '外', '前', '后', '左', '右', '中', '间', '边', '面', '方', '向', '位', '处'
+  ];
+  
+  const lastChar = title[title.length - 1];
+  if (goodEndings.includes(lastChar)) {
+    score += 0.35; // 句末自然闭合 - 提高权重
+  } else if (badEndings.includes(lastChar)) {
+    score -= 0.3; // 句末不完整 - 加重惩罚
+  }
+
+  // 检查主谓宾结构完整性 - V3.2 强化检查
+  const hasSubject = /[我你他她它我们你们他们]/.test(title);
+  const hasVerb = /[用做写看学试体验感受发现获得提升改善优化].*[了过]/.test(title) || /[是能会可以].*[的]/.test(title);
+  const hasObject = /[工具软件功能方法技巧经验心得效果结果].*[的]/;
+  
+  if (hasSubject && hasVerb) {
+    score += 0.25; // 有主谓结构 - 提高权重
+  }
+  if (hasObject) {
+    score += 0.15; // 有宾语结构 - 提高权重
+  }
+
+  // 检查语法通顺性 - V3.2 扩展模式
+  const grammarPatterns = [
+    /我用.*后.*/,      // "我用X后Y" 模式
+    /为什么.*/,        // "为什么X" 模式
+    /如何.*/,          // "如何X" 模式
+    /.*让我.*/,        // "X让我Y" 模式
+    /.*帮我.*/,        // "X帮我Y" 模式
+    /.*真的.*/,        // "X真的Y" 模式
+    /.*太.*了/,        // "X太Y了" 模式
+    /.*太.*了/,        // "X太Y了" 模式
+    /.*太.*了/,        // "X太Y了" 模式
+  ];
+
+  const hasGoodGrammar = grammarPatterns.some(pattern => pattern.test(title));
+  if (hasGoodGrammar) {
+    score += 0.15; // 语法通顺 - 提高权重
+  }
+
+  // 避免断尾和省略号 - V3.2 强化检查
+  if (title.includes('...') || title.includes('…')) {
+    score -= 0.3; // 有省略号表示不完整 - 加重惩罚
+  }
+
+  // 检查禁止的残词 - V3.2 新增
+  const prohibitedWords = ['文', '工', '图', '说', '表'];
+  const hasProhibitedWord = prohibitedWords.some(word => title.endsWith(word));
+  if (hasProhibitedWord) {
+    score -= 0.4; // 有禁止的残词 - 严重惩罚
+  }
+
+  // 检查是否有未完成的句子 - V3.2 扩展检查
+  const incompletePatterns = [
+    /^[的了用后时]/,   // 以助词开头
+    /[，,]$/,          // 以逗号结尾
+    /[：:]$/,          // 以冒号结尾
+    /[和与及]$/,       // 以连词结尾
+    /[的]$/,           // 以"的"结尾
+    /[了]$/,           // 以"了"结尾
+    /[是]$/,           // 以"是"结尾
+    /[我]$/,           // 以"我"结尾
+  ];
+
+  const hasIncompletePattern = incompletePatterns.some(pattern => pattern.test(title));
+  if (hasIncompletePattern) {
+    score -= 0.4; // 句子不完整 - 加重惩罚
+  }
+
+  return Math.max(0, Math.min(1, score)); // 确保在 0-1 范围内
 };
 
 /**
@@ -345,4 +446,50 @@ export const generateTitleSummary = (
   };
 };
 
-console.log('🧠 标题生成工具函数模块已加载');
+/**
+ * ✅ FIXED: 2025-08-02 删除重复实现，统一使用独立的safeTrimTitle.ts
+ * 🔒 LOCKED: 该函数已移至独立文件，请勿在此处重复实现
+ * 📌 如需修改safeTrimTitle逻辑，请编辑 src/utils/safeTrimTitle.ts
+ */
+// 删除重复的safeTrimTitle函数实现
+
+/**
+ * ✅ V3.3 标题评分系统配置 - 增强版
+ * 🎯 与 src/score/titleScoreWeights.ts 中的 TITLE_SCORING_V3_3_CONFIG 保持同步
+ */
+export const TITLE_SCORING_V3_3_CONFIG = {
+  outputCount: 5,
+  ensureDiversity: true,
+  scoringWeights: {
+    semanticRelevance: 0.50,        // 50% - 主旨拟合度
+    emotionalAppeal: 0.20,          // 20% - 情绪吸引力
+    structuralDiversity: 0.15,      // 15% - 表达结构多样性
+    semanticCompleteness: 0.10,     // 10% - 语义完整性
+    characterUtilization: 0.05      // 5% - 字符利用率
+  }
+} as const;
+
+/**
+ * 平台字符限制配置
+ */
+export const PLATFORM_LIMIT = {
+  'xiaohongshu': 20,
+  'wechat': 28,
+  'bilibili': 30,
+  'douyin': 18,
+  'weibo': 25,
+  'zhihu': 35,
+  'toutiao': 22,
+  'default': 25
+} as const;
+
+/**
+ * 获取平台字符限制
+ * @param platformId 平台ID
+ * @returns 字符限制
+ */
+export function getPlatformLimit(platformId: string): number {
+  return PLATFORM_LIMIT[platformId as keyof typeof PLATFORM_LIMIT] || PLATFORM_LIMIT.default;
+}
+
+console.log('�� 标题生成工具函数模块已加载');

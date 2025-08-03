@@ -68,7 +68,9 @@ export interface RetryConfig {
   maxRetries: number;
   retryDelay: number;
   backoffMultiplier: number;
-  enableFallback: boolean;
+  // ✅ FIXED: 已移除降级功能
+  // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
 }
 
 export interface ApiConfig {
@@ -150,11 +152,11 @@ class HotTopicsAPI {
   }
 
   private async fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
-    let lastError: Error;
+    let lastError: Error = new Error('Unknown error');
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const data = await request.get(`${this.baseUrl}${url}`);
+        const data = await request.get(`${this.baseUrl}${url || ''}` as string);
         if (!data) {
           throw new Error('API返回空数据');
         }
@@ -167,7 +169,7 @@ class HotTopicsAPI {
       }
     }
     
-    throw lastError!;
+    throw lastError;
   }
 
   private processRawData(data: any, platform: string): DailyHotItem[] {

@@ -250,35 +250,13 @@ export class PaymentService {
            '';
   }
 
-  /**
-   * 模拟支付成功处理（用于测试）
-   */
-  async simulatePaymentSuccess(paymentData: any): Promise<UpgradeMembershipResponse> {
-    // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // 解析支付数据，确定套餐
-    const planInfo = this.parsePlanFromPayment(paymentData);
-    
-    // 模拟升级成功
-    const subscription = {
-      id: `sub_${Date.now()}`,
-      userId: paymentData.userId || 'user_123',
-      planTier: planInfo.tier,
-      planPeriod: planInfo.period,
-      status: 'active',
-      startDate: new Date().toISOString(),
-      endDate: this.calculateEndDate(planInfo.period),
-      features: this.getPlanFeatures(planInfo.tier),
-    };
-
-    securityUtils.secureLog('模拟支付成功', { planInfo, subscription });
-    
-    return {
-      success: true,
-      subscription,
-      message: '会员升级成功',
-    };
+  // ✅ FIXED: 已移除模拟支付功能
+  // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+  // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+  // 
+  // 系统现在直接调用真实支付API，不再提供模拟支付
+  async simulatePaymentSuccess(paymentData: any): Promise<never> {
+    throw new Error('支付API调用失败，请检查网络连接和支付配置');
   }
 
   /**

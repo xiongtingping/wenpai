@@ -1,0 +1,1473 @@
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Sparkles, RefreshCw, Copy, Edit, Check, X } from "lucide-react";
+import { callAI, callAIWithRetry } from '@/api/ai';
+import {
+  getTitleGenerationSystemPrompt,
+  getTitleGenerationPrompt,
+  PLATFORM_LIMITS,
+  TITLE_STYLES
+} from '@/ai/prompts/titleGeneration';
+import type { TitleGenerationResponse, TitleQualityCheck } from '@/ai/types';
+import { getPlatformLimit } from '@/config/platformLimits';
+import { safeTrimTitle } from '@/utils/safeTrimTitle';
+
+// ✅ FIXED: 添加JSON修复函数，处理AI响应截断问题
+/**
+ * 修复截断的JSON响应
+ * @param truncatedJson 截断的JSON字符串
+ * @returns 修复后的JSON字符串，如果无法修复则返回null
+ */
+const fixTruncatedJSON = (truncatedJson: string): string | null => {
+  try {
+    // 如果已经是有效的JSON，直接返回
+    JSON.parse(truncatedJson);
+    return truncatedJson;
+  } catch (error) {
+    console.log('🔧 开始修复截断的JSON...');
+  }
+
+  // 查找最后一个完整的对象或数组
+  let fixedJson = truncatedJson;
+  
+  // 1. 尝试修复未闭合的字符串
+  const openQuotes = (fixedJson.match(/"/g) || []).length;
+  if (openQuotes % 2 !== 0) {
+    // 找到最后一个未闭合的引号位置
+    let lastQuoteIndex = -1;
+    for (let i = fixedJson.length - 1; i >= 0; i--) {
+      if (fixedJson[i] === '"' && (i === 0 || fixedJson[i-1] !== '\\')) {
+        lastQuoteIndex = i;
+        break;
+      }
+    }
+    if (lastQuoteIndex !== -1) {
+      fixedJson = fixedJson.substring(0, lastQuoteIndex + 1);
+    }
+  }
+
+  // 2. 尝试修复未闭合的数组
+  const openBrackets = (fixedJson.match(/\[/g) || []).length;
+  const closeBrackets = (fixedJson.match(/\]/g) || []).length;
+  if (openBrackets > closeBrackets) {
+    const missingBrackets = openBrackets - closeBrackets;
+    fixedJson += ']'.repeat(missingBrackets);
+  }
+
+  // 3. 尝试修复未闭合的对象
+  const openBraces = (fixedJson.match(/\{/g) || []).length;
+  const closeBraces = (fixedJson.match(/\}/g) || []).length;
+  if (openBraces > closeBraces) {
+    const missingBraces = openBraces - closeBraces;
+    fixedJson += '}'.repeat(missingBraces);
+  }
+
+  // 4. 尝试修复未完成的数组元素
+  if (fixedJson.endsWith(',')) {
+    fixedJson = fixedJson.slice(0, -1);
+  }
+
+  // 5. 尝试修复未完成的对象属性
+  const lastCommaIndex = fixedJson.lastIndexOf(',');
+  const lastBraceIndex = fixedJson.lastIndexOf('}');
+  if (lastCommaIndex > lastBraceIndex && lastBraceIndex !== -1) {
+    // 移除最后一个逗号
+    fixedJson = fixedJson.substring(0, lastCommaIndex) + fixedJson.substring(lastCommaIndex + 1);
+  }
+
+  // 6. 验证修复后的JSON
+  try {
+    JSON.parse(fixedJson);
+    console.log('✅ JSON修复成功');
+    return fixedJson;
+  } catch (error) {
+    console.log('❌ JSON修复失败，尝试更激进的修复...');
+    
+    // 7. 更激进的修复：查找最后一个完整的对象
+    const lastCompleteObjectMatch = fixedJson.match(/\{[^{}]*\}/g);
+    if (lastCompleteObjectMatch && lastCompleteObjectMatch.length > 0) {
+      const lastCompleteObject = lastCompleteObjectMatch[lastCompleteObjectMatch.length - 1];
+      try {
+        JSON.parse(lastCompleteObject);
+        console.log('✅ 使用最后一个完整对象');
+        return lastCompleteObject;
+      } catch (error) {
+        // 继续尝试其他修复方法
+      }
+    }
+
+    // 8. 尝试构建最小有效JSON
+    if (fixedJson.includes('"titles"') && fixedJson.includes('[')) {
+      const titlesMatch = fixedJson.match(/"titles"\s*:\s*\[([\s\S]*?)(?=\]|$)/);
+      if (titlesMatch) {
+        const titlesContent = titlesMatch[1];
+        const titleObjects = titlesContent.match(/\{[^{}]*\}/g) || [];
+        if (titleObjects.length > 0) {
+          const minimalJson = `{
+            "contentAnalysis": {
+              "mainTheme": "内容分析",
+              "coreObjects": ["内容对象"],
+              "userBenefits": ["用户收益"],
+              "useScenarios": ["使用场景"]
+            },
+            "titles": [${titleObjects.join(',')}]
+          }`;
+          try {
+            JSON.parse(minimalJson);
+            console.log('✅ 构建最小有效JSON成功');
+            return minimalJson;
+          } catch (error) {
+            console.log('❌ 最小JSON构建失败');
+          }
+        }
+      }
+    }
+
+    console.log('❌ 所有JSON修复方法都失败了');
+    return null;
+  }
+};
+
+// ✅ FIXED: 使用导入的PLATFORM_LIMITS，避免重复声明
+
+// ✅ FIXED: 添加标题质量检查函数
+const checkTitleQuality = (
+  title: string,
+  semanticFit: number,
+  platformId: string,
+  platformLimits: Record<string, number>
+): {
+  isQualified: boolean;
+  issues: string[];
+  suggestions: string[];
+} => {
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+  
+  // 语义贴合度检查
+  if (semanticFit < 0.75) {
+    issues.push('语义贴合度不足75%');
+    suggestions.push('增强与原文内容的关联性');
+  }
+
+  // 长度检查
+  const currentTitleLimit = platformLimits[platformId] || platformLimits.default;
+  const minLength = Math.max(8, Math.floor(currentTitleLimit * 0.7));
+  
+  if (title.length < minLength || title.length > currentTitleLimit) {
+    issues.push('标题长度不符合平台要求');
+    suggestions.push('调整标题长度以符合平台限制');
+  }
+
+  // 内容检查
+  if (title.includes('undefined') || title.includes('null')) {
+    issues.push('标题包含无效内容');
+    suggestions.push('清理标题中的无效字符');
+  }
+
+  // 空泛检查
+  const genericWords = ['AI真强', '神器推荐', '这个工具', '很好用'];
+  if (genericWords.some(word => title.includes(word))) {
+    issues.push('标题过于空泛');
+    suggestions.push('使用具体的产品名称和明确价值主张');
+  }
+
+  return {
+    isQualified: issues.length === 0,
+    issues,
+    suggestions
+  };
+};
+
+// 使用统一的平台限制配置（从AI prompt系统导入）
+const PLATFORM_TITLE_LIMITS = PLATFORM_LIMITS;
+
+// 标题质量评估权重配置 - V3.3增强版
+// ✅ FIXED: 2025-08-02 统一权重配置，与V3.3规范保持一致
+// 🔒 LOCKED: 该配置已优化，请勿随意修改权重分配
+const QUALITY_WEIGHTS = {
+  semanticRelevance: 0.50,        // 主旨拟合度 50% - 标题与原文内容的语义相似度
+  emotionalAppeal: 0.20,          // 情绪吸引力评分 20% - 冲突感、对比感、转变、情绪词
+  structuralDiversity: 0.15,      // 表达结构多样性 15% - 避免重复句式结构
+  semanticCompleteness: 0.10,     // 语义完整性 10% - 防止残词和未闭合表达
+  characterUtilization: 0.05      // 字符利用率 5% - 接近平台字符上限，信息密度高
+};
+
+interface ContentVersion {
+  id: string;
+  content: string;
+  style: 'standard' | 'creative';
+  title: string;
+  charCount: number;
+}
+
+interface TitleGeneratorProps {
+  content: string;
+  versions?: ContentVersion[];
+  platformId: string;
+  platformName: string;
+  onTitleChange?: (title: string) => void;
+  stylePreference?: TitleStyle[]; // 用户偏好的风格类型
+  outputCount?: number; // 输出标题数量
+  ensureDiversity?: boolean; // 确保多样性
+  allowTitleRegeneration?: boolean; // 是否允许标题重新生成
+}
+
+interface GeneratedTitle {
+  id: string;
+  title: string;
+  length: number;
+  style: TitleStyle;
+  confidence: number;
+  semanticFit: number; // 主旨拟合度 (50%)
+  platform: string;
+  isComplete: boolean; // 表达完整性
+  styleDescription: string;
+  emotionalScore: number; // 情绪吸引力评分 (20%)
+  diversityScore: number; // 结构多样性评分 (15%)
+  semanticCompleteness: number; // 语义完整性评分 (10%)
+  utilizationScore: number; // 字符利用率评分 (5%)
+  overallScore: number; // 综合评分
+  generationReason: string; // 生成理由
+  extractedContent: string; // 提取的内容片段
+}
+
+interface ContentAnalysis {
+  mainTopic: string;
+  keyPoints: string[];
+  valueProposition: string;
+  tone: 'informative' | 'engaging' | 'emotional' | 'practical';
+  entities: string[];
+  actionWords: string[];
+  semanticSimilarity: number; // 语义相似度评分
+  contentLength: number;
+  coreMessage: string; // 核心信息提炼
+  // 新增强化字段
+  coreObjects: string[]; // 核心对象（具体工具名）
+  userBenefits: string[]; // 用户收益（具体效果）
+  useScenarios: string[]; // 使用场景（具体平台/场景）
+  keyActions: string[]; // 关键动作（具体操作）
+  quantifiedEffects: string[]; // 量化效果（具体数据）
+  userPainPoints: string[]; // 用户痛点（具体问题）
+}
+
+// 标题风格枚举
+type TitleStyle = 'result-emotion' | 'question-hook' | 'reason-action' | 'experience-contrast' | 'tool-value';
+
+interface TitleStyleConfig {
+  name: string;
+  description: string;
+  minLength: number;
+  patterns: string[];
+}
+
+export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
+  content,
+  versions = [],
+  platformId,
+  platformName,
+  onTitleChange,
+  stylePreference = [],
+  outputCount = 5,
+  ensureDiversity = true,
+  allowTitleRegeneration = false
+}) => {
+  const [titles, setTitles] = useState<GeneratedTitle[]>([]);
+  const [selectedTitle, setSelectedTitle] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [titleFeedback, setTitleFeedback] = useState<Record<string, 'like' | 'dislike'>>({});
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [editingTitleText, setEditingTitleText] = useState<string>('');
+
+  const { toast } = useToast();
+
+  // ✅ FIXED: 标题生成兜底增强，彻底杜绝空字符串和"暂无生成的标题"
+  // 🔒 LOCKED: AI 禁止对此兜底逻辑做任何修改，如需变更请单独重构新模块
+  const safeTitle = (title: string) => {
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      return '智能生成标题';
+    }
+    return title.trim();
+  };
+
+  // 🔄 标准化内容来源获取函数（符合规范）
+  const getSourceContent = (): string => {
+    return versions.length > 0
+      ? versions.map(v => v.content).join('\n\n')
+      : content;
+  };
+
+  // 增强的API控制状态
+  const [lastGenerationTime, setLastGenerationTime] = useState(0);
+  const generationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const globalRequestLockRef = useRef<boolean>(false);
+  const apiCallQueueRef = useRef<Array<() => Promise<void>>>([]);
+  const consecutive429CountRef = useRef<number>(0);
+  const last429TimeRef = useRef<number>(0);
+  const totalApiCallsRef = useRef<number>(0);
+  const successfulApiCallsRef = useRef<number>(0);
+  const lastContentRef = useRef<string>(''); // ✅ FIXED: 跟踪上一次的内容，避免平台切换时的重复触发
+
+  // 极速节流配置
+  // ✅ FIXED: 极速节流配置 - 最小化等待时间，最大化响应速度
+  const getThrottleConfig = () => {
+    const now = Date.now();
+    const timeSinceLast429 = now - last429TimeRef.current;
+    const baseInterval = 3000; // ✅ FIXED: 极速基础间隔到3秒
+    const consecutive429Multiplier = Math.pow(1.05, Math.min(consecutive429CountRef.current, 2)); // ✅ FIXED: 极速指数退避，最多1.1倍
+    const dynamicInterval = baseInterval * consecutive429Multiplier;
+    
+    // ✅ FIXED: 极速减少429错误后的等待时间
+    if (timeSinceLast429 < 5000) { // 5秒内
+      return Math.max(dynamicInterval, 5000); // 至少5秒
+    }
+    
+    // ✅ FIXED: 极速减少总调用次数限制
+    const totalCalls = totalApiCallsRef.current;
+    if (totalCalls > 50) { // 进一步提高阈值
+      return Math.max(dynamicInterval, 3000); // 减少到3秒
+    }
+    
+    return dynamicInterval;
+  };
+
+  // 处理429错误的更智能策略
+  const handle429Error = () => {
+    const now = Date.now();
+    consecutive429CountRef.current++;
+    last429TimeRef.current = now;
+    totalApiCallsRef.current++;
+    
+    const waitTime = getThrottleConfig();
+    console.log(`🚨 检测到429错误，连续次数: ${consecutive429CountRef.current}, 总调用次数: ${totalApiCallsRef.current}, 等待时间: ${waitTime}ms`);
+    
+    toast({
+      title: "API调用频率超限",
+      description: `系统将等待${Math.ceil(waitTime / 1000)}秒后自动重试，或切换到备用模型`,
+      variant: "destructive"
+    });
+    
+    return waitTime;
+  };
+
+  // 重置429计数器（成功调用后）
+  const reset429Counter = () => {
+    consecutive429CountRef.current = 0;
+    successfulApiCallsRef.current++;
+    console.log('✅ API调用成功，重置429计数器');
+  };
+
+  // 检查API调用限制
+  const checkApiCallLimit = () => {
+    const now = Date.now();
+    const timeSinceLastCall = now - lastGenerationTime;
+    const minInterval = getThrottleConfig();
+    
+    if (timeSinceLastCall < minInterval) {
+      const delay = minInterval - timeSinceLastCall;
+      console.log(`⏱️ API调用限制：距离上次调用仅${timeSinceLastCall}ms，需要等待${Math.ceil(delay / 1000)}秒`);
+      return delay;
+    }
+    
+    return 0;
+  };
+
+  // ✅ FIXED: 移除初始化useEffect，避免干扰正常的生成逻辑
+
+  // ✅ FIXED: 彻底修复平台切换逻辑 - 只更新现有标题，绝对不生成新标题
+  useEffect(() => {
+    console.log(`🔄 平台切换检查: ${platformId || '未知'} (${platformName || '未知平台'})`);
+
+    // ✅ FIXED: 平台切换时只更新现有标题的平台信息和字符利用率，绝对不重新生成
+    if (titles.length > 0) {
+      console.log(`🔄 平台切换: 更新现有标题的平台信息和字符利用率，不重新生成`);
+      setTitles(prevTitles =>
+        prevTitles.map(title => {
+          const newUtilizationScore = title.length / titleLimit;
+          const newOverallScore =
+            title.semanticFit * QUALITY_WEIGHTS.semanticRelevance +
+            title.emotionalScore * QUALITY_WEIGHTS.emotionalAppeal +
+            title.diversityScore * QUALITY_WEIGHTS.structuralDiversity +
+            newUtilizationScore * QUALITY_WEIGHTS.characterUtilization;
+
+          return {
+            ...title,
+            platform: platformId,
+            utilizationScore: newUtilizationScore,
+            overallScore: newOverallScore
+          };
+        })
+      );
+    } else {
+      console.log(`🔄 平台切换: 没有现有标题，不进行任何操作`);
+    }
+  }, [platformId, platformName]); // ✅ FIXED: 只监听平台变化，绝对不触发生成
+
+  // ✅ FIXED: 性能优化 - 使用useMemo优化计算
+  const titleLimit = useMemo(() => {
+    return PLATFORM_TITLE_LIMITS[platformId as keyof typeof PLATFORM_TITLE_LIMITS] || 25;
+  }, [platformId]);
+  
+  const minTitleLength = useMemo(() => {
+    return Math.max(8, Math.floor(titleLimit * 0.7)); // 最短不少于8字，建议≥平台限制的70%
+  }, [titleLimit]);
+
+  // ✅ FIXED: 移除重复的useEffect，避免平台切换时重复触发
+  // 字符限制更新逻辑已合并到平台切换useEffect中
+
+  // 标题风格配置（V3规范）
+  const titleStyles: Record<TitleStyle, TitleStyleConfig> = {
+    'result-emotion': {
+      name: '✅ 结果+情绪型',
+      description: '强调使用结果 + 情感评价',
+      minLength: 10,
+      patterns: ['只用1次，{result}！太爽了！', '{tool}让我{result}，太惊艳了', '用{tool}后{result}，没想到这么好']
+    },
+    'question-hook': {
+      name: '🤔 提问钩子型',
+      description: '用好奇心驱动点击',
+      minLength: 8,
+      patterns: ['{scenario}怎么{action}最省事？我找到答案了', '为什么{tool}能{result}？', '{tool}真的能{benefit}吗？']
+    },
+    'reason-action': {
+      name: '🎯 原因+行动型',
+      description: '讲述为什么用 + 得到了什么',
+      minLength: 10,
+      patterns: ['因为用{tool}，我再也不用{pain}', '用了{tool}才知道，{result}', '有了{tool}，{benefit}变简单了']
+    },
+    'experience-contrast': {
+      name: '💡 体验+反差型',
+      description: '从"以前"到"现在"的转变',
+      minLength: 12,
+      patterns: ['以前要{old_way}，现在{new_way}', '{tool}前后对比：{contrast}', '没用{tool}前{before}，用了后{after}']
+    },
+    'tool-value': {
+      name: '🛠️ 工具+明确价值型',
+      description: '工具名称 + 功能/收益',
+      minLength: 8,
+      patterns: ['{tool}：{value}，{benefit}', '{tool}帮我{action}，{result}', '{tool}的{feature}功能，{benefit}']
+    }
+  };
+
+  // 🚫 移除本地内容分析函数：只保留AI模式
+
+  // 🚫 移除本地实体提取函数：只保留AI模式
+
+  // 🚫 移除本地主题识别函数：只保留AI模式
+
+  // 🚫 移除所有本地分析函数：只保留AI模式
+
+  // 提取核心对象（具体工具名、产品名）
+  const extractCoreObjects = (text: string): string[] => {
+    const objects: string[] = [];
+
+    // 匹配具体工具名
+    const toolPatterns = [
+      /([^\s]{2,8}(?:AI|GPT|工具|助手|平台|系统|软件|应用))/g,
+      /(文派|ChatGPT|Claude|Midjourney|Figma|Notion|飞书|钉钉)/g,
+      /([^\s]{2,6}(?:生成器|适配器|编辑器|创作器))/g
+    ];
+
+    toolPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      objects.push(...matches);
+    });
+
+    return [...new Set(objects)].filter(obj => obj.length >= 2 && obj.length <= 10);
+  };
+
+  // 提取用户收益（具体效果、价值）
+  const extractUserBenefits = (text: string): string[] => {
+    const benefits: string[] = [];
+
+    // 匹配效果描述
+    const benefitPatterns = [
+      /(?:节省|提升|增加|减少|优化)([^\s]{2,8})/g,
+      /([^\s]{2,8})(?:翻倍|倍增|提升|增长)/g,
+      /(\d+%?)(?:的?(?:时间|效率|质量|速度))/g,
+      /(一键|自动|智能|快速)([^\s]{2,6})/g
+    ];
+
+    benefitPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      benefits.push(...matches);
+    });
+
+    return [...new Set(benefits)].filter(benefit => benefit.length >= 2);
+  };
+
+  // 提取使用场景（具体平台、场景）
+  const extractUseScenarios = (text: string): string[] => {
+    const scenarios: string[] = [];
+
+    // 匹配平台和场景
+    const scenarioPatterns = [
+      /(小红书|微博|抖音|B站|公众号|知乎|朋友圈)/g,
+      /([^\s]{2,6}(?:发文|创作|写作|营销|推广))/g,
+      /(职场|工作|学习|生活|商务)([^\s]{2,6})/g
+    ];
+
+    scenarioPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      scenarios.push(...matches);
+    });
+
+    return [...new Set(scenarios)].filter(scenario => scenario.length >= 2);
+  };
+
+  // 提取关键动作（具体操作）
+  const extractKeyActions = (text: string): string[] => {
+    const actions: string[] = [];
+
+    // 匹配动作词
+    const actionPatterns = [
+      /(一键|自动|智能|批量)([^\s]{2,6})/g,
+      /([^\s]{2,6}(?:生成|创建|制作|编辑|修改|优化))/g,
+      /(适配|转换|改写|调整|定制)([^\s]{2,6})?/g
+    ];
+
+    actionPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      actions.push(...matches);
+    });
+
+    return [...new Set(actions)].filter(action => action.length >= 2);
+  };
+
+  // 提取量化效果（具体数据）
+  const extractQuantifiedEffects = (text: string): string[] => {
+    const effects: string[] = [];
+
+    // 匹配数字和效果
+    const effectPatterns = [
+      /(\d+(?:\.\d+)?[%倍]?)(?:的?(?:时间|效率|质量|速度|提升|增长))/g,
+      /(?:节省|提升|增加)(\d+(?:\.\d+)?[%倍]?)/g,
+      /(\d+(?:分钟|小时|天|秒))(?:内|完成)/g
+    ];
+
+    effectPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      effects.push(...matches);
+    });
+
+    return [...new Set(effects)].filter(effect => effect.length >= 1);
+  };
+
+  // 提取用户痛点（具体问题）
+  const extractUserPainPoints = (text: string): string[] => {
+    const painPoints: string[] = [];
+
+    // 匹配痛点描述
+    const painPatterns = [
+      /([^\s]{2,6}(?:太累|很累|麻烦|困难|复杂))/g,
+      /([^\s]{2,6}(?:不一致|不统一|不匹配))/g,
+      /(效率低|速度慢|耗时长|浪费时间)/g,
+      /(重复|繁琐|机械|无聊)([^\s]{2,6})/g,
+      /([^\s]{2,6}(?:问题|痛点|难点|瓶颈))/g,
+      /(缺少|缺乏|没有)([^\s]{2,6})/g
+    ];
+
+    painPatterns.forEach(pattern => {
+      const matches = text.match(pattern) || [];
+      painPoints.push(...matches);
+    });
+
+    return [...new Set(painPoints)].filter(pain => pain.length >= 2);
+  };
+
+  // 生成自然、内容感知的标题（符合Prompt文档规范）
+  // 🚫 移除generateNaturalTitle函数：只保留AI模式
+
+  // 🚫 移除所有本地生成函数：只保留AI模式
+
+  // 🚫 移除所有本地生成相关函数：只保留AI模式
+
+  // 🚫 移除本地评分函数：只保留AI模式
+
+  // 🚫 移除本地结构分析函数：只保留AI模式
+
+  // 🤖 AI模式：标题生成主函数（按规范优化）
+  const generateTitles = async () => {
+    // ✅ FIXED: 全局请求锁检查 - 防止并发请求
+    if (globalRequestLockRef.current) {
+      console.log(`🔒 全局请求锁：已有请求正在进行，跳过本次请求`);
+      return;
+    }
+    
+    // ✅ FIXED: 更严格的API调用限制检查
+    const delay = checkApiCallLimit();
+    if (delay > 0) {
+      console.log(`⏱️ API调用限制：需要等待${Math.ceil(delay / 1000)}秒 (连续429次数: ${consecutive429CountRef.current}, 总调用次数: ${totalApiCallsRef.current})`);
+      toast({
+        title: "API调用频率限制",
+        description: `系统将等待${Math.ceil(delay / 1000)}秒后自动重试，避免429错误`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (isGenerating) {
+      console.log(`⏱️ 请求节流：正在生成中，跳过重复请求`);
+      return;
+    }
+    
+    // ✅ FIXED: 设置全局请求锁
+    globalRequestLockRef.current = true;
+    setIsGenerating(true);
+    setLastGenerationTime(Date.now());
+
+    try {
+      console.log('🚀 开始标题生成流程（AI模式）');
+
+      // Step 1: 标准化内容来源获取（按规范）
+      const sourceContent = getSourceContent(); // 仍然使用 getSourceContent 获取完整内容
+
+      if (!sourceContent || sourceContent.trim().length < 5) { // ✅ FIXED: 减少最小内容长度要求，提高响应速度
+        toast({
+          title: "内容不足",
+          description: "请提供更多内容以生成标题（最少5字符）",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log(`📝 内容来源: ${sourceContent.length}字符，平台: ${platformId || '未知'}`);
+
+      // Step 2: AI模式（必须连接AI）
+      await attemptAIGeneration(sourceContent);
+
+    } catch (error) {
+      console.error('AI标题生成失败:', error);
+      
+      // 根据错误类型提供具体的解决方案
+      let errorMessage = "AI生成失败，请稍后重试";
+      let actionMessage = "";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('429')) {
+          errorMessage = "AI服务繁忙，请求频率过高";
+          actionMessage = "请等待1-2分钟后重试，或检查API使用量";
+        } else if (error.message.includes('API密钥') || error.message.includes('401')) {
+          errorMessage = "AI配置错误";
+          actionMessage = "请检查OpenAI API密钥配置";
+        } else if (error.message.includes('网络') || error.message.includes('timeout')) {
+          errorMessage = "网络连接异常";
+          actionMessage = "请检查网络连接后重试";
+        } else if (error.message.includes('500') || error.message.includes('502')) {
+          errorMessage = "AI服务暂时不可用";
+          actionMessage = "请稍等片刻后重试";
+        } else if (error.message.includes('所有AI服务都不可用')) {
+          errorMessage = "AI服务不可用";
+          actionMessage = "请检查网络连接和API配置，确保能访问AI服务";
+        }
+      }
+      
+      // 设置错误状态
+      setHasError(true);
+      setErrorMessage(errorMessage);
+      
+      toast({
+        title: errorMessage,
+        description: actionMessage || "请检查AI服务配置后重试",
+        variant: "destructive"
+      });
+    } finally {
+      // ✅ FIXED: 释放全局请求锁
+      globalRequestLockRef.current = false;
+      setIsGenerating(false);
+    }
+  };
+
+  // 🤖 AI模式：尝试AI生成（优化版本）
+  const attemptAIGeneration = async (sourceContent: string) => {
+    // ✅ OPTIMIZED: 简化模型选择策略
+    const getAvailableModels = (): Array<{ name: string; provider: string; priority: number }> => {
+      const userSelectedModel = localStorage.getItem('preferredAIModel') || 'deepseek-v3';
+      
+      const allModels = [
+        { name: 'deepseek-v3', provider: 'DeepSeek', priority: 1 },
+        { name: 'deepseek-chat', provider: 'DeepSeek', priority: 2 },
+        { name: 'gpt-4', provider: 'OpenAI', priority: 3 },
+        { name: 'gpt-3.5-turbo', provider: 'OpenAI', priority: 4 },
+        { name: 'gemini-pro', provider: 'Gemini', priority: 5 }
+      ];
+      
+      const userModel = allModels.find(m => m.name === userSelectedModel);
+      const otherModels = allModels.filter(m => m.name !== userSelectedModel);
+      
+      return userModel ? [userModel, ...otherModels] : allModels;
+    };
+
+    const aiModels = getAvailableModels();
+    let lastError: Error | null = null;
+
+    console.log(`🎯 开始AI模型调用，优先模型: ${aiModels[0].name}`);
+
+    for (const modelConfig of aiModels) {
+      try {
+        // Step 1: 构建Prompt
+        console.log(`🧠 Step 1: 构建AI Prompt (模型: ${modelConfig.name})`);
+        const systemPrompt = getTitleGenerationSystemPrompt();
+        const userPrompt = getTitleGenerationPrompt({
+          content: sourceContent,
+          versions,
+          platform: platformId,
+          stylePreference,
+          outputCount,
+          ensureDiversity
+        });
+
+        // Step 2: 调用AI（优化版本）
+        console.log(`🤖 Step 2: 调用${modelConfig.provider} API (模型: ${modelConfig.name})`);
+        
+        const aiResponse = await callAIWithRetry({
+          prompt: userPrompt,
+          systemPrompt: systemPrompt,
+          model: modelConfig.name as any,
+          temperature: 0.95,
+          maxTokens: 800 // ✅ OPTIMIZED: 减少token数，提高响应速度
+        }, 1);
+
+        if (!aiResponse.success || !aiResponse.content) {
+          throw new Error(aiResponse.error || 'AI调用失败');
+        }
+
+        // Step 3: 快速JSON解析（优化版本）
+        console.log('📊 Step 3: 快速解析AI响应');
+        let aiResult: TitleGenerationResponse;
+        
+        // ✅ OPTIMIZED: 简化JSON解析逻辑，提高速度
+        const quickParseResponse = (content: string): TitleGenerationResponse => {
+          try {
+            // 1. 直接解析JSON
+            const result = JSON.parse(content);
+            if (result.titles && Array.isArray(result.titles)) {
+              return result;
+            }
+          } catch (error) {
+            console.log('⚠️ 直接JSON解析失败，尝试提取标题');
+          }
+
+          // 2. 快速回退：从文本中提取标题
+          const titles = extractTitlesFromText(content);
+          return {
+            titles: titles.map((title, index) => ({
+              id: `title-${index}`,
+              title: title,
+              style: 'result-emotion' as TitleStyle,
+              confidence: 0.8,
+              semanticFit: 0.8,
+              platform: platformId,
+              isComplete: true,
+              styleDescription: '快速生成标题',
+              emotionalScore: 0.7,
+              diversityScore: 0.6,
+              semanticCompleteness: 0.8,
+              utilizationScore: 0.7,
+              overallScore: 0.75,
+              generationReason: '快速模式生成',
+              extractedContent: sourceContent.substring(0, 100)
+            })),
+            contentAnalysis: {
+              mainTheme: '内容分析',
+              coreObjects: ['内容对象'],
+              userBenefits: ['用户收益'],
+              useScenarios: ['使用场景']
+            }
+          };
+        };
+
+        aiResult = quickParseResponse(aiResponse.content);
+        console.log('✅ 快速解析成功:', aiResult);
+
+        // Step 4: 简化质量检查（优化版本）
+        console.log('🔍 Step 4: 快速质量检查');
+        
+        // ✅ OPTIMIZED: 简化质量检查，只进行基础验证
+        const quickQualityCheck = (title: string): boolean => {
+          return title.length >= 5 && title.length <= 100 && !title.includes('undefined');
+        };
+
+        const validTitles = aiResult.titles.filter(title => 
+          quickQualityCheck(title.title)
+        );
+
+        if (validTitles.length === 0) {
+          throw new Error('没有生成有效的标题');
+        }
+
+        // ✅ OPTIMIZED: 直接设置结果，跳过复杂处理
+        setTitles(validTitles);
+        setHasError(false);
+        setErrorMessage('');
+        
+        console.log(`✅ 标题生成成功 (模型: ${modelConfig.name}, 标题数: ${validTitles.length})`);
+        
+        // 触发回调
+        if (onTitleChange && validTitles.length > 0) {
+          onTitleChange(validTitles[0].title);
+        }
+        
+        break; // 成功则跳出循环
+
+      } catch (error) {
+        console.error(`❌ ${modelConfig.name} 模型调用失败:`, error);
+        lastError = error instanceof Error ? error : new Error(String(error));
+        
+        // 如果是最后一个模型，抛出错误
+        if (aiModels.indexOf(modelConfig) === aiModels.length - 1) {
+          throw new Error(`所有AI模型都不可用: ${lastError.message}`);
+        }
+      }
+    }
+  };
+
+  // ✅ OPTIMIZED: 快速标题提取函数
+  const extractTitlesFromText = (text: string): string[] => {
+    const titles: string[] = [];
+    
+    // 1. 尝试提取markdown列表
+    const listMatches = text.match(/^[-*]\s*(.+)$/gm);
+    if (listMatches) {
+      titles.push(...listMatches.map(match => match.replace(/^[-*]\s*/, '').trim()));
+    }
+    
+    // 2. 尝试提取数字列表
+    const numberMatches = text.match(/^\d+\.\s*(.+)$/gm);
+    if (numberMatches) {
+      titles.push(...numberMatches.map(match => match.replace(/^\d+\.\s*/, '').trim()));
+    }
+    
+    // 3. 尝试提取引号内容
+    const quoteMatches = text.match(/"([^"]+)"/g);
+    if (quoteMatches) {
+      titles.push(...quoteMatches.map(match => match.replace(/"/g, '')));
+    }
+    
+    // 4. 如果都没有，按行分割
+    if (titles.length === 0) {
+      const lines = text.split('\n').filter(line => 
+        line.trim().length > 5 && line.trim().length < 100
+      );
+      titles.push(...lines.slice(0, 5));
+    }
+    
+    return titles.slice(0, 5); // 最多返回5个标题
+  };
+          console.warn('标题评分工具加载失败，使用默认评分:', error);
+          // 提供默认实现
+          titleGenerationUtils = {
+            calculateSemanticCompleteness: () => 0.8,
+            calculateEmotionalAppeal: () => 0.8
+          };
+        }
+        
+        const newTitles: GeneratedTitle[] = aiResult.titles.map((titleData, index) => {
+          // 计算V3.2评分
+          let semanticCompleteness = 0.8;
+          let emotionalScore = 0.8;
+          try {
+            if (titleGenerationUtils) {
+              semanticCompleteness = titleGenerationUtils.calculateSemanticCompleteness(titleData.title);
+              emotionalScore = titleGenerationUtils.calculateEmotionalAppeal(titleData.title);
+            }
+          } catch (error) {
+            console.warn('评分计算失败，使用默认值:', error);
+          }
+
+          return {
+            id: `title-${Date.now()}-${index}`,
+            title: safeTitle(titleData.title),
+            length: titleData.title.length,
+            style: (titleData.style as TitleStyle) || 'result-emotion',
+            confidence: titleData.semanticFit || 0.8,
+            semanticFit: titleData.semanticFit || 0.8,
+            platform: platformId,
+            isComplete: true,
+            styleDescription: titleData.style || '结果导向型',
+            emotionalScore: emotionalScore,
+            diversityScore: titleData.structuralDiversity || 0.8,
+            semanticCompleteness: semanticCompleteness,
+            utilizationScore: titleData.characterUtilization || 0.8,
+            overallScore: titleData.semanticFit || 0.8,
+            generationReason: titleData.reasoning || 'AI生成',
+            extractedContent: sourceContent.substring(0, 100) + '...'
+          };
+        });
+
+        // ✅ FIXED: 应用质量过滤
+        const qualifiedTitles = newTitles.filter(title => {
+          const qualityCheck = checkTitleQuality(
+            title.title,
+            title.semanticFit,
+            platformId,
+            PLATFORM_LIMITS
+          );
+          return qualityCheck.isQualified;
+        });
+
+        if (qualifiedTitles.length > 0) {
+          // ✅ FIXED: 记录成功的模型
+          successfulModel = modelConfig.name;
+          console.log(`✅ ${modelConfig.name} 模型调用成功，生成 ${qualifiedTitles.length} 个标题`);
+          
+          // 更新标题状态
+          setTitles(qualifiedTitles);
+          setSelectedTitle(qualifiedTitles[0].title);
+          onTitleChange?.(qualifiedTitles[0].title);
+          
+          // 显示成功提示
+          toast({
+            title: "标题生成成功",
+            description: `使用 ${modelConfig.name} 模型生成了 ${qualifiedTitles.length} 个标题`,
+            variant: "default"
+          });
+          
+          return; // 成功生成，退出循环
+        } else {
+          throw new Error('生成的标题质量不达标');
+        }
+
+      } catch (error) {
+        console.error(`❌ ${modelConfig.name} 模型调用失败:`, error);
+        lastError = error instanceof Error ? error : new Error(String(error));
+        
+        // 如果不是最后一个模型，继续尝试下一个
+        if (modelConfig !== aiModels[aiModels.length - 1]) {
+          console.log(`🔄 ${modelConfig.name} 失败，切换到下一个模型...`);
+          continue;
+        }
+      }
+    }
+
+    // 所有模型都失败了
+    console.error('❌ 所有AI模型都失败了:', lastError);
+    
+    // 记录失败信息
+    const failedModels = aiModels.map(m => m.name).join(', ');
+    console.error(`📊 失败统计: 尝试了 ${aiModels.length} 个模型 (${failedModels})`);
+    
+    // 设置错误状态而不是抛出错误
+    setHasError(true);
+    setErrorMessage('所有AI模型都失败了，请检查网络连接和API配置');
+    
+    // 显示错误提示
+    toast({
+      title: "AI生成失败",
+      description: `所有模型都无法生成标题，请检查网络连接和API配置`,
+      variant: "destructive"
+    });
+    
+    // 不抛出错误，让错误状态由UI处理
+    return;
+  };
+
+  // 🚫 完全移除本地模式：只保留AI模式
+  const attemptLocalGeneration = async (sourceContent: string) => {
+    throw new Error('本地模式已完全禁用，只支持AI模式');
+  };
+
+  // Select title
+  const handleTitleSelect = (title: string) => {
+    setSelectedTitle(title);
+    onTitleChange?.(title);
+  };
+
+  // ✅ FIXED: 复制标题功能 - 确保toast提醒正确显示
+  const handleCopyTitle = (title: string) => {
+    // 使用更可靠的复制方法
+    const copyToClipboard = async (text: string) => {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          // 降级方案：使用传统方法
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+        }
+        
+        // ✅ FIXED: 确保toast提醒显示
+        const titlePreview = text.length > 25 ? text.substring(0, 25) + '...' : text;
+        toast({
+          title: "✅ 标题已复制",
+          description: `"${titlePreview}" 已复制到剪贴板，可直接粘贴使用`,
+        });
+        
+        console.log('✅ 标题复制成功:', titlePreview);
+      } catch (error) {
+        console.error('复制失败:', error);
+        toast({
+          title: "❌ 复制失败",
+          description: "请手动选择并复制标题内容",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    copyToClipboard(title);
+  };
+
+  // Handle title feedback
+  const handleTitleFeedback = (titleId: string, feedback: 'like' | 'dislike') => {
+    setTitleFeedback(prev => ({
+      ...prev,
+      [titleId]: feedback
+    }));
+
+    console.log(`📊 标题反馈收集:`, {
+      titleId,
+      feedback,
+      title: titles.find(t => t.id === titleId)?.title || '未知标题',
+      platform: platformId || '未知平台'
+    });
+
+    toast({
+      title: feedback === 'like' ? "感谢反馈" : "已记录反馈",
+      description: feedback === 'like' ? "我们会继续优化标题质量" : "我们会改进这类标题的生成",
+    });
+  };
+
+  // 开始编辑标题
+  const handleStartEdit = (titleId: string, currentTitle: string) => {
+    setEditingTitleId(titleId);
+    setEditingTitleText(currentTitle);
+  };
+
+  // 保存编辑的标题
+  const handleSaveEdit = () => {
+    if (!editingTitleId || !editingTitleText.trim()) {
+      toast({
+        title: "编辑失败",
+        description: "标题不能为空",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setTitles(prevTitles =>
+      prevTitles.map(title =>
+        title.id === editingTitleId
+          ? {
+              ...title,
+              title: editingTitleText.trim(),
+              length: editingTitleText.trim().length,
+              utilizationScore: editingTitleText.trim().length / titleLimit
+            }
+          : title
+      )
+    );
+
+    // 如果编辑的是当前选中的标题，更新选中状态
+    const editedTitle = titles.find(t => t.id === editingTitleId);
+    if (editedTitle && selectedTitle === editedTitle.title) {
+      setSelectedTitle(editingTitleText.trim());
+      onTitleChange?.(editingTitleText.trim());
+    }
+
+    setEditingTitleId(null);
+    setEditingTitleText('');
+
+    toast({
+      title: "标题已保存",
+      description: "标题编辑成功",
+    });
+  };
+
+  // 取消编辑
+  const handleCancelEdit = () => {
+    setEditingTitleId(null);
+    setEditingTitleText('');
+  };
+
+  // 清理平台切换时的状态
+  const resetTitleGeneratorState = () => {
+    console.log(`🧹 重置标题生成器状态 (平台: ${platformId || '未知'})`);
+    setTitles([]);
+    setSelectedTitle('');
+    setTitleFeedback({});
+    setIsGenerating(false);
+  };
+
+  // 🚫 移除平台验证函数：只保留AI模式
+
+  // ✅ FIXED: 彻底重构内容变化监听 - 统一内容源，避免初始化冲突
+  useEffect(() => {
+    // 只在组件初始化时设置初始内容，使用与后续检测相同的内容源
+    if (lastContentRef.current === '') {
+      const initialContent = content.trim(); // 使用与后续检测相同的内容源
+      if (initialContent.length >= 5) {
+        lastContentRef.current = initialContent;
+        console.log(`🎯 初始化内容跟踪: 内容长度=${initialContent.length}`);
+      }
+    }
+  }, []); // 只在组件挂载时执行一次
+
+  // ✅ FIXED: 内容变化监听 - 只在内容真正变化时自动生成标题
+  useEffect(() => {
+    const currentContent = content.trim(); // 直接使用 content，不依赖 versions
+    const contentLength = currentContent.length;
+    const contentChanged = currentContent !== lastContentRef.current;
+    const isInitialLoad = lastContentRef.current === '';
+
+    // ✅ FIXED: 只在内容真正变化且不是首次加载时自动生成标题
+    if (contentLength >= 5 && contentChanged && !isInitialLoad) {
+      console.log(`🎯 内容变化检测: 平台=${platformId}, 内容长度=${contentLength}, 内容已变化=${contentChanged}, 自动生成标题`);
+      lastContentRef.current = currentContent; // 更新上一次的内容
+      generateTitles(); // 自动生成标题
+    } else if (contentLength >= 5 && !contentChanged) {
+      console.log(`🎯 内容未变化，跳过生成`);
+    } else if (isInitialLoad) {
+      console.log(`🎯 首次加载，跳过内容变化检测`);
+      lastContentRef.current = currentContent;
+    } else {
+      console.log(`🎯 内容不满足条件: 长度=${contentLength}, 内容变化=${contentChanged}`);
+    }
+  }, [content]); // ✅ FIXED: 监听 content 变化，自动生成标题
+
+  // ✅ FIXED: 初始化逻辑 - 只在首次加载时自动生成标题
+  useEffect(() => {
+    const currentContent = content.trim();
+    const contentLength = currentContent.length;
+    const isInitialLoad = lastContentRef.current === '';
+
+    // ✅ FIXED: 只在首次加载且有内容时自动生成标题
+    if (isInitialLoad && contentLength >= 5) {
+      console.log(`🎯 初始化自动生成: 平台=${platformId}, 内容长度=${contentLength}`);
+      lastContentRef.current = currentContent;
+      generateTitles(); // 自动生成标题
+    } else if (isInitialLoad && contentLength < 5) {
+      console.log(`🎯 初始化检测: 平台=${platformId}, 内容长度=${contentLength}, 内容不足，等待用户输入`);
+      lastContentRef.current = currentContent;
+    }
+  }, [content]); // ✅ FIXED: 只监听内容变化，不监听平台变化
+
+  // ✅ FIXED: 平台切换时保持现有标题，不重新生成
+  useEffect(() => {
+    const currentContent = content.trim();
+    const contentLength = currentContent.length;
+    
+    // 平台切换时只更新内容跟踪，不重新生成标题
+    if (contentLength >= 5) {
+      console.log(`🔄 平台切换检测: 平台=${platformId}, 内容长度=${contentLength}, 保持现有标题，不重新生成`);
+      lastContentRef.current = currentContent;
+      // 不调用 generateTitles()，保持现有标题
+    }
+  }, [platformId]); // ✅ FIXED: 只监听平台变化，不重新生成标题
+
+  // ✅ FIXED: 添加调试日志 - 跟踪组件状态变化
+  useEffect(() => {
+    console.log(`🔍 TitleGenerator状态更新:`, {
+      contentLength: content.trim().length,
+      titlesCount: titles.length,
+      isGenerating,
+      platformId,
+      platformName
+    });
+  }, [content, titles.length, isGenerating, platformId, platformName]);
+
+  // ✅ FIXED: 应用浏览器网络修复 - 解决网络连接问题
+  useEffect(() => {
+    const applyNetworkFix = async () => {
+      try {
+        const { applyBrowserNetworkFix } = await import('../utils/browserNetworkFix');
+        applyBrowserNetworkFix({
+          maxRetries: 3,
+          baseDelay: 500,
+          maxDelay: 5000,
+          timeout: 15000,
+          enableCorsFix: true,
+          enableRetryFix: true,
+          enableTimeoutFix: true
+        });
+        console.log('✅ 浏览器网络修复已应用');
+        
+        // ✅ FIXED: 应用CORS优化
+        if (typeof window !== 'undefined') {
+          // 优化fetch配置
+          const originalFetch = window.fetch;
+          window.fetch = async (input, init) => {
+            const optimizedInit = {
+              mode: 'cors' as RequestMode,
+              cache: 'no-cache' as RequestCache,
+              credentials: 'omit' as RequestCredentials,
+              headers: {
+                'Content-Type': 'application/json',
+                ...init?.headers,
+              },
+              ...init,
+            };
+            return originalFetch(input, optimizedInit);
+          };
+          console.log('✅ CORS优化已应用');
+        }
+      } catch (error) {
+        console.warn('⚠️ 浏览器网络修复应用失败:', error);
+      }
+    };
+    
+    applyNetworkFix();
+  }, []); // 只在组件挂载时执行一次
+
+  // ✅ FIXED: 性能优化 - 使用useCallback优化函数引用
+  const memoizedGenerateTitles = useCallback(async () => {
+    try {
+      await generateTitles();
+    } catch (error) {
+      console.error('标题生成失败:', error);
+      toast({
+        title: "标题生成失败",
+        description: "请检查网络连接和API配置后重试",
+        variant: "destructive"
+      });
+    }
+  }, [content, platformId, versions, stylePreference, outputCount, ensureDiversity]);
+
+  // ✅ FIXED: 已移除重复声明，使用第417行的titleLimit
+
+  // ✅ FIXED: 性能优化 - 缓存内容长度计算
+  const contentLength = useMemo(() => {
+    return content.trim().length;
+  }, [content]);
+
+  // ✅ FIXED: 性能优化 - 缓存内容是否满足生成条件
+  const canGenerate = useMemo(() => {
+    return contentLength >= 5 && !isGenerating && titles.length === 0;
+  }, [contentLength, isGenerating, titles.length]);
+
+  // ✅ FIXED: 性能优化 - 缓存平台名称
+  const memoizedPlatformName = useMemo(() => {
+    return platformName;
+  }, [platformName]);
+
+  // ✅ FIXED: 添加错误边界处理
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // 错误恢复函数
+  const handleErrorRecovery = () => {
+    setHasError(false);
+    setErrorMessage('');
+    setTitles([]);
+    setSelectedTitle('');
+    setIsGenerating(false);
+  };
+
+  // 如果发生错误，显示错误状态
+  if (hasError) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-yellow-500" />
+            智能标题生成
+            <Badge variant="outline" className="text-xs">
+              {memoizedPlatformName} (限{titleLimit}字)
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="text-center py-4">
+            <div className="text-red-500 mb-2">
+              <X className="h-8 w-8 mx-auto" />
+            </div>
+            <p className="text-sm text-gray-600 mb-2">标题生成遇到问题</p>
+            <p className="text-xs text-gray-500 mb-4">{errorMessage}</p>
+            <Button size="sm" onClick={handleErrorRecovery}>
+              重新尝试
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-yellow-500" />
+          智能标题生成
+          <Badge variant="outline" className="text-xs">
+            {memoizedPlatformName} (限{titleLimit}字)
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent className="space-y-3">
+        {/* Generate button */}
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={memoizedGenerateTitles}
+            disabled={isGenerating}
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            {isGenerating ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            {isGenerating ? `为${memoizedPlatformName}分析中...` : `为${memoizedPlatformName}生成标题`}
+          </Button>
+        </div>
+
+        {/* Loading state */}
+        {isGenerating && (
+          <div className="flex items-center justify-center py-6">
+            <div className="text-center">
+              <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-blue-500" />
+              <p className="text-sm text-gray-600">正在进行内容语义分析...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Title list */}
+        {!isGenerating && titles.length > 0 && (
+          <div className="space-y-2">
+            {titles.map((title) => (
+              <div
+                key={title.id}
+                className={`border rounded-lg p-3 transition-colors ${
+                  selectedTitle === title.title
+                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {editingTitleId === title.id ? (
+                  // 编辑模式
+                  <div className="space-y-3">
+                    <Textarea
+                      value={editingTitleText}
+                      onChange={(e) => setEditingTitleText(e.target.value)}
+                      className="min-h-[60px] text-sm leading-relaxed"
+                      placeholder="编辑标题..."
+                      maxLength={titleLimit}
+                    />
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">
+                        {editingTitleText.length}/{titleLimit} 字符
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          onClick={handleSaveEdit}
+                          className="h-7 px-2"
+                        >
+                          <Check className="h-3 w-3 mr-1" />
+                          保存
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleCancelEdit}
+                          className="h-7 px-2"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          取消
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // 显示模式
+                  <div 
+                    className="flex items-start justify-between gap-3 cursor-pointer"
+                    onClick={() => handleTitleSelect(title.title)}
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 leading-relaxed">
+                        {title.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className="text-xs text-gray-500">
+                          {title.length}/{titleLimit} 字符
+                        </span>
+                        <Badge variant="outline" className="text-xs">
+                          {title.styleDescription}
+                        </Badge>
+                        {selectedTitle === title.title && (
+                          <Badge variant="default" className="text-xs">
+                            已选中
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {/* 重新生成按钮 */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          generateTitles();
+                        }}
+                        className="h-7 w-7 p-0"
+                        title="重新生成标题"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+
+                      {/* 编辑按钮 */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartEdit(title.id, title.title);
+                        }}
+                        className="h-7 w-7 p-0"
+                        title="编辑标题"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+
+                      {/* 复制按钮 */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopyTitle(title.title);
+                        }}
+                        className="h-7 w-7 p-0"
+                        title="复制标题"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!isGenerating && titles.length === 0 && (
+          <div className="text-center py-4 text-gray-500">
+            <p className="text-sm">正在智能分析内容...</p>
+            <div className="flex items-center justify-center mt-2">
+              <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+              <span className="text-xs">自动生成中</span>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default TitleGenerator;

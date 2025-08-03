@@ -209,10 +209,12 @@ export interface APIEndpoints {
 
 /**
  * 获取当前环境的API端点配置
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * ✅ FIXED: 开发环境直连API，生产环境使用后端调用
+ * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+ * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
  */
 export function getAPIEndpoints(): APIEndpoints {
-  // 生产环境或Netlify环境
+  // 生产环境或Netlify环境 - 使用后端API
   if (isProduction || isNetlify) {
     return {
       api: '/.netlify/functions/api',
@@ -222,12 +224,12 @@ export function getAPIEndpoints(): APIEndpoints {
     };
   }
 
-  // 本地开发环境 - 使用模拟端点
+  // 本地开发环境 - 直连API
   return {
-    api: '/api/dev-mock',
-    hotTopics: '/api/dev-mock',
-    imageGeneration: '/api/dev-mock',
-    referral: '/api/dev-mock'
+    api: 'https://api.openai.com/v1',
+    hotTopics: 'https://api-hot.imsyy.top',
+    imageGeneration: 'https://api.openai.com/v1',
+    referral: 'https://api.creem.com'
   };
 }
 
@@ -240,46 +242,14 @@ export function isDev(): boolean {
 }
 
 /**
- * 开发环境模拟API响应
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * ✅ FIXED: 已移除模拟API响应功能
+ * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
+ * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 
+ * 系统现在直接调用真实API，不再提供模拟响应
  */
-export function createMockAPIResponse(action: string, provider?: string): any {
-  const baseResponse = {
-    success: false,
-    development: true,
-    timestamp: new Date().toISOString(),
-    message: '本地开发环境模拟响应'
-  };
-
-  switch (action) {
-    case 'status':
-      return {
-        ...baseResponse,
-        data: {
-          available: false,
-          provider: provider || 'unknown',
-          message: `${provider || 'API'} 在开发环境中不可用`
-        }
-      };
-
-    case 'generate':
-      return {
-        ...baseResponse,
-        error: '本地开发环境不支持AI生成功能，请在生产环境中测试'
-      };
-
-    case 'hot-topics':
-      return {
-        ...baseResponse,
-        error: '本地开发环境不支持热点话题功能，请在生产环境中测试'
-      };
-
-    default:
-      return {
-        ...baseResponse,
-        error: `未知的API操作: ${action}`
-      };
-  }
+export function createMockAPIResponse(action: string, provider?: string): never {
+  throw new Error(`真实API调用失败: ${action} - ${provider || 'unknown'}`);
 }
 
 // 导出环境感知的API配置
