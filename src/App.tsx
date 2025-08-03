@@ -24,6 +24,7 @@ import CreativeStudioPage from '@/pages/CreativeStudioPage';
 import HotTopicsPage from '@/pages/HotTopicsPage';
 import HotTopicsAPITestPage from '@/pages/HotTopicsAPITestPage';
 import TitleGeneratorTestPage from '@/pages/TitleGeneratorTestPage';
+import NewTitleGeneratorTestPage from '@/pages/NewTitleGeneratorTestPage';
 import BookmarkPage from '@/pages/BookmarkPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
 import ContentExtractorPage from '@/pages/ContentExtractorPage';
@@ -141,6 +142,12 @@ function AppContent() {
           <Route path="/title-generator-test" element={
             <PermissionGuard required="auth:required">
               <TitleGeneratorTestPage />
+            </PermissionGuard>
+          } />
+
+          <Route path="/new-title-generator-test" element={
+            <PermissionGuard required="auth:required">
+              <NewTitleGeneratorTestPage />
             </PermissionGuard>
           } />
           

@@ -49,6 +49,11 @@ export interface GeneratedTitleData {
   length: number;
   semanticFit: number;
   reasoning: string;
+  // 新增评分维度属性 - 修复 TypeScript 编译错误
+  structuralDiversity?: number;      // 结构多样性评分 (15%)
+  characterUtilization?: number;    // 字符利用率评分 (5%)
+  emotionalAppeal?: number;         // 情绪吸引力评分 (20%)
+  semanticCompleteness?: number;    // 语义完整性评分 (10%)
 }
 
 export interface TitleGenerationResponse {
