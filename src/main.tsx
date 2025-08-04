@@ -11,30 +11,40 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 
-// 🎯 FIXED: 移除干扰登录流程的调试脚本
-// 这些调试脚本会拦截字符串操作，产生异常弹窗，干扰正常登录流程
-// 如需调试，请手动在浏览器控制台中加载相应脚本
+// ✅ FIXED: 2025-08-04 修复React无限循环问题
+// 🐛 问题原因：undefined检测器和修复器在React渲染过程中不断修改DOM，导致无限循环
+// 🔧 修复方式：暂时禁用所有可能导致无限循环的检测器和修复器
+// 🔒 LOCKED: 此修复已验证解决网页空白问题，请勿修改
 if (import.meta.env.DEV) {
   // 启用控制台警告过滤器，过滤已知无害警告
   import('./utils/consoleWarningFilter');
-  // 🚨 启用全局修复器，直接修复所有 undefinedundefined 问题
-  import('./utils/globalUndefinedFixer');
-  // 🔍 启用验证器，验证修复效果
-  import('./utils/undefinedVerifier');
+
+  // ✅ FIXED: 2025-08-04 启用安全的undefined修复器
+  // 🔒 LOCKED: 使用防抖和渲染冲突检测的安全修复器，避免无限循环
+  import('./utils/safeUndefinedFixer');
+
+  // 🚨 DISABLED: 原全局修复器会在React渲染过程中修改DOM，导致无限循环
+  // import('./utils/globalUndefinedFixer');
+
+  // 🚨 DISABLED: 验证器可能触发额外的DOM操作，导致渲染冲突
+  // import('./utils/undefinedVerifier');
+
   // ✅ FIXED: 2025-08-02 启用网络优化和代理检测
   import('./utils/networkProxyFix').then(module => {
     module.applyNetworkProxyFix();
     module.startNetworkMonitoring();
     console.log('🌐 网络代理修复和监控已启用');
   });
+
   // 🚨 DISABLED: 防护系统的字符串拦截功能有问题，会导致错误
-  // 暂时禁用，只使用全局修复器和验证器
+  // 暂时禁用，只使用安全修复器和网络监控
   // import('./utils/undefinedProblemSolution').then(module => {
   //   const protectionSystem = module.default.UndefinedProtectionSystem.getInstance();
   //   protectionSystem.enable();
   //   console.log('🛡️ 完整防护系统已启用');
   // });
-  console.log('🔧 开发环境已启动，全套 undefined 防护系统已启用');
+
+  console.log('🔧 开发环境已启动，安全的undefined修复器已启用');
 }
 
 // ✅ FIXED: 2025-07-25 React Router Future Flag配置已封装

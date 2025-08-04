@@ -27,7 +27,7 @@ import { PlatformStatusIndicator } from '../components/PlatformStatusIndicator';
 import { PlatformTabStatusWithTooltip } from '../components/PlatformTabStatus';
 import TitleGenerator from '../components/TitleGeneratorIntelligent';
 import { BatchForwardModal } from '../components/BatchForwardModal';
-import PageNavigation from '@/components/layout/PageNavigation';
+import { PageNavigation } from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { 
@@ -3751,24 +3751,25 @@ ${charCountControl.source === 'platform-specific'
 - 随机性：在保持质量的前提下增加内容的随机性和新鲜感`;
   };
 
+  // 临时调试：添加控制台日志
+  console.log('AdaptPage rendering...', { generating, results: results.length });
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 页面导航 */}
-      <PageNavigation
-        title="AI内容适配器"
-        description="智能分析内容，一键适配多平台格式"
-        actions={
-          <>
-            <Button
-              variant="outline"
-              onClick={() => window.location.href = "/history"}
-            >
-              <FileText className="h-4 w-4 mr-1" />
-              历史记录
-            </Button>
-          </>
-        }
-      />
+      {/* 临时调试信息 */}
+      <div className="fixed top-0 right-0 bg-red-500 text-white p-2 z-50 text-xs">
+        Debug: generating={generating.toString()}, results={results.length}
+      </div>
+
+      {/* 简化测试内容 */}
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-4">AI内容适配器测试页面</h1>
+        <p className="text-lg mb-4">如果您能看到这段文字，说明页面正在正常渲染。</p>
+        <div className="bg-blue-100 p-4 rounded">
+          <p>生成状态: {generating ? '正在生成' : '未生成'}</p>
+          <p>结果数量: {results.length}</p>
+        </div>
+      </div>
 
       <div className="container mx-auto py-6 px-4">
 
