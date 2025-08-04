@@ -164,14 +164,8 @@ class PaymentStatusService {
     try {
       const existingConfig = this.getPaymentConfig();
       const newConfig: PaymentConfig = {
-        autoRefresh: true,
-        refreshInterval: 3000,
-        maxRetries: 10,
-        enableNotifications: true,
-        enableSound: true,
-        showAdvancedInfo: false,
-        ...existingConfig,
-        ...config,
+        ...existingConfig, // 先应用现有配置
+        ...config, // 再应用新配置，避免重复属性
       };
       
       localStorage.setItem(this.CONFIG_KEY, JSON.stringify(newConfig));

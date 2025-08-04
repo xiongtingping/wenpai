@@ -24,6 +24,10 @@ const SECURITY_CONFIG = {
     },
     id: (id: string) => {
       return id.length > 8 ? `${id.substring(0, 4)}****${id.substring(id.length - 4)}` : '****';
+    },
+    default: (value: string) => {
+      if (value.length <= 2) return '***';
+      return `${value.substring(0, 1)}***${value.substring(value.length - 1)}`;
     }
   }
 };

@@ -109,9 +109,9 @@ export function safeUserDisplayName(
   let displayName = '';
   
   if (preferNickname) {
-    displayName = safeUserDisplayName(user, '') || user.email || '';
+    displayName = safeUserDisplayName(user, { fallback: '' }) || user.email || '';
   } else {
-    displayName = safeUserDisplayName(user, '') || user.email || '';
+    displayName = safeUserDisplayName(user, { fallback: '' }) || user.email || '';
   }
   
   if (!displayName) {

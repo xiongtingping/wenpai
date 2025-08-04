@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle, XCircle, FileText, Brain } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, FileText, Brain, ClipboardList } from 'lucide-react';
 import AIAnalysisService from '@/services/aiAnalysisService';
 import { BrandAnalysisResult } from '@/types/brand';
 
@@ -216,7 +216,7 @@ const AITestPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clipboard className="h-5 w-5" />
+                <ClipboardList className="h-5 w-5" />
                 测试结果
               </CardTitle>
               <CardDescription>

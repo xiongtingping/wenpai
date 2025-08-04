@@ -57,11 +57,11 @@ export function createGuardInstance(): Guard {
       mode: 'modal',  // 🎯 修复：使用弹窗模式，支持 guard.show() 方法
       // 🌐 语言配置 - 修复字符编码问题
       lang: 'zh-CN',
-      // UI配置
-      autoFocus: false,
-      escCloseable: true,
-      clickCloseable: true,
-      maskCloseable: true
+      // UI配置 - 移除不支持的属性
+      // autoFocus: false, // 该属性在当前版本中不支持
+      // escCloseable: true, // 该属性在当前版本中不支持
+      // clickCloseable: true, // 该属性在当前版本中不支持
+      // maskCloseable: true // 该属性在当前版本中不支持
     });
 
     // 🧪 实例验证

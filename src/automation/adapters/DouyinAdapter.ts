@@ -7,13 +7,16 @@ import { PlatformAdapterBase, LoginStatus, PublishOptions, PublishResult } from 
 
 export class DouyinAdapter extends PlatformAdapterBase {
   constructor(timeout: number = 30000) {
-    super(
-      'douyin',
-      '抖音',
-      'https://creator.douyin.com/creator-micro/content/upload',
-      timeout
-    );
+    super('douyin'); // 基类只接受 platformId 参数
+    // 其他配置可以在类中定义
+    this.platformName = '抖音';
+    this.uploadUrl = 'https://creator.douyin.com/creator-micro/content/upload';
+    this.timeout = timeout;
   }
+
+  private platformName: string = '抖音';
+  private uploadUrl: string = 'https://creator.douyin.com/creator-micro/content/upload';
+  private timeout: number = 30000;
 
   /**
    * 检查抖音登录状态
@@ -89,8 +92,9 @@ export class DouyinAdapter extends PlatformAdapterBase {
     // 抖音采用半自动化方案
     return {
       success: true,
-      needsManualAction: true,
-      manualInstructions: '请按照提示手动完成抖音发布'
+      platformId: this.platformId, // 添加必需属性
+      needsManualAction: true
+      // manualInstructions: '请按照提示手动完成抖音发布' // 移除不支持的属性
     };
   }
 
@@ -261,11 +265,31 @@ export class DouyinAdapter extends PlatformAdapterBase {
       await this.copyToClipboard(optimizedContent);
 
       // 3. 执行基础发布流程
-      return await this.executePublish(optimizedContent, options);
+      return await this.executePublish(optimizedContent, options || {
+        content: optimizedContent,
+        platform: 'douyin'
+      });
 
     } catch (error) {
       console.error('抖音增强发布流程失败:', error);
       throw error;
+    }
+  }
+
+  /**
+   * 实现抽象方法：标准发布接口
+   */
+  async publish(options: PublishOptions): Promise<PublishResult> {
+    try {
+      // 调用增强发布流程
+      return await this.executeEnhancedPublish(options.content, options);
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '发布失败',
+        platformId: this.platformId,
+        needsManualAction: true
+      };
     }
   }
 }

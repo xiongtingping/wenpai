@@ -5,6 +5,8 @@ export interface LoginStatus {
   isLoggedIn: boolean;
   username?: string;
   error?: string;
+  needsVerification?: boolean; // 添加验证需求属性
+  loginUrl?: string; // 添加登录URL属性
 }
 
 export interface PublishOptions {
@@ -19,6 +21,7 @@ export interface PublishResult {
   url?: string;
   error?: string;
   platformId: string;
+  needsManualAction?: boolean; // 添加手动操作需求属性
 }
 
 export abstract class PlatformAdapterBase {
@@ -82,5 +85,5 @@ export abstract class PlatformAdapterBase {
   }
 }
 
-// 导出类型
-export type { LoginStatus, PublishOptions, PublishResult };
+// 导出类型 - 移除重复导出，避免冲突
+// export type { LoginStatus, PublishOptions, PublishResult };

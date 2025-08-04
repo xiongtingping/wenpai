@@ -263,7 +263,8 @@ export class AutomationEngine {
 
             // 结构分数
             if (content.includes('\n')) score += 1;
-            if (content.match(/[。！？.!?]/g)?.length > 2) score += 2;
+            const punctuationMatches = content.match(/[。！？.!?]/g);
+            if (punctuationMatches && punctuationMatches.length > 2) score += 2;
 
             // 排除分数
             if (content.includes('生成的内容将显示在这里')) score -= 10;
@@ -356,7 +357,9 @@ export class AutomationEngine {
     }
 
     // 检测浏览器插件支持
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
+    if (typeof window !== 'undefined' &&
+        typeof (window as any).chrome !== 'undefined' &&
+        (window as any).chrome.runtime) {
       return 'extension';
     }
 

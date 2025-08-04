@@ -1610,33 +1610,33 @@ export default function AdaptPage() {
     }
 
     setGenerating(true);
-    setResults([]);
+    // 不要清空结果，而是初始化生成状态
+    const initialResults: PlatformResult[] = selectedPlatforms.map(platformId => ({
+      platformId,
+      content: '',
+      steps: [
+        { status: 'waiting', message: '准备生成...' },
+        { status: 'waiting', message: '构建提示词...' },
+        { status: 'waiting', message: '调用AI服务...' },
+        { status: 'waiting', message: '处理结果...' }
+      ],
+      source: 'ai' as const
+    }));
+    setResults(initialResults);
 
     try {
-      // 为每个选中的平台生成内容
-      const newResults: PlatformResult[] = [];
-      
-      for (const platformId of selectedPlatforms) {
-        const platformResult: PlatformResult = {
-          platformId,
-          content: '',
-          steps: [
-            { status: 'waiting', message: '🔄 正在准备生成...' },
-            { status: 'waiting', message: '🧠 构建多维提示词...' },
-            { status: 'waiting', message: '🤖 调用AI服务生成内容...' },
-            { status: 'waiting', message: '⚡ 处理生成结果...' }
-          ]
-        };
-        
-        newResults.push(platformResult);
-        setResults([...newResults]);
+      // 使用已初始化的结果数组
+      const newResults = [...initialResults];
+
+      for (let i = 0; i < selectedPlatforms.length; i++) {
+        const platformId = selectedPlatforms[i];
 
         const updateStep = (stepIndex: number, status: "waiting" | "loading" | "completed" | "error", message?: string) => {
           const updatedResults = [...newResults];
-          if (updatedResults[updatedResults.length - 1]) {
-            updatedResults[updatedResults.length - 1].steps[stepIndex].status = status;
+          if (updatedResults[i]) {
+            updatedResults[i].steps[stepIndex].status = status;
             if (message) {
-              updatedResults[updatedResults.length - 1].steps[stepIndex].message = message;
+              updatedResults[i].steps[stepIndex].message = message;
             }
             setResults([...updatedResults]);
           }
@@ -1710,7 +1710,8 @@ export default function AdaptPage() {
                 updatedResults[resultIndex].targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
               }
               setResults([...updatedResults]);
-              newResults[resultIndex] = updatedResults[resultIndex];
+              // 同步更新本地数组
+              Object.assign(newResults[resultIndex], updatedResults[resultIndex]);
           } else {
             throw new Error('生成版本失败');
           }
@@ -4436,8 +4437,24 @@ ${charCountControl.source === 'platform-specific'
       </div>
 
       {/* Results Section */}
-      {results.length > 0 && (
+      {(() => {
+        console.log('Results section render check:', {
+          resultsLength: results.length,
+          generating,
+          shouldShow: results.length > 0 || generating
+        });
+        return (results.length > 0 || generating);
+      })() && (
         <div className="mt-8">
+          {/* 生成状态指示器 */}
+          {generating && results.length === 0 && (
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span className="text-blue-800 font-medium">正在生成内容，请稍候...</span>
+              </div>
+            </div>
+          )}
           <Card className="mb-8">
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -5102,7 +5119,7 @@ ${charCountControl.source === 'platform-specific'
 
 
       {/* 自动化转发区域 - 独立的主要功能区域 */}
-      {results.length > 0 && (
+      {(results.length > 0 && !generating) && (
         <div className="mt-8">
           <AutomationUI
             availablePlatforms={results.map(result => {

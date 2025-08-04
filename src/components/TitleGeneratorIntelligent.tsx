@@ -15,6 +15,7 @@ import {
 import type { TitleGenerationResponse, TitleQualityCheck } from '@/ai/types';
 import { getPlatformLimit } from '@/config/platformLimits';
 import { safeTrimTitle } from '@/utils/safeTrimTitle';
+import { V3_3_TITLE_SCORE_WEIGHTS } from '@/score/titleScoreWeights';
 
 // ✅ FIXED: 添加JSON修复函数，处理AI响应截断问题
 /**
@@ -193,15 +194,9 @@ const checkTitleQuality = (
 const PLATFORM_TITLE_LIMITS = PLATFORM_LIMITS;
 
 // 标题质量评估权重配置 - V3.3增强版
-// ✅ FIXED: 2025-08-02 统一权重配置，与V3.3规范保持一致
+// ✅ FIXED: 2025-08-03 使用统一权重配置，避免重复定义
 // 🔒 LOCKED: 该配置已优化，请勿随意修改权重分配
-const QUALITY_WEIGHTS = {
-  semanticRelevance: 0.50,        // 主旨拟合度 50% - 标题与原文内容的语义相似度
-  emotionalAppeal: 0.20,          // 情绪吸引力评分 20% - 冲突感、对比感、转变、情绪词
-  structuralDiversity: 0.15,      // 表达结构多样性 15% - 避免重复句式结构
-  semanticCompleteness: 0.10,     // 语义完整性 10% - 防止残词和未闭合表达
-  characterUtilization: 0.05      // 字符利用率 5% - 接近平台字符上限，信息密度高
-};
+const QUALITY_WEIGHTS = V3_3_TITLE_SCORE_WEIGHTS;
 
 interface ContentVersion {
   id: string;
