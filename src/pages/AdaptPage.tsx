@@ -37,7 +37,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+// ✅ FIXED: 2025-08-04 使用SafeTooltip替代原始Tooltip，防止setRef无限循环
+import { SafeTooltip } from "@/components/ui/SafeTooltip";
 import {
   Dialog,
   DialogContent,
@@ -3782,23 +3783,13 @@ ${charCountControl.source === 'platform-specific'
           <CardHeader>
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">输入原始内容</h1>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">剩余次数:</span>
-                      <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
-                        {usageRemaining}
-                      </Badge>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    <p>每次多平台内容生成消耗1次使用额度</p>
-                    <p>每月自动获得20次免费使用机会</p>
-                    <p>通过邀请好友可获得额外使用次数</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {/* 🚨 DISABLED: 2025-08-04 暂时禁用Tooltip以排查无限循环问题 */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">剩余次数:</span>
+                <Badge variant={usageRemaining <= 5 ? "destructive" : "default"}>
+                  {usageRemaining}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -4230,20 +4221,13 @@ ${charCountControl.source === 'platform-specific'
               <span className="text-sm text-gray-500 font-normal">(可选)</span>
               {/* Help icon moved to proper position */}
               <Dialog>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
-                          <Info className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>查看详细说明</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <SafeTooltip content="查看详细说明">
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
+                      <Info className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                </SafeTooltip>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>内容形式与表达风格体系</DialogTitle>

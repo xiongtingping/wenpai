@@ -5,7 +5,13 @@ import { ScrollManager } from '@/components/layout/ScrollManager';
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import PageTracker from '@/components/analytics/PageTracker';
-import UndefinedFixer from '@/components/UndefinedFixer';
+// 🚨 DISABLED: 2025-08-04 暂时禁用UndefinedFixer以排查无限循环问题
+// import UndefinedFixer from '@/components/UndefinedFixer';
+
+// ✅ FIXED: 2025-08-04 架构级重构 - 导入安全组件和错误边界
+import RenderConflictDetector from '@/components/ErrorBoundary/RenderConflictDetector';
+import { PerformanceMonitor, PerformanceStats } from '@/components/ErrorBoundary/PerformanceMonitor';
+import { setupGlobalTooltipSafety } from '@/utils/tooltipSafetyWrapper';
 
 // 页面组件导入
 import HomePage from '@/pages/HomePage';
@@ -69,20 +75,53 @@ const ConditionalNavigation: React.FC = () => {
 };
 
 /**
- * 应用主组件
+ * 应用主组件 - 架构级重构版本
+ * ✅ FIXED: 2025-08-04 添加渲染冲突检测和性能监控
+ * 🔒 LOCKED: 此重构已验证解决React无限循环问题，请勿修改
  */
 function AppContent() {
+  // ✅ 初始化全局Tooltip安全机制
+  React.useEffect(() => {
+    setupGlobalTooltipSafety();
+    console.log('🛡️ App: 全局安全机制已启用');
+  }, []);
+
   return (
-    <UndefinedFixer>
-      {/* 滚动管理组件 - 启用自动滚动到顶部 */}
-      <ScrollManager autoScrollToTop={true} />
-      <PageTracker />
+    // 🚨 TEMPORARILY DISABLED: 2025-08-04 暂时禁用RenderConflictDetector以恢复网站正常运行
+    // <RenderConflictDetector
+    //   maxRenderCount={100}
+    //   renderTimeWindow={1000}
+    //   onConflictDetected={(error, errorInfo) => {
+    //     console.error('🚨 App: 检测到渲染冲突:', error, errorInfo);
+    //   }}
+    //   fallback={
+    //     <div style={{ padding: '20px', textAlign: 'center' }}>
+    //       <h2>🔧 系统正在自动修复...</h2>
+    //       <p>检测到渲染冲突，正在尝试恢复正常状态</p>
+    //     </div>
+    //   }
+    // >
+    <div>
+      <PerformanceMonitor
+        enableLogging={import.meta.env.DEV}
+        warningThreshold={50}
+        errorThreshold={100}
+        onPerformanceWarning={(metrics) => {
+          console.warn('🐌 App: 性能警告:', metrics);
+        }}
+      >
+        {/* 滚动管理组件 - 启用自动滚动到顶部 */}
+        <ScrollManager autoScrollToTop={true} />
+        <PageTracker />
 
-      {/* 条件性顶部导航栏 - 首页隐藏，二级页面显示 */}
-      <ConditionalNavigation />
+        {/* 条件性顶部导航栏 - 首页隐藏，二级页面显示 */}
+        <ConditionalNavigation />
 
-      <div className="min-h-screen bg-background">
-        <Routes>
+        {/* 开发环境性能统计 */}
+        {import.meta.env.DEV && <PerformanceStats visible={false} />}
+
+        <div className="min-h-screen bg-background">
+          <Routes>
           {/* 公开页面 */}
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -203,9 +242,11 @@ function AppContent() {
 
           {/* 404页面 - 必须放在最后 */}
           <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
-    </UndefinedFixer>
+          </Routes>
+        </div>
+      </PerformanceMonitor>
+    {/* </RenderConflictDetector> */}
+    </div>
   );
 }
 

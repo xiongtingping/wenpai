@@ -18,7 +18,7 @@ export interface PlatformHashtagsProps {
 export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
   platformId,
   content,
-  extractedTags = [],
+  extractedTags,
   onTagsChange
 }) => {
   const [tags, setTags] = useState<string[]>([]);
@@ -74,24 +74,41 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
     }
   };
 
+  // ✅ FIXED: 2025-08-04 修复无限循环问题 - 使用 useMemo 和 useCallback 优化
   // 处理提取的标签和内容变化
   useEffect(() => {
     if (extractedTags && extractedTags.length > 0) {
       // 优先使用从智能内容生成中提取的标签
       console.log('🏷️ 使用从智能内容生成提取的标签:', extractedTags);
-      setTags(extractedTags);
-      onTagsChange?.(extractedTags);
+      setTags(prev => {
+        // 只有当标签真正不同时才更新
+        if (JSON.stringify(prev) !== JSON.stringify(extractedTags)) {
+          onTagsChange?.(extractedTags);
+          return extractedTags;
+        }
+        return prev;
+      });
     } else if (content.trim() && content.length > 10) {
       // 如果没有提取的标签，则生成话题标签
-      setTags([]);
+      setTags(prev => {
+        if (prev.length > 0) {
+          return [];
+        }
+        return prev;
+      });
       const timer = setTimeout(() => {
         generateTags();
       }, 500);
       return () => clearTimeout(timer);
     } else {
-      setTags([]);
+      setTags(prev => {
+        if (prev.length > 0) {
+          return [];
+        }
+        return prev;
+      });
     }
-  }, [content, platformId, extractedTags]);
+  }, [content, platformId, extractedTags?.length, extractedTags?.join(',')]); // 使用更稳定的依赖
 
   // 复制所有标签 - 改进的视觉反馈
   const copyAllTags = async () => {

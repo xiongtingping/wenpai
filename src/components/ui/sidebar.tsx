@@ -16,12 +16,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+// ✅ FIXED: 2025-08-04 使用SafeTooltip替代原始Tooltip，防止setRef无限循环
+import { SafeTooltip } from "@/components/ui/SafeTooltip"
+// 🚨 REMOVED: TooltipProvider导入，因为SafeTooltip不需要Provider
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -586,15 +583,14 @@ const SidebarMenuButton = React.forwardRef<
     }
 
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent
-          side="right"
-          align="center"
-          hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
-        />
-      </Tooltip>
+      <SafeTooltip
+        content={tooltip?.children}
+        side="right"
+        align="center"
+        disabled={state === "expanded" || isMobile}
+      >
+        {button}
+      </SafeTooltip>
     )
   }
 )

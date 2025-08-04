@@ -18,12 +18,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+// ✅ FIXED: 2025-08-04 使用SafeTooltip替代原始Tooltip，防止setRef无限循环
+import { SafeTooltip } from "@/components/ui/SafeTooltip";
+// 🚨 REMOVED: TooltipProvider导入，因为SafeTooltip不需要Provider
 import { 
   Collapsible,
   CollapsibleContent,
@@ -82,8 +79,7 @@ export function ContentFormSelector({
   const availableStyles = getAvailableStyles();
 
   return (
-    <TooltipProvider>
-      <div className={className}>
+    <div className={className}>
         {/* 内容形式选择区域 */}
         <div className="space-y-4">
           {/* 内容形式选择 */}
@@ -321,7 +317,6 @@ export function ContentFormSelector({
 
         </div>
       </div>
-    </TooltipProvider>
   );
 }
 
