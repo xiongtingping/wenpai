@@ -201,17 +201,17 @@ export default function BookmarkPage() {
   /**
    * 获取筛选后的项目
    */
-  const getFilteredItems = () => {
+  const getFilteredItems = (typeFilter?: string) => {
     let filtered = [...libraryItems];
 
     // 按类型筛选
-    if (activeTab !== 'all') {
-      filtered = filtered.filter(item => item.type === activeTab);
+    if (typeFilter && typeFilter !== 'all') {
+      filtered = filtered.filter(item => item.type === typeFilter);
     }
 
     // 搜索筛选
     if (searchQuery) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -220,7 +220,7 @@ export default function BookmarkPage() {
 
     // 标签筛选
     if (selectedTags.length > 0) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         selectedTags.some(tag => item.tags.includes(tag))
       );
     }
@@ -562,7 +562,11 @@ export default function BookmarkPage() {
     };
   };
 
-  const filteredItems = getFilteredItems();
+  // 为不同标签页获取过滤后的项目
+  const allItems = getFilteredItems('all');
+  const collectionItems = getFilteredItems('collection');
+  const extractionItems = getFilteredItems('extraction');
+  const copywritingItems = getFilteredItems('copywriting');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -838,10 +842,10 @@ export default function BookmarkPage() {
             </div>
           </TabsContent>
 
-          {/* 其他标签页内容 */}
+          {/* 全部标签页内容 */}
           <TabsContent value="all" className="mt-0">
             <div className="grid gap-4">
-              {filteredItems.map((item) => {
+              {allItems.map((item) => {
                 const typeInfo = getTypeInfo(item.type);
 
                 return (
@@ -974,7 +978,7 @@ export default function BookmarkPage() {
             </div>
 
             {/* 空状态 */}
-            {filteredItems.length === 0 && (
+            {allItems.length === 0 && (
               <Card>
                 <CardContent className="p-12 text-center">
                   <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -990,7 +994,7 @@ export default function BookmarkPage() {
           {/* 网络收藏标签页 */}
           <TabsContent value="collection" className="mt-0">
             <div className="grid gap-4">
-              {filteredItems.filter(item => item.type === 'collection').map((item) => {
+              {collectionItems.map((item) => {
                 const typeInfo = getTypeInfo(item.type);
 
                 return (
@@ -1050,7 +1054,7 @@ export default function BookmarkPage() {
                 );
               })}
 
-              {filteredItems.filter(item => item.type === 'collection').length === 0 && (
+              {collectionItems.length === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Bookmark className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -1067,7 +1071,7 @@ export default function BookmarkPage() {
           {/* 内容提取标签页 */}
           <TabsContent value="extraction" className="mt-0">
             <div className="grid gap-4">
-              {filteredItems.filter(item => item.type === 'extraction').map((item) => {
+              {extractionItems.map((item) => {
                 const typeInfo = getTypeInfo(item.type);
 
                 return (
@@ -1127,7 +1131,7 @@ export default function BookmarkPage() {
                 );
               })}
 
-              {filteredItems.filter(item => item.type === 'extraction').length === 0 && (
+              {extractionItems.length === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Zap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -1144,7 +1148,7 @@ export default function BookmarkPage() {
           {/* 文案管理标签页 */}
           <TabsContent value="copywriting" className="mt-0">
             <div className="grid gap-4">
-              {filteredItems.filter(item => item.type === 'copywriting').map((item) => {
+              {copywritingItems.map((item) => {
                 const typeInfo = getTypeInfo(item.type);
 
                 return (
@@ -1204,7 +1208,7 @@ export default function BookmarkPage() {
                 );
               })}
 
-              {filteredItems.filter(item => item.type === 'copywriting').length === 0 && (
+              {copywritingItems.length === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
