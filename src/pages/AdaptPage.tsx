@@ -1058,7 +1058,7 @@ export default function AdaptPage() {
           style: 'standard',
           title: '版本A',
           charCount: cleanContentA.length,
-          validation: validateCharacterCount(cleanContentA, platformId, userSetLimit)
+          validation: validateCharacterCount(cleanContentA, platformId, charCountControl.finalLimit)
         });
 
         // 静默处理验证警告，不显示任何提示文案
@@ -1105,7 +1105,7 @@ export default function AdaptPage() {
           style: 'creative',
           title: '版本B',
           charCount: cleanContentB.length,
-          validation: validateCharacterCount(cleanContentB, platformId, userSetLimit)
+          validation: validateCharacterCount(cleanContentB, platformId, charCountControl.finalLimit)
         });
 
         // 静默处理验证警告，不显示任何提示文案
