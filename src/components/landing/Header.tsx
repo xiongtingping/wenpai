@@ -82,6 +82,45 @@ export function Header() {
   const isMobile = useIsMobile()
   const { user, isAuthenticated, login, register } = useUnifiedAuth()
   const navigate = useNavigate()
+
+  /**
+   * 检查是否应该显示升级按钮
+   * 只有高级版用户（且在有效期内）不显示，其他用户都显示
+   */
+  const shouldShowUpgradeButton = () => {
+    // 未登录用户显示
+    if (!user || typeof user !== 'object') return true;
+
+    const userObj = user as Record<string, unknown>;
+
+    // 检查是否是高级版用户
+    const isPremiumUser = userObj.tier === 'premium' ||
+                         userObj.plan === 'premium' ||
+                         userObj.subscriptionTier === 'premium' ||
+                         userObj.userPlan === 'premium';
+
+    // 如果是高级版用户，检查是否在有效期内
+    if (isPremiumUser) {
+      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
+
+      if (subscriptionEndDate) {
+        const endDate = new Date(subscriptionEndDate as string);
+        const now = new Date();
+
+        // 如果在有效期内，不显示升级按钮
+        if (endDate > now) {
+          return false;
+        }
+      }
+    }
+
+    // 其他情况都显示升级按钮：
+    // - 未登录用户
+    // - 体验版用户 (trial)
+    // - 专业版用户 (pro)
+    // - 高级版用户但已过期
+    return true;
+  };
   
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
@@ -161,20 +200,22 @@ export function Header() {
         {/* Action Buttons */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
-            <Button 
-              onClick={() => {
-                if (isAuthenticated) {
-                  // 已登录用户直接跳转到支付页面
-                  navigate('/payment');
-                } else {
-                  // 未登录用户先登录再跳转
-                  login('/payment');
-                }
-              }}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
-            >
-              立即解锁高级功能
-            </Button>
+            {shouldShowUpgradeButton() && (
+              <Button
+                onClick={() => {
+                  if (isAuthenticated) {
+                    // 已登录用户直接跳转到支付页面
+                    navigate('/payment');
+                  } else {
+                    // 未登录用户先登录再跳转
+                    login('/payment');
+                  }
+                }}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
+              >
+                立即解锁高级功能
+              </Button>
+            )}
             
             <Popover>
               <PopoverTrigger asChild>
@@ -213,20 +254,22 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                <Button 
-                  onClick={() => {
-                    if (isAuthenticated) {
-                      // 已登录用户直接跳转到支付页面
-                      navigate('/payment');
-                    } else {
-                      // 未登录用户先登录再跳转
-                      login('/payment');
-                    }
-                  }}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
-                >
-                  立即解锁高级功能
-                </Button>
+                {shouldShowUpgradeButton() && (
+                  <Button
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        // 已登录用户直接跳转到支付页面
+                        navigate('/payment');
+                      } else {
+                        // 未登录用户先登录再跳转
+                        login('/payment');
+                      }
+                    }}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
+                  >
+                    立即解锁高级功能
+                  </Button>
+                )}
                 
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {

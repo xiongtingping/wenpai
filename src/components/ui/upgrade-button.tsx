@@ -37,16 +37,46 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
   const { user } = useUnifiedAuth();
 
   /**
-   * 检查用户是否是免费版
+   * 检查是否应该显示升级按钮
+   * 只有高级版用户（且在有效期内）不显示，其他用户都显示
    */
-  const isFreeUser = () => {
+  const shouldShowUpgradeButton = () => {
+    // 未登录用户显示
     if (!user || typeof user !== 'object') return true;
+
     const userObj = user as Record<string, unknown>;
-    return !userObj.isPro && !userObj.isProUser;
+
+    // 检查是否是高级版用户
+    const isPremiumUser = userObj.tier === 'premium' ||
+                         userObj.plan === 'premium' ||
+                         userObj.subscriptionTier === 'premium' ||
+                         userObj.userPlan === 'premium';
+
+    // 如果是高级版用户，检查是否在有效期内
+    if (isPremiumUser) {
+      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
+
+      if (subscriptionEndDate) {
+        const endDate = new Date(subscriptionEndDate as string);
+        const now = new Date();
+
+        // 如果在有效期内，不显示升级按钮
+        if (endDate > now) {
+          return false;
+        }
+      }
+    }
+
+    // 其他情况都显示升级按钮：
+    // - 未登录用户
+    // - 体验版用户 (trial)
+    // - 专业版用户 (pro)
+    // - 高级版用户但已过期
+    return true;
   };
 
-  // 只在免费版用户时显示
-  if (!isFreeUser()) {
+  // 只在需要时显示升级按钮
+  if (!shouldShowUpgradeButton()) {
     return null;
   }
 
