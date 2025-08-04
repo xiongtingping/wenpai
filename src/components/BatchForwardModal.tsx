@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info, Sync } from 'lucide-react';
+import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useContentSyncStore, contentSyncUtils } from '@/stores/contentSyncStore';
 
@@ -229,7 +229,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                       {/* 内容同步状态提示 */}
                       {isContentSynced && (
                         <div className="flex items-center gap-2 mb-3 p-2 bg-green-50 rounded-lg border border-green-200">
-                          <Sync className="h-4 w-4 text-green-600" />
+                          <RefreshCw className="h-4 w-4 text-green-600" />
                           <span className="text-sm text-green-700 font-medium">内容已同步</span>
                           <Badge variant="outline" className="text-xs text-green-600 border-green-300">
                             {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : '已选择'}

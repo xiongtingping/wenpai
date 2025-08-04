@@ -55,7 +55,8 @@ import {
   Zap,
   Brain,
   Eye,
-  X
+  X,
+  Heart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
