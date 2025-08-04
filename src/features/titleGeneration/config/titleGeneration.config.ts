@@ -217,12 +217,23 @@ export const validateTitleStyle = (style: string): style is TitleStyle => {
 
 // 生成缓存键
 export const generateCacheKey = (
-  content: string, 
-  platform: PlatformId, 
-  styles: TitleStyle[], 
+  content: string,
+  platform: PlatformId,
+  styles: TitleStyle[],
   count: number
 ): string => {
-  const contentHash = btoa(content.slice(0, 100)).slice(0, 16);
+  // 使用简单哈希算法处理中文字符
+  const simpleHash = (str: string): string => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 转换为32位整数
+    }
+    return Math.abs(hash).toString(36).slice(0, 8);
+  };
+
+  const contentHash = simpleHash(content.slice(0, 100));
   const styleHash = styles.sort().join(',');
   return `${CACHE_CONFIG.keyPrefix}${contentHash}_${platform}_${styleHash}_${count}`;
 };
