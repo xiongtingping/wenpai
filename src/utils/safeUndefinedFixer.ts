@@ -59,8 +59,9 @@ if (import.meta.env.DEV) {
             // 跳过React管理的节点
             let parent = node.parentElement;
             while (parent) {
-              if (parent.hasAttribute('data-reactroot') || 
-                  parent.className?.includes('react') ||
+              const parentClassName = parent.className;
+              if (parent.hasAttribute('data-reactroot') ||
+                  (typeof parentClassName === 'string' && parentClassName.includes('react')) ||
                   Object.keys(parent).some(key => key.startsWith('__react'))) {
                 return NodeFilter.FILTER_REJECT;
               }
@@ -96,8 +97,9 @@ if (import.meta.env.DEV) {
 
       // 2. 安全修复元素属性（非React管理的）
       const nonReactElements = Array.from(document.querySelectorAll('*')).filter(element => {
-        return !element.hasAttribute('data-reactroot') && 
-               !element.className?.includes('react') &&
+        const className = element.className;
+        return !element.hasAttribute('data-reactroot') &&
+               !(typeof className === 'string' && className.includes('react')) &&
                !Object.keys(element).some(key => key.startsWith('__react'));
       });
 
