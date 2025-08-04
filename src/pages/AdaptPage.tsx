@@ -2873,18 +2873,35 @@ export default function AdaptPage() {
       });
 
       if (aiResult.success && aiResult.content) {
-          // 验证字符数是否符合设定
+          // 严格按照用户设置的字符数限制处理内容
           const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
-          const actualCharCount = aiResult.content.length;
-          const charCountDiff = Math.abs(actualCharCount - targetCharCount);
-          const charCountTolerance = targetCharCount * 0.2; // 20%容差
-
-          const finalContent = aiResult.content;
+          let finalContent = aiResult.content;
           let warningMessage = '重新生成完成';
 
-          if (charCountDiff > charCountTolerance) {
-            warningMessage = `重新生成完成 (字符数: ${actualCharCount}/${targetCharCount})`;
-            console.warn(`平台${platformId}重新生成字符数偏差较大: 目标${targetCharCount}, 实际${actualCharCount}`);
+          // 如果内容超出用户设置的限制，进行截断处理
+          if (finalContent.length > targetCharCount) {
+            // 智能截断：尽量在句号、感叹号、问号处截断
+            const truncatePoints = ['.', '。', '!', '！', '?', '？', '\n'];
+            let bestTruncateIndex = targetCharCount;
+
+            // 在目标长度前寻找最佳截断点
+            for (let i = targetCharCount - 1; i >= Math.max(0, targetCharCount - 50); i--) {
+              if (truncatePoints.includes(finalContent[i])) {
+                bestTruncateIndex = i + 1;
+                break;
+              }
+            }
+
+            finalContent = finalContent.substring(0, bestTruncateIndex).trim();
+            console.log(`🔧 重新生成内容超出限制，已智能截断: ${aiResult.content.length} -> ${finalContent.length} 字符`);
+          }
+
+          const actualCharCount = finalContent.length;
+
+          // 如果截断后仍然超出限制，强制截断
+          if (actualCharCount > targetCharCount) {
+            finalContent = finalContent.substring(0, targetCharCount).trim();
+            console.log(`🔧 强制截断到用户设置限制: ${targetCharCount} 字符`);
           }
 
           // 更新结果
@@ -2896,8 +2913,20 @@ export default function AdaptPage() {
             currentResults[resultIndex].steps[3].status = 'completed';
             currentResults[resultIndex].steps[3].message = warningMessage;
             // 添加字符数信息
-            currentResults[resultIndex].charCount = actualCharCount;
+            currentResults[resultIndex].charCount = finalContent.length;
             currentResults[resultIndex].targetCharCount = targetCharCount;
+
+            // 重新验证字符数并更新validation信息
+            const validation = validateCharacterCount(finalContent, platformId, targetCharCount);
+            if (currentResults[resultIndex].versions) {
+              // 更新对应版本的验证信息
+              currentResults[resultIndex].versions = currentResults[resultIndex].versions!.map(version => ({
+                ...version,
+                content: finalContent,
+                charCount: finalContent.length,
+                validation: validation
+              }));
+            }
           }
           setResults([...currentResults]);
       } else {
@@ -3535,55 +3564,47 @@ ${dimensions.join('\n\n')}
 - 创意发挥：在满足用户要求基础上进行创意扩展`;
   };
 
-  // 生成字符数维度（使用新的配置系统）
+  // 生成字符数维度（严格按照用户设置）
   const generateCharCountDimension = (charCount: number, platformId: string): string => {
     const limits = getPlatformLimit(platformId);
-    const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
     const platformAdvice = getPlatformCharCountAdvice(platformId);
 
     // 添加空值检查，提供默认值
     if (!limits) {
       console.warn(`平台 ${platformId} 的配置未找到，使用默认配置`);
-      return `字符数控制指令：
-- 目标字符数：${charCount}字符
+      return `字符数严格控制指令：
+- 用户设置：${charCount}字符（必须严格遵守）
 - 平台：${platformId}
-- 要求：请生成符合目标字符数的高质量内容`;
+- 要求：生成的内容字符数必须严格控制在${charCount}字符以内，绝对不能超出`;
     }
 
-    // 使用配置系统的字符数要求
-    const targetMin = charCountConfig.min;
-    const targetMax = charCountConfig.max;
-    const targetChar = charCountConfig.target;
+    // 严格使用用户设置的字符数限制
+    const userSetLimit = charCount;
+    const platformMaxLimit = limits.maxCharacters;
+    const actualLimit = Math.min(userSetLimit, platformMaxLimit);
 
-    let description: string;
-    switch (globalSettings.charCountPreset) {
-      case 'mini':
-        description = '精简版要求：内容简洁明了，重点突出';
-        break;
-      case 'standard':
-        description = '标准版要求：内容详实完整，结构清晰';
-        break;
-      case 'detailed':
-        description = '详细版要求：内容必须达到800字以上，丰富深入，信息全面';
-        break;
-      default:
-        description = '自动适配：根据平台特性优化字符数';
-    }
-
-    return `字符数严格控制指令：
-- 目标设置：${targetChar}字符（${description}）
-- 必须范围：${targetMin} - ${targetMax}字符（绝对不能少于${targetMin}字符）
-- 平台限制：最大${limits?.maxCharacters || 2000}字符（${limits?.description || '平台字符数限制'}）
+    return `🚨 字符数严格控制指令（最高优先级）：
+- 用户设置限制：${userSetLimit}字符（绝对不能超出）
+- 平台最大限制：${platformMaxLimit}字符
+- 实际执行限制：${actualLimit}字符（取两者最小值）
 - 平台建议：${platformAdvice}
-- 核心要求：生成的内容字符数必须达到${targetMin}字符以上，这是硬性要求
-- 内容策略：通过以下方式确保达到目标字符数：
-  * 增加具体案例和详细说明
-  * 提供更多实用技巧和建议
-  * 丰富背景信息和相关知识
-  * 添加具体的操作步骤和注意事项
-  * 包含更多细节描述和深入分析
-- 验证指令：生成完成后必须检查字符数，如不足${targetMin}字符则继续补充内容
-- 质量保证：在满足字符数要求的前提下确保内容质量和价值`;
+
+⚠️ 核心要求（必须严格执行）：
+1. 生成的内容字符数必须 ≤ ${actualLimit}字符
+2. 如果内容接近限制，优先保证完整性而非长度
+3. 绝对禁止超出用户设置的${userSetLimit}字符限制
+4. 内容必须在字符数限制内表达完整，不能出现截断
+
+📝 内容优化策略：
+- 精准表达：用最少的字符传达最多的信息
+- 结构清晰：确保在限制内容量下逻辑完整
+- 重点突出：优先保留最核心的信息和价值
+- 语言精炼：避免冗余表达和无效词汇
+
+🔍 生成后验证：
+- 必须检查最终内容字符数
+- 如超出${actualLimit}字符，必须删减至限制内
+- 确保删减后内容仍然完整有价值`;
   };
 
   // 生成格式化维度
@@ -4572,30 +4593,25 @@ ${dimensions.join('\n\n')}
                                         </div>
                                       )}
                                       <div className="space-y-2">
-                                        <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border">
-                                          <span className="font-medium">版本A</span>
-                                          <span className="font-medium text-blue-600">{result.versions[0].charCount}字</span>
-                                        </div>
-                                        {/* 字符数验证信息 */}
-                                        {result.versions[0].validation && (
-                                          <div className={`text-xs px-3 py-2 rounded-lg border ${
-                                            result.versions[0].validation.isValid
-                                              ? 'bg-green-50 border-green-200 text-green-700'
-                                              : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                                          }`}>
-                                            {result.versions[0].validation.warning ? (
-                                              <div className="flex items-center gap-1">
-                                                <span>⚠️</span>
-                                                <span>{result.versions[0].validation.warning}</span>
-                                              </div>
-                                            ) : (
-                                              <div className="flex items-center gap-1">
-                                                <span>✅</span>
-                                                <span>字符数在安全范围内 ({result.versions[0].validation.targetRange.min}-{result.versions[0].validation.targetRange.max})</span>
-                                              </div>
+                                        {/* 融合版本标题和字符数验证状态 */}
+                                        <div className={`flex justify-between items-center text-sm px-4 py-2 rounded-lg border ${
+                                          result.versions[0].validation?.isValid
+                                            ? 'bg-green-50 border-green-200 text-green-700'
+                                            : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                                        }`}>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">版本A：{result.versions[0].charCount}字</span>
+                                            {result.versions[0].validation && (
+                                              <span className="text-xs">
+                                                {result.versions[0].validation.warning ? (
+                                                  <>⚠️ {result.versions[0].validation.warning}</>
+                                                ) : (
+                                                  <>✅ 字符数在安全范围内 ({result.versions[0].validation.targetRange.min}-{result.versions[0].validation.targetRange.max})</>
+                                                )}
+                                              </span>
                                             )}
                                           </div>
-                                        )}
+                                        </div>
                                       </div>
 
 
@@ -4730,30 +4746,25 @@ ${dimensions.join('\n\n')}
                                         </div>
                                       )}
                                       <div className="space-y-2">
-                                        <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border">
-                                          <span className="font-medium">版本B</span>
-                                          <span className="font-medium text-purple-600">{result.versions[1].charCount}字</span>
-                                        </div>
-                                        {/* 字符数验证信息 */}
-                                        {result.versions[1].validation && (
-                                          <div className={`text-xs px-3 py-2 rounded-lg border ${
-                                            result.versions[1].validation.isValid
-                                              ? 'bg-green-50 border-green-200 text-green-700'
-                                              : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                                          }`}>
-                                            {result.versions[1].validation.warning ? (
-                                              <div className="flex items-center gap-1">
-                                                <span>⚠️</span>
-                                                <span>{result.versions[1].validation.warning}</span>
-                                              </div>
-                                            ) : (
-                                              <div className="flex items-center gap-1">
-                                                <span>✅</span>
-                                                <span>字符数在安全范围内 ({result.versions[1].validation.targetRange.min}-{result.versions[1].validation.targetRange.max})</span>
-                                              </div>
+                                        {/* 融合版本标题和字符数验证状态 */}
+                                        <div className={`flex justify-between items-center text-sm px-4 py-2 rounded-lg border ${
+                                          result.versions[1].validation?.isValid
+                                            ? 'bg-green-50 border-green-200 text-green-700'
+                                            : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                                        }`}>
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">版本B：{result.versions[1].charCount}字</span>
+                                            {result.versions[1].validation && (
+                                              <span className="text-xs">
+                                                {result.versions[1].validation.warning ? (
+                                                  <>⚠️ {result.versions[1].validation.warning}</>
+                                                ) : (
+                                                  <>✅ 字符数在安全范围内 ({result.versions[1].validation.targetRange.min}-{result.versions[1].validation.targetRange.max})</>
+                                                )}
+                                              </span>
                                             )}
                                           </div>
-                                        )}
+                                        </div>
                                       </div>
 
 
