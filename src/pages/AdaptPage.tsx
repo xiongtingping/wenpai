@@ -4,7 +4,7 @@ import {
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
   Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles, Bot, Info,
-  Facebook, Linkedin, Instagram, User, CheckCircle, Circle
+  Facebook, Linkedin, Instagram, User, CheckCircle, Circle, History
 } from "lucide-react";
 import {
   getCharCountMax as getConfigCharCountMax,
@@ -87,6 +87,7 @@ import {
   type AIModel 
 } from "@/config/aiModels";
 import { useAuthStore } from "@/store/authStore";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
@@ -602,6 +603,9 @@ export default function AdaptPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 认证相关hooks
+  const { user, isAuthenticated, login } = useUnifiedAuth();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
@@ -3755,25 +3759,82 @@ ${charCountControl.source === 'platform-specific'
 - 随机性：在保持质量的前提下增加内容的随机性和新鲜感`;
   };
 
+  /**
+   * 检查是否应该显示升级按钮
+   * 只有高级版用户（且在有效期内）不显示，其他用户都显示
+   */
+  const shouldShowUpgradeButton = () => {
+    // 未登录用户显示
+    if (!user || typeof user !== 'object') return true;
+
+    const userObj = user as Record<string, unknown>;
+
+    // 检查是否是高级版用户
+    const isPremiumUser = userObj.tier === 'premium' ||
+                         userObj.plan === 'premium' ||
+                         userObj.subscriptionTier === 'premium' ||
+                         userObj.userPlan === 'premium';
+
+    // 如果是高级版用户，检查是否在有效期内
+    if (isPremiumUser) {
+      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
+
+      if (subscriptionEndDate && typeof subscriptionEndDate === 'string') {
+        const endDate = new Date(subscriptionEndDate);
+        const now = new Date();
+
+        // 如果订阅还在有效期内，不显示升级按钮
+        if (endDate > now) {
+          return false;
+        }
+      }
+    }
+
+    // 其他情况都显示升级按钮
+    return true;
+  };
+
   // 临时调试：添加控制台日志
   console.log('AdaptPage rendering...', { generating, results: results.length });
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 临时调试信息 */}
-      <div className="fixed top-0 right-0 bg-red-500 text-white p-2 z-50 text-xs">
-        Debug: generating={generating.toString()}, results={results.length}
-      </div>
+      {/* 页面导航 */}
+      <PageNavigation
+        title="AI内容适配器"
+        description="智能适配多平台内容，一键生成符合各平台特色的优质内容"
+        showAdaptButton={false}
+        actions={
+          <div className="flex items-center space-x-3">
+            {/* History Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/history')}
+              className="flex items-center space-x-2"
+            >
+              <History className="h-4 w-4" />
+              <span>历史记录</span>
+            </Button>
 
-      {/* 简化测试内容 */}
-      <div className="p-8">
-        <h1 className="text-3xl font-bold mb-4">AI内容适配器测试页面</h1>
-        <p className="text-lg mb-4">如果您能看到这段文字，说明页面正在正常渲染。</p>
-        <div className="bg-blue-100 p-4 rounded">
-          <p>生成状态: {generating ? '正在生成' : '未生成'}</p>
-          <p>结果数量: {results.length}</p>
-        </div>
-      </div>
+            {/* Upgrade Button - Only show for non-premium users */}
+            {shouldShowUpgradeButton() && (
+              <Button
+                onClick={() => {
+                  if (isAuthenticated) {
+                    navigate('/payment');
+                  } else {
+                    login('/payment');
+                  }
+                }}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
+              >
+                立即解锁高级功能
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       <div className="container mx-auto py-6 px-4">
 
