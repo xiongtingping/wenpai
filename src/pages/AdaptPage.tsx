@@ -387,6 +387,7 @@ interface PlatformResult {
   targetCharCount?: number;
   versions?: ContentVersion[];
   canRetry?: boolean;
+  tags?: string[];
 }
 
 // Platform settings
@@ -2070,7 +2071,7 @@ export default function AdaptPage() {
         retryCount: options.retryCount,
         enablePreview: options.enablePreview,
         enableConfirmation: options.enableConfirmation,
-        method: options.method,
+        method: options.method as 'script' | 'auto' | 'browser' | 'extension' | 'rpa',
         onProgress: (progress) => {
           setAutomationProgress(progress);
         }
@@ -2412,7 +2413,7 @@ export default function AdaptPage() {
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     const favoriteKeys = new Set(favorites.map((fav: any) =>
       fav.versionId ? `${fav.platformId}-${fav.versionId}` : fav.platformId
-    ));
+    ) as string[]);
     setPersistentFavorites(favoriteKeys);
   }, []);
 
