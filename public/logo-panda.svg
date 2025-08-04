@@ -1,0 +1,26 @@
+<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- 熊猫头部 -->
+  <circle cx="400" cy="360" r="200" fill="white" stroke="#2c3e50" stroke-width="24"/>
+
+  <!-- 熊猫耳朵 -->
+  <circle cx="280" cy="200" r="64" fill="white" stroke="#2c3e50" stroke-width="24"/>
+  <circle cx="520" cy="200" r="64" fill="white" stroke="#2c3e50" stroke-width="24"/>
+  <circle cx="280" cy="200" r="40" fill="#3498db"/>
+  <circle cx="520" cy="200" r="40" fill="#3498db"/>
+
+  <!-- 熊猫眼睛 -->
+  <ellipse cx="336" cy="320" rx="32" ry="48" fill="#2c3e50"/>
+  <ellipse cx="464" cy="320" rx="32" ry="48" fill="#2c3e50"/>
+  <circle cx="336" cy="320" r="16" fill="#3498db"/>
+  <circle cx="464" cy="320" r="16" fill="#3498db"/>
+
+  <!-- 熊猫鼻子 -->
+  <ellipse cx="400" cy="384" rx="16" ry="12" fill="#2c3e50"/>
+
+  <!-- 熊猫嘴巴 -->
+  <path d="M 376 416 Q 400 440 424 416" stroke="#2c3e50" stroke-width="16" fill="none" stroke-linecap="round"/>
+
+  <!-- 身体部分 - 交叉的手臂 -->
+  <ellipse cx="280" cy="600" rx="96" ry="160" fill="white" stroke="#2c3e50" stroke-width="24" transform="rotate(-30 280 600)"/>
+  <ellipse cx="520" cy="600" rx="96" ry="160" fill="#2c3e50" stroke="#2c3e50" stroke-width="24" transform="rotate(30 520 600)"/>
+</svg>

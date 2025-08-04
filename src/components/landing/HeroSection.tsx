@@ -42,34 +42,20 @@ const HeroSection: React.FC = () => {
     <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
-          {/* 品牌标识 - 全新现代化设计 */}
-          <div className="mb-10">
-            <div className="relative inline-block group">
-              {/* 主Logo容器 */}
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-3xl shadow-2xl border-4 border-white/30 hover:scale-105 transition-all duration-500 hover:shadow-3xl flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
-                {/* 背景装饰层 */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/10"></div>
-                {/* 光点装饰 */}
-                <div className="absolute top-4 right-4 w-4 h-4 bg-white/40 rounded-full blur-sm animate-pulse"></div>
-                <div className="absolute bottom-6 left-6 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
-                {/* 主文字 */}
-                <span className="text-5xl font-bold text-white drop-shadow-lg relative z-10 group-hover:scale-110 transition-transform duration-300 select-none">文</span>
-                {/* 悬停时的光效 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -skew-x-12 group-hover:animate-pulse"></div>
-              </div>
-              {/* 外围光晕效果 */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 rounded-3xl opacity-0 group-hover:opacity-30 transition-all duration-500 blur-xl"></div>
-              {/* 底部阴影 */}
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-black/20 rounded-full blur-lg opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
-            </div>
-          </div>
-          
-          {/* 主标题 - 两段式结构优化 */}
-          <div className="mb-8">
+          {/* 主标题 - 移除大logo后的优化布局 */}
+          <div className="mb-12">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-              🚀 <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                文派 AI 智能创作平台
-              </span>
+              <div className="flex items-center justify-center gap-4">
+                {/* 小熊猫图标 - 使用清晰的SVG文件 */}
+                <img
+                  src="/logo-panda.svg"
+                  alt="文派Logo"
+                  className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
+                />
+                <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  文派 AI 智能创作平台
+                </span>
+              </div>
             </h1>
 
             {/* 核心价值主张 - 优化排版结构 */}
@@ -83,25 +69,25 @@ const HeroSection: React.FC = () => {
                 </p>
               </div>
 
-              {/* 第二行：四个要点 - 统一排版 */}
-              <div className="text-lg sm:text-xl text-gray-600 font-medium hero-subtitle-container">
-                <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 lg:gap-x-16">
-                  <span className="hero-feature-item">
-                    <span className="hero-feature-separator text-blue-500">·</span>
+              {/* 第二行：四个要点 - 修复对齐问题 */}
+              <div className="text-lg sm:text-xl text-gray-600 font-medium">
+                <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-12">
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-500 text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">智能分析</span>
-                  </span>
-                  <span className="hero-feature-item">
-                    <span className="hero-feature-separator text-indigo-500">·</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-indigo-500 text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">多平台适配</span>
-                  </span>
-                  <span className="hero-feature-item">
-                    <span className="hero-feature-separator text-purple-500">·</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-purple-500 text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">一键生成</span>
-                  </span>
-                  <span className="hero-feature-item">
-                    <span className="hero-feature-separator text-pink-500">·</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-pink-500 text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">提升营销效果</span>
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>

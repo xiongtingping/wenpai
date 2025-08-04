@@ -120,6 +120,7 @@ export default function BookmarkPage() {
   
   // 对话框状态
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isCopywritingDialogOpen, setIsCopywritingDialogOpen] = useState(false);
   const [addContentType, setAddContentType] = useState<'collection' | 'extraction' | 'copywriting'>('collection');
   const [editingItem, setEditingItem] = useState<LibraryItem | null>(null);
   const [viewingItem, setViewingItem] = useState<LibraryItem | null>(null);
@@ -415,7 +416,7 @@ export default function BookmarkPage() {
 
     setLibraryItems(prev => [copywriting, ...prev]);
     setNewCopywriting({ title: '', content: '', tags: '', category: '', platform: '' });
-    setIsAddDialogOpen(false);
+    setIsCopywritingDialogOpen(false);
     
     toast({
       title: "文案创建成功",
@@ -609,46 +610,28 @@ export default function BookmarkPage() {
                 <span className="sm:hidden">文案</span>
               </TabsTrigger>
             </TabsList>
-            
-            {/* 操作按钮 */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <Dialog open={isAddDialogOpen && addContentType === 'collection'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setAddContentType('collection');
-                      setIsAddDialogOpen(true);
-                    }}
-                    className="text-xs sm:text-sm"
-                  >
-                    <Bookmark className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">添加网络收藏</span>
-                    <span className="sm:hidden">收藏</span>
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
 
-
-
-              <Dialog open={isAddDialogOpen && addContentType === 'copywriting'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setAddContentType('copywriting');
-                      setIsAddDialogOpen(true);
-                    }}
-                    className="text-xs sm:text-sm"
-                  >
-                    <Brain className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">创建文案</span>
-                    <span className="sm:hidden">文案</span>
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
+            {/* 操作按钮区域 */}
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setIsAddDialogOpen(true)}
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">添加收藏</span>
+                <span className="sm:hidden">收藏</span>
+              </Button>
+              <Button
+                onClick={() => setIsCopywritingDialogOpen(true)}
+                variant="outline"
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <Brain className="w-4 h-4" />
+                <span className="hidden sm:inline">创建文案</span>
+                <span className="sm:hidden">文案</span>
+              </Button>
             </div>
           </div>
 
@@ -1128,19 +1111,13 @@ export default function BookmarkPage() {
           </TabsContent>
         </Tabs>
 
-        {/* 对话框组件 */}
-        <Dialog open={isAddDialogOpen && addContentType === 'collection'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Bookmark className="w-4 h-4 mr-2" />
-              添加收藏
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
+        {/* 添加收藏对话框 */}
+        <Dialog open={isAddDialogOpen} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>添加网络收藏</DialogTitle>
+              <DialogTitle>添加收藏</DialogTitle>
               <DialogDescription>
-                保存有价值的网页链接到资料库
+                添加网络收藏到资料库
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1148,196 +1125,62 @@ export default function BookmarkPage() {
                 <Label>标题</Label>
                 <Input
                   value={newCollection.title}
-                  onChange={(e) => setNewCollection(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="输入网页标题"
+                  onChange={(e) => setNewCollection({ ...newCollection, title: e.target.value })}
+                  placeholder="输入收藏标题"
                 />
               </div>
               <div>
                 <Label>URL</Label>
                 <Input
                   value={newCollection.url}
-                  onChange={(e) => setNewCollection(prev => ({ ...prev, url: e.target.value }))}
-                  placeholder="https://example.com"
+                  onChange={(e) => setNewCollection({ ...newCollection, url: e.target.value })}
+                  placeholder="输入网页链接"
                 />
               </div>
               <div>
                 <Label>描述</Label>
                 <Textarea
                   value={newCollection.description}
-                  onChange={(e) => setNewCollection(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="简短描述这个网页的内容"
+                  onChange={(e) => setNewCollection({ ...newCollection, description: e.target.value })}
+                  placeholder="输入描述（可选）"
                   rows={3}
                 />
               </div>
               <div>
-                <Label>标签（用逗号分隔）</Label>
+                <Label>标签</Label>
                 <Input
                   value={newCollection.tags}
-                  onChange={(e) => setNewCollection(prev => ({ ...prev, tags: e.target.value }))}
-                  placeholder="营销,策略,分析"
+                  onChange={(e) => setNewCollection({ ...newCollection, tags: e.target.value })}
+                  placeholder="输入标签，用逗号分隔"
                 />
               </div>
               <div>
                 <Label>分类</Label>
                 <Input
                   value={newCollection.category}
-                  onChange={(e) => setNewCollection(prev => ({ ...prev, category: e.target.value }))}
-                  placeholder="营销资料"
+                  onChange={(e) => setNewCollection({ ...newCollection, category: e.target.value })}
+                  placeholder="输入分类（可选）"
                 />
               </div>
             </div>
-            <DialogFooter>
+            <div className="flex gap-2 pt-4">
+              <Button onClick={createCollection} className="flex-1">
+                保存收藏
+              </Button>
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 取消
               </Button>
-              <Button onClick={createCollection}>
-                <Save className="w-4 h-4 mr-2" />
-                保存
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isAddDialogOpen && addContentType === 'extraction'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Zap className="w-4 h-4 mr-2" />
-              内容提取
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>内容提取</DialogTitle>
-              <DialogDescription>
-                从网页、PDF、图片中智能提取文字内容并生成AI总结
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>提取方式</Label>
-                <Select value={extractMethod} onValueChange={(value: 'url' | 'file') => setExtractMethod(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="url">
-                      <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4" />
-                        网页链接
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="file">
-                      <div className="flex items-center gap-2">
-                        <Upload className="w-4 h-4" />
-                        文件上传 (PDF/图片)
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {extractMethod === 'url' && (
-                <div>
-                  <Label>网页链接</Label>
-                  <Input
-                    placeholder="粘贴网页URL地址，支持自动提取页面文字内容"
-                    value={extractUrl}
-                    onChange={(e) => setExtractUrl(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    支持提取网页正文、标题、段落等结构化内容
-                  </p>
-                </div>
-              )}
-
-              {extractMethod === 'file' && (
-                <div>
-                  <Label>文件上传</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={handleFileSelect}
-                      accept=".pdf,.doc,.docx,.txt,.md,.json,.html,.htm,image/*"
-                      className="flex-1"
-                    />
-                    <Button 
-                      variant="outline" 
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      选择文件
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    支持 PDF文档、Word文档、图片(PNG/JPG/JPEG)、文本文件等格式
-                  </p>
-                  {selectedFile && (
-                    <div className="mt-2 p-3 bg-blue-50 rounded border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <File className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium">{selectedFile.name}</span>
-                        <span className="text-xs text-gray-500">
-                          ({(selectedFile.size / 1024).toFixed(1)} KB)
-                        </span>
-                      </div>
-                      <div className="text-xs text-blue-600">
-                        {selectedFile.type.includes('image') && '🖼️ 图片OCR文字识别'}
-                        {selectedFile.type.includes('pdf') && '📄 PDF文档内容提取'}
-                        {selectedFile.type.includes('text') && '📝 文本内容解析'}
-                        {selectedFile.type.includes('doc') && '📄 Word文档内容提取'}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="bg-purple-50 p-3 rounded border">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-800">AI智能处理</span>
-                </div>
-                <ul className="text-xs text-purple-700 space-y-1">
-                  <li>• 自动提取和整理文字内容</li>
-                  <li>• 生成内容摘要和关键信息</li>
-                  <li>• 智能分类和标签建议</li>
-                  <li>• 结构化内容展示</li>
-                </ul>
-              </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                取消
-              </Button>
-              <Button onClick={extractContent} disabled={isExtracting}>
-                {isExtracting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    智能提取中...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    开始智能提取
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isAddDialogOpen && addContentType === 'copywriting'} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Brain className="w-4 h-4 mr-2" />
-              创建文案
-            </Button>
-          </DialogTrigger>
+        {/* 创建文案对话框 */}
+        <Dialog open={isCopywritingDialogOpen} onOpenChange={handleDialogClose(setIsCopywritingDialogOpen)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>创建文案</DialogTitle>
               <DialogDescription>
-                添加新的文案内容到资料库
+                创建新的文案内容
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1345,7 +1188,7 @@ export default function BookmarkPage() {
                 <Label>标题</Label>
                 <Input
                   value={newCopywriting.title}
-                  onChange={(e) => setNewCopywriting(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) => setNewCopywriting({ ...newCopywriting, title: e.target.value })}
                   placeholder="输入文案标题"
                 />
               </div>
@@ -1353,47 +1196,44 @@ export default function BookmarkPage() {
                 <Label>内容</Label>
                 <Textarea
                   value={newCopywriting.content}
-                  onChange={(e) => setNewCopywriting(prev => ({ ...prev, content: e.target.value }))}
-                  placeholder="输入文案内容，支持Markdown格式"
+                  onChange={(e) => setNewCopywriting({ ...newCopywriting, content: e.target.value })}
+                  placeholder="输入文案内容"
                   rows={8}
                 />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>标签（用逗号分隔）</Label>
-                  <Input
-                    value={newCopywriting.tags}
-                    onChange={(e) => setNewCopywriting(prev => ({ ...prev, tags: e.target.value }))}
-                    placeholder="营销,文案,推广"
-                  />
-                </div>
-                <div>
-                  <Label>分类</Label>
-                  <Input
-                    value={newCopywriting.category}
-                    onChange={(e) => setNewCopywriting(prev => ({ ...prev, category: e.target.value }))}
-                    placeholder="营销文案"
-                  />
-                </div>
               </div>
               <div>
                 <Label>平台</Label>
                 <Input
                   value={newCopywriting.platform}
-                  onChange={(e) => setNewCopywriting(prev => ({ ...prev, platform: e.target.value }))}
-                  placeholder="微信公众号"
+                  onChange={(e) => setNewCopywriting({ ...newCopywriting, platform: e.target.value })}
+                  placeholder="目标平台（如：微信、微博、小红书等）"
+                />
+              </div>
+              <div>
+                <Label>标签</Label>
+                <Input
+                  value={newCopywriting.tags}
+                  onChange={(e) => setNewCopywriting({ ...newCopywriting, tags: e.target.value })}
+                  placeholder="输入标签，用逗号分隔"
+                />
+              </div>
+              <div>
+                <Label>分类</Label>
+                <Input
+                  value={newCopywriting.category}
+                  onChange={(e) => setNewCopywriting({ ...newCopywriting, category: e.target.value })}
+                  placeholder="输入分类（可选）"
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+            <div className="flex gap-2 pt-4">
+              <Button onClick={createCopywriting} className="flex-1">
+                创建文案
+              </Button>
+              <Button variant="outline" onClick={() => setIsCopywritingDialogOpen(false)}>
                 取消
               </Button>
-              <Button onClick={createCopywriting}>
-                <Save className="w-4 h-4 mr-2" />
-                保存
-              </Button>
-            </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
 
