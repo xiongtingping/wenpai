@@ -1212,9 +1212,12 @@ export default function AdaptPage() {
     }
   }, [location.state, toast]);
   
-  // User store for usage tracking
-  const usageRemaining = useAuthStore((state) => state.getUsageRemaining());
-  const { decrementUsage } = useAuthStore();
+  // ✅ FIXED: 2025-08-04 修复无限循环问题
+  // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
+  // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
+  // 🔒 LOCKED: 此修复已验证解决Tooltip无限循环问题，请勿修改
+  const { usageCount, maxUsage, decrementUsage } = useAuthStore();
+  const usageRemaining = Math.max(0, maxUsage - usageCount);
 
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);

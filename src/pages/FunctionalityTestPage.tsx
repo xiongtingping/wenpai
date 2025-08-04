@@ -23,7 +23,9 @@ import {
 
 const FunctionalityTestPage: React.FC = () => {
   const { user, isAuthenticated } = useUnifiedAuth();
-  const { getUsageRemaining, decrementUsage, incrementUsage } = useAuthStore();
+  // ✅ FIXED: 2025-08-04 修复无限循环问题 - 避免直接调用getUsageRemaining()
+  const { usageCount, maxUsage, decrementUsage, incrementUsage } = useAuthStore();
+  const getUsageRemaining = () => Math.max(0, maxUsage - usageCount);
   const { toast } = useToast();
   const [testResults, setTestResults] = useState<Record<string, boolean>>({});
 
