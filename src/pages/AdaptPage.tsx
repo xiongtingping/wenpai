@@ -14,7 +14,8 @@ import {
   getPlatformCharCountAdvice,
   calculateTargetCharCount,
   getPlatformLimit,
-  getRecommendedRange
+  getRecommendedRange,
+  getUnifiedCharCountLimit
 } from '../config/platformLimits';
 import { AutomationUI, AutomationProgress, AutomationResult, AutomationOptions } from '../components/AutomationUI';
 import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
@@ -2873,19 +2874,24 @@ export default function AdaptPage() {
       });
 
       if (aiResult.success && aiResult.content) {
-          // 严格按照用户设置的字符数限制处理内容
-          const targetCharCount = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
+          // 使用统一字符数控制系统获取最终限制
+          const charCountControl = getUnifiedCharCountLimit(
+            platformId,
+            globalSettings.charCountPreset,
+            platformSettings[platformId]?.charCount
+          );
+
           let finalContent = aiResult.content;
           let warningMessage = '重新生成完成';
 
-          // 如果内容超出用户设置的限制，进行截断处理
-          if (finalContent.length > targetCharCount) {
+          // 如果内容超出统一控制系统确定的限制，进行截断处理
+          if (finalContent.length > charCountControl.finalLimit) {
             // 智能截断：尽量在句号、感叹号、问号处截断
             const truncatePoints = ['.', '。', '!', '！', '?', '？', '\n'];
-            let bestTruncateIndex = targetCharCount;
+            let bestTruncateIndex = charCountControl.finalLimit;
 
             // 在目标长度前寻找最佳截断点
-            for (let i = targetCharCount - 1; i >= Math.max(0, targetCharCount - 50); i--) {
+            for (let i = charCountControl.finalLimit - 1; i >= Math.max(0, charCountControl.finalLimit - 50); i--) {
               if (truncatePoints.includes(finalContent[i])) {
                 bestTruncateIndex = i + 1;
                 break;
@@ -2894,14 +2900,15 @@ export default function AdaptPage() {
 
             finalContent = finalContent.substring(0, bestTruncateIndex).trim();
             console.log(`🔧 重新生成内容超出限制，已智能截断: ${aiResult.content.length} -> ${finalContent.length} 字符`);
+            console.log(`🎯 字符数控制来源: ${charCountControl.description}`);
           }
 
           const actualCharCount = finalContent.length;
 
           // 如果截断后仍然超出限制，强制截断
-          if (actualCharCount > targetCharCount) {
-            finalContent = finalContent.substring(0, targetCharCount).trim();
-            console.log(`🔧 强制截断到用户设置限制: ${targetCharCount} 字符`);
+          if (actualCharCount > charCountControl.finalLimit) {
+            finalContent = finalContent.substring(0, charCountControl.finalLimit).trim();
+            console.log(`🔧 强制截断到统一控制系统限制: ${charCountControl.finalLimit} 字符`);
           }
 
           // 更新结果
@@ -2914,10 +2921,10 @@ export default function AdaptPage() {
             currentResults[resultIndex].steps[3].message = warningMessage;
             // 添加字符数信息
             currentResults[resultIndex].charCount = finalContent.length;
-            currentResults[resultIndex].targetCharCount = targetCharCount;
+            currentResults[resultIndex].targetCharCount = charCountControl.finalLimit;
 
             // 重新验证字符数并更新validation信息
-            const validation = validateCharacterCount(finalContent, platformId, targetCharCount);
+            const validation = validateCharacterCount(finalContent, platformId, charCountControl.finalLimit);
             if (currentResults[resultIndex].versions) {
               // 更新对应版本的验证信息
               currentResults[resultIndex].versions = currentResults[resultIndex].versions!.map(version => ({
@@ -3564,36 +3571,36 @@ ${dimensions.join('\n\n')}
 - 创意发挥：在满足用户要求基础上进行创意扩展`;
   };
 
-  // 生成字符数维度（严格按照用户设置）
+  // 生成字符数维度（使用统一字符数控制系统）
   const generateCharCountDimension = (charCount: number, platformId: string): string => {
-    const limits = getPlatformLimit(platformId);
     const platformAdvice = getPlatformCharCountAdvice(platformId);
 
-    // 添加空值检查，提供默认值
-    if (!limits) {
-      console.warn(`平台 ${platformId} 的配置未找到，使用默认配置`);
-      return `字符数严格控制指令：
-- 用户设置：${charCount}字符（必须严格遵守）
-- 平台：${platformId}
-- 要求：生成的内容字符数必须严格控制在${charCount}字符以内，绝对不能超出`;
-    }
-
-    // 严格使用用户设置的字符数限制
-    const userSetLimit = charCount;
-    const platformMaxLimit = limits.maxCharacters;
-    const actualLimit = Math.min(userSetLimit, platformMaxLimit);
+    // 使用统一字符数控制系统获取最终限制
+    const charCountControl = getUnifiedCharCountLimit(
+      platformId,
+      globalSettings.charCountPreset,
+      platformSettings[platformId]?.charCount
+    );
 
     return `🚨 字符数严格控制指令（最高优先级）：
-- 用户设置限制：${userSetLimit}字符（绝对不能超出）
-- 平台最大限制：${platformMaxLimit}字符
-- 实际执行限制：${actualLimit}字符（取两者最小值）
+- 控制来源：${charCountControl.description}
+- 最终限制：${charCountControl.finalLimit}字符（绝对不能超出）
+- 建议范围：${charCountControl.range.min}-${charCountControl.range.max}字符
 - 平台建议：${platformAdvice}
 
 ⚠️ 核心要求（必须严格执行）：
-1. 生成的内容字符数必须 ≤ ${actualLimit}字符
-2. 如果内容接近限制，优先保证完整性而非长度
-3. 绝对禁止超出用户设置的${userSetLimit}字符限制
+1. 生成的内容字符数必须 ≤ ${charCountControl.finalLimit}字符
+2. 优先在建议范围${charCountControl.range.min}-${charCountControl.range.max}字符内生成
+3. 绝对禁止超出最终限制${charCountControl.finalLimit}字符
 4. 内容必须在字符数限制内表达完整，不能出现截断
+
+📊 优先级说明：
+${charCountControl.source === 'platform-specific'
+  ? '✅ 使用用户为此平台设置的自定义字符数（最高优先级）'
+  : charCountControl.source === 'preset'
+  ? '✅ 使用全局预设版本的字符数配置'
+  : '✅ 使用平台自动适配字符数（平台限制的90%-95%）'
+}
 
 📝 内容优化策略：
 - 精准表达：用最少的字符传达最多的信息
@@ -3603,7 +3610,7 @@ ${dimensions.join('\n\n')}
 
 🔍 生成后验证：
 - 必须检查最终内容字符数
-- 如超出${actualLimit}字符，必须删减至限制内
+- 如超出${charCountControl.finalLimit}字符，必须删减至限制内
 - 确保删减后内容仍然完整有价值`;
   };
 

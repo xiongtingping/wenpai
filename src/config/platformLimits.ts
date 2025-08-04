@@ -205,6 +205,81 @@ export function getAllPlatforms(): PlatformLimit[] {
 }
 
 /**
+ * 🎯 统一字符数控制系统 - 严格按照优先级规范执行
+ *
+ * 优先级顺序：
+ * 1. 平台特定设置（用户自定义，但不超过平台限制）
+ * 2. 预设版本设置（精简/标准/详细）
+ * 3. 全局自动适配设置（平台限制的90%-95%）
+ */
+export function getUnifiedCharCountLimit(
+  platformId: string,
+  globalPreset: 'auto' | 'mini' | 'standard' | 'detailed',
+  platformSpecificSetting?: number
+): {
+  finalLimit: number;
+  source: 'platform-specific' | 'preset' | 'auto-adapt';
+  range: { min: number; max: number };
+  description: string;
+} {
+  const platformLimit = getPlatformLimit(platformId);
+  const platformMaxLimit = platformLimit ? platformLimit.maxCharacters : 2000;
+
+  // 🥇 优先级1: 平台特定设置（最高优先级）
+  if (platformSpecificSetting && platformSpecificSetting > 0) {
+    let adjustedLimit = platformSpecificSetting;
+
+    // 校验：用户设置不能超过平台限制
+    if (platformSpecificSetting > platformMaxLimit) {
+      adjustedLimit = Math.floor(platformMaxLimit * 0.95); // 自动调整为平台限制的95%
+      console.warn(`用户设置${platformSpecificSetting}字符超出${platformLimit?.name || platformId}平台限制${platformMaxLimit}字符，已自动调整为${adjustedLimit}字符`);
+    }
+
+    return {
+      finalLimit: adjustedLimit,
+      source: 'platform-specific',
+      range: { min: Math.floor(adjustedLimit * 0.8), max: adjustedLimit },
+      description: `用户为${platformLimit?.name || platformId}设置的自定义字符数限制`
+    };
+  }
+
+  // 🥈 优先级2: 预设版本设置
+  if (globalPreset !== 'auto') {
+    const presetConfig = getCharCountByPreset(platformId, globalPreset);
+    return {
+      finalLimit: presetConfig.target,
+      source: 'preset',
+      range: { min: presetConfig.min, max: presetConfig.max },
+      description: `${getPresetDescription(globalPreset)}预设的字符数限制`
+    };
+  }
+
+  // 🥉 优先级3: 全局自动适配设置（平台限制的90%-95%）
+  const autoAdaptMin = Math.floor(platformMaxLimit * 0.9);
+  const autoAdaptMax = Math.floor(platformMaxLimit * 0.95);
+  const autoAdaptTarget = Math.floor(platformMaxLimit * 0.92); // 默认92%
+
+  return {
+    finalLimit: autoAdaptTarget,
+    source: 'auto-adapt',
+    range: { min: autoAdaptMin, max: autoAdaptMax },
+    description: `${platformLimit?.name || platformId}平台自动适配（平台限制的90%-95%）`
+  };
+}
+
+/**
+ * 获取预设版本的描述
+ */
+function getPresetDescription(preset: 'mini' | 'standard' | 'detailed'): string {
+  const descriptions = {
+    mini: '精简版',
+    standard: '标准版',
+    detailed: '详细版'
+  };
+  return descriptions[preset];
+}
+
+/**
  * 计算目标字符数（基于平台限制的百分比）
  */
 export function calculateTargetCharCount(
