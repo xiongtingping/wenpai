@@ -491,7 +491,7 @@ export default function BookmarkPage() {
   const getTypeInfo = (type: string) => {
     switch (type) {
       case 'collection':
-        return { icon: Bookmark, name: '网络收藏' };
+        return { icon: Bookmark, name: '网络剪藏' };
       case 'extraction':
         return { icon: Zap, name: '内容提取' };
       case 'copywriting':
@@ -599,8 +599,8 @@ export default function BookmarkPage() {
               </TabsTrigger>
               <TabsTrigger value="collection" className="flex items-center gap-2 text-xs sm:text-sm">
                 <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">网络收藏</span>
-                <span className="sm:hidden">收藏</span>
+                <span className="hidden sm:inline">网络剪藏</span>
+                <span className="sm:hidden">剪藏</span>
               </TabsTrigger>
               <TabsTrigger value="extraction" className="flex items-center gap-2 text-xs sm:text-sm">
                 <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -991,7 +991,7 @@ export default function BookmarkPage() {
             )}
           </TabsContent>
 
-          {/* 网络收藏标签页 */}
+          {/* 网络剪藏标签页 */}
           <TabsContent value="collection" className="mt-0">
             <div className="grid gap-4">
               {collectionItems.map((item) => {
@@ -1058,9 +1058,9 @@ export default function BookmarkPage() {
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Bookmark className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无网络收藏</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无网络剪藏</h3>
                     <p className="text-gray-600">
-                      请使用右上角的"添加收藏"按钮开始收藏网络内容
+                      请使用右上角的"添加收藏"按钮开始剪藏网络内容
                     </p>
                   </CardContent>
                 </Card>

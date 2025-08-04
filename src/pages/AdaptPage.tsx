@@ -953,7 +953,7 @@ export default function AdaptPage() {
       }
 
       // ✅ FIXED: 移除字符数控制指令，避免在生成内容中显示字符数信息
-      const optimalRange = calculateOptimalCharCount(platformId, userCharLimit);
+      const optimalRange = calculateOptimalCharCount(platformId, charCountControl.finalLimit);
       const charCountInstruction = `【内容生成要求】
 平台特性：${platformAdvice}
 重要要求：
