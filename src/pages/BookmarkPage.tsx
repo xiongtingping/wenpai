@@ -491,13 +491,13 @@ export default function BookmarkPage() {
   const getTypeInfo = (type: string) => {
     switch (type) {
       case 'collection':
-        return { icon: <Bookmark className="w-4 h-4" />, name: '网络收藏' };
+        return { icon: Bookmark, name: '网络收藏' };
       case 'extraction':
-        return { icon: <Zap className="w-4 h-4" />, name: '内容提取' };
+        return { icon: Zap, name: '内容提取' };
       case 'copywriting':
-        return { icon: <Brain className="w-4 h-4" />, name: '文案管理' };
+        return { icon: Brain, name: '文案管理' };
       default:
-        return { icon: <FileText className="w-4 h-4" />, name: '其他' };
+        return { icon: FileText, name: '其他' };
     }
   };
 
@@ -855,7 +855,7 @@ export default function BookmarkPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="outline" className="text-xs">
-                              {typeInfo.icon}
+                              <typeInfo.icon className="w-4 h-4" />
                               <span className="ml-1">{typeInfo.name}</span>
                             </Badge>
                             <h3 
