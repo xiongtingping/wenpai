@@ -145,7 +145,7 @@ export interface ImageGenerationResponse {
 export async function callAI(params: AICallParams): Promise<AIResponse> {
   const startTime = Date.now();
   const {
-    prompt,
+    prompt = '', // ✅ FIXED: 添加默认值防止undefined错误
     model = 'gpt-4o', // ✅ FIXED: 默认使用OpenAI GPT-4o，已验证有效
     maxTokens = 1000,
     temperature = 0.7,
@@ -157,6 +157,11 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     variationLevel,
     styleVariation
   } = params;
+
+  // ✅ FIXED: 验证prompt参数
+  if (!prompt || typeof prompt !== 'string') {
+    throw new Error('prompt参数不能为空且必须是字符串');
+  }
 
   // 声明变量在函数顶层，确保在catch块中可访问
   let selectedConfig: { baseURL: string; apiKey: string } = { baseURL: '', apiKey: '' };

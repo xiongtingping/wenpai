@@ -165,24 +165,25 @@ export class AIService implements IAIService {
    * 调用单个模型
    */
   private async callSingleModel(
-    model: string, 
-    prompt: string, 
+    model: string,
+    prompt: string,
     options: AICallOptions
   ): Promise<any> {
     const config = TitleGenerationConfig.aiService;
-    
-    const callOptions = {
+
+    const callParams = {
+      prompt,
       model,
       temperature: options.temperature ?? config.temperature,
-      max_tokens: options.maxTokens ?? config.maxTokens,
+      maxTokens: options.maxTokens ?? config.maxTokens,
       timeout: options.timeout ?? config.timeout
     };
 
     // 根据模型选择调用方式
     if (config.retries > 0) {
-      return await callAIWithRetry(prompt, config.retries);
+      return await callAIWithRetry(callParams, config.retries);
     } else {
-      return await callAI(prompt);
+      return await callAI(callParams);
     }
   }
 
