@@ -108,6 +108,8 @@ export class BatchForwardAutomation {
     platformId: string;
     platformName: string;
     content: string;
+    title?: string;
+    tags?: string[];
   }>> {
     return new Promise((resolve) => {
       try {
@@ -115,6 +117,8 @@ export class BatchForwardAutomation {
           platformId: string;
           platformName: string;
           content: string;
+          title?: string;
+          tags?: string[];
         }> = [];
 
         // 查找所有平台结果卡片（基于实际DOM结构）
@@ -128,6 +132,9 @@ export class BatchForwardAutomation {
 
           // 查找版本内容（优先版本A，如果没有则查找版本B）
           let content = '';
+          let title = '';
+          let tags: string[] = [];
+
           const versionAElement = card.querySelector('[data-testid="version-a-content"]');
           const versionBElement = card.querySelector('[data-testid="version-b-content"]');
 
@@ -136,6 +143,19 @@ export class BatchForwardAutomation {
           } else if (versionBElement && versionBElement.textContent?.trim()) {
             content = versionBElement.textContent.trim();
           }
+
+          // 查找标题
+          const titleElement = card.querySelector('[data-testid="platform-title"], [data-testid="version-a-title"], [data-testid="version-b-title"]');
+          if (titleElement && titleElement.textContent?.trim()) {
+            title = titleElement.textContent.trim();
+          }
+
+          // 查找标签
+          const tagElements = card.querySelectorAll('[data-testid="platform-tag"], [data-testid="hashtag"], .hashtag, .tag');
+          tags = Array.from(tagElements)
+            .map(el => el.textContent?.trim() || '')
+            .filter(tag => tag.length > 0)
+            .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
 
           // 如果找不到版本内容，尝试查找其他可能的内容元素
           if (!content) {
@@ -153,7 +173,9 @@ export class BatchForwardAutomation {
             platformData.push({
               platformId,
               platformName,
-              content
+              content,
+              title: title || `${content.substring(0, 30)}...`,
+              tags
             });
           }
         });
@@ -214,20 +236,37 @@ export class BatchForwardAutomation {
     platformId: string;
     platformName: string;
     content: string;
+    title?: string;
+    tags?: string[];
   }): Promise<ForwardResult> {
     try {
       console.log(`📝 处理 ${platformData.platformName} (${platformData.platformId})`);
 
-      // 复制内容到剪贴板
-      await this.copyContentToClipboard(platformData.content);
+      // 构建完整的转发内容（包含标题、内容、标签）
+      let fullContent = platformData.content;
+
+      if (platformData.title && platformData.title !== `${platformData.content.substring(0, 30)}...`) {
+        fullContent = `${platformData.title}\n\n${platformData.content}`;
+      }
+
+      if (platformData.tags && platformData.tags.length > 0) {
+        fullContent += `\n\n${platformData.tags.join(' ')}`;
+      }
+
+      // 复制完整内容到剪贴板
+      await this.copyContentToClipboard(fullContent);
 
       // 获取平台发布URL
       const publishUrl = this.getPlatformPublishUrl(platformData.platformId);
       if (!publishUrl) {
         return {
           platformId: platformData.platformId,
+          platformName: platformData.platformId, // 添加缺失的属性
           success: false,
-          error: '未找到该平台的发布URL'
+          error: '未找到该平台的发布URL',
+          method: 'browser' as const, // 添加缺失的属性
+          timestamp: Date.now(), // 添加缺失的属性
+          retryCount: 0 // 添加缺失的属性
         };
       }
 

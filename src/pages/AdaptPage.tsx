@@ -2954,12 +2954,30 @@ export default function AdaptPage() {
         const result = results.find(r => r.platformId === pid);
         if (!result) return null;
 
-        // 获取内容
+        // 获取内容、标题和标签
         let content = '';
+        let title = '';
+        let tags: string[] = [];
+
         if (result.versions && result.versions.length > 0) {
-          content = result.versions[0].content;
+          // ✅ 使用AI生成的版本数据
+          const version = result.versions[0];
+          content = version.content;
+          title = version.title || `${content.substring(0, 30)}...`;
+
+          // 从提取的标签映射中获取标签
+          const versionKey = `${pid}-version-a`;
+          const extractedTags = extractedTagsMap[versionKey] || [];
+          tags = extractedTags.map(tag => tag.startsWith('#') ? tag : `#${tag}`);
         } else if (result.content) {
+          // ✅ 使用AI生成的基础数据
           content = result.content;
+          title = `${content.substring(0, 30)}...`; // 备用标题
+
+          // 尝试从结果中获取标签
+          if (result.tags && Array.isArray(result.tags)) {
+            tags = result.tags.map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+          }
         }
 
         if (!content) return null;
@@ -2968,22 +2986,26 @@ export default function AdaptPage() {
         const platform = platforms.find(p => p.id === pid);
         if (!platform) return null;
 
-        // 生成标题（从TitleGenerator获取）
-        const titleResult = results.find(r => r.platformId === pid);
-        const title = `${content.substring(0, 30)}...`; // 默认标题
-
-        // 生成标签（从PlatformHashtags获取）
-        const tags: string[] = [];
-        try {
-          // 这里可以调用标签生成逻辑
-          const { hashtagGenerator } = await import('@/utils/hashtagGenerator');
-          const hashtagSuggestions = await hashtagGenerator.generateHashtags(content, {
-            platformId: pid,
-            maxTags: 5
-          });
-          tags.push(...hashtagSuggestions.map(h => `#${h.tag}`));
-        } catch (error) {
-          console.error('生成标签失败:', error);
+        // 如果没有标签，尝试从提取的标签映射中获取
+        if (tags.length === 0) {
+          const platformKey = `${pid}-version-a`;
+          const extractedTags = extractedTagsMap[platformKey] || [];
+          if (extractedTags.length > 0) {
+            tags = extractedTags.map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+          } else {
+            // 最后备用方案：生成标签
+            try {
+              const { hashtagGenerator } = await import('@/utils/hashtagGenerator');
+              const hashtagSuggestions = await hashtagGenerator.generateHashtags(content, {
+                platformId: pid,
+                maxTags: 5
+              });
+              tags = hashtagSuggestions.map(h => `#${h.tag}`);
+            } catch (error) {
+              console.error('生成标签失败:', error);
+              tags = []; // 确保tags是数组
+            }
+          }
         }
 
         return {
@@ -2991,9 +3013,9 @@ export default function AdaptPage() {
           name: platform.name,
           icon: platform.name.charAt(0),
           url: platformUrls[pid] || `https://${pid}.com`,
-          title,
-          content,
-          tags
+          title,    // ✅ 使用AI生成的标题
+          content,  // ✅ 使用AI生成的内容
+          tags      // ✅ 使用AI生成过程中提取的标签
         };
       })
     );
