@@ -4,7 +4,7 @@ import {
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
   Smile, FileText, Hash, Save, Twitter, SquarePlay,
   Edit, Heart, Copy, ExternalLink, Languages, Globe, Zap, Rss, Settings, Check, Cpu, Sparkles, Bot, Info,
-  Facebook, Linkedin, Instagram, User
+  Facebook, Linkedin, Instagram, User, CheckCircle, Circle
 } from "lucide-react";
 import {
   getCharCountMax as getConfigCharCountMax,
@@ -867,6 +867,22 @@ export default function AdaptPage() {
 
   // 存储提取的标签，用于传递给PlatformHashtags组件
   const [extractedTagsMap, setExtractedTagsMap] = useState<Record<string, string[]>>({});
+
+  // 批量转发版本选择状态 - 默认选择版本A
+  const [selectedVersionsForBatch, setSelectedVersionsForBatch] = useState<Record<string, 'version-a' | 'version-b'>>({});
+
+  // 处理版本选择
+  const handleVersionSelect = (platformId: string, versionId: 'version-a' | 'version-b') => {
+    setSelectedVersionsForBatch(prev => ({
+      ...prev,
+      [platformId]: versionId
+    }));
+  };
+
+  // 获取选中的版本，默认为版本A
+  const getSelectedVersion = (platformId: string): 'version-a' | 'version-b' => {
+    return selectedVersionsForBatch[platformId] || 'version-a';
+  };
 
   // 生成多个版本的内容
   const generateMultipleVersions = async (basePrompt: string, platformId: string): Promise<ContentVersion[]> => {
@@ -2960,13 +2976,16 @@ export default function AdaptPage() {
         let tags: string[] = [];
 
         if (result.versions && result.versions.length > 0) {
-          // ✅ 使用AI生成的版本数据
-          const version = result.versions[0];
+          // ✅ 使用选中的版本数据
+          const selectedVersionId = getSelectedVersion(pid);
+          const versionIndex = selectedVersionId === 'version-a' ? 0 : 1;
+          const version = result.versions[versionIndex] || result.versions[0]; // 备用第一个版本
+
           content = version.content;
           title = version.title || `${content.substring(0, 30)}...`;
 
           // 从提取的标签映射中获取标签
-          const versionKey = `${pid}-version-a`;
+          const versionKey = `${pid}-${selectedVersionId}`;
           const extractedTags = extractedTagsMap[versionKey] || [];
           tags = extractedTags.map(tag => tag.startsWith('#') ? tag : `#${tag}`);
         } else if (result.content) {
@@ -4618,22 +4637,25 @@ ${dimensions.join('\n\n')}
                                           className={copyStates.has(`copy-version-a-${result.platformId}`) ? 'bg-green-50 border-green-200 text-green-600' : ''}
                                         >
                                           <Copy className="h-4 w-4 mr-1" />
-                                          {copyStates.has(`copy-version-a-${result.platformId}`) ? '已复制 ✓' : '一键复制'}
+                                          {copyStates.has(`copy-version-a-${result.platformId}`) ? '已复制 ✓' : '复制'}
                                         </Button>
 
                                         <Button
                                           size="sm"
-                                          variant="default"
-                                          onClick={() => handleVersionPublish(result.platformId, 'version-a')}
-                                          disabled={publishingPlatforms.has(result.platformId)}
+                                          variant={getSelectedVersion(result.platformId) === 'version-a' ? 'default' : 'outline'}
+                                          onClick={() => handleVersionSelect(result.platformId, 'version-a')}
                                         >
-                                          <ExternalLink className="h-4 w-4 mr-1" />
-                                          {publishingPlatforms.has(result.platformId)
-                                            ? '发布中...'
-                                            : publishMode === 'api'
-                                              ? 'API直发'
-                                              : '立刻发布'
-                                          }
+                                          {getSelectedVersion(result.platformId) === 'version-a' ? (
+                                            <>
+                                              <CheckCircle className="h-4 w-4 mr-1" />
+                                              已选择版本A
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Circle className="h-4 w-4 mr-1" />
+                                              选择版本A
+                                            </>
+                                          )}
                                         </Button>
                                       </div>
                                     </div>
@@ -4773,22 +4795,25 @@ ${dimensions.join('\n\n')}
                                           className={copyStates.has(`copy-version-b-${result.platformId}`) ? 'bg-green-50 border-green-200 text-green-600' : ''}
                                         >
                                           <Copy className="h-4 w-4 mr-1" />
-                                          {copyStates.has(`copy-version-b-${result.platformId}`) ? '已复制 ✓' : '一键复制'}
+                                          {copyStates.has(`copy-version-b-${result.platformId}`) ? '已复制 ✓' : '复制'}
                                         </Button>
 
                                         <Button
                                           size="sm"
-                                          variant="default"
-                                          onClick={() => handleVersionPublish(result.platformId, 'version-b')}
-                                          disabled={publishingPlatforms.has(result.platformId)}
+                                          variant={getSelectedVersion(result.platformId) === 'version-b' ? 'default' : 'outline'}
+                                          onClick={() => handleVersionSelect(result.platformId, 'version-b')}
                                         >
-                                          <ExternalLink className="h-4 w-4 mr-1" />
-                                          {publishingPlatforms.has(result.platformId)
-                                            ? '发布中...'
-                                            : publishMode === 'api'
-                                              ? 'API直发'
-                                              : '立刻发布'
-                                          }
+                                          {getSelectedVersion(result.platformId) === 'version-b' ? (
+                                            <>
+                                              <CheckCircle className="h-4 w-4 mr-1" />
+                                              已选择版本B
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Circle className="h-4 w-4 mr-1" />
+                                              选择版本B
+                                            </>
+                                          )}
                                         </Button>
                                       </div>
                                     </div>
@@ -5027,10 +5052,10 @@ ${dimensions.join('\n\n')}
           <DialogTitle>批量一键转发</DialogTitle>
         </DialogHeader>
         <div className="py-2 text-gray-700">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-            <h4 className="font-semibold text-amber-800 mb-2">📢 重要提示</h4>
-            <p className="text-sm text-amber-700">
-              跳转后请手动登录各平台，然后粘贴已复制的内容并发布。系统将依次引导您到各个平台。
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <h4 className="font-semibold text-blue-800 mb-2">📋 版本选择说明</h4>
+            <p className="text-sm text-blue-700">
+              批量转发将使用您选择的版本内容。默认选择版本A，您可以在上方为每个平台单独选择版本A或版本B。
             </p>
           </div>
 
