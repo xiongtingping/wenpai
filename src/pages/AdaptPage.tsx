@@ -87,7 +87,6 @@ import {
   type AIModel 
 } from "@/config/aiModels";
 import { useAuthStore } from "@/store/authStore";
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
@@ -603,9 +602,6 @@ export default function AdaptPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-
-  // 认证相关hooks
-  const { user, isAuthenticated, login } = useUnifiedAuth();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
@@ -3759,40 +3755,7 @@ ${charCountControl.source === 'platform-specific'
 - 随机性：在保持质量的前提下增加内容的随机性和新鲜感`;
   };
 
-  /**
-   * 检查是否应该显示升级按钮
-   * 只有高级版用户（且在有效期内）不显示，其他用户都显示
-   */
-  const shouldShowUpgradeButton = () => {
-    // 未登录用户显示
-    if (!user || typeof user !== 'object') return true;
 
-    const userObj = user as Record<string, unknown>;
-
-    // 检查是否是高级版用户
-    const isPremiumUser = userObj.tier === 'premium' ||
-                         userObj.plan === 'premium' ||
-                         userObj.subscriptionTier === 'premium' ||
-                         userObj.userPlan === 'premium';
-
-    // 如果是高级版用户，检查是否在有效期内
-    if (isPremiumUser) {
-      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
-
-      if (subscriptionEndDate && typeof subscriptionEndDate === 'string') {
-        const endDate = new Date(subscriptionEndDate);
-        const now = new Date();
-
-        // 如果订阅还在有效期内，不显示升级按钮
-        if (endDate > now) {
-          return false;
-        }
-      }
-    }
-
-    // 其他情况都显示升级按钮
-    return true;
-  };
 
   // 临时调试：添加控制台日志
   console.log('AdaptPage rendering...', { generating, results: results.length });
@@ -3816,22 +3779,6 @@ ${charCountControl.source === 'platform-specific'
               <History className="h-4 w-4" />
               <span>历史记录</span>
             </Button>
-
-            {/* Upgrade Button - Only show for non-premium users */}
-            {shouldShowUpgradeButton() && (
-              <Button
-                onClick={() => {
-                  if (isAuthenticated) {
-                    navigate('/payment');
-                  } else {
-                    login('/payment');
-                  }
-                }}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
-              >
-                立即解锁高级功能
-              </Button>
-            )}
           </div>
         }
       />
