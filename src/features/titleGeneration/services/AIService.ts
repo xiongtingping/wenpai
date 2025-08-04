@@ -289,9 +289,9 @@ export class AIService implements IAIService {
    * 获取用户提示词
    */
   private getUserPrompt(
-    content: string, 
-    platform: string, 
-    styles: string[], 
+    content: string,
+    platform: string,
+    styles: string[],
     count: number
   ): string {
     return `请为以下内容生成${count}个${platform}平台的标题：
@@ -304,7 +304,28 @@ export class AIService implements IAIService {
 - 平台：${platform}
 - 确保标题多样性和高质量
 
-请返回JSON格式的结果。`;
+请严格按照以下JSON格式返回结果：
+
+\`\`\`json
+{
+  "titles": [
+    {
+      "title": "标题内容",
+      "style": "informative",
+      "length": 15,
+      "semanticFit": 0.85,
+      "reasoning": "生成理由"
+    }
+  ]
+}
+\`\`\`
+
+注意：
+1. 必须返回有效的JSON格式
+2. titles数组必须包含${count}个标题对象
+3. 每个标题对象必须包含title、style、length、semanticFit、reasoning字段
+4. title字段不能为空
+5. semanticFit值应在0.7-1.0之间`;
   }
 }
 

@@ -390,6 +390,8 @@ export class TitleGenerationService implements ITitleGenerationService {
    */
   private parseAIResponse(content: string, platform: PlatformId): Partial<GeneratedTitle>[] {
     try {
+      console.log('🔍 开始解析AI响应:', content.substring(0, 200) + '...');
+
       // 处理markdown格式的JSON响应
       let jsonContent = content.trim();
 
@@ -400,32 +402,105 @@ export class TitleGenerationService implements ITitleGenerationService {
         jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
       }
 
+      console.log('🔍 清理后的JSON内容:', jsonContent.substring(0, 200) + '...');
+
       // 尝试解析JSON
       const parsed = JSON.parse(jsonContent);
-      const titles = parsed.titles || [];
+      console.log('🔍 解析后的对象:', parsed);
 
-      return titles.map((title: any, index: number) => ({
-        id: `${platform}_${Date.now()}_${index}`,
-        title: title.title || '',
-        length: (title.title || '').length,
-        style: title.style || 'informative',
-        confidence: title.semanticFit || 0.8,
-        semanticFit: title.semanticFit || 0.8,
-        platform: platform,
-        isComplete: true,
-        styleDescription: title.style || 'informative',
-        generationReason: title.reasoning || 'AI生成',
-        extractedContent: title.title?.substring(0, 50) || ''
-      }));
+      // 尝试多种可能的数据结构
+      let titles = [];
+      if (parsed.titles && Array.isArray(parsed.titles)) {
+        titles = parsed.titles;
+      } else if (Array.isArray(parsed)) {
+        titles = parsed;
+      } else if (parsed.data && Array.isArray(parsed.data)) {
+        titles = parsed.data;
+      } else if (parsed.results && Array.isArray(parsed.results)) {
+        titles = parsed.results;
+      }
+
+      console.log(`🔍 提取到的标题数组:`, titles);
+      console.log(`🔍 标题数量: ${titles.length}`);
+
+      if (titles.length === 0) {
+        console.warn('⚠️ 没有找到标题数据，尝试从响应中提取文本');
+        // 如果没有找到结构化数据，尝试从文本中提取标题
+        const textTitles = this.extractTitlesFromText(content);
+        if (textTitles.length > 0) {
+          titles = textTitles;
+        }
+      }
+
+      const result = titles.map((title: any, index: number) => {
+        // 处理不同的标题格式
+        let titleText = '';
+        if (typeof title === 'string') {
+          titleText = title;
+        } else if (title.title) {
+          titleText = title.title;
+        } else if (title.text) {
+          titleText = title.text;
+        } else if (title.content) {
+          titleText = title.content;
+        }
+
+        return {
+          id: `${platform}_${Date.now()}_${index}`,
+          title: titleText,
+          length: titleText.length,
+          style: title.style || 'informative',
+          confidence: title.semanticFit || title.confidence || 0.8,
+          semanticFit: title.semanticFit || title.confidence || 0.8,
+          platform: platform,
+          isComplete: true,
+          styleDescription: title.style || 'informative',
+          generationReason: title.reasoning || title.reason || 'AI生成',
+          extractedContent: titleText.substring(0, 50)
+        };
+      });
+
+      console.log(`✅ 成功解析 ${result.length} 个标题`);
+      return result;
+
     } catch (error) {
-      console.error('解析AI响应失败:', error);
-      console.error('原始内容:', content);
+      console.error('❌ 解析AI响应失败:', error);
+      console.error('📄 原始内容:', content);
       throw new TitleGenerationError(
         'AI响应格式错误',
         'INVALID_AI_RESPONSE',
         { content, error }
       );
     }
+  }
+
+  /**
+   * 从文本中提取标题（备用方案）
+   */
+  private extractTitlesFromText(content: string): string[] {
+    const titles: string[] = [];
+
+    // 尝试匹配常见的标题格式
+    const patterns = [
+      /^\d+\.\s*(.+)$/gm,  // 1. 标题
+      /^-\s*(.+)$/gm,      // - 标题
+      /^\*\s*(.+)$/gm,     // * 标题
+      /^"(.+)"$/gm,        // "标题"
+      /^【(.+)】$/gm        // 【标题】
+    ];
+
+    for (const pattern of patterns) {
+      const matches = content.matchAll(pattern);
+      for (const match of matches) {
+        if (match[1] && match[1].trim().length > 0) {
+          titles.push(match[1].trim());
+        }
+      }
+      if (titles.length > 0) break;
+    }
+
+    console.log(`🔍 从文本提取到 ${titles.length} 个标题:`, titles);
+    return titles;
   }
 
   /**
