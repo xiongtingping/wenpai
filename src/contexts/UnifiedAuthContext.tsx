@@ -476,7 +476,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (isDevelopment) {
         console.log('🔓 开发环境：跳过Guard弹窗，直接使用模拟用户');
         
-        // 创建模拟用户数据
+        // 创建模拟用户数据 - 高级版用户测试升级按钮隐藏逻辑
         const mockUser: UserInfo = {
           id: 'dev-user-001',
           username: 'dev-user',
@@ -486,7 +486,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           loginTime: new Date().toISOString(),
           roles: ['user', 'vip'],
           permissions: ['auth:required', 'vip:required', 'feature:creative-studio', 'feature:brand-library'],
-          isVip: true
+          isVip: true,
+          // ✅ FIXED: 2025-08-04 添加高级版用户标识，测试升级按钮隐藏逻辑
+          plan: 'premium',
+          tier: 'premium',
+          subscriptionEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1年后过期
         };
         
         setUser(mockUser);

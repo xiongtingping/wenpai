@@ -1054,11 +1054,14 @@ export default function AdaptPage() {
           [`${platformId}-version-a`]: tagsA
         }));
 
+        // ✅ FIXED: 生成有意义的标题而不是硬编码"版本A"
+        const meaningfulTitleA = generateMeaningfulTitle(cleanContentA, platformId);
+
         versions.push({
           id: 'version-a',
           content: cleanContentA,
           style: 'standard',
-          title: '版本A',
+          title: meaningfulTitleA,
           charCount: cleanContentA.length,
           validation: validateCharacterCount(cleanContentA, platformId, charCountControl.finalLimit)
         });
@@ -1101,11 +1104,14 @@ export default function AdaptPage() {
           [`${platformId}-version-b`]: tagsB
         }));
 
+        // ✅ FIXED: 生成有意义的标题而不是硬编码"版本B"
+        const meaningfulTitleB = generateMeaningfulTitle(cleanContentB, platformId);
+
         versions.push({
           id: 'version-b',
           content: cleanContentB,
           style: 'creative',
-          title: '版本B',
+          title: meaningfulTitleB,
           charCount: cleanContentB.length,
           validation: validateCharacterCount(cleanContentB, platformId, charCountControl.finalLimit)
         });
@@ -3756,6 +3762,33 @@ ${charCountControl.source === 'platform-specific'
   };
 
 
+
+  /**
+   * 生成有意义的标题
+   * 从内容中提取关键信息作为标题，而不是使用"版本A"、"版本B"
+   */
+  const generateMeaningfulTitle = (content: string, platformId: string): string => {
+    if (!content || content.trim().length === 0) {
+      return '内容标题';
+    }
+
+    // 清理内容，移除多余的换行和空格
+    const cleanContent = content.trim().replace(/\n+/g, ' ').replace(/\s+/g, ' ');
+
+    // 尝试提取第一句话作为标题
+    const firstSentence = cleanContent.split(/[。！？.!?]/)[0];
+    if (firstSentence && firstSentence.length > 5 && firstSentence.length <= 50) {
+      return firstSentence.trim();
+    }
+
+    // 如果第一句话不合适，使用前30个字符
+    const shortTitle = cleanContent.substring(0, 30);
+    if (shortTitle.length < cleanContent.length) {
+      return shortTitle + '...';
+    }
+
+    return shortTitle;
+  };
 
   // 临时调试：添加控制台日志
   console.log('AdaptPage rendering...', { generating, results: results.length });

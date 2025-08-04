@@ -906,6 +906,40 @@
   padding: 0;
 }
 
+/* ✅ FIXED: 全站图标文字对齐修复 */
+.icon-text-align {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px gap */
+}
+
+.icon-text-align-sm {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem; /* 4px gap */
+}
+
+.icon-text-align-lg {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* 12px gap */
+}
+
+/* 确保图标在flex容器中不被压缩 */
+.icon-text-align > svg,
+.icon-text-align-sm > svg,
+.icon-text-align-lg > svg {
+  flex-shrink: 0;
+}
+
+/* 修复可能的line-height问题 */
+.icon-text-align > span,
+.icon-text-align-sm > span,
+.icon-text-align-lg > span {
+  line-height: 1.2;
+  vertical-align: middle;
+}
+
 /* 副标题排版优化 */
 .hero-subtitle-container {
   line-height: 1.6;

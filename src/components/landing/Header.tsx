@@ -125,10 +125,21 @@ export function Header() {
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <img src="https://static.devv.ai/ep7eod98hhq8.png" alt="文派" className="h-8 w-8" />
-          <span className="font-bold text-xl text-gray-800">文派</span>
+        {/* Logo - 重新设计的现代化Logo */}
+        <Link to="/" className="flex items-center space-x-3 group">
+          <div className="relative">
+            {/* 主Logo圆形背景 */}
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center relative overflow-hidden">
+              {/* 背景装饰纹理 */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
+              {/* 文字Logo */}
+              <span className="text-white text-lg font-bold relative z-10 group-hover:scale-110 transition-transform duration-300">文</span>
+            </div>
+            {/* 悬停光晕效果 */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-lg"></div>
+          </div>
+          <span className="font-bold text-xl bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">文派</span>
         </Link>
         
         {/* Desktop Menu */}

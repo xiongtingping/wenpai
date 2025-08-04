@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Badge } from '@/components/ui/badge';
 import { UpgradeButton } from '@/components/ui/upgrade-button';
-import { 
+import {
   Sparkles,
   Zap,
   Home,
@@ -32,7 +32,9 @@ import {
   Settings,
   Crown,
   FolderOpen,
-  ChevronRight
+  ChevronRight,
+  Database,
+  MessageSquare
 } from 'lucide-react';
 
 /**
@@ -108,13 +110,45 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     parent: '/library',
     category: 'content-tools',
   },
+  '/brand-library': {
+    path: '/brand-library',
+    title: '品牌库',
+    icon: Users,
+    level: 2,
+    parent: '/',
+    category: 'brand-tools',
+  },
+  '/brand-corpus': {
+    path: '/brand-corpus',
+    title: '品牌语料库',
+    icon: Database,
+    level: 3,
+    parent: '/brand-library',
+    category: 'brand-tools',
+  },
+  '/brand-assets': {
+    path: '/brand-assets',
+    title: '资料管理',
+    icon: FolderOpen,
+    level: 3,
+    parent: '/brand-library',
+    category: 'brand-tools',
+  },
   '/content-extractor': {
     path: '/content-extractor',
     title: '内容提取',
     icon: FileText,
     level: 3,
-    parent: '/library',
-    category: 'content-tools',
+    parent: '/brand-library',
+    category: 'brand-tools',
+  },
+  '/pdf-chat': {
+    path: '/pdf-chat',
+    title: 'PDF对话',
+    icon: MessageSquare,
+    level: 4,
+    parent: '/content-extractor',
+    category: 'brand-tools',
   },
   '/emoji-generator': {
     path: '/emoji-generator',
@@ -156,14 +190,7 @@ const PAGE_CONFIGS: Record<string, PageConfig> = {
     parent: '/',
     category: 'insight-tools',
   },
-  '/brand-library': {
-    path: '/brand-library',
-    title: '品牌库',
-    icon: Users,
-    level: 2,
-    parent: '/',
-    category: 'insight-tools',
-  },
+
   '/profile': {
     path: '/profile',
     title: '个人中心',

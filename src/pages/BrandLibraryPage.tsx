@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Database, Upload, FileText, File, FileImage, 
+  Database, Upload, FileText, File, FileImage,
   AlertCircle, Info, Search, Check, Clock, Trash2,
   SortAsc, Filter, Download, Eye, Edit, Copy,
   Globe, Users, Target, Zap, Brain, Sparkles,
@@ -1023,9 +1023,19 @@ export default function BrandLibraryPage() {
               </Alert>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="dimensions">品牌语料库</TabsTrigger>
-            <TabsTrigger value="assets">资料管理</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="dimensions" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              品牌语料库
+            </TabsTrigger>
+            <TabsTrigger value="assets" className="flex items-center gap-2">
+              <FileUp className="h-4 w-4" />
+              资料管理
+            </TabsTrigger>
+            <TabsTrigger value="extractor" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              内容提取
+            </TabsTrigger>
           </TabsList>
 
           {/* 品牌语料库维度 */}
@@ -1414,6 +1424,53 @@ export default function BrandLibraryPage() {
               </CardContent>
             </Card>
                 </TabsContent>
+
+          {/* 内容提取功能 */}
+          <TabsContent value="extractor" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  内容提取工具
+                </CardTitle>
+                <CardDescription>
+                  从网页、文件或文本中提取有价值的内容，支持AI智能总结和PDF对话功能
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">内容提取功能</h3>
+                  <p className="text-gray-600 mb-6">
+                    强大的内容提取工具，支持多种格式和智能分析
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+                    <Button
+                      onClick={() => navigate('/content-extractor')}
+                      className="flex items-center gap-2"
+                    >
+                      <FileText className="h-4 w-4" />
+                      内容提取
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsPDFChatOpen(true)}
+                      className="flex items-center gap-2"
+                      disabled={brandAssets.length === 0}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      PDF对话
+                    </Button>
+                  </div>
+                  {brandAssets.length === 0 && (
+                    <p className="text-sm text-gray-500 mt-4">
+                      请先在"资料管理"中上传PDF文件以启用PDF对话功能
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
               </Tabs>
                 </div>
 

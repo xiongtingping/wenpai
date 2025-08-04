@@ -281,7 +281,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const [titleFeedback, setTitleFeedback] = useState<Record<string, 'like' | 'dislike'>>({});
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [editingTitleText, setEditingTitleText] = useState<string>('');
-  const [copyFeedback, setCopyFeedback] = useState<{id: string, message: string} | null>(null);
+
 
   const { toast } = useToast();
 
@@ -1070,69 +1070,44 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     onTitleChange?.(title);
   };
 
-  // ✅ FIXED: 复制标题功能 - 确保toast提醒正确显示
-  const handleCopyTitle = (title: string) => {
-    // 使用更可靠的复制方法
-    const copyToClipboard = async (text: string) => {
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          // 降级方案：使用传统方法
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          textArea.style.position = 'fixed';
-          textArea.style.left = '-999999px';
-          textArea.style.top = '-999999px';
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-        }
-        
-        // ✅ FIXED: 改用按钮状态变化提醒
-        const titlePreview = text.length > 25 ? text.substring(0, 25) + '...' : text;
-        console.log('🎯 准备显示复制提醒:', titlePreview);
-        
-        // 使用按钮状态变化作为提醒
-        const copyButton = document.querySelector(`[data-copy-title="${text}"]`) as HTMLButtonElement;
-        if (copyButton) {
-          const originalText = copyButton.innerHTML;
-          copyButton.innerHTML = '✅ 已复制';
-          copyButton.classList.add('bg-green-500', 'text-white');
-          copyButton.disabled = true;
-          
-          setTimeout(() => {
-            copyButton.innerHTML = originalText;
-            copyButton.classList.remove('bg-green-500', 'text-white');
-            copyButton.disabled = false;
-          }, 2000);
-        }
-        
-        // 同时显示临时文本提示
-        setCopyFeedback({
-          id: `copy-${Date.now()}`,
-          message: `"${titlePreview}" 已复制到剪贴板`
-        });
-        
-        setTimeout(() => {
-          setCopyFeedback(null);
-        }, 3000);
-        
-        console.log('✅ 复制提醒已触发');
-      } catch (error) {
-        console.error('复制失败:', error);
-        toast({
-          title: "❌ 复制失败",
-          description: "请手动选择并复制标题内容",
-          variant: "destructive",
-          duration: 4000, // 错误提醒显示更长时间
-        });
+  // ✅ FIXED: 简化复制标题功能 - 使用统一的toast提醒
+  const handleCopyTitle = async (title: string) => {
+    try {
+      // 使用现代剪贴板API
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(title);
+      } else {
+        // 降级方案：使用传统方法
+        const textArea = document.createElement('textarea');
+        textArea.value = title;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
       }
-    };
-    
-    copyToClipboard(title);
+
+      // 显示成功提醒
+      const titlePreview = title.length > 30 ? title.substring(0, 30) + '...' : title;
+      toast({
+        title: "✅ 标题已复制",
+        description: `"${titlePreview}" 已复制到剪贴板`,
+        duration: 2000,
+      });
+
+      console.log('✅ 标题复制成功:', titlePreview);
+    } catch (error) {
+      console.error('复制失败:', error);
+      toast({
+        title: "❌ 复制失败",
+        description: "请手动选择并复制标题内容",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   // Handle title feedback
@@ -1594,7 +1569,6 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                         }}
                         className="h-7 w-7 p-0 transition-all duration-200"
                         title="复制标题"
-                        data-copy-title={title.title}
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -1606,15 +1580,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
           </div>
         )}
 
-        {/* 复制反馈提示 */}
-        {copyFeedback && (
-          <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2">
-            <div className="flex items-center gap-2">
-              <Check className="h-4 w-4" />
-              <span className="text-sm font-medium">{copyFeedback.message}</span>
-            </div>
-          </div>
-        )}
+
 
         {/* Empty state */}
         {!isGenerating && titles.length === 0 && (

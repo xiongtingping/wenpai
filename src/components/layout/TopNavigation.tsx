@@ -106,15 +106,19 @@ export const TopNavigation: React.FC = () => {
         <div className="flex h-16 items-center justify-between">
           {/* 左侧Logo和导航 */}
           <div className="flex items-center space-x-6">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2 group">
+            {/* Logo - 重新设计的现代化Logo */}
+            <Link to="/" className="flex items-center space-x-3 group">
               <div className="relative">
-                <img 
-                  src="https://static.devv.ai/ep7eod98hhq8.png" 
-                  alt="文派" 
-                  className="h-8 w-8 group-hover:scale-110 transition-transform duration-200"
-                />
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-200 blur-sm"></div>
+                {/* 主Logo圆形背景 */}
+                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-110 flex items-center justify-center relative overflow-hidden">
+                  {/* 背景装饰纹理 */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50"></div>
+                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
+                  {/* 文字Logo */}
+                  <span className="text-white text-base font-bold relative z-10 group-hover:scale-110 transition-transform duration-300">文</span>
+                </div>
+                {/* 悬停光晕效果 */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl opacity-0 group-hover:opacity-25 transition-opacity duration-300 blur-md"></div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-200">
                 文派

@@ -50,6 +50,7 @@ import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
 import AuthingTestPage from '@/pages/AuthingTestPage';
 // 🚨 重新启用 UndefinedTestPage 用于验证修复效果
 import UndefinedTestPage from '@/pages/UndefinedTestPage';
+import UpgradeButtonTestPage from '@/pages/UpgradeButtonTestPage';
 import TitleGrammarTestPage from '@/pages/TitleGrammarTestPage';
 import TitleFixTestPage from '@/pages/TitleFixTestPage';
 import TitlePlatformSwitchTestPage from '@/pages/TitlePlatformSwitchTestPage';
@@ -202,6 +203,31 @@ function AppContent() {
               <BrandLibraryPage />
             </PermissionGuard>
           } />
+
+          {/* 品牌库子功能页面 */}
+          <Route path="/brand-corpus" element={
+            <PermissionGuard required="feature:brand-library">
+              <BrandLibraryPage />
+            </PermissionGuard>
+          } />
+
+          <Route path="/brand-assets" element={
+            <PermissionGuard required="feature:brand-library">
+              <BrandLibraryPage />
+            </PermissionGuard>
+          } />
+
+          <Route path="/content-extractor" element={
+            <PermissionGuard required="auth:required">
+              <ContentExtractorPage />
+            </PermissionGuard>
+          } />
+
+          <Route path="/pdf-chat" element={
+            <PermissionGuard required="auth:required">
+              <ContentExtractorPage />
+            </PermissionGuard>
+          } />
           
           <Route path="/profile" element={
             <PermissionGuard required="auth:required">
@@ -225,6 +251,7 @@ function AppContent() {
           <Route path="/authing-test" element={<AuthingTestPage />} />
           {/* 🚨 重新启用 UndefinedTestPage 路由用于验证修复效果 */}
           <Route path="/undefined-test" element={<UndefinedTestPage />} />
+          <Route path="/upgrade-button-test" element={<UpgradeButtonTestPage />} />
           <Route path="/test-login" element={<TestLoginPage />} />
           <Route path="/title-grammar-test" element={<TitleGrammarTestPage />} />
           <Route path="/title-fix-test" element={<TitleFixTestPage />} />
