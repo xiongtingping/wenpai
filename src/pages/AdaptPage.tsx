@@ -900,14 +900,17 @@ export default function AdaptPage() {
       console.log('使用模型:', selectedModel);
       console.log('提示词长度:', basePrompt.length);
 
-      // 使用新的配置系统计算字符数限制和token数
-      const userCharLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
-      const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
+      // 使用统一字符数控制系统获取最终限制
+      const charCountControl = getUnifiedCharCountLimit(
+        platformId,
+        globalSettings.charCountPreset,
+        platformSettings[platformId]?.charCount
+      );
       const platformAdvice = getPlatformCharCountAdvice(platformId);
 
       // 计算token数，确保有足够空间生成目标字符数的内容
       let maxTokens: number;
-      const targetChars = charCountConfig.target;
+      const targetChars = charCountControl.finalLimit;
 
       if (globalSettings.charCountPreset === 'detailed') {
         const minTokensFor800Chars = 800;
@@ -993,21 +996,24 @@ export default function AdaptPage() {
       console.log('创意版本结果:', creativeResult.success ? '成功' : `失败: ${creativeResult.error}`);
 
       if (standardResult.success && standardResult.content) {
-        const userSetLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
         const finalContent = standardResult.content;
 
-        // 静默验证字符数，不显示任何提示文案
-        const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
-        if (finalContent.length < charCountConfig.min) {
-          console.warn(`标准版本内容不足 ${finalContent.length}/${charCountConfig.min}字`);
+        // 使用统一字符数控制系统验证
+        const actualCharCount = finalContent.length;
+        const targetCharCount = charCountControl.finalLimit;
+        const minCharCount = charCountControl.range.min;
+        const maxCharCount = charCountControl.range.max;
+
+        // 验证字符数是否符合要求
+        if (actualCharCount < minCharCount) {
+          console.warn(`标准版本内容不足: ${actualCharCount}/${minCharCount} 字符，需要补充内容`);
+        } else if (actualCharCount > maxCharCount) {
+          console.warn(`标准版本内容超出限制: ${actualCharCount}/${maxCharCount} 字符，需要截断`);
+        } else {
+          console.log(`✅ 标准版本字符数符合要求: ${actualCharCount}字符（${minCharCount}-${maxCharCount}）`);
         }
 
-        // 静默处理超出限制的情况，不显示任何提示文案
-        if (finalContent.length > userSetLimit) {
-          console.warn(`标准版本内容超出限制 ${finalContent.length}/${userSetLimit}，保持内容完整`);
-        }
-
-        const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
+        const validation = validateCharacterCount(finalContent, platformId, targetCharCount);
 
         // 提取标签并清理内容
         const { cleanContent: cleanContentA, extractedTags: tagsA } = extractAndCleanContent(finalContent);
@@ -1034,25 +1040,27 @@ export default function AdaptPage() {
       }
 
       if (creativeResult.success && creativeResult.content) {
-        const userSetLimit = platformSettings[platformId]?.charCount || getCharCountMax(platformId);
         let finalContent = creativeResult.content;
-
-        // 使用新的配置系统验证字符数（仅记录日志，不添加警告文案）
-        // 静默验证字符数，不显示任何提示文案
-        const charCountConfig = getCharCountByPreset(platformId, globalSettings.charCountPreset);
-        if (finalContent.length < charCountConfig.min) {
-          console.warn(`创意版本内容不足 ${finalContent.length}/${charCountConfig.min}字`);
-        }
 
         // 清理生成内容中的多余文案
         finalContent = cleanGeneratedContent(finalContent);
 
-        // 静默处理超出限制的情况，不显示任何提示文案
-        if (finalContent.length > userSetLimit) {
-          console.warn(`创意版本内容超出限制 ${finalContent.length}/${userSetLimit}，保持内容完整`);
+        // 使用统一字符数控制系统验证
+        const actualCharCount = finalContent.length;
+        const targetCharCount = charCountControl.finalLimit;
+        const minCharCount = charCountControl.range.min;
+        const maxCharCount = charCountControl.range.max;
+
+        // 验证字符数是否符合要求
+        if (actualCharCount < minCharCount) {
+          console.warn(`创意版本内容不足: ${actualCharCount}/${minCharCount} 字符，需要补充内容`);
+        } else if (actualCharCount > maxCharCount) {
+          console.warn(`创意版本内容超出限制: ${actualCharCount}/${maxCharCount} 字符，需要截断`);
+        } else {
+          console.log(`✅ 创意版本字符数符合要求: ${actualCharCount}字符（${minCharCount}-${maxCharCount}）`);
         }
 
-        const validation = validateCharacterCount(finalContent, platformId, userSetLimit);
+        const validation = validateCharacterCount(finalContent, platformId, targetCharCount);
 
         // 提取标签并清理内容
         const { cleanContent: cleanContentB, extractedTags: tagsB } = extractAndCleanContent(finalContent);
@@ -1612,13 +1620,20 @@ export default function AdaptPage() {
           // 步骤2: 构建提示词
           updateStep(1, 'loading', '🧠 构建多维提示词...');
 
+          // 使用统一字符数控制系统获取目标字符数
+          const charCountControl = getUnifiedCharCountLimit(
+            platformId,
+            globalSettings.charCountPreset,
+            platformSettings[platformId]?.charCount
+          );
+
           // 使用多维矩阵提示词系统生成内容
           const matrixPrompt = await generateMatrixPrompt(
             originalContent.trim(),
             platformId,
             selectedFormId,
             selectedStyle,
-            platformSettings[platformId]?.charCount || getCharCountMax(platformId),
+            charCountControl.finalLimit,
             customPrompt,
             useBrandLibrary
           );
@@ -2853,13 +2868,20 @@ export default function AdaptPage() {
       // 步骤4: 处理响应
       updateStep(3, 'loading');
       
+      // 使用统一字符数控制系统获取目标字符数
+      const charCountControl = getUnifiedCharCountLimit(
+        platformId,
+        globalSettings.charCountPreset,
+        platformSettings[platformId]?.charCount
+      );
+
       // 使用多维矩阵提示词系统重新生成
       const matrixPrompt = await generateMatrixPrompt(
         originalContent.trim(),
         platformId,
         selectedFormId,
         selectedStyle,
-        platformSettings[platformId]?.charCount || getCharCountMax(platformId),
+        charCountControl.finalLimit,
         customPrompt,
         useBrandLibrary
       );
@@ -2874,24 +2896,26 @@ export default function AdaptPage() {
       });
 
       if (aiResult.success && aiResult.content) {
-          // 使用统一字符数控制系统获取最终限制
-          const charCountControl = getUnifiedCharCountLimit(
-            platformId,
-            globalSettings.charCountPreset,
-            platformSettings[platformId]?.charCount
-          );
-
           let finalContent = aiResult.content;
           let warningMessage = '重新生成完成';
+          const actualCharCount = finalContent.length;
 
-          // 如果内容超出统一控制系统确定的限制，进行截断处理
-          if (finalContent.length > charCountControl.finalLimit) {
+          // 验证字符数是否在允许范围内
+          const targetCharCount = charCountControl.finalLimit;
+          const minCharCount = charCountControl.range.min;
+          const maxCharCount = charCountControl.range.max;
+
+          // 检查字符数是否符合要求
+          if (actualCharCount < minCharCount) {
+            warningMessage = `⚠️ 重新生成内容不足：${actualCharCount}字符，要求${minCharCount}-${maxCharCount}字符`;
+            console.warn(`🔧 重新生成内容不足: ${actualCharCount}/${minCharCount} 字符，需要补充内容`);
+          } else if (actualCharCount > maxCharCount) {
             // 智能截断：尽量在句号、感叹号、问号处截断
             const truncatePoints = ['.', '。', '!', '！', '?', '？', '\n'];
-            let bestTruncateIndex = charCountControl.finalLimit;
+            let bestTruncateIndex = maxCharCount;
 
             // 在目标长度前寻找最佳截断点
-            for (let i = charCountControl.finalLimit - 1; i >= Math.max(0, charCountControl.finalLimit - 50); i--) {
+            for (let i = maxCharCount - 1; i >= Math.max(0, maxCharCount - 50); i--) {
               if (truncatePoints.includes(finalContent[i])) {
                 bestTruncateIndex = i + 1;
                 break;
@@ -2899,17 +2923,20 @@ export default function AdaptPage() {
             }
 
             finalContent = finalContent.substring(0, bestTruncateIndex).trim();
-            console.log(`🔧 重新生成内容超出限制，已智能截断: ${aiResult.content.length} -> ${finalContent.length} 字符`);
-            console.log(`🎯 字符数控制来源: ${charCountControl.description}`);
+
+            // 如果截断后仍然超出限制，强制截断
+            if (finalContent.length > maxCharCount) {
+              finalContent = finalContent.substring(0, maxCharCount).trim();
+            }
+
+            warningMessage = `🔧 重新生成内容已截断：${actualCharCount} -> ${finalContent.length}字符`;
+            console.log(`🔧 重新生成内容超出限制，已智能截断: ${actualCharCount} -> ${finalContent.length} 字符`);
+          } else {
+            warningMessage = `✅ 重新生成完成：${actualCharCount}字符（符合${minCharCount}-${maxCharCount}字符要求）`;
+            console.log(`✅ 重新生成字符数符合要求: ${actualCharCount}字符`);
           }
 
-          const actualCharCount = finalContent.length;
-
-          // 如果截断后仍然超出限制，强制截断
-          if (actualCharCount > charCountControl.finalLimit) {
-            finalContent = finalContent.substring(0, charCountControl.finalLimit).trim();
-            console.log(`🔧 强制截断到统一控制系统限制: ${charCountControl.finalLimit} 字符`);
-          }
+          console.log(`🎯 字符数控制来源: ${charCountControl.description}`);
 
           // 更新结果
           const currentResults = [...results];
@@ -3584,34 +3611,37 @@ ${dimensions.join('\n\n')}
 
     return `🚨 字符数严格控制指令（最高优先级）：
 - 控制来源：${charCountControl.description}
-- 最终限制：${charCountControl.finalLimit}字符（绝对不能超出）
-- 建议范围：${charCountControl.range.min}-${charCountControl.range.max}字符
+- 目标字符数：${charCountControl.finalLimit}字符
+- 严格范围：${charCountControl.range.min}-${charCountControl.range.max}字符
 - 平台建议：${platformAdvice}
 
 ⚠️ 核心要求（必须严格执行）：
-1. 生成的内容字符数必须 ≤ ${charCountControl.finalLimit}字符
-2. 优先在建议范围${charCountControl.range.min}-${charCountControl.range.max}字符内生成
-3. 绝对禁止超出最终限制${charCountControl.finalLimit}字符
-4. 内容必须在字符数限制内表达完整，不能出现截断
+1. 生成的内容字符数必须在${charCountControl.range.min}-${charCountControl.range.max}字符范围内
+2. 目标字符数为${charCountControl.finalLimit}字符，允许误差不超过5%
+3. 绝对禁止生成少于${charCountControl.range.min}字符的内容
+4. 绝对禁止生成超过${charCountControl.finalLimit}字符的内容
+5. 内容必须丰富完整，达到目标字符数要求
 
 📊 优先级说明：
 ${charCountControl.source === 'platform-specific'
-  ? '✅ 使用用户为此平台设置的自定义字符数（最高优先级）'
+  ? '✅ 使用用户为此平台设置的自定义字符数（最高优先级）- 必须严格遵守用户设置'
   : charCountControl.source === 'preset'
   ? '✅ 使用全局预设版本的字符数配置'
   : '✅ 使用平台自动适配字符数（平台限制的90%-95%）'
 }
 
-📝 内容优化策略：
-- 精准表达：用最少的字符传达最多的信息
-- 结构清晰：确保在限制内容量下逻辑完整
-- 重点突出：优先保留最核心的信息和价值
-- 语言精炼：避免冗余表达和无效词汇
+📝 内容生成策略（确保达到目标字符数）：
+- 详细描述：提供具体的细节和例子
+- 深入分析：增加背景信息和深层次解释
+- 实用建议：添加具体的操作步骤和注意事项
+- 丰富表达：使用多样化的句式和词汇
+- 补充信息：添加相关的知识点和扩展内容
 
-🔍 生成后验证：
-- 必须检查最终内容字符数
-- 如超出${charCountControl.finalLimit}字符，必须删减至限制内
-- 确保删减后内容仍然完整有价值`;
+🔍 生成后验证（关键步骤）：
+- 必须检查最终内容字符数是否在${charCountControl.range.min}-${charCountControl.range.max}字符范围内
+- 如果字符数不足${charCountControl.range.min}，必须补充内容直到达到要求
+- 如果字符数超过${charCountControl.finalLimit}，必须精简至限制内
+- 确保内容质量和完整性的同时满足字符数要求`;
   };
 
   // 生成格式化维度
@@ -4591,11 +4621,6 @@ ${charCountControl.source === 'platform-specific'
                                           result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
                                           'bg-gray-50 border-gray-200'
                                         }`}>
-                                          <div className="absolute top-4 right-4">
-                                            <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
-                                              版本A
-                                            </div>
-                                          </div>
                                           <div data-testid="version-a-content">{result.versions[0].content}</div>
                                         </div>
                                       )}
@@ -4744,11 +4769,6 @@ ${charCountControl.source === 'platform-specific'
                                           result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
                                           'bg-gray-50 border-gray-200'
                                         }`}>
-                                          <div className="absolute top-4 right-4">
-                                            <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
-                                              版本B
-                                            </div>
-                                          </div>
                                           <div data-testid="version-b-content">{result.versions[1].content}</div>
                                         </div>
                                       )}

@@ -238,7 +238,10 @@ export function getUnifiedCharCountLimit(
     return {
       finalLimit: adjustedLimit,
       source: 'platform-specific',
-      range: { min: Math.floor(adjustedLimit * 0.8), max: adjustedLimit },
+      range: {
+        min: Math.floor(adjustedLimit * 0.95), // 用户设置的95%作为最小值
+        max: adjustedLimit // 用户设置作为最大值
+      },
       description: `用户为${platformLimit?.name || platformId}设置的自定义字符数限制`
     };
   }
