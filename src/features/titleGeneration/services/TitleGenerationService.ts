@@ -390,9 +390,20 @@ export class TitleGenerationService implements ITitleGenerationService {
    */
   private parseAIResponse(content: string, platform: PlatformId): Partial<GeneratedTitle>[] {
     try {
-      const parsed = JSON.parse(content);
+      // 处理markdown格式的JSON响应
+      let jsonContent = content.trim();
+
+      // 移除markdown代码块标记
+      if (jsonContent.startsWith('```json')) {
+        jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (jsonContent.startsWith('```')) {
+        jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+
+      // 尝试解析JSON
+      const parsed = JSON.parse(jsonContent);
       const titles = parsed.titles || [];
-      
+
       return titles.map((title: any, index: number) => ({
         id: `${platform}_${Date.now()}_${index}`,
         title: title.title || '',
@@ -408,6 +419,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       }));
     } catch (error) {
       console.error('解析AI响应失败:', error);
+      console.error('原始内容:', content);
       throw new TitleGenerationError(
         'AI响应格式错误',
         'INVALID_AI_RESPONSE',
