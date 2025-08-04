@@ -60,6 +60,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
+import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/favoritesStore';
 
 /**
  * 资料项接口
@@ -96,7 +97,10 @@ export default function BookmarkPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
+  // 收藏系统store
+  const favoritesStore = useFavoritesStore();
+
   // 状态管理
   const [libraryItems, setLibraryItems] = useState<LibraryItem[]>([]);
   const [activeTab, setActiveTab] = useState('all');
@@ -572,11 +576,21 @@ export default function BookmarkPage() {
         {/* 分类标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-md">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 max-w-2xl">
               <TabsTrigger value="all" className="flex items-center gap-2 text-xs sm:text-sm">
                 <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">全部</span>
                 <span className="sm:hidden">全部</span>
+              </TabsTrigger>
+              <TabsTrigger value="favorites" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">收藏夹</span>
+                <span className="sm:hidden">收藏</span>
+                {favoritesStore.totalCount > 0 && (
+                  <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 min-w-4">
+                    {favoritesStore.totalCount}
+                  </Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger value="collection" className="flex items-center gap-2 text-xs sm:text-sm">
                 <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -735,12 +749,100 @@ export default function BookmarkPage() {
             </CardContent>
           </Card>
 
-          {/* 内容列表 */}
-          <TabsContent value={activeTab} className="mt-0">
+          {/* 收藏夹标签页内容 */}
+          <TabsContent value="favorites" className="mt-0">
+            <div className="grid gap-4">
+              {favoritesStore.favorites.length === 0 ? (
+                <Card>
+                  <CardContent className="text-center py-12">
+                    <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无收藏内容</h3>
+                    <p className="text-gray-600 mb-4">
+                      您还没有收藏任何内容，快去收藏一些有价值的内容吧！
+                    </p>
+                    <Button onClick={() => navigate('/adapt')}>
+                      去生成内容
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                favoritesStore.favorites.map((favorite) => {
+                  const formattedFavorite = favoritesUtils.formatFavoriteForDisplay(favorite);
+
+                  return (
+                    <Card key={favorite.id} className="hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">
+                              {formattedFavorite.typeName}
+                            </Badge>
+                            <span className="text-sm text-gray-500">
+                              {formattedFavorite.formattedDate}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              来源：{favorite.source}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText(favorite.content);
+                                toast({
+                                  title: "复制成功",
+                                  description: "内容已复制到剪贴板",
+                                });
+                              }}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                favoritesStore.removeFavorite(favorite.id);
+                                toast({
+                                  title: "取消收藏",
+                                  description: "已从收藏夹中移除",
+                                });
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <h4 className="font-medium text-gray-900 mb-2">{favorite.title}</h4>
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                          {formattedFavorite.contentPreview}
+                        </p>
+                        {favorite.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {favorite.tags.map((tag, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
+          </TabsContent>
+
+          {/* 其他标签页内容 */}
+          <TabsContent value="all" className="mt-0">
             <div className="grid gap-4">
               {filteredItems.map((item) => {
                 const typeInfo = getTypeInfo(item.type);
-                
+
                 return (
                   <Card key={item.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
@@ -882,6 +984,237 @@ export default function BookmarkPage() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* 网络收藏标签页 */}
+          <TabsContent value="collection" className="mt-0">
+            <div className="grid gap-4">
+              {filteredItems.filter(item => item.type === 'collection').map((item) => {
+                const typeInfo = getTypeInfo(item.type);
+
+                return (
+                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <typeInfo.icon className="w-4 h-4 text-blue-600" />
+                          <Badge variant="outline">
+                            {typeInfo.name}
+                          </Badge>
+                          <span className="text-sm text-gray-500">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.content);
+                              toast({
+                                title: "复制成功",
+                                description: "内容已复制到剪贴板",
+                              });
+                            }}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteItem(item.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <h4 className="font-medium text-gray-900 mb-2">{item.title}</h4>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                        {item.content}
+                      </p>
+                      {item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {item.tags.map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {filteredItems.filter(item => item.type === 'collection').length === 0 && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Bookmark className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无网络收藏</h3>
+                    <p className="text-gray-600">
+                      请使用右上角的"添加收藏"按钮开始收藏网络内容
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* 内容提取标签页 */}
+          <TabsContent value="extraction" className="mt-0">
+            <div className="grid gap-4">
+              {filteredItems.filter(item => item.type === 'extraction').map((item) => {
+                const typeInfo = getTypeInfo(item.type);
+
+                return (
+                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <typeInfo.icon className="w-4 h-4 text-green-600" />
+                          <Badge variant="outline">
+                            {typeInfo.name}
+                          </Badge>
+                          <span className="text-sm text-gray-500">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.content);
+                              toast({
+                                title: "复制成功",
+                                description: "内容已复制到剪贴板",
+                              });
+                            }}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteItem(item.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <h4 className="font-medium text-gray-900 mb-2">{item.title}</h4>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                        {item.content}
+                      </p>
+                      {item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {item.tags.map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {filteredItems.filter(item => item.type === 'extraction').length === 0 && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Zap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无内容提取</h3>
+                    <p className="text-gray-600">
+                      请使用右上角的"智能采集"按钮开始提取内容
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* 文案管理标签页 */}
+          <TabsContent value="copywriting" className="mt-0">
+            <div className="grid gap-4">
+              {filteredItems.filter(item => item.type === 'copywriting').map((item) => {
+                const typeInfo = getTypeInfo(item.type);
+
+                return (
+                  <Card key={item.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <typeInfo.icon className="w-4 h-4 text-purple-600" />
+                          <Badge variant="outline">
+                            {typeInfo.name}
+                          </Badge>
+                          <span className="text-sm text-gray-500">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.content);
+                              toast({
+                                title: "复制成功",
+                                description: "内容已复制到剪贴板",
+                              });
+                            }}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteItem(item.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <h4 className="font-medium text-gray-900 mb-2">{item.title}</h4>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                        {item.content}
+                      </p>
+                      {item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {item.tags.map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {filteredItems.filter(item => item.type === 'copywriting').length === 0 && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无文案管理</h3>
+                    <p className="text-gray-600">
+                      请使用右上角的"文案管理"按钮开始管理文案
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
 

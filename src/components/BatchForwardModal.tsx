@@ -3,8 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info, Sync } from 'lucide-react';
 import { toast } from 'sonner';
+import { useContentSyncStore, contentSyncUtils } from '@/stores/contentSyncStore';
 
 interface Platform {
   id: string;
@@ -31,6 +32,26 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const [openedPlatforms, setOpenedPlatforms] = useState<Set<string>>(new Set());
   const [expandedPlatforms, setExpandedPlatforms] = useState<Set<string>>(new Set());
+
+  // 内容同步store
+  const contentSync = useContentSyncStore();
+
+  // 实时同步的内容
+  const [syncedContent, setSyncedContent] = useState({
+    title: '',
+    content: '',
+    tags: [] as string[],
+    platformId: ''
+  });
+
+  // 监听内容同步store的变化
+  useEffect(() => {
+    const currentContent = contentSync.getCurrentContent();
+    setSyncedContent(currentContent);
+  }, [contentSync.selectedTitle, contentSync.selectedContent, contentSync.selectedTags, contentSync.lastUpdated]);
+
+  // 检查内容是否已同步
+  const isContentSynced = contentSyncUtils.isContentReady(contentSync);
 
   // 复制到剪贴板
   const copyToClipboard = async (text: string, type: string, platformName: string) => {
@@ -205,12 +226,27 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                     
                     {/* 优化后的卡片内容 */}
                     <CardContent className="pt-4 pb-4 px-4">
-                      {/* 优化后的快速复制按钮区域 */}
+                      {/* 内容同步状态提示 */}
+                      {isContentSynced && (
+                        <div className="flex items-center gap-2 mb-3 p-2 bg-green-50 rounded-lg border border-green-200">
+                          <Sync className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-green-700 font-medium">内容已同步</span>
+                          <Badge variant="outline" className="text-xs text-green-600 border-green-300">
+                            {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : '已选择'}
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* 优化后的快速复制按钮区域 - 优先使用同步内容 */}
                       <div className="flex gap-2 mb-4">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => copyToClipboard(platform.title, '标题', platform.name)}
+                          onClick={() => copyToClipboard(
+                            isContentSynced && syncedContent.title ? syncedContent.title : platform.title,
+                            '标题',
+                            platform.name
+                          )}
                           className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                         >
                           {getCopyButtonState(platform.name, '标题') ? (
@@ -223,7 +259,11 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => copyToClipboard(platform.content, '内容', platform.name)}
+                          onClick={() => copyToClipboard(
+                            isContentSynced && syncedContent.content ? syncedContent.content : platform.content,
+                            '内容',
+                            platform.name
+                          )}
                           className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                         >
                           {getCopyButtonState(platform.name, '内容') ? (
@@ -236,7 +276,13 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => copyToClipboard(platform.tags.join(' '), '标签', platform.name)}
+                          onClick={() => copyToClipboard(
+                            isContentSynced && syncedContent.tags.length > 0
+                              ? syncedContent.tags.join(' ')
+                              : platform.tags.join(' '),
+                            '标签',
+                            platform.name
+                          )}
                           className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                         >
                           {getCopyButtonState(platform.name, '标签') ? (
@@ -248,26 +294,47 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                         </Button>
                       </div>
 
-                      {/* 优化后的详细内容区域 - 可折叠，增加小标题标注 */}
+                      {/* 优化后的详细内容区域 - 可折叠，优先显示同步内容 */}
                       {expandedPlatforms.has(platform.id) && (
                         <div className="space-y-4 border-t border-gray-200 pt-4">
                           <div>
-                            <label className="text-sm font-semibold text-gray-700 block mb-2">📝 标题</label>
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">
+                              📝 标题
+                              {isContentSynced && syncedContent.title && (
+                                <Badge variant="outline" className="ml-2 text-xs text-green-600 border-green-300">
+                                  已同步
+                                </Badge>
+                              )}
+                            </label>
                             <div className="p-3 bg-gray-50/80 rounded-lg text-sm border border-gray-200 max-h-20 overflow-y-auto">
-                              {platform.title}
+                              {isContentSynced && syncedContent.title ? syncedContent.title : platform.title}
                             </div>
                           </div>
                           <div>
-                            <label className="text-sm font-semibold text-gray-700 block mb-2">📄 内容</label>
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">
+                              📄 内容
+                              {isContentSynced && syncedContent.content && (
+                                <Badge variant="outline" className="ml-2 text-xs text-green-600 border-green-300">
+                                  已同步 - {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : ''}
+                                </Badge>
+                              )}
+                            </label>
                             <div className="p-3 bg-gray-50/80 rounded-lg text-sm border border-gray-200 max-h-32 overflow-y-auto">
-                              {platform.content}
+                              {isContentSynced && syncedContent.content ? syncedContent.content : platform.content}
                             </div>
                           </div>
                           <div>
-                            <label className="text-sm font-semibold text-gray-700 block mb-2">🏷️ 标签</label>
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">
+                              🏷️ 标签
+                              {isContentSynced && syncedContent.tags.length > 0 && (
+                                <Badge variant="outline" className="ml-2 text-xs text-green-600 border-green-300">
+                                  已同步
+                                </Badge>
+                              )}
+                            </label>
                             <div className="p-3 bg-gray-50/80 rounded-lg border border-gray-200">
                               <div className="flex flex-wrap gap-1">
-                                {platform.tags.map((tag, index) => (
+                                {(isContentSynced && syncedContent.tags.length > 0 ? syncedContent.tags : platform.tags).map((tag, index) => (
                                   <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
                                     {tag}
                                   </Badge>

@@ -102,6 +102,8 @@ import { getContentFormById } from '@/config/contentForms';
 import { createPlatformAPICaller } from '../utils/apiRequestQueue';
 import { request, callAI } from '@/api';
 import { MentionTextarea } from '@/components/ui/mention-textarea';
+import { useContentSyncStore } from '@/stores/contentSyncStore';
+import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -600,6 +602,12 @@ export default function AdaptPage() {
   const location = useLocation();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+
+  // 内容同步store
+  const contentSync = useContentSyncStore();
+
+  // 收藏系统store
+  const favoritesStore = useFavoritesStore();
   const [results, setResults] = useState<PlatformResult[]>([]);
   const [generating, setGenerating] = useState(false);
   const [platformSettings, setPlatformSettings] = useState<Record<string, PlatformSettings>>({});
@@ -878,6 +886,26 @@ export default function AdaptPage() {
       ...prev,
       [platformId]: versionId
     }));
+
+    // 同步版本选择到内容同步store
+    const version = versionId === 'version-a' ? 'A' : 'B';
+    contentSync.setSelectedVersion(version);
+    contentSync.setPlatformId(platformId);
+
+    // 找到对应的结果并同步内容
+    const result = results.find(r => r.platformId === platformId);
+    if (result && result.versions) {
+      const versionIndex = versionId === 'version-a' ? 0 : 1;
+      const selectedVersionData = result.versions[versionIndex];
+      if (selectedVersionData) {
+        contentSync.setVersionContent(
+          version,
+          selectedVersionData.content,
+          selectedVersionData.charCount,
+          selectedVersionData.validation
+        );
+      }
+    }
   };
 
   // 获取选中的版本，默认为版本A
@@ -2400,6 +2428,7 @@ export default function AdaptPage() {
     }
 
     let content = '';
+    let title = '';
     let versionTitle = '';
 
     // 如果指定了版本ID，收藏特定版本
@@ -2407,15 +2436,18 @@ export default function AdaptPage() {
       const version = result.versions.find(v => v.id === versionId);
       if (version) {
         content = version.content;
-        versionTitle = ` - ${version.title}`;
+        title = version.title || `${content.substring(0, 30)}...`;
+        versionTitle = ` - ${version.title || '版本' + (versionId === 'version-a' ? 'A' : 'B')}`;
       }
     } else if (result.content) {
       // 收藏主内容
       content = result.content;
+      title = `${content.substring(0, 30)}...`;
     } else if (result.versions && result.versions.length > 0) {
       // 如果没有主内容，收藏第一个版本
       content = result.versions[0].content;
-      versionTitle = ` - ${result.versions[0].title}`;
+      title = result.versions[0].title || `${content.substring(0, 30)}...`;
+      versionTitle = ` - ${result.versions[0].title || '版本A'}`;
     }
 
     if (!content) {
@@ -2428,10 +2460,22 @@ export default function AdaptPage() {
     }
 
     const favoriteKey = versionId ? `${platformId}-${versionId}` : platformId;
+    const platformName = getPlatformName(platformId, platforms);
 
     // 检查是否已收藏
     if (persistentFavorites.has(favoriteKey)) {
-      // 取消收藏
+      // 取消收藏 - 从新的收藏系统中移除
+      const existingFavorites = favoritesStore.favorites.filter(fav =>
+        fav.source === 'content-generation' &&
+        fav.metadata.platformId === platformId &&
+        fav.metadata.versionId === versionId
+      );
+
+      existingFavorites.forEach(fav => {
+        favoritesStore.removeFavorite(fav.id);
+      });
+
+      // 保持旧系统兼容性
       const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
       const updatedFavorites = favorites.filter((fav: any) => {
         const key = fav.versionId ? `${fav.platformId}-${fav.versionId}` : fav.platformId;
@@ -2450,18 +2494,39 @@ export default function AdaptPage() {
         description: "已取消收藏该内容",
       });
     } else {
-      // 添加收藏
+      // 添加收藏 - 使用新的统一收藏系统
+      const favoriteItem = favoritesUtils.createFavoriteItem(
+        'content-generation',
+        title,
+        content,
+        'content-generation',
+        {
+          description: `${platformName}平台内容${versionTitle}`,
+          tags: contentSync.selectedTags.length > 0 ? contentSync.selectedTags : [platformName],
+          metadata: {
+            platformId,
+            platformName,
+            versionId,
+            originalContent: originalContent,
+            charCount: content.length
+          }
+        }
+      );
+
+      const favoriteId = favoritesStore.addFavorite(favoriteItem);
+
+      // 保持旧系统兼容性
       const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const favoriteItem = {
-        id: Date.now().toString(),
+      const legacyFavoriteItem = {
+        id: favoriteId,
         platformId,
         content,
-        platformName: platformId + versionTitle,
+        platformName: platformName + versionTitle,
         versionId,
         timestamp: new Date().toISOString()
       };
 
-      favorites.push(favoriteItem);
+      favorites.push(legacyFavoriteItem);
       localStorage.setItem('favorites', JSON.stringify(favorites));
 
       setPersistentFavorites(prev => new Set(prev).add(favoriteKey));
@@ -2478,7 +2543,7 @@ export default function AdaptPage() {
 
       toast({
         title: "收藏成功 ❤️",
-        description: "内容已添加到收藏，可在我的页面查看",
+        description: "内容已添加到我的资料库 > 收藏夹",
       });
     }
   };
@@ -4530,6 +4595,9 @@ ${charCountControl.source === 'platform-specific'
                               platformName={getPlatformName(result.platformId, platforms)}
                               onTitleChange={(title) => {
                                 console.log(`${result.platformId} 标题已更新:`, title);
+                                // 同步标题到内容同步store
+                                contentSync.setSelectedTitle(title);
+                                contentSync.setPlatformId(result.platformId);
                               }}
                             />
                           </div>
@@ -5006,6 +5074,9 @@ ${charCountControl.source === 'platform-specific'
                               ].filter((tag, index, arr) => arr.indexOf(tag) === index)} // 去重
                               onTagsChange={(tags) => {
                                 console.log(`${result.platformId} 统一标签已更新:`, tags);
+                                // 同步标签到内容同步store
+                                contentSync.setTags(tags);
+                                contentSync.setPlatformId(result.platformId);
                               }}
                             />
                           </div>
