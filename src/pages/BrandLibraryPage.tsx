@@ -1462,40 +1462,19 @@ export default function BrandLibraryPage() {
             {/* 已上传的资料 - 重新设计 */}
             <Card>
               <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Database className="h-5 w-5 text-blue-600" />
-                    <CardTitle className="text-lg">已上传的资料</CardTitle>
-                    <Badge variant="secondary" className="ml-2">
-                      {brandAssets.length} 个文件
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleProcessAssets}
-                      disabled={isProcessing || brandAssets.length === 0}
-                    >
-                      <Brain className="h-4 w-4 mr-2" />
-                      {isProcessing ? 'AI分析中...' : '批量AI分析'}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsPDFChatOpen(true)}
-                      disabled={brandAssets.length === 0}
-                    >
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      PDF对话
-                    </Button>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Database className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="text-lg">已上传的资料</CardTitle>
+                  <Badge variant="secondary" className="ml-2">
+                    {brandAssets.length} 个文件
+                  </Badge>
                 </div>
               </CardHeader>
 
               {/* 搜索和筛选工具栏 */}
               <CardContent className="pt-0">
-                <div className="flex flex-col sm:flex-row gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                <div className="space-y-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                  {/* 第一行：搜索框 */}
                   <div className="flex-1">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -1507,31 +1486,59 @@ export default function BrandLibraryPage() {
                       />
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger className="w-[120px]">
-                        <SelectValue placeholder="选择分类" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">全部分类</SelectItem>
-                        {categoryOptions.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="排序方式" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="date-new">最新上传</SelectItem>
-                        <SelectItem value="date-old">最早上传</SelectItem>
-                        <SelectItem value="name-asc">名称 A-Z</SelectItem>
-                        <SelectItem value="name-desc">名称 Z-A</SelectItem>
-                      </SelectContent>
-                    </Select>
+
+                  {/* 第二行：筛选和操作按钮 */}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-between">
+                    <div className="flex gap-2">
+                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger className="w-[120px]">
+                          <SelectValue placeholder="选择分类" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">全部分类</SelectItem>
+                          {categoryOptions.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue placeholder="排序方式" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="date-new">最新上传</SelectItem>
+                          <SelectItem value="date-old">最早上传</SelectItem>
+                          <SelectItem value="name-asc">名称 A-Z</SelectItem>
+                          <SelectItem value="name-desc">名称 Z-A</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* 操作按钮组 */}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleProcessAssets}
+                        disabled={isProcessing || brandAssets.length === 0}
+                        className="flex items-center gap-2"
+                      >
+                        <Brain className="h-4 w-4" />
+                        {isProcessing ? 'AI分析中...' : '批量AI分析'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsPDFChatOpen(true)}
+                        disabled={brandAssets.length === 0}
+                        className="flex items-center gap-2"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        PDF对话
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
