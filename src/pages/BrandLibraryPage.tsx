@@ -70,7 +70,7 @@ export default function BrandLibraryPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('品牌资料');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [showCategorySelector, setShowCategorySelector] = useState(false);
   
   // 预设的分类选项
@@ -104,6 +104,9 @@ export default function BrandLibraryPage() {
   const [webExtractionResults, setWebExtractionResults] = useState<WebExtractionResult[]>([]);
   const [extractionProgress, setExtractionProgress] = useState(0);
   const [enableBrandAnalysis, setEnableBrandAnalysis] = useState(true);
+
+  // 拖拽上传相关状态
+  const [isDragOver, setIsDragOver] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -295,24 +298,47 @@ export default function BrandLibraryPage() {
   }, []);
 
   /**
-   * 处理文件上传
+   * 处理拖拽上传
    */
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFileUploadFromFiles(files);
+    }
+  };
+
+  /**
+   * 处理文件上传（从文件列表）
+   */
+  const handleFileUploadFromFiles = async (files: FileList) => {
     setIsUploading(true);
     setUploadProgress(0);
-    
+
     // 处理每个上传的文件
     const newAssets: BrandAsset[] = [];
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       // 根据文件类型生成图标
       let fileIcon = <FileText className="h-8 w-8 text-blue-500" />;
-      
+
       if (file.type.includes('pdf')) {
         fileIcon = <File className="h-8 w-8 text-red-500" />;
       } else if (file.type.includes('image')) {
@@ -320,22 +346,22 @@ export default function BrandLibraryPage() {
       } else if (file.type.includes('word')) {
         fileIcon = <FileText className="h-8 w-8 text-blue-700" />;
       }
-      
+
       // 使用用户选择的分类
       const category = selectedCategory;
-      
+
       try {
         // 读取文件内容
         const aiService = AIAnalysisService.getInstance();
         let fileContent = '';
-        
+
         if (aiService.isFileTypeSupported(file)) {
           fileContent = await aiService.readFileContent(file);
           console.log(`文件 ${file.name} 内容长度:`, fileContent.length);
         } else {
           fileContent = `不支持的文件类型: ${file.type}`;
         }
-        
+
         // 创建资产对象
       const asset: BrandAsset = {
         id: `asset-${Date.now()}-${i}`,
@@ -348,12 +374,12 @@ export default function BrandLibraryPage() {
           category: category,
         processingStatus: 'pending'
       };
-      
+
       newAssets.push(asset);
-      
+
       } catch (error) {
         console.error(`读取文件 ${file.name} 失败:`, error);
-        
+
         // 创建资产对象（内容为空）
         const asset: BrandAsset = {
           id: `asset-${Date.now()}-${i}`,
@@ -366,23 +392,21 @@ export default function BrandLibraryPage() {
           category: category,
           processingStatus: 'failed'
         };
-        
+
         newAssets.push(asset);
       }
-      
+
       // 更新上传进度
       setUploadProgress(((i + 1) / files.length) * 100);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-    
+
     // 添加到状态
     setBrandAssets(prev => [...prev, ...newAssets]);
-    
-    // 重置文件输入
-    e.target.value = '';
+
     setIsUploading(false);
     setUploadProgress(0);
-    
+
     toast({
       title: "文件上传成功",
       description: `已成功上传 ${newAssets.length} 个品牌资料文件，AI正在自动分析...`,
@@ -392,11 +416,19 @@ export default function BrandLibraryPage() {
     setTimeout(() => {
       handleProcessAssets();
     }, 1000);
+  };
 
-    // 自动开始AI分析
-    setTimeout(() => {
-      handleProcessAssets();
-    }, 1000);
+  /**
+   * 处理文件上传（从input元素）
+   */
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    await handleFileUploadFromFiles(files);
+
+    // 重置文件输入
+    e.target.value = '';
   };
 
   /**
@@ -885,7 +917,8 @@ export default function BrandLibraryPage() {
       }
 
       // 转换为品牌资产并添加到列表
-      const brandAsset = webExtractor.convertToBrandAsset(extractionResult, selectedCategory);
+      const actualCategory = selectedCategory === 'all' ? '品牌资料' : selectedCategory;
+      const brandAsset = webExtractor.convertToBrandAsset(extractionResult, actualCategory);
       setBrandAssets(prev => [brandAsset, ...prev]);
 
       // 保存提取结果
@@ -1071,15 +1104,20 @@ export default function BrandLibraryPage() {
    */
   const filteredAndSortedAssets = brandAssets
     .filter(asset => {
+      // 搜索筛选
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        return asset.name.toLowerCase().includes(query) || 
+        const matchesSearch = asset.name.toLowerCase().includes(query) ||
                asset.description?.toLowerCase().includes(query) ||
                asset.category?.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
       }
-      if (selectedCategories.length > 0) {
-        return asset.category && selectedCategories.includes(asset.category);
+
+      // 分类筛选
+      if (selectedCategory && selectedCategory !== 'all') {
+        return asset.category === selectedCategory;
       }
+
       return true;
     })
     .sort((a, b) => {
@@ -1288,18 +1326,39 @@ export default function BrandLibraryPage() {
           </TabsContent>
 
           {/* 资料管理 */}
-          <TabsContent value="assets" className="space-y-8">
-            {/* 主要上传区域 - 适中显示 */}
-            <Card className="border-2 border-dashed border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <TabsContent value="assets" className="space-y-6">
+            {/* 主要上传区域 - 支持拖拽 */}
+            <Card
+              className={`border-2 border-dashed transition-all duration-200 ${
+                isDragOver
+                  ? 'border-blue-500 bg-blue-50 scale-[1.02]'
+                  : 'border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <CardContent className="p-8">
                 <div className="text-center space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center shadow-md">
-                    <Upload className="h-8 w-8 text-blue-600" />
+                  <div
+                    className={`mx-auto w-16 h-16 rounded-xl flex items-center justify-center shadow-md cursor-pointer transition-all duration-200 ${
+                      isDragOver
+                        ? 'bg-blue-200 scale-110'
+                        : 'bg-blue-100 hover:bg-blue-200'
+                    }`}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className={`h-8 w-8 transition-colors duration-200 ${
+                      isDragOver ? 'text-blue-700' : 'text-blue-600'
+                    }`} />
                   </div>
                   <div className="space-y-3">
                     <h2 className="text-xl font-bold text-gray-800">上传品牌资料</h2>
                     <p className="text-base text-gray-600 max-w-lg mx-auto">
-                      拖拽文件到此处或点击选择文件，支持网页链接提取，AI 将自动分析并构建品牌语料库
+                      {isDragOver
+                        ? '松开鼠标即可上传文件'
+                        : '拖拽文件到此处、点击图标或按钮选择文件，支持网页链接提取'
+                      }
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                       <Button
@@ -1312,7 +1371,7 @@ export default function BrandLibraryPage() {
                       </Button>
                       <Button
                         variant="outline"
-                        onClick={() => {/* TODO: 打开网页提取对话框 */}}
+                        onClick={() => setIsWebExtractOpen(true)}
                         className="px-6 py-2"
                       >
                         <Globe className="h-4 w-4 mr-2" />
@@ -1400,24 +1459,70 @@ export default function BrandLibraryPage() {
 
 
 
-            {/* 搜索和筛选 - 弱化显示 */}
-            <Card className="bg-gray-50">
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row gap-3">
+            {/* 已上传的资料 - 重新设计 */}
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Database className="h-5 w-5 text-blue-600" />
+                    <CardTitle className="text-lg">已上传的资料</CardTitle>
+                    <Badge variant="secondary" className="ml-2">
+                      {brandAssets.length} 个文件
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleProcessAssets}
+                      disabled={isProcessing || brandAssets.length === 0}
+                    >
+                      <Brain className="h-4 w-4 mr-2" />
+                      {isProcessing ? 'AI分析中...' : '批量AI分析'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsPDFChatOpen(true)}
+                      disabled={brandAssets.length === 0}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      PDF对话
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+
+              {/* 搜索和筛选工具栏 */}
+              <CardContent className="pt-0">
+                <div className="flex flex-col sm:flex-row gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                       <Input
-                        placeholder="搜索资料..."
+                        placeholder="搜索资料名称、描述或分类..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-8 text-sm"
+                        className="pl-10"
                       />
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="选择分类" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部分类</SelectItem>
+                        {categoryOptions.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
-                      <SelectTrigger className="w-[140px] h-8 text-sm">
+                      <SelectTrigger className="w-[140px]">
                         <SelectValue placeholder="排序方式" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1427,106 +1532,76 @@ export default function BrandLibraryPage() {
                         <SelectItem value="name-desc">名称 Z-A</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-[100px] h-8 text-sm">
-                          <Filter className="h-3 w-3 mr-1" />
-                          分类
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-48">
-                        <Command>
-                          <CommandInput placeholder="搜索分类..." />
-                          <CommandList>
-                            <CommandEmpty>未找到分类</CommandEmpty>
-                            <CommandGroup>
-                              {categories.map((category) => (
-                                <CommandItem
-                                  key={category}
-                                  onSelect={() => toggleCategory(category)}
-                                >
-                                  <div className="flex items-center space-x-2">
-                                    <input
-                                      type="checkbox"
-                                      checked={selectedCategories.includes(category)}
-                                      onChange={() => {}}
-                                      className="h-4 w-4"
-                                    />
-                                    <span>{category}</span>
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-
-            {/* 文件列表 - 协调显示 */}
-            <Card className="bg-gray-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base text-gray-700">已上传的资料</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
+                {/* 资料列表 */}
                 {brandAssets.length === 0 ? (
-                  <div className="text-center py-4">
-                    <FileUp className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">暂无品牌资料，请上传文件开始构建语料库</p>
+                  <div className="text-center py-12">
+                    <FileUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无品牌资料</h3>
+                    <p className="text-gray-500 mb-4">上传文件或提取网页内容开始构建品牌语料库</p>
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        size="sm"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        上传文件
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsWebExtractOpen(true)}
+                        size="sm"
+                      >
+                        <Globe className="h-4 w-4 mr-2" />
+                        网页提取
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                      {filteredAndSortedAssets.map((asset) => (
+                    {filteredAndSortedAssets.map((asset) => (
                       <div
                         key={asset.id}
-                        className="flex items-center justify-between p-3 border rounded-md hover:bg-white cursor-pointer transition-colors"
+                        className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-200 hover:shadow-sm"
                         onClick={() => handleViewAsset(asset)}
                       >
-                        <div className="flex items-center gap-3 flex-1">
-                                {asset.fileIcon}
-                                <div className="flex-1 min-w-0">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium truncate text-sm">{asset.name}</p>
-                                {asset.category && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {asset.category}
-                                  </Badge>
-                                )}
-                                </div>
-                              <p className="text-xs text-gray-500">
-                                {asset.uploadDate.toLocaleDateString()}
-                              </p>
-                              {asset.description && (
-                                <p className="text-xs text-gray-600 mt-1 line-clamp-1">{asset.description}</p>
-                              )}
-                              </div>
-                          </div>
+                        {/* 文件图标 */}
+                        <div className="flex-shrink-0">
+                          {asset.fileIcon}
                         </div>
-                        <div className="flex items-center gap-2">
-                          {asset.processingStatus === 'pending' && (
-                            <>
-                              <Badge variant="secondary">
-                                <Clock className="h-3 w-3 mr-1" />
-                                待分析
+
+                        {/* 文件信息 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium text-gray-900 truncate">{asset.name}</h4>
+                            {asset.category && (
+                              <Badge variant="secondary" className="text-xs">
+                                {asset.category}
                               </Badge>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAnalyzeSingleAsset(asset);
-                                }}
-                                disabled={isAnalyzingAsset === asset.id}
-                              >
-                                <Brain className="h-3 w-3 mr-1" />
-                                {isAnalyzingAsset === asset.id ? '分析中...' : 'AI分析'}
-                              </Button>
-                            </>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span>{asset.uploadDate.toLocaleDateString()}</span>
+                            {asset.size && <span>{asset.size}</span>}
+                            {asset.extractedKeywords && asset.extractedKeywords.length > 0 && (
+                              <span>{asset.extractedKeywords.length} 个关键词</span>
+                            )}
+                          </div>
+                          {asset.description && (
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{asset.description}</p>
+                          )}
+                        </div>
+
+                        {/* 状态和操作 */}
+                        <div className="flex items-center gap-2">
+                          {/* 处理状态 */}
+                          {asset.processingStatus === 'pending' && (
+                            <Badge variant="secondary">
+                              <Clock className="h-3 w-3 mr-1" />
+                              待分析
+                            </Badge>
                           )}
                           {asset.processingStatus === 'processing' && (
                             <Badge variant="default">
@@ -1535,71 +1610,79 @@ export default function BrandLibraryPage() {
                             </Badge>
                           )}
                           {asset.processingStatus === 'completed' && (
-                            <Badge variant="default">
+                            <Badge variant="default" className="bg-green-100 text-green-800">
                               <Check className="h-3 w-3 mr-1" />
                               已完成
                             </Badge>
                           )}
                           {asset.processingStatus === 'failed' && (
-                            <>
-                              <Badge variant="destructive">
-                                <X className="h-3 w-3 mr-1" />
-                                分析失败
-                              </Badge>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAnalyzeSingleAsset(asset);
-                                }}
-                                disabled={isAnalyzingAsset === asset.id}
-                              >
-                                <Brain className="h-3 w-3 mr-1" />
-                                {isAnalyzingAsset === asset.id ? '分析中...' : '重新分析'}
-                              </Button>
-                            </>
+                            <Badge variant="destructive">
+                              <X className="h-3 w-3 mr-1" />
+                              分析失败
+                            </Badge>
                           )}
-                          
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
+
+                          {/* AI分析按钮 */}
+                          {(asset.processingStatus === 'pending' || asset.processingStatus === 'failed') && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAnalyzeSingleAsset(asset);
+                              }}
+                              disabled={isAnalyzingAsset === asset.id}
+                            >
+                              <Brain className="h-3 w-3 mr-1" />
+                              {isAnalyzingAsset === asset.id ? '分析中...' : 'AI分析'}
+                            </Button>
+                          )}
+
+                          {/* 更多操作 */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
                                 <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={(e) => {
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/new-adapt', {
+                                  state: {
+                                    prefilledContent: asset.content || asset.extractedContent || `品牌资料：${asset.name || '未命名'}\n\n${asset.description || ''}`,
+                                    source: 'brand-library',
+                                    sourceTitle: asset.name || '未命名资料'
+                                  }
+                                });
+                              }}>
+                                <Zap className="h-4 w-4 mr-2" />
+                                快速创作
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditAsset(asset);
+                              }}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                编辑
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(e) => {
                                   e.stopPropagation();
-                                  // 跳转到AI内容适配器并预填充内容
-                                  navigate('/new-adapt', {
-                                    state: {
-                                      prefilledContent: asset.content || asset.extractedContent || `品牌资料：${asset.name || '未命名'}\n\n${asset.description || ''}`,
-                                      source: 'brand-library',
-                                      sourceTitle: asset.name || '未命名资料'
-                                    }
-                                  });
-                                }}>
-                                  <Zap className="h-4 w-4 mr-2" />
-                                  快速创作
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditAsset(asset);
-                                }}>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  编辑
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDeleteAsset(asset.id)}>
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  删除
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                              </div>
-                      ))}
-                    </div>
-                  )}
+                                  handleDeleteAsset(asset.id);
+                                }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                删除
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -1899,6 +1982,140 @@ export default function BrandLibraryPage() {
               保存
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 网页提取对话框 */}
+      <Dialog open={isWebExtractOpen} onOpenChange={setIsWebExtractOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5 text-blue-600" />
+              网页内容提取
+            </DialogTitle>
+            <DialogDescription>
+              从网页URL中智能提取品牌相关内容，自动分析并添加到品牌资料库
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* URL输入 */}
+            <div className="space-y-2">
+              <Label htmlFor="web-url">网页URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="web-url"
+                  placeholder="https://example.com/brand-page"
+                  value={webUrl}
+                  onChange={(e) => setWebUrl(e.target.value)}
+                  disabled={isExtractingWeb}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleWebExtraction}
+                  disabled={isExtractingWeb || !webUrl.trim()}
+                  className="flex items-center gap-2"
+                >
+                  {isExtractingWeb ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      提取中...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4" />
+                      提取
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* 提取选项 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="enable-brand-analysis"
+                  checked={enableBrandAnalysis}
+                  onChange={(e) => setEnableBrandAnalysis(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="enable-brand-analysis" className="text-sm">
+                  启用AI品牌分析
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="extraction-category" className="text-sm">
+                  分类：
+                </Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoryOptions.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* 提取进度 */}
+            {isExtractingWeb && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>提取进度</span>
+                  <span>{extractionProgress}%</span>
+                </div>
+                <Progress value={extractionProgress} className="w-full" />
+                <p className="text-xs text-gray-500">
+                  正在分析网页内容，请稍候...
+                </p>
+              </div>
+            )}
+
+            {/* 最近提取结果 */}
+            {webExtractionResults.length > 0 && (
+              <div className="space-y-3">
+                <Separator />
+                <div>
+                  <h4 className="font-medium mb-2">最近提取结果</h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {webExtractionResults.slice(0, 3).map((result) => (
+                      <div
+                        key={result.id}
+                        className="p-2 border rounded text-sm hover:bg-gray-50"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-3 w-3 text-blue-500" />
+                          <span className="font-medium truncate">{result.title}</span>
+                          {result.status === 'success' && (
+                            <Badge variant="default" className="text-xs">
+                              <Check className="h-2 w-2 mr-1" />
+                              成功
+                            </Badge>
+                          )}
+                          {result.status === 'error' && (
+                            <Badge variant="destructive" className="text-xs">
+                              <X className="h-2 w-2 mr-1" />
+                              失败
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {result.metadata.domain} • {result.metadata.wordCount} 字
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
