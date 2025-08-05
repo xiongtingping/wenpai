@@ -22,7 +22,7 @@ import {
   Plus, X, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
   TrendingUp, Users2, Package, Share2, MoreHorizontal,
-  Loader2, CheckCircle, Grid, List, Pin, Ban
+  Loader2, CheckCircle, Grid, List, Pin, Ban, AlertTriangle
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -118,6 +118,19 @@ export default function BrandLibraryPageFixed() {
   const [brandCorpus, setBrandCorpus] = useState<BrandCorpus | null>(null);
   const [isProcessingCorpus, setIsProcessingCorpus] = useState(false);
   const [corpusProcessingProgress, setCorpusProcessingProgress] = useState(0);
+
+  // 删除确认对话框状态
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    isOpen: boolean;
+    item: BrandDimensionItem | null;
+    dimensionId: string;
+    itemId: string;
+  }>({
+    isOpen: false,
+    item: null,
+    dimensionId: '',
+    itemId: ''
+  });
   const [editingDimension, setEditingDimension] = useState<string | null>(null);
 
   // 网页内容提取相关
@@ -540,6 +553,41 @@ export default function BrandLibraryPageFixed() {
    * 将AI提取的信息添加到对应的品牌维度中
    * ✅ FIXED: 2025-08-05 真实AI分析结果处理
    */
+  // 处理删除确认
+  const handleDeleteConfirm = () => {
+    const { item, dimensionId, itemId } = deleteConfirmDialog;
+    if (!item) return;
+
+    // 如果是已钉住或已屏蔽的信息，先取消状态再删除
+    if (item.isPinned || item.isBlocked) {
+      onUpdateItem(dimensionId, itemId, { isPinned: false, isBlocked: false });
+      // 延迟删除，让用户看到状态变化
+      setTimeout(() => {
+        onDeleteItem(dimensionId, itemId);
+      }, 300);
+    } else {
+      onDeleteItem(dimensionId, itemId);
+    }
+
+    // 关闭对话框
+    setDeleteConfirmDialog({
+      isOpen: false,
+      item: null,
+      dimensionId: '',
+      itemId: ''
+    });
+  };
+
+  // 取消删除
+  const handleDeleteCancel = () => {
+    setDeleteConfirmDialog({
+      isOpen: false,
+      item: null,
+      dimensionId: '',
+      itemId: ''
+    });
+  };
+
   const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
     // 字段名称到维度ID的映射
     const fieldToDimensionMap: { [key: string]: string } = {
@@ -2229,33 +2277,13 @@ function DimensionForm({
                     <DropdownMenuItem
                       onClick={() => {
                         console.log('删除点击事件触发', { dimensionId: dimension.id, itemId: item.id });
-                        // 如果是已钉住或已屏蔽的信息，弹出确认对话框
-                        if (item.isPinned || item.isBlocked) {
-                          const statusText = item.isPinned ? '已钉住' : '已屏蔽';
-                          const actionText = item.isPinned ? '取消钉住' : '取消屏蔽';
-
-                          const confirmed = window.confirm(
-                            `此信息当前为${statusText}状态，无法直接删除。\n\n是否要先${actionText}，然后删除此信息？\n\n注意：删除后无法恢复。`
-                          );
-
-                          if (confirmed) {
-                            // 先取消钉住/屏蔽状态
-                            onUpdateItem(dimension.id, item.id, { isPinned: false, isBlocked: false });
-                            // 延迟删除，让用户看到状态变化
-                            setTimeout(() => {
-                              onDeleteItem(dimension.id, item.id);
-                            }, 300);
-                          }
-                        } else {
-                          // 普通信息直接删除，也需要确认
-                          const confirmed = window.confirm(
-                            `确定要删除此信息吗？\n\n删除后无法恢复。`
-                          );
-
-                          if (confirmed) {
-                            onDeleteItem(dimension.id, item.id);
-                          }
-                        }
+                        // 打开删除确认对话框
+                        setDeleteConfirmDialog({
+                          isOpen: true,
+                          item: item,
+                          dimensionId: dimension.id,
+                          itemId: item.id
+                        });
                       }}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
@@ -2452,6 +2480,72 @@ function DimensionForm({
           </div>
         </div>
       )}
+
+      {/* 删除确认对话框 */}
+      <Dialog open={deleteConfirmDialog.isOpen} onOpenChange={(open) => !open && handleDeleteCancel()}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-red-600" />
+              确认删除信息
+            </DialogTitle>
+            <DialogDescription>
+              {deleteConfirmDialog.item && (
+                <div className="space-y-3 mt-4">
+                  {/* 显示要删除的信息内容 */}
+                  <div className="p-3 bg-gray-50 rounded-lg border">
+                    <div className="text-sm text-gray-600 mb-1">要删除的信息：</div>
+                    <div className="text-sm font-medium text-gray-900 line-clamp-3">
+                      {deleteConfirmDialog.item.content}
+                    </div>
+                  </div>
+
+                  {/* 状态提示 */}
+                  {(deleteConfirmDialog.item.isPinned || deleteConfirmDialog.item.isBlocked) && (
+                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-yellow-800">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span className="font-medium">注意</span>
+                      </div>
+                      <div className="text-sm text-yellow-700 mt-1">
+                        此信息当前为
+                        <span className="font-medium">
+                          {deleteConfirmDialog.item.isPinned ? '已钉住' : '已屏蔽'}
+                        </span>
+                        状态，系统将先
+                        <span className="font-medium">
+                          {deleteConfirmDialog.item.isPinned ? '取消钉住' : '取消屏蔽'}
+                        </span>
+                        ，然后删除此信息。
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 警告提示 */}
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-red-800">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span className="font-medium">警告</span>
+                    </div>
+                    <div className="text-sm text-red-700 mt-1">
+                      删除后无法恢复，请确认是否继续？
+                    </div>
+                  </div>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={handleDeleteCancel}>
+              取消
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              确认删除
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
