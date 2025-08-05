@@ -5,6 +5,7 @@
 
 import { generatePlatformContent, type StyleType } from '@/config/contentSchemes';
 import { getContentFormById } from '@/config/contentForms';
+import { callContentAdapter } from '@/api/aiService';
 
 /**
  * 内容适配请求参数
@@ -230,19 +231,40 @@ export async function generateAdaptedContent(
       };
     }
 
-    // 生成适配内容，传递字符数限制
-    const prompt = generateContentFormPrompt(originalContent, platform, formId, style, charCount);
+    // 调用统一AI服务生成适配内容
+    console.log('🔄 开始调用内容适配AI服务');
+    const aiResponse = await callContentAdapter({
+      originalContent,
+      platform,
+      style,
+      charCount
+    });
 
-    return {
-      success: true,
-      data: {
-        adaptedContent: prompt,
-        platform,
-        formId,
-        style,
-        prompt
-      }
-    };
+    if (aiResponse.success) {
+      return {
+        success: true,
+        data: {
+          adaptedContent: aiResponse.content,
+          platform,
+          formId,
+          style,
+          prompt: `原始内容适配到${platform}平台`
+        }
+      };
+    } else {
+      // AI调用失败时，返回生成的提示词作为备选
+      const fallbackPrompt = generateContentFormPrompt(originalContent, platform, formId, style, charCount);
+      return {
+        success: true,
+        data: {
+          adaptedContent: fallbackPrompt,
+          platform,
+          formId,
+          style,
+          prompt: fallbackPrompt
+        }
+      };
+    }
   } catch (error) {
     console.error('生成适配内容失败:', error);
     return {

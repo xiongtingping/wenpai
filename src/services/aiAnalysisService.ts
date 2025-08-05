@@ -1,5 +1,6 @@
 import { BrandAnalysisResult, ContentCheckResult } from '@/types/brand';
 import { callOpenAIProxy } from '@/api/localApiProxy';
+import FileFormatSupportService from '@/services/fileFormatSupportService';
 // PDF 解析依赖
 import * as pdfjsLib from 'pdfjs-dist';
 // Word 文档解析
@@ -41,47 +42,23 @@ if (typeof window !== 'undefined') {
   }
 
   /**
-   * 获取支持的文件类型
+   * 获取支持的文件类型（使用统一的文件格式支持服务）
    */
   public getSupportedFileTypes(): Array<{
     extension: string;
     mimeType: string;
     description: string;
   }> {
-    return [
-      { extension: '.txt', mimeType: 'text/plain', description: '纯文本文件' },
-      { extension: '.md', mimeType: 'text/markdown', description: 'Markdown 文档' },
-      { extension: '.csv', mimeType: 'text/csv', description: 'CSV 表格文件' },
-      { extension: '.json', mimeType: 'application/json', description: 'JSON 数据文件' },
-      { extension: '.pdf', mimeType: 'application/pdf', description: 'PDF 文档' },
-      { extension: '.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', description: 'Word 文档' },
-      { extension: '.doc', mimeType: 'application/msword', description: 'Word 文档（旧版）' },
-      { extension: '.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', description: 'Excel 表格' },
-      { extension: '.xls', mimeType: 'application/vnd.ms-excel', description: 'Excel 表格（旧版）' },
-      { extension: '.pptx', mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', description: 'PowerPoint 演示文稿' },
-      { extension: '.ppt', mimeType: 'application/vnd.ms-powerpoint', description: 'PowerPoint 演示文稿（旧版）' },
-      { extension: '.jpg', mimeType: 'image/jpeg', description: 'JPEG 图片' },
-      { extension: '.jpeg', mimeType: 'image/jpeg', description: 'JPEG 图片' },
-      { extension: '.png', mimeType: 'image/png', description: 'PNG 图片' },
-      { extension: '.gif', mimeType: 'image/gif', description: 'GIF 图片' },
-      { extension: '.bmp', mimeType: 'image/bmp', description: 'BMP 图片' },
-      { extension: '.webp', mimeType: 'image/webp', description: 'WebP 图片' }
-    ];
+    const formatSupportService = FileFormatSupportService.getInstance();
+    return formatSupportService.getSupportedFileTypes();
   }
 
   /**
-   * 检查文件类型是否支持
+   * 检查文件类型是否支持（使用统一的文件格式支持服务）
    */
   public isFileTypeSupported(file: File): boolean {
-    const supportedTypes = this.getSupportedFileTypes();
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-    const isMimeTypeSupported = supportedTypes.some(type => 
-      file.type === type.mimeType || file.type.includes(type.extension.slice(1))
-    );
-    const isExtensionSupported = supportedTypes.some(type => 
-      fileExtension === type.extension
-    );
-    return isMimeTypeSupported || isExtensionSupported;
+    const formatSupportService = FileFormatSupportService.getInstance();
+    return formatSupportService.isFileTypeSupported(file);
   }
 
   /**
@@ -382,10 +359,22 @@ ${content}
               }).promise;
               
               let text = '';
-              const numPages = Math.min(pdf.numPages, 10); // 限制最多解析10页
-              
+              const numPages = pdf.numPages; // 解析所有页面，不设限制
+
+              console.log(`📄 开始解析PDF文档，共 ${numPages} 页`);
+
+              // 对于大文件，添加内存管理提示
+              if (numPages > 50) {
+                console.warn(`⚠️ 大型PDF文档 (${numPages}页)，解析可能需要较长时间`);
+              }
+
               for (let i = 1; i <= numPages; i++) {
                 try {
+                  // 显示解析进度
+                  if (numPages > 5 && i % 5 === 0) {
+                    console.log(`📖 PDF解析进度: ${i}/${numPages} 页 (${Math.round((i/numPages)*100)}%)`);
+                  }
+
                   const page = await pdf.getPage(i);
                   const content = await page.getTextContent();
                   const pageText = content.items.map((item: any) => item.str).join(' ');
@@ -399,7 +388,8 @@ ${content}
               if (text.trim().length === 0) {
                 throw new Error('PDF内容为空');
               }
-              
+
+              console.log(`✅ PDF解析完成: ${numPages}页，提取文本 ${text.length} 字符`);
               resolve(text);
             } catch (pdfError) {
               console.warn('PDF解析失败，尝试备用方案:', pdfError);
@@ -412,11 +402,48 @@ ${content}
             }
           } 
           // Word 文档处理
-          else if (file.type.includes('word') || fileExtension === '.docx' || fileExtension === '.doc') {
-            const arrayBuffer = e.target?.result as ArrayBuffer;
-            const result = await mammoth.extractRawText({ arrayBuffer });
-            resolve(result.value);
-          } 
+          else if (file.type.includes('word') ||
+                   file.type.includes('document') ||
+                   file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+                   file.type === 'application/msword' ||
+                   fileExtension === '.docx' ||
+                   fileExtension === '.doc') {
+            try {
+              const arrayBuffer = e.target?.result as ArrayBuffer;
+              console.log(`📄 开始解析Word文档: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+
+              // 使用mammoth解析Word文档
+              const result = await mammoth.extractRawText({
+                arrayBuffer,
+                // 添加更多选项以提高解析成功率
+                convertImage: mammoth.images.ignoreAll,
+                includeDefaultStyleMap: true
+              });
+
+              const extractedText = result.value.trim();
+
+              if (!extractedText) {
+                console.warn('Word文档解析结果为空');
+                resolve(`Word文档: ${file.name}\n文件大小: ${(file.size / 1024).toFixed(2)} KB\n\n文档内容为空或无法提取文本。\n建议：\n1. 检查文档是否包含文字内容\n2. 尝试另存为较新的.docx格式\n3. 复制文档内容到文本文件后上传`);
+              } else {
+                console.log(`✅ Word文档解析完成: 提取文本 ${extractedText.length} 字符`);
+
+                // 如果有解析警告，记录但不影响结果
+                if (result.messages && result.messages.length > 0) {
+                  console.warn('Word文档解析警告:', result.messages);
+                }
+
+                resolve(extractedText);
+              }
+            } catch (wordError) {
+              console.error('Word文档解析失败:', wordError);
+
+              // 提供详细的错误信息和建议
+              const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${wordError.message || '未知错误'}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
+
+              resolve(errorMessage);
+            }
+          }
           // Excel 文件处理
           else if (file.type.includes('excel') || file.type.includes('spreadsheet') || 
                    fileExtension === '.xlsx' || fileExtension === '.xls') {
@@ -439,15 +466,59 @@ ${content}
             resolve(text);
           } 
           // PowerPoint 文件处理
-          else if (file.type.includes('powerpoint') || file.type.includes('presentation') || 
+          else if (file.type.includes('powerpoint') || file.type.includes('presentation') ||
                    fileExtension === '.pptx' || fileExtension === '.ppt') {
-            // 注意：PowerPoint 解析比较复杂，这里提供一个基础实现
-            // 实际项目中可能需要更专业的库
-            const arrayBuffer = e.target?.result as ArrayBuffer;
-            // 这里可以集成 pptxjs 或其他 PowerPoint 解析库
-            // 暂时返回一个提示信息
-            resolve('PowerPoint 文件内容提取功能正在开发中...');
-          } 
+            try {
+              const arrayBuffer = e.target?.result as ArrayBuffer;
+
+              if (fileExtension === '.pptx') {
+                // PPTX 文件处理（基于 ZIP 结构）
+                try {
+                  const JSZip = (await import('jszip')).default;
+                  const zip = await JSZip.loadAsync(arrayBuffer);
+                  let extractedText = '';
+
+                  // 遍历所有幻灯片文件
+                  const slideFiles = Object.keys(zip.files).filter(filename =>
+                    filename.startsWith('ppt/slides/slide') && filename.endsWith('.xml')
+                  );
+
+                  for (const slideFile of slideFiles) {
+                    try {
+                      const slideContent = await zip.files[slideFile].async('text');
+                      // 使用正则表达式提取文本内容
+                      const textMatches = slideContent.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+                      if (textMatches) {
+                        textMatches.forEach(match => {
+                          const text = match.replace(/<[^>]*>/g, '').trim();
+                          if (text) {
+                            extractedText += text + '\n';
+                          }
+                        });
+                      }
+                    } catch (slideError) {
+                      console.warn(`幻灯片 ${slideFile} 解析失败:`, slideError);
+                    }
+                  }
+
+                  if (extractedText.trim()) {
+                    resolve(extractedText);
+                  } else {
+                    resolve(`PowerPoint 文件: ${file.name}\n文件大小: ${(file.size / 1024).toFixed(2)} KB\n\n未能提取到文本内容。可能原因：\n1. 幻灯片主要包含图片或图表\n2. 文本内容较少\n3. 文件格式复杂\n\n建议：\n1. 将PPT内容复制到Word文档后上传\n2. 导出为PDF格式后上传\n3. 手动输入主要内容`);
+                  }
+                } catch (zipError) {
+                  console.warn('PPTX ZIP解析失败:', zipError);
+                  resolve(`PowerPoint 文件: ${file.name}\n解析失败，建议转换为其他格式后上传。`);
+                }
+              } else {
+                // PPT 文件处理（二进制格式，较复杂）
+                resolve(`PowerPoint 文件: ${file.name}\n文件大小: ${(file.size / 1024).toFixed(2)} KB\n\n.ppt 格式解析较复杂，建议：\n1. 另存为 .pptx 格式后重新上传\n2. 将内容复制到Word文档后上传\n3. 导出为PDF格式后上传\n4. 手动输入主要内容`);
+              }
+            } catch (pptError) {
+              console.warn('PowerPoint解析失败:', pptError);
+              resolve(`PowerPoint 文件解析失败: ${file.name}\n建议转换为Word或PDF格式后上传。`);
+            }
+          }
           // 图片文件处理（OCR）
           else if (file.type.includes('image') || 
                    fileExtension === '.jpg' || fileExtension === '.jpeg' || 

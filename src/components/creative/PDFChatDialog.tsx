@@ -46,7 +46,7 @@ import {
   Zap
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { callAI } from '@/api/aiService';
+import { callPDFChat } from '@/api/aiService';
 
 /**
  * 对话消息接口
@@ -142,7 +142,17 @@ export function PDFChatDialog({
    * 发送消息
    */
   const sendMessage = async () => {
-    if (!inputValue.trim() || isLoading || !selectedDocument) return;
+    console.log('🚀 sendMessage 被调用');
+    console.log('📝 输入值:', inputValue);
+    console.log('📄 选中文档:', selectedDocument?.name);
+    console.log('⏳ 加载状态:', isLoading);
+
+    if (!inputValue.trim() || isLoading || !selectedDocument) {
+      console.log('❌ 发送条件不满足，退出');
+      return;
+    }
+
+    console.log('✅ 开始发送消息');
 
     const userMessage: ChatMessage = {
       id: `user_${Date.now()}`,
@@ -181,9 +191,13 @@ ${selectedDocument.content}
 请开始回答：`;
 
       // 调用AI服务
-      const response = await callAI({
-        prompt: `请分析以下PDF内容并回答问题：\n\nPDF内容：${selectedDocument.content}\n\n问题：${inputValue}`
+      console.log('🤖 开始调用PDF对话AI服务');
+      const response = await callPDFChat({
+        prompt: inputValue,
+        documentContent: selectedDocument.content
       });
+
+      console.log('🤖 PDF对话AI服务响应:', response);
 
       if (response.success) {
         let content = '';
@@ -244,18 +258,25 @@ ${selectedDocument.content}
    * 开始新对话
    */
   const startNewChat = () => {
+    console.log('🔄 开始新对话被点击');
+    console.log('📝 当前消息数量:', messages.length);
+    console.log('📄 选中文档:', selectedDocument?.name);
+
     // 保存当前对话历史
     if (messages.length > 1) {
       setChatHistory(prev => [...prev, messages.slice(1)]);
+      console.log('💾 保存了对话历史');
     }
-    
+
     // 清空当前消息
     setMessages([]);
-    
+    console.log('🗑️ 清空了当前消息');
+
     // 创建新的对话ID
     const newChatId = `chat_${Date.now()}`;
     setCurrentChatId(newChatId);
-    
+    console.log('🆔 创建新对话ID:', newChatId);
+
     // 重新初始化欢迎消息
     if (selectedDocument) {
       const welcomeMessage: ChatMessage = {
@@ -275,8 +296,11 @@ ${selectedDocument.content}
 请告诉我您想了解什么？`,
         timestamp: new Date()
       };
-      
+
       setMessages([welcomeMessage]);
+      console.log('✅ 重新初始化欢迎消息');
+    } else {
+      console.log('❌ 没有选中文档，无法初始化欢迎消息');
     }
   };
 
@@ -305,9 +329,9 @@ ${selectedDocument.content}
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col p-0">
+      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col p-0">
         {/* 标题栏 */}
-        <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+        <div className="flex items-center justify-between p-3 border-b bg-gray-50">
           <div className="flex items-center gap-3">
             <MessageSquare className="h-5 w-5 text-blue-600" />
             <div>
@@ -327,55 +351,54 @@ ${selectedDocument.content}
         </div>
 
         {/* 主体内容区域 */}
-        <div className="flex-1 flex flex-col min-h-0 p-4">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* 文档选择器 */}
           {documents.length > 1 && (
-            <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mx-4 mt-3 mb-2 p-2 bg-blue-50 border border-blue-200 rounded">
+              <div className="flex items-center gap-2 text-sm">
                 <FileText className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">选择文档：</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {documents.map((doc) => (
-                  <Button
-                    key={doc.id}
-                    variant={selectedDocument?.id === doc.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedDocument(doc)}
-                    className="text-sm"
-                  >
-                    {doc.name}
-                  </Button>
-                ))}
+                <span className="font-medium text-blue-900">文档：</span>
+                <div className="flex flex-wrap gap-1">
+                  {documents.map((doc) => (
+                    <Button
+                      key={doc.id}
+                      variant={selectedDocument?.id === doc.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedDocument(doc)}
+                      className="text-xs h-6 px-2"
+                    >
+                      {doc.name}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
-          {/* 对话区域 */}
-          <div className="flex-1 flex flex-col min-h-0 mb-4">
+          {/* 对话区域 - 占据主要空间 */}
+          <div className="flex-1 flex flex-col min-h-0 mx-4 mb-3">
             <div className="flex-1 border border-gray-300 rounded-lg bg-white overflow-hidden">
-              {/* 对话内容区域 */}
-              <ScrollArea className="h-full p-4">
-                <div className="space-y-4 min-h-[350px]">
+              <ScrollArea className="h-full">
+                <div className="p-4 space-y-6 min-h-full">
                   {messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-48 text-gray-500">
-                      <div className="text-center">
-                        <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                        <p className="text-lg font-medium mb-1">开始与AI助手对话</p>
-                        <p className="text-sm">选择下方的建议问题或直接输入您的问题</p>
-                      </div>
+                    <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
+                      <MessageSquare className="h-16 w-16 mb-4 opacity-20" />
+                      <p className="text-xl font-medium mb-2">开始与AI助手对话</p>
+                      <p className="text-sm text-center max-w-md">
+                        选择下方的建议问题快速开始，或直接在输入框中输入您的问题
+                      </p>
                     </div>
                   ) : (
                     messages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex gap-3 ${
+                        className={`flex gap-4 items-start ${
                           message.role === 'user' ? 'justify-end' : 'justify-start'
                         }`}
                       >
                         {message.role === 'assistant' && (
-                          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Bot className="h-4 w-4 text-blue-600" />
+                          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center border-2 border-blue-200 mt-1">
+                            <Bot className="h-5 w-5 text-blue-600" />
                           </div>
                         )}
 
@@ -394,7 +417,7 @@ ${selectedDocument.content}
                           ) : (
                             <div className="space-y-2">
                               <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
-                              {message.role === 'assistant' && !message.error && (
+                              {message.role === 'assistant' && !message.error && message.id !== 'welcome' && (
                                 <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
                                   <Button
                                     variant="ghost"
@@ -412,8 +435,8 @@ ${selectedDocument.content}
                         </div>
 
                         {message.role === 'user' && (
-                          <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                            <User className="h-4 w-4 text-gray-600" />
+                          <div className="flex-shrink-0 w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border-2 border-gray-200 mt-1">
+                            <User className="h-5 w-5 text-gray-600" />
                           </div>
                         )}
                       </div>
@@ -425,20 +448,24 @@ ${selectedDocument.content}
             </div>
           </div>
 
-          {/* 建议问题区域 */}
+        </div>
+
+        {/* 输入区域 - 固定在底部 */}
+        <div className="border-t bg-gray-50 p-4">
+          {/* 建议问题 - 极简显示 */}
           {messages.length <= 1 && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center gap-2 mb-3">
-                <Lightbulb className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">建议问题：</span>
+            <div className="mb-2 p-2 bg-blue-50/30 rounded border-l-2 border-blue-300">
+              <div className="flex items-center gap-1 mb-1">
+                <Lightbulb className="h-3 w-3 text-blue-500" />
+                <span className="text-xs font-medium text-blue-700">快速开始：</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {generateSuggestions().map((suggestion, index) => (
+              <div className="flex flex-wrap gap-1">
+                {generateSuggestions().slice(0, 3).map((suggestion, index) => (
                   <Button
                     key={index}
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="text-sm h-9 px-4 text-blue-700 border-blue-300 hover:bg-blue-100 justify-start"
+                    className="text-xs h-6 px-2 text-blue-600 hover:bg-blue-100/50"
                     onClick={() => setInputValue(suggestion)}
                   >
                     {suggestion}
@@ -447,10 +474,7 @@ ${selectedDocument.content}
               </div>
             </div>
           )}
-        </div>
 
-        {/* 输入区域 - 固定在底部 */}
-        <div className="border-t bg-gray-50 p-4">
           <div className="flex gap-3">
             <Textarea
               ref={inputRef}

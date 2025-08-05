@@ -51,8 +51,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuthStore } from '@/store/authStore';
-import { callOpenAIProxy } from '@/api/apiProxy';
-import { callOpenAIDevProxy } from '@/api/devApiProxy';
+import { callCreativeGeneration } from '@/api/aiService';
 import { Label as UILabel } from '@/components/ui/label';
 
 /**
@@ -1280,8 +1279,15 @@ ${generateStandardCallToAction()}
       const isVideo = format.includes('视频') || format.includes('短视频');
       const contentType = isVideo ? 'video' : 'text';
       
-      // 调用AI服务生成内容
-      const aiResponse = await callAIForCreativeContent(prompt, contentType);
+      // 调用统一AI服务生成创意内容
+      console.log('🎨 开始调用创意生成AI服务');
+      const aiResponse = await callCreativeGeneration({
+        targetAudience: selectedItems.target_audience || '通用用户',
+        useCase: selectedItems.use_case || '日常使用',
+        painPoint: selectedItems.pain_point || '需求痛点',
+        contentType,
+        additionalContext: prompt
+      });
       
       if (aiResponse.success && aiResponse.content) {
         setCurrentContent(aiResponse.content);
@@ -1320,94 +1326,7 @@ ${generateStandardCallToAction()}
     }
   };
 
-  /**
-   * 调用AI服务生成创意内容
-   */
-  const callAIForCreativeContent = async (prompt: string, contentType: 'text' | 'video'): Promise<{ success: boolean; content?: string; error?: string }> => {
-    try {
-      console.log('开始调用AI服务...');
-      
-      // 使用统一的AI服务层
-      const aiService = (await import('@/api/aiService')).callAI;
-      
-      const systemPrompt = `You are an expert social media copywriter and brand storyteller.
-
-Your job is to generate emotionally resonant and platform-ready marketing content based on user-selected dimensions, using natural human language and realistic storytelling.
-
----
-
-🧭 Writing Rules:
-
-1. You MUST fully integrate all provided dimensions into a **cohesive, vivid, and emotionally realistic** storyline — **no keywords or labels**.
-
-2. Only use dimensions that are explicitly provided. Do not invent or assume any missing information.
-
-3. 🖼 For graphic content (图文):
-   - Start with a strong emotional hook.
-   - Present a realistic pain point within the selected scenario.
-   - Transition naturally into a solution or product tied to the industry.
-   - Close with relatable interaction prompts (e.g. "你也有这种烦恼吗？快来评论！").
-
-4. 🎥 For video content:
-   - Output a structured script with: Scene description, camera movement, dialogue/subtitle, visual cues, BGM suggestion, emotional tone.
-   - Use real-life pacing and emotion fit for TikTok/Xiaohongshu.
-
-5. 💬 Language must:
-   - Match the tone and voice of the selected audience.
-   - Avoid marketing clichés like "提升用户体验" or "打造差异化".
-   - Use conversational, emoji-rich, platform-native expressions.
-
----
-
-🚫 Never:
-- Invent or assume dimensions not provided.
-- Output generic frameworks, bullet points, or headings.
-- Repeat input words mechanically without meaningful transformation.
-- Generate placeholder content.
-
-🎯 Goal:
-Your output must feel like it was written by a real KOC or content strategist — creative, emotionally engaging, and 100% based on the provided input.`;
-
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ];
-
-      console.log('调用AI服务，消息数量:', messages.length);
-      console.log('用户提示词长度:', prompt.length);
-
-      const response = await aiService({
-        prompt: prompt,
-        model: 'gpt-4',
-        maxTokens: 1000,
-        temperature: 0.7,
-          systemPrompt: systemPrompt
-      });
-
-      console.log('AI服务响应:', response);
-
-      if (response.success && response.content) {
-        const content = response.content;
-        console.log('AI生成成功，内容长度:', content.length);
-        return {
-          success: true,
-          content: content
-        };
-      } else {
-        console.error('AI服务响应异常:', response);
-        return {
-          success: false,
-          error: response.error || 'AI服务响应异常'
-        };
-      }
-    } catch (error) {
-      console.error('AI服务调用失败:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : '网络请求失败'
-      };
-    }
-  };
+  // 旧的AI调用函数已移除，现在使用统一的callCreativeGeneration接口
 
   /**
    * 解析视频脚本

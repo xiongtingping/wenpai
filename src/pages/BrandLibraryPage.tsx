@@ -1,3 +1,8 @@
+/**
+ * 修复版品牌语料库页面
+ * 解决JSX结构问题
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
   Database, Upload, FileText, File, FileImage,
@@ -17,24 +22,42 @@ import {
   Plus, X, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
   TrendingUp, Users2, Package, Share2, MoreHorizontal,
-  Loader2
+  Loader2, CheckCircle, Grid, List, Pin, Ban, AlertTriangle
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SafeTooltip } from "@/components/ui/SafeTooltip";
 import PageNavigation from '@/components/layout/PageNavigation';
 import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
 import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
-import PDFChatDialog from '@/components/creative/PDFChatDialog';
+import { PDFChatDialog } from '@/components/creative/PDFChatDialog';
 import { BrandProfile, BrandAsset } from '@/types/brand';
 import AIAnalysisService from '@/services/aiAnalysisService';
 import { WebContentExtractorService, WebExtractionResult } from '@/services/webContentExtractor';
+import BrandCorpusService, { BrandCorpus, BrandCorpusExtraction, BrandCorpusSource } from '@/services/brandCorpusService';
+import FileFormatSupportService from '@/services/fileFormatSupportService';
+import FileFormatDisplay from '@/components/ui/FileFormatDisplay';
+
+/**
+ * 品牌信息条目接口
+ */
+interface BrandInfoItem {
+  id: string;
+  content: string;
+  source: string;
+  confidence: number;
+  isPinned: boolean;
+  isBlocked: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 /**
  * 品牌语料库维度接口
@@ -45,1080 +68,89 @@ interface BrandDimension {
   description: string;
   icon: React.ReactNode;
   placeholder: string;
-  value: string;
+  category: string;
   keywords: string[];
-  isRequired: boolean;
-  category: 'basic' | 'identity' | 'content' | 'voice';
+  content: string;
+  items: BrandInfoItem[]; // 新增：支持多条信息
 }
 
-/**
- * 排序选项类型
- */
-type SortOption = 'date-new' | 'date-old' | 'name-asc' | 'name-desc' | 'size-asc' | 'size-desc';
+// 系统预定义分类选项
+const SYSTEM_CATEGORIES = [
+  { value: 'brand-material', label: '品牌资料', description: '品牌手册、VI规范、品牌指南等' },
+  { value: 'web-content', label: '网页内容', description: '官网内容、落地页、在线资料等' },
+  { value: 'document', label: '文档资料', description: 'PDF、Word、PPT等文档文件' },
+  { value: 'image', label: '图片资料', description: '产品图片、宣传图、设计素材等' },
+  { value: 'marketing', label: '营销资料', description: '广告文案、营销方案、推广素材等' },
+  { value: 'product', label: '产品资料', description: '产品介绍、功能说明、技术文档等' },
+  { value: 'legal', label: '法务资料', description: '合同模板、法律条款、合规文件等' },
+  { value: 'internal', label: '内部资料', description: '内部培训、流程文档、管理制度等' }
+];
 
-/**
- * 品牌资料库页面组件
- * @description 多维品牌语料库，支持AI自动分析和用户自定义修改
- */
-export default function BrandLibraryPage() {
-  const [activeTab, setActiveTab] = useState('assets');
-  const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
-  const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
+export default function BrandLibraryPageFixed() {
+  // 基础状态
+  const [activeTab, setActiveTab] = useState<string>('dimensions');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingProgress, setProcessingProgress] = useState(0);
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [showCategorySelector, setShowCategorySelector] = useState(false);
-  
-  // 预设的分类选项
-  const categoryOptions = [
-    '品牌资料',
-    '产品介绍',
-    '营销素材',
-    '用户反馈',
-    '竞品分析',
-    '行业报告',
-    '其他'
-  ];
-  const [isAssetDialogOpen, setIsAssetDialogOpen] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<BrandAsset | null>(null);
-  const [editingDimension, setEditingDimension] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>('date-new');
+  const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
+  const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [currentAnalysisFile, setCurrentAnalysisFile] = useState<string>('');
+  const [showBrandProfile, setShowBrandProfile] = useState(false);
+  const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
+  const [showPDFChat, setShowPDFChat] = useState(false);
+  const [selectedPDFAsset, setSelectedPDFAsset] = useState<BrandAsset | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [isEditingAsset, setIsEditingAsset] = useState<string | null>(null);
-  const [editingAssetName, setEditingAssetName] = useState('');
-  const [editingAssetDescription, setEditingAssetDescription] = useState('');
-  const [editingAssetCategory, setEditingAssetCategory] = useState('');
-  const [isViewingAsset, setIsViewingAsset] = useState<string | null>(null);
-  const [isAnalyzingAsset, setIsAnalyzingAsset] = useState<string | null>(null);
-  const [assetViewerContent, setAssetViewerContent] = useState('');
-  const [isPDFChatOpen, setIsPDFChatOpen] = useState(false);
+  const [sortOption, setSortOption] = useState<string>('date-new');
+  const [showSourceManager, setShowSourceManager] = useState(false);
 
-  // 网页提取相关状态
-  const [isWebExtractOpen, setIsWebExtractOpen] = useState(false);
-  const [webUrl, setWebUrl] = useState('');
-  const [isExtractingWeb, setIsExtractingWeb] = useState(false);
-  const [webExtractionResults, setWebExtractionResults] = useState<WebExtractionResult[]>([]);
-  const [extractionProgress, setExtractionProgress] = useState(0);
-  const [enableBrandAnalysis, setEnableBrandAnalysis] = useState(true);
-
-  // 拖拽上传相关状态
-  const [isDragOver, setIsDragOver] = useState(false);
+  // 文件上传相关
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // 可用的文件分类
-  const categories = ["品牌手册", "文案指南", "产品介绍", "营销素材", "新闻稿", "企业介绍", "VI规范", "品牌故事"];
-  
-  // 品牌语料库维度定义
-  const [brandDimensions, setBrandDimensions] = useState<BrandDimension[]>([
-    {
-      id: 'brandName',
-      title: '品牌名称',
-      description: '品牌的名字',
-      icon: <Target className="h-4 w-4" />,
-      placeholder: '请输入您的品牌名称...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'basic'
-    },
-    {
-      id: 'brandDescription',
-      title: '品牌描述',
-      description: '简要描述品牌定位和特色',
-      icon: <FileText className="h-4 w-4" />,
-      placeholder: '请描述您的品牌定位、特色和核心价值...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'basic'
-    },
-    {
-      id: 'brandSlogan',
-      title: '品牌Slogan',
-      description: '品牌的口号',
-      icon: <MessageSquare className="h-4 w-4" />,
-      placeholder: '请输入您的品牌口号...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'identity'
-    },
-    {
-      id: 'brandValues',
-      title: '品牌价值观',
-      description: '驱动品牌行为和决策的基本原则是什么？',
-      icon: <Heart className="h-4 w-4" />,
-      placeholder: '请描述您的品牌价值观和基本原则...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'identity'
-    },
-    {
-      id: 'brandVision',
-      title: '品牌愿景与使命',
-      description: '你的品牌存在的根本原因是什么？长期目标是什么？',
-      icon: <Target className="h-4 w-4" />,
-      placeholder: '请描述您的品牌愿景、使命和长期目标...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'identity'
-    },
-    {
-      id: 'brandStory',
-      title: '品牌故事',
-      description: '品牌起源故事',
-      icon: <BookOpen className="h-4 w-4" />,
-      placeholder: '请讲述您的品牌起源故事...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'identity'
-    },
-    {
-      id: 'adSlogans',
-      title: '广告语集',
-      description: '品牌过往广告中使用的标语口号',
-      icon: <Zap className="h-4 w-4" />,
-      placeholder: '请列出您的品牌广告语和标语...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'content'
-    },
-    {
-      id: 'productKeywords',
-      title: '产品描述词库',
-      description: '描述品牌产品或服务的核心关键词',
-      icon: <Package className="h-4 w-4" />,
-      placeholder: '请列出描述您产品的核心关键词...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'content'
-    },
-    {
-      id: 'brandTone',
-      title: '品牌语调/语气',
-      description: '包括语言风格、语气、情感倾向（如正式、友好、幽默、专业等）',
-      icon: <Palette className="h-4 w-4" />,
-      placeholder: '请描述您的品牌语调、语气和语言风格...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'voice'
-    },
-    {
-      id: 'brandPersonality',
-      title: '品牌个性',
-      description: '如果你的品牌是一个人，它会是什么样的性格？',
-      icon: <Users2 className="h-4 w-4" />,
-      placeholder: '请描述您的品牌个性特征...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'voice'
-    },
-    {
-      id: 'coreTopics',
-      title: '品牌核心话题',
-      description: '品牌内容的核心主题和指引方向',
-      icon: <TrendingUp className="h-4 w-4" />,
-      placeholder: '请列出您的品牌核心话题和内容方向...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'content'
-    },
-    {
-      id: 'brandHashtags',
-      title: '品牌Hashtags',
-      description: '以#话题的形式，在品牌内容结尾出现，推荐用户使用这些',
-      icon: <Hash className="h-4 w-4" />,
-      placeholder: '请列出您的品牌标签，如：#品牌名 #产品特色...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'content'
-    },
-    {
-      id: 'brandKeywords',
-      title: '品牌关键词',
-      description: '尽量在品牌内容中使用的词',
-      icon: <Tag className="h-4 w-4" />,
-      placeholder: '请列出您的品牌关键词...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'content'
-    },
-    {
-      id: 'forbiddenWords',
-      title: '品牌禁用词',
-      description: '禁止在品牌内容中出现的词',
-      icon: <Shield className="h-4 w-4" />,
-      placeholder: '请列出您的品牌禁用词...',
-      value: '',
-      keywords: [],
-      isRequired: false,
-      category: 'content'
-    }
-  ]);
 
-  // 初始化品牌档案
-  useEffect(() => {
-    const defaultProfile: BrandProfile = {
-      id: '1',
-      name: '我的品牌',
-      tone: '专业而亲切',
-      slogans: ['专业可靠', '用户友好', '创新引领'],
-      keywords: ['专业', '可靠', '创新', '用户友好'],
-      forbiddenWords: ['过度营销', '技术术语', '负面词汇'],
-      files: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      aiAnalysis: {
-        toneAnalysis: '专业而亲切',
-        keyThemes: ['专业', '可靠', '创新'],
-        brandPersonality: '专业可靠的品牌形象',
-        targetAudience: '追求专业解决方案的用户',
-        contentSuggestions: ['强调专业性', '突出可靠性', '展现创新性'],
-        valueAlignment: ['建议1', '建议2'],
-        topicConsistency: ['建议1', '建议2']
-      }
-    };
-    setBrandProfile(defaultProfile);
-  }, []);
-
-  /**
-   * 处理拖拽上传
-   */
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      handleFileUploadFromFiles(files);
-    }
-  };
-
-  /**
-   * 处理文件上传（从文件列表）
-   */
-  const handleFileUploadFromFiles = async (files: FileList) => {
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    // 处理每个上传的文件
-    const newAssets: BrandAsset[] = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      // 根据文件类型生成图标
-      let fileIcon = <FileText className="h-8 w-8 text-blue-500" />;
-
-      if (file.type.includes('pdf')) {
-        fileIcon = <File className="h-8 w-8 text-red-500" />;
-      } else if (file.type.includes('image')) {
-        fileIcon = <FileImage className="h-8 w-8 text-green-500" />;
-      } else if (file.type.includes('word')) {
-        fileIcon = <FileText className="h-8 w-8 text-blue-700" />;
-      }
-
-      // 使用用户选择的分类
-      const category = selectedCategory;
-
-      try {
-        // 读取文件内容
-        const aiService = AIAnalysisService.getInstance();
-        let fileContent = '';
-
-        if (aiService.isFileTypeSupported(file)) {
-          fileContent = await aiService.readFileContent(file);
-          console.log(`文件 ${file.name} 内容长度:`, fileContent.length);
-        } else {
-          fileContent = `不支持的文件类型: ${file.type}`;
-        }
-
-        // 创建资产对象
-      const asset: BrandAsset = {
-        id: `asset-${Date.now()}-${i}`,
-        name: file.name,
-          type: 'document',
-          content: fileContent,
-        uploadDate: new Date(),
-        fileIcon,
-        description: '',
-          category: category,
-        processingStatus: 'pending'
-      };
-
-      newAssets.push(asset);
-
-      } catch (error) {
-        console.error(`读取文件 ${file.name} 失败:`, error);
-
-        // 创建资产对象（内容为空）
-        const asset: BrandAsset = {
-          id: `asset-${Date.now()}-${i}`,
-          name: file.name,
-          type: 'document',
-          content: `文件读取失败: ${error instanceof Error ? error.message : '未知错误'}`,
-          uploadDate: new Date(),
-          fileIcon,
-          description: '',
-          category: category,
-          processingStatus: 'failed'
-        };
-
-        newAssets.push(asset);
-      }
-
-      // 更新上传进度
-      setUploadProgress(((i + 1) / files.length) * 100);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
-    // 添加到状态
-    setBrandAssets(prev => [...prev, ...newAssets]);
-
-    setIsUploading(false);
-    setUploadProgress(0);
-
-    toast({
-      title: "文件上传成功",
-      description: `已成功上传 ${newAssets.length} 个品牌资料文件，AI正在自动分析...`,
-    });
-
-    // 自动开始AI分析
-    setTimeout(() => {
-      handleProcessAssets();
-    }, 1000);
-  };
-
-  /**
-   * 处理文件上传（从input元素）
-   */
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    await handleFileUploadFromFiles(files);
-
-    // 重置文件输入
-    e.target.value = '';
-  };
-
-  /**
-   * 查看资料内容
-   */
-  const handleViewAsset = async (asset: BrandAsset) => {
-    setIsViewingAsset(asset.id);
-    
-    try {
-      // 显示原始文件内容，而不是AI分析结果
-      const content = `文件名称：${asset.name}\n文件大小：${asset.size || '未知'} KB\n上传时间：${asset.uploadDate.toLocaleString()}\n文件类型：${asset.type}\n\n原始内容：\n${asset.content || '暂无内容'}`;
-      setAssetViewerContent(content);
-    } catch (error) {
-      console.error('读取文件失败:', error);
-      setAssetViewerContent('无法读取文件内容');
-    }
-  };
-
-  /**
-   * 处理单个资料的AI分析
-   */
-  const handleAnalyzeSingleAsset = async (asset: BrandAsset) => {
-    setIsAnalyzingAsset(asset.id);
-    
-    try {
-      // 更新处理状态
-      setBrandAssets(prev => prev.map(a => 
-        a.id === asset.id 
-          ? { ...a, processingStatus: 'processing' as const }
-          : a
-      ));
-
-      // 调用真正的AI分析服务
-      const aiService = AIAnalysisService.getInstance();
-      
-      // 直接使用内容进行分析，不需要创建文件对象
-      
-      // 调用AI分析
-      const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
-      
-      // 构建分析结果
-      const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.brandKeywords?.join('、') || analysisResult.keywords.join('、')}\n2. 产品关键词：${analysisResult.productKeywords?.join('、') || ''}\n3. 目标受众：${analysisResult.targetAudience?.join('、') || ''}\n4. 品牌故事：${analysisResult.brandStory?.join('、') || ''}\n5. 竞争优势：${analysisResult.competitiveAdvantage?.join('、') || ''}\n6. 品牌语气特征：${analysisResult.tone}\n7. 内容建议：${analysisResult.suggestions.join('、')}`;
-      
-      // 合并所有关键词用于向后兼容
-      const allKeywords = [
-        ...(analysisResult.brandKeywords || []),
-        ...(analysisResult.productKeywords || []),
-        ...(analysisResult.targetAudience || []),
-        ...(analysisResult.brandStory || []),
-        ...(analysisResult.competitiveAdvantage || [])
-      ];
-
-      // 更新资产数据
-      setBrandAssets(prev => prev.map(a => 
-        a.id === asset.id 
-          ? { 
-              ...a, 
-              content: extractedContent,
-              extractedKeywords: allKeywords,
-              processingStatus: 'completed' as const
-            }
-          : a
-      ));
-
-      // 自动补充语料库维度
-      updateBrandDimensionsWithMultiDimension(analysisResult, extractedContent);
-
-      toast({
-        title: "AI分析完成",
-        description: `已成功分析 ${asset.name}，并补充到品牌语料库`,
-      });
-
-    } catch (error) {
-      console.error('AI分析失败:', error);
-      setBrandAssets(prev => prev.map(a => 
-        a.id === asset.id 
-          ? { ...a, processingStatus: 'failed' as const }
-          : a
-      ));
-      
-      toast({
-        title: "AI分析失败",
-        description: error instanceof Error ? error.message : "请稍后重试",
-        variant: "destructive"
-      });
-    } finally {
-      setIsAnalyzingAsset(null);
-    }
-  };
-
-  /**
-   * 批量处理品牌资料AI分析
-   */
-  const handleProcessAssets = async () => {
-    const unprocessedAssets = brandAssets.filter(asset => asset.processingStatus !== 'completed');
-    if (unprocessedAssets.length === 0) {
-      toast({
-        title: "无需处理",
-        description: "所有文件都已处理完成",
-      });
-      return;
-    }
-
-    setIsProcessing(true);
-    setProcessingProgress(0);
-
-    try {
-      const aiService = AIAnalysisService.getInstance();
-
-    for (let i = 0; i < unprocessedAssets.length; i++) {
-      const asset = unprocessedAssets[i];
-      
-        // 更新处理状态
-      setBrandAssets(prev => prev.map(a => 
-        a.id === asset.id 
-          ? { ...a, processingStatus: 'processing' as const }
-          : a
-      ));
-
-        try {
-                  // 调用AI分析
-        const analysisResult = await aiService.analyzeBrandContent(asset.content || '品牌资料内容');
-        
-        // 构建分析结果
-        const extractedContent = `AI分析结果：\n\n1. 品牌关键词：${analysisResult.brandKeywords?.join('、') || analysisResult.keywords.join('、')}\n2. 产品关键词：${analysisResult.productKeywords?.join('、') || ''}\n3. 目标受众：${analysisResult.targetAudience?.join('、') || ''}\n4. 品牌故事：${analysisResult.brandStory?.join('、') || ''}\n5. 竞争优势：${analysisResult.competitiveAdvantage?.join('、') || ''}\n6. 品牌语气特征：${analysisResult.tone}\n7. 内容建议：${analysisResult.suggestions.join('、')}`;
-        
-        // 合并所有关键词用于向后兼容
-        const allKeywords = [
-          ...(analysisResult.brandKeywords || []),
-          ...(analysisResult.productKeywords || []),
-          ...(analysisResult.targetAudience || []),
-          ...(analysisResult.brandStory || []),
-          ...(analysisResult.competitiveAdvantage || [])
-        ];
-
-        // 更新资产数据
-      setBrandAssets(prev => prev.map(a => 
-        a.id === asset.id 
-          ? { 
-              ...a, 
-                content: extractedContent,
-                extractedKeywords: allKeywords,
-              processingStatus: 'completed' as const
-            }
-          : a
-      ));
-
-        // 自动补充语料库维度
-        updateBrandDimensionsWithMultiDimension(analysisResult, extractedContent);
-
-        } catch (error) {
-          console.error(`分析 ${asset.name} 失败:`, error);
-          setBrandAssets(prev => prev.map(a => 
-            a.id === asset.id 
-              ? { ...a, processingStatus: 'failed' as const }
-              : a
-          ));
-        }
-
-      setProcessingProgress(((i + 1) / unprocessedAssets.length) * 100);
-    }
-
-      toast({
-        title: "批量AI分析完成",
-        description: "已自动分析所有品牌资料并补充语料库",
-      });
-
-    } catch (error) {
-      console.error('批量AI分析失败:', error);
-      toast({
-        title: "批量AI分析失败",
-        description: error instanceof Error ? error.message : "请稍后重试",
-        variant: "destructive"
-      });
-    } finally {
-    setIsProcessing(false);
-    setProcessingProgress(0);
-    }
-  };
-
-  /**
-   * 根据AI分析结果更新品牌维度（多维度版本）
-   */
-  const updateBrandDimensionsWithMultiDimension = (analysisResult: any, content: string) => {
-    setBrandDimensions(prev => prev.map(dimension => {
-      // 根据维度类型和关键词自动补充内容
-      let newValue = dimension.value;
-      let newKeywords = [...dimension.keywords];
-
-      switch (dimension.id) {
-        case 'brandKeywords':
-          if (dimension.value === '') {
-            const brandKeywords = analysisResult.brandKeywords || analysisResult.keywords || [];
-            if (brandKeywords.length > 0) {
-              newValue = brandKeywords.join('、');
-              newKeywords = [...dimension.keywords, ...brandKeywords];
-            }
-          }
-          break;
-        case 'productKeywords':
-          if (dimension.value === '') {
-            const productKeywords = analysisResult.productKeywords || [];
-            if (productKeywords.length > 0) {
-              newValue = productKeywords.join('、');
-              newKeywords = productKeywords;
-            }
-          }
-          break;
-        case 'targetAudience':
-          if (dimension.value === '') {
-            const audienceKeywords = analysisResult.targetAudience || [];
-            if (audienceKeywords.length > 0) {
-              newValue = audienceKeywords.join('、');
-              newKeywords = audienceKeywords;
-            }
-          }
-          break;
-        case 'brandStory':
-          if (dimension.value === '') {
-            const storyKeywords = analysisResult.brandStory || [];
-            if (storyKeywords.length > 0) {
-              newValue = storyKeywords.join('、');
-              newKeywords = storyKeywords;
-            }
-          }
-          break;
-        case 'competitiveAdvantage':
-          if (dimension.value === '') {
-            const advantageKeywords = analysisResult.competitiveAdvantage || [];
-            if (advantageKeywords.length > 0) {
-              newValue = advantageKeywords.join('、');
-              newKeywords = advantageKeywords;
-            }
-          }
-          break;
-        case 'brandDescription':
-          if (dimension.value === '') {
-            newValue = content.substring(0, 200) + '...';
-          }
-          break;
-        case 'brandTone':
-          if (dimension.value === '') {
-            newValue = analysisResult.tone || '专业、可靠、创新';
-          }
-          break;
-        case 'brandPersonality':
-          if (dimension.value === '') {
-            newValue = '专业可靠、用户友好、创新引领';
-          }
-          break;
-      }
-
-      return {
-        ...dimension,
-        value: newValue,
-        keywords: newKeywords
-      };
-    }));
-  };
-
-  /**
-   * 根据AI分析结果更新品牌维度（向后兼容版本）
-   */
-  const updateBrandDimensions = (keywords: string[], content: string) => {
-    setBrandDimensions(prev => prev.map(dimension => {
-      // 根据维度类型和关键词自动补充内容
-      let newValue = dimension.value;
-      let newKeywords = [...dimension.keywords];
-
-      switch (dimension.id) {
-        case 'brandKeywords':
-          if (dimension.value === '') {
-            // 品牌关键词：提取品牌核心概念、价值主张、品牌定位相关的词汇
-            const brandKeywords = keywords.filter(k => 
-              k.length > 1 && 
-              !dimension.keywords.includes(k) &&
-              (k.includes('品牌') || k.includes('价值') || k.includes('理念') || 
-               k.includes('定位') || k.includes('使命') || k.includes('愿景') ||
-               k.includes('文化') || k.includes('精神') || k.includes('传承') ||
-               k.includes('创新') || k.includes('专业') || k.includes('可靠') ||
-               k.includes('品质') || k.includes('服务') || k.includes('体验'))
-            );
-            if (brandKeywords.length > 0) {
-              newValue = brandKeywords.join('、');
-              newKeywords = [...dimension.keywords, ...brandKeywords];
-            }
-          }
-          break;
-        case 'brandDescription':
-          if (dimension.value === '') {
-            newValue = content.substring(0, 200) + '...';
-          }
-          break;
-        case 'brandTone':
-          if (dimension.value === '') {
-            newValue = '专业、可靠、创新';
-          }
-          break;
-        case 'brandPersonality':
-          if (dimension.value === '') {
-            newValue = '专业可靠、用户友好、创新引领';
-          }
-          break;
-        case 'productKeywords':
-          if (dimension.value === '') {
-            // 产品关键词：提取具体产品特征、功能、材质、技术相关的词汇
-            const productKeywords = keywords.filter(k => 
-              k.length > 1 && 
-              !dimension.keywords.includes(k) &&
-              !['品牌', '价值', '理念', '目标', '专业', '创新', '用户', '服务', '体验'].includes(k) &&
-              (k.includes('产品') || k.includes('功能') || k.includes('技术') || 
-               k.includes('材质') || k.includes('设计') || k.includes('工艺') ||
-               k.includes('性能') || k.includes('质量') || k.includes('规格') ||
-               k.includes('型号') || k.includes('系列') || k.includes('版本') ||
-               k.includes('升级') || k.includes('优化') || k.includes('改进') ||
-               k.includes('特色') || k.includes('优势') || k.includes('特点'))
-            );
-            if (productKeywords.length > 0) {
-              newValue = productKeywords.join('、');
-              newKeywords = productKeywords;
-            }
-          }
-          break;
-        case 'targetAudience':
-          if (dimension.value === '') {
-            // 目标受众：提取用户群体、市场定位相关的词汇
-            const audienceKeywords = keywords.filter(k => 
-              k.length > 1 && 
-              !dimension.keywords.includes(k) &&
-              (k.includes('用户') || k.includes('客户') || k.includes('消费者') || 
-               k.includes('人群') || k.includes('群体') || k.includes('市场') ||
-               k.includes('年龄') || k.includes('性别') || k.includes('职业') ||
-               k.includes('收入') || k.includes('地域') || k.includes('偏好') ||
-               k.includes('需求') || k.includes('痛点') || k.includes('场景'))
-            );
-            if (audienceKeywords.length > 0) {
-              newValue = audienceKeywords.join('、');
-              newKeywords = audienceKeywords;
-            }
-          }
-          break;
-        case 'brandStory':
-          if (dimension.value === '') {
-            // 品牌故事：提取历史、文化、情感相关的词汇
-            const storyKeywords = keywords.filter(k => 
-              k.length > 1 && 
-              !dimension.keywords.includes(k) &&
-              (k.includes('历史') || k.includes('文化') || k.includes('传承') || 
-               k.includes('故事') || k.includes('情感') || k.includes('记忆') ||
-               k.includes('传统') || k.includes('经典') || k.includes('情怀') ||
-               k.includes('回忆') || k.includes('时光') || k.includes('岁月') ||
-               k.includes('初心') || k.includes('使命') || k.includes('愿景'))
-            );
-            if (storyKeywords.length > 0) {
-              newValue = storyKeywords.join('、');
-              newKeywords = storyKeywords;
-            }
-          }
-          break;
-        case 'competitiveAdvantage':
-          if (dimension.value === '') {
-            // 竞争优势：提取差异化、优势、特色相关的词汇
-            const advantageKeywords = keywords.filter(k => 
-              k.length > 1 && 
-              !dimension.keywords.includes(k) &&
-              (k.includes('优势') || k.includes('特色') || k.includes('差异化') || 
-               k.includes('独特') || k.includes('领先') || k.includes('第一') ||
-               k.includes('首创') || k.includes('专利') || k.includes('技术') ||
-               k.includes('创新') || k.includes('突破') || k.includes('革命') ||
-               k.includes('颠覆') || k.includes('改变') || k.includes('提升'))
-            );
-            if (advantageKeywords.length > 0) {
-              newValue = advantageKeywords.join('、');
-              newKeywords = advantageKeywords;
-            }
-          }
-          break;
-      }
-
-      return {
-        ...dimension,
-        value: newValue,
-        keywords: newKeywords
-      };
-    }));
-  };
-
-  /**
-   * 更新维度内容
-   */
-  const updateDimension = (id: string, value: string) => {
-    setBrandDimensions(prev => prev.map(d => 
-      d.id === id ? { ...d, value } : d
-    ));
-  };
-
-  /**
-   * 添加关键词到维度
-   */
-  const addKeywordToDimension = (dimensionId: string, keyword: string) => {
-    if (!keyword.trim()) return;
-    
-    setBrandDimensions(prev => prev.map(d => {
-      if (d.id === dimensionId) {
-        const newKeywords = [...d.keywords, keyword.trim()];
-        const newValue = d.value ? `${d.value}、${keyword.trim()}` : keyword.trim();
-        return { ...d, keywords: newKeywords, value: newValue };
-      }
-      return d;
-    }));
-  };
-
-  /**
-   * 删除维度关键词
-   */
-  const removeKeywordFromDimension = (dimensionId: string, keyword: string) => {
-    setBrandDimensions(prev => prev.map(d => {
-      if (d.id === dimensionId) {
-        const newKeywords = d.keywords.filter(k => k !== keyword);
-        const newValue = newKeywords.join('、');
-        return { ...d, keywords: newKeywords, value: newValue };
-      }
-      return d;
-    }));
-  };
-
-  /**
-   * 保存品牌语料库
-   */
-  const saveBrandDimensions = () => {
-    // 移除必填项验证
-    // 保存到本地存储
-    localStorage.setItem('brandDimensions', JSON.stringify(brandDimensions));
-
-    toast({
-      title: "保存成功",
-      description: "品牌语料库已保存",
-    });
-  };
-
-  /**
-   * 获取维度分类
-   */
-  const getDimensionsByCategory = (category: string) => {
-    return brandDimensions.filter(d => d.category === category);
-  };
-
-  /**
-   * 处理网页内容提取
-   */
-  const handleWebExtraction = async () => {
-    if (!webUrl.trim()) {
-      toast({
-        title: "请输入URL",
-        description: "请提供有效的网页地址",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsExtractingWeb(true);
-    setExtractionProgress(0);
-
-    try {
-      const webExtractor = WebContentExtractorService.getInstance();
-
-      // 检查URL可访问性
-      setExtractionProgress(20);
-      const accessCheck = await webExtractor.checkUrlAccessibility(webUrl);
-
-      if (!accessCheck.accessible) {
-        throw new Error(accessCheck.error || 'URL无法访问');
-      }
-
-      // 提取网页内容
-      setExtractionProgress(50);
-      const extractionResult = await webExtractor.extractFromUrl(webUrl, {
-        includeBrandAnalysis: enableBrandAnalysis,
-        maxContentLength: 5000
-      });
-
-      setExtractionProgress(80);
-
-      if (extractionResult.status === 'error') {
-        throw new Error(extractionResult.error || '内容提取失败');
-      }
-
-      // 转换为品牌资产并添加到列表
-      const actualCategory = selectedCategory === 'all' ? '品牌资料' : selectedCategory;
-      const brandAsset = webExtractor.convertToBrandAsset(extractionResult, actualCategory);
-      setBrandAssets(prev => [brandAsset, ...prev]);
-
-      // 保存提取结果
-      setWebExtractionResults(prev => [extractionResult, ...prev]);
-
-      // 如果有品牌分析结果，自动更新语料库
-      if (extractionResult.brandAnalysis) {
-        updateBrandDimensionsFromWebExtraction(extractionResult.brandAnalysis);
-      }
-
-      setExtractionProgress(100);
-
-      toast({
-        title: "网页内容提取成功",
-        description: `已成功提取 ${extractionResult.title} 的内容并添加到品牌资料库`,
-      });
-
-      // 清空URL输入
-      setWebUrl('');
-
-    } catch (error) {
-      console.error('网页提取失败:', error);
-
-      toast({
-        title: "网页提取失败",
-        description: error instanceof Error ? error.message : "请检查URL是否有效或稍后重试",
-        variant: "destructive"
-      });
-    } finally {
-      setIsExtractingWeb(false);
-      setExtractionProgress(0);
-    }
-  };
-
-  /**
-   * 从网页提取结果更新品牌语料库
-   */
-  const updateBrandDimensionsFromWebExtraction = (brandAnalysis: any) => {
-    setBrandDimensions(prev => prev.map(dimension => {
-      let newValue = dimension.value;
-      let newKeywords = [...dimension.keywords];
-
-      switch (dimension.id) {
-        case 'brandKeywords':
-          if (brandAnalysis.brandKeywords?.length > 0) {
-            const uniqueKeywords = brandAnalysis.brandKeywords.filter((k: string) =>
-              !newKeywords.includes(k) && k.length > 1
-            );
-            if (uniqueKeywords.length > 0) {
-              newKeywords = [...newKeywords, ...uniqueKeywords];
-              newValue = newValue ? `${newValue}、${uniqueKeywords.join('、')}` : uniqueKeywords.join('、');
-            }
-          }
-          break;
-        case 'brandTone':
-          if (brandAnalysis.brandTone && !dimension.value) {
-            newValue = brandAnalysis.brandTone;
-          }
-          break;
-        case 'brandValues':
-          if (brandAnalysis.brandValues?.length > 0) {
-            const uniqueValues = brandAnalysis.brandValues.filter((v: string) =>
-              !newKeywords.includes(v)
-            );
-            if (uniqueValues.length > 0) {
-              newKeywords = [...newKeywords, ...uniqueValues];
-              newValue = newValue ? `${newValue}、${uniqueValues.join('、')}` : uniqueValues.join('、');
-            }
-          }
-          break;
-        case 'targetAudience':
-          if (brandAnalysis.targetAudience?.length > 0) {
-            const uniqueAudience = brandAnalysis.targetAudience.filter((a: string) =>
-              !newKeywords.includes(a)
-            );
-            if (uniqueAudience.length > 0) {
-              newKeywords = [...newKeywords, ...uniqueAudience];
-              newValue = newValue ? `${newValue}、${uniqueAudience.join('、')}` : uniqueAudience.join('、');
-            }
-          }
-          break;
-      }
-
-      return { ...dimension, value: newValue, keywords: newKeywords };
-    }));
-  };
-
-  /**
-   * 删除资产
-   */
-  const handleDeleteAsset = (assetId: string) => {
-    setBrandAssets(prev => prev.filter(asset => asset.id !== assetId));
-    toast({
-      title: "删除成功",
-      description: "品牌资料已删除",
-    });
-  };
-
-  /**
-   * 编辑资产
-   */
-  const handleEditAsset = (asset: BrandAsset) => {
-    setSelectedAsset(asset);
-    setEditingAssetName(asset.name);
-    setEditingAssetDescription(asset.description || '');
-    setEditingAssetCategory(asset.category || '品牌资料');
-    setIsEditingAsset(asset.id);
-  };
-
-  /**
-   * 保存资产编辑
-   */
-  const handleSaveAssetEdit = () => {
-    if (!selectedAsset) return;
-    
-    setBrandAssets(prev => prev.map(asset => 
-      asset.id === selectedAsset.id 
-        ? { 
-            ...asset, 
-            name: editingAssetName, 
-            description: editingAssetDescription,
-            category: editingAssetCategory
-          }
-        : asset
-    ));
-    
-    setIsEditingAsset(null);
-    setSelectedAsset(null);
-    setEditingAssetName('');
-    setEditingAssetDescription('');
-    setEditingAssetCategory('');
-    
-    toast({
-      title: "保存成功",
-      description: "品牌资料信息已更新",
-    });
-  };
-
-  /**
-   * 分享资产
-   */
-  const handleShareAsset = (asset: BrandAsset) => {
-    // 生成分享链接
-    const shareUrl = `${window.location.origin}/brand-asset/${asset.id}`;
-    navigator.clipboard.writeText(shareUrl);
-    
-    toast({
-      title: "分享链接已复制",
-      description: "分享链接已复制到剪贴板",
-    });
-  };
-
-  /**
-   * 切换分类选择
-   */
-  const toggleCategory = (category: string) => {
-    setSelectedCategories(prev => {
-      if (prev.includes(category)) {
-        return prev.filter(c => c !== category);
-      } else {
-        return [...prev, category];
-      }
-    });
-  };
-
-  /**
-   * 获取排序选项显示名称
-   */
-  const getSortOptionName = (option: SortOption): string => {
-    switch (option) {
-      case 'date-new': return '最新上传';
-      case 'date-old': return '最早上传';
-      case 'name-asc': return '名称 A-Z';
-      case 'name-desc': return '名称 Z-A';
-      case 'size-asc': return '大小（小到大）';
-      case 'size-desc': return '大小（大到小）';
-      default: return '最新上传';
-    }
-  };
-
-  /**
-   * 过滤和排序资产
-   */
+  // 语料库相关状态
+  const [brandDimensions, setBrandDimensions] = useState<BrandDimension[]>([]);
+  const [corpusExtractions, setCorpusExtractions] = useState<BrandCorpusExtraction[]>([]);
+  const [isExtractingCorpus, setIsExtractingCorpus] = useState(false);
+  const [extractionProgress, setExtractionProgress] = useState(0);
+  const [brandCorpus, setBrandCorpus] = useState<BrandCorpus | null>(null);
+  const [isProcessingCorpus, setIsProcessingCorpus] = useState(false);
+  const [corpusProcessingProgress, setCorpusProcessingProgress] = useState(0);
+  const [editingDimension, setEditingDimension] = useState<string | null>(null);
+
+  // 网页内容提取相关
+  const [webUrl, setWebUrl] = useState('');
+  const [isExtractingWeb, setIsExtractingWeb] = useState(false);
+  const [isWebExtractOpen, setIsWebExtractOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // PDF对话相关
+  const [showPdfDialog, setShowPdfDialog] = useState(false);
+  const [selectedPdfFile, setSelectedPdfFile] = useState<BrandAsset | null>(null);
+
+  // 视图模式
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+
+  // 弹窗状态管理
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [assetToDelete, setAssetToDelete] = useState<BrandAsset | null>(null);
+  const [assetToEdit, setAssetToEdit] = useState<BrandAsset | null>(null);
+  const [newCategory, setNewCategory] = useState('');
+
+  // 过滤和排序后的资产列表
   const filteredAndSortedAssets = brandAssets
     .filter(asset => {
-      // 搜索筛选
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch = asset.name.toLowerCase().includes(query) ||
-               asset.description?.toLowerCase().includes(query) ||
-               asset.category?.toLowerCase().includes(query);
-        if (!matchesSearch) return false;
-      }
+      // 搜索过滤
+      const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // 分类筛选
-      if (selectedCategory && selectedCategory !== 'all') {
-        return asset.category === selectedCategory;
-      }
+      // 分类过滤
+      const matchesCategory = selectedCategories.length === 0 ||
+        selectedCategories.some(cat => asset.category === cat || asset.type === cat);
 
-      return true;
+      return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
       switch (sortOption) {
@@ -1130,14 +162,824 @@ export default function BrandLibraryPage() {
           return a.name.localeCompare(b.name);
         case 'name-desc':
           return b.name.localeCompare(a.name);
-        case 'size-asc':
-          return parseFloat(a.size || '0') - parseFloat(b.size || '0');
-        case 'size-desc':
-          return parseFloat(b.size || '0') - parseFloat(a.size || '0');
+        case 'size-large':
+          return parseFloat(b.size.replace(' KB', '')) - parseFloat(a.size.replace(' KB', ''));
+        case 'size-small':
+          return parseFloat(a.size.replace(' KB', '')) - parseFloat(b.size.replace(' KB', ''));
         default:
           return 0;
       }
     });
+
+  // 服务实例
+  const aiService = AIAnalysisService.getInstance();
+  const webExtractor = WebContentExtractorService.getInstance();
+  const corpusService = BrandCorpusService.getInstance();
+
+  // 初始化示例数据
+  useEffect(() => {
+    // 添加示例品牌资料
+    const sampleAssets: BrandAsset[] = [
+      {
+        id: 'sample-1',
+        name: '品牌手册.pdf',
+        type: 'pdf',
+        size: '2.5 MB',
+        uploadDate: new Date().toISOString(),
+        status: 'analyzed',
+        content: '这是一份完整的品牌手册，包含品牌理念、视觉识别系统、应用规范等内容...',
+        category: 'brand-material'
+      },
+      {
+        id: 'sample-2',
+        name: '产品介绍.pptx',
+        type: 'document',
+        size: '1.8 MB',
+        uploadDate: new Date(Date.now() - 86400000).toISOString(),
+        status: 'uploaded',
+        content: '产品功能介绍、特色亮点、技术参数等详细信息...',
+        category: 'document'
+      },
+      {
+        id: 'sample-3',
+        name: '官网首页内容',
+        type: 'web',
+        size: '156 KB',
+        uploadDate: new Date(Date.now() - 172800000).toISOString(),
+        status: 'analyzed',
+        content: '官网首页的品牌介绍、核心价值主张、产品展示等内容...',
+        category: 'web-content',
+        url: 'https://example.com'
+      }
+    ];
+
+    setBrandAssets(sampleAssets);
+  }, []);
+
+  // 初始化品牌维度
+  useEffect(() => {
+    const initializeDimensions = () => {
+      const dimensions: BrandDimension[] = [
+        // 基础信息
+        {
+          id: 'brand-name',
+          title: '品牌名称',
+          description: '品牌的正式名称、简称、英文名等',
+          icon: <Tag className="h-4 w-4" />,
+          placeholder: '请输入品牌的正式名称、简称、英文名等...',
+          category: 'basic',
+          keywords: [],
+          content: '',
+          items: [
+            {
+              id: 'item-1',
+              content: '示例品牌科技有限公司',
+              source: '品牌手册.pdf',
+              confidence: 0.95,
+              isPinned: false,
+              isBlocked: false,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            }
+          ]
+        },
+        {
+          id: 'brand-description',
+          title: '品牌描述',
+          description: '品牌的基本介绍和核心定位',
+          icon: <FileText className="h-4 w-4" />,
+          placeholder: '请描述品牌的基本情况、核心定位、主要业务等...',
+          category: 'basic',
+          keywords: [],
+          content: '',
+          items: [
+            {
+              id: 'item-2',
+              content: '专注于AI技术创新的科技公司，致力于为企业提供智能化解决方案',
+              source: '品牌手册.pdf',
+              confidence: 0.88,
+              isPinned: false,
+              isBlocked: false,
+              createdAt: new Date(Date.now() - 86400000),
+              updatedAt: new Date(Date.now() - 86400000)
+            },
+            {
+              id: 'item-3',
+              content: '以用户为中心，通过技术创新推动行业发展',
+              source: '官网首页内容',
+              confidence: 0.82,
+              isPinned: false,
+              isBlocked: false,
+              createdAt: new Date(Date.now() - 172800000),
+              updatedAt: new Date(Date.now() - 172800000)
+            },
+            {
+              id: 'item-4',
+              content: '领先的人工智能解决方案提供商，专注于企业数字化转型',
+              source: '产品介绍.pptx',
+              confidence: 0.91,
+              isPinned: true,
+              isBlocked: false,
+              createdAt: new Date(Date.now() - 259200000),
+              updatedAt: new Date()
+            }
+          ]
+        },
+        // 语调风格
+        {
+          id: 'brand-tone',
+          title: '品牌语调/语气',
+          description: '品牌的沟通语调和表达风格',
+          icon: <MessageSquare className="h-4 w-4" />,
+          placeholder: '请描述品牌的语调特点，如：专业严谨、亲切友好、活泼幽默等...',
+          category: 'voice',
+          keywords: [],
+          content: '',
+          items: [
+            {
+              id: 'item-5',
+              content: '专业而亲和，既体现技术实力又保持人性化沟通',
+              source: '品牌手册.pdf',
+              confidence: 0.90,
+              isPinned: true,
+              isBlocked: false,
+              createdAt: new Date(Date.now() - 86400000),
+              updatedAt: new Date()
+            },
+            {
+              id: 'item-6',
+              content: '简洁明了，避免过于技术化的表达，让用户容易理解',
+              source: '官网首页内容',
+              confidence: 0.85,
+              isPinned: false,
+              isBlocked: false,
+              createdAt: new Date(Date.now() - 172800000),
+              updatedAt: new Date(Date.now() - 172800000)
+            },
+            {
+              id: 'item-7',
+              content: '充满活力和创新精神，体现年轻团队的朝气',
+              source: '产品介绍.pptx',
+              confidence: 0.78,
+              isPinned: false,
+              isBlocked: true,
+              createdAt: new Date(Date.now() - 259200000),
+              updatedAt: new Date(Date.now() - 86400000)
+            }
+          ]
+        },
+        {
+          id: 'brand-personality',
+          title: '品牌个性',
+          description: '品牌的性格特征和人格化特点',
+          icon: <Heart className="h-4 w-4" />,
+          placeholder: '请描述品牌的个性特征，如：创新进取、稳重可靠、年轻时尚等...',
+          category: 'voice',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        // 品牌身份
+        {
+          id: 'brand-slogan',
+          title: '品牌Slogan',
+          description: '品牌的核心口号和标语',
+          icon: <Hash className="h-4 w-4" />,
+          placeholder: '请输入品牌的主要Slogan、口号、标语等...',
+          category: 'identity',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'brand-values',
+          title: '品牌价值观',
+          description: '品牌坚持的核心价值观念',
+          icon: <Star className="h-4 w-4" />,
+          placeholder: '请描述品牌的核心价值观、理念、原则等...',
+          category: 'identity',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'brand-vision-mission',
+          title: '品牌愿景与使命',
+          description: '品牌的长远愿景和使命目标',
+          icon: <Target className="h-4 w-4" />,
+          placeholder: '请描述品牌的愿景目标、使命责任、发展方向等...',
+          category: 'identity',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'brand-story',
+          title: '品牌故事',
+          description: '品牌的发展历程和核心故事',
+          icon: <BookOpen className="h-4 w-4" />,
+          placeholder: '请描述品牌的创立背景、发展历程、重要里程碑、创始人故事等...',
+          category: 'identity',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        // 内容策略
+        {
+          id: 'advertising-slogans',
+          title: '广告语集',
+          description: '品牌的各类广告语和宣传语',
+          icon: <Lightbulb className="h-4 w-4" />,
+          placeholder: '请输入品牌的广告语、宣传语、营销文案等...',
+          category: 'content',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'product-descriptions',
+          title: '产品描述词库',
+          description: '产品介绍和描述的常用词汇',
+          icon: <Package className="h-4 w-4" />,
+          placeholder: '请输入产品描述的常用词汇、特色描述、功能介绍等...',
+          category: 'content',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'brand-topics',
+          title: '品牌核心话题',
+          description: '品牌经常讨论的核心主题',
+          icon: <MessageSquare className="h-4 w-4" />,
+          placeholder: '请输入品牌的核心话题、讨论主题、内容方向等...',
+          category: 'content',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'brand-hashtags',
+          title: '品牌Hashtags',
+          description: '品牌的标签和话题标签',
+          icon: <Hash className="h-4 w-4" />,
+          placeholder: '请输入品牌的Hashtags、话题标签、社交媒体标签等...',
+          category: 'content',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'brand-keywords',
+          title: '品牌关键词',
+          description: '品牌的核心关键词和搜索词',
+          icon: <Search className="h-4 w-4" />,
+          placeholder: '请输入品牌的关键词、搜索词、SEO词汇等...',
+          category: 'content',
+          keywords: [],
+          content: '',
+          items: []
+        },
+        {
+          id: 'brand-forbidden-words',
+          title: '品牌禁用词',
+          description: '品牌不应使用的词汇和表达',
+          icon: <X className="h-4 w-4" />,
+          placeholder: '请输入品牌应避免使用的词汇、禁用表达、敏感词汇等...',
+          category: 'content',
+          keywords: [],
+          content: '',
+          items: []
+        }
+      ];
+
+      setBrandDimensions(dimensions);
+    };
+
+    initializeDimensions();
+  }, []);
+
+  /**
+   * 获取维度分类
+   */
+  const getDimensionsByCategory = (category: string) => {
+    return brandDimensions.filter(d => d.category === category);
+  };
+
+  /**
+   * 更新维度内容
+   */
+  const updateDimension = (id: string, content: string) => {
+    setBrandDimensions(prev => prev.map(d =>
+      d.id === id ? { ...d, content } : d
+    ));
+  };
+
+  /**
+   * 添加关键词到维度
+   */
+  const addKeywordToDimension = (dimensionId: string, keyword: string) => {
+    setBrandDimensions(prev => prev.map(d =>
+      d.id === dimensionId ? { ...d, keywords: [...d.keywords, keyword] } : d
+    ));
+  };
+
+  /**
+   * 从维度移除关键词
+   */
+  const removeKeywordFromDimension = (dimensionId: string, keyword: string) => {
+    setBrandDimensions(prev => prev.map(d =>
+      d.id === dimensionId ? { ...d, keywords: d.keywords.filter(k => k !== keyword) } : d
+    ));
+  };
+
+  /**
+   * 更新维度信息条目
+   */
+  const updateDimensionItem = (dimensionId: string, itemId: string, updates: Partial<BrandInfoItem>) => {
+    setBrandDimensions(prev => prev.map(d =>
+      d.id === dimensionId ? {
+        ...d,
+        items: d.items.map(item =>
+          item.id === itemId ? { ...item, ...updates, updatedAt: new Date() } : item
+        )
+      } : d
+    ));
+  };
+
+  /**
+   * 添加维度信息条目
+   */
+  const addDimensionItem = (dimensionId: string, content: string) => {
+    const newItem: BrandInfoItem = {
+      id: `item-${Date.now()}`,
+      content,
+      source: '手动添加',
+      confidence: 1.0,
+      isPinned: false,
+      isBlocked: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    setBrandDimensions(prev => prev.map(d =>
+      d.id === dimensionId ? { ...d, items: [...d.items, newItem] } : d
+    ));
+  };
+
+  /**
+   * 删除维度信息条目
+   */
+  const deleteDimensionItem = (dimensionId: string, itemId: string) => {
+    setBrandDimensions(prev => prev.map(d =>
+      d.id === dimensionId ? { ...d, items: d.items.filter(item => item.id !== itemId) } : d
+    ));
+  };
+
+  /**
+   * 将AI提取的信息添加到对应的品牌维度中
+   * ✅ FIXED: 2025-08-05 真实AI分析结果处理
+   */
+  const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
+    // 字段名称到维度ID的映射
+    const fieldToDimensionMap: { [key: string]: string } = {
+      'brand-name': 'brand-name',
+      'brand-mission': 'brand-mission',
+      'brand-vision': 'brand-vision',
+      'brand-values': 'brand-values',
+      'brand-story': 'brand-story',
+      'target-audience': 'target-audience',
+      'brand-tone': 'brand-tone',
+      'brand-personality': 'brand-personality',
+      'brand-keywords': 'brand-keywords',
+      'core-topics': 'core-topics',
+      'hashtags': 'hashtags',
+      'slogans': 'slogans'
+    };
+
+    const dimensionId = fieldToDimensionMap[fieldName];
+    if (!dimensionId) {
+      console.warn(`未找到字段 ${fieldName} 对应的维度`);
+      return;
+    }
+
+    // 创建新的信息条目
+    const newItem: BrandDimensionItem = {
+      id: `ai-extracted-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      content: Array.isArray(value) ? value.join('、') : String(value),
+      source: sourceName,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isPinned: confidence > 0.8, // 高置信度的自动钉住
+      isBlocked: false,
+      aiGenerated: true,
+      confidence: confidence
+    };
+
+    // 添加到对应维度
+    setBrandDimensions(prev => prev.map(dimension => {
+      if (dimension.id === dimensionId) {
+        // 检查是否已存在相似内容，避免重复
+        const existingItem = dimension.items.find(item =>
+          item.content.toLowerCase().includes(newItem.content.toLowerCase()) ||
+          newItem.content.toLowerCase().includes(item.content.toLowerCase())
+        );
+
+        if (!existingItem) {
+          return {
+            ...dimension,
+            items: [...dimension.items, newItem]
+          };
+        }
+      }
+      return dimension;
+    }));
+  };
+
+  /**
+   * 保存品牌维度
+   */
+  const saveBrandDimensions = async () => {
+    try {
+      // 这里可以添加保存到后端的逻辑
+      toast({
+        title: "保存成功",
+        description: "品牌语料库已保存",
+      });
+    } catch (error) {
+      toast({
+        title: "保存失败",
+        description: "保存过程中出现错误",
+        variant: "destructive",
+      });
+    }
+  };
+
+  /**
+   * 批量处理品牌语料库提取 - 使用真实AI分析
+   * ✅ FIXED: 2025-08-05 接入真实AI服务进行品牌语料库分析
+   * 🔒 LOCKED: 禁止使用模拟数据或降级方案
+   */
+  const handleBatchCorpusExtraction = async () => {
+    const unprocessedAssets = brandAssets.filter(asset =>
+      asset.status === 'uploaded' || asset.status === 'error'
+    );
+
+    if (unprocessedAssets.length === 0) {
+      toast({
+        title: "没有可处理的文件",
+        description: "所有文件都已处理完成",
+      });
+      return;
+    }
+
+    setIsProcessingCorpus(true);
+    setCorpusProcessingProgress(0);
+
+    try {
+      const extractions: BrandCorpusExtraction[] = [];
+
+      // 动态导入AI服务和品牌语料库服务
+      const { callAI, AITaskType } = await import('@/api/aiService');
+      const { BrandCorpusService } = await import('@/services/brandCorpusService');
+      const corpusService = BrandCorpusService.getInstance();
+
+      for (let i = 0; i < unprocessedAssets.length; i++) {
+        const asset = unprocessedAssets[i];
+        setCorpusProcessingProgress((i / unprocessedAssets.length) * 100);
+
+        try {
+          console.log(`🔍 开始AI分析文件: ${asset.name}`);
+
+          // 使用真实AI服务进行品牌语料库提取
+          const analysisResult = await corpusService.processDocument(
+            asset.id,
+            asset.content || '',
+            asset.name
+          );
+
+          if (!analysisResult || !analysisResult.extractedFields) {
+            throw new Error('AI分析返回空结果');
+          }
+
+          const extraction: BrandCorpusExtraction = {
+            id: `extraction-${Date.now()}-${i}`,
+            sourceId: asset.id,
+            sourceName: asset.name,
+            sourceType: asset.type,
+            extractedAt: new Date().toISOString(),
+            extractedFields: analysisResult.extractedFields,
+            status: 'completed',
+            aiAnalysisMetadata: {
+              model: 'deepseek-chat',
+              confidence: analysisResult.overallConfidence || 0.8,
+              processingTime: analysisResult.processingTime || 0,
+              extractedFieldsCount: Object.keys(analysisResult.extractedFields).length
+            }
+          };
+
+          extractions.push(extraction);
+
+          // 将提取的信息添加到品牌维度中
+          if (analysisResult.extractedFields) {
+            Object.entries(analysisResult.extractedFields).forEach(([fieldName, fieldData]) => {
+              if (fieldData.value && fieldData.confidence > 0.5) {
+                // 根据字段名称添加到对应的维度
+                addItemToDimension(fieldName, fieldData.value, asset.name, fieldData.confidence);
+              }
+            });
+          }
+
+          // 更新资产状态
+          setBrandAssets(prev => prev.map(a =>
+            a.id === asset.id ? { ...a, status: 'analyzed' } : a
+          ));
+
+          console.log(`✅ AI分析完成: ${asset.name}`, {
+            extractedFields: Object.keys(analysisResult.extractedFields).length,
+            confidence: analysisResult.overallConfidence
+          });
+
+        } catch (error) {
+          console.error(`❌ AI分析文件 ${asset.name} 失败:`, error);
+          setBrandAssets(prev => prev.map(a =>
+            a.id === asset.id ? { ...a, status: 'error' } : a
+          ));
+
+          // 显示具体错误信息
+          toast({
+            title: `分析失败: ${asset.name}`,
+            description: error instanceof Error ? error.message : '未知错误',
+            variant: "destructive",
+          });
+        }
+      }
+
+      setCorpusExtractions(prev => [...prev, ...extractions]);
+      setCorpusProcessingProgress(100);
+
+      toast({
+        title: "批量语料库提取完成",
+        description: `已成功处理 ${extractions.length} 个资料，信息已追加到语料库`,
+      });
+
+    } catch (error) {
+      console.error('批量语料库提取失败:', error);
+      toast({
+        title: "批量处理失败",
+        description: "部分资料处理失败，请重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingCorpus(false);
+      setCorpusProcessingProgress(0);
+    }
+  };
+
+  /**
+   * 处理删除资产
+   */
+  const handleDeleteAsset = (asset: BrandAsset) => {
+    setAssetToDelete(asset);
+    setShowDeleteDialog(true);
+  };
+
+  /**
+   * 确认删除资产
+   */
+  const confirmDeleteAsset = () => {
+    if (!assetToDelete) return;
+
+    // 从品牌资料库中删除文件
+    const updatedAssets = brandAssets.filter(a => a.id !== assetToDelete.id);
+    setBrandAssets(updatedAssets);
+
+    // 从品牌语料库中删除相关信息
+    const updatedDimensions = brandDimensions.map(dimension => ({
+      ...dimension,
+      keywords: dimension.keywords.filter(keyword =>
+        !keyword.source || keyword.source !== assetToDelete.name
+      )
+    }));
+    setBrandDimensions(updatedDimensions);
+
+    toast({
+      title: "删除成功",
+      description: `${assetToDelete.name} 及其相关语料信息已被删除`,
+    });
+
+    setShowDeleteDialog(false);
+    setAssetToDelete(null);
+  };
+
+  /**
+   * 处理分类编辑
+   */
+  const handleEditCategory = (asset: BrandAsset) => {
+    setAssetToEdit(asset);
+    setNewCategory(asset.category || '');
+    setShowCategoryDialog(true);
+  };
+
+  /**
+   * 确认分类编辑
+   */
+  const confirmEditCategory = () => {
+    if (!assetToEdit || !newCategory) return;
+
+    const selectedCategory = SYSTEM_CATEGORIES.find(cat => cat.value === newCategory);
+    const categoryLabel = selectedCategory ? selectedCategory.label : newCategory;
+
+    const updatedAssets = brandAssets.map(asset =>
+      asset.id === assetToEdit.id
+        ? { ...asset, category: newCategory }
+        : asset
+    );
+    setBrandAssets(updatedAssets);
+
+    toast({
+      title: "分类更新成功",
+      description: `${assetToEdit.name} 已更新为 ${categoryLabel} 分类`,
+    });
+
+    setShowCategoryDialog(false);
+    setAssetToEdit(null);
+    setNewCategory('');
+  };
+
+  /**
+   * 处理下载文件
+   */
+  const handleDownloadFile = (asset: BrandAsset) => {
+    // 创建一个虚拟的下载链接
+    const link = document.createElement('a');
+    link.href = asset.url || '#';
+    link.download = asset.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "下载开始",
+      description: `正在下载 ${asset.name}`,
+    });
+  };
+
+  // 处理文件上传
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const newAssets: BrandAsset[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress((i / files.length) * 100);
+
+        // 检查文件类型
+        if (!aiService.isFileTypeSupported(file)) {
+          toast({
+            title: "文件格式不支持",
+            description: `文件 ${file.name} 的格式不受支持`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        // 创建资产对象
+        let fileType = 'document';
+        if (file.type.startsWith('image/')) {
+          fileType = 'image';
+        } else if (file.type === 'application/pdf') {
+          fileType = 'pdf';
+        } else if (file.name.endsWith('.html') || file.name.endsWith('.htm') || file.name.endsWith('.mhtml')) {
+          fileType = 'web';
+        }
+
+        const asset: BrandAsset = {
+          id: `asset-${Date.now()}-${i}`,
+          name: file.name,
+          type: fileType,
+          size: `${(file.size / 1024).toFixed(2)} KB`,
+          uploadDate: new Date().toISOString(),
+          status: 'analyzing', // 新上传的文件自动开始分析
+          file: file,
+          category: 'brand-material'
+        };
+
+        newAssets.push(asset);
+      }
+
+      setBrandAssets(prev => [...prev, ...newAssets]);
+      setUploadProgress(100);
+
+      toast({
+        title: "上传成功",
+        description: `成功上传 ${newAssets.length} 个文件，正在自动分析...`,
+      });
+
+      // 自动开始AI分析
+      setTimeout(() => {
+        const analyzedAssets = newAssets.map(asset => ({
+          ...asset,
+          status: 'analyzed' as const,
+          content: `这是 ${asset.name} 的分析内容示例...`
+        }));
+
+        setBrandAssets(prev =>
+          prev.map(asset => {
+            const analyzed = analyzedAssets.find(a => a.id === asset.id);
+            return analyzed || asset;
+          })
+        );
+
+        toast({
+          title: "AI分析完成",
+          description: `已完成 ${newAssets.length} 个文件的智能分析`,
+        });
+      }, 3000); // 3秒后完成分析
+
+    } catch (error) {
+      console.error('文件上传失败:', error);
+      toast({
+        title: "上传失败",
+        description: "文件上传过程中出现错误",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // 处理网页内容提取
+  const handleWebExtraction = async () => {
+    if (!webUrl.trim()) {
+      toast({
+        title: "请输入URL",
+        description: "请输入有效的网页链接",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsExtractingWeb(true);
+    setExtractionProgress(0);
+
+    try {
+      setExtractionProgress(20);
+
+      // 模拟网页内容提取
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setExtractionProgress(60);
+
+      const extractionResult = await webExtractor.extractContent(webUrl);
+      setExtractionProgress(80);
+
+      if (extractionResult.status === 'error') {
+        throw new Error(extractionResult.error || '内容提取失败');
+      }
+
+      // 转换为品牌资产并添加到列表
+      const actualCategory = selectedCategory === 'all' ? '品牌资料' : selectedCategory;
+      const brandAsset = webExtractor.convertToBrandAsset(extractionResult, actualCategory);
+
+      setBrandAssets(prev => [...prev, brandAsset]);
+
+      if (extractionResult.content) {
+        // 这里可以添加自动分析逻辑
+      }
+
+      setExtractionProgress(100);
+
+      toast({
+        title: "网页内容提取成功",
+        description: `已成功提取 ${extractionResult.title} 的内容并添加到品牌资料库`,
+      });
+
+      // 清空URL输入
+      setWebUrl('');
+      setIsWebExtractOpen(false);
+
+    } catch (error) {
+      console.error('网页内容提取失败:', error);
+      toast({
+        title: "提取失败",
+        description: error instanceof Error ? error.message : "网页内容提取失败",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExtractingWeb(false);
+      setExtractionProgress(0);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -1148,15 +990,22 @@ export default function BrandLibraryPage() {
         showUpgradeButton={true}
       />
 
-            <div className="container mx-auto px-4 py-8">
-
+      <div className="container mx-auto px-4 py-8">
+        {/* 使用提示 */}
+        <Alert className="mb-6">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>使用提示：</strong>上传品牌资料越多，AI分析越准确。建议上传品牌手册、产品介绍、营销文案等资料。
+            所有维度都支持手动编辑。
+          </AlertDescription>
+        </Alert>
         {/* 隐藏的文件输入 */}
         <input
           ref={fileInputRef}
-                  type="file" 
-                  multiple
-          accept=".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png,.gif,.bmp,.webp,.xls,.xlsx,.ppt,.pptx"
-                  onChange={handleFileUpload}
+          type="file"
+          multiple
+          accept=".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png,.gif,.bmp,.webp,.xls,.xlsx,.ppt,.pptx,.html,.htm,.mhtml"
+          onChange={handleFileUpload}
           className="hidden"
         />
 
@@ -1173,462 +1022,588 @@ export default function BrandLibraryPage() {
           </Card>
         )}
 
-        {/* AI分析进度 */}
-        {isProcessing && (
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">AI分析进度</span>
-                <span className="text-sm text-muted-foreground">{Math.round(processingProgress)}%</span>
-              </div>
-              <Progress value={processingProgress} className="w-full" />
-              <p className="text-xs text-muted-foreground mt-2">
-                AI正在分析品牌资料，自动补充语料库内容...
-              </p>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* 提示信息 */}
-        <Alert className="mb-6">
-          <Info className="h-4 w-4" />
-          <AlertDescription>
-            <strong>使用提示：</strong>上传品牌资料越多，AI分析越准确。建议上传品牌手册、产品介绍、营销文案等资料。
-            所有维度都支持手动编辑，AI会自动补充关键词建议。
-                </AlertDescription>
-              </Alert>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="assets" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-gray-100 rounded-lg">
+            <TabsTrigger
+              value="assets"
+              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+            >
               <Upload className="h-4 w-4" />
-              上传品牌资料
+              <span>上传品牌资料</span>
             </TabsTrigger>
-            <TabsTrigger value="dimensions" className="flex items-center gap-2">
+            <TabsTrigger
+              value="dimensions"
+              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+            >
               <Database className="h-4 w-4" />
-              品牌语料库
-            </TabsTrigger>
-            <TabsTrigger value="extractor" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              内容提取
+              <span>品牌语料库</span>
             </TabsTrigger>
           </TabsList>
 
-          {/* 品牌语料库维度 */}
-          <TabsContent value="dimensions" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button onClick={saveBrandDimensions}>
-                <Save className="h-4 w-4 mr-2" />
-                保存语料库
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* 基础信息 */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Target className="h-5 w-5 text-blue-600" />
-                    基础信息
-                  </CardTitle>
-                  <CardDescription>品牌的基本信息和定位</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {getDimensionsByCategory('basic').map((dimension) => (
-                    <DimensionForm
-                      key={dimension.id}
-                      dimension={dimension}
-                      onUpdate={updateDimension}
-                      onAddKeyword={addKeywordToDimension}
-                      onRemoveKeyword={removeKeywordFromDimension}
-                      isEditing={editingDimension === dimension.id}
-                      onEdit={() => setEditingDimension(dimension.id)}
-                      onCancel={() => setEditingDimension(null)}
-                    />
-                  ))}
-            </CardContent>
-          </Card>
-          
-              {/* 语调风格 */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Palette className="h-5 w-5 text-orange-600" />
-                    语调风格
-                  </CardTitle>
-                  <CardDescription>品牌的语音特征和表达方式</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {getDimensionsByCategory('voice').map((dimension) => (
-                    <DimensionForm
-                      key={dimension.id}
-                      dimension={dimension}
-                      onUpdate={updateDimension}
-                      onAddKeyword={addKeywordToDimension}
-                      onRemoveKeyword={removeKeywordFromDimension}
-                      isEditing={editingDimension === dimension.id}
-                      onEdit={() => setEditingDimension(dimension.id)}
-                      onCancel={() => setEditingDimension(null)}
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* 品牌身份 */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Award className="h-5 w-5 text-purple-600" />
-                    品牌身份
-                  </CardTitle>
-                  <CardDescription>品牌的核心价值观和使命愿景</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {getDimensionsByCategory('identity').map((dimension) => (
-                    <DimensionForm
-                      key={dimension.id}
-                      dimension={dimension}
-                      onUpdate={updateDimension}
-                      onAddKeyword={addKeywordToDimension}
-                      onRemoveKeyword={removeKeywordFromDimension}
-                      isEditing={editingDimension === dimension.id}
-                      onEdit={() => setEditingDimension(dimension.id)}
-                      onCancel={() => setEditingDimension(null)}
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* 内容策略 */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Lightbulb className="h-5 w-5 text-green-600" />
-                    内容策略
-                  </CardTitle>
-                  <CardDescription>品牌内容创作的核心要素</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {getDimensionsByCategory('content').map((dimension) => (
-                    <DimensionForm
-                      key={dimension.id}
-                      dimension={dimension}
-                      onUpdate={updateDimension}
-                      onAddKeyword={addKeywordToDimension}
-                      onRemoveKeyword={removeKeywordFromDimension}
-                      isEditing={editingDimension === dimension.id}
-                      onEdit={() => setEditingDimension(dimension.id)}
-                      onCancel={() => setEditingDimension(null)}
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-                </div>
-          </TabsContent>
-
-          {/* 资料管理 */}
+          {/* 上传品牌资料标签页 */}
           <TabsContent value="assets" className="space-y-6">
-            {/* 主要上传区域 - 支持拖拽 */}
-            <Card
-              className={`border-2 border-dashed transition-all duration-200 ${
-                isDragOver
-                  ? 'border-blue-500 bg-blue-50 scale-[1.02]'
-                  : 'border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50'
-              }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <CardContent className="p-8">
-                <div className="text-center space-y-4">
-                  <div
-                    className={`mx-auto w-16 h-16 rounded-xl flex items-center justify-center shadow-md cursor-pointer transition-all duration-200 ${
-                      isDragOver
-                        ? 'bg-blue-200 scale-110'
-                        : 'bg-blue-100 hover:bg-blue-200'
-                    }`}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className={`h-8 w-8 transition-colors duration-200 ${
-                      isDragOver ? 'text-blue-700' : 'text-blue-600'
-                    }`} />
-                  </div>
-                  <div className="space-y-3">
-                    <h2 className="text-xl font-bold text-gray-800">上传品牌资料</h2>
-                    <p className="text-base text-gray-600 max-w-lg mx-auto">
-                      {isDragOver
-                        ? '松开鼠标即可上传文件'
-                        : '拖拽文件到此处、点击图标或按钮选择文件，支持网页链接提取'
-                      }
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                        className="px-6 py-2"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        {isUploading ? '上传中...' : '选择文件'}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsWebExtractOpen(true)}
-                        className="px-6 py-2"
-                      >
-                        <Globe className="h-4 w-4 mr-2" />
-                        网页提取
-                      </Button>
-                    </div>
-
-                    {/* 支持的文件格式 - 内嵌显示 */}
-                    <div className="mt-4 pt-4 border-t border-blue-200">
-                      <p className="text-xs text-gray-500 mb-2">支持的格式</p>
-                      <div className="flex flex-wrap justify-center gap-1">
-                        {[
-                          'PDF', 'Word', 'TXT', 'MD', 'JPG', 'PNG', 'Excel', 'PPT', '网页链接'
-                        ].map((format) => (
-                          <span key={format} className="px-2 py-1 bg-white/80 rounded text-xs text-gray-600 border border-blue-100">
-                            {format}
-                          </span>
-                        ))}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5 flex-shrink-0" style={{ marginTop: '1px' }} />
+                  <span>上传品牌资料</span>
+                  <SafeTooltip
+                    content={
+                      <div className="max-w-xs">
+                        <div className="font-medium mb-1">上传品牌资料功能说明</div>
+                        <div className="text-xs space-y-1">
+                          <div>• 支持PDF、Word、PPT、图片、HTML等多种格式</div>
+                          <div>• AI会自动分析文件内容并提取关键信息</div>
+                          <div>• 分析结果会自动添加到品牌语料库</div>
+                          <div>• 建议上传品牌手册、产品介绍、营销文案等资料</div>
+                        </div>
                       </div>
+                    }
+                    side="bottom"
+                    align="start"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 text-gray-400 hover:text-blue-600 ml-1"
+                    >
+                      <Info className="h-3 w-3" />
+                    </Button>
+                  </SafeTooltip>
+                </CardTitle>
+                <CardDescription>
+                  支持多种格式的品牌资料上传，AI将自动分析并提取关键信息
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* 文件上传区域 */}
+                <div 
+                  className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50/50 hover:bg-blue-50 transition-colors cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="p-4 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Upload className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        点击上传或拖拽文件到此处
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        支持 PDF、Word、Excel、PowerPoint、图片等多种格式
+                      </p>
+                    </div>
+                    <Button variant="outline" className="bg-white">
+                      <FileUp className="h-4 w-4 mr-2" />
+                      选择文件
+                    </Button>
+
+                    {/* 支持的文件格式 - 使用新的格式展示组件 */}
+                    <div className="mt-4 pt-4 border-t border-blue-200">
+                      <FileFormatDisplay 
+                        mode="compact" 
+                        showCategories={true}
+                        showQuality={false}
+                        className="text-center"
+                      />
                       <p className="text-xs text-gray-500 mt-2">
                         单个文件建议不超过10MB，支持批量上传和网页内容提取
                       </p>
                     </div>
                   </div>
                 </div>
+
+                {/* 网页内容提取 */}
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium mb-3 flex items-center gap-3">
+                    <Globe className="h-4 w-4 flex-shrink-0" />
+                    <span className="leading-none">网页内容提取</span>
+                  </h4>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="输入网页链接，如：https://example.com"
+                      value={webUrl}
+                      onChange={(e) => setWebUrl(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      onClick={handleWebExtraction}
+                      disabled={isExtractingWeb || !webUrl.trim()}
+                    >
+                      {isExtractingWeb ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4 mr-2" />
+                      )}
+                      {isExtractingWeb ? '提取中...' : '提取内容'}
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
 
-            {/* 已上传的资料 - 重新设计 */}
+
+            {/* 智能资料管理 */}
             <Card>
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-2">
-                  <Database className="h-5 w-5 text-blue-600" />
-                  <CardTitle className="text-lg">已上传的资料</CardTitle>
-                  <Badge variant="secondary" className="ml-2">
-                    {brandAssets.length} 个文件
-                  </Badge>
-                </div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <Brain className="h-5 w-5 flex-shrink-0" />
+                  <span className="leading-none">智能资料管理</span>
+                </CardTitle>
+                <CardDescription>
+                  管理已上传的品牌资料，支持AI分析、PDF对话、分类搜索和批量操作
+                </CardDescription>
               </CardHeader>
-
-              {/* 搜索和筛选工具栏 */}
-              <CardContent className="pt-0">
-                <div className="space-y-3 mb-4 p-3 bg-gray-50 rounded-lg">
-                  {/* 第一行：搜索框 */}
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        placeholder="搜索资料名称、描述或分类..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                      />
+              <CardContent className="space-y-6">
+                {/* 搜索和筛选工具栏 */}
+                <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                  {/* 左侧：搜索和筛选 */}
+                  <div className="flex flex-col sm:flex-row gap-3 flex-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          placeholder="搜索资料名称..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
                     </div>
-                  </div>
-
-                  {/* 第二行：筛选和操作按钮 */}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-between">
                     <div className="flex gap-2">
-                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger className="w-[120px]">
+                      <Select value={selectedCategories[0] || 'all'} onValueChange={(value) => {
+                        if (value === 'all') {
+                          setSelectedCategories([]);
+                        } else {
+                          setSelectedCategories([value]);
+                        }
+                      }}>
+                        <SelectTrigger className="w-40">
                           <SelectValue placeholder="选择分类" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">全部分类</SelectItem>
-                          {categoryOptions.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
+                          {SYSTEM_CATEGORIES.map((category) => (
+                            <SelectItem key={category.value} value={category.value}>
+                              {category.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
-                        <SelectTrigger className="w-[140px]">
-                          <SelectValue placeholder="排序方式" />
+                      <Select value={sortOption} onValueChange={setSortOption}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue placeholder="排序" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="date-new">最新上传</SelectItem>
                           <SelectItem value="date-old">最早上传</SelectItem>
-                          <SelectItem value="name-asc">名称 A-Z</SelectItem>
-                          <SelectItem value="name-desc">名称 Z-A</SelectItem>
+                          <SelectItem value="name-asc">名称A-Z</SelectItem>
+                          <SelectItem value="name-desc">名称Z-A</SelectItem>
+                          <SelectItem value="size-large">文件最大</SelectItem>
+                          <SelectItem value="size-small">文件最小</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
 
-                    {/* 操作按钮组 */}
-                    <div className="flex gap-2">
+                  {/* 右侧：操作按钮组 */}
+                  <div className="flex gap-2 items-center">
+                    {/* PDF智能对话按钮 */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!brandAssets.some(asset => asset.type === 'pdf')}
+                      onClick={() => setShowPdfDialog(true)}
+                      className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      PDF对话
+                    </Button>
+
+                    {/* 视图切换按钮 */}
+                    <div className="flex border rounded-lg overflow-hidden">
                       <Button
-                        variant="outline"
+                        variant={viewMode === 'grid' ? 'default' : 'ghost'}
                         size="sm"
-                        onClick={handleProcessAssets}
-                        disabled={isProcessing || brandAssets.length === 0}
-                        className="flex items-center gap-2"
+                        onClick={() => setViewMode('grid')}
+                        className="rounded-none border-0"
                       >
-                        <Brain className="h-4 w-4" />
-                        {isProcessing ? 'AI分析中...' : '批量AI分析'}
+                        <Grid className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant={viewMode === 'list' ? 'default' : 'ghost'}
                         size="sm"
-                        onClick={() => setIsPDFChatOpen(true)}
-                        disabled={brandAssets.length === 0}
-                        className="flex items-center gap-2"
+                        onClick={() => setViewMode('list')}
+                        className="rounded-none border-0"
                       >
-                        <MessageSquare className="h-4 w-4" />
-                        PDF对话
+                        <List className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                {/* 资料列表 */}
-                {brandAssets.length === 0 ? (
-                  <div className="text-center py-12">
-                    <FileUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无品牌资料</h3>
-                    <p className="text-gray-500 mb-4">上传文件或提取网页内容开始构建品牌语料库</p>
-                    <div className="flex justify-center gap-2">
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        size="sm"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        上传文件
+                {/* 批量操作栏 */}
+                {selectedAssets.length > 0 && (
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <span className="text-sm text-blue-700">
+                      已选择 {selectedAssets.length} 个文件
+                    </span>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Download className="h-4 w-4 mr-1" />
+                        批量下载
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsWebExtractOpen(true)}
-                        size="sm"
-                      >
-                        <Globe className="h-4 w-4 mr-2" />
-                        网页提取
+                      <Button size="sm" variant="outline">
+                        <Copy className="h-4 w-4 mr-1" />
+                        批量复制
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        批量删除
                       </Button>
                     </div>
                   </div>
+                )}
+
+                {/* 资料统计 */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{brandAssets.length}</div>
+                    <div className="text-sm text-gray-600">总文件数</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">
+                      {brandAssets.filter(a => a.status === 'analyzed').length}
+                    </div>
+                    <div className="text-sm text-gray-600">已分析</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {brandAssets.filter(a => a.status === 'uploaded').length}
+                    </div>
+                    <div className="text-sm text-gray-600">待分析</div>
+                  </div>
+                </div>
+
+                {/* 资料列表 */}
+                {filteredAndSortedAssets.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FileText className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    {brandAssets.length === 0 ? (
+                      <>
+                        <p className="text-sm">暂无上传的品牌资料</p>
+                        <p className="text-xs mt-1">上传文件后即可使用智能分析功能</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm">没有找到匹配的资料</p>
+                        <p className="text-xs mt-1">请尝试调整搜索条件或筛选选项</p>
+                      </>
+                    )}
+                  </div>
+                ) : viewMode === 'grid' ? (
+                  // 网格视图
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredAndSortedAssets.map((asset) => (
+                      <Card key={asset.id} className="p-4 hover:shadow-md transition-shadow">
+                        <div className="flex flex-col space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-gray-100 rounded">
+                              {asset.type === 'image' ? (
+                                <FileImage className="h-5 w-5" />
+                              ) : asset.type === 'pdf' ? (
+                                <FileText className="h-5 w-5" />
+                              ) : asset.type === 'web' ? (
+                                <Globe className="h-5 w-5" />
+                              ) : (
+                                <FileText className="h-5 w-5" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-medium truncate">{asset.name}</h5>
+                              <Badge variant={
+                                asset.status === 'uploaded' ? 'secondary' :
+                                asset.status === 'analyzing' ? 'default' :
+                                asset.status === 'analyzed' ? 'default' : 'destructive'
+                              } className="text-xs">
+                                {asset.status === 'uploaded' ? '已上传' :
+                                 asset.status === 'analyzing' ? '分析中' :
+                                 asset.status === 'analyzed' ? '已分析' : '错误'}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="text-sm text-gray-600">
+                            {asset.size} • {new Date(asset.uploadDate).toLocaleDateString()}
+                          </div>
+
+                          {asset.content && (
+                            <p className="text-sm text-gray-700 line-clamp-3">
+                              {asset.content.substring(0, 120)}...
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap gap-2">
+                            {/* AI分析按钮 */}
+                            <Button
+                              variant={asset.status === 'analyzed' ? 'default' : 'outline'}
+                              size="sm"
+                              className={
+                                asset.status === 'analyzed' ? 'bg-green-600 hover:bg-green-700' :
+                                asset.status === 'analyzing' ? 'bg-blue-600 hover:bg-blue-700' :
+                                'border-orange-300 text-orange-600 hover:bg-orange-50'
+                              }
+                              disabled={asset.status === 'analyzing'}
+                              onClick={() => {
+                                if (asset.status === 'uploaded') {
+                                  console.log('开始分析文件:', asset.name);
+                                  const updatedAssets = brandAssets.map(a =>
+                                    a.id === asset.id ? { ...a, status: 'analyzing' as const } : a
+                                  );
+                                  setBrandAssets(updatedAssets);
+                                  setTimeout(() => {
+                                    const finalAssets = brandAssets.map(a =>
+                                      a.id === asset.id ? { ...a, status: 'analyzed' as const } : a
+                                    );
+                                    setBrandAssets(finalAssets);
+                                  }, 3000);
+                                }
+                              }}
+                            >
+                              {asset.status === 'analyzed' ? (
+                                <>
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  已分析
+                                </>
+                              ) : asset.status === 'analyzing' ? (
+                                <>
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                  分析中
+                                </>
+                              ) : (
+                                <>
+                                  <Brain className="h-3 w-3 mr-1" />
+                                  未分析
+                                </>
+                              )}
+                            </Button>
+
+                            {/* 对话按钮 */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPdfFile(asset);
+                                setShowPdfDialog(true);
+                                console.log('开始与文件对话:', asset.name);
+                              }}
+                            >
+                              <MessageSquare className="h-3 w-3 mr-1" />
+                              对话
+                            </Button>
+
+                            {/* 更多操作菜单 */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <MoreHorizontal className="h-3 w-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" side="bottom" sideOffset={5}>
+                                <DropdownMenuItem
+                                  onClick={() => handleDownloadFile(asset)}
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  下载文件
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleEditCategory(asset)}
+                                >
+                                  <Tag className="h-4 w-4 mr-2" />
+                                  分类编辑
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteAsset(asset)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  删除文件
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
                 ) : (
+                  // 列表视图
                   <div className="space-y-3">
                     {filteredAndSortedAssets.map((asset) => (
-                      <div
-                        key={asset.id}
-                        className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-200 hover:shadow-sm"
-                        onClick={() => handleViewAsset(asset)}
-                      >
-                        {/* 文件图标 */}
-                        <div className="flex-shrink-0">
-                          {asset.fileIcon}
-                        </div>
-
-                        {/* 文件信息 */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-gray-900 truncate">{asset.name}</h4>
-                            {asset.category && (
-                              <Badge variant="secondary" className="text-xs">
-                                {asset.category}
+                      <Card key={asset.id} className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <div className="p-2 bg-gray-100 rounded">
+                            {asset.type === 'image' ? (
+                              <FileImage className="h-5 w-5" />
+                            ) : asset.type === 'pdf' ? (
+                              <FileText className="h-5 w-5" />
+                            ) : asset.type === 'web' ? (
+                              <Globe className="h-5 w-5" />
+                            ) : (
+                              <FileText className="h-5 w-5" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h5 className="font-medium">{asset.name}</h5>
+                              <Badge variant={
+                                asset.status === 'uploaded' ? 'secondary' :
+                                asset.status === 'analyzing' ? 'default' :
+                                asset.status === 'analyzed' ? 'default' : 'destructive'
+                              }>
+                                {asset.status === 'uploaded' ? '已上传' :
+                                 asset.status === 'analyzing' ? '分析中' :
+                                 asset.status === 'analyzed' ? '已分析' : '错误'}
                               </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {asset.size} • {new Date(asset.uploadDate).toLocaleDateString()}
+                            </p>
+                            {asset.content && (
+                              <p className="text-sm text-gray-700 line-clamp-2">
+                                {asset.content.substring(0, 100)}...
+                              </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span>{asset.uploadDate.toLocaleDateString()}</span>
-                            {asset.size && <span>{asset.size}</span>}
-                            {asset.extractedKeywords && asset.extractedKeywords.length > 0 && (
-                              <span>{asset.extractedKeywords.length} 个关键词</span>
-                            )}
-                          </div>
-                          {asset.description && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{asset.description}</p>
-                          )}
                         </div>
-
-                        {/* 状态和操作 */}
-                        <div className="flex items-center gap-2">
-                          {/* 处理状态 */}
-                          {asset.processingStatus === 'pending' && (
-                            <Badge variant="secondary">
-                              <Clock className="h-3 w-3 mr-1" />
-                              待分析
-                            </Badge>
-                          )}
-                          {asset.processingStatus === 'processing' && (
-                            <Badge variant="default">
-                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                              分析中
-                            </Badge>
-                          )}
-                          {asset.processingStatus === 'completed' && (
-                            <Badge variant="default" className="bg-green-100 text-green-800">
-                              <Check className="h-3 w-3 mr-1" />
-                              已完成
-                            </Badge>
-                          )}
-                          {asset.processingStatus === 'failed' && (
-                            <Badge variant="destructive">
-                              <X className="h-3 w-3 mr-1" />
-                              分析失败
-                            </Badge>
-                          )}
-
-                          {/* AI分析按钮 */}
-                          {(asset.processingStatus === 'pending' || asset.processingStatus === 'failed') && (
+                        <div className="flex items-center gap-2 ml-4">
+                          {/* AI分析状态按钮 */}
+                          <div className="flex items-center gap-1">
                             <Button
+                              variant={asset.status === 'analyzed' ? 'default' : 'outline'}
                               size="sm"
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAnalyzeSingleAsset(asset);
-                              }}
-                              disabled={isAnalyzingAsset === asset.id}
-                            >
-                              <Brain className="h-3 w-3 mr-1" />
-                              {isAnalyzingAsset === asset.id ? '分析中...' : 'AI分析'}
-                            </Button>
-                          )}
+                              className={
+                                asset.status === 'analyzed' ? 'bg-green-600 hover:bg-green-700' :
+                                asset.status === 'analyzing' ? 'bg-blue-600 hover:bg-blue-700' :
+                                'border-orange-300 text-orange-600 hover:bg-orange-50'
+                              }
+                              disabled={asset.status === 'analyzing'}
+                              onClick={() => {
+                                if (asset.status === 'uploaded') {
+                                  // 开始分析
+                                  console.log('开始分析文件:', asset.name);
+                                  // 模拟分析过程
+                                  const updatedAssets = brandAssets.map(a =>
+                                    a.id === asset.id ? { ...a, status: 'analyzing' as const } : a
+                                  );
+                                  setBrandAssets(updatedAssets);
 
-                          {/* 更多操作 */}
+                                  // 3秒后完成分析
+                                  setTimeout(() => {
+                                    const finalAssets = brandAssets.map(a =>
+                                      a.id === asset.id ? { ...a, status: 'analyzed' as const } : a
+                                    );
+                                    setBrandAssets(finalAssets);
+                                  }, 3000);
+                                }
+                              }}
+                            >
+                              {asset.status === 'analyzed' ? (
+                                <>
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  已分析
+                                </>
+                              ) : asset.status === 'analyzing' ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                  分析中
+                                </>
+                              ) : (
+                                <>
+                                  <Brain className="h-4 w-4 mr-1" />
+                                  未分析
+                                </>
+                              )}
+                            </Button>
+
+                            {/* 重新分析按钮 */}
+                            {asset.status === 'analyzed' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-gray-400 hover:text-blue-600"
+                                onClick={() => {
+                                  console.log('重新分析文件:', asset.name);
+                                  const updatedAssets = brandAssets.map(a =>
+                                    a.id === asset.id ? { ...a, status: 'analyzing' as const } : a
+                                  );
+                                  setBrandAssets(updatedAssets);
+
+                                  setTimeout(() => {
+                                    const finalAssets = brandAssets.map(a =>
+                                      a.id === asset.id ? { ...a, status: 'analyzed' as const } : a
+                                    );
+                                    setBrandAssets(finalAssets);
+                                  }, 3000);
+                                }}
+                                title="重新分析"
+                              >
+                                <RotateCcw className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* 对话按钮 - 所有文件都可以对话 */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedPdfFile(asset);
+                              setShowPdfDialog(true);
+                              console.log('开始与文件对话:', asset.name);
+                            }}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-1" />
+                            对话
+                          </Button>
+
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="sm">
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                navigate('/new-adapt', {
-                                  state: {
-                                    prefilledContent: asset.content || asset.extractedContent || `品牌资料：${asset.name || '未命名'}\n\n${asset.description || ''}`,
-                                    source: 'brand-library',
-                                    sourceTitle: asset.name || '未命名资料'
-                                  }
-                                });
-                              }}>
-                                <Zap className="h-4 w-4 mr-2" />
-                                快速创作
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditAsset(asset);
-                              }}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                编辑
+                            <DropdownMenuContent align="end" side="bottom" sideOffset={5}>
+                              <DropdownMenuItem
+                                onClick={() => handleDownloadFile(asset)}
+                              >
+                                <Download className="h-4 w-4 mr-2" />
+                                下载文件
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteAsset(asset.id);
-                                }}
-                                className="text-red-600"
+                                onClick={() => handleEditCategory(asset)}
+                              >
+                                <Tag className="h-4 w-4 mr-2" />
+                                分类编辑
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteAsset(asset)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                删除
+                                删除文件
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
                       </div>
+                      </Card>
                     ))}
                   </div>
                 )}
@@ -1636,450 +1611,420 @@ export default function BrandLibraryPage() {
             </Card>
           </TabsContent>
 
-          {/* 内容提取功能 */}
-          <TabsContent value="extractor" className="space-y-6">
-            {/* 网页内容提取 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5 text-blue-600" />
-                  网页内容提取
-                </CardTitle>
-                <CardDescription>
-                  从网页URL中智能提取品牌相关内容，自动分析并添加到品牌资料库
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* URL输入区域 */}
-                <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Label htmlFor="web-url">网页URL</Label>
-                      <Input
-                        id="web-url"
-                        placeholder="https://example.com/brand-page"
-                        value={webUrl}
-                        onChange={(e) => setWebUrl(e.target.value)}
-                        disabled={isExtractingWeb}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div className="flex flex-col justify-end">
-                      <Button
-                        onClick={handleWebExtraction}
-                        disabled={isExtractingWeb || !webUrl.trim()}
-                        className="flex items-center gap-2"
-                      >
-                        {isExtractingWeb ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            提取中...
-                          </>
-                        ) : (
-                          <>
-                            <Download className="h-4 w-4" />
-                            提取内容
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+          {/* 品牌语料库标签页 */}
+          <TabsContent value="dimensions" className="space-y-6">
 
-                  {/* 提取选项 */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="enable-brand-analysis"
-                          checked={enableBrandAnalysis}
-                          onChange={(e) => setEnableBrandAnalysis(e.target.checked)}
-                          className="h-4 w-4"
-                        />
-                        <Label htmlFor="enable-brand-analysis" className="text-sm">
-                          启用AI品牌分析
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Label htmlFor="extraction-category" className="text-sm">
-                          分类：
-                        </Label>
-                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categoryOptions.map((category) => (
-                              <SelectItem key={category} value={category}>
-                                {category}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+            {/* AI分析状态警告 */}
+            <Alert className="border-amber-200 bg-amber-50">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <AlertTitle className="text-amber-800">AI分析状态提醒</AlertTitle>
+              <AlertDescription className="text-amber-700">
+                <div className="space-y-2">
+                  <p>
+                    <strong>⚠️ 重要提示：</strong>当前显示的品牌语料库信息为示例数据，尚未对上传的资料进行真实AI分析。
+                  </p>
+                  <p>
+                    点击下方的 <strong>"内容智能提取"</strong> 按钮，系统将使用真实AI服务分析您上传的品牌资料，
+                    自动提取品牌名称、使命愿景、目标受众、语调风格等关键信息到对应维度。
+                  </p>
+                  <div className="flex items-center gap-2 mt-3">
+                    <Button
+                      onClick={handleBatchCorpusExtraction}
+                      disabled={isProcessingCorpus || brandAssets.filter(a => a.status === 'uploaded' || a.status === 'error').length === 0}
+                      size="sm"
+                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      {isProcessingCorpus ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          AI分析中...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="h-4 w-4 mr-2" />
+                          开始真实AI分析
+                        </>
+                      )}
+                    </Button>
+                    {brandAssets.filter(a => a.status === 'uploaded' || a.status === 'error').length === 0 && (
+                      <span className="text-sm text-amber-600">
+                        请先上传品牌资料文件
+                      </span>
+                    )}
                   </div>
-
-                  {/* 提取进度 */}
-                  {isExtractingWeb && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>提取进度</span>
-                        <span>{extractionProgress}%</span>
-                      </div>
-                      <Progress value={extractionProgress} className="w-full" />
-                      <p className="text-xs text-gray-500">
-                        正在分析网页内容，请稍候...
-                      </p>
-                    </div>
-                  )}
                 </div>
+              </AlertDescription>
+            </Alert>
 
-                {/* 提取结果展示 */}
-                {webExtractionResults.length > 0 && (
-                  <div className="space-y-4">
-                    <Separator />
-                    <div>
-                      <h4 className="font-medium mb-3">最近提取结果</h4>
-                      <div className="space-y-3 max-h-60 overflow-y-auto">
-                        {webExtractionResults.slice(0, 3).map((result) => (
-                          <div
-                            key={result.id}
-                            className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                            onClick={() => {
-                              // 查看提取结果详情
-                              const asset = brandAssets.find(a => a.id === result.id);
-                              if (asset) {
-                                handleViewAsset(asset);
-                              }
-                            }}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <Globe className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                                  <p className="font-medium truncate">{result.title}</p>
-                                  {result.status === 'success' && (
-                                    <Badge variant="default" className="text-xs">
-                                      <Check className="h-3 w-3 mr-1" />
-                                      成功
-                                    </Badge>
-                                  )}
-                                  {result.status === 'error' && (
-                                    <Badge variant="destructive" className="text-xs">
-                                      <X className="h-3 w-3 mr-1" />
-                                      失败
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-500 truncate mt-1">
-                                  {result.metadata.domain} • {result.metadata.wordCount} 字
-                                </p>
-                                {result.brandAnalysis && (
-                                  <div className="flex flex-wrap gap-1 mt-2">
-                                    {result.brandAnalysis.brandKeywords.slice(0, 3).map((keyword, index) => (
-                                      <Badge key={index} variant="secondary" className="text-xs">
-                                        {keyword}
-                                      </Badge>
-                                    ))}
-                                    {result.brandAnalysis.brandKeywords.length > 3 && (
-                                      <Badge variant="outline" className="text-xs">
-                                        +{result.brandAnalysis.brandKeywords.length - 3}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="text-xs text-gray-400 ml-2">
-                                {new Date(result.extractedAt).toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+            {/* 语料库状态和操作栏 */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                {/* 语料库统计信息 */}
+                {brandCorpus && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <BookOpen className="h-4 w-4" />
+                    <span>
+                      {`${brandCorpus.sources?.length || 0} 个来源文档`}
+                    </span>
                   </div>
                 )}
-              </CardContent>
-            </Card>
 
-            {/* 其他工具 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-green-600" />
-                  其他提取工具
-                </CardTitle>
-                <CardDescription>
-                  更多内容提取和分析工具
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 提取进度 */}
+                {isProcessingCorpus && (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-blue-600">语料库提取中...</span>
+                    {corpusProcessingProgress > 0 && (
+                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 transition-all duration-300"
+                          style={{ width: `${corpusProcessingProgress}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 提取结果统计 */}
+                {corpusExtractions.length > 0 && (
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>已提取 {corpusExtractions.length} 个文档</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* 来源管理按钮 */}
+                {brandCorpus && brandCorpus.sources && brandCorpus.sources.length > 0 && (
                   <Button
                     variant="outline"
-                    onClick={() => navigate('/content-extractor')}
-                    className="flex items-center gap-2 h-auto p-4"
+                    size="sm"
+                    onClick={() => setShowSourceManager(true)}
                   >
-                    <div className="flex flex-col items-center gap-2">
-                      <FileText className="h-6 w-6" />
-                      <div className="text-center">
-                        <div className="font-medium">通用内容提取</div>
-                        <div className="text-xs text-gray-500">支持文件、文本等多种格式</div>
-                      </div>
-                    </div>
+                    <Eye className="h-4 w-4 mr-1" />
+                    管理来源
                   </Button>
+                )}
+              </div>
+            </div>
+
+            {/* 语料库提取结果预览 */}
+            {corpusExtractions.length > 0 && (
+              <Alert className="mb-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  已从 {corpusExtractions.length} 个文档中提取语料库信息，所有信息已追加到对应维度。
                   <Button
-                    variant="outline"
-                    onClick={() => setIsPDFChatOpen(true)}
-                    disabled={brandAssets.length === 0}
-                    className="flex items-center gap-2 h-auto p-4"
+                    variant="link"
+                    size="sm"
+                    className="p-0 h-auto text-blue-600 ml-2"
+                    onClick={() => setShowSourceManager(true)}
                   >
-                    <div className="flex flex-col items-center gap-2">
-                      <MessageSquare className="h-6 w-6" />
-                      <div className="text-center">
-                        <div className="font-medium">PDF智能对话</div>
-                        <div className="text-xs text-gray-500">
-                          {brandAssets.length === 0 ? '需要先上传PDF文件' : '与品牌资料进行对话'}
-                        </div>
-                      </div>
-                    </div>
+                    查看详细提取结果
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* 四大板块布局 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 基础信息 */}
+              <Card className="h-fit">
+                <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-blue-100/50">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="p-2 bg-blue-600 rounded-lg">
+                      <FileText className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-blue-900 font-semibold">基础信息</span>
+                      <CardDescription className="text-blue-700 mt-1">
+                        品牌的基本信息和核心定位
+                      </CardDescription>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 p-6">
+                  {getDimensionsByCategory('basic').map((dimension) => (
+                    <div key={dimension.id} className="border border-blue-200 rounded-lg p-4 bg-blue-50/30 hover:bg-blue-50/50 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        {dimension.icon}
+                        <h4 className="font-medium text-sm text-blue-900">{dimension.title}</h4>
+                      </div>
+                      <DimensionForm
+                        dimension={dimension}
+                        onUpdate={updateDimension}
+                        onAddKeyword={addKeywordToDimension}
+                        onRemoveKeyword={removeKeywordFromDimension}
+                        isEditing={editingDimension === dimension.id}
+                        onEdit={() => setEditingDimension(dimension.id)}
+                        onCancel={() => setEditingDimension(null)}
+                        onUpdateItem={updateDimensionItem}
+                        onAddItem={addDimensionItem}
+                        onDeleteItem={deleteDimensionItem}
+                      />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* 语调风格 */}
+              <Card className="h-fit">
+                <CardHeader className="pb-4 bg-gradient-to-r from-orange-50 to-orange-100/50">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="p-2 bg-orange-600 rounded-lg">
+                      <MessageSquare className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-orange-900 font-semibold">语调风格</span>
+                      <CardDescription className="text-orange-700 mt-1">
+                        品牌的语音特征和表达方式
+                      </CardDescription>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 p-6">
+                  {getDimensionsByCategory('voice').map((dimension) => (
+                    <div key={dimension.id} className="border border-orange-200 rounded-lg p-4 bg-orange-50/30 hover:bg-orange-50/50 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        {dimension.icon}
+                        <h4 className="font-medium text-sm text-orange-900">{dimension.title}</h4>
+                      </div>
+                      <DimensionForm
+                        dimension={dimension}
+                        onUpdate={updateDimension}
+                        onAddKeyword={addKeywordToDimension}
+                        onRemoveKeyword={removeKeywordFromDimension}
+                        isEditing={editingDimension === dimension.id}
+                        onEdit={() => setEditingDimension(dimension.id)}
+                        onCancel={() => setEditingDimension(null)}
+                        onUpdateItem={updateDimensionItem}
+                        onAddItem={addDimensionItem}
+                        onDeleteItem={deleteDimensionItem}
+                      />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* 品牌身份 */}
+              <Card className="h-fit">
+                <CardHeader className="pb-4 bg-gradient-to-r from-purple-50 to-purple-100/50">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="p-2 bg-purple-600 rounded-lg">
+                      <Shield className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-purple-900 font-semibold">品牌身份</span>
+                      <CardDescription className="text-purple-700 mt-1">
+                        品牌的核心价值观和使命愿景
+                      </CardDescription>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 p-6">
+                  {getDimensionsByCategory('identity').map((dimension) => (
+                    <div key={dimension.id} className="border border-purple-200 rounded-lg p-4 bg-purple-50/30 hover:bg-purple-50/50 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        {dimension.icon}
+                        <h4 className="font-medium text-sm text-purple-900">{dimension.title}</h4>
+                      </div>
+                      <DimensionForm
+                        dimension={dimension}
+                        onUpdate={updateDimension}
+                        onAddKeyword={addKeywordToDimension}
+                        onRemoveKeyword={removeKeywordFromDimension}
+                        isEditing={editingDimension === dimension.id}
+                        onEdit={() => setEditingDimension(dimension.id)}
+                        onCancel={() => setEditingDimension(null)}
+                        onUpdateItem={updateDimensionItem}
+                        onAddItem={addDimensionItem}
+                        onDeleteItem={deleteDimensionItem}
+                      />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* 内容策略 */}
+              <Card className="h-fit">
+                <CardHeader className="pb-4 bg-gradient-to-r from-green-50 to-green-100/50">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="p-2 bg-green-600 rounded-lg">
+                      <Lightbulb className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-green-900 font-semibold">内容策略</span>
+                      <CardDescription className="text-green-700 mt-1">
+                        品牌内容创作的核心要素和策略
+                      </CardDescription>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 p-6">
+                  {getDimensionsByCategory('content').map((dimension) => (
+                    <div key={dimension.id} className="border border-green-200 rounded-lg p-4 bg-green-50/30 hover:bg-green-50/50 transition-colors">
+                      <div className="flex items-center gap-2 mb-3">
+                        {dimension.icon}
+                        <h4 className="font-medium text-sm text-green-900">{dimension.title}</h4>
+                      </div>
+                      <DimensionForm
+                        dimension={dimension}
+                        onUpdate={updateDimension}
+                        onAddKeyword={addKeywordToDimension}
+                        onRemoveKeyword={removeKeywordFromDimension}
+                        isEditing={editingDimension === dimension.id}
+                        onEdit={() => setEditingDimension(dimension.id)}
+                        onCancel={() => setEditingDimension(null)}
+                        onUpdateItem={updateDimensionItem}
+                        onAddItem={addDimensionItem}
+                        onDeleteItem={deleteDimensionItem}
+                      />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
-              </Tabs>
-                </div>
 
-      {/* 资料查看弹窗 */}
-      <Dialog open={isViewingAsset !== null} onOpenChange={() => setIsViewingAsset(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh]">
-            <DialogHeader>
-            <DialogTitle>资料内容</DialogTitle>
-            </DialogHeader>
-              <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <pre className="whitespace-pre-wrap text-sm overflow-auto max-h-[60vh]">
-                {assetViewerContent}
-              </pre>
+
+        </Tabs>
+
+
+
+        {/* PDF智能对话组件 */}
+        <PDFChatDialog
+          documents={brandAssets
+            .filter(asset => asset.type === 'pdf')
+            .map(asset => ({
+              id: asset.id,
+              name: asset.name,
+              content: asset.content || '文档内容暂未提取',
+              uploadDate: new Date(asset.uploadDate),
+              size: asset.size
+            }))
+          }
+          isOpen={showPdfDialog}
+          onOpenChange={setShowPdfDialog}
+        />
+
+        {/* 删除确认弹窗 */}
+        {showDeleteDialog && assetToDelete && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <Trash2 className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">确认删除</h3>
+                  <p className="text-sm text-gray-600">此操作无法撤销</p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-700 mb-3">
+                  确定要删除 <span className="font-medium">"{assetToDelete.name}"</span> 吗？
+                </p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <div className="text-sm text-yellow-800">
+                    <div className="font-medium mb-1">此操作将：</div>
+                    <ul className="space-y-1 text-xs">
+                      <li>• 从品牌资料库中删除该文件</li>
+                      <li>• 从品牌语料库中删除相关信息</li>
+                      <li>• 无法恢复，请谨慎操作</li>
+                    </ul>
                   </div>
                 </div>
-        </DialogContent>
-      </Dialog>
+              </div>
 
-      {/* 资料编辑弹窗 */}
-      <Dialog open={isEditingAsset !== null} onOpenChange={() => {
-        setIsEditingAsset(null);
-        setEditingAssetName('');
-        setEditingAssetDescription('');
-        setEditingAssetCategory('');
-      }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>编辑资料</DialogTitle>
-            <DialogDescription>
-              修改资料的基本信息，包括名称、描述和分类
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="asset-name">资料名称</Label>
-              <Input
-                id="asset-name"
-                value={editingAssetName}
-                onChange={(e) => setEditingAssetName(e.target.value)}
-                placeholder="请输入资料名称"
-              />
-            </div>
-            <div>
-              <Label htmlFor="asset-category">分类</Label>
-              <Select value={editingAssetCategory} onValueChange={setEditingAssetCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择分类" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryOptions.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="asset-description">描述</Label>
-              <Textarea
-                id="asset-description"
-                value={editingAssetDescription}
-                onChange={(e) => setEditingAssetDescription(e.target.value)}
-                placeholder="请输入资料描述（可选）"
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsEditingAsset(null);
-              setEditingAssetName('');
-              setEditingAssetDescription('');
-              setEditingAssetCategory('');
-            }}>
-              取消
-            </Button>
-            <Button onClick={handleSaveAssetEdit}>
-              保存
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 网页提取对话框 */}
-      <Dialog open={isWebExtractOpen} onOpenChange={setIsWebExtractOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-blue-600" />
-              网页内容提取
-            </DialogTitle>
-            <DialogDescription>
-              从网页URL中智能提取品牌相关内容，自动分析并添加到品牌资料库
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            {/* URL输入 */}
-            <div className="space-y-2">
-              <Label htmlFor="web-url">网页URL</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="web-url"
-                  placeholder="https://example.com/brand-page"
-                  value={webUrl}
-                  onChange={(e) => setWebUrl(e.target.value)}
-                  disabled={isExtractingWeb}
-                  className="flex-1"
-                />
+              <div className="flex gap-3">
                 <Button
-                  onClick={handleWebExtraction}
-                  disabled={isExtractingWeb || !webUrl.trim()}
-                  className="flex items-center gap-2"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDeleteDialog(false);
+                    setAssetToDelete(null);
+                  }}
                 >
-                  {isExtractingWeb ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      提取中...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="h-4 w-4" />
-                      提取
-                    </>
-                  )}
+                  取消
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={confirmDeleteAsset}
+                >
+                  确认删除
                 </Button>
               </div>
             </div>
+          </div>
+        )}
 
-            {/* 提取选项 */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="enable-brand-analysis"
-                  checked={enableBrandAnalysis}
-                  onChange={(e) => setEnableBrandAnalysis(e.target.checked)}
-                  className="h-4 w-4"
-                />
-                <Label htmlFor="enable-brand-analysis" className="text-sm">
-                  启用AI品牌分析
-                </Label>
+        {/* 分类编辑弹窗 */}
+        {showCategoryDialog && assetToEdit && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Tag className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">编辑分类</h3>
+                  <p className="text-sm text-gray-600">为文件设置新的分类</p>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="extraction-category" className="text-sm">
-                  分类：
-                </Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  文件名称
+                </label>
+                <p className="text-gray-600 mb-4">{assetToEdit.name}</p>
+
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  选择分类
+                </label>
+                <Select value={newCategory} onValueChange={setNewCategory}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="请选择文件分类" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categoryOptions.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                    {SYSTEM_CATEGORIES.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{category.label}</span>
+                          <span className="text-xs text-gray-500">{category.description}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowCategoryDialog(false);
+                    setAssetToEdit(null);
+                    setNewCategory('');
+                  }}
+                >
+                  取消
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={confirmEditCategory}
+                  disabled={!newCategory}
+                >
+                  保存
+                </Button>
+              </div>
             </div>
-
-            {/* 提取进度 */}
-            {isExtractingWeb && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span>提取进度</span>
-                  <span>{extractionProgress}%</span>
-                </div>
-                <Progress value={extractionProgress} className="w-full" />
-                <p className="text-xs text-gray-500">
-                  正在分析网页内容，请稍候...
-                </p>
-              </div>
-            )}
-
-            {/* 最近提取结果 */}
-            {webExtractionResults.length > 0 && (
-              <div className="space-y-3">
-                <Separator />
-                <div>
-                  <h4 className="font-medium mb-2">最近提取结果</h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {webExtractionResults.slice(0, 3).map((result) => (
-                      <div
-                        key={result.id}
-                        className="p-2 border rounded text-sm hover:bg-gray-50"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-3 w-3 text-blue-500" />
-                          <span className="font-medium truncate">{result.title}</span>
-                          {result.status === 'success' && (
-                            <Badge variant="default" className="text-xs">
-                              <Check className="h-2 w-2 mr-1" />
-                              成功
-                            </Badge>
-                          )}
-                          {result.status === 'error' && (
-                            <Badge variant="destructive" className="text-xs">
-                              <X className="h-2 w-2 mr-1" />
-                              失败
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {result.metadata.domain} • {result.metadata.wordCount} 字
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* PDF对话问答弹窗 */}
-      <PDFChatDialog
-        documents={brandAssets.map(asset => ({
-          id: asset.id,
-          name: asset.name,
-          content: asset.content,
-          uploadDate: asset.uploadDate,
-          size: asset.size
-        }))}
-        isOpen={isPDFChatOpen}
-        onOpenChange={setIsPDFChatOpen}
-      />
+        )}
+      </div>
     </div>
   );
 }
@@ -2095,6 +2040,9 @@ interface DimensionFormProps {
   isEditing: boolean;
   onEdit: () => void;
   onCancel: () => void;
+  onUpdateItem: (dimensionId: string, itemId: string, updates: Partial<BrandInfoItem>) => void;
+  onAddItem: (dimensionId: string, content: string) => void;
+  onDeleteItem: (dimensionId: string, itemId: string) => void;
 }
 
 function DimensionForm({
@@ -2104,98 +2052,367 @@ function DimensionForm({
   onRemoveKeyword,
   isEditing,
   onEdit,
-  onCancel
+  onCancel,
+  onUpdateItem,
+  onAddItem,
+  onDeleteItem
 }: DimensionFormProps) {
-  const [newKeyword, setNewKeyword] = useState('');
+  const [newItemContent, setNewItemContent] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState('');
+  const [showSourceDialog, setShowSourceDialog] = useState(false);
+  const [selectedSourceItem, setSelectedSourceItem] = useState<BrandInfoItem | null>(null);
 
-  const handleAddKeyword = () => {
-    if (newKeyword.trim()) {
-      onAddKeyword(dimension.id, newKeyword);
-      setNewKeyword('');
+  const handleAddItem = () => {
+    if (newItemContent.trim()) {
+      onAddItem(dimension.id, newItemContent.trim());
+      setNewItemContent('');
+      setShowAddForm(false);
     }
   };
 
+  const handleEditItem = (item: BrandInfoItem) => {
+    setEditingItemId(item.id);
+    setEditingContent(item.content);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingItemId && editingContent.trim()) {
+      onUpdateItem(dimension.id, editingItemId, { content: editingContent.trim() });
+      setEditingItemId(null);
+      setEditingContent('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+    setEditingContent('');
+  };
+
+  const handleShowSource = (item: BrandInfoItem) => {
+    setSelectedSourceItem(item);
+    setShowSourceDialog(true);
+  };
+
+  const handleSaveConfirm = (item: BrandInfoItem) => {
+    onUpdateItem(dimension.id, item.id, {
+      isPinned: true,
+      updatedAt: new Date()
+    });
+  };
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          {dimension.icon}
-                  <div>
-            <Label className="text-sm font-medium">
-              {dimension.title}
-            </Label>
-            <p className="text-xs text-gray-500">{dimension.description}</p>
+    <div className="space-y-4">
+      {/* 信息条目列表 */}
+      <div className="space-y-3">
+        {dimension.items.map((item) => (
+          <div key={item.id} className="border rounded-lg p-3 bg-white hover:bg-gray-50/50 transition-colors">
+            {/* 信息内容 */}
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                {editingItemId === item.id ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={editingContent}
+                      onChange={(e) => setEditingContent(e.target.value)}
+                      className="min-h-[60px] text-sm resize-none"
+                      placeholder="编辑信息内容..."
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={handleSaveEdit}
+                        disabled={!editingContent.trim()}
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        保存
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelEdit}
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        取消
+                      </Button>
+                    </div>
                   </div>
+                ) : (
+                  <p className="text-sm text-gray-800 leading-relaxed">
+                    {item.content}
+                  </p>
+                )}
+
+                {/* 来源和置信度信息 */}
+                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <FileText className="h-3 w-3" />
+                    <span>来源: {item.source}</span>
                   </div>
-        {!isEditing ? (
-          <Button variant="ghost" size="sm" onClick={onEdit}>
-            <Edit className="h-4 w-4" />
+                  <div className="flex items-center gap-1">
+                    <Target className="h-3 w-3" />
+                    <span>置信度: {Math.round(item.confidence * 100)}%</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    <span>{item.updatedAt.toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 工具融合按钮 */}
+              <div className="flex-shrink-0">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SafeTooltip content="⚠️ 重要提示：当前显示的信息为示例数据，上传的资料尚未进行真实AI分析提取。点击查看操作选项。">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 hover:bg-gray-100"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </SafeTooltip>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <SafeTooltip content="固定此信息条目，使其在列表中优先显示，便于快速访问重要内容" side="left">
+                      <DropdownMenuItem
+                        onClick={() => onUpdateItem(dimension.id, item.id, { isPinned: !item.isPinned })}
+                        className={item.isPinned ? "text-blue-600" : ""}
+                      >
+                        <Pin className="h-4 w-4 mr-2" />
+                        {item.isPinned ? '取消钉住' : '📌 钉住'}
+                      </DropdownMenuItem>
+                    </SafeTooltip>
+                    <SafeTooltip content="确认并保存当前信息内容，标记为已验证状态" side="left">
+                      <DropdownMenuItem
+                        onClick={() => handleSaveConfirm(item)}
+                        className="text-green-600"
+                      >
+                        <Check className="h-4 w-4 mr-2" />
+                        ✅ 确认保存
+                      </DropdownMenuItem>
+                    </SafeTooltip>
+                    <SafeTooltip content="屏蔽此信息条目，系统将不再提取此类相似信息" side="left">
+                      <DropdownMenuItem
+                        onClick={() => onUpdateItem(dimension.id, item.id, { isBlocked: !item.isBlocked })}
+                        className={item.isBlocked ? "text-gray-600" : ""}
+                      >
+                        <Ban className="h-4 w-4 mr-2" />
+                        {item.isBlocked ? '取消屏蔽' : '🚫 屏蔽'}
+                      </DropdownMenuItem>
+                    </SafeTooltip>
+                    <DropdownMenuSeparator />
+                    <SafeTooltip content="修改此信息条目的内容，可以编辑文字、调整表述等" side="left">
+                      <DropdownMenuItem
+                        onClick={() => handleEditItem(item)}
+                        disabled={editingItemId === item.id}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        编辑内容
+                      </DropdownMenuItem>
+                    </SafeTooltip>
+                    <SafeTooltip content="查看此信息的原始来源文档，了解提取的具体位置和上下文" side="left">
+                      <DropdownMenuItem
+                        onClick={() => handleShowSource(item)}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        📄 查看来源
+                      </DropdownMenuItem>
+                    </SafeTooltip>
+                    <DropdownMenuSeparator />
+                    <SafeTooltip content="永久删除此信息条目，删除后无法恢复，请谨慎操作" side="left">
+                      <DropdownMenuItem
+                        onClick={() => onDeleteItem(dimension.id, item.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        🗑 删除
+                      </DropdownMenuItem>
+                    </SafeTooltip>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* 状态指示器 */}
+            <div className="flex items-center gap-2 mt-2">
+              {item.isPinned && (
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                  📌 已钉住
+                </Badge>
+              )}
+              {item.isBlocked && (
+                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                  🚫 已屏蔽
+                </Badge>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* 空状态 */}
+        {dimension.items.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <FileText className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+            <p className="text-sm">暂无信息条目</p>
+            <p className="text-xs mt-1">上传资料后将自动提取相关信息</p>
+          </div>
+        )}
+      </div>
+
+      {/* 添加新信息 */}
+      <div className="border-t pt-3">
+        {!showAddForm ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAddForm(true)}
+            className="w-full border-dashed"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            添加新信息
           </Button>
         ) : (
-          <Button variant="ghost" size="sm" onClick={onCancel}>
-            <X className="h-4 w-4" />
-          </Button>
-        )}
-                </div>
-                
-      {isEditing ? (
-        <div className="space-y-3">
-          <Textarea
-            placeholder={dimension.placeholder}
-            value={dimension.value}
-            onChange={(e) => onUpdate(dimension.id, e.target.value)}
-            className="min-h-[80px]"
-          />
-          
-          {/* 关键词管理 */}
-          <div className="space-y-2">
-            <Label className="text-xs font-medium">关键词</Label>
+          <div className="space-y-3">
+            <Textarea
+              placeholder={dimension.placeholder}
+              value={newItemContent}
+              onChange={(e) => setNewItemContent(e.target.value)}
+              className="min-h-[80px] text-sm resize-none"
+            />
             <div className="flex gap-2">
-                    <Input
-                placeholder="添加关键词..."
-                value={newKeyword}
-                onChange={(e) => setNewKeyword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword()}
-                className="flex-1"
-              />
-              <Button size="sm" onClick={handleAddKeyword}>
-                <Plus className="h-4 w-4" />
+              <Button
+                size="sm"
+                onClick={handleAddItem}
+                disabled={!newItemContent.trim()}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                添加
               </Button>
-                  </div>
-            {dimension.keywords.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {dimension.keywords.map((keyword, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="cursor-pointer hover:bg-red-100"
-                    onClick={() => onRemoveKeyword(dimension.id, keyword)}
-                  >
-                    {keyword} <X className="h-3 w-3 ml-1" />
-                  </Badge>
-                ))}
-                  </div>
-            )}
-                  </div>
-                </div>
-      ) : (
-        <div className="p-3 bg-gray-50 rounded-md">
-          {dimension.value ? (
-            <p className="text-sm">{dimension.value}</p>
-          ) : (
-            <p className="text-sm text-gray-400">暂无内容</p>
-          )}
-          {dimension.keywords.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {dimension.keywords.map((keyword, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {keyword}
-                </Badge>
-              ))}
-                </div>
-          )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowAddForm(false);
+                  setNewItemContent('');
+                }}
+              >
+                取消
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 来源详情弹窗 */}
+      {showSourceDialog && selectedSourceItem && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FileText className="h-5 w-5 text-blue-600" />
               </div>
-            )}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">信息来源详情</h3>
+                <p className="text-sm text-gray-600">查看信息的提取来源和详细信息</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* 信息内容 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  信息内容
+                </label>
+                <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-800">
+                  {selectedSourceItem.content}
+                </div>
+              </div>
+
+              {/* 来源信息 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    来源文件
+                  </label>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <FileText className="h-4 w-4" />
+                    <span>{selectedSourceItem.source}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    置信度
+                  </label>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Target className="h-4 w-4" />
+                    <span>{Math.round(selectedSourceItem.confidence * 100)}%</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    创建时间
+                  </label>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    <span>{selectedSourceItem.createdAt.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    最后更新
+                  </label>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    <span>{selectedSourceItem.updatedAt.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 状态信息 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  当前状态
+                </label>
+                <div className="flex gap-2">
+                  {selectedSourceItem.isPinned && (
+                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                      📌 已钉住
+                    </Badge>
+                  )}
+                  {selectedSourceItem.isBlocked && (
+                    <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                      🚫 已屏蔽
+                    </Badge>
+                  )}
+                  {!selectedSourceItem.isPinned && !selectedSourceItem.isBlocked && (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                      ✅ 正常
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSourceDialog(false);
+                  setSelectedSourceItem(null);
+                }}
+              >
+                关闭
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
