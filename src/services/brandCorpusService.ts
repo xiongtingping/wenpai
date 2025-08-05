@@ -976,7 +976,6 @@ export class BrandCorpusService {
       // 添加更多字段映射...
     }
   }
-}
 
   /**
    * 🔧 JSON格式修复方法
