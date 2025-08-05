@@ -57,6 +57,7 @@ interface BrandInfoItem {
   isBlocked: boolean;
   createdAt: Date;
   updatedAt: Date;
+  aiGenerated?: boolean; // AI生成的标识
 }
 
 /**
@@ -122,7 +123,7 @@ export default function BrandLibraryPageFixed() {
   // 删除确认对话框状态
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
     isOpen: boolean;
-    item: BrandDimensionItem | null;
+    item: BrandInfoItem | null;
     dimensionId: string;
     itemId: string;
   }>({
@@ -612,7 +613,7 @@ export default function BrandLibraryPageFixed() {
     }
 
     // 创建新的信息条目
-    const newItem: BrandDimensionItem = {
+    const newItem: BrandInfoItem = {
       id: `ai-extracted-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       content: Array.isArray(value) ? value.join('、') : String(value),
       source: sourceName,
@@ -620,8 +621,8 @@ export default function BrandLibraryPageFixed() {
       updatedAt: new Date(),
       isPinned: confidence > 0.8, // 高置信度的自动钉住
       isBlocked: false,
-      aiGenerated: true,
-      confidence: confidence
+      confidence: confidence,
+      aiGenerated: true
     };
 
     // 添加到对应维度
