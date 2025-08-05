@@ -294,38 +294,26 @@ ${selectedDocument.content}
    * 生成建议问题
    */
   const generateSuggestions = () => {
-    const suggestions = [
+    return [
       "文档的主要内容是什么？",
       "文档中的关键信息有哪些？",
       "帮我总结文档的要点",
       "文档中提到了哪些重要数据？",
       "基于文档内容，给我一些建议"
     ];
-
-    return suggestions.map((suggestion, index) => (
-      <Button
-        key={index}
-        variant="outline"
-        size="sm"
-        className="text-xs"
-        onClick={() => setInputValue(suggestion)}
-      >
-        {suggestion}
-      </Button>
-    ));
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col">
+        <DialogHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5" />
                 PDF文档对话
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-sm">
                 与AI助手对话，深入了解您的PDF文档内容
               </DialogDescription>
             </div>
@@ -344,51 +332,51 @@ ${selectedDocument.content}
         </DialogHeader>
 
         <div className="flex-1 flex flex-col min-h-0">
-          {/* 文档选择器 */}
+          {/* 文档选择器 - 弱化显示 */}
           {documents.length > 1 && (
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <FileText className="h-4 w-4" />
-                <span className="text-sm font-medium">选择文档：</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {documents.map((doc) => (
-                  <Button
-                    key={doc.id}
-                    variant={selectedDocument?.id === doc.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedDocument(doc)}
-                    className="text-xs"
-                  >
-                    {doc.name}
-                  </Button>
-                ))}
+            <div className="mb-2 p-2 bg-gray-50/50 rounded border-l-2 border-gray-300">
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <FileText className="h-3 w-3" />
+                <span className="font-medium">文档：</span>
+                <div className="flex flex-wrap gap-1">
+                  {documents.map((doc) => (
+                    <Button
+                      key={doc.id}
+                      variant={selectedDocument?.id === doc.id ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setSelectedDocument(doc)}
+                      className="text-xs h-6 px-2"
+                    >
+                      {doc.name}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
-          {/* 对话区域 */}
+          {/* 对话区域 - 扩大显示 */}
           <div className="flex-1 flex flex-col min-h-0">
-            <ScrollArea className="flex-1 p-4 border rounded-lg">
-              <div className="space-y-4">
+            <ScrollArea className="flex-1 p-6 border rounded-lg bg-white min-h-[500px]">
+              <div className="space-y-6">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex gap-3 ${
+                    className={`flex gap-4 ${
                       message.role === 'user' ? 'justify-end' : 'justify-start'
                     }`}
                   >
                     {message.role === 'assistant' && (
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Bot className="h-4 w-4 text-blue-600" />
+                      <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Bot className="h-5 w-5 text-blue-600" />
                       </div>
                     )}
-                    
+
                     <div
-                      className={`max-w-[80%] p-3 rounded-lg ${
+                      className={`max-w-[85%] p-4 rounded-lg ${
                         message.role === 'user'
                           ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-900'
+                          : 'bg-gray-50 text-gray-900 border'
                       }`}
                     >
                       {message.isLoading ? (
@@ -398,14 +386,14 @@ ${selectedDocument.content}
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <div className="whitespace-pre-wrap">{message.content}</div>
+                          <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
                           {message.role === 'assistant' && !message.error && (
                             <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => copyMessage(message.content)}
-                                className="h-6 px-2 text-xs"
+                                className="h-6 px-2 text-xs opacity-70 hover:opacity-100"
                               >
                                 <Copy className="h-3 w-3 mr-1" />
                                 复制
@@ -417,8 +405,8 @@ ${selectedDocument.content}
                     </div>
 
                     {message.role === 'user' && (
-                      <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                        <User className="h-4 w-4 text-gray-600" />
+                      <div className="flex-shrink-0 w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                        <User className="h-5 w-5 text-gray-600" />
                       </div>
                     )}
                   </div>
@@ -428,34 +416,45 @@ ${selectedDocument.content}
             </ScrollArea>
           </div>
 
-          {/* 建议问题 */}
+          {/* 建议问题 - 弱化显示 */}
           {messages.length === 1 && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">建议问题：</span>
+            <div className="mt-2 p-2 bg-gray-50/50 rounded border-l-2 border-gray-300">
+              <div className="flex items-center gap-2 mb-1">
+                <Lightbulb className="h-3 w-3 text-gray-500" />
+                <span className="text-xs font-medium text-gray-600">建议问题：</span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {generateSuggestions()}
+              <div className="flex flex-wrap gap-1">
+                {generateSuggestions().map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-6 px-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    onClick={() => setInputValue(suggestion)}
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
               </div>
             </div>
           )}
 
           {/* 输入区域 */}
-          <div className="mt-4 flex gap-2">
+          <div className="mt-3 flex gap-3">
             <Textarea
               ref={inputRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="输入您的问题..."
-              className="flex-1 min-h-[60px] max-h-[120px] resize-none"
+              className="flex-1 min-h-[80px] max-h-[120px] resize-none"
               disabled={isLoading || !selectedDocument}
             />
             <Button
               onClick={sendMessage}
               disabled={!inputValue.trim() || isLoading || !selectedDocument}
-              className="self-end"
+              className="self-end px-4"
+              size="lg"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -465,13 +464,13 @@ ${selectedDocument.content}
             </Button>
           </div>
 
-          {/* 状态信息 */}
-          <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+          {/* 状态信息 - 弱化显示 */}
+          <div className="mt-1 flex items-center justify-between text-xs text-gray-400">
             <span>
               当前文档：{selectedDocument?.name || '未选择'}
             </span>
-            <span>
-              对话ID：{currentChatId}
+            <span className="opacity-50">
+              {currentChatId}
             </span>
           </div>
         </div>
