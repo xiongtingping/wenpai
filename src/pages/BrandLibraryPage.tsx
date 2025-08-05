@@ -2229,16 +2229,32 @@ function DimensionForm({
                     <DropdownMenuItem
                       onClick={() => {
                         console.log('删除点击事件触发', { dimensionId: dimension.id, itemId: item.id });
-                        // 如果是已钉住或已屏蔽的信息，先取消状态再删除
+                        // 如果是已钉住或已屏蔽的信息，弹出确认对话框
                         if (item.isPinned || item.isBlocked) {
-                          // 先取消钉住/屏蔽状态
-                          onUpdateItem(dimension.id, item.id, { isPinned: false, isBlocked: false });
-                          // 延迟删除，让用户看到状态变化
-                          setTimeout(() => {
-                            onDeleteItem(dimension.id, item.id);
-                          }, 300);
+                          const statusText = item.isPinned ? '已钉住' : '已屏蔽';
+                          const actionText = item.isPinned ? '取消钉住' : '取消屏蔽';
+
+                          const confirmed = window.confirm(
+                            `此信息当前为${statusText}状态，无法直接删除。\n\n是否要先${actionText}，然后删除此信息？\n\n注意：删除后无法恢复。`
+                          );
+
+                          if (confirmed) {
+                            // 先取消钉住/屏蔽状态
+                            onUpdateItem(dimension.id, item.id, { isPinned: false, isBlocked: false });
+                            // 延迟删除，让用户看到状态变化
+                            setTimeout(() => {
+                              onDeleteItem(dimension.id, item.id);
+                            }, 300);
+                          }
                         } else {
-                          onDeleteItem(dimension.id, item.id);
+                          // 普通信息直接删除，也需要确认
+                          const confirmed = window.confirm(
+                            `确定要删除此信息吗？\n\n删除后无法恢复。`
+                          );
+
+                          if (confirmed) {
+                            onDeleteItem(dimension.id, item.id);
+                          }
                         }
                       }}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -2248,7 +2264,7 @@ function DimensionForm({
                         <div>🗑 删除</div>
                         <div className="text-xs text-gray-500 mt-0.5">
                           {item.isPinned || item.isBlocked
-                            ? '将先取消钉住/屏蔽状态，然后删除'
+                            ? '需要先取消钉住/屏蔽状态才能删除'
                             : '永久删除此信息，无法恢复'
                           }
                         </div>
