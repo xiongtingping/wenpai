@@ -338,6 +338,14 @@ export class BrandCorpusService {
     const startTime = Date.now();
 
     try {
+      // 检查API配置
+      const { getAPIConfig } = await import('@/config/apiConfig');
+      const config = getAPIConfig();
+
+      if (!config.deepseek.apiKey || config.deepseek.apiKey === 'your_deepseek_key_here') {
+        throw new Error('DeepSeek API密钥未配置或使用默认占位符。请在.env文件中设置正确的VITE_DEEPSEEK_API_KEY');
+      }
+
       // 预处理内容
       const cleanedContent = this.preprocessContent(content);
 
@@ -350,6 +358,7 @@ export class BrandCorpusService {
         .replace('{{documentContent}}', cleanedContent);
 
       console.log(`🤖 [v2.0] 调用AI进行字段提取...`);
+      console.log(`📝 [v2.0] Prompt长度: ${prompt.length} 字符`);
 
       // 调用AI进行提取
       const aiResponse = await callAI({
@@ -390,7 +399,22 @@ export class BrandCorpusService {
 
     } catch (error) {
       console.error(`❌ [v2.0] 处理文档失败: ${fileName}`, error);
-      throw new Error(`文档处理失败: ${error instanceof Error ? error.message : '未知错误'}`);
+
+      // 提供更详细的错误信息
+      let errorMessage = '文档处理失败';
+      if (error instanceof Error) {
+        if (error.message.includes('API密钥')) {
+          errorMessage = 'AI服务配置错误：' + error.message;
+        } else if (error.message.includes('Network Error') || error.message.includes('ERR_CONNECTION_CLOSED')) {
+          errorMessage = '网络连接失败，请检查网络连接或稍后重试';
+        } else if (error.message.includes('JSON')) {
+          errorMessage = 'AI响应格式错误，请重试';
+        } else {
+          errorMessage = `处理失败: ${error.message}`;
+        }
+      }
+
+      throw new Error(errorMessage);
     }
   }
 

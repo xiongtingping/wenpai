@@ -54,6 +54,7 @@ export enum AITaskType {
   // 品牌分析类
   BRAND_ANALYSIS = 'brand-analysis',
   BRAND_DESCRIPTION = 'brand-description',
+  BRAND_CORPUS_EXTRACTION = 'brand-corpus-extraction',
   AUDIENCE_ANALYSIS = 'audience-analysis',
 
   // 创意设计类
@@ -169,6 +170,7 @@ function getDefaultMaxTokens(taskType: AITaskType): number {
     [AITaskType.CONTENT_EXTRACTION]: 1000,
     [AITaskType.BRAND_ANALYSIS]: 1200,
     [AITaskType.BRAND_DESCRIPTION]: 800,
+    [AITaskType.BRAND_CORPUS_EXTRACTION]: 4000,
     [AITaskType.AUDIENCE_ANALYSIS]: 1000,
     [AITaskType.EMOJI_GENERATION]: 300,
     [AITaskType.IMAGE_DESCRIPTION]: 500,
@@ -193,6 +195,7 @@ function getDefaultTemperature(taskType: AITaskType): number {
     [AITaskType.CONTENT_EXTRACTION]: 0.3,
     [AITaskType.BRAND_ANALYSIS]: 0.3,
     [AITaskType.BRAND_DESCRIPTION]: 0.7,
+    [AITaskType.BRAND_CORPUS_EXTRACTION]: 0.3,
     [AITaskType.AUDIENCE_ANALYSIS]: 0.5,
     [AITaskType.EMOJI_GENERATION]: 0.8,
     [AITaskType.IMAGE_DESCRIPTION]: 0.6,
@@ -253,6 +256,7 @@ Your output must feel like it was written by a real KOC or content strategist �
     [AITaskType.CONTENT_EXTRACTION]: '你是一个专业的内容提取专家，擅长从各种格式的内容中提取关键信息。',
     [AITaskType.BRAND_ANALYSIS]: '你是一个专业的品牌分析师，擅长分析品牌内容的调性、关键词、目标受众等特征。',
     [AITaskType.BRAND_DESCRIPTION]: '你是一个专业的品牌文案师，擅长撰写吸引人的品牌介绍和描述。',
+    [AITaskType.BRAND_CORPUS_EXTRACTION]: '你是一位资深品牌策略顾问，擅长从品牌资料中提取结构化信息，构建完整的品牌语料库。请严格按照JSON格式输出结果，确保每个字段都包含置信度评分和详细的来源信息。',
     [AITaskType.AUDIENCE_ANALYSIS]: '你是一个专业的用户画像分析师，擅长分析目标受众的特征和需求。',
     [AITaskType.EMOJI_GENERATION]: '你是一个专业的表情符号设计师，擅长创作有趣、生动的表情符号描述。',
     [AITaskType.IMAGE_DESCRIPTION]: '你是一个专业的图像描述专家，擅长为图像生成详细、准确的描述。',

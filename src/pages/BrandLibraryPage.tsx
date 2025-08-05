@@ -190,6 +190,29 @@ export default function BrandLibraryPageFixed() {
   const webExtractor = WebContentExtractorService.getInstance();
   const corpusService = BrandCorpusService.getInstance();
 
+  // 检查API配置
+  useEffect(() => {
+    const checkAPIConfig = async () => {
+      try {
+        const { getAPIConfig } = await import('@/config/apiConfig');
+        const config = getAPIConfig();
+
+        if (!config.deepseek.apiKey || config.deepseek.apiKey === 'your_deepseek_key_here') {
+          toast({
+            title: "AI服务配置提醒",
+            description: "DeepSeek API密钥未配置，AI分析功能将无法使用。请在.env文件中设置VITE_DEEPSEEK_API_KEY",
+            variant: "default",
+            duration: 8000,
+          });
+        }
+      } catch (error) {
+        console.error('API配置检查失败:', error);
+      }
+    };
+
+    checkAPIConfig();
+  }, []);
+
   // 初始化示例数据
   useEffect(() => {
     // 添加示例品牌资料
@@ -761,17 +784,32 @@ export default function BrandLibraryPageFixed() {
           });
 
         } catch (error) {
-          console.error(`❌ AI分析文件 ${asset.name} 失败:`, error);
+          console.error(`❌ [v2.0] AI分析文件 ${asset.name} 失败:`, error);
           setBrandAssets(prev => prev.map(a =>
             a.id === asset.id ? { ...a, status: 'error' } : a
           ));
 
           // 显示具体错误信息
+          const errorMessage = error instanceof Error ? error.message : '未知错误';
+
           toast({
-            title: `分析失败: ${asset.name}`,
-            description: error instanceof Error ? error.message : '未知错误',
+            title: `AI分析失败: ${asset.name}`,
+            description: errorMessage,
             variant: "destructive",
+            duration: 8000, // 延长显示时间以便用户阅读
           });
+
+          // 如果是API配置错误，提供额外的帮助信息
+          if (errorMessage.includes('API密钥')) {
+            setTimeout(() => {
+              toast({
+                title: "配置提示",
+                description: "请在项目根目录的.env文件中配置正确的VITE_DEEPSEEK_API_KEY",
+                variant: "default",
+                duration: 10000,
+              });
+            }, 1000);
+          }
         }
       }
 
