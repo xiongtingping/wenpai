@@ -22,7 +22,7 @@ import {
   Plus, X, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
   TrendingUp, Users2, Package, Share2, MoreHorizontal,
-  Loader2, CheckCircle, Grid, List, Pin, Ban, AlertTriangle
+  Loader2, CheckCircle, Grid, List, Pin, Ban
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -825,6 +825,43 @@ export default function BrandLibraryPageFixed() {
     });
   };
 
+  /**
+   * 读取文件内容
+   * ✅ FIXED: 2025-08-05 支持多种文件格式的内容读取
+   */
+  const readFileContent = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (typeof result === 'string') {
+          resolve(result);
+        } else {
+          resolve(''); // 对于二进制文件，返回空字符串
+        }
+      };
+
+      reader.onerror = () => {
+        reject(new Error('文件读取失败'));
+      };
+
+      // 根据文件类型选择读取方式
+      if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+        reader.readAsText(file, 'UTF-8');
+      } else if (file.type === 'application/pdf') {
+        // PDF文件需要特殊处理，这里先返回文件名作为占位符
+        resolve(`PDF文件: ${file.name}`);
+      } else if (file.type.startsWith('image/')) {
+        // 图片文件返回文件信息
+        resolve(`图片文件: ${file.name}`);
+      } else {
+        // 其他文件类型尝试读取为文本
+        reader.readAsText(file, 'UTF-8');
+      }
+    });
+  };
+
   // 处理文件上传
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -860,14 +897,18 @@ export default function BrandLibraryPageFixed() {
           fileType = 'web';
         }
 
+        // 读取文件内容
+        const content = await readFileContent(file);
+
         const asset: BrandAsset = {
           id: `asset-${Date.now()}-${i}`,
           name: file.name,
           type: fileType,
           size: `${(file.size / 1024).toFixed(2)} KB`,
           uploadDate: new Date().toISOString(),
-          status: 'analyzing', // 新上传的文件自动开始分析
+          status: 'uploaded', // 上传完成，等待AI分析
           file: file,
+          content: content, // 添加文件内容
           category: 'brand-material'
         };
 
@@ -879,29 +920,27 @@ export default function BrandLibraryPageFixed() {
 
       toast({
         title: "上传成功",
-        description: `成功上传 ${newAssets.length} 个文件，正在自动分析...`,
+        description: `成功上传 ${newAssets.length} 个文件，正在自动进行AI分析...`,
       });
 
-      // 自动开始AI分析
-      setTimeout(() => {
-        const analyzedAssets = newAssets.map(asset => ({
-          ...asset,
-          status: 'analyzed' as const,
-          content: `这是 ${asset.name} 的分析内容示例...`
-        }));
-
-        setBrandAssets(prev =>
-          prev.map(asset => {
-            const analyzed = analyzedAssets.find(a => a.id === asset.id);
-            return analyzed || asset;
-          })
-        );
-
-        toast({
-          title: "AI分析完成",
-          description: `已完成 ${newAssets.length} 个文件的智能分析`,
-        });
-      }, 3000); // 3秒后完成分析
+      // 自动触发真实AI分析
+      // ✅ FIXED: 2025-08-05 文件上传后自动触发真实AI分析
+      setTimeout(async () => {
+        try {
+          await handleBatchCorpusExtraction();
+          toast({
+            title: "AI分析完成",
+            description: `已完成 ${newAssets.length} 个文件的智能分析，信息已自动添加到品牌维度`,
+          });
+        } catch (error) {
+          console.error('自动AI分析失败:', error);
+          toast({
+            title: "AI分析失败",
+            description: "自动分析过程中出现错误，请稍后重试",
+            variant: "destructive",
+          });
+        }
+      }, 1000); // 1秒后开始AI分析
 
     } catch (error) {
       console.error('文件上传失败:', error);
@@ -1614,47 +1653,7 @@ export default function BrandLibraryPageFixed() {
           {/* 品牌语料库标签页 */}
           <TabsContent value="dimensions" className="space-y-6">
 
-            {/* AI分析状态警告 */}
-            <Alert className="border-amber-200 bg-amber-50">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-800">AI分析状态提醒</AlertTitle>
-              <AlertDescription className="text-amber-700">
-                <div className="space-y-2">
-                  <p>
-                    <strong>⚠️ 重要提示：</strong>当前显示的品牌语料库信息为示例数据，尚未对上传的资料进行真实AI分析。
-                  </p>
-                  <p>
-                    点击下方的 <strong>"内容智能提取"</strong> 按钮，系统将使用真实AI服务分析您上传的品牌资料，
-                    自动提取品牌名称、使命愿景、目标受众、语调风格等关键信息到对应维度。
-                  </p>
-                  <div className="flex items-center gap-2 mt-3">
-                    <Button
-                      onClick={handleBatchCorpusExtraction}
-                      disabled={isProcessingCorpus || brandAssets.filter(a => a.status === 'uploaded' || a.status === 'error').length === 0}
-                      size="sm"
-                      className="bg-amber-600 hover:bg-amber-700 text-white"
-                    >
-                      {isProcessingCorpus ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          AI分析中...
-                        </>
-                      ) : (
-                        <>
-                          <Brain className="h-4 w-4 mr-2" />
-                          开始真实AI分析
-                        </>
-                      )}
-                    </Button>
-                    {brandAssets.filter(a => a.status === 'uploaded' || a.status === 'error').length === 0 && (
-                      <span className="text-sm text-amber-600">
-                        请先上传品牌资料文件
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </AlertDescription>
-            </Alert>
+
 
             {/* 语料库状态和操作栏 */}
             <div className="flex items-center justify-between mb-4">
@@ -2165,7 +2164,7 @@ function DimensionForm({
               <div className="flex-shrink-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <SafeTooltip content="⚠️ 重要提示：当前显示的信息为示例数据，上传的资料尚未进行真实AI分析提取。点击查看操作选项。">
+                    <SafeTooltip content="信息条目操作菜单：可以钉住、屏蔽、编辑或查看来源等操作。点击查看所有选项。">
                       <Button
                         variant="ghost"
                         size="sm"
