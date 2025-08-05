@@ -44,6 +44,7 @@ import { WebContentExtractorService, WebExtractionResult } from '@/services/webC
 import BrandCorpusService, { BrandCorpus, BrandCorpusExtraction, BrandCorpusSource } from '@/services/brandCorpusService';
 import FileFormatSupportService from '@/services/fileFormatSupportService';
 import FileFormatDisplay from '@/components/ui/FileFormatDisplay';
+import { testDeepSeekAPI, diagnoseAPIIssues } from '@/utils/apiTest';
 
 /**
  * 品牌信息条目接口
@@ -559,6 +560,51 @@ export default function BrandLibraryPageFixed() {
       dimensionId: '',
       itemId: ''
     });
+  };
+
+  // API连接测试
+  const handleAPITest = async () => {
+    try {
+      toast({
+        title: "开始API测试",
+        description: "正在测试DeepSeek API连接...",
+      });
+
+      const diagnosis = await diagnoseAPIIssues();
+
+      console.log('🔍 API诊断结果:', diagnosis);
+
+      if (diagnosis.deepseek.success) {
+        toast({
+          title: "✅ API连接正常",
+          description: "DeepSeek API可以正常使用，AI分析功能应该能正常工作",
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: "❌ API连接失败",
+          description: `${diagnosis.deepseek.message}。建议：${diagnosis.recommendations.slice(0, 2).join('、')}`,
+          variant: "destructive",
+          duration: 8000,
+        });
+
+        // 显示详细的诊断信息
+        setTimeout(() => {
+          toast({
+            title: "诊断建议",
+            description: diagnosis.recommendations.join('；'),
+            duration: 10000,
+          });
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('API测试失败:', error);
+      toast({
+        title: "测试失败",
+        description: "无法执行API测试，请检查网络连接",
+        variant: "destructive",
+      });
+    }
   };
 
   const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
@@ -1144,8 +1190,17 @@ export default function BrandLibraryPageFixed() {
                     <Info className="h-3 w-3" />
                   </Button>
                 </CardTitle>
-                <CardDescription>
-                  支持多种格式的品牌资料上传，AI将自动分析并提取关键信息
+                <CardDescription className="flex items-center justify-between">
+                  <span>支持多种格式的品牌资料上传，AI将自动分析并提取关键信息</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAPITest}
+                    className="text-xs"
+                  >
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    测试API连接
+                  </Button>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
