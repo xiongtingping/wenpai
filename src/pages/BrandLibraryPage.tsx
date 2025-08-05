@@ -34,6 +34,7 @@ import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
 import PDFChatDialog from '@/components/creative/PDFChatDialog';
 import { BrandProfile, BrandAsset } from '@/types/brand';
 import AIAnalysisService from '@/services/aiAnalysisService';
+import { WebContentExtractorService, WebExtractionResult } from '@/services/webContentExtractor';
 
 /**
  * 品牌语料库维度接口
@@ -60,7 +61,7 @@ type SortOption = 'date-new' | 'date-old' | 'name-asc' | 'name-desc' | 'size-asc
  * @description 多维品牌语料库，支持AI自动分析和用户自定义修改
  */
 export default function BrandLibraryPage() {
-  const [activeTab, setActiveTab] = useState('dimensions');
+  const [activeTab, setActiveTab] = useState('assets');
   const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -95,6 +96,14 @@ export default function BrandLibraryPage() {
   const [isAnalyzingAsset, setIsAnalyzingAsset] = useState<string | null>(null);
   const [assetViewerContent, setAssetViewerContent] = useState('');
   const [isPDFChatOpen, setIsPDFChatOpen] = useState(false);
+
+  // 网页提取相关状态
+  const [isWebExtractOpen, setIsWebExtractOpen] = useState(false);
+  const [webUrl, setWebUrl] = useState('');
+  const [isExtractingWeb, setIsExtractingWeb] = useState(false);
+  const [webExtractionResults, setWebExtractionResults] = useState<WebExtractionResult[]>([]);
+  const [extractionProgress, setExtractionProgress] = useState(0);
+  const [enableBrandAnalysis, setEnableBrandAnalysis] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -836,6 +845,135 @@ export default function BrandLibraryPage() {
   };
 
   /**
+   * 处理网页内容提取
+   */
+  const handleWebExtraction = async () => {
+    if (!webUrl.trim()) {
+      toast({
+        title: "请输入URL",
+        description: "请提供有效的网页地址",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsExtractingWeb(true);
+    setExtractionProgress(0);
+
+    try {
+      const webExtractor = WebContentExtractorService.getInstance();
+
+      // 检查URL可访问性
+      setExtractionProgress(20);
+      const accessCheck = await webExtractor.checkUrlAccessibility(webUrl);
+
+      if (!accessCheck.accessible) {
+        throw new Error(accessCheck.error || 'URL无法访问');
+      }
+
+      // 提取网页内容
+      setExtractionProgress(50);
+      const extractionResult = await webExtractor.extractFromUrl(webUrl, {
+        includeBrandAnalysis: enableBrandAnalysis,
+        maxContentLength: 5000
+      });
+
+      setExtractionProgress(80);
+
+      if (extractionResult.status === 'error') {
+        throw new Error(extractionResult.error || '内容提取失败');
+      }
+
+      // 转换为品牌资产并添加到列表
+      const brandAsset = webExtractor.convertToBrandAsset(extractionResult, selectedCategory);
+      setBrandAssets(prev => [brandAsset, ...prev]);
+
+      // 保存提取结果
+      setWebExtractionResults(prev => [extractionResult, ...prev]);
+
+      // 如果有品牌分析结果，自动更新语料库
+      if (extractionResult.brandAnalysis) {
+        updateBrandDimensionsFromWebExtraction(extractionResult.brandAnalysis);
+      }
+
+      setExtractionProgress(100);
+
+      toast({
+        title: "网页内容提取成功",
+        description: `已成功提取 ${extractionResult.title} 的内容并添加到品牌资料库`,
+      });
+
+      // 清空URL输入
+      setWebUrl('');
+
+    } catch (error) {
+      console.error('网页提取失败:', error);
+
+      toast({
+        title: "网页提取失败",
+        description: error instanceof Error ? error.message : "请检查URL是否有效或稍后重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExtractingWeb(false);
+      setExtractionProgress(0);
+    }
+  };
+
+  /**
+   * 从网页提取结果更新品牌语料库
+   */
+  const updateBrandDimensionsFromWebExtraction = (brandAnalysis: any) => {
+    setBrandDimensions(prev => prev.map(dimension => {
+      let newValue = dimension.value;
+      let newKeywords = [...dimension.keywords];
+
+      switch (dimension.id) {
+        case 'brandKeywords':
+          if (brandAnalysis.brandKeywords?.length > 0) {
+            const uniqueKeywords = brandAnalysis.brandKeywords.filter((k: string) =>
+              !newKeywords.includes(k) && k.length > 1
+            );
+            if (uniqueKeywords.length > 0) {
+              newKeywords = [...newKeywords, ...uniqueKeywords];
+              newValue = newValue ? `${newValue}、${uniqueKeywords.join('、')}` : uniqueKeywords.join('、');
+            }
+          }
+          break;
+        case 'brandTone':
+          if (brandAnalysis.brandTone && !dimension.value) {
+            newValue = brandAnalysis.brandTone;
+          }
+          break;
+        case 'brandValues':
+          if (brandAnalysis.brandValues?.length > 0) {
+            const uniqueValues = brandAnalysis.brandValues.filter((v: string) =>
+              !newKeywords.includes(v)
+            );
+            if (uniqueValues.length > 0) {
+              newKeywords = [...newKeywords, ...uniqueValues];
+              newValue = newValue ? `${newValue}、${uniqueValues.join('、')}` : uniqueValues.join('、');
+            }
+          }
+          break;
+        case 'targetAudience':
+          if (brandAnalysis.targetAudience?.length > 0) {
+            const uniqueAudience = brandAnalysis.targetAudience.filter((a: string) =>
+              !newKeywords.includes(a)
+            );
+            if (uniqueAudience.length > 0) {
+              newKeywords = [...newKeywords, ...uniqueAudience];
+              newValue = newValue ? `${newValue}、${uniqueAudience.join('、')}` : uniqueAudience.join('、');
+            }
+          }
+          break;
+      }
+
+      return { ...dimension, value: newValue, keywords: newKeywords };
+    }));
+  };
+
+  /**
    * 删除资产
    */
   const handleDeleteAsset = (assetId: string) => {
@@ -1024,13 +1162,13 @@ export default function BrandLibraryPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="assets" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              上传品牌资料
+            </TabsTrigger>
             <TabsTrigger value="dimensions" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
               品牌语料库
-            </TabsTrigger>
-            <TabsTrigger value="assets" className="flex items-center gap-2">
-              <FileUp className="h-4 w-4" />
-              资料管理
             </TabsTrigger>
             <TabsTrigger value="extractor" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -1150,20 +1288,69 @@ export default function BrandLibraryPage() {
           </TabsContent>
 
           {/* 资料管理 */}
-          <TabsContent value="assets" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>品牌资料管理</CardTitle>
-                <CardDescription>管理上传的品牌资料文件</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* 上传和AI分析按钮 */}
-                <div className="flex gap-2 mb-4 items-center">
-                  {/* 分类选择器 */}
+          <TabsContent value="assets" className="space-y-8">
+            {/* 主要上传区域 - 适中显示 */}
+            <Card className="border-2 border-dashed border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <CardContent className="p-8">
+                <div className="text-center space-y-4">
+                  <div className="mx-auto w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center shadow-md">
+                    <Upload className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <div className="space-y-3">
+                    <h2 className="text-xl font-bold text-gray-800">上传品牌资料</h2>
+                    <p className="text-base text-gray-600 max-w-lg mx-auto">
+                      拖拽文件到此处或点击选择文件，支持网页链接提取，AI 将自动分析并构建品牌语料库
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="px-6 py-2"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {isUploading ? '上传中...' : '选择文件'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {/* TODO: 打开网页提取对话框 */}}
+                        className="px-6 py-2"
+                      >
+                        <Globe className="h-4 w-4 mr-2" />
+                        网页提取
+                      </Button>
+                    </div>
+
+                    {/* 支持的文件格式 - 内嵌显示 */}
+                    <div className="mt-4 pt-4 border-t border-blue-200">
+                      <p className="text-xs text-gray-500 mb-2">支持的格式</p>
+                      <div className="flex flex-wrap justify-center gap-1">
+                        {[
+                          'PDF', 'Word', 'TXT', 'MD', 'JPG', 'PNG', 'Excel', 'PPT', '网页链接'
+                        ].map((format) => (
+                          <span key={format} className="px-2 py-1 bg-white/80 rounded text-xs text-gray-600 border border-blue-100">
+                            {format}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        单个文件建议不超过10MB，支持批量上传和网页内容提取
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 次要功能区域 - 弱化显示 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* 分类选择 */}
+              <Card className="bg-gray-50">
+                <CardContent className="p-4">
                   <div className="flex items-center gap-2">
-                    <Label className="text-sm font-medium">分类：</Label>
+                    <Tag className="h-4 w-4 text-gray-500" />
+                    <Label className="text-sm font-medium text-gray-700">分类：</Label>
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="选择分类" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1175,79 +1362,62 @@ export default function BrandLibraryPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  <Button 
+                </CardContent>
+              </Card>
+
+              {/* AI分析 */}
+              <Card className="bg-gray-50">
+                <CardContent className="p-4">
+                  <Button
                     variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {isUploading ? '上传中...' : '上传资料'}
-                  </Button>
-                  <Button 
+                    size="sm"
                     onClick={handleProcessAssets}
                     disabled={isProcessing || brandAssets.length === 0}
+                    className="w-full"
                   >
                     <Brain className="h-4 w-4 mr-2" />
                     {isProcessing ? 'AI分析中...' : '批量AI分析'}
                   </Button>
-                  <Button 
+                </CardContent>
+              </Card>
+
+              {/* PDF对话 */}
+              <Card className="bg-gray-50">
+                <CardContent className="p-4">
+                  <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => setIsPDFChatOpen(true)}
                     disabled={brandAssets.length === 0}
+                    className="w-full"
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     PDF对话
                   </Button>
-                </div>
+                </CardContent>
+              </Card>
+            </div>
 
-                {/* 文件格式说明 */}
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <h4 className="font-medium text-blue-900 mb-2">支持的文件格式</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-blue-600" />
-                          <span>文档：PDF, DOC, DOCX, TXT, MD</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <FileImage className="h-4 w-4 text-green-600" />
-                          <span>图片：JPG, PNG, GIF, BMP, WEBP</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <File className="h-4 w-4 text-red-600" />
-                          <span>表格：XLS, XLSX</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-purple-600" />
-                          <span>演示：PPT, PPTX</span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-blue-700 mt-2">
-                        <strong>注意：</strong>单个文件大小建议不超过10MB，支持批量上传多个文件。AI将自动分析文件内容并提取品牌相关信息。
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* 搜索和筛选 */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+
+
+            {/* 搜索和筛选 - 弱化显示 */}
+            <Card className="bg-gray-50">
+              <CardContent className="p-4">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
-                  <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input 
-                      placeholder="搜索资料..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                    />
-                  </div>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                      <Input
+                        placeholder="搜索资料..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 h-8 text-sm"
+                      />
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Select value={sortOption} onValueChange={(value: SortOption) => setSortOption(value)}>
-                      <SelectTrigger className="w-[180px]">
+                      <SelectTrigger className="w-[140px] h-8 text-sm">
                         <SelectValue placeholder="排序方式" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1257,23 +1427,23 @@ export default function BrandLibraryPage() {
                         <SelectItem value="name-desc">名称 Z-A</SelectItem>
                       </SelectContent>
                     </Select>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-[120px]">
-                          <Filter className="h-4 w-4 mr-2" />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-[100px] h-8 text-sm">
+                          <Filter className="h-3 w-3 mr-1" />
                           分类
-                      </Button>
-                    </PopoverTrigger>
+                        </Button>
+                      </PopoverTrigger>
                       <PopoverContent className="w-48">
-                      <Command>
+                        <Command>
                           <CommandInput placeholder="搜索分类..." />
-                        <CommandList>
-                          <CommandEmpty>未找到分类</CommandEmpty>
+                          <CommandList>
+                            <CommandEmpty>未找到分类</CommandEmpty>
                             <CommandGroup>
                               {categories.map((category) => (
-                              <CommandItem 
-                                key={category} 
-                                onSelect={() => toggleCategory(category)}
+                                <CommandItem
+                                  key={category}
+                                  onSelect={() => toggleCategory(category)}
                                 >
                                   <div className="flex items-center space-x-2">
                                     <input
@@ -1284,27 +1454,36 @@ export default function BrandLibraryPage() {
                                     />
                                     <span>{category}</span>
                                   </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
+
+            {/* 文件列表 - 协调显示 */}
+            <Card className="bg-gray-50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base text-gray-700">已上传的资料</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
                 {brandAssets.length === 0 ? (
-                  <div className="text-center py-8">
-                    <FileUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">暂无品牌资料，请上传文件开始构建语料库</p>
-                    </div>
-                  ) : (
-                  <div className="space-y-4">
+                  <div className="text-center py-4">
+                    <FileUp className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">暂无品牌资料，请上传文件开始构建语料库</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
                       {filteredAndSortedAssets.map((asset) => (
-                      <div 
-                        key={asset.id} 
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                      <div
+                        key={asset.id}
+                        className="flex items-center justify-between p-3 border rounded-md hover:bg-white cursor-pointer transition-colors"
                         onClick={() => handleViewAsset(asset)}
                       >
                         <div className="flex items-center gap-3 flex-1">
@@ -1312,18 +1491,18 @@ export default function BrandLibraryPage() {
                                 <div className="flex-1 min-w-0">
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="font-medium truncate">{asset.name}</p>
+                                <p className="font-medium truncate text-sm">{asset.name}</p>
                                 {asset.category && (
                                   <Badge variant="secondary" className="text-xs">
                                     {asset.category}
                                   </Badge>
                                 )}
                                 </div>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-xs text-gray-500">
                                 {asset.uploadDate.toLocaleDateString()}
                               </p>
                               {asset.description && (
-                                <p className="text-sm text-gray-600 mt-1">{asset.description}</p>
+                                <p className="text-xs text-gray-600 mt-1 line-clamp-1">{asset.description}</p>
                               )}
                               </div>
                           </div>
@@ -1423,50 +1602,217 @@ export default function BrandLibraryPage() {
                   )}
               </CardContent>
             </Card>
-                </TabsContent>
+          </TabsContent>
 
           {/* 内容提取功能 */}
           <TabsContent value="extractor" className="space-y-6">
+            {/* 网页内容提取 */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-blue-600" />
-                  内容提取工具
+                  <Globe className="h-5 w-5 text-blue-600" />
+                  网页内容提取
                 </CardTitle>
                 <CardDescription>
-                  从网页、文件或文本中提取有价值的内容，支持AI智能总结和PDF对话功能
+                  从网页URL中智能提取品牌相关内容，自动分析并添加到品牌资料库
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* URL输入区域 */}
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Label htmlFor="web-url">网页URL</Label>
+                      <Input
+                        id="web-url"
+                        placeholder="https://example.com/brand-page"
+                        value={webUrl}
+                        onChange={(e) => setWebUrl(e.target.value)}
+                        disabled={isExtractingWeb}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex flex-col justify-end">
+                      <Button
+                        onClick={handleWebExtraction}
+                        disabled={isExtractingWeb || !webUrl.trim()}
+                        className="flex items-center gap-2"
+                      >
+                        {isExtractingWeb ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            提取中...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-4 w-4" />
+                            提取内容
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* 提取选项 */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="enable-brand-analysis"
+                          checked={enableBrandAnalysis}
+                          onChange={(e) => setEnableBrandAnalysis(e.target.checked)}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor="enable-brand-analysis" className="text-sm">
+                          启用AI品牌分析
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Label htmlFor="extraction-category" className="text-sm">
+                          分类：
+                        </Label>
+                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categoryOptions.map((category) => (
+                              <SelectItem key={category} value={category}>
+                                {category}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 提取进度 */}
+                  {isExtractingWeb && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span>提取进度</span>
+                        <span>{extractionProgress}%</span>
+                      </div>
+                      <Progress value={extractionProgress} className="w-full" />
+                      <p className="text-xs text-gray-500">
+                        正在分析网页内容，请稍候...
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 提取结果展示 */}
+                {webExtractionResults.length > 0 && (
+                  <div className="space-y-4">
+                    <Separator />
+                    <div>
+                      <h4 className="font-medium mb-3">最近提取结果</h4>
+                      <div className="space-y-3 max-h-60 overflow-y-auto">
+                        {webExtractionResults.slice(0, 3).map((result) => (
+                          <div
+                            key={result.id}
+                            className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                            onClick={() => {
+                              // 查看提取结果详情
+                              const asset = brandAssets.find(a => a.id === result.id);
+                              if (asset) {
+                                handleViewAsset(asset);
+                              }
+                            }}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <Globe className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                                  <p className="font-medium truncate">{result.title}</p>
+                                  {result.status === 'success' && (
+                                    <Badge variant="default" className="text-xs">
+                                      <Check className="h-3 w-3 mr-1" />
+                                      成功
+                                    </Badge>
+                                  )}
+                                  {result.status === 'error' && (
+                                    <Badge variant="destructive" className="text-xs">
+                                      <X className="h-3 w-3 mr-1" />
+                                      失败
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-500 truncate mt-1">
+                                  {result.metadata.domain} • {result.metadata.wordCount} 字
+                                </p>
+                                {result.brandAnalysis && (
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {result.brandAnalysis.brandKeywords.slice(0, 3).map((keyword, index) => (
+                                      <Badge key={index} variant="secondary" className="text-xs">
+                                        {keyword}
+                                      </Badge>
+                                    ))}
+                                    {result.brandAnalysis.brandKeywords.length > 3 && (
+                                      <Badge variant="outline" className="text-xs">
+                                        +{result.brandAnalysis.brandKeywords.length - 3}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-400 ml-2">
+                                {new Date(result.extractedAt).toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* 其他工具 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-green-600" />
+                  其他提取工具
+                </CardTitle>
+                <CardDescription>
+                  更多内容提取和分析工具
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">内容提取功能</h3>
-                  <p className="text-gray-600 mb-6">
-                    强大的内容提取工具，支持多种格式和智能分析
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                    <Button
-                      onClick={() => navigate('/content-extractor')}
-                      className="flex items-center gap-2"
-                    >
-                      <FileText className="h-4 w-4" />
-                      内容提取
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsPDFChatOpen(true)}
-                      className="flex items-center gap-2"
-                      disabled={brandAssets.length === 0}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      PDF对话
-                    </Button>
-                  </div>
-                  {brandAssets.length === 0 && (
-                    <p className="text-sm text-gray-500 mt-4">
-                      请先在"资料管理"中上传PDF文件以启用PDF对话功能
-                    </p>
-                  )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/content-extractor')}
+                    className="flex items-center gap-2 h-auto p-4"
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <FileText className="h-6 w-6" />
+                      <div className="text-center">
+                        <div className="font-medium">通用内容提取</div>
+                        <div className="text-xs text-gray-500">支持文件、文本等多种格式</div>
+                      </div>
+                    </div>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsPDFChatOpen(true)}
+                    disabled={brandAssets.length === 0}
+                    className="flex items-center gap-2 h-auto p-4"
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <MessageSquare className="h-6 w-6" />
+                      <div className="text-center">
+                        <div className="font-medium">PDF智能对话</div>
+                        <div className="text-xs text-gray-500">
+                          {brandAssets.length === 0 ? '需要先上传PDF文件' : '与品牌资料进行对话'}
+                        </div>
+                      </div>
+                    </div>
+                  </Button>
                 </div>
               </CardContent>
             </Card>

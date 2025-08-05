@@ -57,6 +57,7 @@ import TitlePlatformSwitchTestPage from '@/pages/TitlePlatformSwitchTestPage';
 import TitleSemanticTestPage from '@/pages/TitleSemanticTestPage';
 import TitleAntiTemplateTestPage from '@/pages/TitleAntiTemplateTestPage';
 import TitleV3TestPage from '@/pages/TitleV3TestPage';
+import WebExtractorTestPage from '@/pages/WebExtractorTestPage';
 import HistoryPage from '@/pages/HistoryPage';
 
 /**
@@ -259,6 +260,7 @@ function AppContent() {
           <Route path="/title-semantic-test" element={<TitleSemanticTestPage />} />
           <Route path="/title-anti-template-test" element={<TitleAntiTemplateTestPage />} />
           <Route path="/title-v3-test" element={<TitleV3TestPage />} />
+          <Route path="/web-extractor-test" element={<WebExtractorTestPage />} />
 
           {/* 历史记录页面 */}
           <Route path="/history" element={
