@@ -561,13 +561,13 @@ export default function BrandLibraryPageFixed() {
 
     // 如果是已钉住或已屏蔽的信息，先取消状态再删除
     if (item.isPinned || item.isBlocked) {
-      onUpdateItem(dimensionId, itemId, { isPinned: false, isBlocked: false });
+      updateDimensionItem(dimensionId, itemId, { isPinned: false, isBlocked: false });
       // 延迟删除，让用户看到状态变化
       setTimeout(() => {
-        onDeleteItem(dimensionId, itemId);
+        deleteDimensionItem(dimensionId, itemId);
       }, 300);
     } else {
-      onDeleteItem(dimensionId, itemId);
+      deleteDimensionItem(dimensionId, itemId);
     }
 
     // 关闭对话框
@@ -2482,71 +2482,73 @@ function DimensionForm({
         </div>
       )}
 
-      {/* 删除确认对话框 */}
-      <Dialog open={deleteConfirmDialog.isOpen} onOpenChange={(open) => !open && handleDeleteCancel()}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-red-600" />
-              确认删除信息
-            </DialogTitle>
-            <DialogDescription>
-              {deleteConfirmDialog.item && (
-                <div className="space-y-3 mt-4">
-                  {/* 显示要删除的信息内容 */}
-                  <div className="p-3 bg-gray-50 rounded-lg border">
-                    <div className="text-sm text-gray-600 mb-1">要删除的信息：</div>
-                    <div className="text-sm font-medium text-gray-900 line-clamp-3">
-                      {deleteConfirmDialog.item.content}
+      {/* 删除确认对话框 - 暂时注释掉用于调试 */}
+      {deleteConfirmDialog.isOpen && (
+        <Dialog open={deleteConfirmDialog.isOpen} onOpenChange={(open) => !open && handleDeleteCancel()}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Trash2 className="h-5 w-5 text-red-600" />
+                确认删除信息
+              </DialogTitle>
+              <DialogDescription>
+                {deleteConfirmDialog.item && (
+                  <div className="space-y-3 mt-4">
+                    {/* 显示要删除的信息内容 */}
+                    <div className="p-3 bg-gray-50 rounded-lg border">
+                      <div className="text-sm text-gray-600 mb-1">要删除的信息：</div>
+                      <div className="text-sm font-medium text-gray-900 line-clamp-3">
+                        {deleteConfirmDialog.item.content}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* 状态提示 */}
-                  {(deleteConfirmDialog.item.isPinned || deleteConfirmDialog.item.isBlocked) && (
-                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-yellow-800">
+                    {/* 状态提示 */}
+                    {(deleteConfirmDialog.item.isPinned || deleteConfirmDialog.item.isBlocked) && (
+                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-yellow-800">
+                          <AlertTriangle className="h-4 w-4" />
+                          <span className="font-medium">注意</span>
+                        </div>
+                        <div className="text-sm text-yellow-700 mt-1">
+                          此信息当前为
+                          <span className="font-medium">
+                            {deleteConfirmDialog.item.isPinned ? '已钉住' : '已屏蔽'}
+                          </span>
+                          状态，系统将先
+                          <span className="font-medium">
+                            {deleteConfirmDialog.item.isPinned ? '取消钉住' : '取消屏蔽'}
+                          </span>
+                          ，然后删除此信息。
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 警告提示 */}
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-red-800">
                         <AlertTriangle className="h-4 w-4" />
-                        <span className="font-medium">注意</span>
+                        <span className="font-medium">警告</span>
                       </div>
-                      <div className="text-sm text-yellow-700 mt-1">
-                        此信息当前为
-                        <span className="font-medium">
-                          {deleteConfirmDialog.item.isPinned ? '已钉住' : '已屏蔽'}
-                        </span>
-                        状态，系统将先
-                        <span className="font-medium">
-                          {deleteConfirmDialog.item.isPinned ? '取消钉住' : '取消屏蔽'}
-                        </span>
-                        ，然后删除此信息。
+                      <div className="text-sm text-red-700 mt-1">
+                        删除后无法恢复，请确认是否继续？
                       </div>
-                    </div>
-                  )}
-
-                  {/* 警告提示 */}
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <div className="flex items-center gap-2 text-red-800">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span className="font-medium">警告</span>
-                    </div>
-                    <div className="text-sm text-red-700 mt-1">
-                      删除后无法恢复，请确认是否继续？
                     </div>
                   </div>
-                </div>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={handleDeleteCancel}>
-              取消
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              确认删除
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={handleDeleteCancel}>
+                取消
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteConfirm}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                确认删除
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
