@@ -267,18 +267,7 @@ export default function BrandLibraryPageFixed() {
           category: 'basic',
           keywords: [],
           content: '',
-          items: [
-            {
-              id: 'item-1',
-              content: '示例品牌科技有限公司',
-              source: '品牌手册.pdf',
-              confidence: 0.95,
-              isPinned: false,
-              isBlocked: false,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            }
-          ]
+          items: []
         },
         {
           id: 'brand-description',
@@ -289,38 +278,7 @@ export default function BrandLibraryPageFixed() {
           category: 'basic',
           keywords: [],
           content: '',
-          items: [
-            {
-              id: 'item-2',
-              content: '专注于AI技术创新的科技公司，致力于为企业提供智能化解决方案',
-              source: '品牌手册.pdf',
-              confidence: 0.88,
-              isPinned: false,
-              isBlocked: false,
-              createdAt: new Date(Date.now() - 86400000),
-              updatedAt: new Date(Date.now() - 86400000)
-            },
-            {
-              id: 'item-3',
-              content: '以用户为中心，通过技术创新推动行业发展',
-              source: '官网首页内容',
-              confidence: 0.82,
-              isPinned: false,
-              isBlocked: false,
-              createdAt: new Date(Date.now() - 172800000),
-              updatedAt: new Date(Date.now() - 172800000)
-            },
-            {
-              id: 'item-4',
-              content: '领先的人工智能解决方案提供商，专注于企业数字化转型',
-              source: '产品介绍.pptx',
-              confidence: 0.91,
-              isPinned: true,
-              isBlocked: false,
-              createdAt: new Date(Date.now() - 259200000),
-              updatedAt: new Date()
-            }
-          ]
+          items: []
         },
         // 语调风格
         {
@@ -332,38 +290,7 @@ export default function BrandLibraryPageFixed() {
           category: 'voice',
           keywords: [],
           content: '',
-          items: [
-            {
-              id: 'item-5',
-              content: '专业而亲和，既体现技术实力又保持人性化沟通',
-              source: '品牌手册.pdf',
-              confidence: 0.90,
-              isPinned: true,
-              isBlocked: false,
-              createdAt: new Date(Date.now() - 86400000),
-              updatedAt: new Date()
-            },
-            {
-              id: 'item-6',
-              content: '简洁明了，避免过于技术化的表达，让用户容易理解',
-              source: '官网首页内容',
-              confidence: 0.85,
-              isPinned: false,
-              isBlocked: false,
-              createdAt: new Date(Date.now() - 172800000),
-              updatedAt: new Date(Date.now() - 172800000)
-            },
-            {
-              id: 'item-7',
-              content: '充满活力和创新精神，体现年轻团队的朝气',
-              source: '产品介绍.pptx',
-              confidence: 0.78,
-              isPinned: false,
-              isBlocked: true,
-              createdAt: new Date(Date.now() - 259200000),
-              updatedAt: new Date(Date.now() - 86400000)
-            }
-          ]
+          items: []
         },
         {
           id: 'brand-personality',
@@ -565,9 +492,31 @@ export default function BrandLibraryPageFixed() {
   };
 
   /**
-   * 删除维度信息条目
+   * 删除维度信息条目 - 打开删除确认对话框
    */
   const deleteDimensionItem = (dimensionId: string, itemId: string) => {
+    // 找到要删除的项目
+    const dimension = brandDimensions.find(d => d.id === dimensionId);
+    const item = dimension?.items.find(i => i.id === itemId);
+
+    if (!item) {
+      console.error('未找到要删除的项目:', { dimensionId, itemId });
+      return;
+    }
+
+    // 打开删除确认对话框
+    setDeleteConfirmDialog({
+      isOpen: true,
+      item: item,
+      dimensionId: dimensionId,
+      itemId: itemId
+    });
+  };
+
+  /**
+   * 实际执行删除操作
+   */
+  const executeDeleteItem = (dimensionId: string, itemId: string) => {
     setBrandDimensions(prev => prev.map(d =>
       d.id === dimensionId ? { ...d, items: d.items.filter(item => item.id !== itemId) } : d
     ));
@@ -587,10 +536,10 @@ export default function BrandLibraryPageFixed() {
       updateDimensionItem(dimensionId, itemId, { isPinned: false, isBlocked: false });
       // 延迟删除，让用户看到状态变化
       setTimeout(() => {
-        deleteDimensionItem(dimensionId, itemId);
+        executeDeleteItem(dimensionId, itemId);
       }, 300);
     } else {
-      deleteDimensionItem(dimensionId, itemId);
+      executeDeleteItem(dimensionId, itemId);
     }
 
     // 关闭对话框
@@ -1004,7 +953,7 @@ export default function BrandLibraryPageFixed() {
           type: fileType,
           size: `${(file.size / 1024).toFixed(2)} KB`,
           uploadDate: new Date().toISOString(),
-          status: 'uploaded', // 上传完成，等待AI分析
+          status: 'analyzing', // 上传完成，正在AI分析
           file: file,
           content: content, // 添加文件内容
           category: 'brand-material'
@@ -2395,13 +2344,8 @@ function DimensionForm({
                     <DropdownMenuItem
                       onClick={() => {
                         console.log('删除点击事件触发', { dimensionId: dimension.id, itemId: item.id });
-                        // 打开删除确认对话框
-                        setDeleteConfirmDialog({
-                          isOpen: true,
-                          item: item,
-                          dimensionId: dimension.id,
-                          itemId: item.id
-                        });
+                        // 调用传入的删除处理函数
+                        onDeleteItem(dimension.id, item.id);
                       }}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
