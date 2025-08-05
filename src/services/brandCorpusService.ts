@@ -1,10 +1,17 @@
 /**
- * 品牌语料库服务 - 专门处理品牌语料库的AI提取和管理
- * 
+ * 品牌语料库服务 v2.0 - 专门处理品牌语料库的AI提取和管理
+ *
+ * 🆕 v2.0 更新内容：
+ * - 多资料并行处理支持
+ * - 增强的字段提取精度
+ * - 完善的溯源机制
+ * - 置信度评估系统
+ * - AI建议功能
+ *
  * 实现推荐流程：
  * 1. 用户上传资料 → AI预处理：清洗+语言识别
- * 2. 信息提取：按语料库维度拆解
- * 3. AI初步填入语料库各字段
+ * 2. 信息提取：按语料库维度拆解（使用v2.0 Prompt体系）
+ * 3. AI初步填入语料库各字段（含置信度评分）
  * 4. 关键词建议引擎生成补充项
  * 5. 用户手动编辑确认
  * 6. 内容写入品牌语料库 + 可回溯版本
@@ -12,6 +19,124 @@
 
 import { callAI, AITaskType } from '@/api/aiService';
 import { getPrompt, PromptType } from '@/prompts/PromptSystem';
+
+/**
+ * v2.0 提取结果接口
+ */
+export interface BrandCorpusExtractionV2 {
+  extractionId: string;
+  sourceDocument: {
+    id: string;
+    name: string;
+    type: string;
+  };
+  extractedFields: {
+    [fieldName: string]: {
+      value: any;
+      confidence: number;
+      sources: Array<{
+        excerpt: string;
+        location: string;
+        confidence: number;
+      }>;
+      ai_suggestions?: string[];
+      alternatives?: string[];
+    };
+  };
+  overallConfidence: number;
+  processingTime: number;
+  aiModel: string;
+  version: string;
+  timestamp: string;
+}
+
+/**
+ * v2.0 品牌语料库字段提取Prompt模板
+ */
+const BRAND_CORPUS_EXTRACTION_PROMPT_V2 = `
+你是一位资深品牌策略顾问，需要从提供的品牌资料中提取结构化信息，构建完整的品牌语料库。
+
+## 提取要求
+1. 严格按照字段定义进行提取
+2. 每个字段必须包含置信度评分（0.1-1.0）
+3. 提供准确的来源引用和位置信息
+4. 对于缺失信息，提供合理的AI建议
+5. 使用标准JSON格式输出
+
+## 字段定义
+请提取以下字段：
+
+### 基础信息
+- brand-name: 品牌名称（包含主名称和别名）
+- brand-description: 品牌描述（50-100字核心定位）
+
+### 语调风格
+- brand-tone: 品牌语调（1-3个关键词 + 支撑例句）
+- brand-personality: 品牌个性（人格化特征）
+
+### 品牌身份
+- slogans: 品牌口号（精炼短句，8-16字）
+- brand-values: 品牌价值观（核心信念与行为准则）
+- brand-mission: 品牌使命愿景
+- brand-story: 品牌故事（创立过程、成长轨迹）
+
+### 内容策略
+- core-topics: 品牌核心话题（常提及的话题词）
+- hashtags: 品牌标签（社交媒体适用）
+- brand-keywords: 品牌关键词（5-15个，含分类）
+
+## 输出格式
+请严格按照以下JSON结构输出：
+
+{
+  "extractionId": "extract-{{timestamp}}",
+  "sourceDocument": {
+    "id": "{{documentId}}",
+    "name": "{{documentName}}",
+    "type": "{{documentType}}"
+  },
+  "extractedFields": {
+    "brand-name": {
+      "value": "主要品牌名称",
+      "alternatives": ["简称", "英文名"],
+      "confidence": 0.95,
+      "sources": [
+        {
+          "excerpt": "提取的原文段落",
+          "location": "文档位置描述",
+          "confidence": 0.95
+        }
+      ]
+    }
+    // ... 其他字段按相同格式
+  },
+  "overallConfidence": 0.85,
+  "processingTime": 1500,
+  "aiModel": "deepseek-chat",
+  "version": "v2.0",
+  "timestamp": "{{timestamp}}"
+}
+
+## 资料内容
+{{documentContent}}
+`;
+
+/**
+ * 字段映射配置 v2.0
+ */
+const FIELD_MAPPING_V2 = {
+  'brand-name': 'brand-name',
+  'brand-description': 'brand-description',
+  'brand-tone': 'brand-tone',
+  'brand-personality': 'brand-personality',
+  'slogans': 'slogans',
+  'brand-values': 'brand-values',
+  'brand-mission': 'brand-mission',
+  'brand-story': 'brand-story',
+  'core-topics': 'core-topics',
+  'hashtags': 'hashtags',
+  'brand-keywords': 'brand-keywords'
+};
 
 /**
  * 品牌语料库数据结构
@@ -192,6 +317,81 @@ export class BrandCorpusService {
       BrandCorpusService.instance = new BrandCorpusService();
     }
     return BrandCorpusService.instance;
+  }
+
+  /**
+   * 🆕 v2.0 核心方法：使用新的Prompt体系处理文档
+   *
+   * 特性：
+   * - 增强的字段提取精度
+   * - 完善的溯源机制
+   * - 置信度评估系统
+   * - AI建议功能
+   */
+  public async processDocumentV2(
+    docId: string,
+    fileName: string,
+    content: string,
+    documentType: string = 'document'
+  ): Promise<BrandCorpusExtractionV2> {
+    console.log(`🔍 [v2.0] 开始处理文档: ${fileName} (${docId})`);
+    const startTime = Date.now();
+
+    try {
+      // 预处理内容
+      const cleanedContent = this.preprocessContent(content);
+
+      // 构建v2.0 Prompt
+      const prompt = BRAND_CORPUS_EXTRACTION_PROMPT_V2
+        .replace('{{documentId}}', docId)
+        .replace('{{documentName}}', fileName)
+        .replace('{{documentType}}', documentType)
+        .replace(/{{timestamp}}/g, new Date().toISOString())
+        .replace('{{documentContent}}', cleanedContent);
+
+      console.log(`🤖 [v2.0] 调用AI进行字段提取...`);
+
+      // 调用AI进行提取
+      const aiResponse = await callAI({
+        prompt: prompt,
+        taskType: AITaskType.BRAND_CORPUS_EXTRACTION,
+        model: 'deepseek-chat',
+        maxTokens: 4000,
+        temperature: 0.3,
+        systemPrompt: '你是专业的品牌策略顾问，擅长从品牌资料中提取结构化信息。请严格按照JSON格式输出结果。'
+      });
+
+      console.log(`✅ [v2.0] AI提取完成，开始解析结果...`);
+
+      // 解析AI响应
+      let extractionResult: BrandCorpusExtractionV2;
+      try {
+        extractionResult = JSON.parse(aiResponse.content);
+      } catch (parseError) {
+        console.error('❌ [v2.0] JSON解析失败，尝试修复...', parseError);
+        // 尝试修复JSON格式
+        const fixedJson = this.fixJsonFormat(aiResponse.content);
+        extractionResult = JSON.parse(fixedJson);
+      }
+
+      // 补充元数据
+      const processingTime = Date.now() - startTime;
+      extractionResult.processingTime = processingTime;
+      extractionResult.timestamp = new Date().toISOString();
+      extractionResult.version = 'v2.0';
+
+      console.log(`🎉 [v2.0] 文档处理完成: ${fileName}`, {
+        fieldsExtracted: Object.keys(extractionResult.extractedFields).length,
+        overallConfidence: extractionResult.overallConfidence,
+        processingTime: processingTime
+      });
+
+      return extractionResult;
+
+    } catch (error) {
+      console.error(`❌ [v2.0] 处理文档失败: ${fileName}`, error);
+      throw new Error(`文档处理失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
   }
 
   /**
@@ -775,6 +975,101 @@ export class BrandCorpusService {
         break;
       // 添加更多字段映射...
     }
+  }
+}
+
+  /**
+   * 🔧 JSON格式修复方法
+   */
+  private fixJsonFormat(jsonString: string): string {
+    try {
+      // 移除可能的markdown代码块标记
+      let cleaned = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+
+      // 移除多余的空白字符
+      cleaned = cleaned.trim();
+
+      // 尝试修复常见的JSON格式问题
+      cleaned = cleaned.replace(/,(\s*[}\]])/g, '$1'); // 移除多余的逗号
+      cleaned = cleaned.replace(/([{,]\s*)(\w+):/g, '$1"$2":'); // 为键添加引号
+
+      return cleaned;
+    } catch (error) {
+      console.error('JSON修复失败:', error);
+      throw new Error('无法修复JSON格式');
+    }
+  }
+
+  /**
+   * 🔄 将v2.0提取结果转换为旧版格式（向后兼容）
+   */
+  public convertV2ToLegacyFormat(v2Result: BrandCorpusExtractionV2): BrandCorpusExtraction {
+    const legacyResult: BrandCorpusExtraction = {
+      id: v2Result.extractionId,
+      sourceId: v2Result.sourceDocument.id,
+      sourceName: v2Result.sourceDocument.name,
+      sourceType: v2Result.sourceDocument.type as any,
+      extractedAt: v2Result.timestamp,
+      extractedFields: {},
+      status: 'completed',
+      aiAnalysisMetadata: {
+        model: v2Result.aiModel,
+        confidence: v2Result.overallConfidence,
+        processingTime: v2Result.processingTime,
+        extractedFieldsCount: Object.keys(v2Result.extractedFields).length
+      }
+    };
+
+    // 转换字段格式
+    Object.entries(v2Result.extractedFields).forEach(([fieldName, fieldData]) => {
+      legacyResult.extractedFields[fieldName] = {
+        value: fieldData.value,
+        confidence: fieldData.confidence,
+        sources: fieldData.sources?.map(source => source.excerpt).join('; ') || '',
+        aiSuggestions: fieldData.ai_suggestions || []
+      };
+    });
+
+    return legacyResult;
+  }
+
+  /**
+   * 📊 批量处理多个文档（v2.0）
+   */
+  public async processMultipleDocumentsV2(
+    documents: Array<{
+      id: string;
+      name: string;
+      content: string;
+      type?: string;
+    }>
+  ): Promise<BrandCorpusExtractionV2[]> {
+    console.log(`🔄 [v2.0] 开始批量处理 ${documents.length} 个文档`);
+
+    const results: BrandCorpusExtractionV2[] = [];
+
+    // 并行处理文档（限制并发数）
+    const concurrencyLimit = 3;
+    for (let i = 0; i < documents.length; i += concurrencyLimit) {
+      const batch = documents.slice(i, i + concurrencyLimit);
+
+      const batchPromises = batch.map(doc =>
+        this.processDocumentV2(doc.id, doc.name, doc.content, doc.type)
+      );
+
+      try {
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+
+        console.log(`✅ [v2.0] 批次 ${Math.floor(i/concurrencyLimit) + 1} 处理完成`);
+      } catch (error) {
+        console.error(`❌ [v2.0] 批次处理失败:`, error);
+        // 继续处理其他批次
+      }
+    }
+
+    console.log(`🎉 [v2.0] 批量处理完成，成功处理 ${results.length}/${documents.length} 个文档`);
+    return results;
   }
 }
 

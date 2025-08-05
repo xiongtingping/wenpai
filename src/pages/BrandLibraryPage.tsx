@@ -665,7 +665,8 @@ export default function BrandLibraryPageFixed() {
   };
 
   /**
-   * 批量处理品牌语料库提取 - 使用真实AI分析
+   * 批量处理品牌语料库提取 v2.0 - 使用增强的AI分析
+   * 🆕 v2.0 更新: 多资料支持、增强溯源、置信度评估
    * ✅ FIXED: 2025-08-05 接入真实AI服务进行品牌语料库分析
    * 🔒 LOCKED: 禁止使用模拟数据或降级方案
    */
@@ -698,18 +699,28 @@ export default function BrandLibraryPageFixed() {
         setCorpusProcessingProgress((i / unprocessedAssets.length) * 100);
 
         try {
-          console.log(`🔍 开始AI分析文件: ${asset.name}`);
+          console.log(`🔍 [v2.0] 开始AI分析文件: ${asset.name}`);
 
-          // 使用真实AI服务进行品牌语料库提取
-          const analysisResult = await corpusService.processDocument(
+          // 🆕 使用v2.0增强的AI服务进行品牌语料库提取
+          const analysisResultV2 = await corpusService.processDocumentV2(
             asset.id,
             asset.name,
-            asset.content || ''
+            asset.content || '',
+            asset.type
           );
 
-          if (!analysisResult || !analysisResult.extractedFields) {
+          if (!analysisResultV2 || !analysisResultV2.extractedFields) {
             throw new Error('AI分析返回空结果');
           }
+
+          console.log(`✅ [v2.0] AI分析完成: ${asset.name}`, {
+            fieldsCount: Object.keys(analysisResultV2.extractedFields).length,
+            confidence: analysisResultV2.overallConfidence,
+            version: analysisResultV2.version
+          });
+
+          // 转换为旧版格式以保持兼容性
+          const analysisResult = corpusService.convertV2ToLegacyFormat(analysisResultV2);
 
           const extraction: BrandCorpusExtraction = {
             id: `extraction-${Date.now()}-${i}`,
