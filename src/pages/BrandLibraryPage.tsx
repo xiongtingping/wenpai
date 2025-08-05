@@ -1400,64 +1400,6 @@ export default function BrandLibraryPage() {
               </CardContent>
             </Card>
 
-            {/* 次要功能区域 - 弱化显示 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* 分类选择 */}
-              <Card className="bg-gray-50">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-gray-500" />
-                    <Label className="text-sm font-medium text-gray-700">分类：</Label>
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="选择分类" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoryOptions.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* AI分析 */}
-              <Card className="bg-gray-50">
-                <CardContent className="p-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleProcessAssets}
-                    disabled={isProcessing || brandAssets.length === 0}
-                    className="w-full"
-                  >
-                    <Brain className="h-4 w-4 mr-2" />
-                    {isProcessing ? 'AI分析中...' : '批量AI分析'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* PDF对话 */}
-              <Card className="bg-gray-50">
-                <CardContent className="p-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsPDFChatOpen(true)}
-                    disabled={brandAssets.length === 0}
-                    className="w-full"
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    PDF对话
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-
 
             {/* 已上传的资料 - 重新设计 */}
             <Card>
