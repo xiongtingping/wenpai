@@ -214,45 +214,7 @@ export default function BrandLibraryPageFixed() {
     checkAPIConfig();
   }, []);
 
-  // 初始化示例数据
-  useEffect(() => {
-    // 添加示例品牌资料
-    const sampleAssets: BrandAsset[] = [
-      {
-        id: 'sample-1',
-        name: '品牌手册.pdf',
-        type: 'pdf',
-        size: '2.5 MB',
-        uploadDate: new Date().toISOString(),
-        status: 'analyzed',
-        content: '这是一份完整的品牌手册，包含品牌理念、视觉识别系统、应用规范等内容...',
-        category: 'brand-material'
-      },
-      {
-        id: 'sample-2',
-        name: '产品介绍.pptx',
-        type: 'document',
-        size: '1.8 MB',
-        uploadDate: new Date(Date.now() - 86400000).toISOString(),
-        status: 'uploaded',
-        content: '产品功能介绍、特色亮点、技术参数等详细信息...',
-        category: 'document'
-      },
-      {
-        id: 'sample-3',
-        name: '官网首页内容',
-        type: 'web',
-        size: '156 KB',
-        uploadDate: new Date(Date.now() - 172800000).toISOString(),
-        status: 'analyzed',
-        content: '官网首页的品牌介绍、核心价值主张、产品展示等内容...',
-        category: 'web-content',
-        url: 'https://example.com'
-      }
-    ];
-
-    setBrandAssets(sampleAssets);
-  }, []);
+  // 初始化示例数据已删除 - 保持空状态，等待用户上传
 
   // 初始化品牌维度
   useEffect(() => {
