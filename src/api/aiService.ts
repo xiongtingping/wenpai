@@ -385,7 +385,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
  * 开发环境：直连DeepSeek API
  */
 async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse> {
-  const { prompt, model, maxTokens, temperature, systemPrompt, userId, startTime } = params;
+  const { prompt, model, maxTokens, temperature, systemPrompt, userId, startTime, taskType } = params;
   
   try {
     // 验证DeepSeek配置

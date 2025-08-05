@@ -2176,7 +2176,7 @@ function DimensionForm({
                       <div className="flex-1">
                         <div>{item.isPinned ? '取消钉住' : '📌 钉住'}</div>
                         <div className="text-xs text-gray-500 mt-0.5">
-                          {item.isPinned ? '取消固定，恢复正常排序' : '固定到顶部，优先显示'}
+                          {item.isPinned ? '取消固定，允许修改此信息' : '固定此条信息，不再改动'}
                         </div>
                       </div>
                     </DropdownMenuItem>
@@ -2229,7 +2229,17 @@ function DimensionForm({
                     <DropdownMenuItem
                       onClick={() => {
                         console.log('删除点击事件触发', { dimensionId: dimension.id, itemId: item.id });
-                        onDeleteItem(dimension.id, item.id);
+                        // 如果是已钉住或已屏蔽的信息，先取消状态再删除
+                        if (item.isPinned || item.isBlocked) {
+                          // 先取消钉住/屏蔽状态
+                          onUpdateItem(dimension.id, item.id, { isPinned: false, isBlocked: false });
+                          // 延迟删除，让用户看到状态变化
+                          setTimeout(() => {
+                            onDeleteItem(dimension.id, item.id);
+                          }, 300);
+                        } else {
+                          onDeleteItem(dimension.id, item.id);
+                        }
                       }}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
@@ -2237,7 +2247,10 @@ function DimensionForm({
                       <div className="flex-1">
                         <div>🗑 删除</div>
                         <div className="text-xs text-gray-500 mt-0.5">
-                          永久删除此信息，无法恢复
+                          {item.isPinned || item.isBlocked
+                            ? '将先取消钉住/屏蔽状态，然后删除'
+                            : '永久删除此信息，无法恢复'
+                          }
                         </div>
                       </div>
                     </DropdownMenuItem>
