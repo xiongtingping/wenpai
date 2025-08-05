@@ -654,8 +654,8 @@ export default function BrandLibraryPageFixed() {
           // 使用真实AI服务进行品牌语料库提取
           const analysisResult = await corpusService.processDocument(
             asset.id,
-            asset.content || '',
-            asset.name
+            asset.name,
+            asset.content || ''
           );
 
           if (!analysisResult || !analysisResult.extractedFields) {
@@ -2158,61 +2158,88 @@ function DimensionForm({
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuContent align="end" className="w-64">
                     <DropdownMenuItem
                       onClick={() => {
                         console.log('钉住/取消钉住点击事件触发', { dimensionId: dimension.id, itemId: item.id, isPinned: item.isPinned });
-                        onUpdateItem(dimension.id, item.id, { isPinned: !item.isPinned });
+                        // 钉住时自动取消屏蔽状态
+                        if (!item.isPinned && item.isBlocked) {
+                          onUpdateItem(dimension.id, item.id, { isPinned: true, isBlocked: false });
+                        } else {
+                          onUpdateItem(dimension.id, item.id, { isPinned: !item.isPinned });
+                        }
                       }}
                       className={item.isPinned ? "text-blue-600" : ""}
-                      title="固定此信息条目，使其在列表中优先显示，便于快速访问重要内容"
+                      disabled={item.isBlocked}
                     >
                       <Pin className="h-4 w-4 mr-2" />
-                      {item.isPinned ? '取消钉住' : '📌 钉住'}
+                      <div className="flex-1">
+                        <div>{item.isPinned ? '取消钉住' : '📌 钉住'}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {item.isPinned ? '取消固定，恢复正常排序' : '固定到顶部，优先显示'}
+                        </div>
+                      </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        console.log('确认保存点击事件触发', { itemId: item.id });
-                        handleSaveConfirm(item);
+                        console.log('屏蔽/取消屏蔽点击事件触发', { dimensionId: dimension.id, itemId: item.id, isBlocked: item.isBlocked });
+                        // 屏蔽时自动取消钉住状态
+                        if (!item.isBlocked && item.isPinned) {
+                          onUpdateItem(dimension.id, item.id, { isBlocked: true, isPinned: false });
+                        } else {
+                          onUpdateItem(dimension.id, item.id, { isBlocked: !item.isBlocked });
+                        }
                       }}
-                      className="text-green-600"
-                      title="确认并保存当前信息内容，标记为已验证状态"
-                    >
-                      <Check className="h-4 w-4 mr-2" />
-                      ✅ 确认保存
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => onUpdateItem(dimension.id, item.id, { isBlocked: !item.isBlocked })}
                       className={item.isBlocked ? "text-gray-600" : ""}
-                      title="屏蔽此信息条目，系统将不再提取此类相似信息"
+                      disabled={item.isPinned}
                     >
                       <Ban className="h-4 w-4 mr-2" />
-                      {item.isBlocked ? '取消屏蔽' : '🚫 屏蔽'}
+                      <div className="flex-1">
+                        <div>{item.isBlocked ? '取消屏蔽' : '🚫 屏蔽'}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {item.isBlocked ? '重新显示此信息' : '隐藏此信息，不再显示'}
+                        </div>
+                      </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => handleEditItem(item)}
                       disabled={editingItemId === item.id}
-                      title="修改此信息条目的内容，可以编辑文字、调整表述等"
                     >
                       <Edit className="h-4 w-4 mr-2" />
-                      编辑内容
+                      <div className="flex-1">
+                        <div>✏️ 编辑内容</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          修改信息内容，调整文字表述
+                        </div>
+                      </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleShowSource(item)}
-                      title="查看此信息的原始来源文档，了解提取的具体位置和上下文"
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      📄 查看来源
+                      <div className="flex-1">
+                        <div>📄 查看来源</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          查看原始文档和提取上下文
+                        </div>
+                      </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => onDeleteItem(dimension.id, item.id)}
+                      onClick={() => {
+                        console.log('删除点击事件触发', { dimensionId: dimension.id, itemId: item.id });
+                        onDeleteItem(dimension.id, item.id);
+                      }}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      title="永久删除此信息条目，删除后无法恢复，请谨慎操作"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      🗑 删除
+                      <div className="flex-1">
+                        <div>🗑 删除</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          永久删除此信息，无法恢复
+                        </div>
+                      </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
