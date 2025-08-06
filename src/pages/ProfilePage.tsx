@@ -66,7 +66,7 @@ export default function ProfilePage() {
     nickname: getUserDisplayName(user, ''),
     phone: user?.phone || '',
     email: user?.email || '',
-    avatar: getUserAvatar(user)
+    avatar: getUserAvatar(user) // 使用导入的getUserAvatar函数
   });
 
   /**
@@ -152,9 +152,9 @@ export default function ProfilePage() {
   };
 
   /**
-   * 获取用户头像
+   * 获取当前表单头像
    */
-  const getUserAvatar = () => {
+  const getCurrentFormAvatar = () => {
     if (profileForm.avatar) {
       return profileForm.avatar;
     }
@@ -358,7 +358,7 @@ export default function ProfilePage() {
                     {/* ✅ ENHANCED: 头像显示 - 支持实时更新和上传 */}
                     <Avatar className="w-32 h-32 border-4 border-white/20">
                       <AvatarImage
-                        src={profileForm.avatar || getUserAvatar(user)}
+                        src={getCurrentFormAvatar()}
                         alt={getUserAltText(user, '头像')}
                       />
                       <AvatarFallback className="text-2xl bg-white/20 text-white">
