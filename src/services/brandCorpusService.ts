@@ -372,15 +372,43 @@ export class BrandCorpusService {
 
       console.log(`✅ [v2.0] AI提取完成，开始解析结果...`);
 
+      // ✅ FIXED: 2025-08-06 增强JSON解析错误处理
       // 解析AI响应
       let extractionResult: BrandCorpusExtractionV2;
       try {
-        extractionResult = JSON.parse(aiResponse.content);
+        // 先尝试清理markdown格式
+        const cleanedContent = this.cleanAIResponse(aiResponse.content);
+        extractionResult = JSON.parse(cleanedContent);
+        console.log('✅ [v2.0] JSON解析成功');
       } catch (parseError) {
         console.error('❌ [v2.0] JSON解析失败，尝试修复...', parseError);
-        // 尝试修复JSON格式
-        const fixedJson = this.fixJsonFormat(aiResponse.content);
-        extractionResult = JSON.parse(fixedJson);
+        console.log('🔍 原始AI响应内容:', aiResponse.content.substring(0, 500) + '...');
+
+        try {
+          // 尝试修复JSON格式
+          const fixedJson = this.fixJsonFormat(aiResponse.content);
+          console.log('🔧 修复后的JSON:', fixedJson.substring(0, 500) + '...');
+          extractionResult = JSON.parse(fixedJson);
+          console.log('✅ [v2.0] JSON修复成功');
+        } catch (fixError) {
+          console.error('❌ [v2.0] JSON修复也失败了:', fixError);
+          console.log('🔍 完整AI响应内容:', aiResponse.content);
+
+          // 尝试提取JSON对象
+          const extractedJson = this.extractJsonFromText(aiResponse.content);
+          if (extractedJson) {
+            try {
+              extractionResult = JSON.parse(extractedJson);
+              console.log('✅ [v2.0] 从文本中提取JSON成功');
+            } catch (extractError) {
+              console.error('❌ [v2.0] 提取的JSON也无法解析:', extractError);
+              extractionResult = this.createDefaultExtractionResult();
+            }
+          } else {
+            console.error('❌ [v2.0] 无法从响应中提取有效JSON');
+            extractionResult = this.createDefaultExtractionResult();
+          }
+        }
       }
 
       // 补充元数据
@@ -1002,19 +1030,89 @@ export class BrandCorpusService {
   }
 
   /**
-   * 🔧 JSON格式修复方法
+   * ✅ FIXED: 2025-08-06 清理AI响应内容
+   */
+  private cleanAIResponse(content: string): string {
+    let cleaned = content.trim();
+
+    // 移除markdown代码块标记
+    cleaned = cleaned.replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
+    cleaned = cleaned.replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+
+    // 移除可能的前缀文本
+    const jsonStart = cleaned.indexOf('{');
+    const jsonEnd = cleaned.lastIndexOf('}');
+
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+    }
+
+    return cleaned.trim();
+  }
+
+  /**
+   * ✅ FIXED: 2025-08-06 从文本中提取JSON对象
+   */
+  private extractJsonFromText(text: string): string | null {
+    try {
+      // 查找第一个{和最后一个}
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+
+      if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+        return null;
+      }
+
+      return text.substring(firstBrace, lastBrace + 1);
+    } catch (error) {
+      console.error('提取JSON失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * ✅ FIXED: 2025-08-06 创建默认提取结果
+   */
+  private createDefaultExtractionResult(): BrandCorpusExtractionV2 {
+    return {
+      extractedFields: {
+        brandName: {
+          value: '解析失败',
+          confidence: 0.1,
+          excerpt: '无法解析AI响应',
+          sources: []
+        }
+      },
+      overallConfidence: 0.1,
+      processingTime: 0,
+      timestamp: new Date().toISOString(),
+      version: 'v2.0'
+    };
+  }
+
+  /**
+   * 🔧 JSON格式修复方法（增强版）
    */
   private fixJsonFormat(jsonString: string): string {
     try {
       // 移除可能的markdown代码块标记
-      let cleaned = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      let cleaned = jsonString.replace(/```json\n?/gi, '').replace(/```\n?/g, '');
 
       // 移除多余的空白字符
       cleaned = cleaned.trim();
 
+      // 查找JSON对象的开始和结束
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+      }
+
       // 尝试修复常见的JSON格式问题
       cleaned = cleaned.replace(/,(\s*[}\]])/g, '$1'); // 移除多余的逗号
       cleaned = cleaned.replace(/([{,]\s*)(\w+):/g, '$1"$2":'); // 为键添加引号
+      cleaned = cleaned.replace(/:\s*([^",{\[\s][^,}\]]*[^",}\]\s])\s*([,}\]])/g, ': "$1"$2'); // 为值添加引号
 
       return cleaned;
     } catch (error) {

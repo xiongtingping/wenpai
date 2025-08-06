@@ -134,6 +134,10 @@ export default function BrandLibraryPageFixed() {
     dimensionId: '',
     itemId: ''
   });
+
+  // ✅ FIXED: 2025-08-06 添加后台分析状态管理
+  const [backgroundAnalysisQueue, setBackgroundAnalysisQueue] = useState<BrandAsset[]>([]);
+  const [isBackgroundAnalysisRunning, setIsBackgroundAnalysisRunning] = useState(false);
   const [editingDimension, setEditingDimension] = useState<string | null>(null);
 
   // 网页内容提取相关
@@ -385,7 +389,159 @@ export default function BrandLibraryPageFixed() {
     };
 
     initializeDimensions();
+
+    // ✅ FIXED: 2025-08-06 页面加载时恢复保存的资产状态
+    const savedAssets = loadAssetsFromStorage();
+    if (savedAssets.length > 0) {
+      setBrandAssets(savedAssets);
+      console.log('📂 从localStorage恢复资产:', savedAssets.length, '个文件');
+
+      // 检查是否有未完成的分析任务
+      const pendingAssets = savedAssets.filter(asset => asset.status === 'processing');
+      if (pendingAssets.length > 0) {
+        console.log('🔄 发现未完成的分析任务，继续后台处理:', pendingAssets.length, '个文件');
+        setTimeout(() => startBackgroundAnalysis(pendingAssets), 2000);
+      }
+    }
   }, []);
+
+  // ✅ FIXED: 2025-08-06 状态持久化功能
+  const saveAssetsToStorage = (assets: BrandAsset[]) => {
+    try {
+      localStorage.setItem('brandAssets', JSON.stringify(assets));
+      localStorage.setItem('brandAssetsTimestamp', Date.now().toString());
+    } catch (error) {
+      console.error('保存资产到localStorage失败:', error);
+    }
+  };
+
+  const loadAssetsFromStorage = (): BrandAsset[] => {
+    try {
+      const saved = localStorage.getItem('brandAssets');
+      const timestamp = localStorage.getItem('brandAssetsTimestamp');
+
+      if (saved && timestamp) {
+        const savedTime = parseInt(timestamp);
+        const now = Date.now();
+        // 24小时内的数据有效
+        if (now - savedTime < 24 * 60 * 60 * 1000) {
+          return JSON.parse(saved);
+        }
+      }
+    } catch (error) {
+      console.error('从localStorage加载资产失败:', error);
+    }
+    return [];
+  };
+
+  // ✅ FIXED: 2025-08-06 后台异步分析功能
+  const startBackgroundAnalysis = async (assets: BrandAsset[]) => {
+    if (isBackgroundAnalysisRunning) {
+      console.log('后台分析已在运行，添加到队列');
+      setBackgroundAnalysisQueue(prev => [...prev, ...assets]);
+      return;
+    }
+
+    setIsBackgroundAnalysisRunning(true);
+    console.log('🔄 开始后台AI分析:', assets.map(a => a.name));
+
+    try {
+      for (const asset of assets) {
+        // 更新状态为分析中
+        setBrandAssets(prev => prev.map(a =>
+          a.id === asset.id ? { ...a, status: 'processing' } : a
+        ));
+
+        try {
+          console.log(`🔍 [后台] 开始分析文件: ${asset.name}`);
+
+          // 动态导入AI服务
+          const { BrandCorpusService } = await import('@/services/brandCorpusService');
+          const corpusService = BrandCorpusService.getInstance();
+
+          const analysisResultV2 = await corpusService.processDocumentV2(
+            asset.id,
+            asset.name,
+            asset.content || '',
+            asset.type
+          );
+
+          if (analysisResultV2 && analysisResultV2.extractedFields) {
+            // 转换为旧格式以兼容现有逻辑
+            const analysisResult = corpusService.convertV2ToLegacyFormat(analysisResultV2);
+
+            // 将提取的信息添加到品牌维度中
+            Object.entries(analysisResultV2.extractedFields).forEach(([fieldName, fieldData]) => {
+              if (fieldData.value && fieldData.confidence > 0.5) {
+                let processedValue = fieldData.value;
+                if (typeof processedValue === 'object' && !Array.isArray(processedValue)) {
+                  processedValue = JSON.stringify(processedValue);
+                }
+                addItemToDimension(fieldName, processedValue, asset.name, fieldData.confidence);
+              }
+            });
+
+            // 更新资产状态为已分析
+            setBrandAssets(prev => {
+              const updated = prev.map(a =>
+                a.id === asset.id ? {
+                  ...a,
+                  status: 'analyzed',
+                  analysisResult: analysisResult
+                } : a
+              );
+              // 保存到localStorage
+              saveAssetsToStorage(updated);
+              return updated;
+            });
+
+            console.log(`✅ [后台] 分析完成: ${asset.name}`);
+          } else {
+            throw new Error('AI分析返回空结果');
+          }
+        } catch (error) {
+          console.error(`❌ [后台] 分析失败: ${asset.name}`, error);
+
+          // 更新状态为错误
+          setBrandAssets(prev => {
+            const updated = prev.map(a =>
+              a.id === asset.id ? { ...a, status: 'error' } : a
+            );
+            saveAssetsToStorage(updated);
+            return updated;
+          });
+        }
+
+        // 添加延迟避免API频率限制
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+
+      // 显示完成通知
+      toast({
+        title: "🎉 AI分析完成",
+        description: `已完成 ${assets.length} 个文件的智能分析，信息已自动添加到品牌语料库`,
+        duration: 6000,
+      });
+
+    } catch (error) {
+      console.error('后台分析过程出错:', error);
+      toast({
+        title: "❌ 后台分析出错",
+        description: "部分文件分析失败，请稍后重试",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setIsBackgroundAnalysisRunning(false);
+
+      // 处理队列中的其他任务
+      if (backgroundAnalysisQueue.length > 0) {
+        const nextBatch = [...backgroundAnalysisQueue];
+        setBackgroundAnalysisQueue([]);
+        setTimeout(() => startBackgroundAnalysis(nextBatch), 1000);
+      }
+    }
+  };
 
   /**
    * 获取维度分类
@@ -715,19 +871,29 @@ export default function BrandLibraryPageFixed() {
 
           extractions.push(extraction);
 
+          // ✅ FIXED: 2025-08-06 修复状态同步和关键词显示问题
           // 将提取的信息添加到品牌维度中
           if (analysisResult.extractedFields) {
             Object.entries(analysisResult.extractedFields).forEach(([fieldName, fieldData]) => {
               if (fieldData.value && fieldData.confidence > 0.5) {
+                // 确保值是字符串或数组
+                let processedValue = fieldData.value;
+                if (typeof processedValue === 'object' && !Array.isArray(processedValue)) {
+                  processedValue = JSON.stringify(processedValue);
+                }
                 // 根据字段名称添加到对应的维度
-                addItemToDimension(fieldName, fieldData.value, asset.name, fieldData.confidence);
+                addItemToDimension(fieldName, processedValue, asset.name, fieldData.confidence);
               }
             });
           }
 
-          // 更新资产状态
+          // 更新资产状态为已分析
           setBrandAssets(prev => prev.map(a =>
-            a.id === asset.id ? { ...a, status: 'analyzed' } : a
+            a.id === asset.id ? {
+              ...a,
+              status: 'analyzed',
+              analysisResult: analysisResult // 保存分析结果
+            } : a
           ));
 
           console.log(`✅ AI分析完成: ${asset.name}`, {
@@ -770,34 +936,85 @@ export default function BrandLibraryPageFixed() {
     }
   };
 
+  // ✅ FIXED: 2025-08-06 修复关键词显示和维度映射问题
   const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
-    // 字段名称到维度ID的映射
+    console.log('🔍 添加项目到维度:', { fieldName, value, sourceName, confidence });
+
+    // 字段名称到维度ID的映射（更全面的映射）
     const fieldToDimensionMap: { [key: string]: string } = {
+      'brandName': 'brand-name',
       'brand-name': 'brand-name',
+      'brandMission': 'brand-mission',
       'brand-mission': 'brand-mission',
+      'brandVision': 'brand-vision',
       'brand-vision': 'brand-vision',
+      'brandValues': 'brand-values',
       'brand-values': 'brand-values',
+      'brandStory': 'brand-story',
       'brand-story': 'brand-story',
+      'targetAudience': 'target-audience',
       'target-audience': 'target-audience',
+      'brandTone': 'brand-tone',
       'brand-tone': 'brand-tone',
+      'brandPersonality': 'brand-personality',
       'brand-personality': 'brand-personality',
+      'brandKeywords': 'brand-keywords',
       'brand-keywords': 'brand-keywords',
+      'keywords': 'brand-keywords',
+      'coreTopics': 'core-topics',
       'core-topics': 'core-topics',
       'hashtags': 'hashtags',
-      'slogans': 'slogans'
+      'slogans': 'slogans',
+      'productFeatures': 'product-features',
+      'competitiveAdvantage': 'competitive-advantage'
     };
 
     const dimensionId = fieldToDimensionMap[fieldName];
     if (!dimensionId) {
-      console.warn(`未找到字段 ${fieldName} 对应的维度`);
+      console.warn(`未找到字段 ${fieldName} 对应的维度，尝试添加到品牌关键词`);
+      // 如果没有找到对应维度，默认添加到品牌关键词
+      const fallbackDimensionId = 'brand-keywords';
+      addToSpecificDimension(fallbackDimensionId, value, sourceName, confidence, fieldName);
+      return;
+    }
+
+    addToSpecificDimension(dimensionId, value, sourceName, confidence, fieldName);
+  };
+
+  // 添加到指定维度的辅助函数
+  const addToSpecificDimension = (dimensionId: string, value: any, sourceName: string, confidence: number, originalFieldName?: string) => {
+    // 处理不同类型的值
+    let processedContent: string;
+
+    if (Array.isArray(value)) {
+      // 数组类型：过滤掉对象，只保留字符串
+      const stringValues = value.filter(item => typeof item === 'string' && item.trim().length > 0);
+      processedContent = stringValues.join('、');
+    } else if (typeof value === 'object' && value !== null) {
+      // 对象类型：尝试提取有用信息
+      if (value.toString() === '[object Object]') {
+        // 如果是普通对象，尝试提取值
+        const objectValues = Object.values(value).filter(v => typeof v === 'string' && v.trim().length > 0);
+        processedContent = objectValues.length > 0 ? objectValues.join('、') : JSON.stringify(value);
+      } else {
+        processedContent = String(value);
+      }
+    } else {
+      // 基本类型：直接转换为字符串
+      processedContent = String(value).trim();
+    }
+
+    // 如果处理后的内容为空，跳过
+    if (!processedContent || processedContent === 'undefined' || processedContent === 'null') {
+      console.warn(`跳过空内容: ${fieldName} -> ${value}`);
       return;
     }
 
     // 创建新的信息条目
     const newItem: BrandInfoItem = {
       id: `ai-extracted-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      content: Array.isArray(value) ? value.join('、') : String(value),
-      source: sourceName,
+      content: processedContent,
+      source: `${sourceName}${originalFieldName ? ` (${originalFieldName})` : ''}`,
       createdAt: new Date(),
       updatedAt: new Date(),
       isPinned: confidence > 0.8, // 高置信度的自动钉住
@@ -805,6 +1022,8 @@ export default function BrandLibraryPageFixed() {
       confidence: confidence,
       aiGenerated: true
     };
+
+    console.log('📝 创建新项目:', newItem);
 
     // 添加到对应维度
     setBrandDimensions(prev => prev.map(dimension => {
@@ -816,10 +1035,13 @@ export default function BrandLibraryPageFixed() {
         );
 
         if (!existingItem) {
+          console.log(`✅ 添加到维度 ${dimensionId}:`, newItem.content);
           return {
             ...dimension,
             items: [...dimension.items, newItem]
           };
+        } else {
+          console.log(`⚠️ 跳过重复内容: ${newItem.content}`);
         }
       }
       return dimension;
@@ -931,19 +1153,29 @@ export default function BrandLibraryPageFixed() {
 
           extractions.push(extraction);
 
+          // ✅ FIXED: 2025-08-06 修复状态同步和关键词显示问题（批量处理）
           // 将提取的信息添加到品牌维度中
           if (analysisResult.extractedFields) {
             Object.entries(analysisResult.extractedFields).forEach(([fieldName, fieldData]) => {
               if (fieldData.value && fieldData.confidence > 0.5) {
+                // 确保值是字符串或数组
+                let processedValue = fieldData.value;
+                if (typeof processedValue === 'object' && !Array.isArray(processedValue)) {
+                  processedValue = JSON.stringify(processedValue);
+                }
                 // 根据字段名称添加到对应的维度
-                addItemToDimension(fieldName, fieldData.value, asset.name, fieldData.confidence);
+                addItemToDimension(fieldName, processedValue, asset.name, fieldData.confidence);
               }
             });
           }
 
-          // 更新资产状态
+          // 更新资产状态为已分析
           setBrandAssets(prev => prev.map(a =>
-            a.id === asset.id ? { ...a, status: 'analyzed' } : a
+            a.id === asset.id ? {
+              ...a,
+              status: 'analyzed',
+              analysisResult: analysisResult // 保存分析结果
+            } : a
           ));
 
           console.log(`✅ AI分析完成: ${asset.name}`, {
@@ -1128,6 +1360,7 @@ export default function BrandLibraryPageFixed() {
     });
   };
 
+  // ✅ FIXED: 2025-08-06 修复文件上传功能 - 实现后台异步处理
   // 处理文件上传
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -1166,6 +1399,7 @@ export default function BrandLibraryPageFixed() {
         // 读取文件内容
         const content = await readFileContent(file);
 
+        // ✅ FIXED: 2025-08-06 修复文件状态初始化
         const asset: BrandAsset = {
           id: `asset-${Date.now()}-${i}`,
           name: file.name,
@@ -1175,64 +1409,38 @@ export default function BrandLibraryPageFixed() {
           status: 'uploaded', // 上传完成，等待AI分析
           file: file,
           content: content, // 添加文件内容
-          category: 'brand-material'
+          category: 'brand-material',
+          analysisResult: null // 初始化分析结果
         };
 
         newAssets.push(asset);
       }
 
+      // 立即更新状态，显示上传成功
       setBrandAssets(prev => [...prev, ...newAssets]);
       setUploadProgress(100);
 
+      // 保存到localStorage实现状态持久化
+      saveAssetsToStorage([...brandAssets, ...newAssets]);
+
       console.log('📁 文件上传完成，新增资产:', newAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
 
+      // ✅ 立即显示上传成功，不等待AI分析
       toast({
-        title: "上传成功",
-        description: `成功上传 ${newAssets.length} 个文件，正在自动进行AI分析...`,
+        title: "✅ 上传成功",
+        description: `成功上传 ${newAssets.length} 个文件。AI分析将在后台进行，您可以自由导航到其他页面。`,
+        duration: 6000,
       });
 
-      // 自动触发真实AI分析 - 增强版本
-      // ✅ FIXED: 2025-08-05 文件上传后自动触发真实AI分析
-      setTimeout(async () => {
-        try {
-          console.log('⏰ 开始自动AI分析，延迟1秒后执行');
+      // 显示用户友好提醒
+      toast({
+        title: "💡 温馨提示",
+        description: "AI分析正在后台进行，您可以离开此页面。分析完成后会有通知提醒。",
+        duration: 8000,
+      });
 
-          // 添加分析超时提示
-          const analysisTimeout = setTimeout(() => {
-            toast({
-              title: "⏰ AI分析超时提醒",
-              description: "分析时间较长，可能是网络连接问题。您可以稍后在品牌语料库中查看结果，或点击测试按钮诊断问题。",
-              variant: "destructive",
-              duration: 10000,
-            });
-          }, 30000); // 30秒超时提醒
-
-          // 直接处理刚上传的文件，而不是依赖状态更新
-          await handleBatchCorpusExtractionForAssets(newAssets);
-          clearTimeout(analysisTimeout);
-
-          toast({
-            title: "✅ AI分析完成",
-            description: `已完成 ${newAssets.length} 个文件的智能分析，信息已自动添加到品牌维度`,
-            duration: 5000,
-          });
-        } catch (error) {
-          console.error('自动AI分析失败:', error);
-
-          // 根据错误类型提供不同的提示
-          const errorMessage = error instanceof Error ? error.message : '未知错误';
-          const isNetworkError = errorMessage.includes('Network') || errorMessage.includes('Connection') || errorMessage.includes('Timeout');
-
-          toast({
-            title: "❌ AI分析失败",
-            description: isNetworkError
-              ? "网络连接问题导致分析失败，请检查网络连接或点击测试按钮诊断问题"
-              : `分析过程中出现错误: ${errorMessage}`,
-            variant: "destructive",
-            duration: 8000,
-          });
-        }
-      }, 1000); // 1秒后开始AI分析
+      // ✅ 后台异步AI分析 - 不阻塞用户操作
+      startBackgroundAnalysis(newAssets);
 
     } catch (error) {
       console.error('文件上传失败:', error);
@@ -1330,6 +1538,26 @@ export default function BrandLibraryPageFixed() {
             所有维度都支持手动编辑。
           </AlertDescription>
         </Alert>
+
+        {/* ✅ FIXED: 2025-08-06 后台分析状态提示 */}
+        {isBackgroundAnalysisRunning && (
+          <Alert className="mb-6 border-blue-200 bg-blue-50">
+            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <strong>🔄 AI分析进行中：</strong>正在后台分析您的品牌资料，您可以自由导航到其他页面。分析完成后会有通知提醒。
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* 后台分析队列提示 */}
+        {backgroundAnalysisQueue.length > 0 && (
+          <Alert className="mb-6 border-orange-200 bg-orange-50">
+            <Clock className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="text-orange-800">
+              <strong>⏳ 分析队列：</strong>还有 {backgroundAnalysisQueue.length} 个文件等待分析。
+            </AlertDescription>
+          </Alert>
+        )}
         {/* 隐藏的文件输入 */}
         <input
           ref={fileInputRef}
@@ -1698,28 +1926,28 @@ export default function BrandLibraryPageFixed() {
 
                           <div className="flex flex-wrap gap-2">
                             {/* AI分析按钮 */}
+                            {/* ✅ FIXED: 2025-08-06 改进状态按钮和重试机制 */}
                             <Button
-                              variant={asset.status === 'analyzed' ? 'default' : 'outline'}
+                              variant={asset.status === 'analyzed' ? 'default' : asset.status === 'error' ? 'destructive' : 'outline'}
                               size="sm"
                               className={
                                 asset.status === 'analyzed' ? 'bg-green-600 hover:bg-green-700' :
-                                asset.status === 'analyzing' ? 'bg-blue-600 hover:bg-blue-700' :
+                                asset.status === 'processing' ? 'bg-blue-600 hover:bg-blue-700' :
+                                asset.status === 'error' ? 'bg-red-600 hover:bg-red-700' :
                                 'border-orange-300 text-orange-600 hover:bg-orange-50'
                               }
-                              disabled={asset.status === 'analyzing'}
+                              disabled={asset.status === 'processing' || isBackgroundAnalysisRunning}
                               onClick={() => {
-                                if (asset.status === 'uploaded') {
+                                if (asset.status === 'uploaded' || asset.status === 'error') {
                                   console.log('开始分析文件:', asset.name);
-                                  const updatedAssets = brandAssets.map(a =>
-                                    a.id === asset.id ? { ...a, status: 'analyzing' as const } : a
-                                  );
-                                  setBrandAssets(updatedAssets);
-                                  setTimeout(() => {
-                                    const finalAssets = brandAssets.map(a =>
-                                      a.id === asset.id ? { ...a, status: 'analyzed' as const } : a
-                                    );
-                                    setBrandAssets(finalAssets);
-                                  }, 3000);
+                                  // 使用后台分析功能
+                                  startBackgroundAnalysis([asset]);
+
+                                  toast({
+                                    title: "开始AI分析",
+                                    description: `正在分析 ${asset.name}，您可以继续其他操作`,
+                                    duration: 3000,
+                                  });
                                 }
                               }}
                             >
@@ -1728,15 +1956,20 @@ export default function BrandLibraryPageFixed() {
                                   <CheckCircle className="h-3 w-3 mr-1" />
                                   已分析
                                 </>
-                              ) : asset.status === 'analyzing' ? (
+                              ) : asset.status === 'processing' ? (
                                 <>
                                   <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                                   分析中
                                 </>
+                              ) : asset.status === 'error' ? (
+                                <>
+                                  <RotateCcw className="h-3 w-3 mr-1" />
+                                  重试
+                                </>
                               ) : (
                                 <>
                                   <Brain className="h-3 w-3 mr-1" />
-                                  未分析
+                                  分析
                                 </>
                               )}
                             </Button>
