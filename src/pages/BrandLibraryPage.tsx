@@ -19,7 +19,7 @@ import {
   SortAsc, Filter, Download, Eye, Edit, Copy,
   Globe, Users, Target, Zap, Brain, Sparkles, X,
   BookOpen, Palette, MessageSquare, Shield,
-  Plus, X, RotateCcw, Save, FileUp, FolderOpen,
+  Plus, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
   TrendingUp, Users2, Package, Share2, MoreHorizontal,
   Loader2, CheckCircle, Grid, List, Pin, Ban, AlertTriangle
