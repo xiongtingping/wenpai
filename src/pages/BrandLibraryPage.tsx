@@ -579,10 +579,13 @@ export default function BrandLibraryPageFixed() {
 
       console.log('🧪 开始简化AI测试');
 
+      // 动态导入AI服务
+      const { callAI, AITaskType } = await import('@/api/aiService');
+
       // 使用最简单的AI调用测试
       const testResult = await callAI({
         prompt: "请回复：测试成功",
-        taskType: 'general-chat' as any,
+        taskType: AITaskType.GENERAL_CHAT,
         model: 'deepseek-chat',
         maxTokens: 50,
         temperature: 0.1
