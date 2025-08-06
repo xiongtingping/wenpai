@@ -1,1 +1,0 @@
-console.log("🔍 验证队列管理器结果传递修复..."); console.log("✅ processQueue返回类型已修复"); console.log("✅ 结果传递机制已修复"); console.log("✅ addToQueue结果处理已修复"); console.log("✅ 递归调用机制已修复"); console.log("✅ 错误处理已标准化"); console.log("🎯 请重启开发服务器并测试AI功能");

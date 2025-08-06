@@ -1,1 +1,0 @@
-console.log("🎉 智能标题生成优化成功！"); console.log("✅ DeepSeek成功生成2个标题"); console.log("✅ 减少了不必要的备用模型调用"); console.log("✅ 增加了超时时间到12秒"); console.log("✅ 优化了错误处理逻辑"); console.log("✅ 移除了本地模拟功能"); console.log("🎯 建议继续使用DeepSeek作为主要模型");

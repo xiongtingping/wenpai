@@ -1,1 +1,0 @@
-console.log("🧪 AI API修复验证测试"); console.log("✅ 402错误处理已添加"); console.log("✅ 模型切换策略已实现"); console.log("✅ gpt-4o-mini模型已支持"); console.log("✅ 错误信息已优化"); console.log("✅ 成本估算已增强"); console.log("🎉 所有修复验证通过！");

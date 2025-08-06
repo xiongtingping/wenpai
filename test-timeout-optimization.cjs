@@ -1,1 +1,0 @@
-console.log("🔍 验证超时优化效果..."); console.log("✅ 超时时间从15秒减少到10秒"); console.log("✅ 添加了8秒备用模型超时"); console.log("✅ 实现了备用模型策略"); console.log("✅ Token数从800减少到600"); console.log("✅ 温度从0.9优化到0.8"); console.log("✅ 错误信息更加详细"); console.log("🎯 请重启开发服务器并测试智能标题生成功能");
