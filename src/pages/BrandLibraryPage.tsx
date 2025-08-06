@@ -724,7 +724,7 @@ export default function BrandLibraryPageFixed() {
    */
   const handleBatchCorpusExtraction = async () => {
     const unprocessedAssets = brandAssets.filter(asset =>
-      asset.status === 'uploaded' || asset.status === 'error'
+      asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'analyzing'
     );
 
     if (unprocessedAssets.length === 0) {
@@ -752,6 +752,11 @@ export default function BrandLibraryPageFixed() {
 
         try {
           console.log(`🔍 [v2.0] 开始AI分析文件: ${asset.name}`);
+
+          // 更新文件状态为处理中
+          setBrandAssets(prev => prev.map(a =>
+            a.id === asset.id ? { ...a, status: 'processing' } : a
+          ));
 
           // 🆕 使用v2.0增强的AI服务进行品牌语料库提取
           const analysisResultV2 = await corpusService.processDocumentV2(
@@ -1033,7 +1038,7 @@ export default function BrandLibraryPageFixed() {
           type: fileType,
           size: `${(file.size / 1024).toFixed(2)} KB`,
           uploadDate: new Date().toISOString(),
-          status: 'analyzing', // 上传完成，正在AI分析
+          status: 'uploaded', // 上传完成，等待AI分析
           file: file,
           content: content, // 添加文件内容
           category: 'brand-material'
