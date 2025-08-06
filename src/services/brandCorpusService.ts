@@ -1109,18 +1109,33 @@ export class BrandCorpusService {
         cleaned = cleaned.substring(firstBrace, lastBrace + 1);
       }
 
-      // ✅ FIXED: 2025-08-06 修复特殊字符和hashtag问题
-      // 修复hashtag格式问题：#标签 -> "#标签"
-      cleaned = cleaned.replace(/(\[\s*"[^"]*",\s*)#([^",\]]+)(\s*[,\]])/g, '$1"#$2"$3');
-      cleaned = cleaned.replace(/(\[\s*)#([^",\]]+)(\s*[,\]])/g, '$1"#$2"$3');
+      // ✅ FIXED: 2025-08-06 增强特殊字符和hashtag修复
+      // 修复数组中的hashtag和未加引号的值（更全面的处理）
+      cleaned = cleaned.replace(/\[([^\]]+)\]/g, (match, arrayContent) => {
+        // 分割数组内容
+        const items = arrayContent.split(',').map(item => {
+          const trimmed = item.trim();
 
-      // 修复数组中未加引号的值
-      cleaned = cleaned.replace(/(\[\s*"[^"]*",\s*)([^",\]]+)(\s*[,\]])/g, (match, prefix, value, suffix) => {
-        // 如果值不是数字且没有引号，添加引号
-        if (!/^\d+(\.\d+)?$/.test(value.trim()) && !value.trim().startsWith('"')) {
-          return `${prefix}"${value.trim()}"${suffix}`;
-        }
-        return match;
+          // 如果已经有引号，保持不变
+          if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+            return trimmed;
+          }
+
+          // 如果是数字，保持不变
+          if (/^\d+(\.\d+)?$/.test(trimmed)) {
+            return trimmed;
+          }
+
+          // 如果是布尔值或null，保持不变
+          if (/^(true|false|null)$/.test(trimmed)) {
+            return trimmed;
+          }
+
+          // 其他情况都加引号
+          return `"${trimmed}"`;
+        });
+
+        return `[${items.join(', ')}]`;
       });
 
       // 尝试修复常见的JSON格式问题
