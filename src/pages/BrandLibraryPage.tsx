@@ -89,8 +89,8 @@ const SYSTEM_CATEGORIES = [
 ];
 
 export default function BrandLibraryPageFixed() {
-  // 基础状态
-  const [activeTab, setActiveTab] = useState<string>('dimensions');
+  // 基础状态 - 默认显示智能资料管理（上传品牌资料）
+  const [activeTab, setActiveTab] = useState<string>('assets');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
