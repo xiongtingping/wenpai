@@ -1091,7 +1091,7 @@ export class BrandCorpusService {
   }
 
   /**
-   * 🔧 JSON格式修复方法（增强版）
+   * ✅ FIXED: 2025-08-06 增强JSON格式修复方法
    */
   private fixJsonFormat(jsonString: string): string {
     try {
@@ -1109,10 +1109,33 @@ export class BrandCorpusService {
         cleaned = cleaned.substring(firstBrace, lastBrace + 1);
       }
 
+      // ✅ FIXED: 2025-08-06 修复特殊字符和hashtag问题
+      // 修复hashtag格式问题：#标签 -> "#标签"
+      cleaned = cleaned.replace(/(\[\s*"[^"]*",\s*)#([^",\]]+)(\s*[,\]])/g, '$1"#$2"$3');
+      cleaned = cleaned.replace(/(\[\s*)#([^",\]]+)(\s*[,\]])/g, '$1"#$2"$3');
+
+      // 修复数组中未加引号的值
+      cleaned = cleaned.replace(/(\[\s*"[^"]*",\s*)([^",\]]+)(\s*[,\]])/g, (match, prefix, value, suffix) => {
+        // 如果值不是数字且没有引号，添加引号
+        if (!/^\d+(\.\d+)?$/.test(value.trim()) && !value.trim().startsWith('"')) {
+          return `${prefix}"${value.trim()}"${suffix}`;
+        }
+        return match;
+      });
+
       // 尝试修复常见的JSON格式问题
       cleaned = cleaned.replace(/,(\s*[}\]])/g, '$1'); // 移除多余的逗号
       cleaned = cleaned.replace(/([{,]\s*)(\w+):/g, '$1"$2":'); // 为键添加引号
-      cleaned = cleaned.replace(/:\s*([^",{\[\s][^,}\]]*[^",}\]\s])\s*([,}\]])/g, ': "$1"$2'); // 为值添加引号
+
+      // 修复值的引号问题（更精确的正则）
+      cleaned = cleaned.replace(/:\s*([^",{\[\s\d][^,}\]]*[^",}\]\s])\s*([,}\]])/g, (match, value, suffix) => {
+        // 如果值不是数字、布尔值或null，且没有引号，添加引号
+        const trimmedValue = value.trim();
+        if (!/^(true|false|null|\d+(\.\d+)?)$/.test(trimmedValue) && !trimmedValue.startsWith('"')) {
+          return `: "${trimmedValue}"${suffix}`;
+        }
+        return match;
+      });
 
       return cleaned;
     } catch (error) {
@@ -1122,33 +1145,55 @@ export class BrandCorpusService {
   }
 
   /**
-   * 🔄 将v2.0提取结果转换为旧版格式（向后兼容）
+   * ✅ FIXED: 2025-08-06 将v2.0提取结果转换为旧版格式（向后兼容）
    */
   public convertV2ToLegacyFormat(v2Result: BrandCorpusExtractionV2): BrandCorpusExtraction {
+    // ✅ FIXED: 2025-08-06 增强空值检查
+    if (!v2Result || !v2Result.extractedFields) {
+      console.warn('⚠️ v2Result为空或缺少extractedFields，返回默认结果');
+      return {
+        id: `fallback-${Date.now()}`,
+        sourceId: 'unknown',
+        sourceName: 'unknown',
+        sourceType: 'document',
+        extractedAt: new Date().toISOString(),
+        extractedFields: {},
+        status: 'completed',
+        aiAnalysisMetadata: {
+          model: 'unknown',
+          confidence: 0.1,
+          processingTime: 0,
+          extractedFieldsCount: 0
+        }
+      };
+    }
+
     const legacyResult: BrandCorpusExtraction = {
-      id: v2Result.extractionId,
-      sourceId: v2Result.sourceDocument.id,
-      sourceName: v2Result.sourceDocument.name,
-      sourceType: v2Result.sourceDocument.type as any,
-      extractedAt: v2Result.timestamp,
+      id: v2Result.extractionId || `extraction-${Date.now()}`,
+      sourceId: v2Result.sourceDocument?.id || 'unknown',
+      sourceName: v2Result.sourceDocument?.name || 'unknown',
+      sourceType: (v2Result.sourceDocument?.type as any) || 'document',
+      extractedAt: v2Result.timestamp || new Date().toISOString(),
       extractedFields: {},
       status: 'completed',
       aiAnalysisMetadata: {
-        model: v2Result.aiModel,
-        confidence: v2Result.overallConfidence,
-        processingTime: v2Result.processingTime,
-        extractedFieldsCount: Object.keys(v2Result.extractedFields).length
+        model: v2Result.aiModel || 'unknown',
+        confidence: v2Result.overallConfidence || 0.1,
+        processingTime: v2Result.processingTime || 0,
+        extractedFieldsCount: Object.keys(v2Result.extractedFields || {}).length
       }
     };
 
     // 转换字段格式
-    Object.entries(v2Result.extractedFields).forEach(([fieldName, fieldData]) => {
-      legacyResult.extractedFields[fieldName] = {
-        value: fieldData.value,
-        confidence: fieldData.confidence,
-        sources: fieldData.sources?.map(source => source.excerpt).join('; ') || '',
-        aiSuggestions: fieldData.ai_suggestions || []
-      };
+    Object.entries(v2Result.extractedFields || {}).forEach(([fieldName, fieldData]) => {
+      if (fieldData) {
+        legacyResult.extractedFields[fieldName] = {
+          value: fieldData.value || '',
+          confidence: fieldData.confidence || 0.1,
+          sources: fieldData.sources?.map(source => source?.excerpt || '').join('; ') || '',
+          aiSuggestions: fieldData.ai_suggestions || []
+        };
+      }
     });
 
     return legacyResult;
