@@ -641,6 +641,135 @@ export default function BrandLibraryPageFixed() {
     });
   };
 
+  /**
+   * 处理指定文件列表的AI分析
+   * 解决React状态更新异步问题
+   */
+  const handleBatchCorpusExtractionForAssets = async (assetsToProcess: BrandAsset[]) => {
+    console.log('🔍 开始处理指定文件列表:', assetsToProcess.map(a => ({ id: a.id, name: a.name, status: a.status })));
+
+    if (assetsToProcess.length === 0) {
+      console.log('⚠️ 没有文件需要处理');
+      return;
+    }
+
+    setIsProcessingCorpus(true);
+    setCorpusProcessingProgress(0);
+
+    try {
+      const extractions: BrandCorpusExtraction[] = [];
+
+      // 动态导入AI服务和品牌语料库服务
+      const { callAI, AITaskType } = await import('@/api/aiService');
+      const { BrandCorpusService } = await import('@/services/brandCorpusService');
+      const corpusService = BrandCorpusService.getInstance();
+
+      for (let i = 0; i < assetsToProcess.length; i++) {
+        const asset = assetsToProcess[i];
+        setCorpusProcessingProgress((i / assetsToProcess.length) * 100);
+
+        try {
+          console.log(`🔍 [v2.0] 开始AI分析文件: ${asset.name}`);
+
+          // 更新文件状态为处理中
+          setBrandAssets(prev => prev.map(a =>
+            a.id === asset.id ? { ...a, status: 'processing' } : a
+          ));
+
+          // 🆕 使用v2.0增强的AI服务进行品牌语料库提取
+          const analysisResultV2 = await corpusService.processDocumentV2(
+            asset.id,
+            asset.name,
+            asset.content || '',
+            asset.type
+          );
+
+          if (!analysisResultV2 || !analysisResultV2.extractedFields) {
+            throw new Error('AI分析返回空结果');
+          }
+
+          console.log(`✅ [v2.0] AI分析完成: ${asset.name}`, {
+            fieldsCount: Object.keys(analysisResultV2.extractedFields).length,
+            confidence: analysisResultV2.overallConfidence,
+            version: analysisResultV2.version
+          });
+
+          // 转换为旧版格式以保持兼容性
+          const analysisResult = corpusService.convertV2ToLegacyFormat(analysisResultV2);
+
+          const extraction: BrandCorpusExtraction = {
+            id: `extraction-${Date.now()}-${i}`,
+            sourceId: asset.id,
+            sourceName: asset.name,
+            sourceType: asset.type,
+            extractedAt: new Date().toISOString(),
+            extractedFields: analysisResult.extractedFields,
+            status: 'completed',
+            aiAnalysisMetadata: {
+              model: 'deepseek-chat',
+              confidence: analysisResult.overallConfidence || 0.8,
+              processingTime: analysisResult.processingTime || 0,
+              extractedFieldsCount: Object.keys(analysisResult.extractedFields).length
+            }
+          };
+
+          extractions.push(extraction);
+
+          // 将提取的信息添加到品牌维度中
+          if (analysisResult.extractedFields) {
+            Object.entries(analysisResult.extractedFields).forEach(([fieldName, fieldData]) => {
+              if (fieldData.value && fieldData.confidence > 0.5) {
+                // 根据字段名称添加到对应的维度
+                addItemToDimension(fieldName, fieldData.value, asset.name, fieldData.confidence);
+              }
+            });
+          }
+
+          // 更新资产状态
+          setBrandAssets(prev => prev.map(a =>
+            a.id === asset.id ? { ...a, status: 'analyzed' } : a
+          ));
+
+          console.log(`✅ AI分析完成: ${asset.name}`, {
+            extractedFields: Object.keys(analysisResult.extractedFields).length,
+            confidence: analysisResult.overallConfidence
+          });
+
+        } catch (error) {
+          console.error(`❌ [v2.0] AI分析文件 ${asset.name} 失败:`, error);
+          setBrandAssets(prev => prev.map(a =>
+            a.id === asset.id ? { ...a, status: 'error' } : a
+          ));
+
+          // 显示具体错误信息
+          const errorMessage = error instanceof Error ? error.message : '未知错误';
+
+          toast({
+            title: `AI分析失败: ${asset.name}`,
+            description: errorMessage,
+            variant: "destructive",
+            duration: 8000,
+          });
+        }
+      }
+
+      setCorpusProcessingProgress(100);
+
+      console.log(`🎉 [v2.0] 批量AI分析完成，成功处理 ${extractions.length}/${assetsToProcess.length} 个文件`);
+
+    } catch (error) {
+      console.error('❌ [v2.0] 批量AI分析失败:', error);
+      toast({
+        title: "批量AI分析失败",
+        description: error instanceof Error ? error.message : '未知错误',
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingCorpus(false);
+      setCorpusProcessingProgress(0);
+    }
+  };
+
   const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
     // 字段名称到维度ID的映射
     const fieldToDimensionMap: { [key: string]: string } = {
@@ -723,11 +852,16 @@ export default function BrandLibraryPageFixed() {
    * 🔒 LOCKED: 禁止使用模拟数据或降级方案
    */
   const handleBatchCorpusExtraction = async () => {
+    console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
+
     const unprocessedAssets = brandAssets.filter(asset =>
       asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'analyzing'
     );
 
+    console.log('📋 找到待处理资产:', unprocessedAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
+
     if (unprocessedAssets.length === 0) {
+      console.log('⚠️ 没有找到可处理的文件');
       toast({
         title: "没有可处理的文件",
         description: "所有文件都已处理完成",
@@ -1050,6 +1184,8 @@ export default function BrandLibraryPageFixed() {
       setBrandAssets(prev => [...prev, ...newAssets]);
       setUploadProgress(100);
 
+      console.log('📁 文件上传完成，新增资产:', newAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
+
       toast({
         title: "上传成功",
         description: `成功上传 ${newAssets.length} 个文件，正在自动进行AI分析...`,
@@ -1059,6 +1195,8 @@ export default function BrandLibraryPageFixed() {
       // ✅ FIXED: 2025-08-05 文件上传后自动触发真实AI分析
       setTimeout(async () => {
         try {
+          console.log('⏰ 开始自动AI分析，延迟1秒后执行');
+
           // 添加分析超时提示
           const analysisTimeout = setTimeout(() => {
             toast({
@@ -1069,7 +1207,8 @@ export default function BrandLibraryPageFixed() {
             });
           }, 30000); // 30秒超时提醒
 
-          await handleBatchCorpusExtraction();
+          // 直接处理刚上传的文件，而不是依赖状态更新
+          await handleBatchCorpusExtractionForAssets(newAssets);
           clearTimeout(analysisTimeout);
 
           toast({
