@@ -21,10 +21,11 @@ import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 
 /**
  * 环境检测
- * 🔓 UNLOCKED: AI 禁止修改此函数
+ * ✅ FIXED: 支持强制生产模式 - 不再使用模拟和本地模式
  */
-const isDevelopment = import.meta.env.DEV;
-const isProduction = import.meta.env.PROD;
+const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
+const isDevelopment = !forceProductionMode && import.meta.env.DEV;
+const isProduction = forceProductionMode || import.meta.env.PROD;
 
 /**
  * 统一的AI调用服务

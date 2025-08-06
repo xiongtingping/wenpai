@@ -26,13 +26,24 @@ const HeroSection: React.FC = () => {
     console.log('login函数类型:', typeof login);
     console.log('navigate函数类型:', typeof navigate);
 
-    if (isAuthenticated) {
-      console.log('用户已登录，直接跳转到AI内容适配器页面');
-      navigate('/new-adapt');
-    } else {
-      console.log('用户未登录，直接跳转到Authing登录页面');
-      // 直接调用登录方法，不进行复杂的网络检查
-      login('/new-adapt');
+    try {
+      if (isAuthenticated) {
+        console.log('用户已登录，直接跳转到AI内容适配器页面');
+        navigate('/new-adapt');
+      } else {
+        console.log('用户未登录，调用登录函数');
+        if (typeof login === 'function') {
+          login('/new-adapt');
+        } else {
+          console.error('❌ login函数不可用:', login);
+          // 备用方案：直接跳转到登录页面
+          navigate('/login');
+        }
+      }
+    } catch (error) {
+      console.error('❌ 按钮点击处理出错:', error);
+      // 备用方案：直接跳转到登录页面
+      navigate('/login');
     }
 
     console.log('=== Hero按钮点击事件完成 ===');

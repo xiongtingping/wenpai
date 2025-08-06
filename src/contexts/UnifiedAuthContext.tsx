@@ -243,12 +243,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   useEffect(() => {
     try {
-      // ✅ FIXED: 开发环境禁用Authing Guard - 避免Guard组件导致的白屏问题
-      const isDevelopment = import.meta.env.DEV;
-      if (isDevelopment) {
+      // ✅ FIXED: 检查强制生产模式
+      const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
+      const isDevelopment = !forceProductionMode && import.meta.env.DEV;
+
+      if (!isDevelopment) {
+        console.log('🔐 启用真实Authing认证流程');
+        console.log('🎯 初始化Authing Guard组件');
+      } else {
         console.log('🔓 开发环境模式：禁用Authing Guard组件');
         console.log('🎯 使用模拟用户数据，跳过真实认证流程');
-        
+
         // 开发环境不初始化Guard，避免白屏问题
         setLoading(false);
         return;
@@ -327,12 +332,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       setLoading(true);
       setError(null);
 
-      // ✅ FIXED: 开发环境自动登录 - 避免权限检查导致的白屏问题
-      const isDevelopment = import.meta.env.DEV;
-      if (isDevelopment) {
+      // ✅ FIXED: 检查强制生产模式
+      const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
+      const isDevelopment = !forceProductionMode && import.meta.env.DEV;
+
+      if (!isDevelopment) {
+        console.log('🔐 检查真实用户认证状态');
+        console.log('🎯 从Authing获取用户信息');
+      } else {
         console.log('🔓 开发环境自动登录模式 - 强制启用');
         console.log('🔧 正在创建模拟用户数据...');
-        
+
         // 创建模拟用户数据
         const mockUser: UserInfo = {
           id: 'dev-user-001',
@@ -345,19 +355,19 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           permissions: ['auth:required', 'vip:required', 'feature:creative-studio', 'feature:brand-library'],
           isVip: true
         };
-        
+
         setUser(mockUser);
         setIsAuthenticated(true);
         setLoading(false);
         console.log('✅ 开发环境自动登录成功:', mockUser);
         console.log('🎯 权限状态: isAuthenticated = true, user =', mockUser);
-        
+
         // 强制触发重新渲染
         setTimeout(() => {
           console.log('🔄 强制触发重新渲染...');
           setUser({...mockUser});
         }, 100);
-        
+
         return;
       }
 
@@ -471,11 +481,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.log('🔐 开始登录流程...');
       setError(null);
       
-      // ✅ FIXED: 开发环境跳过Guard弹窗 - 避免白屏问题
-      const isDevelopment = import.meta.env.DEV;
-      if (isDevelopment) {
+      // ✅ FIXED: 检查强制生产模式
+      const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
+      const isDevelopment = !forceProductionMode && import.meta.env.DEV;
+
+      if (!isDevelopment) {
+        console.log('🔐 启用Authing Guard弹窗');
+        console.log('🎯 等待用户真实登录');
+      } else {
         console.log('🔓 开发环境：跳过Guard弹窗，直接使用模拟用户');
-        
+
         // 创建模拟用户数据 - 高级版用户测试升级按钮隐藏逻辑
         const mockUser: UserInfo = {
           id: 'dev-user-001',
@@ -492,7 +507,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           tier: 'premium',
           subscriptionEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1年后过期
         };
-        
+
         setUser(mockUser);
         setIsAuthenticated(true);
         console.log('✅ 开发环境登录成功:', mockUser);
@@ -770,15 +785,19 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    * 角色检查
    */
   const hasRole = (role: string): boolean => {
-    // 开发环境默认返回 true
-    if (import.meta.env.DEV) {
+    // ✅ FIXED: 检查强制生产模式
+    const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
+    const isDevelopment = !forceProductionMode && import.meta.env.DEV;
+
+    // 开发环境默认返回 true（仅在非强制生产模式下）
+    if (isDevelopment) {
       return true;
     }
-    
+
     if (!user || !user.roles) {
       return false;
     }
-    
+
     return user.roles.includes(role);
   };
 

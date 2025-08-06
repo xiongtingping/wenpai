@@ -32,11 +32,18 @@ const checkPermissionSafely = (
 ): boolean => {
   if (!required) return true;
 
-  // 开发环境权限绕过
-  if (isDevelopment) {
+  // ✅ FIXED: 检查强制生产模式
+  const forceProductionMode = typeof window !== 'undefined' &&
+    (window as any).__VITE_FORCE_PRODUCTION_MODE__ === 'true';
+  const actualIsDevelopment = !forceProductionMode && isDevelopment;
+
+  // 开发环境权限绕过（仅在非强制生产模式下）
+  if (actualIsDevelopment) {
     console.log('🔓 开发环境权限绕过:', required);
     return true;
   }
+
+  console.log('🔒 权限检查:', required, { isAuthenticated, user: user?.id });
 
   // 缓存检查
   const cacheKey = `${required}_${isAuthenticated}_${user?.id || 'anonymous'}`;
@@ -78,8 +85,11 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = React.memo(({
 }) => {
   const { user, isAuthenticated } = useUnifiedAuth();
 
-  // ✅ 开发环境检测 - 缓存结果避免重复计算
-  const isDevelopment = useMemo(() => import.meta.env.DEV, []);
+  // ✅ FIXED: 检查强制生产模式
+  const forceProductionMode = useMemo(() =>
+    import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true', []);
+  const isDevelopment = useMemo(() =>
+    !forceProductionMode && import.meta.env.DEV, [forceProductionMode]);
 
   // ✅ 使用useMemo缓存权限检查结果，避免每次渲染都重新计算
   const hasPermission = useMemo(() => {

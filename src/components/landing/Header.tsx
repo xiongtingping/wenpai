@@ -147,12 +147,22 @@ export function Header() {
               console.log('Header AI内容适配器按钮被点击');
               console.log('当前认证状态:', isAuthenticated);
 
-              if (isAuthenticated) {
-                console.log('用户已登录，跳转到AI内容适配器页面');
-                navigate('/new-adapt');
-              } else {
-                console.log('用户未登录，直接弹出Authing Guard弹窗');
-                login('/new-adapt');
+              try {
+                if (isAuthenticated) {
+                  console.log('用户已登录，跳转到AI内容适配器页面');
+                  navigate('/new-adapt');
+                } else {
+                  console.log('用户未登录，调用登录函数');
+                  if (typeof login === 'function') {
+                    login('/new-adapt');
+                  } else {
+                    console.error('❌ login函数不可用');
+                    navigate('/login');
+                  }
+                }
+              } catch (error) {
+                console.error('❌ Header按钮点击出错:', error);
+                navigate('/login');
               }
             }}>
               AI内容适配器

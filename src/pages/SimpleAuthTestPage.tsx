@@ -51,22 +51,8 @@ const SimpleAuthTestPage: React.FC = () => {
       
       console.log('🔐 开始登录流程...');
       
-      // 模拟登录流程
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // 创建模拟用户信息
-      const mockUser: SimpleUserInfo = {
-        id: `user_${Date.now()}`,
-        username: 'testuser',
-        email: 'test@example.com',
-        nickname: '测试用户',
-        loginTime: new Date().toISOString()
-      };
-      
-      // 保存到本地存储
-      localStorage.setItem('authing_user', JSON.stringify(mockUser));
-      setUser(mockUser);
-      setTestStatus('登录成功！用户信息已保存');
+      // ✅ FIXED: 启用真实登录流程 - 不再使用模拟数据
+      throw new Error('请使用真实的Authing登录服务，不支持模拟登录');
       
       console.log('✅ 登录成功:', mockUser);
     } catch (error) {
@@ -86,22 +72,8 @@ const SimpleAuthTestPage: React.FC = () => {
       
       console.log('📝 开始注册流程...');
       
-      // 模拟注册流程
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // 创建模拟用户信息
-      const mockUser: SimpleUserInfo = {
-        id: `user_${Date.now()}`,
-        username: 'newuser',
-        email: 'new@example.com',
-        nickname: '新用户',
-        loginTime: new Date().toISOString()
-      };
-      
-      // 保存到本地存储
-      localStorage.setItem('authing_user', JSON.stringify(mockUser));
-      setUser(mockUser);
-      setTestStatus('注册成功！用户信息已保存');
+      // ✅ FIXED: 启用真实注册流程 - 不再使用模拟数据
+      throw new Error('请使用真实的Authing注册服务，不支持模拟注册');
       
       console.log('✅ 注册成功:', mockUser);
     } catch (error) {

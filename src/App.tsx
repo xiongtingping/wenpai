@@ -60,6 +60,7 @@ import TitleV3TestPage from '@/pages/TitleV3TestPage';
 import WebExtractorTestPage from '@/pages/WebExtractorTestPage';
 import FileFormatTestPage from '@/pages/FileFormatTestPage';
 import HistoryPage from '@/pages/HistoryPage';
+import RouteTestPage from '@/pages/RouteTestPage';
 
 /**
  * 条件性导航组件
@@ -255,6 +256,7 @@ function AppContent() {
           <Route path="/undefined-test" element={<UndefinedTestPage />} />
           <Route path="/upgrade-button-test" element={<UpgradeButtonTestPage />} />
           <Route path="/test-login" element={<TestLoginPage />} />
+          <Route path="/route-test" element={<RouteTestPage />} />
           <Route path="/title-grammar-test" element={<TitleGrammarTestPage />} />
           <Route path="/title-fix-test" element={<TitleFixTestPage />} />
           <Route path="/title-platform-test" element={<TitlePlatformSwitchTestPage />} />
