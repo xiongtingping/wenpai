@@ -388,7 +388,15 @@ export default function BrandLibraryPageFixed() {
       setBrandDimensions(dimensions);
     };
 
-    initializeDimensions();
+    // ✅ FIXED: 2025-08-06 优先加载保存的品牌维度数据
+    const savedDimensions = loadDimensionsFromStorage();
+    if (savedDimensions.length > 0) {
+      setBrandDimensions(savedDimensions);
+      console.log('📂 从localStorage恢复品牌维度数据:', savedDimensions.length, '个维度');
+    } else {
+      // 如果没有保存的数据，则初始化默认维度
+      initializeDimensions();
+    }
 
     // ✅ FIXED: 2025-08-06 页面加载时恢复保存的资产状态
     const savedAssets = loadAssetsFromStorage();
@@ -415,6 +423,17 @@ export default function BrandLibraryPageFixed() {
     }
   };
 
+  // ✅ FIXED: 2025-08-06 品牌维度数据持久化功能
+  const saveDimensionsToStorage = (dimensions: BrandDimension[]) => {
+    try {
+      localStorage.setItem('brandDimensions', JSON.stringify(dimensions));
+      localStorage.setItem('brandDimensionsTimestamp', Date.now().toString());
+      console.log('💾 品牌维度数据已保存到localStorage');
+    } catch (error) {
+      console.error('保存品牌维度到localStorage失败:', error);
+    }
+  };
+
   const loadAssetsFromStorage = (): BrandAsset[] => {
     try {
       const saved = localStorage.getItem('brandAssets');
@@ -430,6 +449,27 @@ export default function BrandLibraryPageFixed() {
       }
     } catch (error) {
       console.error('从localStorage加载资产失败:', error);
+    }
+    return [];
+  };
+
+  // ✅ FIXED: 2025-08-06 从localStorage加载品牌维度数据
+  const loadDimensionsFromStorage = (): BrandDimension[] => {
+    try {
+      const saved = localStorage.getItem('brandDimensions');
+      const timestamp = localStorage.getItem('brandDimensionsTimestamp');
+
+      if (saved && timestamp) {
+        const savedTime = parseInt(timestamp);
+        const now = Date.now();
+        // 7天内的数据有效（品牌维度数据保存时间更长）
+        if (now - savedTime < 7 * 24 * 60 * 60 * 1000) {
+          console.log('📂 从localStorage恢复品牌维度数据');
+          return JSON.parse(saved);
+        }
+      }
+    } catch (error) {
+      console.error('从localStorage加载品牌维度失败:', error);
     }
     return [];
   };
@@ -554,41 +594,57 @@ export default function BrandLibraryPageFixed() {
    * 更新维度内容
    */
   const updateDimension = (id: string, content: string) => {
-    setBrandDimensions(prev => prev.map(d =>
-      d.id === id ? { ...d, content } : d
-    ));
+    setBrandDimensions(prev => {
+      const updated = prev.map(d =>
+        d.id === id ? { ...d, content } : d
+      );
+      saveDimensionsToStorage(updated);
+      return updated;
+    });
   };
 
   /**
    * 添加关键词到维度
    */
   const addKeywordToDimension = (dimensionId: string, keyword: string) => {
-    setBrandDimensions(prev => prev.map(d =>
-      d.id === dimensionId ? { ...d, keywords: [...d.keywords, keyword] } : d
-    ));
+    setBrandDimensions(prev => {
+      const updated = prev.map(d =>
+        d.id === dimensionId ? { ...d, keywords: [...d.keywords, keyword] } : d
+      );
+      saveDimensionsToStorage(updated);
+      return updated;
+    });
   };
 
   /**
    * 从维度移除关键词
    */
   const removeKeywordFromDimension = (dimensionId: string, keyword: string) => {
-    setBrandDimensions(prev => prev.map(d =>
-      d.id === dimensionId ? { ...d, keywords: d.keywords.filter(k => k !== keyword) } : d
-    ));
+    setBrandDimensions(prev => {
+      const updated = prev.map(d =>
+        d.id === dimensionId ? { ...d, keywords: d.keywords.filter(k => k !== keyword) } : d
+      );
+      saveDimensionsToStorage(updated);
+      return updated;
+    });
   };
 
   /**
    * 更新维度信息条目
    */
   const updateDimensionItem = (dimensionId: string, itemId: string, updates: Partial<BrandInfoItem>) => {
-    setBrandDimensions(prev => prev.map(d =>
-      d.id === dimensionId ? {
-        ...d,
-        items: d.items.map(item =>
-          item.id === itemId ? { ...item, ...updates, updatedAt: new Date() } : item
-        )
-      } : d
-    ));
+    setBrandDimensions(prev => {
+      const updated = prev.map(d =>
+        d.id === dimensionId ? {
+          ...d,
+          items: d.items.map(item =>
+            item.id === itemId ? { ...item, ...updates, updatedAt: new Date() } : item
+          )
+        } : d
+      );
+      saveDimensionsToStorage(updated);
+      return updated;
+    });
   };
 
   /**
@@ -606,9 +662,13 @@ export default function BrandLibraryPageFixed() {
       updatedAt: new Date()
     };
 
-    setBrandDimensions(prev => prev.map(d =>
-      d.id === dimensionId ? { ...d, items: [...d.items, newItem] } : d
-    ));
+    setBrandDimensions(prev => {
+      const updated = prev.map(d =>
+        d.id === dimensionId ? { ...d, items: [...d.items, newItem] } : d
+      );
+      saveDimensionsToStorage(updated);
+      return updated;
+    });
   };
 
   /**
@@ -637,9 +697,13 @@ export default function BrandLibraryPageFixed() {
    * 实际执行删除操作
    */
   const executeDeleteItem = (dimensionId: string, itemId: string) => {
-    setBrandDimensions(prev => prev.map(d =>
-      d.id === dimensionId ? { ...d, items: d.items.filter(item => item.id !== itemId) } : d
-    ));
+    setBrandDimensions(prev => {
+      const updated = prev.map(d =>
+        d.id === dimensionId ? { ...d, items: d.items.filter(item => item.id !== itemId) } : d
+      );
+      saveDimensionsToStorage(updated);
+      return updated;
+    });
   };
 
   /**
@@ -1026,26 +1090,30 @@ export default function BrandLibraryPageFixed() {
     console.log('📝 创建新项目:', newItem);
 
     // 添加到对应维度
-    setBrandDimensions(prev => prev.map(dimension => {
-      if (dimension.id === dimensionId) {
-        // 检查是否已存在相似内容，避免重复
-        const existingItem = dimension.items.find(item =>
-          item.content.toLowerCase().includes(newItem.content.toLowerCase()) ||
-          newItem.content.toLowerCase().includes(item.content.toLowerCase())
-        );
+    setBrandDimensions(prev => {
+      const updated = prev.map(dimension => {
+        if (dimension.id === dimensionId) {
+          // 检查是否已存在相似内容，避免重复
+          const existingItem = dimension.items.find(item =>
+            item.content.toLowerCase().includes(newItem.content.toLowerCase()) ||
+            newItem.content.toLowerCase().includes(item.content.toLowerCase())
+          );
 
-        if (!existingItem) {
-          console.log(`✅ 添加到维度 ${dimensionId}:`, newItem.content);
-          return {
-            ...dimension,
-            items: [...dimension.items, newItem]
-          };
-        } else {
-          console.log(`⚠️ 跳过重复内容: ${newItem.content}`);
+          if (!existingItem) {
+            console.log(`✅ 添加到维度 ${dimensionId}:`, newItem.content);
+            return {
+              ...dimension,
+              items: [...dimension.items, newItem]
+            };
+          } else {
+            console.log(`⚠️ 跳过重复内容: ${newItem.content}`);
+          }
         }
-      }
-      return dimension;
-    }));
+        return dimension;
+      });
+      saveDimensionsToStorage(updated);
+      return updated;
+    });
   };
 
   /**
@@ -1053,12 +1121,15 @@ export default function BrandLibraryPageFixed() {
    */
   const saveBrandDimensions = async () => {
     try {
-      // 这里可以添加保存到后端的逻辑
+      // ✅ FIXED: 2025-08-06 实际保存到localStorage
+      saveDimensionsToStorage(brandDimensions);
+
       toast({
         title: "保存成功",
-        description: "品牌语料库已保存",
+        description: "品牌语料库已保存到本地存储",
       });
     } catch (error) {
+      console.error('保存品牌维度失败:', error);
       toast({
         title: "保存失败",
         description: "保存过程中出现错误",
@@ -1260,6 +1331,7 @@ export default function BrandLibraryPageFixed() {
       )
     }));
     setBrandDimensions(updatedDimensions);
+    saveDimensionsToStorage(updatedDimensions);
 
     toast({
       title: "删除成功",
