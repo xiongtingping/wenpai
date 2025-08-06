@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
+import TokenUsageSection from '@/components/profile/TokenUsageSection';
 import { getUserDisplayName, getUserAvatar as getUtilUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 
 /**
@@ -400,14 +401,14 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
                 <div className="flex-1 space-y-6">
-                  {/* 使用进度 */}
+                  {/* 使用次数进度 */}
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">使用次数</span>
                       <span className="text-sm text-gray-600">{userStats.usedCount}/{userStats.availableUses}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${(userStats.usedCount / userStats.availableUses) * 100}%` }}
                       ></div>
@@ -420,7 +421,7 @@ export default function ProfilePage() {
                       <span className="text-sm text-gray-600">{userStats.usedTokens.toLocaleString()}/{userStats.tokenLimit.toLocaleString()}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${(userStats.usedTokens / userStats.tokenLimit) * 100}%` }}
                       ></div>
@@ -504,6 +505,15 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* 详细Token统计区域 */}
+        <div className="mt-8">
+          <TokenUsageSection
+            userTier={userStats.accountType === '体验版' ? 'trial' :
+                     userStats.accountType === '专业版' ? 'pro' : 'premium'}
+            showDetails={true}
+          />
         </div>
       </div>
     </div>

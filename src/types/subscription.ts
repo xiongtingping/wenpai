@@ -79,6 +79,38 @@ export interface UserSubscription {
 }
 
 /**
+ * 使用统计接口
+ */
+export interface UsageStats {
+  /** AI内容适配器已使用次数 */
+  adaptUsageUsed: number;
+  /** Token已使用数量 */
+  tokensUsed: number;
+  /** Token剩余数量 */
+  tokensRemaining: number;
+  /** 本月总请求次数 */
+  totalRequests: number;
+  /** 最后使用时间 */
+  lastUsedAt?: string;
+}
+
+/**
+ * Token使用详情接口
+ */
+export interface TokenUsageDetail {
+  /** 功能名称 */
+  feature: string;
+  /** 使用的Token数量 */
+  tokensUsed: number;
+  /** 请求次数 */
+  requestCount: number;
+  /** 使用百分比 */
+  percentage: number;
+  /** 最后使用时间 */
+  lastUsedAt: string;
+}
+
+/**
  * 使用情况统计接口
  */
 export interface UsageStats {

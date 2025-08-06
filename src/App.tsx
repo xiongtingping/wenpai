@@ -14,6 +14,9 @@ import RenderConflictDetector from '@/components/ErrorBoundary/RenderConflictDet
 import { PerformanceMonitor, PerformanceStats } from '@/components/ErrorBoundary/PerformanceMonitor';
 import { setupGlobalTooltipSafety } from '@/utils/tooltipSafetyWrapper';
 
+// ✅ ENHANCED: 2025-08-06 阶段二系统逻辑完善 - 导入系统监控服务
+import { systemMonitorService } from '@/services/systemMonitorService';
+
 // 页面组件导入
 import HomePage from '@/pages/HomePage';
 import AboutPage from '@/pages/AboutPage';
@@ -38,6 +41,7 @@ import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
+import TokenTestPage from '@/pages/TokenTestPage';
 import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
 import { TestLoginPage } from '@/pages/TestLoginPage';
 import QRCodeTestPage from '@/pages/QRCodeTestPage';
@@ -89,6 +93,19 @@ function AppContent() {
   React.useEffect(() => {
     setupGlobalTooltipSafety();
     console.log('🛡️ App: 全局安全机制已启用');
+  }, []);
+
+  // ✅ ENHANCED: 2025-08-06 启动系统监控服务
+  React.useEffect(() => {
+    // 启动系统监控服务
+    systemMonitorService.start();
+    console.log('🚀 App: 系统监控服务已启动');
+
+    // 清理函数：组件卸载时停止监控服务
+    return () => {
+      systemMonitorService.stop();
+      console.log('🛑 App: 系统监控服务已停止');
+    };
   }, []);
 
   return (
@@ -255,6 +272,7 @@ function AppContent() {
           {/* 测试页面 */}
           <Route path="/ai-config-test" element={<AIConfigTestPage />} />
           <Route path="/permission-test" element={<PermissionTestPage />} />
+          <Route path="/token-test" element={<TokenTestPage />} />
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
           <Route path="/auth-test" element={<AuthTestPage />} />
