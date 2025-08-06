@@ -26,12 +26,12 @@ import {
 import { 
   ScrollArea
 } from "@/components/ui/scroll-area";
-import { 
-  MessageSquare, 
-  Send, 
-  Bot, 
-  User, 
-  FileText, 
+import {
+  MessageSquare,
+  Send,
+  Bot,
+  User,
+  FileText,
   Loader2,
   Copy,
   Download,
@@ -43,7 +43,8 @@ import {
   Settings,
   Lightbulb,
   Target,
-  Zap
+  Zap,
+  AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { callPDFChat } from '@/api/aiService';
@@ -315,39 +316,93 @@ ${selectedDocument.content}
   };
 
   /**
-   * 生成建议问题
+   * ✅ ENHANCED: 2025-08-06 增强智能建议问题生成
    */
   const generateSuggestions = () => {
-    return [
-      "文档的主要内容是什么？",
-      "文档中的关键信息有哪些？",
-      "帮我总结文档的要点",
-      "文档中提到了哪些重要数据？",
-      "基于文档内容，给我一些建议"
+    if (!selectedDocument) {
+      return [
+        "文档的主要内容是什么？",
+        "帮我总结文档的要点",
+        "文档中的关键信息有哪些？"
+      ];
+    }
+
+    // 基于文档类型和内容生成智能建议
+    const suggestions = {
+      content: [
+        "文档的主要内容是什么？",
+        "帮我总结文档的核心要点",
+        "文档中最重要的信息是什么？"
+      ],
+      analysis: [
+        "文档中提到了哪些关键数据？",
+        "分析文档的结构和逻辑",
+        "文档的优缺点是什么？"
+      ],
+      insights: [
+        "基于文档内容，给我一些建议",
+        "这个文档对我有什么启发？",
+        "如何应用文档中的知识？"
+      ],
+      specific: []
+    };
+
+    // 根据文档名称和内容添加特定建议
+    const docName = selectedDocument.name.toLowerCase();
+    const docContent = selectedDocument.content.toLowerCase();
+
+    if (docName.includes('报告') || docName.includes('report')) {
+      suggestions.specific.push("报告的主要结论是什么？");
+    }
+    if (docName.includes('手册') || docName.includes('manual')) {
+      suggestions.specific.push("如何使用这个手册？");
+    }
+    if (docName.includes('合同') || docName.includes('contract')) {
+      suggestions.specific.push("合同的关键条款有哪些？");
+    }
+    if (docContent.includes('数据') || docContent.includes('统计')) {
+      suggestions.specific.push("文档中的数据说明了什么？");
+    }
+
+    // 合并所有建议并随机选择
+    const allSuggestions = [
+      ...suggestions.content,
+      ...suggestions.analysis,
+      ...suggestions.insights,
+      ...suggestions.specific
     ];
+
+    // 返回6个不重复的建议
+    const shuffled = allSuggestions.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 6);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col p-0">
-        {/* 标题栏 */}
-        <div className="flex items-center justify-between p-3 border-b bg-gray-50">
+      <DialogContent className="max-w-6xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
+        {/* ✅ ENHANCED: 2025-08-06 优化标题栏和新对话按钮 */}
+        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
           <div className="flex items-center gap-3">
-            <MessageSquare className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <MessageSquare className="h-5 w-5 text-blue-600" />
+            </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">PDF文档对话</h2>
-              <p className="text-sm text-gray-600">与AI助手对话，深入了解您的PDF文档内容</p>
+              <h2 className="text-lg font-semibold text-gray-900">智能文档对话</h2>
+              <p className="text-sm text-gray-600">与AI助手对话，深入了解您的文档内容</p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={startNewChat}
-            disabled={isLoading}
-          >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            新对话
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startNewChat}
+              disabled={isLoading}
+              className="bg-white hover:bg-gray-50"
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              新对话
+            </Button>
+          </div>
         </div>
 
         {/* 主体内容区域 */}
@@ -375,11 +430,11 @@ ${selectedDocument.content}
             </div>
           )}
 
-          {/* 对话区域 - 占据主要空间 */}
+          {/* ✅ ENHANCED: 2025-08-06 修复对话区域布局 */}
           <div className="flex-1 flex flex-col min-h-0 mx-4 mb-3">
-            <div className="flex-1 border border-gray-300 rounded-lg bg-white overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="p-4 space-y-6 min-h-full">
+            <div className="flex-1 border border-gray-200 rounded-lg bg-white overflow-hidden shadow-sm">
+              <ScrollArea className="h-[50vh] min-h-[400px]">
+                <div className="p-4 space-y-6">
                   {messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
                       <MessageSquare className="h-16 w-16 mb-4 opacity-20" />
@@ -410,13 +465,55 @@ ${selectedDocument.content}
                           }`}
                         >
                           {message.isLoading ? (
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              <span>正在思考...</span>
+                            <div className="flex items-center gap-3">
+                              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                              <span className="text-sm text-gray-600">AI正在分析文档并生成回答...</span>
+                            </div>
+                          ) : message.error ? (
+                            /* ✅ ENHANCED: 2025-08-06 增强错误处理 */
+                            <div className="space-y-3">
+                              <div className="flex items-start gap-2 text-red-600">
+                                <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">回答失败</p>
+                                  <p className="text-xs mt-1 bg-red-50 p-2 rounded border text-red-700">
+                                    {message.error}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs h-7"
+                                  onClick={() => {
+                                    // 重试逻辑：找到对应的用户消息并重新发送
+                                    const userMessage = messages.find(m =>
+                                      m.timestamp < message.timestamp && m.role === 'user'
+                                    );
+                                    if (userMessage) {
+                                      setInputValue(userMessage.content);
+                                      inputRef.current?.focus();
+                                    }
+                                  }}
+                                >
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  重试
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-xs h-7 text-gray-500"
+                                  onClick={() => copyMessage(message.error || '错误信息')}
+                                >
+                                  <Copy className="h-3 w-3 mr-1" />
+                                  复制错误
+                                </Button>
+                              </div>
                             </div>
                           ) : (
                             <div className="space-y-2">
-                              <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
+                              <div className="whitespace-pre-wrap leading-relaxed text-sm">{message.content}</div>
                               {message.role === 'assistant' && !message.error && message.id !== 'welcome' && (
                                 <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
                                   <Button
@@ -450,56 +547,114 @@ ${selectedDocument.content}
 
         </div>
 
-        {/* 输入区域 - 固定在底部 */}
-        <div className="border-t bg-gray-50 p-4">
-          {/* 建议问题 - 极简显示 */}
-          {messages.length <= 1 && (
-            <div className="mb-2 p-2 bg-blue-50/30 rounded border-l-2 border-blue-300">
-              <div className="flex items-center gap-1 mb-1">
-                <Lightbulb className="h-3 w-3 text-blue-500" />
-                <span className="text-xs font-medium text-blue-700">快速开始：</span>
+        {/* ✅ ENHANCED: 2025-08-06 增强输入区域和建议问题 */}
+        <div className="border-t bg-gradient-to-r from-gray-50 to-blue-50/30 p-4">
+          {/* 智能建议问题 - 分类显示 */}
+          {messages.length <= 1 && selectedDocument && (
+            <div className="mb-4 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-purple-500" />
+                <span className="text-sm font-medium text-gray-700">智能建议问题</span>
+                <Badge variant="secondary" className="text-xs">
+                  基于文档: {selectedDocument.name}
+                </Badge>
               </div>
-              <div className="flex flex-wrap gap-1">
-                {generateSuggestions().slice(0, 3).map((suggestion, index) => (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs h-6 px-2 text-blue-600 hover:bg-blue-100/50"
-                    onClick={() => setInputValue(suggestion)}
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {generateSuggestions().slice(0, 6).map((suggestion, index) => {
+                  const category = index < 2 ? 'content' : index < 4 ? 'analysis' : 'insights';
+                  const categoryConfig = {
+                    content: { icon: BookOpen, color: 'text-blue-600', bg: 'hover:bg-blue-50' },
+                    analysis: { icon: Target, color: 'text-green-600', bg: 'hover:bg-green-50' },
+                    insights: { icon: Zap, color: 'text-purple-600', bg: 'hover:bg-purple-50' }
+                  };
+
+                  const config = categoryConfig[category as keyof typeof categoryConfig];
+                  const IconComponent = config.icon;
+
+                  return (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      className={`text-xs h-auto p-2 text-left justify-start ${config.bg} border-gray-200`}
+                      onClick={() => {
+                        setInputValue(suggestion);
+                        inputRef.current?.focus();
+                      }}
+                    >
+                      <IconComponent className={`h-3 w-3 mr-2 ${config.color} flex-shrink-0`} />
+                      <span className="text-gray-700 line-clamp-2">{suggestion}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+
+              <div className="text-xs text-gray-500 text-center">
+                💡 点击问题快速填入，或直接输入您的问题
               </div>
             </div>
           )}
 
-          <div className="flex gap-3">
-            <Textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="输入您的问题，按Enter发送..."
-              className="flex-1 min-h-[60px] max-h-[120px] resize-none bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-              disabled={isLoading || !selectedDocument}
-            />
-            <Button
-              onClick={sendMessage}
-              disabled={!inputValue.trim() || isLoading || !selectedDocument}
-              className="px-6 self-end"
-              size="lg"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  发送
-                </>
-              )}
-            </Button>
+          {/* ✅ ENHANCED: 2025-08-06 增强输入区域 */}
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 relative">
+              <Textarea
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={selectedDocument ?
+                  `向AI助手提问关于"${selectedDocument.name}"的内容...` :
+                  "请先选择一个文档..."
+                }
+                className="flex-1 min-h-[60px] max-h-[120px] resize-none bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-12"
+                disabled={isLoading || !selectedDocument}
+              />
+              {/* 字符计数 */}
+              <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                {inputValue.length}/500
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={sendMessage}
+                disabled={!inputValue.trim() || isLoading || !selectedDocument || inputValue.length > 500}
+                className="px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                size="lg"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    发送
+                  </>
+                )}
+              </Button>
+
+              {/* 快捷操作 */}
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={() => setInputValue('')}
+                  disabled={!inputValue || isLoading}
+                >
+                  清空
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* 输入提示 */}
+          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+            <span>💡 按 Enter 发送，Shift+Enter 换行</span>
+            {selectedDocument && (
+              <span>📄 当前文档: {selectedDocument.name}</span>
+            )}
           </div>
 
           {/* 状态信息 */}

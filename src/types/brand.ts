@@ -199,7 +199,7 @@ export interface BrandAsset {
   name: string;
   type: BrandAssetType;
   content: string;
-  uploadDate: Date;
+  uploadDate: Date | string;
   fileUrl?: string;
   size?: string;
   fileIcon?: JSX.Element;
@@ -208,6 +208,15 @@ export interface BrandAsset {
   extractedKeywords?: string[];
   extractedContent?: string;
   processingStatus?: 'pending' | 'processing' | 'completed' | 'failed';
+
+  // ✅ ENHANCED: 2025-08-06 新增字段支持增强功能
+  file?: File;                    // 原始文件对象
+  status?: 'uploaded' | 'processing' | 'analyzed' | 'error'; // 分析状态
+  analysisResult?: any;           // 分析结果
+  uploadProgress?: number;        // 上传进度
+  retryCount?: number;           // 重试次数
+  lastError?: string;            // 最后一次错误信息
+  errorHistory?: string[];       // 错误历史记录
 }
 
 /**

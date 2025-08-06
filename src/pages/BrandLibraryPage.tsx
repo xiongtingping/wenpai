@@ -22,7 +22,8 @@ import {
   Plus, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
   TrendingUp, Users2, Package, Share2, MoreHorizontal,
-  Loader2, CheckCircle, Grid, List, Pin, Ban, AlertTriangle
+  Loader2, CheckCircle, Grid, List, Pin, Ban, AlertTriangle,
+  Volume2, MapPin, Layout, CheckSquare
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -56,8 +57,8 @@ interface BrandInfoItem {
   confidence: number;
   isPinned: boolean;
   isBlocked: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   aiGenerated?: boolean; // AI生成的标识
 }
 
@@ -134,6 +135,17 @@ export default function BrandLibraryPageFixed() {
     dimensionId: '',
     itemId: ''
   });
+
+  // 分析结果对话框状态
+  const [analysisResultDialog, setAnalysisResultDialog] = useState<{
+    isOpen: boolean;
+    asset: BrandAsset | null;
+  }>({
+    isOpen: false,
+    asset: null
+  });
+
+
 
   // ✅ FIXED: 2025-08-06 添加后台分析状态管理
   const [backgroundAnalysisQueue, setBackgroundAnalysisQueue] = useState<BrandAsset[]>([]);
@@ -221,8 +233,57 @@ export default function BrandLibraryPageFixed() {
 
   // 初始化示例数据已删除 - 保持空状态，等待用户上传
 
+  // 根据维度ID获取对应的图标
+  const getIconForDimension = (dimensionId: string): React.ReactNode => {
+    const iconMap: Record<string, React.ReactNode> = {
+      'brand-name': <Tag className="h-4 w-4" />,
+      'brand-description': <FileText className="h-4 w-4" />,
+      'brand-mission': <Target className="h-4 w-4" />,
+      'brand-values': <Heart className="h-4 w-4" />,
+      'brand-tone': <MessageSquare className="h-4 w-4" />,
+      'brand-personality': <Users className="h-4 w-4" />,
+      'brand-voice': <Volume2 className="h-4 w-4" />,
+      'brand-style': <Palette className="h-4 w-4" />,
+      'brand-positioning': <MapPin className="h-4 w-4" />,
+      'brand-audience': <Users className="h-4 w-4" />,
+      'brand-differentiation': <Star className="h-4 w-4" />,
+      'brand-promise': <Shield className="h-4 w-4" />,
+      'content-themes': <BookOpen className="h-4 w-4" />,
+      'content-formats': <Layout className="h-4 w-4" />,
+      'content-guidelines': <CheckSquare className="h-4 w-4" />,
+      'content-examples': <Lightbulb className="h-4 w-4" />
+    };
+
+    return iconMap[dimensionId] || <FileText className="h-4 w-4" />;
+  };
+
   // 初始化品牌维度
   useEffect(() => {
+    // 清除可能有问题的localStorage数据
+    const clearCorruptedData = () => {
+      try {
+        const saved = localStorage.getItem('brandDimensions');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          // 检查是否有序列化的JSX对象
+          const hasCorruptedData = parsed.some((dim: any) =>
+            dim.icon && typeof dim.icon === 'object' && dim.icon.type
+          );
+          if (hasCorruptedData) {
+            console.log('🧹 检测到损坏的localStorage数据，正在清除...');
+            localStorage.removeItem('brandDimensions');
+            localStorage.removeItem('brandDimensionsTimestamp');
+          }
+        }
+      } catch (error) {
+        console.log('🧹 清除localStorage数据时出错，移除所有相关数据');
+        localStorage.removeItem('brandDimensions');
+        localStorage.removeItem('brandDimensionsTimestamp');
+      }
+    };
+
+    clearCorruptedData();
+
     const initializeDimensions = () => {
       const dimensions: BrandDimension[] = [
         // 基础信息
@@ -426,7 +487,9 @@ export default function BrandLibraryPageFixed() {
   // ✅ FIXED: 2025-08-06 品牌维度数据持久化功能
   const saveDimensionsToStorage = (dimensions: BrandDimension[]) => {
     try {
-      localStorage.setItem('brandDimensions', JSON.stringify(dimensions));
+      // 保存时移除icon字段，避免JSX序列化问题
+      const dimensionsToSave = dimensions.map(({ icon, ...rest }) => rest);
+      localStorage.setItem('brandDimensions', JSON.stringify(dimensionsToSave));
       localStorage.setItem('brandDimensionsTimestamp', Date.now().toString());
       console.log('💾 品牌维度数据已保存到localStorage');
     } catch (error) {
@@ -465,7 +528,13 @@ export default function BrandLibraryPageFixed() {
         // 7天内的数据有效（品牌维度数据保存时间更长）
         if (now - savedTime < 7 * 24 * 60 * 60 * 1000) {
           console.log('📂 从localStorage恢复品牌维度数据');
-          return JSON.parse(saved);
+          const savedDimensions = JSON.parse(saved);
+
+          // 重新添加icon字段
+          return savedDimensions.map((dim: any) => ({
+            ...dim,
+            icon: getIconForDimension(dim.id)
+          }));
         }
       }
     } catch (error) {
@@ -513,10 +582,7 @@ export default function BrandLibraryPageFixed() {
             // 将提取的信息添加到品牌维度中
             Object.entries(analysisResultV2.extractedFields).forEach(([fieldName, fieldData]) => {
               if (fieldData.value && fieldData.confidence > 0.5) {
-                let processedValue = fieldData.value;
-                if (typeof processedValue === 'object' && !Array.isArray(processedValue)) {
-                  processedValue = JSON.stringify(processedValue);
-                }
+                const processedValue = formatBrandKeywords(fieldData.value);
                 addItemToDimension(fieldName, processedValue, asset.name, fieldData.confidence);
               }
             });
@@ -556,10 +622,21 @@ export default function BrandLibraryPageFixed() {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
+      // 执行全局智能去重
+      setBrandDimensions(prev => {
+        const { dimensions: deduplicatedDimensions, totalDuplicatesRemoved } = performAutoDeduplication(prev);
+
+        if (totalDuplicatesRemoved > 0) {
+          console.log(`🧹 全局去重完成: 移除了 ${totalDuplicatesRemoved} 条重复内容`);
+        }
+
+        return deduplicatedDimensions;
+      });
+
       // 显示完成通知
       toast({
         title: "🎉 AI分析完成",
-        description: `已完成 ${assets.length} 个文件的智能分析，信息已自动添加到品牌语料库`,
+        description: `已完成 ${assets.length} 个文件的智能分析，信息已自动添加到品牌语料库并完成智能去重`,
         duration: 6000,
       });
 
@@ -940,11 +1017,8 @@ export default function BrandLibraryPageFixed() {
           if (analysisResult.extractedFields) {
             Object.entries(analysisResult.extractedFields).forEach(([fieldName, fieldData]) => {
               if (fieldData.value && fieldData.confidence > 0.5) {
-                // 确保值是字符串或数组
-                let processedValue = fieldData.value;
-                if (typeof processedValue === 'object' && !Array.isArray(processedValue)) {
-                  processedValue = JSON.stringify(processedValue);
-                }
+                // 使用格式化函数处理值
+                const processedValue = formatBrandKeywords(fieldData.value);
                 // 根据字段名称添加到对应的维度
                 addItemToDimension(fieldName, processedValue, asset.name, fieldData.confidence);
               }
@@ -998,6 +1072,160 @@ export default function BrandLibraryPageFixed() {
       setIsProcessingCorpus(false);
       setCorpusProcessingProgress(0);
     }
+  };
+
+  // 格式化品牌关键词显示
+  const formatBrandKeywords = (value: any): string => {
+    if (typeof value === 'string') {
+      // 如果是JSON字符串，尝试解析
+      try {
+        const parsed = JSON.parse(value);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return formatBrandKeywords(parsed);
+        }
+        return value;
+      } catch {
+        return value;
+      }
+    }
+
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      // 格式化对象为用户友好的格式
+      const formatted = Object.entries(value)
+        .map(([key, val]) => {
+          if (Array.isArray(val)) {
+            return `${key}: ${val.join(', ')}`;
+          }
+          return `${key}: ${val}`;
+        })
+        .join('\n');
+      return formatted;
+    }
+
+    return String(value);
+  };
+
+  // 计算文本相似度（使用简单的词汇重叠算法）
+  const calculateSimilarity = (text1: string, text2: string): number => {
+    if (!text1 || !text2) return 0;
+
+    // 标准化文本：转小写，移除标点符号，分词
+    const normalize = (text: string) => {
+      return text.toLowerCase()
+        .replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, '') // 保留中文、英文、数字和空格
+        .split(/\s+/)
+        .filter(word => word.length > 0);
+    };
+
+    const words1 = normalize(text1);
+    const words2 = normalize(text2);
+
+    if (words1.length === 0 || words2.length === 0) return 0;
+
+    // 计算词汇重叠度
+    const set1 = new Set(words1);
+    const set2 = new Set(words2);
+    const intersection = new Set([...set1].filter(x => set2.has(x)));
+    const union = new Set([...set1, ...set2]);
+
+    return intersection.size / union.size;
+  };
+
+  // 检测重复内容
+  const detectDuplicates = (items: BrandInfoItem[]): { duplicates: BrandInfoItem[][], unique: BrandInfoItem[] } => {
+    const duplicates: BrandInfoItem[][] = [];
+    const processed = new Set<string>();
+    const unique: BrandInfoItem[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      if (processed.has(items[i].id)) continue;
+
+      const similarItems = [items[i]];
+      processed.add(items[i].id);
+
+      for (let j = i + 1; j < items.length; j++) {
+        if (processed.has(items[j].id)) continue;
+
+        const similarity = calculateSimilarity(items[i].content, items[j].content);
+        if (similarity > 0.6) { // 相似度阈值60%
+          similarItems.push(items[j]);
+          processed.add(items[j].id);
+        }
+      }
+
+      if (similarItems.length > 1) {
+        duplicates.push(similarItems);
+      } else {
+        unique.push(items[i]);
+      }
+    }
+
+    return { duplicates, unique };
+  };
+
+  // 合并重复内容
+  const mergeDuplicateItems = (duplicateGroup: BrandInfoItem[]): BrandInfoItem => {
+    // 选择最长的内容作为主要内容
+    const mainItem = duplicateGroup.reduce((prev, current) =>
+      current.content.length > prev.content.length ? current : prev
+    );
+
+    // 合并所有来源（使用第一个有效来源）
+    const allSources = duplicateGroup.map(item => item.source).filter(Boolean);
+    const primarySource = allSources[0] || mainItem.source;
+
+    // 计算平均置信度
+    const avgConfidence = duplicateGroup.reduce((sum, item) => sum + item.confidence, 0) / duplicateGroup.length;
+
+    return {
+      ...mainItem,
+      source: primarySource,
+      confidence: Math.round(avgConfidence * 100) / 100,
+      updatedAt: new Date()
+    };
+  };
+
+  // 自动去重函数 - 后台逻辑
+  const autoDeduplicateDimension = (items: BrandInfoItem[]): { items: BrandInfoItem[], duplicatesRemoved: number } => {
+    if (items.length <= 1) {
+      return { items, duplicatesRemoved: 0 };
+    }
+
+    const { duplicates, unique } = detectDuplicates(items);
+
+    if (duplicates.length === 0) {
+      return { items, duplicatesRemoved: 0 };
+    }
+
+    // 计算被移除的重复项数量
+    const duplicatesRemoved = duplicates.reduce((sum, group) => sum + group.length - 1, 0);
+
+    // 合并重复项
+    const mergedItems = duplicates.map(group => mergeDuplicateItems(group));
+    const allItems = [...unique, ...mergedItems];
+
+    return { items: allItems, duplicatesRemoved };
+  };
+
+  // 全局自动去重 - 在数据更新后自动执行
+  const performAutoDeduplication = (dimensions: BrandDimension[]): { dimensions: BrandDimension[], totalDuplicatesRemoved: number } => {
+    let totalDuplicatesRemoved = 0;
+
+    const updatedDimensions = dimensions.map(dimension => {
+      const { items, duplicatesRemoved } = autoDeduplicateDimension(dimension.items);
+      totalDuplicatesRemoved += duplicatesRemoved;
+
+      return {
+        ...dimension,
+        items
+      };
+    });
+
+    return { dimensions: updatedDimensions, totalDuplicatesRemoved };
   };
 
   // ✅ FIXED: 2025-08-06 修复关键词显示和维度映射问题
@@ -1055,14 +1283,8 @@ export default function BrandLibraryPageFixed() {
       const stringValues = value.filter(item => typeof item === 'string' && item.trim().length > 0);
       processedContent = stringValues.join('、');
     } else if (typeof value === 'object' && value !== null) {
-      // 对象类型：尝试提取有用信息
-      if (value.toString() === '[object Object]') {
-        // 如果是普通对象，尝试提取值
-        const objectValues = Object.values(value).filter(v => typeof v === 'string' && v.trim().length > 0);
-        processedContent = objectValues.length > 0 ? objectValues.join('、') : JSON.stringify(value);
-      } else {
-        processedContent = String(value);
-      }
+      // 对象类型：使用格式化函数
+      processedContent = formatBrandKeywords(value);
     } else {
       // 基本类型：直接转换为字符串
       processedContent = String(value).trim();
@@ -1089,25 +1311,26 @@ export default function BrandLibraryPageFixed() {
 
     console.log('📝 创建新项目:', newItem);
 
-    // 添加到对应维度
+    // 添加到对应维度并自动去重
     setBrandDimensions(prev => {
       const updated = prev.map(dimension => {
         if (dimension.id === dimensionId) {
-          // 检查是否已存在相似内容，避免重复
-          const existingItem = dimension.items.find(item =>
-            item.content.toLowerCase().includes(newItem.content.toLowerCase()) ||
-            newItem.content.toLowerCase().includes(item.content.toLowerCase())
-          );
+          // 先添加新项目
+          const updatedItems = [...dimension.items, newItem];
 
-          if (!existingItem) {
-            console.log(`✅ 添加到维度 ${dimensionId}:`, newItem.content);
-            return {
-              ...dimension,
-              items: [...dimension.items, newItem]
-            };
-          } else {
-            console.log(`⚠️ 跳过重复内容: ${newItem.content}`);
+          // 自动去重
+          const { items: deduplicatedItems, duplicatesRemoved } = autoDeduplicateDimension(updatedItems);
+
+          // 如果有重复项被移除，记录日志
+          if (duplicatesRemoved > 0) {
+            console.log(`🧹 自动去重: 在维度 ${dimension.title} 中移除了 ${duplicatesRemoved} 条重复内容`);
           }
+
+          console.log(`✅ 添加到维度 ${dimensionId}:`, newItem.content);
+          return {
+            ...dimension,
+            items: deduplicatedItems
+          };
         }
         return dimension;
       });
@@ -1229,11 +1452,8 @@ export default function BrandLibraryPageFixed() {
           if (analysisResult.extractedFields) {
             Object.entries(analysisResult.extractedFields).forEach(([fieldName, fieldData]) => {
               if (fieldData.value && fieldData.confidence > 0.5) {
-                // 确保值是字符串或数组
-                let processedValue = fieldData.value;
-                if (typeof processedValue === 'object' && !Array.isArray(processedValue)) {
-                  processedValue = JSON.stringify(processedValue);
-                }
+                // 使用格式化函数处理值
+                const processedValue = formatBrandKeywords(fieldData.value);
                 // 根据字段名称添加到对应的维度
                 addItemToDimension(fieldName, processedValue, asset.name, fieldData.confidence);
               }
@@ -1611,25 +1831,7 @@ export default function BrandLibraryPageFixed() {
           </AlertDescription>
         </Alert>
 
-        {/* ✅ FIXED: 2025-08-06 后台分析状态指示器 */}
-        {isBackgroundAnalysisRunning && (
-          <Alert className="mb-6 border-blue-200 bg-blue-50">
-            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-            <AlertDescription className="text-blue-800">
-              <strong>🔄 AI分析进行中：</strong>正在后台分析您的品牌资料，您可以自由导航到其他页面。分析完成后会有通知提醒。
-            </AlertDescription>
-          </Alert>
-        )}
 
-        {/* ✅ FIXED: 2025-08-06 后台分析进度指示器 */}
-        {backgroundAnalysisQueue.length > 0 && (
-          <Alert className="mb-6 border-orange-200 bg-orange-50">
-            <Clock className="h-4 w-4 text-orange-600" />
-            <AlertDescription className="text-orange-800">
-              <strong>⏳ 分析队列：</strong>还有 {backgroundAnalysisQueue.length} 个文件等待分析。
-            </AlertDescription>
-          </Alert>
-        )}
         {/* 隐藏的文件输入 */}
         <input
           ref={fileInputRef}
@@ -1693,7 +1895,7 @@ export default function BrandLibraryPageFixed() {
                   支持多种格式的品牌资料上传，AI将自动分析并提取关键信息
                 </CardDescription>
                 <div className="flex justify-end gap-2 -mt-2">
-                  {isProcessingCorpus ? (
+                  {isProcessingCorpus && (
                     <Button
                       variant="destructive"
                       size="sm"
@@ -1703,27 +1905,6 @@ export default function BrandLibraryPageFixed() {
                       <X className="h-3 w-3 mr-1" />
                       停止分析
                     </Button>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleSimpleAITest}
-                        className="text-xs"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        测试AI调用
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleAPITest}
-                        className="text-xs"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        测试API连接
-                      </Button>
-                    </>
                   )}
                 </div>
               </CardHeader>
@@ -1807,6 +1988,29 @@ export default function BrandLibraryPageFixed() {
                   管理已上传的品牌资料，支持AI分析、PDF对话、分类搜索和批量操作
                 </CardDescription>
               </CardHeader>
+
+              {/* AI分析状态提示 - 移动到智能资料管理内 */}
+              {isBackgroundAnalysisRunning && (
+                <div className="mx-6 mb-4">
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                    <AlertDescription className="text-blue-800">
+                      <strong>🔄 AI分析进行中：</strong>正在后台分析您的品牌资料，您可以自由导航到其他页面。分析完成后会有通知提醒。
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+
+              {backgroundAnalysisQueue.length > 0 && (
+                <div className="mx-6 mb-4">
+                  <Alert className="border-orange-200 bg-orange-50">
+                    <Clock className="h-4 w-4 text-orange-600" />
+                    <AlertDescription className="text-orange-800">
+                      <strong>⏳ 分析队列：</strong>还有 {backgroundAnalysisQueue.length} 个文件等待分析。
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
               <CardContent className="space-y-6">
                 {/* 搜索和筛选工具栏 */}
                 <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
@@ -2011,12 +2215,10 @@ export default function BrandLibraryPageFixed() {
                               disabled={asset.status === 'processing' || isBackgroundAnalysisRunning}
                               onClick={() => {
                                 if (asset.status === 'analyzed') {
-                                  // 查看分析结果
-                                  console.log('查看分析结果:', asset.name, asset.analysisResult);
-                                  toast({
-                                    title: "分析结果",
-                                    description: `${asset.name} 的AI分析已完成，结果已添加到品牌语料库`,
-                                    duration: 4000,
+                                  // 查看分析结果 - 打开分析结果对话框
+                                  setAnalysisResultDialog({
+                                    isOpen: true,
+                                    asset: asset
                                   });
                                 } else if (asset.status === 'uploaded' || asset.status === 'error') {
                                   console.log('开始分析文件:', asset.name);
@@ -2159,12 +2361,10 @@ export default function BrandLibraryPageFixed() {
                               disabled={(asset.status === 'analyzing' || asset.status === 'processing') || isBackgroundAnalysisRunning}
                               onClick={() => {
                                 if (asset.status === 'analyzed') {
-                                  // 查看分析结果
-                                  console.log('查看分析结果:', asset.name, asset.analysisResult);
-                                  toast({
-                                    title: "分析结果",
-                                    description: `${asset.name} 的AI分析已完成，结果已添加到品牌语料库`,
-                                    duration: 4000,
+                                  // 查看分析结果 - 打开分析结果对话框
+                                  setAnalysisResultDialog({
+                                    isOpen: true,
+                                    asset: asset
                                   });
                                 } else if (asset.status === 'uploaded' || asset.status === 'error') {
                                   console.log('开始分析文件:', asset.name);
@@ -2720,6 +2920,98 @@ export default function BrandLibraryPageFixed() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* 分析结果对话框 */}
+      {analysisResultDialog.isOpen && analysisResultDialog.asset && (
+        <Dialog open={analysisResultDialog.isOpen} onOpenChange={(open) => !open && setAnalysisResultDialog({ isOpen: false, asset: null })}>
+          <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                AI分析结果
+              </DialogTitle>
+              <DialogDescription>
+                文件：{analysisResultDialog.asset.name}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* 基本信息 */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">文件类型</label>
+                  <p className="text-sm text-gray-900">{analysisResultDialog.asset.type}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">文件大小</label>
+                  <p className="text-sm text-gray-900">{analysisResultDialog.asset.size}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">上传时间</label>
+                  <p className="text-sm text-gray-900">
+                    {new Date(analysisResultDialog.asset.uploadDate).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">分析状态</label>
+                  <Badge variant="default" className="text-xs">
+                    {analysisResultDialog.asset.status === 'analyzed' ? '已完成' : '处理中'}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* 文件内容预览 */}
+              {analysisResultDialog.asset.content && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">文件内容预览</label>
+                  <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-800 max-h-40 overflow-y-auto">
+                    {analysisResultDialog.asset.content.substring(0, 500)}
+                    {analysisResultDialog.asset.content.length > 500 && '...'}
+                  </div>
+                </div>
+              )}
+
+              {/* AI分析结果 */}
+              {analysisResultDialog.asset.analysisResult && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">AI提取的品牌信息</label>
+                  <div className="bg-blue-50 rounded-lg p-3 text-sm">
+                    <p className="text-blue-800">
+                      AI已从此文件中提取了 {Object.keys(analysisResultDialog.asset.analysisResult.extractedFields || {}).length} 个品牌维度的信息，
+                      并已自动添加到品牌语料库中。您可以在"品牌语料库"标签页中查看和编辑这些信息。
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 操作提示 */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <p className="text-sm text-yellow-800">
+                  💡 <strong>提示：</strong>AI分析的结果已自动整合到品牌语料库中。您可以在各个品牌维度中查看、编辑或删除提取的信息。
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setAnalysisResultDialog({ isOpen: false, asset: null })}
+              >
+                关闭
+              </Button>
+              <Button
+                onClick={() => {
+                  setAnalysisResultDialog({ isOpen: false, asset: null });
+                  setActiveTab('corpus');
+                }}
+              >
+                查看语料库
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
     </div>
   );
 }
@@ -2851,7 +3143,11 @@ function DimensionForm({
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    <span>{item.updatedAt.toLocaleDateString()}</span>
+                    <span>{
+                      item.updatedAt instanceof Date
+                        ? item.updatedAt.toLocaleDateString()
+                        : new Date(item.updatedAt).toLocaleDateString()
+                    }</span>
                   </div>
                 </div>
               </div>
@@ -3084,7 +3380,11 @@ function DimensionForm({
                   </label>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Clock className="h-4 w-4" />
-                    <span>{selectedSourceItem.createdAt.toLocaleString()}</span>
+                    <span>{
+                      selectedSourceItem.createdAt instanceof Date
+                        ? selectedSourceItem.createdAt.toLocaleString()
+                        : new Date(selectedSourceItem.createdAt).toLocaleString()
+                    }</span>
                   </div>
                 </div>
 
@@ -3094,7 +3394,11 @@ function DimensionForm({
                   </label>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Clock className="h-4 w-4" />
-                    <span>{selectedSourceItem.updatedAt.toLocaleString()}</span>
+                    <span>{
+                      selectedSourceItem.updatedAt instanceof Date
+                        ? selectedSourceItem.updatedAt.toLocaleString()
+                        : new Date(selectedSourceItem.updatedAt).toLocaleString()
+                    }</span>
                   </div>
                 </div>
               </div>
@@ -3138,7 +3442,6 @@ function DimensionForm({
           </div>
         </div>
       )}
-
 
     </div>
   );
