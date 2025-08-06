@@ -569,6 +569,52 @@ export default function BrandLibraryPageFixed() {
     }
   };
 
+  // 简化AI测试
+  const handleSimpleAITest = async () => {
+    try {
+      toast({
+        title: "开始简化AI测试",
+        description: "测试基础AI调用功能...",
+      });
+
+      console.log('🧪 开始简化AI测试');
+
+      // 使用最简单的AI调用测试
+      const testResult = await callAI({
+        prompt: "请回复：测试成功",
+        taskType: 'general-chat' as any,
+        model: 'deepseek-chat',
+        maxTokens: 50,
+        temperature: 0.1
+      });
+
+      console.log('🧪 AI测试结果:', testResult);
+
+      if (testResult && testResult.content) {
+        toast({
+          title: "✅ AI调用成功",
+          description: `AI响应: ${testResult.content.substring(0, 50)}...`,
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: "⚠️ AI调用异常",
+          description: "AI有响应但格式异常，请检查配置",
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('❌ 简化AI测试失败:', error);
+      toast({
+        title: "❌ AI调用失败",
+        description: `错误: ${error instanceof Error ? error.message : '未知错误'}`,
+        variant: "destructive",
+        duration: 8000,
+      });
+    }
+  };
+
   const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
     // 字段名称到维度ID的映射
     const fieldToDimensionMap: { [key: string]: string } = {
@@ -1152,8 +1198,19 @@ export default function BrandLibraryPageFixed() {
                     <Info className="h-3 w-3" />
                   </Button>
                 </CardTitle>
-                <CardDescription className="flex items-center justify-between">
-                  <span>支持多种格式的品牌资料上传，AI将自动分析并提取关键信息</span>
+                <CardDescription>
+                  支持多种格式的品牌资料上传，AI将自动分析并提取关键信息
+                </CardDescription>
+                <div className="flex justify-end gap-2 -mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSimpleAITest}
+                    className="text-xs"
+                  >
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    测试AI调用
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -1163,7 +1220,7 @@ export default function BrandLibraryPageFixed() {
                     <CheckCircle className="h-3 w-3 mr-1" />
                     测试API连接
                   </Button>
-                </CardDescription>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* 文件上传区域 */}
