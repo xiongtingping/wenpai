@@ -1077,7 +1077,7 @@ export default function BrandLibraryPageFixed() {
     console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
 
     const unprocessedAssets = brandAssets.filter(asset =>
-      asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'analyzing'
+      asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'analyzing' || asset.status === 'processing'
     );
 
     console.log('📋 找到待处理资产:', unprocessedAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
@@ -1904,11 +1904,11 @@ export default function BrandLibraryPageFixed() {
                               <h5 className="font-medium truncate">{asset.name}</h5>
                               <Badge variant={
                                 asset.status === 'uploaded' ? 'secondary' :
-                                asset.status === 'analyzing' ? 'default' :
+                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'default' :
                                 asset.status === 'analyzed' ? 'default' : 'destructive'
                               } className="text-xs">
-                                {asset.status === 'uploaded' ? '已上传' :
-                                 asset.status === 'analyzing' ? '分析中' :
+                                {asset.status === 'uploaded' ? '待分析' :
+                                 (asset.status === 'analyzing' || asset.status === 'processing') ? '分析中' :
                                  asset.status === 'analyzed' ? '已分析' : '错误'}
                               </Badge>
                             </div>
@@ -2046,11 +2046,11 @@ export default function BrandLibraryPageFixed() {
                               <h5 className="font-medium">{asset.name}</h5>
                               <Badge variant={
                                 asset.status === 'uploaded' ? 'secondary' :
-                                asset.status === 'analyzing' ? 'default' :
+                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'default' :
                                 asset.status === 'analyzed' ? 'default' : 'destructive'
                               }>
-                                {asset.status === 'uploaded' ? '已上传' :
-                                 asset.status === 'analyzing' ? '分析中' :
+                                {asset.status === 'uploaded' ? '待分析' :
+                                 (asset.status === 'analyzing' || asset.status === 'processing') ? '分析中' :
                                  asset.status === 'analyzed' ? '已分析' : '错误'}
                               </Badge>
                             </div>
@@ -2068,31 +2068,26 @@ export default function BrandLibraryPageFixed() {
                           {/* AI分析状态按钮 */}
                           <div className="flex items-center gap-1">
                             <Button
-                              variant={asset.status === 'analyzed' ? 'default' : 'outline'}
+                              variant={asset.status === 'analyzed' ? 'default' : asset.status === 'error' ? 'destructive' : 'outline'}
                               size="sm"
                               className={
                                 asset.status === 'analyzed' ? 'bg-green-600 hover:bg-green-700' :
-                                asset.status === 'analyzing' ? 'bg-blue-600 hover:bg-blue-700' :
+                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'bg-blue-600 hover:bg-blue-700' :
+                                asset.status === 'error' ? 'bg-red-600 hover:bg-red-700' :
                                 'border-orange-300 text-orange-600 hover:bg-orange-50'
                               }
-                              disabled={asset.status === 'analyzing'}
+                              disabled={(asset.status === 'analyzing' || asset.status === 'processing') || isBackgroundAnalysisRunning}
                               onClick={() => {
-                                if (asset.status === 'uploaded') {
-                                  // 开始分析
+                                if (asset.status === 'uploaded' || asset.status === 'error') {
                                   console.log('开始分析文件:', asset.name);
-                                  // 模拟分析过程
-                                  const updatedAssets = brandAssets.map(a =>
-                                    a.id === asset.id ? { ...a, status: 'analyzing' as const } : a
-                                  );
-                                  setBrandAssets(updatedAssets);
+                                  // 使用后台分析功能
+                                  startBackgroundAnalysis([asset]);
 
-                                  // 3秒后完成分析
-                                  setTimeout(() => {
-                                    const finalAssets = brandAssets.map(a =>
-                                      a.id === asset.id ? { ...a, status: 'analyzed' as const } : a
-                                    );
-                                    setBrandAssets(finalAssets);
-                                  }, 3000);
+                                  toast({
+                                    title: "开始AI分析",
+                                    description: `正在分析 ${asset.name}，您可以继续其他操作`,
+                                    duration: 3000,
+                                  });
                                 }
                               }}
                             >
@@ -2101,7 +2096,7 @@ export default function BrandLibraryPageFixed() {
                                   <CheckCircle className="h-4 w-4 mr-1" />
                                   已分析
                                 </>
-                              ) : asset.status === 'analyzing' ? (
+                              ) : (asset.status === 'analyzing' || asset.status === 'processing') ? (
                                 <>
                                   <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                                   分析中
@@ -2109,7 +2104,8 @@ export default function BrandLibraryPageFixed() {
                               ) : (
                                 <>
                                   <Brain className="h-4 w-4 mr-1" />
-                                  未分析
+                                  {asset.status === 'uploaded' ? '待分析' :
+                                   asset.status === 'error' ? '重试分析' : '分析'}
                                 </>
                               )}
                             </Button>
