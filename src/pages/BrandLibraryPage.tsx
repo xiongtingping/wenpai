@@ -2010,7 +2010,15 @@ export default function BrandLibraryPageFixed() {
                               }
                               disabled={asset.status === 'processing' || isBackgroundAnalysisRunning}
                               onClick={() => {
-                                if (asset.status === 'uploaded' || asset.status === 'error') {
+                                if (asset.status === 'analyzed') {
+                                  // 查看分析结果
+                                  console.log('查看分析结果:', asset.name, asset.analysisResult);
+                                  toast({
+                                    title: "分析结果",
+                                    description: `${asset.name} 的AI分析已完成，结果已添加到品牌语料库`,
+                                    duration: 4000,
+                                  });
+                                } else if (asset.status === 'uploaded' || asset.status === 'error') {
                                   console.log('开始分析文件:', asset.name);
                                   // 使用后台分析功能
                                   startBackgroundAnalysis([asset]);
@@ -2025,8 +2033,8 @@ export default function BrandLibraryPageFixed() {
                             >
                               {asset.status === 'analyzed' ? (
                                 <>
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  已分析
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  查看结果
                                 </>
                               ) : asset.status === 'processing' ? (
                                 <>
@@ -2150,7 +2158,15 @@ export default function BrandLibraryPageFixed() {
                               }
                               disabled={(asset.status === 'analyzing' || asset.status === 'processing') || isBackgroundAnalysisRunning}
                               onClick={() => {
-                                if (asset.status === 'uploaded' || asset.status === 'error') {
+                                if (asset.status === 'analyzed') {
+                                  // 查看分析结果
+                                  console.log('查看分析结果:', asset.name, asset.analysisResult);
+                                  toast({
+                                    title: "分析结果",
+                                    description: `${asset.name} 的AI分析已完成，结果已添加到品牌语料库`,
+                                    duration: 4000,
+                                  });
+                                } else if (asset.status === 'uploaded' || asset.status === 'error') {
                                   console.log('开始分析文件:', asset.name);
                                   // 使用后台分析功能
                                   startBackgroundAnalysis([asset]);
@@ -2165,8 +2181,8 @@ export default function BrandLibraryPageFixed() {
                             >
                               {asset.status === 'analyzed' ? (
                                 <>
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  已分析
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  查看结果
                                 </>
                               ) : (asset.status === 'analyzing' || asset.status === 'processing') ? (
                                 <>
