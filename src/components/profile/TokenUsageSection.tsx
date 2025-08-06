@@ -217,23 +217,23 @@ export function TokenUsageSection({
                       ]}
                     />
                   </div>
-                  <Badge 
-                    variant={usageCountStats.usagePercentage > 80 ? "destructive" : 
-                            usageCountStats.usagePercentage > 60 ? "secondary" : "default"}
+                  <Badge
+                    variant={usageCountStats && usageCountStats.usagePercentage > 80 ? "destructive" :
+                            usageCountStats && usageCountStats.usagePercentage > 60 ? "secondary" : "default"}
                   >
-                    {usageCountStats.availableUses === -1 ? '无限制' : 
-                     `${usageCountStats.usedCount}/${usageCountStats.availableUses}`}
+                    {usageCountStats && usageCountStats.availableUses === -1 ? '无限制' :
+                     `${usageCountStats?.usedCount || 0}/${usageCountStats?.availableUses || 0}`}
                   </Badge>
                 </div>
-                {usageCountStats.availableUses !== -1 && (
+                {usageCountStats && usageCountStats.availableUses !== -1 && (
                   <div className="space-y-2">
-                    <Progress 
-                      value={Math.min(usageCountStats.usagePercentage, 100)} 
+                    <Progress
+                      value={Math.min(usageCountStats?.usagePercentage || 0, 100)}
                       className="h-2"
                     />
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>已使用 {usageCountStats.usedCount} 次</span>
-                      <span>剩余 {usageCountStats.remainingUses} 次</span>
+                      <span>已使用 {usageCountStats?.usedCount || 0} 次</span>
+                      <span>剩余 {usageCountStats?.remainingUses || 0} 次</span>
                     </div>
                   </div>
                 )}

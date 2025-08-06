@@ -174,7 +174,7 @@ class EnhancedPermissionService {
 
     // 1. 检查套餐到期状态
     const expiryCheck = await this.checkSubscriptionExpiry(userId);
-    if (expiryCheck.isExpired && !expiryCheck.inGracePeriod) {
+    if (expiryCheck && expiryCheck.isExpired && !expiryCheck.inGracePeriod) {
       return {
         hasPermission: false,
         permissionLevel: 'none',
@@ -268,14 +268,27 @@ class EnhancedPermissionService {
   async checkSubscriptionExpiry(userId: string): Promise<SubscriptionExpiryCheck> {
     try {
       const response = await request.get(`${this.API_ENDPOINT}/subscription-expiry/${userId}`);
-      return response.data;
+
+      // 确保返回的数据有必要的属性
+      const data = response.data;
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid response data');
+      }
+
+      return {
+        isExpired: Boolean(data.isExpired),
+        expiryDate: data.expiryDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        daysRemaining: typeof data.daysRemaining === 'number' ? data.daysRemaining : 30,
+        inGracePeriod: Boolean(data.inGracePeriod),
+        requiredActions: Array.isArray(data.requiredActions) ? data.requiredActions : []
+      };
     } catch (error) {
       console.warn('检查套餐到期状态失败，使用默认值:', error);
-      
+
       // 返回默认的未到期状态
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 1);
-      
+
       return {
         isExpired: false,
         expiryDate: futureDate.toISOString(),
@@ -475,13 +488,13 @@ class EnhancedPermissionService {
    */
   async autoHandleSubscriptionExpiry(userId: string, currentTier: SubscriptionTier): Promise<void> {
     const expiryCheck = await this.checkSubscriptionExpiry(userId);
-    
-    if (expiryCheck.isExpired && !expiryCheck.inGracePeriod) {
+
+    if (expiryCheck && expiryCheck.isExpired && !expiryCheck.inGracePeriod) {
       // 自动降级到体验版
       await this.handlePermissionDowngrade(userId, currentTier, 'trial', 'expiry');
-      
+
       console.log(`用户 ${userId} 套餐已到期，自动降级到体验版`);
-    } else if (expiryCheck.daysRemaining <= 3 && expiryCheck.daysRemaining > 0) {
+    } else if (expiryCheck && expiryCheck.daysRemaining <= 3 && expiryCheck.daysRemaining > 0) {
       // 发送到期提醒
       console.log(`用户 ${userId} 套餐将在 ${expiryCheck.daysRemaining} 天后到期`);
     }
