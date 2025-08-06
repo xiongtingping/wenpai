@@ -105,6 +105,7 @@ import { request, callAI } from '@/api';
 import { MentionTextarea } from '@/components/ui/mention-textarea';
 import { useContentSyncStore } from '@/stores/contentSyncStore';
 import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
+import { useUserDataIsolation } from '@/utils/userDataIsolation';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -1570,20 +1571,17 @@ export default function AdaptPage() {
     }
   };
 
-  // 生成内容后保存到历史记录
+  // ✅ FIXED: 用户数据隔离 - 生成内容后保存到历史记录
+  const historyDataManager = useUserDataIsolation({
+    modulePrefix: 'adapt_history',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
   const saveToHistory = (results: PlatformResult[]) => {
-    const username = 'anonymous'; // 简化处理，使用固定用户名
-    const historyKey = `history_${username}`;
-    
-    const old = localStorage.getItem(historyKey);
-    let list: unknown[] = [];
-    if (old) {
-      try {
-        list = JSON.parse(old);
-      } catch {
-        // 忽略JSON解析错误
-      }
-    }
+    const result = historyDataManager.loadData<unknown[]>();
+    let list: unknown[] = result.data || [];
+
     const now = new Date().toISOString();
     results.forEach(r => {
       if (r.content) {
@@ -1594,7 +1592,13 @@ export default function AdaptPage() {
         });
       }
     });
-    localStorage.setItem(historyKey, JSON.stringify(list));
+
+    // 限制历史记录数量，避免存储过大
+    if (list.length > 100) {
+      list = list.slice(-100);
+    }
+
+    historyDataManager.saveData(list);
   };
 
   // 修改generateContent，在内容生成成功后调用saveToHistory
@@ -2742,8 +2746,16 @@ export default function AdaptPage() {
       const successCount = results.filter(r => r.success).length;
       const failCount = results.length - successCount;
 
-      // 写入历史记录
-      const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
+      // ✅ FIXED: 用户数据隔离 - 写入分享历史记录
+      const shareHistoryManager = useUserDataIsolation({
+        modulePrefix: 'share_history',
+        fallbackToGuest: true,
+        enableLogging: true
+      });
+
+      const shareHistoryResult = shareHistoryManager.loadData<ShareHistoryItem[]>();
+      const shareHistory: ShareHistoryItem[] = shareHistoryResult.data || [];
+
       results.forEach((result, index) => {
         if (result.success) {
           shareHistory.unshift({
@@ -2755,7 +2767,13 @@ export default function AdaptPage() {
           });
         }
       });
-      localStorage.setItem('shareHistory', JSON.stringify(shareHistory));
+
+      // 限制历史记录数量
+      if (shareHistory.length > 50) {
+        shareHistory.splice(50);
+      }
+
+      shareHistoryManager.saveData(shareHistory);
 
       toast({
         title: "批量发布完成",

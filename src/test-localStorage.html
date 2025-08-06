@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>localStorage 测试</title>
+</head>
+<body>
+    <h1>智能资料管理 localStorage 测试</h1>
+    
+    <div>
+        <h2>当前localStorage数据：</h2>
+        <pre id="storage-content"></pre>
+    </div>
+    
+    <div>
+        <button onclick="showStorage()">显示localStorage</button>
+        <button onclick="clearStorage()">清空localStorage</button>
+        <button onclick="testUserIsolation()">测试用户隔离</button>
+    </div>
+
+    <script>
+        function showStorage() {
+            const keys = Object.keys(localStorage);
+            const libraryKeys = keys.filter(key => key.startsWith('library_items_'));
+            
+            let content = '找到的资料库数据:\n\n';
+            
+            libraryKeys.forEach(key => {
+                const data = localStorage.getItem(key);
+                try {
+                    const parsed = JSON.parse(data);
+                    content += `${key}: ${parsed.length} 项\n`;
+                    parsed.forEach((item, index) => {
+                        content += `  ${index + 1}. ${item.title} (${item.type})\n`;
+                    });
+                    content += '\n';
+                } catch (e) {
+                    content += `${key}: 解析错误\n\n`;
+                }
+            });
+            
+            if (libraryKeys.length === 0) {
+                content += '没有找到资料库数据';
+            }
+            
+            document.getElementById('storage-content').textContent = content;
+        }
+        
+        function clearStorage() {
+            const keys = Object.keys(localStorage);
+            const libraryKeys = keys.filter(key => key.startsWith('library_items_'));
+            
+            libraryKeys.forEach(key => {
+                localStorage.removeItem(key);
+            });
+            
+            alert(`已清空 ${libraryKeys.length} 个资料库数据`);
+            showStorage();
+        }
+        
+        // 测试用户隔离功能
+        function testUserIsolation() {
+            // 模拟不同用户的存储键
+            const testUsers = [
+                { id: 'user123', name: '用户A' },
+                { id: 'user456', name: '用户B' },
+                { id: null, name: '访客用户' }
+            ];
+
+            // 生成存储键的函数
+            function getStorageKey(userId) {
+                if (userId) {
+                    return `library_items_${userId}`;
+                }
+                return 'library_items_guest';
+            }
+
+            // 为每个用户创建测试数据
+            testUsers.forEach((user, index) => {
+                const storageKey = getStorageKey(user.id);
+                const testData = [
+                    {
+                        id: `${index}_1`,
+                        title: `${user.name}的资料1`,
+                        content: `这是${user.name}的第一个资料`,
+                        type: 'collection',
+                        tags: [user.name, '测试'],
+                        isFavorite: false,
+                        isUsed: false,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+
+                localStorage.setItem(storageKey, JSON.stringify(testData));
+            });
+
+            alert('已创建测试数据！点击"显示localStorage"查看用户数据隔离效果');
+            showStorage();
+        }
+
+        // 页面加载时显示数据
+        showStorage();
+    </script>
+</body>
+</html>

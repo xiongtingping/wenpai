@@ -1134,40 +1134,61 @@ export class HashtagGenerator {
   }
 
   /**
-   * 保存用户标签偏好
+   * ✅ FIXED: 用户数据隔离 - 保存用户标签偏好
    */
-  saveUserTagPreferences(platformId: string, tags: string[]): void {
-    const key = `user_tag_preferences_${platformId}`;
+  saveUserTagPreferences(platformId: string, tags: string[], userId?: string): void {
+    const storageKey = this.getUserTagStorageKey(platformId, userId);
     const preferences = {
       tags,
       timestamp: Date.now(),
-      usageCount: this.getUserTagUsageCount(platformId) + 1
+      usageCount: this.getUserTagUsageCount(platformId, userId) + 1
     };
-    localStorage.setItem(key, JSON.stringify(preferences));
+    localStorage.setItem(storageKey, JSON.stringify(preferences));
+    console.log(`💾 用户标签偏好已保存: ${storageKey}`, preferences);
   }
 
   /**
-   * 获取用户标签使用次数
+   * ✅ FIXED: 用户数据隔离 - 生成用户标签存储键
    */
-  private getUserTagUsageCount(platformId: string): number {
-    const key = `user_tag_preferences_${platformId}`;
-    const stored = localStorage.getItem(key);
+  private getUserTagStorageKey(platformId: string, userId?: string): string {
+    if (userId) {
+      return `user_tag_preferences_${platformId}_${userId}`;
+    }
+    return `user_tag_preferences_${platformId}_guest`;
+  }
+
+  /**
+   * ✅ FIXED: 用户数据隔离 - 获取用户标签使用次数
+   */
+  private getUserTagUsageCount(platformId: string, userId?: string): number {
+    const storageKey = this.getUserTagStorageKey(platformId, userId);
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
-      const preferences = JSON.parse(stored);
-      return preferences.usageCount || 0;
+      try {
+        const preferences = JSON.parse(stored);
+        return preferences.usageCount || 0;
+      } catch (error) {
+        console.error(`❌ 解析用户标签偏好失败: ${storageKey}`, error);
+        return 0;
+      }
     }
     return 0;
   }
 
   /**
-   * 获取用户标签偏好
+   * ✅ FIXED: 用户数据隔离 - 获取用户标签偏好
    */
-  getUserTagPreferences(platformId: string): string[] {
-    const key = `user_tag_preferences_${platformId}`;
-    const stored = localStorage.getItem(key);
+  getUserTagPreferences(platformId: string, userId?: string): string[] {
+    const storageKey = this.getUserTagStorageKey(platformId, userId);
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
-      const preferences = JSON.parse(stored);
-      return preferences.tags || [];
+      try {
+        const preferences = JSON.parse(stored);
+        return preferences.tags || [];
+      } catch (error) {
+        console.error(`❌ 解析用户标签偏好失败: ${storageKey}`, error);
+        return [];
+      }
     }
     return [];
   }
@@ -1197,6 +1218,30 @@ export class HashtagGenerator {
     }
 
     return results;
+  }
+
+  /**
+   * ✅ FIXED: 用户数据隔离 - 清理用户标签数据
+   */
+  clearUserTagData(userId: string): number {
+    let cleanedCount = 0;
+    try {
+      const keys = Object.keys(localStorage);
+      const userTagKeys = keys.filter(key =>
+        key.startsWith('user_tag_preferences_') && key.endsWith(`_${userId}`)
+      );
+
+      userTagKeys.forEach(key => {
+        localStorage.removeItem(key);
+        cleanedCount++;
+      });
+
+      console.log(`✅ 清理用户标签数据完成: ${userId}, 清理了 ${cleanedCount} 项`);
+    } catch (error) {
+      console.error(`❌ 清理用户标签数据失败: ${userId}`, error);
+    }
+
+    return cleanedCount;
   }
 }
 

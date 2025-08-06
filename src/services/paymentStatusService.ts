@@ -29,9 +29,23 @@ export interface PaymentConfig {
 }
 
 class PaymentStatusService {
-  private readonly STORAGE_KEY = 'wenpai_payment_status';
-  private readonly CONFIG_KEY = 'wenpai_payment_config';
-  private readonly HISTORY_KEY = 'wenpai_payment_history';
+  private currentUserId: string | null = null;
+
+  /**
+   * ✅ FIXED: 用户数据隔离 - 设置当前用户ID
+   */
+  setCurrentUser(userId: string | null): void {
+    this.currentUserId = userId;
+    console.log(`🔑 支付服务用户切换: ${userId || 'guest'}`);
+  }
+
+  /**
+   * ✅ FIXED: 用户数据隔离 - 生成存储键
+   */
+  private getStorageKey(type: 'status' | 'config' | 'history'): string {
+    const userId = this.currentUserId || 'guest';
+    return `wenpai_payment_${type}_${userId}`;
+  }
 
   /**
    * 保存支付状态
@@ -55,7 +69,7 @@ class PaymentStatusService {
       const allPayments = this.getAllPaymentStatuses();
       allPayments[checkoutId] = paymentData;
       
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allPayments));
+      localStorage.setItem(this.getStorageKey('status'), JSON.stringify(allPayments));
       
       // 添加到历史记录
       this.addToHistory(paymentData);
@@ -84,7 +98,7 @@ class PaymentStatusService {
    */
   getAllPaymentStatuses(): Record<string, PaymentStatusData> {
     try {
-      const data = localStorage.getItem(this.STORAGE_KEY);
+      const data = localStorage.getItem(this.getStorageKey('status'));
       return data ? JSON.parse(data) : {};
     } catch (error) {
       console.error('获取所有支付状态失败:', error);
@@ -99,7 +113,7 @@ class PaymentStatusService {
     try {
       const allPayments = this.getAllPaymentStatuses();
       delete allPayments[checkoutId];
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allPayments));
+      localStorage.setItem(this.getStorageKey('status'), JSON.stringify(allPayments));
       console.log('支付状态已删除:', checkoutId);
     } catch (error) {
       console.error('删除支付状态失败:', error);
@@ -127,7 +141,7 @@ class PaymentStatusService {
       });
       
       if (cleanedCount > 0) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allPayments));
+        localStorage.setItem(this.getStorageKey('status'), JSON.stringify(allPayments));
         console.log(`已清理 ${cleanedCount} 个过期的支付状态`);
       }
     } catch (error) {
@@ -168,7 +182,7 @@ class PaymentStatusService {
         ...config, // 再应用新配置，避免重复属性
       };
       
-      localStorage.setItem(this.CONFIG_KEY, JSON.stringify(newConfig));
+      localStorage.setItem(this.getStorageKey('config'), JSON.stringify(newConfig));
       console.log('支付配置已保存:', newConfig);
     } catch (error) {
       console.error('保存支付配置失败:', error);
@@ -180,7 +194,7 @@ class PaymentStatusService {
    */
   getPaymentConfig(): PaymentConfig {
     try {
-      const data = localStorage.getItem(this.CONFIG_KEY);
+      const data = localStorage.getItem(this.getStorageKey('config'));
       if (data) {
         return JSON.parse(data);
       }
@@ -217,7 +231,7 @@ class PaymentStatusService {
         id: `${paymentData.checkoutId}_${Date.now()}`,
       });
       
-      localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
+      localStorage.setItem(this.getStorageKey('history'), JSON.stringify(history));
     } catch (error) {
       console.error('添加到历史记录失败:', error);
     }
@@ -228,7 +242,7 @@ class PaymentStatusService {
    */
   getPaymentHistory(): Array<PaymentStatusData & { id: string }> {
     try {
-      const data = localStorage.getItem(this.HISTORY_KEY);
+      const data = localStorage.getItem(this.getStorageKey('history'));
       return data ? JSON.parse(data) : [];
     } catch (error) {
       console.error('获取支付历史失败:', error);
@@ -241,7 +255,7 @@ class PaymentStatusService {
    */
   clearPaymentHistory(): void {
     try {
-      localStorage.removeItem(this.HISTORY_KEY);
+      localStorage.removeItem(this.getStorageKey('history'));
       console.log('支付历史已清理');
     } catch (error) {
       console.error('清理支付历史失败:', error);
@@ -328,15 +342,15 @@ class PaymentStatusService {
       const parsedData = JSON.parse(data);
       
       if (parsedData.payments) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(parsedData.payments));
+        localStorage.setItem(this.getStorageKey('status'), JSON.stringify(parsedData.payments));
       }
-      
+
       if (parsedData.config) {
-        localStorage.setItem(this.CONFIG_KEY, JSON.stringify(parsedData.config));
+        localStorage.setItem(this.getStorageKey('config'), JSON.stringify(parsedData.config));
       }
-      
+
       if (parsedData.history) {
-        localStorage.setItem(this.HISTORY_KEY, JSON.stringify(parsedData.history));
+        localStorage.setItem(this.getStorageKey('history'), JSON.stringify(parsedData.history));
       }
       
       console.log('支付数据导入成功');
@@ -352,13 +366,37 @@ class PaymentStatusService {
    */
   resetAllData(): void {
     try {
-      localStorage.removeItem(this.STORAGE_KEY);
-      localStorage.removeItem(this.CONFIG_KEY);
-      localStorage.removeItem(this.HISTORY_KEY);
+      localStorage.removeItem(this.getStorageKey('status'));
+      localStorage.removeItem(this.getStorageKey('config'));
+      localStorage.removeItem(this.getStorageKey('history'));
       console.log('所有支付数据已重置');
     } catch (error) {
       console.error('重置支付数据失败:', error);
     }
+  }
+
+  /**
+   * ✅ FIXED: 用户数据隔离 - 清理指定用户的支付数据
+   */
+  clearUserPaymentData(userId: string): number {
+    let cleanedCount = 0;
+    try {
+      const keys = Object.keys(localStorage);
+      const userPaymentKeys = keys.filter(key =>
+        key.startsWith('wenpai_payment_') && key.endsWith(`_${userId}`)
+      );
+
+      userPaymentKeys.forEach(key => {
+        localStorage.removeItem(key);
+        cleanedCount++;
+      });
+
+      console.log(`✅ 清理用户支付数据完成: ${userId}, 清理了 ${cleanedCount} 项`);
+    } catch (error) {
+      console.error(`❌ 清理用户支付数据失败: ${userId}`, error);
+    }
+
+    return cleanedCount;
   }
 }
 

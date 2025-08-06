@@ -62,6 +62,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/favoritesStore';
+import { useAuth } from '@/hooks/useAuth';
+import { getUserDisplayName } from '@/utils/userDisplayUtils';
 
 /**
  * 资料项接口
@@ -98,6 +100,9 @@ export default function BookmarkPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ✅ FIXED: 添加用户认证
+  const { user } = useAuth();
 
   // 收藏系统store
   const favoritesStore = useFavoritesStore();
@@ -143,61 +148,93 @@ export default function BookmarkPage() {
   });
 
   /**
-   * 初始化示例数据
+   * 获取当前用户的存储键
+   */
+  const getStorageKey = () => {
+    if (user?.id) {
+      return `library_items_${user.id}`;
+    }
+    // 未登录用户使用默认键
+    return 'library_items_guest';
+  };
+
+  /**
+   * ✅ FIXED: 从localStorage加载数据，支持用户数据隔离
    */
   React.useEffect(() => {
-    const sampleItems: LibraryItem[] = [
-      {
-        id: '1',
-        title: '小红书营销策略分析',
-        content: '深度分析小红书平台的用户特征、内容偏好和营销机会...',
-        type: 'collection',
-        source: 'https://example.com/xiaohongshu-analysis',
-        sourceType: 'url',
-        tags: ['小红书', '营销策略', '社交媒体'],
-        isFavorite: true,
-        isUsed: false,
-        category: '营销分析',
-        createdAt: '2024-01-15T10:30:00Z',
-        updatedAt: '2024-01-15T10:30:00Z'
-      },
-      {
-        id: '2',
-        title: '品牌推广文案模板',
-        content: '🎯 核心卖点：\n• 高效便捷的操作体验\n• 专业可靠的技术支持\n• 性价比超高的解决方案...',
-        type: 'copywriting',
-        tags: ['品牌推广', '文案模板', '营销'],
-        isFavorite: true,
-        isUsed: true,
-        category: '营销文案',
-        platform: '微信公众号',
-        createdAt: '2024-01-14T14:20:00Z',
-        updatedAt: '2024-01-14T14:20:00Z'
-      },
-      {
-        id: '3',
-        title: '2024年内容营销趋势报告',
-        content: '# 2024年内容营销趋势报告\n\n## 主要趋势\n1. AI辅助内容创作\n2. 短视频持续火热\n3. 互动式内容增长...',
-        type: 'extraction',
-        source: '2024-content-marketing-report.pdf',
-        sourceType: 'file',
-        tags: ['内容营销', '趋势报告', '2024'],
-        isFavorite: false,
-        isUsed: false,
-        category: '行业报告',
-        summary: '分析了2024年内容营销的主要趋势，包括AI辅助创作、短视频发展、互动内容等关键方向...',
-        metadata: {
-          wordCount: 2500,
-          charCount: 8000,
-          date: '2024-01-01'
-        },
-        createdAt: '2024-01-13T09:15:00Z',
-        updatedAt: '2024-01-13T09:15:00Z'
+    const storageKey = getStorageKey();
+    console.log('🔑 使用存储键:', storageKey);
+
+    // 尝试从localStorage加载数据
+    const savedItems = localStorage.getItem(storageKey);
+
+    if (savedItems) {
+      try {
+        const parsedItems = JSON.parse(savedItems);
+        console.log('📂 从localStorage加载资料库数据:', parsedItems.length, '项');
+        setLibraryItems(parsedItems);
+        return;
+      } catch (error) {
+        console.error('❌ 解析localStorage数据失败:', error);
       }
-    ];
-    
+    }
+
+    // 如果没有保存的数据，使用示例数据并保存
+    console.log('🆕 初始化示例数据');
+    const sampleItems: LibraryItem[] = [
+        {
+          id: '1',
+          title: '小红书营销策略分析',
+          content: '深度分析小红书平台的用户特征、内容偏好和营销机会...',
+          type: 'collection',
+          source: 'https://example.com/xiaohongshu-analysis',
+          sourceType: 'url',
+          tags: ['小红书', '营销策略', '社交媒体'],
+          isFavorite: true,
+          isUsed: false,
+          category: '营销分析',
+          createdAt: '2024-01-15T10:30:00Z',
+          updatedAt: '2024-01-15T10:30:00Z'
+        },
+        {
+          id: '2',
+          title: '品牌推广文案模板',
+          content: '🎯 核心卖点：\n• 高效便捷的操作体验\n• 专业可靠的技术支持\n• 性价比超高的解决方案...',
+          type: 'copywriting',
+          tags: ['品牌推广', '文案模板', '营销'],
+          isFavorite: true,
+          isUsed: true,
+          category: '营销文案',
+          platform: '微信公众号',
+          createdAt: '2024-01-14T14:20:00Z',
+          updatedAt: '2024-01-14T14:20:00Z'
+        },
+        {
+          id: '3',
+          title: '2024年内容营销趋势报告',
+          content: '# 2024年内容营销趋势报告\n\n## 主要趋势\n1. AI辅助内容创作\n2. 短视频持续火热\n3. 互动式内容增长...',
+          type: 'extraction',
+          source: '2024-content-marketing-report.pdf',
+          sourceType: 'file',
+          tags: ['内容营销', '趋势报告', '2024'],
+          isFavorite: false,
+          isUsed: false,
+          category: '行业报告',
+          summary: '分析了2024年内容营销的主要趋势，包括AI辅助创作、短视频发展、互动内容等关键方向...',
+          metadata: {
+            wordCount: 2500,
+            charCount: 8000,
+            date: '2024-01-01'
+          },
+          createdAt: '2024-01-13T09:15:00Z',
+          updatedAt: '2024-01-13T09:15:00Z'
+        }
+      ];
+
     setLibraryItems(sampleItems);
-  }, []);
+    localStorage.setItem(storageKey, JSON.stringify(sampleItems));
+    console.log('💾 示例数据已保存到localStorage');
+  }, [user?.id]); // 当用户ID变化时重新加载数据
 
   /**
    * 获取筛选后的项目
@@ -312,11 +349,17 @@ export default function BookmarkPage() {
         updatedAt: new Date().toISOString()
       };
 
-      setLibraryItems(prev => [newItem, ...prev]);
+      const updatedItems = [newItem, ...libraryItems];
+      setLibraryItems(updatedItems);
+
+      // 保存到localStorage
+      const storageKey = getStorageKey();
+      localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+
       setIsAddDialogOpen(false);
       setExtractUrl('');
       setSelectedFile(null);
-      
+
       toast({
         title: "内容提取成功",
         description: "内容已智能提取并添加到资料库",
@@ -371,10 +414,16 @@ export default function BookmarkPage() {
       updatedAt: new Date().toISOString()
     };
 
-    setLibraryItems(prev => [collection, ...prev]);
+    const updatedItems = [collection, ...libraryItems];
+    setLibraryItems(updatedItems);
+
+    // 保存到localStorage
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+
     setNewCollection({ title: '', url: '', description: '', tags: '', category: '' });
     setIsAddDialogOpen(false);
-    
+
     toast({
       title: "收藏成功",
       description: "新收藏已保存到资料库",
@@ -414,10 +463,16 @@ export default function BookmarkPage() {
       updatedAt: new Date().toISOString()
     };
 
-    setLibraryItems(prev => [copywriting, ...prev]);
+    const updatedItems = [copywriting, ...libraryItems];
+    setLibraryItems(updatedItems);
+
+    // 保存到localStorage
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+
     setNewCopywriting({ title: '', content: '', tags: '', category: '', platform: '' });
     setIsCopywritingDialogOpen(false);
-    
+
     toast({
       title: "文案创建成功",
       description: "新文案已保存到资料库",
@@ -428,18 +483,28 @@ export default function BookmarkPage() {
    * 切换收藏状态
    */
   const toggleFavorite = (id: string) => {
-    setLibraryItems(prev => prev.map(item => 
+    const updatedItems = libraryItems.map(item =>
       item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-    ));
+    );
+    setLibraryItems(updatedItems);
+
+    // 保存到localStorage
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
   };
 
   /**
    * 切换使用状态
    */
   const toggleUsed = (id: string) => {
-    setLibraryItems(prev => prev.map(item => 
+    const updatedItems = libraryItems.map(item =>
       item.id === id ? { ...item, isUsed: !item.isUsed } : item
-    ));
+    );
+    setLibraryItems(updatedItems);
+
+    // 保存到localStorage
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
   };
 
   /**
@@ -457,10 +522,19 @@ export default function BookmarkPage() {
    * 删除项目
    */
   const deleteItem = (id: string) => {
-    setLibraryItems(prev => prev.filter(item => item.id !== id));
+    console.log('🗑️ 删除项目:', id);
+
+    const updatedItems = libraryItems.filter(item => item.id !== id);
+    setLibraryItems(updatedItems);
+
+    // ✅ FIXED: 保存到localStorage确保删除状态持久化
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+    console.log('💾 删除状态已保存到localStorage');
+
     toast({
       title: "已删除",
-      description: "项目已从资料库中移除",
+      description: "项目已从资料库中永久移除",
     });
   };
 
@@ -514,12 +588,18 @@ export default function BookmarkPage() {
    */
   const saveEdit = () => {
     if (!editingItem) return;
-    
-    setLibraryItems(prev => prev.map(item => 
+
+    const updatedItems = libraryItems.map(item =>
       item.id === editingItem.id ? editingItem : item
-    ));
+    );
+    setLibraryItems(updatedItems);
+
+    // 保存到localStorage
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(updatedItems));
+
     setEditingItem(null);
-    
+
     toast({
       title: "保存成功",
       description: "内容已更新",

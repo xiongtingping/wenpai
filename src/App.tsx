@@ -4,6 +4,7 @@ import { TopNavigation } from '@/components/layout/TopNavigation';
 import { ScrollManager } from '@/components/layout/ScrollManager';
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
+import { UserDataIsolationProvider } from '@/hooks/useUserDataIsolationInit';
 import PageTracker from '@/components/analytics/PageTracker';
 // 🚨 DISABLED: 2025-08-04 暂时禁用UndefinedFixer以排查无限循环问题
 // import UndefinedFixer from '@/components/UndefinedFixer';
@@ -199,6 +200,13 @@ function AppContent() {
               <BookmarkPage />
             </PermissionGuard>
           } />
+
+          {/* 智能资料管理页面 - 别名路由 */}
+          <Route path="/bookmark" element={
+            <PermissionGuard required="auth:required">
+              <BookmarkPage />
+            </PermissionGuard>
+          } />
           
           {/* 需要高级版权限的页面 */}
           <Route path="/brand-library" element={
@@ -290,7 +298,18 @@ function AppContent() {
 export default function App() {
   return (
     <UnifiedAuthProvider>
-      <AppContent />
+      <UserDataIsolationProvider
+        config={{
+          enableLogging: import.meta.env.DEV,
+          autoCleanupOnLogout: false,
+          services: {
+            payment: true,
+            hashtag: true
+          }
+        }}
+      >
+        <AppContent />
+      </UserDataIsolationProvider>
     </UnifiedAuthProvider>
   );
 }

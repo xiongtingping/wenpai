@@ -172,6 +172,11 @@ export default function BrandLibraryPageFixed() {
   const [assetToEdit, setAssetToEdit] = useState<BrandAsset | null>(null);
   const [newCategory, setNewCategory] = useState('');
 
+  // 批量操作状态
+  const [selectedAssetsForBatch, setSelectedAssetsForBatch] = useState<Set<string>>(new Set());
+  const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+
   // 过滤和排序后的资产列表
   const filteredAndSortedAssets = brandAssets
     .filter(asset => {
@@ -1539,27 +1544,199 @@ export default function BrandLibraryPageFixed() {
   const confirmDeleteAsset = () => {
     if (!assetToDelete) return;
 
+    console.log('🗑️ 开始删除资产:', assetToDelete.name);
+
     // 从品牌资料库中删除文件
     const updatedAssets = brandAssets.filter(a => a.id !== assetToDelete.id);
     setBrandAssets(updatedAssets);
 
-    // 从品牌语料库中删除相关信息
-    const updatedDimensions = brandDimensions.map(dimension => ({
-      ...dimension,
-      keywords: dimension.keywords.filter(keyword =>
+    // 从品牌语料库中删除相关信息 - 修复版本
+    let deletedItemsCount = 0;
+    const updatedDimensions = brandDimensions.map(dimension => {
+      // 删除来源匹配的items
+      const filteredItems = dimension.items.filter(item => {
+        const shouldDelete = item.source === assetToDelete.name ||
+                           item.source.includes(assetToDelete.name) ||
+                           (item.source.startsWith(assetToDelete.name.split('.')[0])); // 处理文件名变化
+        if (shouldDelete) {
+          deletedItemsCount++;
+          console.log(`🗑️ 删除语料项目: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
+        }
+        return !shouldDelete;
+      });
+
+      // 删除来源匹配的keywords（保持向后兼容）
+      const filteredKeywords = dimension.keywords.filter(keyword =>
         !keyword.source || keyword.source !== assetToDelete.name
-      )
-    }));
+      );
+
+      return {
+        ...dimension,
+        items: filteredItems,
+        keywords: filteredKeywords
+      };
+    });
+
     setBrandDimensions(updatedDimensions);
     saveDimensionsToStorage(updatedDimensions);
 
+    console.log(`✅ 删除完成: 共删除 ${deletedItemsCount} 条语料信息`);
+
     toast({
       title: "删除成功",
-      description: `${assetToDelete.name} 及其相关语料信息已被删除`,
+      description: `${assetToDelete.name} 及其相关的 ${deletedItemsCount} 条语料信息已被删除`,
     });
 
     setShowDeleteDialog(false);
     setAssetToDelete(null);
+  };
+
+  /**
+   * 批量删除资产及其语料信息
+   */
+  const confirmBatchDeleteAssets = () => {
+    if (selectedAssetsForBatch.size === 0) return;
+
+    console.log('🗑️ 开始批量删除资产:', Array.from(selectedAssetsForBatch));
+
+    // 获取要删除的资产信息
+    const assetsToDelete = brandAssets.filter(asset => selectedAssetsForBatch.has(asset.id));
+    const assetNames = assetsToDelete.map(asset => asset.name);
+
+    // 从品牌资料库中删除文件
+    const updatedAssets = brandAssets.filter(asset => !selectedAssetsForBatch.has(asset.id));
+    setBrandAssets(updatedAssets);
+
+    // 从品牌语料库中删除相关信息
+    let totalDeletedItemsCount = 0;
+    const updatedDimensions = brandDimensions.map(dimension => {
+      // 删除来源匹配的items
+      const filteredItems = dimension.items.filter(item => {
+        const shouldDelete = assetNames.some(assetName =>
+          item.source === assetName ||
+          item.source.includes(assetName) ||
+          item.source.startsWith(assetName.split('.')[0])
+        );
+        if (shouldDelete) {
+          totalDeletedItemsCount++;
+          console.log(`🗑️ 删除语料项目: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
+        }
+        return !shouldDelete;
+      });
+
+      // 删除来源匹配的keywords（保持向后兼容）
+      const filteredKeywords = dimension.keywords.filter(keyword =>
+        !keyword.source || !assetNames.includes(keyword.source)
+      );
+
+      return {
+        ...dimension,
+        items: filteredItems,
+        keywords: filteredKeywords
+      };
+    });
+
+    setBrandDimensions(updatedDimensions);
+    saveDimensionsToStorage(updatedDimensions);
+
+    console.log(`✅ 批量删除完成: 删除了 ${assetsToDelete.length} 个资产和 ${totalDeletedItemsCount} 条语料信息`);
+
+    toast({
+      title: "批量删除成功",
+      description: `已删除 ${assetsToDelete.length} 个资产及其相关的 ${totalDeletedItemsCount} 条语料信息`,
+    });
+
+    // 清理状态
+    setSelectedAssetsForBatch(new Set());
+    setShowBatchDeleteDialog(false);
+    setIsSelectMode(false);
+  };
+
+  /**
+   * 切换资产选择状态
+   */
+  const toggleAssetSelection = (assetId: string) => {
+    setSelectedAssetsForBatch(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(assetId)) {
+        newSet.delete(assetId);
+      } else {
+        newSet.add(assetId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * 全选/取消全选
+   */
+  const toggleSelectAll = () => {
+    if (selectedAssetsForBatch.size === filteredAndSortedAssets.length) {
+      setSelectedAssetsForBatch(new Set());
+    } else {
+      setSelectedAssetsForBatch(new Set(filteredAndSortedAssets.map(asset => asset.id)));
+    }
+  };
+
+  /**
+   * 清理孤立的语料信息（来源文件已不存在）
+   */
+  const cleanupOrphanedCorpusData = () => {
+    const existingAssetNames = brandAssets.map(asset => asset.name);
+    let cleanedItemsCount = 0;
+
+    console.log('🧹 开始清理孤立语料信息...');
+    console.log('📂 当前存在的资产:', existingAssetNames);
+
+    const updatedDimensions = brandDimensions.map(dimension => {
+      // 清理items中的孤立数据
+      const filteredItems = dimension.items.filter(item => {
+        // 检查来源是否还存在
+        const sourceExists = existingAssetNames.some(assetName =>
+          item.source === assetName ||
+          item.source.includes(assetName) ||
+          item.source.startsWith(assetName.split('.')[0])
+        );
+
+        // 如果来源不存在且不是手动添加的，则删除
+        const shouldKeep = sourceExists || !item.source || item.source === '手动添加' || item.source === 'manual';
+
+        if (!shouldKeep) {
+          cleanedItemsCount++;
+          console.log(`🗑️ 清理孤立语料: ${item.content.substring(0, 50)}... (来源: ${item.source})`);
+        }
+
+        return shouldKeep;
+      });
+
+      // 清理keywords中的孤立数据（保持向后兼容）
+      // keywords是字符串数组，不需要清理
+      const filteredKeywords = dimension.keywords;
+
+      return {
+        ...dimension,
+        items: filteredItems,
+        keywords: filteredKeywords
+      };
+    });
+
+    if (cleanedItemsCount > 0) {
+      setBrandDimensions(updatedDimensions);
+      saveDimensionsToStorage(updatedDimensions);
+
+      console.log(`✅ 清理完成: 删除了 ${cleanedItemsCount} 条孤立语料信息`);
+
+      toast({
+        title: "清理完成",
+        description: `已清理 ${cleanedItemsCount} 条孤立的语料信息`,
+      });
+    } else {
+      console.log('✅ 没有发现孤立的语料信息');
+      toast({
+        title: "清理完成",
+        description: "没有发现需要清理的孤立语料信息",
+      });
+    }
   };
 
   /**
@@ -2782,6 +2959,58 @@ export default function BrandLibraryPageFixed() {
                   onClick={confirmDeleteAsset}
                 >
                   确认删除
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 批量删除确认弹窗 */}
+        {showBatchDeleteDialog && selectedAssetsForBatch.size > 0 && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <Trash2 className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">批量删除确认</h3>
+                  <p className="text-sm text-gray-600">此操作无法撤销</p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-700 mb-3">
+                  确定要删除选中的 <span className="font-medium">{selectedAssetsForBatch.size}</span> 个资产吗？
+                </p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <div className="text-sm text-yellow-800">
+                    <div className="font-medium mb-1">此操作将：</div>
+                    <ul className="space-y-1 text-xs">
+                      <li>• 从品牌资料库中删除所有选中文件</li>
+                      <li>• 从品牌语料库中删除所有相关信息</li>
+                      <li>• 无法恢复，请谨慎操作</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowBatchDeleteDialog(false);
+                  }}
+                >
+                  取消
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={confirmBatchDeleteAssets}
+                >
+                  确认删除 ({selectedAssetsForBatch.size})
                 </Button>
               </div>
             </div>

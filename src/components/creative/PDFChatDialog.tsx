@@ -175,24 +175,12 @@ export function PDFChatDialog({
     setIsLoading(true);
 
     try {
-      // 构建上下文提示词
-      const contextPrompt = `你是一个专业的PDF文档分析助手。用户上传了一个名为"${selectedDocument.name}"的文档，文档内容如下：
-
-${selectedDocument.content}
-
-用户问题：${inputValue}
-
-请基于文档内容回答用户的问题。要求：
-1. 回答要准确、详细，直接引用文档中的相关内容
-2. 如果文档中没有相关信息，请明确说明
-3. 回答要结构清晰，可以使用列表或分段
-4. 保持专业、友好的语调
-5. 如果用户的问题涉及分析或建议，请基于文档内容给出合理的建议
-
-请开始回答：`;
-
-      // 调用AI服务
+      // ✅ FIXED: 直接调用AI服务，使用统一提示词系统
       console.log('🤖 开始调用PDF对话AI服务');
+      console.log('📄 文档名称:', selectedDocument.name);
+      console.log('📝 文档内容长度:', selectedDocument.content.length);
+      console.log('❓ 用户问题:', inputValue);
+
       const response = await callPDFChat({
         prompt: inputValue,
         documentContent: selectedDocument.content
@@ -649,22 +637,12 @@ ${selectedDocument.content}
             </div>
           </div>
 
-          {/* 输入提示 */}
+          {/* ✅ FIXED: 合并重复的输入提示信息 */}
           <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
             <span>💡 按 Enter 发送，Shift+Enter 换行</span>
             {selectedDocument && (
               <span>📄 当前文档: {selectedDocument.name}</span>
             )}
-          </div>
-
-          {/* 状态信息 */}
-          <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-            <span>
-              当前文档：{selectedDocument?.name || '未选择'}
-            </span>
-            <span>
-              按Enter快速发送 • Shift+Enter换行
-            </span>
           </div>
         </div>
       </DialogContent>
