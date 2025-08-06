@@ -71,10 +71,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     navigate('/profile');
   };
 
-  // 处理跳转到设置
-  const handleSettingsClick = () => {
-    navigate('/settings');
-  };
+
 
   // 未登录状态
   if (!isAuthenticated) {
@@ -134,11 +131,6 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuItem onClick={handleProfileClick}>
             <User className="mr-2 h-4 w-4" />
             <span>个人资料</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={handleSettingsClick}>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>设置</span>
           </DropdownMenuItem>
           
           {/* VIP 标识 */}

@@ -48,7 +48,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import TokenUsageSection from '@/components/profile/TokenUsageSection';
-import { getUserDisplayName, getUserAvatar as getUtilUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
+import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
+import { avatarService } from '@/services/avatarService';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 /**
  * 个人中心页面组件
@@ -64,8 +66,24 @@ export default function ProfilePage() {
     nickname: getUserDisplayName(user, ''),
     phone: user?.phone || '',
     email: user?.email || '',
-    avatar: getUtilUserAvatar(user)
+    avatar: getUserAvatar(user)
   });
+
+  /**
+   * 计算陪伴天数
+   */
+  const calculateCompanionDays = (registrationDate: string): number => {
+    try {
+      const regDate = new Date(registrationDate);
+      const today = new Date();
+      const diffTime = Math.abs(today.getTime() - regDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } catch (error) {
+      console.warn('计算陪伴天数失败:', error);
+      return 1; // 默认返回1天
+    }
+  };
 
   // 模拟用户数据
   const userStats = {
@@ -79,6 +97,9 @@ export default function ProfilePage() {
     timeSaved: 45, // 分钟
     contentGenerated: 3
   };
+
+  // 计算陪伴天数
+  const companionDays = calculateCompanionDays(userStats.registrationDate);
 
   // 如果用户未登录，显示登录提示
   if (!isAuthenticated || !user) {
@@ -169,19 +190,59 @@ export default function ProfilePage() {
    * 上传头像
    */
   const handleUploadAvatar = () => {
-    // 这里应该实现文件上传逻辑
-    toast({
-      title: "功能开发中",
-      description: "头像上传功能即将上线",
-    });
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpg,image/jpeg,image/png,image/webp';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // 验证文件
+      const validation = avatarService.validateImageFile(file);
+      if (!validation.valid) {
+        toast({
+          title: "文件验证失败",
+          description: validation.error,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      try {
+        // 上传头像
+        const result = await avatarService.uploadAvatar(file, user?.id || '');
+        if (result.success && result.avatarUrl) {
+          setProfileForm(prev => ({
+            ...prev,
+            avatar: result.avatarUrl
+          }));
+          setHasUnsavedChanges(true);
+
+          toast({
+            title: "头像上传成功",
+            description: "您的头像已更新",
+          });
+        } else {
+          throw new Error(result.error || '上传失败');
+        }
+      } catch (error) {
+        console.error('头像上传失败:', error);
+        toast({
+          title: "上传失败",
+          description: "头像上传失败，请稍后重试",
+          variant: "destructive"
+        });
+      }
+    };
+    input.click();
   };
 
   /**
    * 生成随机头像
    */
   const handleRandomAvatar = () => {
-    const randomSeed = Math.random().toString(36).substring(7);
-    const newAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${randomSeed}`;
+    const safeName = getUserDisplayName(user, 'User');
+    const newAvatar = avatarService.generateRandomAvatar(safeName);
     setProfileForm(prev => ({
       ...prev,
       avatar: newAvatar
@@ -217,6 +278,54 @@ export default function ProfilePage() {
     });
   };
 
+  /**
+   * 立即邀请好友
+   */
+  const handleInviteFriends = async () => {
+    const safeUserId = userStats.userId || user?.id || 'unknown';
+    const inviteLink = `${window.location.origin}?ref=${safeUserId}`;
+
+    try {
+      // 检查是否支持原生分享
+      if (navigator.share) {
+        await navigator.share({
+          title: '文派AI - 智能内容创作平台',
+          text: '我在使用文派AI创作内容，邀请你一起体验！注册即可获得20次免费使用机会。',
+          url: inviteLink
+        });
+
+        toast({
+          title: "分享成功",
+          description: "邀请链接已分享",
+        });
+      } else {
+        // 不支持原生分享，复制链接
+        await navigator.clipboard.writeText(inviteLink);
+        toast({
+          title: "邀请链接已复制",
+          description: "链接已复制到剪贴板，快去分享给好友吧！",
+        });
+      }
+    } catch (error) {
+      console.error('邀请分享失败:', error);
+
+      // 分享失败，尝试复制链接
+      try {
+        await navigator.clipboard.writeText(inviteLink);
+        toast({
+          title: "邀请链接已复制",
+          description: "链接已复制到剪贴板，快去分享给好友吧！",
+        });
+      } catch (copyError) {
+        toast({
+          title: "分享失败",
+          description: "请手动复制邀请链接分享给好友",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <PageNavigation
@@ -246,9 +355,12 @@ export default function ProfilePage() {
                 {/* 头像区域 */}
                 <div className="text-center md:text-left">
                   <div className="relative inline-block">
-                    {/* ✅ FIXED: 头像显示 - 使用安全的用户信息获取函数 */}
-                    <Avatar className="w-24 h-24 border-4 border-white/20">
-                      <AvatarImage src={getUtilUserAvatar(user)} alt={getUserAltText(user, '头像')} />
+                    {/* ✅ ENHANCED: 头像显示 - 支持实时更新和上传 */}
+                    <Avatar className="w-32 h-32 border-4 border-white/20">
+                      <AvatarImage
+                        src={profileForm.avatar || getUserAvatar(user)}
+                        alt={getUserAltText(user, '头像')}
+                      />
                       <AvatarFallback className="text-2xl bg-white/20 text-white">
                         {getUserAvatarFallback(user)}
                       </AvatarFallback>
@@ -294,8 +406,20 @@ export default function ProfilePage() {
                       <div className="font-mono">{userStats.userId}</div>
                     </div>
                     <div>
-                      <div className="text-white/70">注册时间</div>
-                      <div>{userStats.registrationDate}</div>
+                      <div className="text-white/70 flex items-center gap-1">
+                        已陪伴
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3 h-3 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>注册时间：{userStats.registrationDate}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <div>{companionDays}天</div>
                     </div>
                     <div>
                       <div className="text-white/70">Token使用</div>
@@ -313,7 +437,7 @@ export default function ProfilePage() {
         </div>
 
         {/* 主要内容区域 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 左侧：个人资料 */}
           <div className="lg:col-span-1">
             <Card className="h-full flex flex-col">
@@ -387,67 +511,7 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* 中间：使用统计 */}
-          <div className="lg:col-span-1">
-            <Card className="h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  使用统计
-                </CardTitle>
-                <CardDescription>
-                  查看您的使用情况
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <div className="flex-1 space-y-6">
-                  {/* 使用次数进度 */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">使用次数</span>
-                      <span className="text-sm text-gray-600">{userStats.usedCount}/{userStats.availableUses}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${(userStats.usedCount / userStats.availableUses) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
 
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Token使用量</span>
-                      <span className="text-sm text-gray-600">{userStats.usedTokens.toLocaleString()}/{userStats.tokenLimit.toLocaleString()}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${(userStats.usedTokens / userStats.tokenLimit) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {/* 统计卡片 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-purple-600">{userStats.timeSaved}</div>
-                      <div className="text-sm text-purple-600">分钟节省</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-green-600">{userStats.contentGenerated}</div>
-                      <div className="text-sm text-green-600">内容生成</div>
-                    </div>
-                  </div>
-                </div>
-
-                <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white mt-6">
-                  <Crown className="w-4 h-4 mr-2" />
-                  解锁高级功能
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* 右侧：邀请奖励 */}
           <div className="lg:col-span-1">
@@ -498,7 +562,10 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white mt-6">
+                <Button
+                  className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white mt-6"
+                  onClick={handleInviteFriends}
+                >
                   <Users className="w-4 h-4 mr-2" />
                   立即邀请好友
                 </Button>

@@ -188,6 +188,17 @@ export function TokenUsageSection({
                     <span>剩余 {formatNumber(tokenStats?.monthlyRemaining || 0)} tokens</span>
                   </div>
                 </div>
+
+                {/* Token继承说明 */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-700">
+                      <span className="font-medium">重要说明：</span>
+                      tokens在会员有效期内可以继承到下个月续用，不会清零浪费。
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* 使用次数进度 */}
@@ -196,11 +207,12 @@ export function TokenUsageSection({
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-green-500" />
                     <span className="font-medium">使用次数</span>
-                    <InfoTooltip 
+                    <InfoTooltip
                       title="使用次数说明"
                       content={[
                         "统计规则：主要计算AI内容适配器的调用次数",
                         "计量单位：每次调用AI内容适配器计为1次使用",
+                        "重置周期：每月1日自动重置使用次数",
                         "与Token的区别：使用次数按功能计量，Token按文字量计量"
                       ]}
                     />

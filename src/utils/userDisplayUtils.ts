@@ -69,15 +69,30 @@ export function getUserDisplayName(user?: UserInfo | null, fallback: string = '�
 
 /**
  * 获取用户头像URL
- * 优先级：avatar > photo > 空字符串
- * 
+ * 优先级：avatar > photo > 生成默认头像
+ *
  * @param user 用户对象
  * @returns 安全的头像URL
  */
 export function getUserAvatar(user?: UserInfo | null): string {
-  if (!user) return '';
-  
-  return getUserDisplayName(user, '') || '';
+  if (!user) {
+    // 未登录用户返回默认头像
+    return `https://api.dicebear.com/7.x/initials/svg?seed=Guest`;
+  }
+
+  // 优先使用用户设置的头像
+  if (user.avatar) {
+    return user.avatar;
+  }
+
+  // 其次使用photo字段
+  if (user.photo) {
+    return user.photo;
+  }
+
+  // 最后生成默认随机头像
+  const safeName = getUserDisplayName(user, 'User');
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(safeName)}`;
 }
 
 /**
