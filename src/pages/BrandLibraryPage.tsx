@@ -17,7 +17,7 @@ import {
   Database, Upload, FileText, File, FileImage,
   AlertCircle, Info, Search, Check, Clock, Trash2,
   SortAsc, Filter, Download, Eye, Edit, Copy,
-  Globe, Users, Target, Zap, Brain, Sparkles,
+  Globe, Users, Target, Zap, Brain, Sparkles, X,
   BookOpen, Palette, MessageSquare, Shield,
   Plus, X, RotateCcw, Save, FileUp, FolderOpen,
   Tag, Hash, Heart, Star, Lightbulb, Award,
@@ -120,6 +120,7 @@ export default function BrandLibraryPageFixed() {
   const [brandCorpus, setBrandCorpus] = useState<BrandCorpus | null>(null);
   const [isProcessingCorpus, setIsProcessingCorpus] = useState(false);
   const [corpusProcessingProgress, setCorpusProcessingProgress] = useState(0);
+  const [analysisAbortController, setAnalysisAbortController] = useState<AbortController | null>(null);
 
   // 删除确认对话框状态
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
@@ -618,6 +619,28 @@ export default function BrandLibraryPageFixed() {
     }
   };
 
+  // 停止AI分析
+  const handleStopAnalysis = () => {
+    if (analysisAbortController) {
+      analysisAbortController.abort();
+      setAnalysisAbortController(null);
+    }
+
+    setIsProcessingCorpus(false);
+    setCorpusProcessingProgress(0);
+
+    // 更新所有处理中的资产状态
+    setBrandAssets(prev => prev.map(asset =>
+      asset.status === 'processing' ? { ...asset, status: 'uploaded' } : asset
+    ));
+
+    toast({
+      title: "🛑 已停止AI分析",
+      description: "AI分析已被用户取消，您可以稍后重新尝试",
+      duration: 5000,
+    });
+  };
+
   const addItemToDimension = (fieldName: string, value: any, sourceName: string, confidence: number) => {
     // 字段名称到维度ID的映射
     const fieldToDimensionMap: { [key: string]: string } = {
@@ -1027,21 +1050,42 @@ export default function BrandLibraryPageFixed() {
         description: `成功上传 ${newAssets.length} 个文件，正在自动进行AI分析...`,
       });
 
-      // 自动触发真实AI分析
+      // 自动触发真实AI分析 - 增强版本
       // ✅ FIXED: 2025-08-05 文件上传后自动触发真实AI分析
       setTimeout(async () => {
         try {
+          // 添加分析超时提示
+          const analysisTimeout = setTimeout(() => {
+            toast({
+              title: "⏰ AI分析超时提醒",
+              description: "分析时间较长，可能是网络连接问题。您可以稍后在品牌语料库中查看结果，或点击测试按钮诊断问题。",
+              variant: "destructive",
+              duration: 10000,
+            });
+          }, 30000); // 30秒超时提醒
+
           await handleBatchCorpusExtraction();
+          clearTimeout(analysisTimeout);
+
           toast({
-            title: "AI分析完成",
+            title: "✅ AI分析完成",
             description: `已完成 ${newAssets.length} 个文件的智能分析，信息已自动添加到品牌维度`,
+            duration: 5000,
           });
         } catch (error) {
           console.error('自动AI分析失败:', error);
+
+          // 根据错误类型提供不同的提示
+          const errorMessage = error instanceof Error ? error.message : '未知错误';
+          const isNetworkError = errorMessage.includes('Network') || errorMessage.includes('Connection') || errorMessage.includes('Timeout');
+
           toast({
-            title: "AI分析失败",
-            description: "自动分析过程中出现错误，请稍后重试",
+            title: "❌ AI分析失败",
+            description: isNetworkError
+              ? "网络连接问题导致分析失败，请检查网络连接或点击测试按钮诊断问题"
+              : `分析过程中出现错误: ${errorMessage}`,
             variant: "destructive",
+            duration: 8000,
           });
         }
       }, 1000); // 1秒后开始AI分析
@@ -1205,24 +1249,38 @@ export default function BrandLibraryPageFixed() {
                   支持多种格式的品牌资料上传，AI将自动分析并提取关键信息
                 </CardDescription>
                 <div className="flex justify-end gap-2 -mt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSimpleAITest}
-                    className="text-xs"
-                  >
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    测试AI调用
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAPITest}
-                    className="text-xs"
-                  >
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    测试API连接
-                  </Button>
+                  {isProcessingCorpus ? (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleStopAnalysis}
+                      className="text-xs"
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      停止分析
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSimpleAITest}
+                        className="text-xs"
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        测试AI调用
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleAPITest}
+                        className="text-xs"
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        测试API连接
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
