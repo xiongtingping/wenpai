@@ -1539,7 +1539,7 @@ export default function BrandLibraryPageFixed() {
           </AlertDescription>
         </Alert>
 
-        {/* ✅ FIXED: 2025-08-06 后台分析状态提示 */}
+        {/* ✅ FIXED: 2025-08-06 后台分析状态指示器 */}
         {isBackgroundAnalysisRunning && (
           <Alert className="mb-6 border-blue-200 bg-blue-50">
             <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
@@ -1549,7 +1549,7 @@ export default function BrandLibraryPageFixed() {
           </Alert>
         )}
 
-        {/* 后台分析队列提示 */}
+        {/* ✅ FIXED: 2025-08-06 后台分析进度指示器 */}
         {backgroundAnalysisQueue.length > 0 && (
           <Alert className="mb-6 border-orange-200 bg-orange-50">
             <Clock className="h-4 w-4 text-orange-600" />
@@ -1964,7 +1964,7 @@ export default function BrandLibraryPageFixed() {
                               ) : asset.status === 'error' ? (
                                 <>
                                   <RotateCcw className="h-3 w-3 mr-1" />
-                                  重试
+                                  重试分析
                                 </>
                               ) : (
                                 <>
