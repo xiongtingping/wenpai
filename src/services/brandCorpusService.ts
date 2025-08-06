@@ -83,7 +83,7 @@ const BRAND_CORPUS_EXTRACTION_PROMPT_V2 = `
 ### 内容策略
 - core-topics: 品牌核心话题（常提及的话题词）
 - hashtags: 品牌标签（社交媒体适用）
-- brand-keywords: 品牌关键词（5-15个，含分类）
+- brand-keywords: 品牌关键词（5-15个，按5个维度分类：定位、品类、情感、差异化、价值）
 
 ## 输出格式
 请严格按照以下JSON结构输出：
@@ -619,7 +619,7 @@ export class BrandCorpusService {
       'productDescriptors': '请提取产品描述中的关键词、特色词汇',
       'coreTopics': '请提取品牌经常提及的核心话题、关注领域',
       'hashtags': '请提取或生成适合的社交媒体标签',
-      'keywords': '请提取5-15个品牌核心关键词',
+      'keywords': '请提取5-15个品牌核心关键词，按5个维度分类：定位关键词（市场定位）、品类关键词（产品类别）、情感关键词（情感传达）、差异化关键词（独特优势）、价值关键词（核心价值）。避免过于宽泛的词汇，突出品牌独特性',
       'forbiddenWords': '请提取明确提及的禁用词汇、避免使用的表达'
     };
   }
