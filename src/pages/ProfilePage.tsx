@@ -242,7 +242,9 @@ export default function ProfilePage() {
    */
   const handleRandomAvatar = () => {
     const safeName = getUserDisplayName(user, 'User');
-    const newAvatar = avatarService.generateRandomAvatar(safeName);
+    // 使用时间戳和随机数确保每次生成不同的头像
+    const randomSeed = `${safeName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const newAvatar = avatarService.generateRandomAvatar(randomSeed);
     setProfileForm(prev => ({
       ...prev,
       avatar: newAvatar
@@ -409,18 +411,18 @@ export default function ProfilePage() {
                       {userStats.usedCount}/{userStats.availableUses} 次使用
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-2 gap-6 text-sm">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                      <div className="text-white/70 mb-1">用户ID</div>
-                      <div className="font-mono text-lg font-semibold">{userStats.userId}</div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="text-white/70 text-xs mb-1">用户ID</div>
+                      <div className="font-mono text-base font-semibold">{userStats.userId}</div>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                      <div className="text-white/70 flex items-center gap-1 mb-1">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="text-white/70 flex items-center gap-1 text-xs mb-1">
                         已陪伴
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                              <button className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
                                 <span className="text-xs font-bold">ℹ️</span>
                               </button>
                             </TooltipTrigger>
@@ -430,7 +432,7 @@ export default function ProfilePage() {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                      <div className="text-lg font-semibold">{companionDays}天</div>
+                      <div className="text-base font-semibold">{companionDays}天</div>
                     </div>
                   </div>
                 </div>
@@ -601,7 +603,19 @@ export default function ProfilePage() {
 
                 <div className="mt-8 pt-6 border-t border-gray-200">
                   <Button
-                    className="w-full h-14 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    style={{
+                      background: 'linear-gradient(to right, #ec4899, #ef4444)',
+                      backgroundImage: 'linear-gradient(to right, #ec4899, #ef4444)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #db2777, #dc2626)';
+                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #db2777, #dc2626)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #ec4899, #ef4444)';
+                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #ec4899, #ef4444)';
+                    }}
                     onClick={handleInviteFriends}
                   >
                     <Users className="w-5 h-5 mr-3" />

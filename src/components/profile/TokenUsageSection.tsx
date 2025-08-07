@@ -165,7 +165,7 @@ export function TokenUsageSection({
                     <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                       <Zap className="w-5 h-5 text-white" />
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2">
                       <h3 className="font-bold text-blue-800 text-lg">Token使用量</h3>
                       <InfoTooltip
                         title="Token统计说明"
@@ -218,7 +218,7 @@ export function TokenUsageSection({
                     <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                       <Target className="w-5 h-5 text-white" />
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2">
                       <h3 className="font-bold text-green-800 text-lg">使用次数</h3>
                       <InfoTooltip
                         title="使用次数说明"
@@ -241,25 +241,25 @@ export function TokenUsageSection({
                   </Badge>
                 </div>
 
-                {usageCountStats && usageCountStats.availableUses !== -1 && (
-                  <div className="space-y-4">
-                    <Progress
-                      value={Math.min(usageCountStats?.usagePercentage || 0, 100)}
-                      className="h-3 bg-green-200"
-                    />
-                    <div className="flex justify-between text-sm font-medium text-green-700">
-                      <span>已使用 {usageCountStats?.usedCount || 0} 次</span>
-                      <span>剩余 {usageCountStats?.remainingUses || 0} 次</span>
+                <div className="space-y-4">
+                  {usageCountStats && usageCountStats.availableUses !== -1 ? (
+                    <>
+                      <Progress
+                        value={Math.min(usageCountStats?.usagePercentage || 0, 100)}
+                        className="h-3 bg-green-200"
+                      />
+                      <div className="flex justify-between text-sm font-medium text-green-700">
+                        <span>已使用 {usageCountStats?.usedCount || 0} 次</span>
+                        <span>剩余 {usageCountStats?.remainingUses || 0} 次</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
+                      <div className="text-2xl font-bold text-green-600 mb-2">∞</div>
+                      <div className="text-sm font-medium text-green-700">无限制使用</div>
                     </div>
-                  </div>
-                )}
-
-                {usageCountStats && usageCountStats.availableUses === -1 && (
-                  <div className="text-center py-4">
-                    <div className="text-2xl font-bold text-green-600 mb-2">∞</div>
-                    <div className="text-sm font-medium text-green-700">无限制使用</div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
               </div>
 
@@ -267,7 +267,19 @@ export function TokenUsageSection({
               {showUpgradeButton && (
                 <div className="mt-8 pt-6 border-t border-gray-200">
                   <Button
-                    className="w-full h-14 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    style={{
+                      background: 'linear-gradient(to right, #f97316, #ef4444)',
+                      backgroundImage: 'linear-gradient(to right, #f97316, #ef4444)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #ea580c, #dc2626)';
+                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #ea580c, #dc2626)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #f97316, #ef4444)';
+                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #f97316, #ef4444)';
+                    }}
                     onClick={handleUpgrade}
                   >
                     <Crown className="w-5 h-5 mr-3" />
