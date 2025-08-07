@@ -266,29 +266,17 @@ export function TokenUsageSection({
             </div>
 
             {/* 升级按钮 */}
-              {showUpgradeButton && (
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <Button
-                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    style={{
-                      background: 'linear-gradient(to right, #f97316, #ef4444)',
-                      backgroundImage: 'linear-gradient(to right, #f97316, #ef4444)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, #ea580c, #dc2626)';
-                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #ea580c, #dc2626)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, #f97316, #ef4444)';
-                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #f97316, #ef4444)';
-                    }}
-                    onClick={handleUpgrade}
-                  >
-                    <Crown className="w-5 h-5 mr-3" />
-                    解锁高级功能
-                  </Button>
-                </div>
-              )}
+            {showUpgradeButton && (
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <Button
+                  className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-upgrade-gradient"
+                  onClick={handleUpgrade}
+                >
+                  <Crown className="w-5 h-5 mr-3" />
+                  解锁高级功能
+                </Button>
+              </div>
+            )}
             </>
           )}
         </CardContent>

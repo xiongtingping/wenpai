@@ -898,6 +898,29 @@
   vertical-align: middle;
 }
 
+/* 专用按钮背景修复 - 使用最高优先级 */
+.btn-invite-gradient {
+  background: linear-gradient(to right, #ec4899, #ef4444) !important;
+  background-image: linear-gradient(to right, #ec4899, #ef4444) !important;
+  border: none !important;
+}
+
+.btn-invite-gradient:hover {
+  background: linear-gradient(to right, #db2777, #dc2626) !important;
+  background-image: linear-gradient(to right, #db2777, #dc2626) !important;
+}
+
+.btn-upgrade-gradient {
+  background: linear-gradient(to right, #f97316, #ef4444) !important;
+  background-image: linear-gradient(to right, #f97316, #ef4444) !important;
+  border: none !important;
+}
+
+.btn-upgrade-gradient:hover {
+  background: linear-gradient(to right, #ea580c, #dc2626) !important;
+  background-image: linear-gradient(to right, #ea580c, #dc2626) !important;
+}
+
 .hero-button-text {
   display: inline-block;
   line-height: 1;

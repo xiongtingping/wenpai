@@ -351,10 +351,9 @@ export default function ProfilePage() {
       <div className="container mx-auto px-4 py-8">
 
 
-        {/* 主要内容区域 - 三列布局 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 第一列：个人资料 */}
-          <div className="lg:col-span-1">
+        {/* 第一行：个人资料（全宽） */}
+        <div className="mb-8">
+          <div>
             <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
                 <CardTitle className="flex items-center gap-3">
@@ -531,10 +530,20 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
           </div>
+        </div>
 
+        {/* 第二行：两列布局 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* 左侧：使用统计 */}
+          <div className="lg:col-span-1">
+            <TokenUsageSection
+              userTier={userStats.accountType === '体验版' ? 'trial' :
+                       userStats.accountType === '专业版' ? 'pro' : 'premium'}
+              showDetails={true}
+            />
+          </div>
 
-
-          {/* 第二列：邀请奖励 */}
+          {/* 右侧：邀请奖励 */}
           <div className="lg:col-span-1">
             <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-pink-500 to-red-500 text-white">
@@ -601,19 +610,7 @@ export default function ProfilePage() {
 
                 <div className="mt-8 pt-6 border-t border-gray-200">
                   <Button
-                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    style={{
-                      background: 'linear-gradient(to right, #ec4899, #ef4444)',
-                      backgroundImage: 'linear-gradient(to right, #ec4899, #ef4444)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, #db2777, #dc2626)';
-                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #db2777, #dc2626)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, #ec4899, #ef4444)';
-                      e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #ec4899, #ef4444)';
-                    }}
+                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-invite-gradient"
                     onClick={handleInviteFriends}
                   >
                     <Users className="w-5 h-5 mr-3" />
@@ -624,14 +621,6 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* 第三列：使用统计 */}
-          <div className="lg:col-span-1">
-            <TokenUsageSection
-              userTier={userStats.accountType === '体验版' ? 'trial' :
-                       userStats.accountType === '专业版' ? 'pro' : 'premium'}
-              showDetails={true}
-            />
-          </div>
         </div>
       </div>
     </div>
