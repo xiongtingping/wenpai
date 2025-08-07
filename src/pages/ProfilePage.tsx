@@ -349,101 +349,11 @@ export default function ProfilePage() {
       )}
 
       <div className="container mx-auto px-4 py-8">
-        {/* 顶部用户信息卡片 */}
-        <div className="mb-8">
-          <Card className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                {/* 头像区域 */}
-                <div className="text-center md:text-left">
-                  <div className="relative inline-block">
-                    {/* ✅ ENHANCED: 头像显示 - 支持实时更新和上传 */}
-                    <Avatar className="w-32 h-32 border-4 border-white/20">
-                      <AvatarImage
-                        src={getCurrentFormAvatar()}
-                        alt={getUserAltText(user, '头像')}
-                      />
-                      <AvatarFallback className="text-2xl bg-white/20 text-white">
-                        {getUserAvatarFallback(user)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -bottom-2 -right-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="w-10 h-10 rounded-full p-0 bg-white/90 hover:bg-white shadow-lg border-2 border-white/50"
-                              onClick={handleRandomAvatar}
-                            >
-                              <Sparkles className="w-4 h-4 text-purple-600" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>生成随机头像</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <Button variant="outline" size="sm" onClick={handleUploadAvatar} className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                      <Upload className="w-4 h-4 mr-2" />
-                      上传头像
-                    </Button>
-                  </div>
-                </div>
 
-                {/* 用户信息 */}
-                <div className="flex-1 text-center md:text-left">
-                  {/* ✅ FIXED: 用户名显示 - 使用安全的用户信息获取函数 */}
-                  <h1 className="text-3xl font-bold mb-2">
-                    {getUserDisplayName(user, '用户')}
-                  </h1>
-                  <div className="flex flex-wrap gap-4 justify-center md:justify-start mb-4">
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                      <Crown className="w-3 h-3 mr-1" />
-                      {userStats.accountType}
-                    </Badge>
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                      <Activity className="w-3 h-3 mr-1" />
-                      {userStats.usedCount}/{userStats.availableUses} 次使用
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <div className="text-white/70 text-xs mb-1">用户ID</div>
-                      <div className="font-mono text-base font-semibold">{userStats.userId}</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <div className="text-white/70 flex items-center gap-1 text-xs mb-1">
-                        已陪伴
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
-                                <span className="text-xs font-bold">ℹ️</span>
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>注册时间：{userStats.registrationDate}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <div className="text-base font-semibold">{companionDays}天</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* 主要内容区域 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* 左侧：个人资料 */}
+        {/* 主要内容区域 - 三列布局 */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 第一列：个人资料 */}
           <div className="lg:col-span-1">
             <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
@@ -457,8 +367,96 @@ export default function ProfilePage() {
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col p-8">
-                <div className="flex-1 space-y-6">
+
+              {/* 融合的用户信息区域 */}
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 pb-6">
+                <div className="flex flex-col items-center gap-4">
+                  {/* 头像区域 */}
+                  <div className="relative">
+                    <Avatar className="w-20 h-20 border-4 border-white/30">
+                      <AvatarImage
+                        src={getCurrentFormAvatar()}
+                        alt={getUserAltText(user, '头像')}
+                      />
+                      <AvatarFallback className="text-lg bg-white/20 text-white">
+                        {getUserAvatarFallback(user)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-1 -right-1">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="w-8 h-8 rounded-full p-0 bg-white/90 hover:bg-white shadow-lg border-2 border-white/50"
+                              onClick={handleRandomAvatar}
+                            >
+                              <Sparkles className="w-3 h-3 text-purple-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>生成随机头像</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+
+                  {/* 用户基本信息 */}
+                  <div className="text-center">
+                    <h2 className="text-lg font-bold mb-2">
+                      {getUserDisplayName(user, '用户')}
+                    </h2>
+                    <div className="flex flex-wrap gap-2 justify-center mb-3">
+                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                        <Crown className="w-3 h-3 mr-1" />
+                        {userStats.accountType}
+                      </Badge>
+                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                        <Activity className="w-3 h-3 mr-1" />
+                        {userStats.usedCount}/{userStats.availableUses} 次
+                      </Badge>
+                    </div>
+
+                    {/* 用户统计信息 */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
+                        <div className="text-white/70 mb-1">用户ID</div>
+                        <div className="font-mono text-sm font-semibold">{userStats.userId}</div>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
+                        <div className="text-white/70 flex items-center gap-1 mb-1">
+                          已陪伴
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                                  <span className="text-xs">ℹ️</span>
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>注册时间：{userStats.registrationDate}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <div className="text-sm font-semibold">{companionDays}天</div>
+                      </div>
+                    </div>
+
+                    {/* 上传头像按钮 */}
+                    <div className="mt-3">
+                      <Button variant="outline" size="sm" onClick={handleUploadAvatar} className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs">
+                        <Upload className="w-3 h-3 mr-1" />
+                        上传头像
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <CardContent className="flex-1 flex flex-col p-6">
+                <div className="flex-1 space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="nickname" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -536,7 +534,7 @@ export default function ProfilePage() {
 
 
 
-          {/* 右侧：邀请奖励 */}
+          {/* 第二列：邀请奖励 */}
           <div className="lg:col-span-1">
             <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-pink-500 to-red-500 text-white">
@@ -625,15 +623,15 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
           </div>
-        </div>
 
-        {/* 详细Token统计区域 */}
-        <div className="mt-8">
-          <TokenUsageSection
-            userTier={userStats.accountType === '体验版' ? 'trial' :
-                     userStats.accountType === '专业版' ? 'pro' : 'premium'}
-            showDetails={true}
-          />
+          {/* 第三列：使用统计 */}
+          <div className="lg:col-span-1">
+            <TokenUsageSection
+              userTier={userStats.accountType === '体验版' ? 'trial' :
+                       userStats.accountType === '专业版' ? 'pro' : 'premium'}
+              showDetails={true}
+            />
+          </div>
         </div>
       </div>
     </div>

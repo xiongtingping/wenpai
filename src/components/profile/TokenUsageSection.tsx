@@ -56,7 +56,9 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+          <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors cursor-help">
+            <span className="text-xs font-bold text-gray-600">ℹ️</span>
+          </button>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs">
           <div className="space-y-2">
@@ -236,13 +238,13 @@ export function TokenUsageSection({
                             usageCountStats && usageCountStats.usagePercentage > 60 ? "secondary" : "default"}
                     className="text-sm font-bold"
                   >
-                    {usageCountStats && usageCountStats.availableUses === -1 ? '无限制' :
+                    {userTier === 'premium' || (usageCountStats && usageCountStats.availableUses === -1) ? '无限制' :
                      `${usageCountStats?.usedCount || 0}/${usageCountStats?.availableUses || 0}`}
                   </Badge>
                 </div>
 
                 <div className="space-y-4">
-                  {usageCountStats && usageCountStats.availableUses !== -1 ? (
+                  {userTier !== 'premium' && usageCountStats && usageCountStats.availableUses !== -1 ? (
                     <>
                       <Progress
                         value={Math.min(usageCountStats?.usagePercentage || 0, 100)}
@@ -261,9 +263,9 @@ export function TokenUsageSection({
                   )}
                 </div>
               </div>
-              </div>
+            </div>
 
-              {/* 升级按钮 */}
+            {/* 升级按钮 */}
               {showUpgradeButton && (
                 <div className="mt-8 pt-6 border-t border-gray-200">
                   <Button
