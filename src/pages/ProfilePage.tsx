@@ -366,14 +366,23 @@ export default function ProfilePage() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-2 -right-2">
-                      <Button 
-                        size="sm" 
-                        variant="secondary" 
-                        className="w-8 h-8 rounded-full p-0"
-                        onClick={handleRandomAvatar}
-                      >
-                        <Sparkles className="w-4 h-4" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="w-10 h-10 rounded-full p-0 bg-white/90 hover:bg-white shadow-lg border-2 border-white/50"
+                              onClick={handleRandomAvatar}
+                            >
+                              <Sparkles className="w-4 h-4 text-purple-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>生成随机头像</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
                   <div className="mt-4 space-y-2">
@@ -400,18 +409,20 @@ export default function ProfilePage() {
                       {userStats.usedCount}/{userStats.availableUses} 次使用
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <div className="text-white/70">用户ID</div>
-                      <div className="font-mono">{userStats.userId}</div>
+                  <div className="grid grid-cols-2 gap-6 text-sm">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                      <div className="text-white/70 mb-1">用户ID</div>
+                      <div className="font-mono text-lg font-semibold">{userStats.userId}</div>
                     </div>
-                    <div>
-                      <div className="text-white/70 flex items-center gap-1">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                      <div className="text-white/70 flex items-center gap-1 mb-1">
                         已陪伴
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="w-3 h-3 cursor-help" />
+                              <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                                <span className="text-xs font-bold">ℹ️</span>
+                              </button>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>注册时间：{userStats.registrationDate}</p>
@@ -419,15 +430,7 @@ export default function ProfilePage() {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                      <div>{companionDays}天</div>
-                    </div>
-                    <div>
-                      <div className="text-white/70">Token使用</div>
-                      <div>{userStats.usedTokens.toLocaleString()}/{userStats.tokenLimit.toLocaleString()}</div>
-                    </div>
-                    <div>
-                      <div className="text-white/70">已节省时间</div>
-                      <div>{userStats.timeSaved}分钟</div>
+                      <div className="text-lg font-semibold">{companionDays}天</div>
                     </div>
                   </div>
                 </div>
@@ -440,72 +443,90 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 左侧：个人资料 */}
           <div className="lg:col-span-1">
-            <Card className="h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  个人资料
-                </CardTitle>
-                <CardDescription>
-                  管理您的个人信息
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <div className="flex-1 space-y-4">
+            <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5" />
+                  </div>
                   <div>
-                    <Label htmlFor="nickname">昵称</Label>
+                    <div className="text-xl font-bold">个人资料</div>
+                    <div className="text-blue-100 text-sm font-normal">管理您的个人信息</div>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col p-8">
+                <div className="flex-1 space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="nickname" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      昵称
+                    </Label>
                     <Input
                       id="nickname"
                       value={profileForm.nickname}
                       onChange={(e) => handleFormChange('nickname', e.target.value)}
                       placeholder="请输入昵称"
-                      className="mt-1"
+                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 transition-colors bg-gray-50/50"
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="phone">手机号</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      手机号
+                    </Label>
                     <Input
                       id="phone"
                       value={profileForm.phone}
                       onChange={(e) => handleFormChange('phone', e.target.value)}
                       placeholder="请输入手机号"
-                      className="mt-1"
+                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-0 transition-colors bg-gray-50/50"
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="email">邮箱</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      邮箱
+                    </Label>
                     <Input
                       id="email"
                       type="email"
                       value={profileForm.email}
                       onChange={(e) => handleFormChange('email', e.target.value)}
                       placeholder="请输入邮箱"
-                      className="mt-1"
+                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-0 transition-colors bg-gray-50/50"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      首次验证奖励: 完成邮箱验证可获10次免费使用
-                    </p>
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
+                      <p className="text-xs text-purple-700 flex items-center gap-2">
+                        <Gift className="w-3 h-3" />
+                        首次验证奖励: 完成邮箱验证可获10次免费使用
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <Separator className="my-6" />
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <div className="space-y-4">
+                    <Button
+                      onClick={handleSaveProfile}
+                      className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      disabled={!hasUnsavedChanges}
+                    >
+                      <Save className="w-5 h-5 mr-2" />
+                      保存更改
+                    </Button>
 
-                <div className="space-y-3">
-                  <Button 
-                    onClick={handleSaveProfile}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    disabled={!hasUnsavedChanges}
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    保存更改
-                  </Button>
-
-                  <Button variant="outline" className="w-full" onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    退出登录
-                  </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full h-12 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold rounded-xl transition-all duration-200"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="w-5 h-5 mr-2" />
+                      退出登录
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -515,60 +536,78 @@ export default function ProfilePage() {
 
           {/* 右侧：邀请奖励 */}
           <div className="lg:col-span-1">
-            <Card className="h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gift className="w-5 h-5" />
-                  邀请奖励
+            <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-pink-500 to-red-500 text-white">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <Gift className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold">邀请奖励</div>
+                    <div className="text-pink-100 text-sm font-normal">邀请好友获得免费次数</div>
+                  </div>
                 </CardTitle>
-                <CardDescription>
-                  邀请好友获得免费次数
-                </CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
+              <CardContent className="flex-1 flex flex-col p-8">
                 <div className="flex-1 space-y-6">
                   {/* 奖励说明 */}
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Award className="w-5 h-5 text-blue-600" />
-                      <span className="font-semibold text-blue-800">邀请奖励规则</span>
+                  <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl border-2 border-orange-200 shadow-inner">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                        <Award className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="font-bold text-orange-800 text-lg">邀请奖励规则</span>
                     </div>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-orange-700 font-medium">
                       每邀请1人注册，双方各得20次免费使用机会，永久有效！
                     </p>
                   </div>
 
                   {/* 邀请统计 */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-xl font-bold text-gray-800">0</div>
-                      <div className="text-sm text-gray-600">成功邀请</div>
+                    <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 shadow-inner">
+                      <div className="text-3xl font-bold text-blue-600 mb-1">0</div>
+                      <div className="text-sm font-semibold text-blue-700">成功邀请</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-xl font-bold text-gray-800">0</div>
-                      <div className="text-sm text-gray-600">获得次数</div>
+                    <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border-2 border-green-200 shadow-inner">
+                      <div className="text-3xl font-bold text-green-600 mb-1">0</div>
+                      <div className="text-sm font-semibold text-green-700">获得次数</div>
                     </div>
                   </div>
 
                   {/* 邀请方式 */}
                   <div className="space-y-3">
-                    <Label>邀请链接</Label>
-                    <div className="flex gap-2">
-                      <Input value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`} readOnly className="text-xs" />
-                      <Button variant="outline" size="sm" onClick={handleCopyInviteLink}>
+                    <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                      邀请链接
+                    </Label>
+                    <div className="flex gap-3">
+                      <Input
+                        value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`}
+                        readOnly
+                        className="text-xs h-12 border-2 border-gray-200 rounded-xl bg-gray-50/50 font-mono"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCopyInviteLink}
+                        className="h-12 px-4 border-2 border-pink-300 hover:border-pink-500 hover:bg-pink-50 text-pink-600 rounded-xl transition-all duration-200"
+                      >
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                <Button
-                  className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white mt-6"
-                  onClick={handleInviteFriends}
-                >
-                  <Users className="w-4 h-4 mr-2" />
-                  立即邀请好友
-                </Button>
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <Button
+                    className="w-full h-14 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    onClick={handleInviteFriends}
+                  >
+                    <Users className="w-5 h-5 mr-3" />
+                    立即邀请好友
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
