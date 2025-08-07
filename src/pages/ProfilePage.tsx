@@ -348,192 +348,240 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-8">
+      {/* 使用更宽的容器，减少两侧空白 */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
 
-
-        {/* 第一行：个人资料（全宽） */}
+        {/* 重新设计的个人资料区域 - 使用三列布局充分利用空间 */}
         <div className="mb-8">
-          <div>
-            <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                <CardTitle className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold">个人资料</div>
-                    <div className="text-blue-100 text-sm font-normal">管理您的个人信息</div>
-                  </div>
-                </CardTitle>
-              </CardHeader>
+          <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xl font-bold">个人资料</div>
+                  <div className="text-blue-100 text-sm font-normal">管理您的个人信息</div>
+                </div>
+              </CardTitle>
+            </CardHeader>
 
-              {/* 融合的用户信息区域 */}
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 pb-6">
-                <div className="flex flex-col items-center gap-4">
-                  {/* 头像区域 */}
-                  <div className="relative">
-                    <Avatar className="w-20 h-20 border-4 border-white/30">
-                      <AvatarImage
-                        src={getCurrentFormAvatar()}
-                        alt={getUserAltText(user, '头像')}
-                      />
-                      <AvatarFallback className="text-lg bg-white/20 text-white">
-                        {getUserAvatarFallback(user)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -bottom-1 -right-1">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="w-8 h-8 rounded-full p-0 bg-white/90 hover:bg-white shadow-lg border-2 border-white/50"
-                              onClick={handleRandomAvatar}
-                            >
-                              <Sparkles className="w-3 h-3 text-purple-600" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>生成随机头像</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </div>
+            {/* 重新设计的内容区域 - 使用网格布局分散信息密度 */}
+            <CardContent className="p-4 md:p-6 lg:p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
 
-                  {/* 用户基本信息 */}
-                  <div className="text-center">
-                    <h2 className="text-lg font-bold mb-2">
-                      {getUserDisplayName(user, '用户')}
-                    </h2>
-                    <div className="flex flex-wrap gap-2 justify-center mb-3">
-                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
-                        <Crown className="w-3 h-3 mr-1" />
-                        {userStats.accountType}
-                      </Badge>
-                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
-                        <Activity className="w-3 h-3 mr-1" />
-                        {userStats.usedCount}/{userStats.availableUses} 次
-                      </Badge>
-                    </div>
-
-                    {/* 用户统计信息 */}
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
-                        <div className="text-white/70 mb-1">用户ID</div>
-                        <div className="font-mono text-sm font-semibold">{userStats.userId}</div>
-                      </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
-                        <div className="text-white/70 flex items-center gap-1 mb-1">
-                          已陪伴
+                {/* 左侧：头像和基本信息 */}
+                <div className="lg:col-span-1">
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-100">
+                    <div className="text-center space-y-4">
+                      {/* 头像区域 */}
+                      <div className="relative inline-block">
+                        <Avatar className="w-24 h-24 border-4 border-blue-200">
+                          <AvatarImage
+                            src={getCurrentFormAvatar()}
+                            alt={getUserAltText(user, '头像')}
+                          />
+                          <AvatarFallback className="text-xl bg-blue-100 text-blue-600">
+                            {getUserAvatarFallback(user)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="absolute -bottom-1 -right-1">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <button className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
-                                  <span className="text-xs">ℹ️</span>
-                                </button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  className="w-8 h-8 rounded-full p-0 bg-blue-500 hover:bg-blue-600 shadow-lg border-2 border-white"
+                                  onClick={handleRandomAvatar}
+                                >
+                                  <Sparkles className="w-3 h-3 text-white" />
+                                </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>注册时间：{userStats.registrationDate}</p>
+                                <p>生成随机头像</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </div>
-                        <div className="text-sm font-semibold">{companionDays}天</div>
+                      </div>
+
+                      {/* 用户基本信息 */}
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-800 mb-3">
+                          {getUserDisplayName(user, '用户')}
+                        </h2>
+                        <div className="flex flex-wrap gap-2 justify-center mb-4">
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                            <Crown className="w-3 h-3 mr-1" />
+                            {userStats.accountType}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                            <Activity className="w-3 h-3 mr-1" />
+                            {userStats.usedCount}/{userStats.availableUses} 次
+                          </Badge>
+                        </div>
+
+                        {/* 上传头像按钮 */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleUploadAvatar}
+                          className="bg-white border-blue-200 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          上传头像
+                        </Button>
                       </div>
                     </div>
+                  </div>
 
-                    {/* 上传头像按钮 */}
-                    <div className="mt-3">
-                      <Button variant="outline" size="sm" onClick={handleUploadAvatar} className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs">
-                        <Upload className="w-3 h-3 mr-1" />
-                        上传头像
+                  {/* 用户统计信息卡片 */}
+                  <div className="mt-6 grid grid-cols-1 gap-4">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border-2 border-gray-200">
+                      <div className="text-gray-600 text-sm mb-1 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        用户ID
+                      </div>
+                      <div className="font-mono text-lg font-semibold text-gray-800">{userStats.userId}</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border-2 border-purple-200">
+                      <div className="text-purple-600 text-sm mb-1 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        已陪伴
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-purple-200 hover:bg-purple-300 transition-colors">
+                                <span className="text-xs">ℹ️</span>
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>注册时间：{userStats.registrationDate}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <div className="text-lg font-semibold text-purple-800">{companionDays}天</div>
+                    </div>
+                  </div>
+                </div>
+                {/* 中间：表单区域 */}
+                <div className="lg:col-span-1">
+                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border-2 border-gray-200 h-full">
+                    <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      编辑信息
+                    </h3>
+
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <Label htmlFor="nickname" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          昵称
+                        </Label>
+                        <Input
+                          id="nickname"
+                          value={profileForm.nickname}
+                          onChange={(e) => handleFormChange('nickname', e.target.value)}
+                          placeholder="请输入昵称"
+                          className="h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 transition-colors bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          手机号
+                        </Label>
+                        <Input
+                          id="phone"
+                          value={profileForm.phone}
+                          onChange={(e) => handleFormChange('phone', e.target.value)}
+                          placeholder="请输入手机号"
+                          className="h-12 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-0 transition-colors bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          邮箱
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={profileForm.email}
+                          onChange={(e) => handleFormChange('email', e.target.value)}
+                          placeholder="请输入邮箱"
+                          className="h-12 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-0 transition-colors bg-white"
+                        />
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
+                          <p className="text-xs text-purple-700 flex items-center gap-2">
+                            <Gift className="w-3 h-3" />
+                            首次验证奖励: 完成邮箱验证可获10次免费使用
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 右侧：操作按钮区域 */}
+                <div className="lg:col-span-1">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border-2 border-blue-200 h-full">
+                    <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      账户操作
+                    </h3>
+
+                    <div className="space-y-4">
+                      <Button
+                        onClick={handleSaveProfile}
+                        className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                        disabled={!hasUnsavedChanges}
+                      >
+                        <Save className="w-5 h-5 mr-2" />
+                        保存更改
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold rounded-xl transition-all duration-200"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="w-5 h-5 mr-2" />
+                        退出登录
                       </Button>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <CardContent className="flex-1 flex flex-col p-6">
-                <div className="flex-1 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nickname" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      昵称
-                    </Label>
-                    <Input
-                      id="nickname"
-                      value={profileForm.nickname}
-                      onChange={(e) => handleFormChange('nickname', e.target.value)}
-                      placeholder="请输入昵称"
-                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 transition-colors bg-gray-50/50"
-                    />
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      手机号
-                    </Label>
-                    <Input
-                      id="phone"
-                      value={profileForm.phone}
-                      onChange={(e) => handleFormChange('phone', e.target.value)}
-                      placeholder="请输入手机号"
-                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-0 transition-colors bg-gray-50/50"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      邮箱
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={profileForm.email}
-                      onChange={(e) => handleFormChange('email', e.target.value)}
-                      placeholder="请输入邮箱"
-                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-0 transition-colors bg-gray-50/50"
-                    />
-                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
-                      <p className="text-xs text-purple-700 flex items-center gap-2">
-                        <Gift className="w-3 h-3" />
-                        首次验证奖励: 完成邮箱验证可获10次免费使用
-                      </p>
+                    {/* 额外的账户信息 */}
+                    <div className="mt-6 pt-6 border-t border-blue-200">
+                      <div className="text-sm text-gray-600 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                          <span>账户类型：{userStats.accountType}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                          <span>剩余使用：{userStats.availableUses - userStats.usedCount} 次</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-purple-400 rounded-full"></div>
+                          <span>注册时间：{userStats.registrationDate}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <div className="space-y-4">
-                    <Button
-                      onClick={handleSaveProfile}
-                      className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                      disabled={!hasUnsavedChanges}
-                    >
-                      <Save className="w-5 h-5 mr-2" />
-                      保存更改
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="w-full h-12 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold rounded-xl transition-all duration-200"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="w-5 h-5 mr-2" />
-                      退出登录
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* 第二行：两列布局 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* 第二行：使用统计和邀请奖励 - 优化布局 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* 左侧：使用统计 */}
           <div className="lg:col-span-1">
             <TokenUsageSection
@@ -625,4 +673,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-} 
+}
