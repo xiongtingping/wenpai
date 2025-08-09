@@ -361,7 +361,7 @@ export default function PaymentStatusPage() {
         <p className="text-gray-600 mb-2">
           如果问题持续存在，请联系客服获取帮助
         </p>
-        <Button variant="outline" onClick={() => window.open('mailto:support@example.com')}>
+        <Button variant="outline" onClick={() => window.open('mailto:hello@wenpai.xyz')}>
           联系客服
         </Button>
       </div>

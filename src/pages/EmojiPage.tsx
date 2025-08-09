@@ -314,7 +314,7 @@ const EmojiPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -381,7 +381,7 @@ const EmojiPage: React.FC = () => {
                   onSearchChange={(query) => {
                     console.log('搜索:', query);
                   }}
-                  className="bg-white"
+                  className="bg-card"
                 />
               </CardContent>
             </Card>
@@ -433,10 +433,10 @@ const EmojiPage: React.FC = () => {
 
                 {/* 推荐结果 */}
                 {recommendedEmojis.length > 0 && (
-                  <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                  <Card className="border border-border section-bg">
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Star className="w-5 h-5 text-purple-600" />
+                        <Star className="w-5 h-5 text-primary" />
                         AI推荐结果
                       </CardTitle>
                     </CardHeader>
@@ -481,8 +481,8 @@ const EmojiPage: React.FC = () => {
                       {recommendationReason && (
                         <div>
                           <Label className="text-sm font-medium mb-2 block">推荐理由</Label>
-                          <div className="bg-white p-4 rounded-lg border">
-                            <p className="text-sm text-gray-700 whitespace-pre-wrap">{recommendationReason}</p>
+                          <div className="bg-card p-4 rounded-lg border border-border">
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{recommendationReason}</p>
                           </div>
                         </div>
                       )}
@@ -491,15 +491,15 @@ const EmojiPage: React.FC = () => {
                 )}
 
                 {/* 使用建议 */}
-                <Card className="bg-gradient-to-r from-green-50 to-teal-50 border-green-200">
+                <Card className="border border-border section-bg">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Info className="w-5 h-5 text-green-600" />
+                      <Info className="w-5 h-5 text-primary" />
                       使用建议
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm text-gray-700 space-y-2">
+                    <div className="text-sm text-muted-foreground space-y-2">
                       <p>• <strong>标题使用：</strong>在标题中放置1-2个最关键的emoji增强吸引力</p>
                       <p>• <strong>正文穿插：</strong>在正文段落间适量使用emoji增加节奏感</p>
                       <p>• <strong>结尾强化：</strong>在结尾使用emoji增强情感表达和互动性</p>

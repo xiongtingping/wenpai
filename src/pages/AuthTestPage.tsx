@@ -153,13 +153,13 @@ const AuthTestPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-2">Authing 认证系统测试</h1>
-          <p className="text-gray-600">测试 Authing 认证系统的各项功能</p>
+          <p className="text-muted-foreground">测试 Authing 认证系统的各项功能</p>
         </div>
 
         {/* 当前状态 */}
@@ -172,7 +172,7 @@ const AuthTestPage: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-accent rounded-lg">
                 <span className="font-medium">认证状态:</span>
                 <Badge variant={isAuthenticated ? "default" : "secondary"}>
                   {isAuthenticated ? (
@@ -184,7 +184,7 @@ const AuthTestPage: React.FC = () => {
                 </Badge>
               </div>
               
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-accent rounded-lg">
                 <span className="font-medium">加载状态:</span>
                 <Badge variant={loading ? "default" : "secondary"}>
                   {loading ? (
@@ -198,18 +198,18 @@ const AuthTestPage: React.FC = () => {
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-700 text-sm">错误: {error}</p>
+              <div className="p-3 bg-accent border border-border rounded-lg">
+                <p className="text-destructive text-sm">错误: {error}</p>
               </div>
             )}
 
             {user && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
+              <div className="p-4 bg-accent border border-border rounded-lg">
+                <h4 className="font-medium mb-2 flex items-center gap-2 text-foreground">
                   <User className="h-4 w-4" />
                   用户信息
                 </h4>
-                <div className="text-sm space-y-1">
+                <div className="text-sm space-y-1 text-foreground">
                   <p><strong>ID:</strong> {getUserId(user, '未知')}</p>
                   <p><strong>用户名:</strong> {getUserUsername(user, '未设置')}</p>
                   <p><strong>邮箱:</strong> {getUserEmail(user, '未设置')}</p>
@@ -308,24 +308,24 @@ const AuthTestPage: React.FC = () => {
                     <div 
                       key={testName}
                       className={`p-3 rounded-lg border ${
-                        result.success 
-                          ? 'bg-green-50 border-green-200' 
-                          : 'bg-red-50 border-red-200'
+                        result.success
+                          ? 'bg-accent border-border'
+                          : 'bg-accent border-border'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {result.success ? (
-                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <CheckCircle className="h-4 w-4 text-primary" />
                           ) : (
-                            <XCircle className="h-4 w-4 text-red-600" />
+                            <XCircle className="h-4 w-4 text-destructive" />
                           )}
                           <span className="font-medium">{testName}</span>
                         </div>
-                        <span className="text-xs text-gray-500">{result.timestamp}</span>
+                        <span className="text-xs text-muted-foreground">{result.timestamp}</span>
                       </div>
                       <p className={`text-sm mt-1 ${
-                        result.success ? 'text-green-700' : 'text-red-700'
+                        result.success ? 'text-foreground' : 'text-destructive'
                       }`}>
                         {result.message}
                       </p>
@@ -347,8 +347,8 @@ const AuthTestPage: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">
+              <div className="p-3 bg-accent rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground">
                   Guard 实例已初始化，可以正常使用弹窗登录功能
                 </p>
               </div>

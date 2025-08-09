@@ -130,21 +130,21 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-primary particle-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-white">加载历史记录中...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">加载历史记录中...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-sm">历史记录</h1>
-          <p className="text-indigo-100">
+          <h1 className="text-3xl font-bold text-foreground mb-2">历史记录</h1>
+          <p className="text-muted-foreground">
             查看您之前生成的内容适配记录
           </p>
         </div>
@@ -152,9 +152,9 @@ export default function HistoryPage() {
         {history.length === 0 ? (
           <Card variant="soft" className="rounded-xl">
             <CardContent className="text-center py-12">
-              <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">暂无历史记录</h3>
-              <p className="text-gray-600 mb-4">
+              <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">暂无历史记录</h3>
+              <p className="text-muted-foreground mb-4">
                 您还没有生成过内容，快去试试内容适配功能吧！
               </p>
               <Button variant="gradient" onClick={() => window.location.href = '/adapt'}>
@@ -173,7 +173,7 @@ export default function HistoryPage() {
             <Button
               variant="soft"
               onClick={clearAllHistory}
-              className="text-red-600 hover:text-red-700"
+              className="text-destructive hover:text-destructive/80"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               清空所有
@@ -189,7 +189,7 @@ export default function HistoryPage() {
                       <Badge variant="outline">
                         {getPlatformName(item.platformId)}
                       </Badge>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-muted-foreground">
                         {formatTime(item.timestamp)}
                       </span>
                     </div>
@@ -205,7 +205,7 @@ export default function HistoryPage() {
                         size="sm"
                         variant="ghost"
                         onClick={() => deleteHistoryItem(index)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -213,8 +213,8 @@ export default function HistoryPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-gray-800 whitespace-pre-wrap">
+                  <div className="bg-card rounded-lg p-4 border border-border">
+                    <p className="text-foreground whitespace-pre-wrap">
                       {item.content}
                     </p>
                   </div>

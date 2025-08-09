@@ -49,8 +49,8 @@ export default function AlipayQRCodeDemoPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-bold">支</span>
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground text-sm font-bold">支</span>
             </div>
             支付宝二维码演示
             <Badge variant="secondary">优化版</Badge>
@@ -69,8 +69,8 @@ export default function AlipayQRCodeDemoPage() {
                   key={product.priceId} 
                   className={`p-4 cursor-pointer transition-colors ${
                     selectedProduct === index 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'hover:border-gray-300'
+                      ? 'border-primary bg-accent'
+                      : 'hover:border-border'
                   }`}
                   onClick={() => setSelectedProduct(index)}
                 >
@@ -112,7 +112,7 @@ export default function AlipayQRCodeDemoPage() {
                     </p>
                   </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-accent p-4 rounded-lg border border-border">
                     <h5 className="font-medium mb-2">当前配置</h5>
                     <div className="space-y-1 text-sm">
                       <p><span className="font-medium">产品名称:</span> {selectedProductData.name}</p>
@@ -145,7 +145,7 @@ export default function AlipayQRCodeDemoPage() {
                     </p>
                   </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-accent p-4 rounded-lg border border-border">
                     <h5 className="font-medium mb-2">当前配置</h5>
                     <div className="space-y-1 text-sm">
                       <p><span className="font-medium">产品名称:</span> {selectedProductData.name}</p>
@@ -178,7 +178,7 @@ export default function AlipayQRCodeDemoPage() {
                     </p>
                   </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-accent p-4 rounded-lg border border-border">
                     <h5 className="font-medium mb-2">当前配置</h5>
                     <div className="space-y-1 text-sm">
                       <p><span className="font-medium">产品名称:</span> {selectedProductData.name}</p>
@@ -204,9 +204,9 @@ export default function AlipayQRCodeDemoPage() {
 
           {/* 优化特性说明 */}
           <Separator />
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">优化特性</h4>
-            <div className="space-y-2 text-sm text-blue-800">
+          <div className="bg-accent p-4 rounded-lg border border-border">
+            <h4 className="font-medium text-foreground mb-2">优化特性</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-start gap-2">
                 <span className="font-medium">🎨</span>
                 <span>支付宝品牌元素：蓝色主题、支付宝logo、品牌色彩</span>
@@ -231,9 +231,9 @@ export default function AlipayQRCodeDemoPage() {
           </div>
 
           {/* 文案优化说明 */}
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-medium text-green-900 mb-2">文案优化</h4>
-            <div className="space-y-2 text-sm text-green-800">
+          <div className="bg-accent p-4 rounded-lg border border-border">
+            <h4 className="font-medium text-foreground mb-2">文案优化</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-start gap-2">
                 <span className="font-medium">✅</span>
                 <span>标题改为："使用支付宝扫码付款"</span>

@@ -121,7 +121,7 @@ export default function PaymentSuccessPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-primary particle-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-white">正在处理支付结果...</p>
+          <p className="mt-4 text-primary-foreground">正在处理支付结果...</p>
         </div>
       </div>
     );
@@ -135,11 +135,11 @@ export default function PaymentSuccessPage() {
       <div className="container mx-auto px-4 max-w-4xl">
         {/* 成功提示 */}
         <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-12 h-12 text-white" />
+          <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-12 h-12 text-primary-foreground" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">支付成功！</h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <h1 className="text-4xl font-bold text-foreground mb-4">支付成功！</h1>
+          <p className="text-xl text-muted-foreground mb-8">
             感谢您的订阅，我们正在为您激活相关功能
           </p>
         </div>
@@ -157,48 +157,48 @@ export default function PaymentSuccessPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">订单号：</span>
-                    <span className="font-mono text-sm">{orderInfo.orderId}</span>
+                    <span className="text-muted-foreground">订单号：</span>
+                    <span className="font-mono text-sm text-foreground">{orderInfo.orderId}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">支付金额：</span>
-                    <span className="font-bold text-green-600">
+                    <span className="text-muted-foreground">支付金额：</span>
+                    <span className="font-bold text-foreground">
                       {/* {formatAmount(parseFloat(orderInfo.amount), orderInfo.currency)} */}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">支付方式：</span>
-                    <span>{/* {getPaymentMethodName(orderInfo.paymentMethod)} */}</span>
+                    <span className="text-muted-foreground">支付方式：</span>
+                    <span className="text-foreground">{/* {getPaymentMethodName(orderInfo.paymentMethod)} */}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">支付时间：</span>
-                    <span>{new Date(orderInfo.createdAt).toLocaleString('zh-CN')}</span>
+                    <span className="text-muted-foreground">支付时间：</span>
+                    <span className="text-foreground">{new Date(orderInfo.createdAt).toLocaleString('zh-CN')}</span>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">订阅计划：</span>
+                    <span className="text-muted-foreground">订阅计划：</span>
                     <div className="flex items-center gap-2">
-                      {planInfo?.tier === 'premium' && <Crown className="w-4 h-4 text-yellow-500" />}
-                      {planInfo?.tier === 'pro' && <Star className="w-4 h-4 text-purple-500" />}
-                      <span className="font-semibold">{planInfo?.name || '未知计划'}</span>
+                      {planInfo?.tier === 'premium' && <Crown className="w-4 h-4 text-primary" />}
+                      {planInfo?.tier === 'pro' && <Star className="w-4 h-4 text-primary" />}
+                      <span className="font-semibold text-foreground">{planInfo?.name || '未知计划'}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">订阅状态：</span>
+                    <span className="text-muted-foreground">订阅状态：</span>
                     <Badge variant={subscriptionStatus.color === 'green' ? 'default' : 'secondary'}>
                       {subscriptionStatus.text}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">用户ID：</span>
-                    <span className="font-mono text-sm">{user?.id || '未知'}</span>
+                    <span className="text-muted-foreground">用户ID：</span>
+                    <span className="font-mono text-sm text-foreground">{user?.id || '未知'}</span>
                   </div>
                   {/* ✅ FIXED: 用户名显示 - 使用安全的用户信息获取函数 */}
                   <div className="flex justify-between">
-                    <span className="text-gray-600">用户名：</span>
-                    <span>{getUserDisplayName(user, '未知用户')}</span>
+                    <span className="text-muted-foreground">用户名：</span>
+                    <span className="text-foreground">{getUserDisplayName(user, '未知用户')}</span>
                   </div>
                 </div>
               </div>
@@ -218,19 +218,19 @@ export default function PaymentSuccessPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  {planInfo.tier === 'premium' && <Crown className="w-6 h-6 text-yellow-600" />}
-                  {planInfo.tier === 'pro' && <Star className="w-6 h-6 text-purple-600" />}
-                  <h3 className="text-xl font-semibold">{planInfo.name}</h3>
+                  {planInfo.tier === 'premium' && <Crown className="w-6 h-6 text-primary" />}
+                  {planInfo.tier === 'pro' && <Star className="w-6 h-6 text-primary" />}
+                  <h3 className="text-xl font-semibold text-foreground">{planInfo.name}</h3>
                   {planInfo.recommended && (
-                    <Badge className="bg-blue-500">推荐</Badge>
+                    <Badge>推荐</Badge>
                   )}
                 </div>
-                <p className="text-gray-600">{planInfo.description}</p>
+                <p className="text-muted-foreground">{planInfo.description}</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <h4 className="font-semibold mb-2">功能限制</h4>
-                    <ul className="space-y-1 text-sm text-gray-600">
+                    <ul className="space-y-1 text-sm text-muted-foreground">
                       <li>AI内容适配器：{planInfo.limits.adaptUsageLimit === -1 ? '不限次数' : `${planInfo.limits.adaptUsageLimit}次/月`}</li>
                       <li>Token限制：{planInfo.limits.tokenLimit.toLocaleString()}</li>
                       <li>可用模型：{planInfo.limits.availableModels.join(', ')}</li>
@@ -238,10 +238,10 @@ export default function PaymentSuccessPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold mb-2">可用功能</h4>
-                    <ul className="space-y-1 text-sm text-gray-600">
+                    <ul className="space-y-1 text-sm text-muted-foreground">
                       {planInfo.limits.availableFeatures.map((feature, index) => (
                         <li key={index} className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <CheckCircle className="w-4 h-4 text-primary" />
                           {feature}
                         </li>
                       ))}
@@ -257,7 +257,7 @@ export default function PaymentSuccessPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {/* <Home className="w-4 h-4" /> */}
             返回首页
@@ -289,9 +289,9 @@ export default function PaymentSuccessPage() {
 
         {/* 温馨提示 */}
         <div className="mt-12 text-center">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3">温馨提示</h3>
-            <ul className="text-sm text-blue-800 space-y-2 text-left">
+          <div className="bg-accent border border-border rounded-lg p-6 max-w-2xl mx-auto">
+            <h3 className="text-lg font-semibold text-foreground mb-3">温馨提示</h3>
+            <ul className="text-sm text-muted-foreground space-y-2 text-left">
               <li>• 您的订阅已成功激活，可以立即使用所有相关功能</li>
               <li>• 如果功能未立即生效，请尝试刷新页面或等待几分钟</li>
               <li>• 订阅到期前我们会通过邮件提醒您续费</li>
@@ -302,11 +302,11 @@ export default function PaymentSuccessPage() {
 
         {/* 下一步建议 */}
         <div className="mt-8 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">接下来您可以：</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">接下来您可以：</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">体验AI内容适配器</h4>
-              <p className="text-sm text-gray-600 mb-3">使用AI技术为不同平台优化内容</p>
+            <div className="bg-card p-4 rounded-lg border border-border">
+              <h4 className="font-semibold mb-2 text-foreground">体验AI内容适配器</h4>
+              <p className="text-sm text-muted-foreground mb-3">使用AI技术为不同平台优化内容</p>
               <Button
                 size="sm"
                 onClick={() => navigate('/adapt')}
@@ -315,10 +315,10 @@ export default function PaymentSuccessPage() {
                 开始使用
               </Button>
             </div>
-            
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">探索创意魔方</h4>
-              <p className="text-sm text-gray-600 mb-3">生成创意内容和营销素材</p>
+
+            <div className="bg-card p-4 rounded-lg border border-border">
+              <h4 className="font-semibold mb-2 text-foreground">探索创意魔方</h4>
+              <p className="text-sm text-muted-foreground mb-3">生成创意内容和营销素材</p>
               <Button
                 size="sm"
                 onClick={() => navigate('/creative')}
@@ -327,10 +327,10 @@ export default function PaymentSuccessPage() {
                 创意工具
               </Button>
             </div>
-            
-            <div className="bg-white p-4 rounded-lg border">
-              <h4 className="font-semibold mb-2">查看使用统计</h4>
-              <p className="text-sm text-gray-600 mb-3">了解您的使用情况和剩余额度</p>
+
+            <div className="bg-card p-4 rounded-lg border border-border">
+              <h4 className="font-semibold mb-2 text-foreground">查看使用统计</h4>
+              <p className="text-sm text-muted-foreground mb-3">了解您的使用情况和剩余额度</p>
               <Button
                 size="sm"
                 onClick={() => navigate('/profile')}

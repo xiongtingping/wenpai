@@ -93,18 +93,18 @@ const CallbackPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card variant="soft" className="w-full max-w-md rounded-xl">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
             {status === 'loading' && (
-              <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
+              <Loader2 className="h-12 w-12 text-primary animate-spin" />
             )}
             {status === 'success' && (
-              <CheckCircle className="h-12 w-12 text-green-500" />
+              <CheckCircle className="h-12 w-12 text-primary" />
             )}
             {status === 'error' && (
-              <XCircle className="h-12 w-12 text-red-500" />
+              <XCircle className="h-12 w-12 text-destructive" />
             )}
           </div>
           <CardTitle className="text-xl font-semibold">
@@ -112,7 +112,7 @@ const CallbackPage: React.FC = () => {
             {status === 'success' && '认证成功'}
             {status === 'error' && '认证失败'}
           </CardTitle>
-          <CardDescription className="text-sm text-gray-600">
+          <CardDescription className="text-sm text-muted-foreground">
             {message}
           </CardDescription>
         </CardHeader>
@@ -121,20 +121,20 @@ const CallbackPage: React.FC = () => {
           {status === 'loading' && (
             <div className="text-center">
               <div className="animate-pulse">
-                <div className="h-2 bg-gray-200 rounded mb-2"></div>
-                <div className="h-2 bg-gray-200 rounded mb-2"></div>
-                <div className="h-2 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-2 bg-muted rounded mb-2"></div>
+                <div className="h-2 bg-muted rounded mb-2"></div>
+                <div className="h-2 bg-muted rounded w-3/4"></div>
               </div>
             </div>
           )}
           
           {status === 'success' && (
             <div className="text-center space-y-3">
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                <CheckCircle className="h-4 w-4 mr-1" />
+              <Badge variant="secondary">
+                <CheckCircle className="h-4 w-4 mr-1 text-primary" />
                 登录成功
               </Badge>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 您已成功登录，正在跳转到首页...
               </p>
             </div>
@@ -142,13 +142,13 @@ const CallbackPage: React.FC = () => {
           
           {status === 'error' && (
             <div className="space-y-3">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="bg-accent border border-border rounded-lg p-3">
                 <div className="flex items-start">
-                  <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
+                  <AlertCircle className="h-5 w-5 text-destructive mt-0.5 mr-2 flex-shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium text-red-800">认证失败</p>
+                    <p className="font-medium text-foreground">认证失败</p>
                     {error && (
-                      <p className="text-red-600 mt-1">{error}</p>
+                      <p className="text-destructive mt-1">{error}</p>
                     )}
                   </div>
                 </div>
@@ -176,8 +176,8 @@ const CallbackPage: React.FC = () => {
           
           {/* 调试信息 */}
           {import.meta.env.DEV && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-xs font-mono text-gray-600">
+            <div className="mt-4 p-3 bg-accent border border-border rounded-lg">
+              <p className="text-xs font-mono text-muted-foreground">
                 <strong>调试信息:</strong><br />
                 Code: {searchParams.get('code') || '无'}<br />
                 State: {searchParams.get('state') || '无'}<br />

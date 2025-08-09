@@ -13,14 +13,14 @@ export default function PrivacyPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 max-w-5xl">
       {/* 返回按钮 */}
       <div className="mb-8">
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 hover:bg-green-50 text-green-600"
+          className="flex items-center gap-2 text-primary hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4" />
           返回上一页
@@ -28,19 +28,19 @@ export default function PrivacyPage() {
       </div>
 
       <Card className="shadow-lg border-0">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
+        <CardHeader className="border-b border-border">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-              <Shield className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+              <Shield className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle className="text-3xl font-bold text-gray-900">
+              <CardTitle className="text-3xl font-bold text-foreground">
                 文派隐私政策
               </CardTitle>
-              <p className="text-green-600 font-medium">Wenpai Privacy Policy</p>
+              <p className="text-primary font-medium">Wenpai Privacy Policy</p>
             </div>
           </div>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               最后更新：2024年12月
@@ -50,20 +50,20 @@ export default function PrivacyPage() {
               版本：v2.0
             </span>
           </div>
-          <p className="text-gray-700 leading-relaxed mt-3">
+          <p className="text-muted-foreground leading-relaxed mt-3">
             我们深知隐私保护的重要性，本政策详细说明我们如何收集、使用和保护您的个人信息。
             请仔细阅读以下政策，使用我们的服务即表示您同意这些条款。
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <section>
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Database className="h-5 w-5 text-blue-500" />
+            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
+              <Database className="h-5 w-5 text-primary" />
               1. 我们收集的信息
             </h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <div>
-                <h4 className="font-medium mb-2">1.1 账户信息</h4>
+                <h4 className="font-medium mb-2 text-foreground">1.1 账户信息</h4>
                 <ul className="list-disc pl-6 space-y-1">
                   <li><strong>注册信息：</strong>邮箱地址、用户名、密码（加密存储）</li>
                   <li><strong>个人资料：</strong>头像、个人简介、联系方式</li>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2">1.2 使用数据</h4>
+                <h4 className="font-medium mb-2 text-foreground">1.2 使用数据</h4>
                 <ul className="list-disc pl-6 space-y-1">
                   <li><strong>功能使用：</strong>使用频率、功能偏好、操作记录</li>
                   <li><strong>内容数据：</strong>您输入的内容、AI生成的内容、品牌库信息</li>
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium mb-2">1.3 技术数据</h4>
+                <h4 className="font-medium mb-2 text-foreground">1.3 技术数据</h4>
                 <ul className="list-disc pl-6 space-y-1">
                   <li><strong>设备信息：</strong>设备类型、操作系统、浏览器版本</li>
                   <li><strong>网络信息：</strong>IP地址、网络连接类型</li>
@@ -91,10 +91,10 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Brain className="h-5 w-5 text-blue-500" />
+              <Brain className="h-5 w-5 text-primary" />
               2. 信息使用目的
             </h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>提供服务：</strong>提供AI内容生成、多平台适配等核心功能</li>
                 <li><strong>改进服务：</strong>分析使用模式，优化AI算法和用户体验</li>
@@ -109,13 +109,13 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-500" />
+              <Users className="h-5 w-5 text-primary" />
               3. 信息共享政策
             </h3>
-            <div className="space-y-3 text-gray-700">
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <p className="font-medium text-green-800 mb-2">我们不会出售您的个人信息</p>
-                <p className="text-sm text-green-700">
+            <div className="space-y-3 text-muted-foreground">
+              <div className="p-4 rounded-lg border bg-card border-border">
+                <p className="font-medium text-foreground mb-2">我们不会出售您的个人信息</p>
+                <p className="text-sm text-muted-foreground">
                   我们承诺不会向第三方出售、出租或交易您的个人信息
                 </p>
               </div>
@@ -141,10 +141,10 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Lock className="h-5 w-5 text-blue-500" />
+              <Lock className="h-5 w-5 text-primary" />
               4. 数据安全措施
             </h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>加密传输：</strong>使用HTTPS和SSL加密保护数据传输</li>
                 <li><strong>加密存储：</strong>敏感数据使用强加密算法存储</li>
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3">5. 数据保留期限</h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>账户数据：</strong>账户活跃期间保留，删除账户后30天内清除</li>
                 <li><strong>使用数据：</strong>最多保留2年，用于服务改进</li>
@@ -171,10 +171,10 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Eye className="h-5 w-5 text-blue-500" />
+              <Eye className="h-5 w-5 text-primary" />
               6. 您的权利
             </h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium mb-2">6.1 基本权利</h4>
@@ -200,7 +200,7 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3">7. Cookie和追踪技术</h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>必要Cookie：</strong>用于网站基本功能和安全</li>
                 <li><strong>功能Cookie：</strong>记住您的偏好设置</li>
@@ -214,10 +214,10 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3">8. 儿童隐私保护</h3>
-            <div className="space-y-3 text-gray-700">
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <p className="font-medium text-yellow-800 mb-2">重要提醒</p>
-                <p className="text-sm text-yellow-700">
+            <div className="space-y-3 text-muted-foreground">
+              <div className="p-4 rounded-lg border bg-accent border-border">
+                <p className="font-medium text-foreground mb-2">重要提醒</p>
+                <p className="text-sm text-muted-foreground">
                   我们的服务不面向13岁以下的儿童。如果您发现我们收集了儿童信息，请立即联系我们。
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3">9. 国际数据传输</h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
                 <li>您的数据可能在中国境外进行处理</li>
                 <li>我们确保所有数据传输符合适用的数据保护法律</li>
@@ -243,7 +243,7 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3">10. 政策更新</h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <ul className="list-disc pl-6 space-y-2">
                 <li>我们可能会不时更新本隐私政策</li>
                 <li>重大变更会通过邮件、网站公告或应用内通知</li>
@@ -255,15 +255,15 @@ export default function PrivacyPage() {
 
           <section>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Mail className="h-5 w-5 text-blue-500" />
+              <Mail className="h-5 w-5 text-primary" />
               11. 联系我们
             </h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-muted-foreground">
               <p>如果您对本隐私政策有任何疑问或需要行使您的权利，请通过以下方式联系我们：</p>
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="p-4 rounded-lg border bg-card border-border">
                 <ul className="space-y-2 text-sm">
-                                  <li>• <strong>隐私保护邮箱：</strong><a href="mailto:xiongtingping@gmail.com" className="text-blue-600 hover:underline ml-1">xiongtingping@gmail.com</a></li>
-                <li>• <strong>客服邮箱：</strong><a href="mailto:xiongtingping@gmail.com" className="text-blue-600 hover:underline ml-1">xiongtingping@gmail.com</a></li>
+                  <li>• <strong>隐私保护邮箱：</strong><a href="mailto:hello@wenpai.xyz" className="text-primary hover:underline ml-1">hello@wenpai.xyz</a></li>
+                  <li>• <strong>客服邮箱：</strong><a href="mailto:hello@wenpai.xyz" className="text-primary hover:underline ml-1">hello@wenpai.xyz</a></li>
                   <li>• <strong>应用内客服：</strong>通过平台内置客服功能</li>
                   <li>• <strong>工作时间：</strong>周一至周五 9:00-18:00</li>
                 </ul>
@@ -271,9 +271,9 @@ export default function PrivacyPage() {
             </div>
           </section>
 
-          <div className="border-t pt-6 bg-green-50 p-4 rounded-lg">
-            <h4 className="font-medium text-green-900 mb-2">我们的承诺</h4>
-            <p className="text-sm text-green-800">
+          <div className="border-t pt-6 p-4 rounded-lg border-border">
+            <h4 className="font-medium text-foreground mb-2">我们的承诺</h4>
+            <p className="text-sm text-muted-foreground">
               我们承诺保护您的隐私，并持续改进我们的隐私保护措施。您的信任是我们最重要的资产。
             </p>
           </div>

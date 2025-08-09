@@ -525,7 +525,7 @@ export default function ContentExtractorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       {/* 页面导航 */}
       <PageNavigation
         title="内容提取与AI总结"
@@ -700,8 +700,8 @@ export default function ContentExtractorPage() {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          {result.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
-                          {result.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
+                          {result.status === 'success' && <CheckCircle className="w-5 h-5 text-primary" />}
+                          {result.status === 'error' && <AlertCircle className="w-5 h-5 text-destructive" />}
                           <CardTitle className="text-lg">{result.title}</CardTitle>
                         </div>
                         <div className="flex gap-2">
@@ -749,7 +749,7 @@ export default function ContentExtractorPage() {
                           </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           {result.sourceType === 'url' && <Link2 className="w-4 h-4" />}
                           {result.sourceType === 'file' && <File className="w-4 h-4" />}
@@ -768,8 +768,8 @@ export default function ContentExtractorPage() {
                           {/* 提取内容 */}
                           <div>
                             <h4 className="font-medium mb-2">提取内容</h4>
-                            <div className="bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto">
-                              <pre className="text-sm whitespace-pre-wrap">{result.content}</pre>
+                            <div className="bg-muted rounded-lg p-4 max-h-60 overflow-y-auto">
+                              <pre className="text-sm whitespace-pre-wrap text-foreground">{result.content}</pre>
                             </div>
                           </div>
 
@@ -777,8 +777,8 @@ export default function ContentExtractorPage() {
                           {result.summary ? (
                             <div>
                               <div className="flex items-center gap-2 mb-2">
-                                <Brain className="w-4 h-4 text-purple-500" />
-                                <h4 className="font-medium">AI智能总结</h4>
+                                <Brain className="w-4 h-4 text-primary" />
+                                <h4 className="font-medium text-foreground">AI智能总结</h4>
                                 <Button 
                                   variant="outline" 
                                   size="sm"
@@ -788,8 +788,8 @@ export default function ContentExtractorPage() {
                                   复制总结
                                 </Button>
                               </div>
-                              <div className="bg-purple-50 rounded-lg p-4 max-h-60 overflow-y-auto">
-                                <pre className="text-sm whitespace-pre-wrap">{result.summary}</pre>
+                              <div className="bg-accent rounded-lg p-4 max-h-60 overflow-y-auto border border-border">
+                                <pre className="text-sm whitespace-pre-wrap text-foreground">{result.summary}</pre>
                               </div>
                             </div>
                           ) : (
@@ -815,7 +815,7 @@ export default function ContentExtractorPage() {
                           )}
                         </div>
                       ) : (
-                        <div className="text-red-500 p-4 bg-red-50 rounded">
+                        <div className="text-destructive p-4 bg-accent border border-border rounded">
                           {result.error || '提取失败'}
                         </div>
                       )}
@@ -825,9 +825,9 @@ export default function ContentExtractorPage() {
               </div>
             ) : (
               <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-12 text-gray-500">
-                  <Zap className="w-12 h-12 mb-4" />
-                  <p className="text-lg font-medium mb-2">等待内容提取</p>
+                <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <Zap className="w-12 h-12 mb-4 text-primary" />
+                  <p className="text-lg font-medium mb-2 text-foreground">等待内容提取</p>
                   <p className="text-sm text-center">
                     请在左侧选择内容来源并开始提取
                     <br />

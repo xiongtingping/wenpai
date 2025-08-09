@@ -179,8 +179,8 @@ export default function HotTopicDetailPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-              <p className="text-white">加载中...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-foreground">加载中...</p>
             </div>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function HotTopicDetailPage() {
       <div className="min-h-screen bg-gradient-primary particle-background">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-4 drop-shadow-sm">话题未找到</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-4">话题未找到</h1>
             <Button variant="soft" onClick={handleBack}>返回热点话题</Button>
           </div>
         </div>
@@ -231,15 +231,15 @@ export default function HotTopicDetailPage() {
                         {getPlatformDisplayName(topic.platform || '')}
                       </Badge>
                       {topic.rank && (
-                        <Badge className="bg-blue-500 text-white">
+                        <Badge className="bg-primary text-primary-foreground">
                           #{topic.rank}
                         </Badge>
                       )}
                     </div>
-                    <CardTitle className="text-2xl font-bold text-gray-800 mb-2">
+                    <CardTitle className="text-2xl font-bold text-foreground mb-2">
                       {topic.title}
                     </CardTitle>
-                    <CardDescription className="text-gray-600">
+                    <CardDescription className="text-muted-foreground">
                       {topic.desc}
                     </CardDescription>
                   </div>
@@ -279,22 +279,22 @@ export default function HotTopicDetailPage() {
               
               <CardContent>
                 {/* 热度信息 */}
-                <div className="flex items-center gap-4 mb-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
+                <div className="flex items-center gap-4 mb-6 p-4 bg-accent rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Flame className="w-5 h-5 text-orange-500" />
-                    <span className="font-semibold text-orange-600">
+                    <Flame className="w-5 h-5 text-primary" />
+                    <span className="font-semibold text-foreground">
                       热度值
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-500" />
-                    <span className="text-lg font-bold text-gray-800">
+                    <Zap className="w-4 h-4 text-primary" />
+                    <span className="text-lg font-bold text-foreground">
                       {formatHotValue(topic.hot)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm text-gray-600">
+                    <Eye className="w-4 h-4 text-primary" />
+                    <span className="text-sm text-muted-foreground">
                       实时热度
                     </span>
                   </div>
@@ -302,12 +302,12 @@ export default function HotTopicDetailPage() {
 
                 {/* 详细内容 */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                    <MessageCircle className="w-5 h-5 text-blue-500" />
+                  <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-primary" />
                     话题详情
                   </h3>
-                  <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-700 leading-relaxed">
+                  <div className="prose max-w-none">
+                    <p className="text-muted-foreground leading-relaxed">
                       {topic.content || `关于"${topic.title}"的话题在${getPlatformDisplayName(topic.platform || '')}平台引发了广泛讨论。这个话题涉及多个方面的内容，包括背景信息、相关讨论和重要观点。`}
                     </p>
                   </div>
@@ -318,8 +318,8 @@ export default function HotTopicDetailPage() {
                 {/* 相关话题 */}
                 {topic.relatedTopics && topic.relatedTopics.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                      <Hash className="w-5 h-5 text-green-500" />
+                    <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                      <Hash className="w-5 h-5 text-primary" />
                       相关话题
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -327,7 +327,7 @@ export default function HotTopicDetailPage() {
                         <Badge
                           key={index}
                           variant="secondary"
-                          className="cursor-pointer hover:bg-gray-200 transition-colors"
+                          className="cursor-pointer hover:bg-accent transition-colors"
                         >
                           {relatedTopic}
                         </Badge>
@@ -347,27 +347,27 @@ export default function HotTopicDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">平台</span>
+                  <span className="text-muted-foreground">平台</span>
                   <Badge variant="outline">
                     {getPlatformDisplayName(topic.platform || '')}
                   </Badge>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">排名</span>
-                  <span className="font-semibold">#{topic.rank || 'N/A'}</span>
+                  <span className="text-muted-foreground">排名</span>
+                  <span className="font-semibold text-foreground">#{topic.rank || 'N/A'}</span>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">热度值</span>
-                  <span className="font-semibold text-orange-600">
+                  <span className="text-muted-foreground">热度值</span>
+                  <span className="font-semibold text-foreground">
                     {formatHotValue(topic.hot)}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">更新时间</span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-muted-foreground">更新时间</span>
+                  <span className="text-sm text-muted-foreground">
                     {new Date().toLocaleString('zh-CN')}
                   </span>
                 </div>

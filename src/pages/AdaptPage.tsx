@@ -321,31 +321,31 @@ function getPlatformIcon(platformId: string): JSX.Element {
     case 'zhihu':
       return (
         <div className="flex items-center">
-          <MessageSquare className="h-4 w-4 text-blue-500 mr-1" />
+          <MessageSquare className="h-4 w-4 text-primary mr-1" />
         </div>
       );
     case 'weibo':
-      return <Send className="h-4 w-4 text-orange-500" />;
+      return <Send className="h-4 w-4 text-primary" />;
     case 'xiaohongshu':
-      return <Book className="h-4 w-4 text-rose-500" />;
+      return <Book className="h-4 w-4 text-primary" />;
     case 'wechat':
-      return <MessageSquare className="h-4 w-4 text-green-500" />;
+      return <MessageSquare className="h-4 w-4 text-primary" />;
     case 'douyin':
-      return <Video className="h-4 w-4 text-black" />;
+      return <Video className="h-4 w-4 text-foreground" />;
     case 'video':
-      return <SquarePlay className="h-4 w-4 text-green-600" />;
+      return <SquarePlay className="h-4 w-4 text-primary" />;
     case 'twitter':
-      return <Twitter className="h-4 w-4 text-black" />;
+      return <Twitter className="h-4 w-4 text-foreground" />;
     case 'bilibili':
-      return <Video className="h-4 w-4 text-blue-400" />;
+      return <Video className="h-4 w-4 text-primary" />;
     case 'kuaishou':
-      return <Video className="h-4 w-4 text-yellow-500" />;
+      return <Video className="h-4 w-4 text-primary" />;
     case 'wangyi':
-      return <Rss className="h-4 w-4 text-red-500" />;
+      return <Rss className="h-4 w-4 text-primary" />;
     case 'toutiao':
-      return <Globe className="h-4 w-4 text-purple-600" />;
+      return <Globe className="h-4 w-4 text-primary" />;
     default:
-      return <MessageSquare className="h-4 w-4 text-gray-500" />;
+      return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
   }
 }
 
@@ -3812,7 +3812,7 @@ ${charCountControl.source === 'platform-specific'
   console.log('AdaptPage rendering...', { generating, results: results.length });
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       {/* 页面导航 */}
       <PageNavigation
         title="AI内容适配器"

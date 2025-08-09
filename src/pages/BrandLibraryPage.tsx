@@ -1990,7 +1990,7 @@ export default function BrandLibraryPageFixed() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       <PageNavigation
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
@@ -2000,10 +2000,10 @@ export default function BrandLibraryPageFixed() {
 
       <div className="container mx-auto px-4 py-8">
         {/* 使用提示 */}
-        <Alert className="mb-6 bg-white/90 backdrop-blur-sm border-indigo-200 rounded-xl">
-          <Info className="h-4 w-4 text-indigo-600" />
-          <AlertDescription className="text-gray-700">
-            <strong>使用提示：</strong>上传品牌资料越多，AI分析越准确。建议上传品牌手册、产品介绍、营销文案等资料。
+        <Alert className="mb-6 bg-card/90 backdrop-blur-sm border-border rounded-xl">
+          <Info className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-muted-foreground">
+            <strong className="text-foreground">使用提示：</strong>上传品牌资料越多，AI分析越准确。建议上传品牌手册、产品介绍、营销文案等资料。
             所有维度都支持手动编辑。
           </AlertDescription>
         </Alert>
@@ -2024,8 +2024,8 @@ export default function BrandLibraryPageFixed() {
           <Card variant="soft" className="mb-6 rounded-xl">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-900">上传进度</span>
-                <span className="text-sm text-gray-600">{Math.round(uploadProgress)}%</span>
+                <span className="text-sm font-medium text-foreground">上传进度</span>
+                <span className="text-sm text-muted-foreground">{Math.round(uploadProgress)}%</span>
               </div>
               <Progress value={uploadProgress} className="w-full" />
             </CardContent>
@@ -2035,17 +2035,17 @@ export default function BrandLibraryPageFixed() {
 
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-gray-100 rounded-lg">
+          <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-accent rounded-lg">
             <TabsTrigger
               value="assets"
-              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               <Upload className="h-4 w-4" />
               <span>上传品牌资料</span>
             </TabsTrigger>
             <TabsTrigger
               value="dimensions"
-              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               <Database className="h-4 w-4" />
               <span>品牌语料库</span>
@@ -2062,7 +2062,7 @@ export default function BrandLibraryPageFixed() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-4 w-4 p-0 text-gray-400 hover:text-blue-600 ml-1"
+                    className="h-4 w-4 p-0 text-muted-foreground hover:text-primary ml-1"
                     title="上传品牌资料功能说明：支持PDF、Word、PPT、图片、HTML等多种格式，AI会自动分析文件内容并提取关键信息，分析结果会自动添加到品牌语料库，建议上传品牌手册、产品介绍、营销文案等资料"
                   >
                     <Info className="h-3 w-3" />
@@ -2088,35 +2088,35 @@ export default function BrandLibraryPageFixed() {
               <CardContent className="space-y-6">
                 {/* 文件上传区域 */}
                 <div 
-                  className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50/50 hover:bg-blue-50 transition-colors cursor-pointer"
+                  className="border-2 border-dashed border-border rounded-lg p-8 text-center bg-accent/50 hover:bg-accent transition-colors cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <div className="flex flex-col items-center gap-4">
-                    <div className="p-4 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Upload className="h-8 w-8 text-blue-600" />
+                    <div className="p-4 bg-accent rounded-full flex items-center justify-center">
+                      <Upload className="h-8 w-8 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
                         点击上传或拖拽文件到此处
                       </h3>
-                      <p className="text-gray-600 mb-4">
+                      <p className="text-muted-foreground mb-4">
                         支持 PDF、Word、Excel、PowerPoint、图片等多种格式
                       </p>
                     </div>
-                    <Button variant="outline" className="bg-white">
+                    <Button variant="outline" className="bg-card">
                       <FileUp className="h-4 w-4 mr-2" />
                       选择文件
                     </Button>
 
                     {/* 支持的文件格式 - 使用新的格式展示组件 */}
-                    <div className="mt-4 pt-4 border-t border-blue-200">
+                    <div className="mt-4 pt-4 border-t border-border">
                       <FileFormatDisplay 
                         mode="compact" 
                         showCategories={true}
                         showQuality={false}
                         className="text-center"
                       />
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         单个文件建议不超过10MB，支持批量上传和网页内容提取
                       </p>
                     </div>
@@ -2124,7 +2124,7 @@ export default function BrandLibraryPageFixed() {
                 </div>
 
                 {/* 网页内容提取 */}
-                <div className="border rounded-lg p-4 bg-gray-50">
+                <div className="border border-border rounded-lg p-4 bg-card">
                   <h4 className="font-medium mb-3 flex items-center gap-3">
                     <Globe className="h-4 w-4 flex-shrink-0" />
                     <span className="leading-none">网页内容提取</span>
@@ -2169,9 +2169,9 @@ export default function BrandLibraryPageFixed() {
               {/* AI分析状态提示 - 移动到智能资料管理内 */}
               {isBackgroundAnalysisRunning && (
                 <div className="mx-6 mb-4">
-                  <Alert className="border-blue-200 bg-blue-50">
-                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                    <AlertDescription className="text-blue-800">
+                  <Alert className="border-border bg-accent">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <AlertDescription className="text-foreground">
                       <strong>🔄 AI分析进行中：</strong>正在后台分析您的品牌资料，您可以自由导航到其他页面。分析完成后会有通知提醒。
                     </AlertDescription>
                   </Alert>
@@ -2180,9 +2180,9 @@ export default function BrandLibraryPageFixed() {
 
               {backgroundAnalysisQueue.length > 0 && (
                 <div className="mx-6 mb-4">
-                  <Alert className="border-orange-200 bg-orange-50">
-                    <Clock className="h-4 w-4 text-orange-600" />
-                    <AlertDescription className="text-orange-800">
+                  <Alert className="border-border bg-accent">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <AlertDescription className="text-foreground">
                       <strong>⏳ 分析队列：</strong>还有 {backgroundAnalysisQueue.length} 个文件等待分析。
                     </AlertDescription>
                   </Alert>
@@ -2195,7 +2195,7 @@ export default function BrandLibraryPageFixed() {
                   <div className="flex flex-col sm:flex-row gap-3 flex-1">
                     <div className="flex-1 min-w-0">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
                           placeholder="搜索资料名称..."
                           value={searchTerm}
@@ -2248,7 +2248,7 @@ export default function BrandLibraryPageFixed() {
                       size="sm"
                       disabled={!brandAssets.some(asset => asset.type === 'pdf')}
                       onClick={() => setShowPdfDialog(true)}
-                      className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                      className="border-border text-primary hover:bg-accent"
                     >
                       <MessageSquare className="h-4 w-4 mr-2" />
                       PDF对话
@@ -2278,8 +2278,8 @@ export default function BrandLibraryPageFixed() {
 
                 {/* 批量操作栏 */}
                 {selectedAssets.length > 0 && (
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <span className="text-sm text-blue-700">
+                  <div className="flex items-center justify-between p-3 bg-accent rounded-lg border border-border">
+                    <span className="text-sm text-muted-foreground">
                       已选择 {selectedAssets.length} 个文件
                     </span>
                     <div className="flex gap-2">
@@ -2291,7 +2291,7 @@ export default function BrandLibraryPageFixed() {
                         <Copy className="h-4 w-4 mr-1" />
                         批量复制
                       </Button>
-                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                      <Button size="sm" variant="outline" className="text-destructive hover:text-destructive/80">
                         <Trash2 className="h-4 w-4 mr-1" />
                         批量删除
                       </Button>
@@ -2301,28 +2301,28 @@ export default function BrandLibraryPageFixed() {
 
                 {/* 资料统计 */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{brandAssets.length}</div>
-                    <div className="text-sm text-gray-600">总文件数</div>
+                  <div className="text-center p-3 bg-card rounded-lg border border-border">
+                    <div className="text-2xl font-bold text-foreground">{brandAssets.length}</div>
+                    <div className="text-sm text-muted-foreground">总文件数</div>
                   </div>
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="text-center p-3 bg-card rounded-lg border border-border">
+                    <div className="text-2xl font-bold text-foreground">
                       {brandAssets.filter(a => a.status === 'analyzed').length}
                     </div>
-                    <div className="text-sm text-gray-600">已分析</div>
+                    <div className="text-sm text-muted-foreground">已分析</div>
                   </div>
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-orange-600">
+                  <div className="text-center p-3 bg-card rounded-lg border border-border">
+                    <div className="text-2xl font-bold text-foreground">
                       {brandAssets.filter(a => a.status === 'uploaded').length}
                     </div>
-                    <div className="text-sm text-gray-600">待分析</div>
+                    <div className="text-sm text-muted-foreground">待分析</div>
                   </div>
                 </div>
 
                 {/* 资料列表 */}
                 {filteredAndSortedAssets.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <FileText className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <div className="text-center py-8 text-muted-foreground">
+                    <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
                     {brandAssets.length === 0 ? (
                       <>
                         <p className="text-sm">暂无上传的品牌资料</p>
@@ -2342,7 +2342,7 @@ export default function BrandLibraryPageFixed() {
                       <Card key={asset.id} className="p-4 hover:shadow-md transition-shadow">
                         <div className="flex flex-col space-y-3">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gray-100 rounded">
+                            <div className="p-2 bg-accent rounded">
                               {asset.type === 'image' ? (
                                 <FileImage className="h-5 w-5" />
                               ) : asset.type === 'pdf' ? (
@@ -2367,12 +2367,12 @@ export default function BrandLibraryPageFixed() {
                             </div>
                           </div>
 
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             {asset.size} • {new Date(asset.uploadDate).toLocaleDateString()}
                           </div>
 
                           {asset.content && (
-                            <p className="text-sm text-gray-700 line-clamp-3">
+                            <p className="text-sm text-muted-foreground line-clamp-3">
                               {asset.content.substring(0, 120)}...
                             </p>
                           )}
@@ -2384,10 +2384,10 @@ export default function BrandLibraryPageFixed() {
                               variant={asset.status === 'analyzed' ? 'default' : asset.status === 'error' ? 'destructive' : 'outline'}
                               size="sm"
                               className={
-                                asset.status === 'analyzed' ? 'bg-green-600 hover:bg-green-700' :
-                                asset.status === 'processing' ? 'bg-blue-600 hover:bg-blue-700' :
-                                asset.status === 'error' ? 'bg-red-600 hover:bg-red-700' :
-                                'border-orange-300 text-orange-600 hover:bg-orange-50'
+                                asset.status === 'analyzed' ? 'bg-primary hover:bg-primary/90 text-primary-foreground' :
+                                asset.status === 'processing' ? 'bg-accent text-foreground' :
+                                asset.status === 'error' ? 'bg-destructive text-primary-foreground' :
+                                'border border-border text-foreground hover:bg-accent'
                               }
                               disabled={asset.status === 'processing' || isBackgroundAnalysisRunning}
                               onClick={() => {
@@ -2470,7 +2470,7 @@ export default function BrandLibraryPageFixed() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   onClick={() => handleDeleteAsset(asset)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="text-destructive hover:text-destructive/80 hover:bg-accent"
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
                                   删除文件
@@ -2489,7 +2489,7 @@ export default function BrandLibraryPageFixed() {
                       <Card key={asset.id} className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1">
-                          <div className="p-2 bg-gray-100 rounded">
+                          <div className="p-2 bg-accent rounded">
                             {asset.type === 'image' ? (
                               <FileImage className="h-5 w-5" />
                             ) : asset.type === 'pdf' ? (
@@ -2513,11 +2513,11 @@ export default function BrandLibraryPageFixed() {
                                  asset.status === 'analyzed' ? '已分析' : '错误'}
                               </Badge>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">
+                            <p className="text-sm text-muted-foreground mb-2">
                               {asset.size} • {new Date(asset.uploadDate).toLocaleDateString()}
                             </p>
                             {asset.content && (
-                              <p className="text-sm text-gray-700 line-clamp-2">
+                              <p className="text-sm text-muted-foreground line-clamp-2">
                                 {asset.content.substring(0, 100)}...
                               </p>
                             )}
@@ -2530,10 +2530,10 @@ export default function BrandLibraryPageFixed() {
                               variant={asset.status === 'analyzed' ? 'default' : asset.status === 'error' ? 'destructive' : 'outline'}
                               size="sm"
                               className={
-                                asset.status === 'analyzed' ? 'bg-green-600 hover:bg-green-700' :
-                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'bg-blue-600 hover:bg-blue-700' :
-                                asset.status === 'error' ? 'bg-red-600 hover:bg-red-700' :
-                                'border-orange-300 text-orange-600 hover:bg-orange-50'
+                                asset.status === 'analyzed' ? 'bg-primary text-primary-foreground hover:bg-primary/90' :
+                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'bg-muted text-muted-foreground' :
+                                asset.status === 'error' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' :
+                                'border border-border text-foreground hover:bg-accent'
                               }
                               disabled={(asset.status === 'analyzing' || asset.status === 'processing') || isBackgroundAnalysisRunning}
                               onClick={() => {
@@ -2580,7 +2580,7 @@ export default function BrandLibraryPageFixed() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 w-8 p-0 text-gray-400 hover:text-blue-600"
+                                className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
                                 onClick={() => {
                                   console.log('重新分析文件:', asset.name);
                                   const updatedAssets = brandAssets.map(a =>
@@ -2638,7 +2638,7 @@ export default function BrandLibraryPageFixed() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => handleDeleteAsset(asset)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="text-destructive hover:text-destructive/80 hover:bg-accent"
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 删除文件
@@ -2665,7 +2665,7 @@ export default function BrandLibraryPageFixed() {
               <div className="flex items-center gap-4">
                 {/* 语料库统计信息 */}
                 {brandCorpus && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <BookOpen className="h-4 w-4" />
                     <span>
                       {`${brandCorpus.sources?.length || 0} 个来源文档`}
@@ -2677,11 +2677,11 @@ export default function BrandLibraryPageFixed() {
                 {isProcessingCorpus && (
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm text-blue-600">语料库提取中...</span>
+                    <span className="text-sm text-primary">语料库提取中...</span>
                     {corpusProcessingProgress > 0 && (
-                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-blue-500 transition-all duration-300"
+                          className="h-full bg-primary transition-all duration-300"
                           style={{ width: `${corpusProcessingProgress}%` }}
                         />
                       </div>
@@ -2691,7 +2691,7 @@ export default function BrandLibraryPageFixed() {
 
                 {/* 提取结果统计 */}
                 {corpusExtractions.length > 0 && (
-                  <div className="flex items-center gap-2 text-sm text-green-600">
+                  <div className="flex items-center gap-2 text-sm text-primary">
                     <CheckCircle className="h-4 w-4" />
                     <span>已提取 {corpusExtractions.length} 个文档</span>
                   </div>
@@ -2722,7 +2722,7 @@ export default function BrandLibraryPageFixed() {
                   <Button
                     variant="link"
                     size="sm"
-                    className="p-0 h-auto text-blue-600 ml-2"
+                    className="p-0 h-auto text-primary ml-2"
                     onClick={() => setShowSourceManager(true)}
                   >
                     查看详细提取结果
@@ -2735,14 +2735,14 @@ export default function BrandLibraryPageFixed() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 基础信息 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-blue-100/50">
+                <CardHeader className="pb-4 border-b border-border bg-card">
                   <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-blue-600 rounded-lg">
-                      <FileText className="h-5 w-5 text-white" />
+                    <div className="p-2 bg-primary rounded-lg">
+                      <FileText className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div className="flex-1">
-                      <span className="text-blue-900 font-semibold">基础信息</span>
-                      <CardDescription className="text-blue-700 mt-1">
+                      <span className="text-foreground font-semibold">基础信息</span>
+                      <CardDescription className="text-muted-foreground mt-1">
                         品牌的基本信息和核心定位
                       </CardDescription>
                     </div>
@@ -2750,10 +2750,10 @@ export default function BrandLibraryPageFixed() {
                 </CardHeader>
                 <CardContent className="space-y-4 p-6">
                   {getDimensionsByCategory('basic').map((dimension) => (
-                    <div key={dimension.id} className="border border-blue-200 rounded-lg p-4 bg-blue-50/30 hover:bg-blue-50/50 transition-colors">
+                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
-                        <h4 className="font-medium text-sm text-blue-900">{dimension.title}</h4>
+                        <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm
                         dimension={dimension}
@@ -2774,14 +2774,14 @@ export default function BrandLibraryPageFixed() {
 
               {/* 语调风格 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 bg-gradient-to-r from-orange-50 to-orange-100/50">
+                <CardHeader className="pb-4 border-b border-border bg-card">
                   <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-orange-600 rounded-lg">
-                      <MessageSquare className="h-5 w-5 text-white" />
+                    <div className="p-2 bg-primary rounded-lg">
+                      <MessageSquare className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div className="flex-1">
-                      <span className="text-orange-900 font-semibold">语调风格</span>
-                      <CardDescription className="text-orange-700 mt-1">
+                      <span className="text-foreground font-semibold">语调风格</span>
+                      <CardDescription className="text-muted-foreground mt-1">
                         品牌的语音特征和表达方式
                       </CardDescription>
                     </div>
@@ -2789,10 +2789,10 @@ export default function BrandLibraryPageFixed() {
                 </CardHeader>
                 <CardContent className="space-y-4 p-6">
                   {getDimensionsByCategory('voice').map((dimension) => (
-                    <div key={dimension.id} className="border border-orange-200 rounded-lg p-4 bg-orange-50/30 hover:bg-orange-50/50 transition-colors">
+                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
-                        <h4 className="font-medium text-sm text-orange-900">{dimension.title}</h4>
+                        <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm
                         dimension={dimension}
@@ -2813,14 +2813,14 @@ export default function BrandLibraryPageFixed() {
 
               {/* 品牌身份 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 bg-gradient-to-r from-purple-50 to-purple-100/50">
+                <CardHeader className="pb-4 border-b border-border bg-card">
                   <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-purple-600 rounded-lg">
-                      <Shield className="h-5 w-5 text-white" />
+                    <div className="p-2 bg-primary rounded-lg">
+                      <Shield className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div className="flex-1">
-                      <span className="text-purple-900 font-semibold">品牌身份</span>
-                      <CardDescription className="text-purple-700 mt-1">
+                      <span className="text-foreground font-semibold">品牌身份</span>
+                      <CardDescription className="text-muted-foreground mt-1">
                         品牌的核心价值观和使命愿景
                       </CardDescription>
                     </div>
@@ -2828,10 +2828,10 @@ export default function BrandLibraryPageFixed() {
                 </CardHeader>
                 <CardContent className="space-y-4 p-6">
                   {getDimensionsByCategory('identity').map((dimension) => (
-                    <div key={dimension.id} className="border border-purple-200 rounded-lg p-4 bg-purple-50/30 hover:bg-purple-50/50 transition-colors">
+                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
-                        <h4 className="font-medium text-sm text-purple-900">{dimension.title}</h4>
+                        <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm
                         dimension={dimension}
@@ -2852,14 +2852,14 @@ export default function BrandLibraryPageFixed() {
 
               {/* 内容策略 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 bg-gradient-to-r from-green-50 to-green-100/50">
+                <CardHeader className="pb-4 border-b border-border bg-card">
                   <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-green-600 rounded-lg">
-                      <Lightbulb className="h-5 w-5 text-white" />
+                    <div className="p-2 bg-primary rounded-lg">
+                      <Lightbulb className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div className="flex-1">
-                      <span className="text-green-900 font-semibold">内容策略</span>
-                      <CardDescription className="text-green-700 mt-1">
+                      <span className="text-foreground font-semibold">内容策略</span>
+                      <CardDescription className="text-muted-foreground mt-1">
                         品牌内容创作的核心要素和策略
                       </CardDescription>
                     </div>
@@ -2867,10 +2867,10 @@ export default function BrandLibraryPageFixed() {
                 </CardHeader>
                 <CardContent className="space-y-4 p-6">
                   {getDimensionsByCategory('content').map((dimension) => (
-                    <div key={dimension.id} className="border border-green-200 rounded-lg p-4 bg-green-50/30 hover:bg-green-50/50 transition-colors">
+                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
-                        <h4 className="font-medium text-sm text-green-900">{dimension.title}</h4>
+                        <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
                       </div>
                       <DimensionForm
                         dimension={dimension}
@@ -2915,23 +2915,23 @@ export default function BrandLibraryPageFixed() {
         {/* 删除确认弹窗 */}
         {showDeleteDialog && assetToDelete && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Trash2 className="h-5 w-5 text-red-600" />
+                <div className="p-2 bg-accent rounded-lg">
+                  <Trash2 className="h-5 w-5 text-destructive" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">确认删除</h3>
-                  <p className="text-sm text-gray-600">此操作无法撤销</p>
+                  <h3 className="text-lg font-semibold text-foreground">确认删除</h3>
+                  <p className="text-sm text-muted-foreground">此操作无法撤销</p>
                 </div>
               </div>
 
               <div className="mb-6">
-                <p className="text-gray-700 mb-3">
+                <p className="text-muted-foreground mb-3">
                   确定要删除 <span className="font-medium">"{assetToDelete.name}"</span> 吗？
                 </p>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                  <div className="text-sm text-yellow-800">
+                <div className="bg-accent border border-border rounded-lg p-3">
+                  <div className="text-sm text-foreground">
                     <div className="font-medium mb-1">此操作将：</div>
                     <ul className="space-y-1 text-xs">
                       <li>• 从品牌资料库中删除该文件</li>
@@ -2968,23 +2968,23 @@ export default function BrandLibraryPageFixed() {
         {/* 批量删除确认弹窗 */}
         {showBatchDeleteDialog && selectedAssetsForBatch.size > 0 && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Trash2 className="h-5 w-5 text-red-600" />
+                <div className="p-2 bg-accent rounded-lg">
+                  <Trash2 className="h-5 w-5 text-destructive" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">批量删除确认</h3>
-                  <p className="text-sm text-gray-600">此操作无法撤销</p>
+                  <h3 className="text-lg font-semibold text-foreground">批量删除确认</h3>
+                  <p className="text-sm text-muted-foreground">此操作无法撤销</p>
                 </div>
               </div>
 
               <div className="mb-6">
-                <p className="text-gray-700 mb-3">
+                <p className="text-muted-foreground mb-3">
                   确定要删除选中的 <span className="font-medium">{selectedAssetsForBatch.size}</span> 个资产吗？
                 </p>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                  <div className="text-sm text-yellow-800">
+                <div className="bg-accent border border-border rounded-lg p-3">
+                  <div className="text-sm text-foreground">
                     <div className="font-medium mb-1">此操作将：</div>
                     <ul className="space-y-1 text-xs">
                       <li>• 从品牌资料库中删除所有选中文件</li>
@@ -3020,24 +3020,24 @@ export default function BrandLibraryPageFixed() {
         {/* 分类编辑弹窗 */}
         {showCategoryDialog && assetToEdit && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Tag className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-accent rounded-lg">
+                  <Tag className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">编辑分类</h3>
-                  <p className="text-sm text-gray-600">为文件设置新的分类</p>
+                  <h3 className="text-lg font-semibold text-foreground">编辑分类</h3>
+                  <p className="text-sm text-muted-foreground">为文件设置新的分类</p>
                 </div>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   文件名称
                 </label>
-                <p className="text-gray-600 mb-4">{assetToEdit.name}</p>
+                <p className="text-muted-foreground mb-4">{assetToEdit.name}</p>
 
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   选择分类
                 </label>
                 <Select value={newCategory} onValueChange={setNewCategory}>
@@ -3049,7 +3049,7 @@ export default function BrandLibraryPageFixed() {
                       <SelectItem key={category.value} value={category.value}>
                         <div className="flex flex-col">
                           <span className="font-medium">{category.label}</span>
-                          <span className="text-xs text-gray-500">{category.description}</span>
+                          <span className="text-xs text-muted-foreground">{category.description}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -3088,28 +3088,28 @@ export default function BrandLibraryPageFixed() {
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Trash2 className="h-5 w-5 text-red-600" />
+                <Trash2 className="h-5 w-5 text-destructive" />
                 确认删除信息
               </DialogTitle>
               <DialogDescription>
                 {deleteConfirmDialog.item && (
                   <div className="space-y-3 mt-4">
                     {/* 显示要删除的信息内容 */}
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      <div className="text-sm text-gray-600 mb-1">要删除的信息：</div>
-                      <div className="text-sm font-medium text-gray-900 line-clamp-3">
+                    <div className="p-3 bg-accent rounded-lg border border-border">
+                      <div className="text-sm text-muted-foreground mb-1">要删除的信息：</div>
+                      <div className="text-sm font-medium text-foreground line-clamp-3">
                         {deleteConfirmDialog.item.content}
                       </div>
                     </div>
 
                     {/* 状态提示 */}
                     {(deleteConfirmDialog.item.isPinned || deleteConfirmDialog.item.isBlocked) && (
-                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-yellow-800">
+                      <div className="p-3 bg-accent border border-border rounded-lg">
+                        <div className="flex items-center gap-2 text-foreground">
                           <AlertTriangle className="h-4 w-4" />
                           <span className="font-medium">注意</span>
                         </div>
-                        <div className="text-sm text-yellow-700 mt-1">
+                        <div className="text-sm text-muted-foreground mt-1">
                           此信息当前为
                           <span className="font-medium">
                             {deleteConfirmDialog.item.isPinned ? '已钉住' : '已屏蔽'}
@@ -3124,12 +3124,12 @@ export default function BrandLibraryPageFixed() {
                     )}
 
                     {/* 警告提示 */}
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-red-800">
+                    <div className="p-3 bg-accent border border-border rounded-lg">
+                      <div className="flex items-center gap-2 text-destructive">
                         <AlertTriangle className="h-4 w-4" />
                         <span className="font-medium">警告</span>
                       </div>
-                      <div className="text-sm text-red-700 mt-1">
+                      <div className="text-sm text-muted-foreground mt-1">
                         删除后无法恢复，请确认是否继续？
                       </div>
                     </div>
@@ -3166,23 +3166,23 @@ export default function BrandLibraryPageFixed() {
 
             <div className="space-y-4">
               {/* 基本信息 */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-accent rounded-lg">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">文件类型</label>
-                  <p className="text-sm text-gray-900">{analysisResultDialog.asset.type}</p>
+                  <label className="text-sm font-medium text-muted-foreground">文件类型</label>
+                  <p className="text-sm text-foreground">{analysisResultDialog.asset.type}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">文件大小</label>
-                  <p className="text-sm text-gray-900">{analysisResultDialog.asset.size}</p>
+                  <label className="text-sm font-medium text-muted-foreground">文件大小</label>
+                  <p className="text-sm text-foreground">{analysisResultDialog.asset.size}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">上传时间</label>
-                  <p className="text-sm text-gray-900">
+                  <label className="text-sm font-medium text-muted-foreground">上传时间</label>
+                  <p className="text-sm text-foreground">
                     {new Date(analysisResultDialog.asset.uploadDate).toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">分析状态</label>
+                  <label className="text-sm font-medium text-muted-foreground">分析状态</label>
                   <Badge variant="default" className="text-xs">
                     {analysisResultDialog.asset.status === 'analyzed' ? '已完成' : '处理中'}
                   </Badge>
@@ -3192,8 +3192,8 @@ export default function BrandLibraryPageFixed() {
               {/* 文件内容预览 */}
               {analysisResultDialog.asset.content && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">文件内容预览</label>
-                  <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-800 max-h-40 overflow-y-auto">
+                  <label className="text-sm font-medium text-foreground mb-2 block">文件内容预览</label>
+                  <div className="bg-accent rounded-lg p-3 text-sm text-foreground max-h-40 overflow-y-auto">
                     {analysisResultDialog.asset.content.substring(0, 500)}
                     {analysisResultDialog.asset.content.length > 500 && '...'}
                   </div>
@@ -3203,9 +3203,9 @@ export default function BrandLibraryPageFixed() {
               {/* AI分析结果 */}
               {analysisResultDialog.asset.analysisResult && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">AI提取的品牌信息</label>
-                  <div className="bg-blue-50 rounded-lg p-3 text-sm">
-                    <p className="text-blue-800">
+                  <label className="text-sm font-medium text-foreground mb-2 block">AI提取的品牌信息</label>
+                  <div className="bg-accent rounded-lg p-3 text-sm">
+                    <p className="text-foreground">
                       AI已从此文件中提取了 {Object.keys(analysisResultDialog.asset.analysisResult.extractedFields || {}).length} 个品牌维度的信息，
                       并已自动添加到品牌语料库中。您可以在"品牌语料库"标签页中查看和编辑这些信息。
                     </p>
@@ -3214,8 +3214,8 @@ export default function BrandLibraryPageFixed() {
               )}
 
               {/* 操作提示 */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <p className="text-sm text-yellow-800">
+              <div className="bg-accent border border-border rounded-lg p-3">
+                <p className="text-sm text-foreground">
                   💡 <strong>提示：</strong>AI分析的结果已自动整合到品牌语料库中。您可以在各个品牌维度中查看、编辑或删除提取的信息。
                 </p>
               </div>
@@ -3323,7 +3323,7 @@ function DimensionForm({
       {/* 信息条目列表 */}
       <div className="space-y-3">
         {dimension.items.map((item) => (
-          <div key={item.id} className="border rounded-lg p-3 bg-white hover:bg-gray-50/50 transition-colors">
+          <div key={item.id} className="border border-border rounded-lg p-3 bg-card hover:bg-accent transition-colors">
             {/* 信息内容 */}
             <div className="flex items-start gap-3">
               <div className="flex-1">
@@ -3355,13 +3355,13 @@ function DimensionForm({
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-800 leading-relaxed">
+                  <p className="text-sm text-foreground leading-relaxed">
                     {item.content}
                   </p>
                 )}
 
                 {/* 来源和置信度信息 */}
-                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <FileText className="h-3 w-3" />
                     <span>来源: {item.source}</span>
@@ -3388,7 +3388,7 @@ function DimensionForm({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      className="h-8 w-8 p-0 hover:bg-accent"
                       title="信息条目操作菜单：可以钉住、屏蔽、编辑或查看来源等操作"
                     >
                       <MoreHorizontal className="h-4 w-4" />
@@ -3405,13 +3405,13 @@ function DimensionForm({
                           onUpdateItem(dimension.id, item.id, { isPinned: !item.isPinned });
                         }
                       }}
-                      className={item.isPinned ? "text-blue-600" : ""}
+                      className={item.isPinned ? "text-primary" : ""}
                       disabled={item.isBlocked}
                     >
                       <Pin className="h-4 w-4 mr-2" />
                       <div className="flex-1">
                         <div>{item.isPinned ? '取消钉住' : '📌 钉住'}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs text-muted-foreground mt-0.5">
                           {item.isPinned ? '取消固定，允许修改此信息' : '固定此条信息，不再改动'}
                         </div>
                       </div>
@@ -3426,13 +3426,13 @@ function DimensionForm({
                           onUpdateItem(dimension.id, item.id, { isBlocked: !item.isBlocked });
                         }
                       }}
-                      className={item.isBlocked ? "text-gray-600" : ""}
+                      className={item.isBlocked ? "text-muted-foreground" : ""}
                       disabled={item.isPinned}
                     >
                       <Ban className="h-4 w-4 mr-2" />
                       <div className="flex-1">
                         <div>{item.isBlocked ? '取消屏蔽' : '🚫 屏蔽'}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs text-muted-foreground mt-0.5">
                           {item.isBlocked ? '重新显示此信息' : '隐藏此信息，不再显示'}
                         </div>
                       </div>
@@ -3445,7 +3445,7 @@ function DimensionForm({
                       <Edit className="h-4 w-4 mr-2" />
                       <div className="flex-1">
                         <div>✏️ 编辑内容</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs text-muted-foreground mt-0.5">
                           修改信息内容，调整文字表述
                         </div>
                       </div>
@@ -3456,7 +3456,7 @@ function DimensionForm({
                       <FileText className="h-4 w-4 mr-2" />
                       <div className="flex-1">
                         <div>📄 查看来源</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs text-muted-foreground mt-0.5">
                           查看原始文档和提取上下文
                         </div>
                       </div>
@@ -3468,12 +3468,12 @@ function DimensionForm({
                         // 调用传入的删除处理函数
                         onDeleteItem(dimension.id, item.id);
                       }}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-destructive hover:text-destructive/80 hover:bg-accent"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
                       <div className="flex-1">
                         <div>🗑 删除</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs text-muted-foreground mt-0.5">
                           {item.isPinned || item.isBlocked
                             ? '需要先取消钉住/屏蔽状态才能删除'
                             : '永久删除此信息，无法恢复'
@@ -3489,12 +3489,12 @@ function DimensionForm({
             {/* 状态指示器 */}
             <div className="flex items-center gap-2 mt-2">
               {item.isPinned && (
-                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                <Badge variant="secondary" className="text-xs">
                   📌 已钉住
                 </Badge>
               )}
               {item.isBlocked && (
-                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                <Badge variant="secondary" className="text-xs">
                   🚫 已屏蔽
                 </Badge>
               )}
@@ -3504,8 +3504,8 @@ function DimensionForm({
 
         {/* 空状态 */}
         {dimension.items.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+          <div className="text-center py-8 text-muted-foreground">
+            <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
             <p className="text-sm">暂无信息条目</p>
             <p className="text-xs mt-1">上传资料后将自动提取相关信息</p>
           </div>
@@ -3559,24 +3559,24 @@ function DimensionForm({
       {/* 来源详情弹窗 */}
       {showSourceDialog && selectedSourceItem && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl max-h-[80vh] overflow-y-auto">
+          <div className="bg-card rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl max-h-[80vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FileText className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-accent rounded-lg">
+                <FileText className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">信息来源详情</h3>
-                <p className="text-sm text-gray-600">查看信息的提取来源和详细信息</p>
+                <h3 className="text-lg font-semibold text-foreground">信息来源详情</h3>
+                <p className="text-sm text-muted-foreground">查看信息的提取来源和详细信息</p>
               </div>
             </div>
 
             <div className="space-y-4">
               {/* 信息内容 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   信息内容
                 </label>
-                <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-800">
+                <div className="bg-accent rounded-lg p-3 text-sm text-foreground">
                   {selectedSourceItem.content}
                 </div>
               </div>
@@ -3584,30 +3584,30 @@ function DimensionForm({
               {/* 来源信息 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     来源文件
                   </label>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <FileText className="h-4 w-4" />
                     <span>{selectedSourceItem.source}</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     置信度
                   </label>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Target className="h-4 w-4" />
                     <span>{Math.round(selectedSourceItem.confidence * 100)}%</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     创建时间
                   </label>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     <span>{
                       selectedSourceItem.createdAt instanceof Date
@@ -3618,10 +3618,10 @@ function DimensionForm({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     最后更新
                   </label>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     <span>{
                       selectedSourceItem.updatedAt instanceof Date
@@ -3634,22 +3634,22 @@ function DimensionForm({
 
               {/* 状态信息 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   当前状态
                 </label>
                 <div className="flex gap-2">
                   {selectedSourceItem.isPinned && (
-                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                    <Badge variant="secondary" className="text-xs">
                       📌 已钉住
                     </Badge>
                   )}
                   {selectedSourceItem.isBlocked && (
-                    <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                    <Badge variant="secondary" className="text-xs">
                       🚫 已屏蔽
                     </Badge>
                   )}
                   {!selectedSourceItem.isPinned && !selectedSourceItem.isBlocked && (
-                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                    <Badge variant="secondary" className="text-xs">
                       ✅ 正常
                     </Badge>
                   )}

@@ -109,8 +109,8 @@ export default function UserDataPage() {
         <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">加载用户数据中...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">加载用户数据中...</p>
           </div>
         </div>
         </div>
@@ -125,8 +125,8 @@ export default function UserDataPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-red-600 mb-4">{error}</p>
-              <Button onClick={loadUserData}>重试</Button>
+              <p className="text-destructive mb-4">{error}</p>
+              <Button onClick={loadUserData} variant="outline">重试</Button>
             </div>
           </CardContent>
         </Card>
@@ -152,8 +152,8 @@ export default function UserDataPage() {
       <div className="space-y-6">
         {/* 页面标题 */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">用户数据管理</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">用户数据管理</h1>
+          <p className="text-muted-foreground mt-2">
             当前用户ID: {currentUserId}
             {isTempUserIdBound && <Badge className="ml-2">正式用户</Badge>}
             {!isTempUserIdBound && <Badge variant="secondary" className="ml-2">临时用户</Badge>}
@@ -168,23 +168,23 @@ export default function UserDataPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
+              <div className="text-center p-4 bg-accent rounded-lg border border-border">
+                <div className="text-2xl font-bold text-foreground">
                   {userData.reduce((total, record) => total + record.userActions.pageVisits.length, 0)}
                 </div>
-                <div className="text-sm text-gray-600">页面访问</div>
+                <div className="text-sm text-muted-foreground">页面访问</div>
               </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
+              <div className="text-center p-4 bg-accent rounded-lg border border-border">
+                <div className="text-2xl font-bold text-foreground">
                   {userData.reduce((total, record) => total + record.userActions.featureUsage.length, 0)}
                 </div>
-                <div className="text-sm text-gray-600">功能使用</div>
+                <div className="text-sm text-muted-foreground">功能使用</div>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
+              <div className="text-center p-4 bg-accent rounded-lg border border-border">
+                <div className="text-2xl font-bold text-foreground">
                   {userData.reduce((total, record) => total + record.userActions.contentCreated.length, 0)}
                 </div>
-                <div className="text-sm text-gray-600">内容创建</div>
+                <div className="text-sm text-muted-foreground">内容创建</div>
               </div>
             </div>
           </CardContent>
@@ -217,7 +217,7 @@ export default function UserDataPage() {
                               {record.isTempUser ? '临时用户' : '正式用户'}
                             </Badge>
                           </div>
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="text-sm text-muted-foreground space-y-1">
                             <div>访问时间: {formatTime(visit.timestamp)}</div>
                             {visit.duration && (
                               <div>停留时间: {formatDuration(visit.duration)}</div>
@@ -252,12 +252,12 @@ export default function UserDataPage() {
                               {record.isTempUser ? '临时用户' : '正式用户'}
                             </Badge>
                           </div>
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="text-sm text-muted-foreground space-y-1">
                             <div>使用时间: {formatTime(usage.timestamp)}</div>
                             {usage.metadata && (
                               <div className="mt-2">
                                 <div className="font-medium mb-1">元数据:</div>
-                                <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
+                                <pre className="text-xs bg-muted p-2 rounded overflow-auto text-foreground">
                                   {JSON.stringify(usage.metadata, null, 2)}
                                 </pre>
                               </div>
@@ -291,7 +291,7 @@ export default function UserDataPage() {
                               {record.isTempUser ? '临时用户' : '正式用户'}
                             </Badge>
                           </div>
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="text-sm text-muted-foreground space-y-1">
                             <div>类型: {content.type}</div>
                             <div>创建时间: {formatTime(content.timestamp)}</div>
                             <div>内容ID: {content.contentId}</div>

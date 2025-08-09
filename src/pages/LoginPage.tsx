@@ -42,7 +42,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card variant="soft" className="w-full max-w-md rounded-xl">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
@@ -76,7 +76,7 @@ const LoginPage: React.FC = () => {
           
           <div className="space-y-4">
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 {isRegistering 
                   ? '选择注册方式'
                   : '选择登录方式'
@@ -110,7 +110,7 @@ const LoginPage: React.FC = () => {
             </div>
             
             <div className="text-center">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 使用 Authing 安全认证系统
               </p>
             </div>

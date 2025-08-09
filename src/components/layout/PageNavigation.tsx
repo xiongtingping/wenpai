@@ -320,11 +320,11 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
         {breadcrumbs.length > 0 && (
           <div className="mb-4">
             <Breadcrumb>
-              <BreadcrumbList className="flex-wrap">
+              <BreadcrumbList className="flex-wrap text-gray-700">
                 <BreadcrumbItem>
-                  <BreadcrumbLink 
-                    href="/" 
-                    className="flex items-center gap-1 hover:text-primary transition-all duration-200 hover:scale-105"
+                  <BreadcrumbLink
+                    href="/"
+                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:scale-105"
                   >
                     <Home className="w-4 h-4" />
                     <span className="hidden sm:inline">首页</span>
@@ -333,11 +333,11 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                 {breadcrumbs.map((item, index) => (
                   <React.Fragment key={item.path}>
                     <BreadcrumbSeparator>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
                       {index === breadcrumbs.length - 1 ? (
-                        <BreadcrumbPage className="flex items-center gap-2">
+                        <BreadcrumbPage className="flex items-center gap-2 text-gray-900">
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>
                           {item.badge && (
@@ -347,9 +347,9 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                           )}
                         </BreadcrumbPage>
                       ) : (
-                        <BreadcrumbLink 
+                        <BreadcrumbLink
                           href={item.path}
-                          className="flex items-center gap-2 hover:text-primary transition-all duration-200 hover:scale-105"
+                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:scale-105"
                         >
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>
@@ -367,7 +367,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 {title || PAGE_CONFIGS[path]?.title || '页面'}
               </h1>
               {PAGE_CONFIGS[path]?.badge && (
@@ -377,7 +377,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
               )}
             </div>
             {description && (
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-500 max-w-2xl leading-relaxed">
                 {description}
               </p>
             )}

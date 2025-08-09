@@ -17,8 +17,8 @@ export default function SecurityPage() {
     <div className="min-h-screen bg-gradient-primary particle-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">安全中心</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-foreground mb-2">安全中心</h1>
+        <p className="text-muted-foreground">
           管理应用的安全设置，保护您的数据和隐私
         </p>
       </div>
@@ -28,10 +28,10 @@ export default function SecurityPage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
-              <Lock className="w-6 h-6 text-green-600" />
+              <Lock className="w-6 h-6 text-primary" />
               <h3 className="font-semibold">数据加密</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               使用AES-256加密算法保护敏感数据，确保数据在存储和传输过程中的安全
             </p>
           </CardContent>
@@ -40,10 +40,10 @@ export default function SecurityPage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
-              <Eye className="w-6 h-6 text-blue-600" />
+              <Eye className="w-6 h-6 text-primary" />
               <h3 className="font-semibold">数据脱敏</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               自动识别和脱敏敏感信息，在日志和调试信息中保护用户隐私
             </p>
           </CardContent>
@@ -52,10 +52,10 @@ export default function SecurityPage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
-              <Key className="w-6 h-6 text-purple-600" />
+              <Key className="w-6 h-6 text-primary" />
               <h3 className="font-semibold">安全存储</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               提供安全的本地存储方案，防止敏感数据被恶意访问
             </p>
           </CardContent>
@@ -64,10 +64,10 @@ export default function SecurityPage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
-              <AlertTriangle className="w-6 h-6 text-orange-600" />
+              <AlertTriangle className="w-6 h-6 text-primary" />
               <h3 className="font-semibold">安全监控</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               实时监控安全状态，及时发现和报告潜在的安全风险
             </p>
           </CardContent>
@@ -81,7 +81,7 @@ export default function SecurityPage() {
       <Card className="mt-8">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-600" />
+            <Shield className="w-5 h-5 text-primary" />
             安全最佳实践
           </CardTitle>
           <CardDescription>
@@ -91,44 +91,44 @@ export default function SecurityPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900">账户安全</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <h4 className="font-semibold text-foreground">账户安全</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   使用强密码，包含大小写字母、数字和特殊字符
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   定期更换密码，不要在不同平台使用相同密码
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   启用双因素认证（如果可用）
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   不要在公共设备上保存登录状态
                 </li>
               </ul>
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900">数据保护</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <h4 className="font-semibold text-foreground">数据保护</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   定期清理浏览器缓存和本地存储
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   不要在聊天或邮件中分享敏感信息
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   使用HTTPS连接访问网站
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                   定期检查账户活动，发现异常及时处理
                 </li>
               </ul>
@@ -147,21 +147,21 @@ export default function SecurityPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            <a 
-              href="/privacy" 
-              className="text-blue-600 hover:text-blue-800 underline text-sm"
+            <a
+              href="/privacy"
+              className="text-primary underline text-sm hover:text-primary/80"
             >
               隐私政策
             </a>
-            <a 
-              href="/terms" 
-              className="text-blue-600 hover:text-blue-800 underline text-sm"
+            <a
+              href="/terms"
+              className="text-primary underline text-sm hover:text-primary/80"
             >
               服务条款
             </a>
-            <a 
-              href="/security" 
-              className="text-blue-600 hover:text-blue-800 underline text-sm"
+            <a
+              href="/security"
+              className="text-primary underline text-sm hover:text-primary/80"
             >
               安全说明
             </a>

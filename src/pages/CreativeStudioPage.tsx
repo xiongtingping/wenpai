@@ -64,7 +64,7 @@ export default function CreativeStudioPage() {
   const [activeTab, setActiveTab] = useState('calendar');
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
         {/* 页面导航 */}
         <PageNavigation
           title="创意魔方"
@@ -112,15 +112,15 @@ export default function CreativeStudioPage() {
 
             {/* 朋友圈文案 */}
             <TabsContent value="wechat" className="mt-6">
-              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                 <WechatTemplatePage />
               </React.Suspense>
             </TabsContent>
 
             {/* Emoji生成器 */}
             <TabsContent value="emoji" className="mt-6">
-              <div className="bg-white rounded-lg">
-                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+              <div className="bg-card rounded-lg border border-border">
+                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                   <EmojiPage />
                 </React.Suspense>
               </div>

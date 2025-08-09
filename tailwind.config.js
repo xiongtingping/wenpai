@@ -52,6 +52,13 @@ module.exports = {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))'
 				},
+				// Section background for neutral separators (not emphasis)
+				section: {
+					DEFAULT: 'hsl(var(--section))',
+					foreground: 'hsl(var(--section-foreground))'
+				},
+				// Strong border color for higher contrast dividers
+				strong: 'hsl(var(--border-strong))',
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'

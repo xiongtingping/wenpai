@@ -690,7 +690,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
               size="sm"
               onClick={() => onToggleFavorite(template.id)}
             >
-              <Heart className={`w-4 h-4 ${template.isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+              <Heart className={`w-4 h-4 ${template.isFavorite ? 'fill-current text-primary' : ''}`} />
             </Button>
             <Button
               variant="ghost"

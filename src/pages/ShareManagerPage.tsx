@@ -151,7 +151,7 @@ export default function ShareManagerPage() {
       id: 'wechat',
       name: '微信公众号',
       icon: <Globe className="w-4 h-4" />,
-      color: 'bg-green-500',
+      color: 'bg-primary',
       maxLength: 5000,
       features: ['富文本', '图片', '链接'],
       status: 'active',
@@ -162,7 +162,7 @@ export default function ShareManagerPage() {
       id: 'xiaohongshu',
       name: '小红书',
       icon: <Smartphone className="w-4 h-4" />,
-      color: 'bg-red-500',
+      color: 'bg-primary',
       maxLength: 1000,
       features: ['图片', '标签', '定位'],
       status: 'active',
@@ -173,7 +173,7 @@ export default function ShareManagerPage() {
       id: 'zhihu',
       name: '知乎',
       icon: <Monitor className="w-4 h-4" />,
-      color: 'bg-blue-500',
+      color: 'bg-primary',
       maxLength: 3000,
       features: ['专栏', '问答', '想法'],
       status: 'active',
@@ -184,7 +184,7 @@ export default function ShareManagerPage() {
       id: 'weibo',
       name: '新浪微博',
       icon: <Share2 className="w-4 h-4" />,
-      color: 'bg-orange-500',
+      color: 'bg-primary',
       maxLength: 2000,
       features: ['话题', '图片', '@用户'],
       status: 'active',
@@ -205,7 +205,7 @@ export default function ShareManagerPage() {
       id: 'bilibili',
       name: 'B站',
       icon: <Users className="w-4 h-4" />,
-      color: 'bg-pink-500',
+      color: 'bg-primary',
       maxLength: 500,
       features: ['视频', '专栏', '动态'],
       status: 'active',
@@ -216,7 +216,7 @@ export default function ShareManagerPage() {
       id: 'kuaishou',
       name: '快手',
       icon: <Zap className="w-4 h-4" />,
-      color: 'bg-yellow-500',
+      color: 'bg-primary',
       maxLength: 200,
       features: ['视频', '直播', '话题'],
       status: 'inactive',
@@ -226,7 +226,7 @@ export default function ShareManagerPage() {
       id: 'baijia',
       name: '百家号',
       icon: <Globe className="w-4 h-4" />,
-      color: 'bg-blue-600',
+      color: 'bg-primary',
       maxLength: 4000,
       features: ['文章', '图片', 'SEO'],
       status: 'inactive',
@@ -506,13 +506,13 @@ export default function ShareManagerPage() {
   const getPlatformStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-primary" />;
       case 'failed':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
+        return <AlertCircle className="w-4 h-4 text-destructive" />;
       case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
+        return <Clock className="w-4 h-4 text-muted-foreground" />;
       default:
-        return <AlertCircle className="w-4 h-4 text-gray-500" />;
+        return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -522,13 +522,13 @@ export default function ShareManagerPage() {
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'bg-accent text-foreground border-border';
       case 'publishing':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-muted text-muted-foreground border-border';
       case 'failed':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-accent text-destructive border-border';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -548,7 +548,7 @@ export default function ShareManagerPage() {
               <Settings className="h-4 w-4 mr-2" />
               平台设置
             </Button>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border">
               已上线
             </Badge>
           </div>
@@ -683,26 +683,26 @@ export default function ShareManagerPage() {
                         key={platform.id}
                         className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                           selectedPlatforms.includes(platform.id)
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-primary bg-accent'
+                            : 'border-border hover:border-strong'
                         } ${!platform.connected ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => platform.connected && togglePlatform(platform.id)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded ${platform.color} text-white`}>
+                            <div className={`p-2 rounded ${platform.color} text-primary-foreground`}>
                               {platform.icon}
                             </div>
                             <div>
                               <div className="font-medium">{platform.name}</div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-muted-foreground">
                                 最多 {platform.maxLength} 字符
                               </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
                             {selectedPlatforms.includes(platform.id) && (
-                              <CheckCircle className="w-5 h-5 text-blue-500" />
+                              <CheckCircle className="w-5 h-5 text-primary" />
                             )}
                             {!platform.connected && (
                               <Badge variant="outline" className="text-xs">
@@ -738,18 +738,18 @@ export default function ShareManagerPage() {
               <CardContent>
                 {publishTasks.length === 0 ? (
                   <div className="text-center py-12">
-                    <Send className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600">暂无发布记录</p>
+                    <Send className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">暂无发布记录</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {publishTasks.map((task) => (
-                      <Card key={task.id} className="border-l-4 border-l-blue-500">
+                      <Card key={task.id} className="border-l-4 border-l-primary">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-medium text-gray-900">{task.title}</h3>
+                                <h3 className="font-medium text-foreground">{task.title}</h3>
                                 <Badge 
                                   variant="outline" 
                                   className={getTaskStatusColor(task.status)}
@@ -760,7 +760,7 @@ export default function ShareManagerPage() {
                                 </Badge>
                               </div>
                               
-                              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                                 {task.content}
                               </p>
 
@@ -772,7 +772,7 @@ export default function ShareManagerPage() {
                                   return platform ? (
                                     <div key={platformId} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                                       <div className="flex items-center gap-2">
-                                        <div className={`p-1 rounded ${platform.color} text-white`}>
+                                        <div className={`p-1 rounded ${platform.color} text-primary-foreground`}>
                                           {platform.icon}
                                         </div>
                                         <span className="text-sm font-medium">{platform.name}</span>
@@ -836,8 +836,8 @@ export default function ShareManagerPage() {
               <CardContent>
                 {contentTemplates.length === 0 ? (
                   <div className="text-center py-12">
-                    <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600">暂无内容模板</p>
+                    <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">暂无内容模板</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -845,13 +845,13 @@ export default function ShareManagerPage() {
                       <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-3">
-                            <h3 className="font-medium text-gray-900">{template.name}</h3>
+                            <h3 className="font-medium text-foreground">{template.name}</h3>
                             <Badge variant="outline" className="text-xs">
                               使用 {template.useCount} 次
                             </Badge>
                           </div>
                           
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                             {template.title}
                           </p>
                           
@@ -864,7 +864,7 @@ export default function ShareManagerPage() {
                           </div>
                           
                           <div className="flex items-center justify-between">
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-muted-foreground">
                               创建于 {template.createdAt.toLocaleDateString()}
                             </div>
                             <Button
@@ -892,10 +892,10 @@ export default function ShareManagerPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">总发布数</p>
-                      <p className="text-2xl font-bold text-gray-900">{publishTasks.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">总发布数</p>
+                      <p className="text-2xl font-bold text-foreground">{publishTasks.length}</p>
                     </div>
-                    <Send className="h-8 w-8 text-blue-500" />
+                    <Send className="h-8 w-8 text-primary" />
                   </div>
                 </CardContent>
               </Card>
@@ -904,12 +904,12 @@ export default function ShareManagerPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">成功发布</p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-sm font-medium text-muted-foreground">成功发布</p>
+                      <p className="text-2xl font-bold text-foreground">
                         {publishTasks.filter(t => t.status === 'completed').length}
                       </p>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-green-500" />
+                    <CheckCircle className="h-8 w-8 text-primary" />
                   </div>
                 </CardContent>
               </Card>
@@ -918,14 +918,14 @@ export default function ShareManagerPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">成功率</p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {publishTasks.length > 0 
+                      <p className="text-sm font-medium text-muted-foreground">成功率</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {publishTasks.length > 0
                           ? Math.round((publishTasks.filter(t => t.status === 'completed').length / publishTasks.length) * 100)
                           : 0}%
                       </p>
                     </div>
-                    <Target className="h-8 w-8 text-purple-500" />
+                    <Target className="h-8 w-8 text-primary" />
                   </div>
                 </CardContent>
               </Card>
@@ -934,10 +934,10 @@ export default function ShareManagerPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">模板数量</p>
-                      <p className="text-2xl font-bold text-gray-900">{contentTemplates.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">模板数量</p>
+                      <p className="text-2xl font-bold text-foreground">{contentTemplates.length}</p>
                     </div>
-                    <FileText className="h-8 w-8 text-orange-500" />
+                    <FileText className="h-8 w-8 text-primary" />
                   </div>
                 </CardContent>
               </Card>
@@ -1008,19 +1008,19 @@ export default function ShareManagerPage() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded ${platform.color} text-white`}>
+                        <div className={`p-2 rounded ${platform.color} text-primary-foreground`}>
                           {platform.icon}
                         </div>
                         <div>
                           <div className="font-medium">{platform.name}</div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-muted-foreground">
                             {platform.connected ? '已连接' : '未连接'}
                           </div>
                         </div>
                       </div>
                       <Badge 
                         variant="outline" 
-                        className={platform.connected ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}
+                        className={platform.connected ? 'bg-secondary text-secondary-foreground border-border' : 'bg-muted text-muted-foreground border-border'}
                       >
                         {platform.connected ? '已连接' : '未连接'}
                       </Badge>

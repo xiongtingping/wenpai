@@ -6,11 +6,11 @@ import { Separator } from '@/components/ui/separator';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { getUserUsername, getUserEmail, getUserId } from '@/utils/userDisplayUtils';
-import { 
-  Crown, 
-  Star, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Crown,
+  Star,
+  CheckCircle,
+  XCircle,
   ArrowRight,
   Zap,
   Shield,
@@ -61,7 +61,7 @@ const VIPPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
@@ -69,10 +69,10 @@ const VIPPage: React.FC = () => {
           <div className="flex justify-center mb-4">
             <Crown className="h-16 w-16 text-yellow-500" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             VIP会员中心
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             解锁所有高级功能，提升创作效率
           </p>
         </div>
@@ -175,7 +175,8 @@ const VIPPage: React.FC = () => {
         )}
       </div>
     </div>
+      </div>
   );
 };
 
-export default VIPPage; 
+export default VIPPage;

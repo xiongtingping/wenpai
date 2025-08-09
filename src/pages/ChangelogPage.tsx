@@ -53,13 +53,13 @@ export default function ChangelogPage() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "feature":
-        return "bg-blue-100 text-blue-800";
+        return "bg-secondary text-secondary-foreground";
       case "fix":
-        return "bg-green-100 text-green-800";
+        return "bg-accent text-accent-foreground";
       case "release":
-        return "bg-purple-100 text-purple-800";
+        return "bg-primary text-primary-foreground";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -81,12 +81,12 @@ export default function ChangelogPage() {
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
+          <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回首页
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">更新日志</h1>
-          <p className="text-gray-600">了解文派的最新功能和改进</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">更新日志</h1>
+          <p className="text-muted-foreground">了解文派的最新功能和改进</p>
         </div>
 
         {/* Changelog List */}
@@ -101,9 +101,9 @@ export default function ChangelogPage() {
                       {getTypeText(item.type)}
                     </Badge>
                   </div>
-                  <span className="text-sm text-gray-500">{item.date}</span>
+                  <span className="text-sm text-muted-foreground">{item.date}</span>
                 </div>
-                <CardDescription className="text-lg font-medium text-gray-900">
+                <CardDescription className="text-lg font-medium text-foreground">
                   {item.title}
                 </CardDescription>
               </CardHeader>
@@ -111,8 +111,8 @@ export default function ChangelogPage() {
                 <ul className="space-y-2">
                   {item.changes.map((change, changeIndex) => (
                     <li key={changeIndex} className="flex items-start">
-                      <span className="text-blue-500 mr-2 mt-1">•</span>
-                      <span className="text-gray-700">{change}</span>
+                      <span className="text-primary mr-2 mt-1">•</span>
+                      <span className="text-muted-foreground">{change}</span>
                     </li>
                   ))}
                 </ul>
@@ -123,7 +123,7 @@ export default function ChangelogPage() {
 
         {/* Footer Note */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             更多更新信息请关注我们的官方渠道
           </p>
         </div>

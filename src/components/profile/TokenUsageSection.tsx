@@ -151,15 +151,15 @@ export function TokenUsageSection({
   return (
     <div className={`${className}`}>
       <Card variant="soft" className="h-full flex flex-col rounded-xl overflow-hidden relative">
-        <CardHeader className="bg-gradient-secondary text-white relative z-10 rounded-t-xl">
+        <CardHeader className="bg-gradient-secondary text-gray-900 relative z-10 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
                 <Database className="w-6 h-6 drop-shadow-sm" />
               </div>
               <div>
-                <div className="text-xl font-bold drop-shadow-sm">使用统计</div>
-                <div className="text-cyan-100 text-sm font-normal">{planName} - 查看您的使用情况</div>
+                <div className="text-xl font-bold text-gray-900">使用统计</div>
+                <div className="text-gray-600 text-sm font-normal">{planName} - 查看您的使用情况</div>
               </div>
             </div>
             <Button

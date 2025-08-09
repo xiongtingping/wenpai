@@ -31,6 +31,10 @@
     --input: 45 15% 88%;
     --ring: 45 70% 55%;
     --radius: 0.5rem;
+    /* New tokens */
+    --section: 45 20% 96%;
+    --section-foreground: 45 15% 15%;
+    --border-strong: 45 15% 75%;
     --chart-1: 45 70% 55%;
     --chart-2: 35 60% 50%;
     --chart-3: 25 65% 45%;
@@ -99,20 +103,20 @@
     /* 使用正常的系统字体，确保数字正确显示 */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   }
-  
+
   html {
     scroll-behavior: smooth;
   }
-  
+
   /* 确保主题样式优先级 */
   html[data-theme] {
     color-scheme: light;
   }
-  
+
   html[data-theme="dark"] {
     color-scheme: dark;
   }
-  
+
   /* 强制应用主题样式 - 使用最高优先级 */
   /* 🎯 FIXED: 排除 Authing Guard 弹窗元素，避免样式冲突 */
   html[data-theme] body,
@@ -120,27 +124,27 @@
     background-color: hsl(var(--background)) !important;
     color: hsl(var(--foreground)) !important;
   }
-  
+
   /* 特殊处理卡片和容器背景 */
   html[data-theme] .card,
   html[data-theme] [class*="bg-"] {
     background-color: hsl(var(--card)) !important;
     color: hsl(var(--card-foreground)) !important;
   }
-  
+
   /* 处理边框 */
   /* 🎯 FIXED: 排除 Authing Guard 弹窗元素，避免边框样式冲突 */
   html[data-theme] *:not([class*="authing"]):not([id*="authing"]):not([role="dialog"]):not([aria-modal="true"]) {
     border-color: hsl(var(--border)) !important;
   }
-  
+
   /* 处理按钮和交互元素 */
   html[data-theme] button,
   html[data-theme] [class*="btn"] {
     background-color: hsl(var(--primary)) !important;
     color: hsl(var(--primary-foreground)) !important;
   }
-  
+
   /* 🎯 FIXED: 移除 Authing 样式覆盖，让 Authing Guard 使用原生样式 */
   /* 这个规则会导致 Authing Guard 弹窗不可见，已移除 */
 }
@@ -167,6 +171,10 @@
   --input: 214.3 31.8% 91.4%;
   --ring: 221.2 83.2% 53.3%;
   --radius: 0.5rem;
+  /* New tokens */
+  --section: 210 40% 98%;
+  --section-foreground: 222.2 84% 4.9%;
+  --border-strong: 214.3 31.8% 80%;
   --chart-1: 12 76% 61%;
   --chart-2: 173 58% 39%;
   --chart-3: 197 37% 24%;
@@ -196,6 +204,10 @@
   --input: 45 15% 88%;
   --ring: 45 70% 55%;
   --radius: 0.5rem;
+  /* New tokens */
+  --section: 45 20% 96%;
+  --section-foreground: 45 15% 15%;
+  --border-strong: 45 15% 75%;
   --chart-1: 45 70% 55%;
   --chart-2: 35 60% 50%;
   --chart-3: 25 65% 45%;
@@ -224,6 +236,10 @@
   --input: 217.2 32.6% 17.5%;
   --ring: 224.3 76.3% 94.1%;
   --radius: 0.5rem;
+  /* New tokens */
+  --section: 217.2 32.6% 15%;
+  --section-foreground: 210 40% 98%;
+  --border-strong: 217.2 32.6% 30%;
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
@@ -252,6 +268,10 @@
   --input: 120 20% 85%;
   --ring: 142 76% 36%;
   --radius: 0.5rem;
+  /* New tokens */
+  --section: 120 30% 96%;
+  --section-foreground: 120 10% 10%;
+  --border-strong: 120 20% 70%;
   --chart-1: 142 76% 36%;
   --chart-2: 120 60% 45%;
   --chart-3: 100 80% 55%;
@@ -280,6 +300,10 @@
   --input: 210 20% 85%;
   --ring: 221 83% 53%;
   --radius: 0.5rem;
+  /* New tokens */
+  --section: 210 30% 96%;
+  --section-foreground: 210 10% 10%;
+  --border-strong: 210 20% 70%;
   --chart-1: 221 83% 53%;
   --chart-2: 200 60% 45%;
   --chart-3: 180 80% 55%;
@@ -843,19 +867,19 @@
   .mobile-hidden {
     display: none;
   }
-  
+
   .mobile-text-sm {
     font-size: 0.875rem;
   }
-  
+
   .mobile-text-xs {
     font-size: 0.75rem;
   }
-  
+
   .mobile-p-2 {
     padding: 0.5rem;
   }
-  
+
   .mobile-p-3 {
     padding: 0.75rem;
   }
@@ -865,11 +889,11 @@
   .tablet-hidden {
     display: none;
   }
-  
+
   .tablet-text-lg {
     font-size: 1.125rem;
   }
-  
+
   .tablet-p-4 {
     padding: 1rem;
   }
@@ -946,7 +970,7 @@
   .no-print {
     display: none !important;
   }
-  
+
   .print-break {
     page-break-before: always;
   }
@@ -1084,6 +1108,11 @@
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
+
+/* Utility classes for new tokens */
+.section-bg { background-color: hsl(var(--section)); color: hsl(var(--section-foreground)); }
+.border-strong { border-color: hsl(var(--border-strong)); }
+
     rgba(99, 102, 241, 0.02) 45deg,
     transparent 90deg,
     rgba(139, 92, 246, 0.02) 135deg,
@@ -1229,16 +1258,16 @@
 
 /* Tab状态动画 */
 @keyframes tabGlow {
-  0% { 
-    box-shadow: 0 0 0 rgba(34, 197, 94, 0.8); 
+  0% {
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0.8);
     transform: scale(1);
   }
-  50% { 
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.8); 
+  50% {
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
     transform: scale(1.02);
   }
-  100% { 
-    box-shadow: 0 0 0 rgba(34, 197, 94, 0); 
+  100% {
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
     transform: scale(1);
   }
 }

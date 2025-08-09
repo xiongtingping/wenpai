@@ -183,25 +183,25 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       {/* 顶部导航栏 */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="border-b border-border shadow-sm bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-accent"
             >
               <ArrowLeft className="h-4 w-4" />
               返回首页
             </Button>
-            <div className="h-6 w-px bg-gray-300"></div>
-            <h1 className="text-lg font-semibold text-gray-900">支付中心</h1>
+            <div className="h-6 w-px bg-border"></div>
+            <h1 className="text-lg font-semibold text-foreground">支付中心</h1>
           </div>
           <div className="flex items-center gap-2">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               {currentIsAuthenticated ? '已登录' : '未登录'}
             </div>
           </div>
@@ -217,13 +217,13 @@ export default function PaymentPage() {
 
       {/* 优惠倒计时 */}
       {timeLeft > 0 && (
-        <div className="mb-8 p-4 bg-gradient-to-r from-red-100 to-orange-50 border-2 border-red-200 rounded-xl shadow flex flex-col md:flex-row items-center justify-center gap-4">
+        <div className="mb-8 p-4 rounded-xl border bg-accent border-border shadow flex flex-col md:flex-row items-center justify-center gap-4">
           <div className="flex items-center gap-2">
-            <Gift className="w-6 h-6 text-red-500" />
-            <span className="text-lg md:text-xl font-bold text-red-600">新用户限时优惠</span>
+            <Gift className="w-6 h-6 text-primary" />
+            <span className="text-lg md:text-xl font-bold text-foreground">新用户限时优惠</span>
           </div>
-          <span className="flex items-center gap-2 text-xl md:text-2xl font-bold bg-red-50 px-4 py-2 rounded-lg border-2 border-red-300">
-            <Clock className="w-5 h-5 text-red-400" />
+          <span className="flex items-center gap-2 text-xl md:text-2xl font-bold bg-card px-4 py-2 rounded-lg border border-border">
+            <Clock className="w-5 h-5 text-muted-foreground" />
             {formatTimeLeft()}
           </span>
         </div>
@@ -241,10 +241,10 @@ export default function PaymentPage() {
         <Button
           variant={selectedPeriod === 'yearly' ? 'default' : 'outline'}
           onClick={() => handlePeriodSelect('yearly')}
-          className={`min-w-[120px] transition-all duration-300 ${selectedPeriod === 'yearly' ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white' : 'bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200'}`}
+          className="min-w-[120px]"
         >
           按年订阅
-          <Badge variant="secondary" className="ml-2">省80-202元</Badge>
+          <Badge variant="secondary" className="ml-2">年付更省</Badge>
         </Button>
       </div>
 
@@ -307,30 +307,30 @@ export default function PaymentPage() {
                 {/* 价格显示 */}
                 <div className="text-center pricing-container">
                   {plan.tier === 'trial' ? (
-                    <div className="text-3xl font-bold text-green-600">免费</div>
+                    <div className="text-3xl font-bold text-primary">免费</div>
                   ) : (
                     <div className="space-y-2">
                       {isInDiscount && timeLeft > 0 ? (
                         <div className="space-y-2">
-                          <div className="text-3xl font-bold text-red-600 pricing-price">
+                          <div className="text-3xl font-bold text-foreground pricing-price">
                             <span className="pricing-price-symbol">¥</span>{currentPrice}
                           </div>
-                          <div className="text-sm text-red-500 font-semibold">
+                          <div className="text-sm text-primary font-semibold">
                             <Zap className="h-3 w-3 inline mr-1" />
                             限时特惠价 省¥{savedAmount.toFixed(2)}
                           </div>
-                          <div className="text-sm text-gray-400 line-through">¥{originalPrice} 原价</div>
+                          <div className="text-sm text-muted-foreground line-through">¥{originalPrice} 原价</div>
                         </div>
                       ) : (
-                        <div className="text-3xl font-bold text-gray-900 pricing-price">
+                        <div className="text-3xl font-bold text-foreground pricing-price">
                           <span className="pricing-price-symbol">¥</span>{currentPrice}
                         </div>
                       )}
-                      <div className="text-sm text-gray-500">/{selectedPeriod === 'monthly' ? '月' : '年'}</div>
-                      
+                      <div className="text-sm text-muted-foreground">/{selectedPeriod === 'monthly' ? '月' : '年'}</div>
+
                       {/* 年付月均价格显示 */}
                       {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
-                        <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                        <div className="text-xs text-primary bg-accent px-2 py-1 rounded">
                           月均¥{(currentPrice / 12).toFixed(1)}，比月付省¥{yearlySavings}
                         </div>
                       )}
@@ -429,14 +429,14 @@ export default function PaymentPage() {
               {/* 标题和支付信息行 */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">支</span>
+                  <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+                    <span className="text-primary-foreground text-xs font-bold">支</span>
                   </div>
-                  <h3 className="font-semibold text-blue-900">支付宝扫码支付</h3>
+                  <h3 className="font-semibold text-foreground">支付宝扫码支付</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-blue-600">¥{getCurrentPrice()}</div>
-                  <div className="text-xs text-blue-600">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
+                  <div className="text-lg font-bold text-foreground">¥{getCurrentPrice()}</div>
+                  <div className="text-xs text-muted-foreground">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
                 </div>
               </div>
               

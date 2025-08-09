@@ -36,7 +36,7 @@ function HomePage() {
         </div>
 
         {/* Trust Section - 白色背景 */}
-        <div className="bg-white py-16">
+        <div className="bg-background py-16">
           <TrustSection />
         </div>
 
@@ -46,7 +46,7 @@ function HomePage() {
         </div>
 
         {/* Features Section - 白色背景 */}
-        <div className="bg-white py-20">
+        <div className="bg-background py-20">
           <FeaturesSection />
         </div>
 
@@ -56,7 +56,7 @@ function HomePage() {
         </div>
 
         {/* Pricing Section - 白色背景 */}
-        <div className="bg-white py-20">
+        <div className="bg-background py-20">
           <PricingSection />
         </div>
 

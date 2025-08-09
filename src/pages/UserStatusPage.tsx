@@ -58,7 +58,7 @@ export default function UserStatusPage() {
           {user && (
             <div className="border rounded p-4">
               <h3 className="font-semibold mb-2">用户信息:</h3>
-              <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
+              <pre className="text-xs bg-accent p-2 rounded overflow-auto">
                 {JSON.stringify(user, null, 2)}
               </pre>
             </div>
@@ -84,7 +84,7 @@ export default function UserStatusPage() {
             </Button>
           </div>
 
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             <p>调试信息:</p>
             <p>- 查看浏览器控制台的详细日志</p>
             <p>- 点击"测试 getCurrentUser"查看原始用户数据</p>

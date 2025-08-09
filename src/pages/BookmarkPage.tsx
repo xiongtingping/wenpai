@@ -725,7 +725,7 @@ export default function BookmarkPage() {
   const copywritingItems = getFilteredItems('copywriting');
 
   return (
-    <div className="min-h-screen bg-gradient-primary particle-background">
+    <div className="min-h-screen bg-background">
       {/* 页面导航 */}
       <PageNavigation
         title="我的资料库"

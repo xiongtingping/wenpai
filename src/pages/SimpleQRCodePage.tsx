@@ -58,9 +58,9 @@ export default function SimpleQRCodePage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* 链接信息 */}
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-medium text-blue-900 mb-2">支付链接信息</h3>
-            <div className="space-y-2 text-sm">
+          <div className="bg-accent p-4 rounded-lg border border-border">
+            <h3 className="font-medium text-foreground mb-2">支付链接信息</h3>
+            <div className="space-y-2 text-sm text-foreground">
               <p><span className="font-medium">产品:</span> 专业版月付</p>
               <p><span className="font-medium">产品ID:</span> prod_3nJOuQeVStqkp6JaDcrKHf</p>
               <p><span className="font-medium">价格:</span> ¥29.00</p>
@@ -94,28 +94,28 @@ export default function SimpleQRCodePage() {
           </div>
 
           {/* 使用说明 */}
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-medium text-green-900 mb-2">使用说明</h4>
-            <div className="space-y-2 text-sm text-green-800">
+          <div className="bg-accent p-4 rounded-lg border border-border">
+            <h4 className="font-medium text-foreground mb-2">使用说明</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-start gap-2">
-                <span className="font-medium">1.</span>
+                <span className="font-medium text-foreground">1.</span>
                 <span>使用手机支付宝扫描上方二维码</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="font-medium">2.</span>
+                <span className="font-medium text-foreground">2.</span>
                 <span>扫码后会跳转到Creem安全支付页，请放心支付</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="font-medium">3.</span>
+                <span className="font-medium text-foreground">3.</span>
                 <span>支付成功后服务将自动激活</span>
               </div>
             </div>
           </div>
 
           {/* 注意事项 */}
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <h4 className="font-medium text-yellow-900 mb-2">注意事项</h4>
-            <div className="space-y-2 text-sm text-yellow-800">
+          <div className="bg-accent p-4 rounded-lg border border-border">
+            <h4 className="font-medium text-foreground mb-2">注意事项</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>• 请确保使用官方支付宝APP扫描二维码</p>
               <p>• 支付过程中请勿关闭页面或刷新</p>
               <p>• 如遇支付问题，请联系客服处理</p>
