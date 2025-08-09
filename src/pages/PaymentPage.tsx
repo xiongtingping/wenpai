@@ -263,13 +263,13 @@ export default function PaymentPage() {
           return (
             <Card 
               key={plan.id}
-              className={`cursor-pointer transition-all relative group ${isSelected ? "border-4 border-blue-500 shadow-2xl scale-105" : "hover:shadow-lg hover:scale-105"} ${plan.recommended ? "ring-2 ring-blue-200" : ""}`}
+              className={`cursor-pointer transition-all relative group ${isSelected ? "border-4 border-primary shadow-2xl scale-105" : "hover:shadow-lg hover:scale-105"} ${plan.recommended ? "ring-2 ring-border" : ""}`}
               onClick={() => handlePlanSelect(plan)}
             >
               {/* 推荐标签 */}
               {plan.recommended && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg px-4 py-1 text-base">
+                  <Badge className="bg-primary text-primary-foreground shadow-lg px-4 py-1 text-base">
                     <Star className="h-4 w-4 mr-1" />
                     推荐
                   </Badge>
@@ -279,7 +279,7 @@ export default function PaymentPage() {
               {/* 限时优惠标签 */}
               {isInDiscount && timeLeft > 0 && plan.tier !== 'trial' && (
                 <div className="absolute -top-4 -right-2 z-10">
-                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg px-3 py-1 text-sm animate-pulse">
+                  <Badge className="bg-primary text-primary-foreground shadow-lg px-3 py-1 text-sm animate-pulse">
                     <Zap className="h-3 w-3 mr-1" />
                     限时
                   </Badge>
@@ -289,7 +289,7 @@ export default function PaymentPage() {
               {/* 年付优惠标签 */}
               {selectedPeriod === 'yearly' && (plan.tier === 'pro' || plan.tier === 'premium') && (
                 <div className="absolute -top-4 -left-2 z-10">
-                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg px-3 py-1 text-sm">
+                  <Badge className="bg-primary text-primary-foreground shadow-lg px-3 py-1 text-sm">
                     <Percent className="h-3 w-3 mr-1" />
                     年付省¥{yearlySavings}
                   </Badge>
@@ -298,7 +298,7 @@ export default function PaymentPage() {
 
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-xl flex items-center justify-center gap-2">
-                  {plan.tier === 'premium' && <Crown className="h-5 w-5 text-yellow-500" />}
+                  {plan.tier === 'premium' && <Crown className="h-5 w-5 text-foreground" />}
                   {plan.name}
                 </CardTitle>
                 <p className="text-muted-foreground text-xs md:text-sm mt-1">{plan.description}</p>
@@ -341,7 +341,7 @@ export default function PaymentPage() {
                 <div className="space-y-1.5 mt-3">
                   {plan.features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <Check className="h-4 w-4 text-foreground flex-shrink-0" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -368,28 +368,28 @@ export default function PaymentPage() {
       <div ref={paymentInfoRef} className="space-y-4 max-w-3xl mx-auto">
         {/* 支付按钮 */}
         {selectedPlan && selectedPlan.tier !== 'trial' && !showQRCode && (
-          <Card className="border-green-100 bg-gradient-to-br from-green-50 to-white shadow-lg">
+          <Card className="border-border bg-accent shadow-lg">
             <CardContent className="p-6">
               {/* 标题和支付信息行 */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
-                    <CreditCard className="h-3 w-3 text-white" />
+                  <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+                    <CreditCard className="h-3 w-3 text-primary-foreground" />
                   </div>
-                  <h3 className="font-semibold text-green-900">支付信息</h3>
+                  <h3 className="font-semibold text-foreground">支付信息</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-green-600">¥{getCurrentPrice()}</div>
-                  <div className="text-xs text-green-600">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
+                  <div className="text-lg font-bold text-foreground">¥{getCurrentPrice()}</div>
+                  <div className="text-xs text-muted-foreground">{selectedPeriod === 'monthly' ? '月付' : '年付'}</div>
                 </div>
               </div>
               
               {/* 套餐信息 */}
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="mb-4 p-3 bg-accent border border-border rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-semibold text-green-900">{selectedPlan.name}</span>
-                    <span className="text-xs text-green-700 ml-2">{selectedPlan.description}</span>
+                    <span className="font-semibold text-foreground">{selectedPlan.name}</span>
+                    <span className="text-xs text-muted-foreground ml-2">{selectedPlan.description}</span>
                   </div>
                 </div>
               </div>
@@ -398,13 +398,13 @@ export default function PaymentPage() {
               {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (
                 <div className="flex gap-2 mb-4">
                   {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                    <span className="text-xs text-foreground bg-accent px-2 py-1 rounded border border-border">
                       <Zap className="h-3 w-3 inline mr-1" />
                       限时优惠中，节省 ¥{getSavedAmount().toFixed(2)}
                     </span>
                   )}
                   {selectedPeriod === 'yearly' && (
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                    <span className="text-xs text-foreground bg-accent px-2 py-1 rounded border border-border">
                       <Percent className="h-3 w-3 inline mr-1" />
                       年付优惠，比月付省 ¥{getYearlySavings(selectedPlan)}
                     </span>
@@ -414,7 +414,7 @@ export default function PaymentPage() {
               
               <Button 
                 onClick={handlePayment}
-                className="w-full bg-green-500 hover:bg-green-600 text-base py-2"
+                className="w-full bg-primary hover:bg-primary/90 text-base py-2 text-primary-foreground"
               >
                 立即支付
               </Button>
@@ -424,7 +424,7 @@ export default function PaymentPage() {
 
         {/* 支付二维码 */}
         {showQRCode && selectedPlan && selectedPlan.tier !== 'trial' && (
-          <Card data-qr-code className="border-blue-100 bg-gradient-to-br from-blue-50 to-white shadow-xl">
+          <Card data-qr-code className="border-border bg-accent shadow-xl">
             <CardContent className="p-6">
               {/* 标题和支付信息行 */}
               <div className="flex items-center justify-between mb-4">
@@ -444,13 +444,13 @@ export default function PaymentPage() {
               {(isInPromoPeriod(currentUser?.id) && timeLeft > 0) || selectedPeriod === 'yearly' ? (
                 <div className="flex gap-2 mb-4">
                   {isInPromoPeriod(currentUser?.id) && timeLeft > 0 && (
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                    <span className="text-xs text-foreground bg-accent px-2 py-1 rounded border border-border">
                       <Zap className="h-3 w-3 inline mr-1" />
                       限时优惠中
                     </span>
                   )}
                   {selectedPeriod === 'yearly' && (
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                    <span className="text-xs text-foreground bg-accent px-2 py-1 rounded border border-border">
                       <Percent className="h-3 w-3 inline mr-1" />
                       年付优惠
                     </span>
@@ -474,20 +474,20 @@ export default function PaymentPage() {
                 })()}
               </div>
               
-              <div className="text-center text-blue-700 text-sm mt-2">请使用支付宝App扫码完成支付</div>
+              <div className="text-center text-muted-foreground text-sm mt-2">请使用支付宝App扫码完成支付</div>
             </CardContent>
           </Card>
         )}
       </div>
 
       <div className="mt-6 text-center text-xs md:text-sm text-muted-foreground">
-        <p className="text-green-600 font-medium mb-2">💡 随时可取消</p>
+        <p className="text-foreground font-medium mb-2">💡 随时可取消</p>
         <p>订阅会在期满后自动续费，您可以随时取消</p>
         <p className="mt-2">
           点击立即支付即表示您同意我们的
-          <a href="/terms" className="text-blue-500 hover:underline mx-1">服务条款</a>
+          <a href="/terms" className="text-primary hover:underline mx-1">服务条款</a>
           和
-          <a href="/privacy" className="text-blue-500 hover:underline mx-1">隐私政策</a>
+          <a href="/privacy" className="text-primary hover:underline mx-1">隐私政策</a>
         </p>
       </div>
     </div>

@@ -976,10 +976,10 @@ export default function ProfilePage() {
 
                       {/* 未保存更改提示 - 移动到保存按钮上方 */}
                       {hasUnsavedChanges && (
-                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-3 mb-3">
+                        <div className="bg-accent border border-border rounded-lg p-3 mb-3">
                           <div className="flex items-center">
-                            <Info className="h-4 w-4 text-amber-500 mr-2 flex-shrink-0" />
-                            <p className="text-sm text-amber-700 font-medium">
+                            <Info className="h-4 w-4 text-foreground mr-2 flex-shrink-0" />
+                            <p className="text-sm text-foreground font-medium">
                               您有未保存的更改，请点击下方保存按钮
                             </p>
                           </div>

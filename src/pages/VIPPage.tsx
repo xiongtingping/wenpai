@@ -67,7 +67,7 @@ const VIPPage: React.FC = () => {
         {/* 页面标题 */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Crown className="h-16 w-16 text-yellow-500" />
+            <Crown className="h-16 w-16 text-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             VIP会员中心
@@ -88,7 +88,7 @@ const VIPPage: React.FC = () => {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">当前状态</p>
+                <p className="text-sm text-muted-foreground">当前状态</p>
                 <Badge variant={vipPermission.pass ? "default" : "secondary"} className="mt-1">
                   {vipPermission.pass ? "VIP会员" : "普通用户"}
                 </Badge>
@@ -114,12 +114,12 @@ const VIPPage: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-3">{feature.description}</p>
+                <p className="text-muted-foreground mb-3">{feature.description}</p>
                 <div className="flex items-center gap-2">
                   {feature.available ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-foreground" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-red-500" />
+                    <XCircle className="h-4 w-4 text-destructive" />
                   )}
                   <span className="text-sm">
                     {feature.available ? "可用" : "不可用"}
@@ -139,33 +139,33 @@ const VIPPage: React.FC = () => {
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">用户ID</span>
+                  <span className="text-sm text-muted-foreground">用户ID</span>
                   <span className="text-sm font-mono">{getUserId(user, '未知')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">邮箱</span>
+                  <span className="text-sm text-muted-foreground">邮箱</span>
                   <span className="text-sm">{getUserEmail(user, '未设置')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">用户名</span>
+                  <span className="text-sm text-muted-foreground">用户名</span>
                   <span className="text-sm">{getUserUsername(user, '未设置')}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">VIP状态</span>
+                  <span className="text-sm text-muted-foreground">VIP状态</span>
                   <Badge variant={user.isVip ? "default" : "secondary"}>
                     {user.isVip ? "VIP用户" : "普通用户"}
                   </Badge>
                 </div>
                 {user.permissions && (
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">权限</span>
+                    <span className="text-sm text-muted-foreground">权限</span>
                     <span className="text-sm">{user.permissions.join(', ') || '无'}</span>
                   </div>
                 )}
                 {user.roles && (
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">角色</span>
+                    <span className="text-sm text-muted-foreground">角色</span>
                     <span className="text-sm">{user.roles.join(', ') || '无'}</span>
                   </div>
                 )}
