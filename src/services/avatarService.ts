@@ -66,11 +66,34 @@ class AvatarService {
   }
 
   /**
-   * 生成随机头像URL
+   * 生成随机头像URL - 使用统一emoji系统
    */
-  generateRandomAvatar(seed?: string): string {
-    const avatarSeed = seed || `random_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
+  async generateRandomAvatar(seed?: string): Promise<string> {
+    try {
+      // 动态导入统一emoji系统
+      const { getRandomEmojis, getAllEmojis, generateEmojiSVG } = await import('@/services/unifiedEmojiSystem');
+
+      // 优先从动物类别随机，若为空则退回全量数据
+      let pool = getRandomEmojis(1, 'animals');
+      if (pool.length === 0) {
+        const all = getAllEmojis();
+        if (all.length > 0) {
+          pool = [all[Math.floor(Math.random() * all.length)]];
+        }
+      }
+
+      if (pool.length > 0) {
+        return generateEmojiSVG(pool[0]);
+      }
+
+      // 如果没有可用的emoji，回退到Dicebear API
+      const avatarSeed = seed || `random_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
+    } catch (error) {
+      console.error('生成随机emoji头像失败，回退到Dicebear API:', error);
+      const avatarSeed = seed || `random_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
+    }
   }
 
   /**

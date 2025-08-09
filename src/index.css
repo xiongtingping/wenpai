@@ -898,16 +898,19 @@
   vertical-align: middle;
 }
 
-/* 专用按钮背景修复 - 使用最高优先级 */
+/* 专用按钮背景修复 - 现代扁平拟物混合风格 */
 .btn-invite-gradient {
-  background: linear-gradient(to right, #ec4899, #ef4444) !important;
-  background-image: linear-gradient(to right, #ec4899, #ef4444) !important;
+  background: linear-gradient(to right, #ec4899, #f97316, #ef4444) !important;
+  background-image: linear-gradient(to right, #ec4899, #f97316, #ef4444) !important;
   border: none !important;
+  box-shadow: 0 10px 40px -10px rgba(236, 72, 153, 0.3), 0 0 20px rgba(239, 68, 68, 0.2) !important;
 }
 
 .btn-invite-gradient:hover {
-  background: linear-gradient(to right, #db2777, #dc2626) !important;
-  background-image: linear-gradient(to right, #db2777, #dc2626) !important;
+  background: linear-gradient(to right, #db2777, #ea580c, #dc2626) !important;
+  background-image: linear-gradient(to right, #db2777, #ea580c, #dc2626) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 15px 50px -10px rgba(236, 72, 153, 0.4), 0 0 30px rgba(239, 68, 68, 0.3) !important;
 }
 
 .btn-upgrade-gradient {

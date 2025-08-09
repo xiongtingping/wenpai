@@ -343,17 +343,21 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('🔓 开发环境自动登录模式 - 强制启用');
         console.log('🔧 正在创建模拟用户数据...');
 
-        // 创建模拟用户数据
+        // 创建模拟用户数据（合并本地存储头像等持久化字段）
+        const stored = localStorage.getItem('authing_user');
+        const storedUser = stored ? JSON.parse(stored) : null;
+
         const mockUser: UserInfo = {
-          id: 'dev-user-001',
-          username: 'dev-user',
-          email: 'dev@example.com',
-          nickname: '开发用户',
-          avatar: '',
+          id: storedUser?.id || 'dev-user-001',
+          username: storedUser?.username || 'dev-user',
+          email: storedUser?.email || 'dev@example.com',
+          nickname: storedUser?.nickname || '开发用户',
+          phone: storedUser?.phone || '',
+          avatar: storedUser?.avatar || '',
           loginTime: new Date().toISOString(),
-          roles: ['user', 'vip'],
-          permissions: ['auth:required', 'vip:required', 'feature:creative-studio', 'feature:brand-library'],
-          isVip: true
+          roles: storedUser?.roles || ['user', 'vip'],
+          permissions: storedUser?.permissions || ['auth:required', 'vip:required', 'feature:creative-studio', 'feature:brand-library'],
+          isVip: storedUser?.isVip ?? true
         };
 
         setUser(mockUser);

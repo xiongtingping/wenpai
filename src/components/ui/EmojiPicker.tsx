@@ -11,22 +11,22 @@ import { Input } from './input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 import { ScrollArea } from './scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
-import { 
-  getPopularEmojis, 
-  getSmileysEmojis, 
-  getAnimalsEmojis, 
-  getFoodEmojis, 
-  getActivityEmojis, 
-  getTravelEmojis, 
-  getObjectsEmojis, 
-  getSymbolsEmojis, 
+import {
+  getPopularEmojis,
+  getSmileysEmojis,
+  getAnimalsEmojis,
+  getFoodEmojis,
+  getActivityEmojis,
+  getTravelEmojis,
+  getObjectsEmojis,
+  getSymbolsEmojis,
   getFlagsEmojis,
   searchEmojis,
   getEmojiDisplay,
   getCDNConfigs,
   type EmojiItem,
   type EmojiDisplayMode
-} from '@/services/emojiService';
+} from '@/services/emojiServiceAdapter';
 
 /**
  * Emoji 选择器属性

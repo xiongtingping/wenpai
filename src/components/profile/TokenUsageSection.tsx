@@ -34,6 +34,13 @@ interface TokenUsageSectionProps {
   className?: string;
   /** 是否显示升级按钮 */
   showUpgradeButton?: boolean;
+  /** 外部用户统计数据 */
+  externalUserStats?: {
+    availableUses: number;
+    usedCount: number;
+    tokenLimit: number;
+    usedTokens: number;
+  };
 }
 
 /**
@@ -81,11 +88,12 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
 /**
  * Token使用量统计组件
  */
-export function TokenUsageSection({ 
-  userTier = 'trial', 
+export function TokenUsageSection({
+  userTier = 'trial',
   showDetails = true,
   showUpgradeButton = true,
-  className = ''
+  className = '',
+  externalUserStats
 }: TokenUsageSectionProps) {
   const {
     tokenStats,
@@ -95,6 +103,21 @@ export function TokenUsageSection({
     error,
     refreshStats
   } = useUnifiedUsageStats();
+
+  // 如果有外部数据，使用外部数据覆盖
+  const finalUsageCountStats = externalUserStats ? {
+    usedCount: externalUserStats.usedCount,
+    availableUses: externalUserStats.availableUses,
+    remainingUses: externalUserStats.availableUses === -1 ? -1 : externalUserStats.availableUses - externalUserStats.usedCount,
+    usagePercentage: externalUserStats.availableUses === -1 ? 0 : (externalUserStats.usedCount / externalUserStats.availableUses) * 100
+  } : usageCountStats;
+
+  const finalTokenStats = externalUserStats ? {
+    monthlyUsed: externalUserStats.usedTokens,
+    monthlyLimit: externalUserStats.tokenLimit,
+    monthlyRemaining: externalUserStats.tokenLimit === -1 ? -1 : externalUserStats.tokenLimit - externalUserStats.usedTokens,
+    usagePercentage: externalUserStats.tokenLimit === -1 ? 0 : (externalUserStats.usedTokens / externalUserStats.tokenLimit) * 100
+  } : tokenStats;
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -126,17 +149,18 @@ export function TokenUsageSection({
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+    <div className={`${className}`}>
+      <Card className="h-full flex flex-col bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-cyan-50/30 to-indigo-50/50 pointer-events-none"></div>
+        <CardHeader className="bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-600 text-white relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <Database className="w-5 h-5" />
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                <Database className="w-6 h-6 drop-shadow-sm" />
               </div>
               <div>
-                <div className="text-xl font-bold">使用统计</div>
-                <div className="text-emerald-100 text-sm font-normal">{planName} - 查看您的使用情况</div>
+                <div className="text-xl font-bold drop-shadow-sm">使用统计</div>
+                <div className="text-blue-100 text-sm font-normal">{planName} - 查看您的使用情况</div>
               </div>
             </div>
             <Button
@@ -144,139 +168,154 @@ export function TokenUsageSection({
               size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/50"
+              className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 rounded-xl shadow-lg transition-all duration-300"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </CardHeader>
 
-        <CardContent className="p-8">
-          {loading && !tokenStats ? (
+        <CardContent className="flex-1 flex flex-col p-6 relative z-10">
+          {loading && !finalTokenStats ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-8 h-8 animate-spin text-emerald-500" />
-              <span className="ml-3 text-lg font-medium text-gray-600">加载中...</span>
+              <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+              <span className="ml-3 text-lg font-medium text-gray-700">加载中...</span>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Token使用量统计卡片 */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200 shadow-inner">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-blue-800 text-lg">Token使用量</h3>
-                      <InfoTooltip
-                        title="Token统计说明"
-                        content={[
-                          "统计范围：包含所有AI功能模块的输入+输出token",
-                          "计算方式：中文字符按1.5个token，英文单词按1个token计算",
-                          "重置周期：每月1日自动重置使用量"
-                        ]}
-                      />
-                    </div>
-                  </div>
-                  <Badge
-                    variant={tokenStats && tokenStats.usagePercentage > 80 ? "destructive" :
-                            tokenStats && tokenStats.usagePercentage > 60 ? "secondary" : "default"}
-                    className="text-sm font-bold"
-                  >
-                    {Math.round(tokenStats?.usagePercentage || 0)}%
-                  </Badge>
-                </div>
-
-                <div className="space-y-4">
-                  <Progress
-                    value={Math.min(tokenStats?.usagePercentage || 0, 100)}
-                    className="h-3 bg-blue-200"
-                  />
-                  <div className="flex justify-between text-sm font-medium text-blue-700">
-                    <span>已使用 {formatNumber(tokenStats?.monthlyUsed || 0)} tokens</span>
-                    <span>剩余 {formatNumber(tokenStats?.monthlyRemaining || 0)} tokens</span>
-                  </div>
-                </div>
-
-                {/* Token继承说明 */}
-                <div className="mt-4 bg-blue-100 border-2 border-blue-300 rounded-xl p-4">
-                  <div className="flex items-start gap-2">
-                    <button className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white text-xs font-bold mt-0.5 flex-shrink-0">
-                      ℹ️
-                    </button>
-                    <div className="text-sm text-blue-800">
-                      <span className="font-bold">重要说明：</span>
-                      tokens在会员有效期内可以继承到下个月续用，不会清零浪费。
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 使用次数统计卡片 */}
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border-2 border-green-200 shadow-inner">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                      <Target className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-green-800 text-lg">使用次数</h3>
-                      <InfoTooltip
-                        title="使用次数说明"
-                        content={[
-                          "统计规则：主要计算AI内容适配器的调用次数",
-                          "计量单位：每次调用AI内容适配器计为1次使用",
-                          "重置周期：每月1日自动重置使用次数",
-                          "与Token的区别：使用次数按功能计量，Token按文字量计量"
-                        ]}
-                      />
-                    </div>
-                  </div>
-                  <Badge
-                    variant={usageCountStats && usageCountStats.usagePercentage > 80 ? "destructive" :
-                            usageCountStats && usageCountStats.usagePercentage > 60 ? "secondary" : "default"}
-                    className="text-sm font-bold"
-                  >
-                    {userTier === 'premium' || (usageCountStats && usageCountStats.availableUses === -1) ? '无限制' :
-                     `${usageCountStats?.usedCount || 0}/${usageCountStats?.availableUses || 0}`}
-                  </Badge>
-                </div>
-
-                <div className="space-y-4">
-                  {userTier !== 'premium' && usageCountStats && usageCountStats.availableUses !== -1 ? (
-                    <>
-                      <Progress
-                        value={Math.min(usageCountStats?.usagePercentage || 0, 100)}
-                        className="h-3 bg-green-200"
-                      />
-                      <div className="flex justify-between text-sm font-medium text-green-700">
-                        <span>已使用 {usageCountStats?.usedCount || 0} 次</span>
-                        <span>剩余 {usageCountStats?.remainingUses || 0} 次</span>
+              {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
+              <div className="flex-1 space-y-4">
+                {/* Token使用量统计卡片 */}
+                <div className="bg-gradient-to-br from-purple-50/80 via-blue-50/60 to-indigo-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-blue-100/20 pointer-events-none"></div>
+                  <div className="flex items-center justify-between mb-4 relative z-10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Zap className="w-5 h-5 text-white drop-shadow-sm" />
                       </div>
-                    </>
-                  ) : (
-                    <div className="text-center py-4">
-                      <div className="text-2xl font-bold text-green-600 mb-2">∞</div>
-                      <div className="text-sm font-medium text-green-700">无限制使用</div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-gray-800 text-lg">Token使用量</h3>
+                        <InfoTooltip
+                          title="Token统计说明"
+                          content={[
+                            "统计范围：包含所有AI功能模块的输入+输出token",
+                            "计算方式：中文字符按1.5个token，英文单词按1个token计算",
+                            "重置周期：每月1日自动重置使用量"
+                          ]}
+                        />
+                      </div>
                     </div>
-                  )}
+                    <Badge
+                      variant={finalTokenStats && finalTokenStats.monthlyLimit === -1 ? "default" :
+                              finalTokenStats && finalTokenStats.usagePercentage > 80 ? "destructive" :
+                              finalTokenStats && finalTokenStats.usagePercentage > 60 ? "secondary" : "default"}
+                      className="text-sm font-bold bg-gradient-to-r from-purple-500 to-blue-600 text-white border-0 shadow-lg rounded-xl px-3 py-1"
+                    >
+                      {finalTokenStats?.monthlyLimit === -1 ? '无限制' : `${Math.round(finalTokenStats?.usagePercentage || 0)}%`}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-4 relative z-10">
+                    {finalTokenStats?.monthlyLimit === -1 ? (
+                      <div className="text-center py-3 bg-gradient-to-r from-purple-100/50 to-blue-100/50 rounded-xl">
+                        <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-1">∞</div>
+                        <div className="text-sm font-medium text-gray-600">无限制Token</div>
+                      </div>
+                    ) : (
+                      <>
+                        <Progress
+                          value={Math.min(finalTokenStats?.usagePercentage || 0, 100)}
+                          className="h-3 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full shadow-inner"
+                        />
+                        <div className="flex justify-between text-sm font-medium text-gray-600">
+                          <span>已使用 {formatNumber(finalTokenStats?.monthlyUsed || 0)} tokens</span>
+                          <span>剩余 {formatNumber(finalTokenStats?.monthlyRemaining || 0)} tokens</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Token继承说明 */}
+                  <div className="mt-3 bg-gradient-to-r from-blue-50/80 to-purple-50/80 backdrop-blur-sm border border-blue-200/50 rounded-xl p-3 relative z-10">
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5 flex-shrink-0 shadow-lg">
+                        ℹ️
+                      </div>
+                      <div className="text-sm text-gray-700">
+                        <span className="font-bold">重要说明：</span>
+                        tokens在会员有效期内可以继承到下个月续用，不会清零浪费。
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 使用次数统计卡片 */}
+                <div className="bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/20 to-cyan-100/20 pointer-events-none"></div>
+                  <div className="flex items-center justify-between mb-4 relative z-10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Target className="w-5 h-5 text-white drop-shadow-sm" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-gray-800 text-lg">使用次数</h3>
+                        <InfoTooltip
+                          title="使用次数说明"
+                          content={[
+                            "统计规则：主要计算AI内容适配器的调用次数",
+                            "计量单位：每次调用AI内容适配器计为1次使用",
+                            "重置周期：每月1日自动重置使用次数",
+                            "与Token的区别：使用次数按功能计量，Token按文字量计量"
+                          ]}
+                        />
+                      </div>
+                    </div>
+                    <Badge
+                      variant={finalUsageCountStats && finalUsageCountStats.usagePercentage > 80 ? "destructive" :
+                              finalUsageCountStats && finalUsageCountStats.usagePercentage > 60 ? "secondary" : "default"}
+                      className="text-xs font-bold"
+                    >
+                      {userTier === 'premium' || (finalUsageCountStats && finalUsageCountStats.availableUses === -1) ? '无限制' :
+                       `${finalUsageCountStats?.usedCount || 0}/${finalUsageCountStats?.availableUses || 0}`}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-4 relative z-10">
+                    {userTier !== 'premium' && finalUsageCountStats && finalUsageCountStats.availableUses !== -1 ? (
+                      <>
+                        <Progress
+                          value={Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}
+                          className="h-3 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full shadow-inner"
+                        />
+                        <div className="flex justify-between text-sm font-medium text-gray-600">
+                          <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
+                          <span>剩余 {finalUsageCountStats?.remainingUses || 0} 次</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-3 bg-gradient-to-r from-emerald-100/50 to-teal-100/50 rounded-xl">
+                        <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">∞</div>
+                        <div className="text-sm font-medium text-gray-600">无限制使用</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* 升级按钮 */}
-            {showUpgradeButton && (
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <Button
-                  className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-upgrade-gradient"
-                  onClick={handleUpgrade}
-                >
-                  <Crown className="w-5 h-5 mr-3" />
-                  解锁高级功能
-                </Button>
-              </div>
-            )}
+              {/* 升级按钮 - 与内容对齐 */}
+              {showUpgradeButton && (
+                <div className="mt-4">
+                  <Button
+                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-upgrade-gradient flex items-center justify-center"
+                    onClick={handleUpgrade}
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      <Crown className="w-5 h-5" />
+                      <span>解锁高级功能</span>
+                    </div>
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </CardContent>

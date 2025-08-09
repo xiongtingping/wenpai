@@ -628,6 +628,81 @@ export default function BookmarkPage() {
   };
 
   /**
+   * 导出所有资料为MD格式
+   */
+  const handleExportData = () => {
+    try {
+      // 获取所有资料
+      const allData = {
+        libraryItems,
+        favorites: favoritesStore.favorites,
+        exportDate: new Date().toISOString(),
+        totalCount: libraryItems.length + favoritesStore.favorites.length
+      };
+
+      // 生成MD格式内容
+      let mdContent = `# 我的资料库导出\n\n`;
+      mdContent += `导出时间: ${new Date().toLocaleString()}\n`;
+      mdContent += `总计资料: ${allData.totalCount} 项\n\n`;
+
+      // 导出资料库内容
+      if (libraryItems.length > 0) {
+        mdContent += `## 📚 资料库内容 (${libraryItems.length} 项)\n\n`;
+
+        libraryItems.forEach((item, index) => {
+          mdContent += `### ${index + 1}. ${item.title}\n\n`;
+          mdContent += `**类型**: ${getTypeInfo(item.type).name}\n`;
+          mdContent += `**创建时间**: ${new Date(item.createdAt).toLocaleString()}\n`;
+          if (item.source) mdContent += `**来源**: ${item.source}\n`;
+          if (item.category) mdContent += `**分类**: ${item.category}\n`;
+          if (item.tags.length > 0) mdContent += `**标签**: ${item.tags.join(', ')}\n`;
+          mdContent += `\n**内容**:\n${item.content}\n\n`;
+          if (item.summary) mdContent += `**摘要**: ${item.summary}\n\n`;
+          mdContent += `---\n\n`;
+        });
+      }
+
+      // 导出收藏夹内容
+      if (favoritesStore.favorites.length > 0) {
+        mdContent += `## ❤️ 收藏夹内容 (${favoritesStore.favorites.length} 项)\n\n`;
+
+        favoritesStore.favorites.forEach((favorite, index) => {
+          mdContent += `### ${index + 1}. ${favorite.title}\n\n`;
+          mdContent += `**类型**: ${favorite.type}\n`;
+          mdContent += `**收藏时间**: ${new Date(favorite.createdAt).toLocaleString()}\n`;
+          if (favorite.platform) mdContent += `**平台**: ${favorite.platform}\n`;
+          if (favorite.tags && favorite.tags.length > 0) mdContent += `**标签**: ${favorite.tags.join(', ')}\n`;
+          mdContent += `\n**内容**:\n${favorite.content}\n\n`;
+          mdContent += `---\n\n`;
+        });
+      }
+
+      // 创建并下载文件
+      const blob = new Blob([mdContent], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `我的资料库_${new Date().toISOString().split('T')[0]}.md`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "导出成功",
+        description: `已导出 ${allData.totalCount} 项资料到 MD 文件`,
+      });
+    } catch (error) {
+      console.error('导出失败:', error);
+      toast({
+        title: "导出失败",
+        description: "导出过程中发生错误，请重试",
+        variant: "destructive",
+      });
+    }
+  };
+
+  /**
    * 关闭对话框时保持滚动位置
    */
   const handleDialogClose = (setter: (value: boolean) => void) => {
@@ -662,45 +737,39 @@ export default function BookmarkPage() {
         {/* 分类标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 max-w-2xl">
-              <TabsTrigger value="all" className="flex items-center gap-2 text-xs sm:text-sm">
+            <TabsList className="grid w-full grid-cols-4 max-w-3xl bg-white/80 backdrop-blur-sm">
+              <TabsTrigger value="all" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
                 <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">全部</span>
-                <span className="sm:hidden">全部</span>
+                <span>全部</span>
               </TabsTrigger>
-              <TabsTrigger value="favorites" className="flex items-center gap-2 text-xs sm:text-sm">
+              <TabsTrigger value="favorites" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
                 <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">收藏夹</span>
-                <span className="sm:hidden">收藏</span>
+                <span>收藏夹</span>
                 {favoritesStore.totalCount > 0 && (
                   <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 min-w-4">
                     {favoritesStore.totalCount}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="collection" className="flex items-center gap-2 text-xs sm:text-sm">
+              <TabsTrigger value="collection" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
                 <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">网络剪藏</span>
-                <span className="sm:hidden">剪藏</span>
+                <span>网络剪藏</span>
               </TabsTrigger>
-
-              <TabsTrigger value="copywriting" className="flex items-center gap-2 text-xs sm:text-sm">
+              <TabsTrigger value="copywriting" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
                 <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">文案管理</span>
-                <span className="sm:hidden">文案</span>
+                <span>文案管理</span>
               </TabsTrigger>
             </TabsList>
 
             {/* 操作按钮区域 */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
                 className="flex items-center gap-2"
                 size="sm"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">添加收藏</span>
-                <span className="sm:hidden">收藏</span>
+                <span>添加收藏</span>
               </Button>
               <Button
                 onClick={() => setIsCopywritingDialogOpen(true)}
@@ -709,8 +778,16 @@ export default function BookmarkPage() {
                 size="sm"
               >
                 <Brain className="w-4 h-4" />
-                <span className="hidden sm:inline">创建文案</span>
-                <span className="sm:hidden">文案</span>
+                <span>创建文案</span>
+              </Button>
+              <Button
+                onClick={handleExportData}
+                variant="outline"
+                className="flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                size="sm"
+              >
+                <Download className="w-4 h-4" />
+                <span>导出资料</span>
               </Button>
             </div>
           </div>

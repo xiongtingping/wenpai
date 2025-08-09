@@ -42,6 +42,8 @@ import PageNavigation from '@/components/layout/PageNavigation';
 import { notoEmojiService, UNICODE_EMOJI_GROUPS, NOTO_STYLES, type NotoEmojiData } from '@/services/notoEmojiService';
 import { callAI } from '@/api/aiService';
 import PersonalizedEmojiGenerator from '@/components/creative/PersonalizedEmojiGenerator';
+import UnifiedEmojiManager from '@/components/shared/UnifiedEmojiManager';
+import { UnifiedEmojiItem } from '@/services/unifiedEmojiSystem';
 
 /**
  * Emoji生成器主组件
@@ -316,7 +318,7 @@ const EmojiPage: React.FC = () => {
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="gallery" className="flex items-center gap-2">
               <Grid3X3 className="w-4 h-4" />
               Emoji图库
@@ -333,182 +335,58 @@ const EmojiPage: React.FC = () => {
 
           {/* Emoji图库 */}
           <TabsContent value="gallery" className="space-y-6">
-            {/* 搜索和过滤工具栏 */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="搜索emoji、名称或关键词..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="选择分类" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">全部分类</SelectItem>
-                      {UNICODE_EMOJI_GROUPS.map(group => (
-                        <SelectItem key={group} value={group}>
-                          {group} ({categoryStats[group] || 0})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={selectedStyle} onValueChange={(value: keyof typeof NOTO_STYLES) => setSelectedStyle(value)}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder="选择风格" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(NOTO_STYLES).map(([key, style]) => (
-                        <SelectItem key={key} value={key}>
-                          {style.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <div className="flex gap-2">
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setViewMode('grid')}
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                  </Button>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setViewMode('list')}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Grid3X3 className="w-5 h-5" />
+                  Emoji图库
+                </CardTitle>
+                <CardDescription>
+                  从500个精美emoji中选择，支持搜索、分类、点击复制等功能
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <UnifiedEmojiManager
+                  mode="gallery"
+                  showSearch={true}
+                  showCategories={true}
+                  showStats={true}
+                  showActions={true}
+                  gridCols={viewMode === 'grid' ? 10 : 6}
+                  maxHeight="600px"
+                  compact={false}
+                  allowMultiSelect={false}
+                  allowDownload={true}
+                  allowCopy={true}
+                  allowRandom={true}
+                  source="all"
+                  onEmojiSelect={(emoji: UnifiedEmojiItem) => {
+                    // 默认行为：复制到剪贴板
+                    navigator.clipboard.writeText(emoji.emoji).then(() => {
+                      toast({
+                        title: "复制成功",
+                        description: `${emoji.name} ${emoji.emoji} 已复制到剪贴板`,
+                      });
+                    }).catch(() => {
+                      toast({
+                        title: "复制失败",
+                        description: "请手动复制emoji",
+                        variant: "destructive",
+                      });
+                    });
+                  }}
+                  onCategoryChange={(category) => {
+                    console.log('切换到分类:', category);
+                  }}
+                  onSearchChange={(query) => {
+                    console.log('搜索:', query);
+                  }}
+                  className="bg-white"
+                />
               </CardContent>
             </Card>
 
-            {/* 分类快速导航 */}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory('all')}
-              >
-                全部
-              </Button>
-              {UNICODE_EMOJI_GROUPS.map(group => (
-                <Button
-                  key={group}
-                  variant={selectedCategory === group ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(group)}
-                  className="flex items-center gap-2"
-                >
-                  <span className="hidden sm:inline">{group}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {categoryStats[group] || 0}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
 
-            {/* Emoji网格/列表 */}
-            <div className={
-              viewMode === 'grid' 
-                ? "grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-4"
-                : "space-y-2"
-            }>
-              {filteredEmojis.map(emoji => (
-                <Card 
-                  key={emoji.codepoint} 
-                  className={`group cursor-pointer hover:shadow-lg transition-all duration-200 ${
-                    viewMode === 'grid' ? 'aspect-square' : 'flex-row'
-                  }`}
-                >
-                  <CardContent className={`p-4 ${viewMode === 'list' ? 'flex items-center gap-4' : ''}`}>
-                    <div className={`relative ${viewMode === 'grid' ? 'aspect-square mb-2' : 'w-12 h-12'} flex items-center justify-center`}>
-                      <div 
-                        className="text-4xl cursor-pointer hover:scale-110 transition-transform"
-                        onClick={() => copyEmoji(emoji)}
-                        title={`${emoji.name} (${emoji.unicode})`}
-                      >
-                        {applyModifier(emoji)}
-                      </div>
-                      
-                      {/* 收藏按钮 */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`absolute top-0 right-0 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity ${
-                          viewMode === 'list' ? 'relative opacity-100' : ''
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(emoji.unicode);
-                        }}
-                      >
-                        <Heart className={`w-3 h-3 ${favorites.has(emoji.unicode) ? 'fill-red-500 text-red-500' : ''}`} />
-                      </Button>
-                    </div>
-                    
-                    <div className={`text-center ${viewMode === 'list' ? 'flex-1 text-left' : ''}`}>
-                      <div className="text-sm font-medium text-gray-700 truncate">
-                        {emoji.name}
-                      </div>
-                      {viewMode === 'list' && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          <span className="mr-2">{emoji.group}</span>
-                          {emoji.hasSkinTone && <Badge variant="outline" className="text-xs mr-1">肤色</Badge>}
-                          {emoji.hasGender && <Badge variant="outline" className="text-xs">性别</Badge>}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 操作按钮（列表模式） */}
-                    {viewMode === 'list' && (
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copyEmoji(emoji);
-                          }}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            downloadEmoji(emoji);
-                          }}
-                        >
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        </div>
-                      )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* 空状态 */}
-            {filteredEmojis.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">没有找到相关emoji</h3>
-                <p className="text-gray-500">尝试调整搜索条件或选择其他分类</p>
-              </div>
-            )}
           </TabsContent>
 
           {/* AI推荐 */}
@@ -632,6 +510,8 @@ const EmojiPage: React.FC = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+
 
           {/* 品牌Emoji生成器 */}
           <TabsContent value="brand-emoji" className="space-y-6">

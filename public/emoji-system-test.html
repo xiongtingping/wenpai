@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Emoji头像系统测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .stats {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .category-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .emoji-preview {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .emoji-item {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .emoji-item:hover {
+            transform: scale(1.2);
+        }
+        .test-button {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .test-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .selected-emoji {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .selected-emoji .emoji-display {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Emoji头像系统</h1>
+        <p>125个分类emoji，5大类别，完全本地生成</p>
+    </div>
+
+    <div class="stats">
+        <h3>📊 系统统计</h3>
+        <p><strong>动物类</strong>: 30个 | <strong>食物类</strong>: 25个 | <strong>物品类</strong>: 25个 | <strong>表情类</strong>: 25个 | <strong>自然类</strong>: 25个</p>
+        <button class="test-button" onclick="randomSelectAll()">🎲 全部随机</button>
+        <button class="test-button" onclick="showAllCategories()">📋 查看分类</button>
+    </div>
+
+    <div class="category-grid" id="categoryGrid">
+        <!-- 分类卡片将在这里显示 -->
+    </div>
+
+    <div class="selected-emoji" id="selectedEmoji" style="display: none;">
+        <!-- 选中的emoji将在这里显示 -->
+    </div>
+
+    <script>
+        // Emoji数据（简化版，用于测试）
+        const emojiCategories = {
+            animals: {
+                name: '动物类',
+                icon: '🐱',
+                color: '#FF6B6B',
+                emojis: [
+                    { name: '小猫', emoji: '🐱', color: '#FF6B6B' },
+                    { name: '小狗', emoji: '🐶', color: '#4ECDC4' },
+                    { name: '小熊', emoji: '🐻', color: '#45B7D1' },
+                    { name: '小兔', emoji: '🐰', color: '#96CEB4' },
+                    { name: '小狐狸', emoji: '🦊', color: '#FFEAA7' },
+                    { name: '小熊猫', emoji: '🐼', color: '#DDA0DD' },
+                    { name: '小猴子', emoji: '🐵', color: '#74B9FF' },
+                    { name: '小老虎', emoji: '🐯', color: '#FD79A8' },
+                    { name: '小狮子', emoji: '🦁', color: '#FDCB6E' },
+                    { name: '小牛', emoji: '🐮', color: '#6C5CE7' }
+                ]
+            },
+            food: {
+                name: '食物类',
+                icon: '🍎',
+                color: '#4ECDC4',
+                emojis: [
+                    { name: '苹果', emoji: '🍎', color: '#FF6B6B' },
+                    { name: '香蕉', emoji: '🍌', color: '#FDCB6E' },
+                    { name: '橙子', emoji: '🍊', color: '#FD79A8' },
+                    { name: '草莓', emoji: '🍓', color: '#E84393' },
+                    { name: '葡萄', emoji: '🍇', color: '#6C5CE7' },
+                    { name: '西瓜', emoji: '🍉', color: '#00B894' },
+                    { name: '桃子', emoji: '🍑', color: '#FD79A8' },
+                    { name: '菠萝', emoji: '🍍', color: '#FDCB6E' },
+                    { name: '蛋糕', emoji: '🎂', color: '#FD79A8' },
+                    { name: '冰淇淋', emoji: '🍦', color: '#74B9FF' }
+                ]
+            },
+            objects: {
+                name: '物品类',
+                icon: '🚗',
+                color: '#45B7D1',
+                emojis: [
+                    { name: '汽车', emoji: '🚗', color: '#0984E3' },
+                    { name: '飞机', emoji: '✈️', color: '#74B9FF' },
+                    { name: '火车', emoji: '🚂', color: '#636E72' },
+                    { name: '自行车', emoji: '🚲', color: '#00B894' },
+                    { name: '船', emoji: '⛵', color: '#74B9FF' },
+                    { name: '火箭', emoji: '🚀', color: '#6C5CE7' },
+                    { name: '手机', emoji: '📱', color: '#636E72' },
+                    { name: '电脑', emoji: '💻', color: '#74B9FF' },
+                    { name: '相机', emoji: '📷', color: '#636E72' },
+                    { name: '游戏手柄', emoji: '🎮', color: '#A29BFE' }
+                ]
+            },
+            emotions: {
+                name: '表情类',
+                icon: '😊',
+                color: '#96CEB4',
+                emojis: [
+                    { name: '开心', emoji: '😊', color: '#FDCB6E' },
+                    { name: '大笑', emoji: '😂', color: '#FFEAA7' },
+                    { name: '爱心眼', emoji: '😍', color: '#FD79A8' },
+                    { name: '飞吻', emoji: '😘', color: '#E84393' },
+                    { name: '眨眼', emoji: '😉', color: '#74B9FF' },
+                    { name: '思考', emoji: '🤔', color: '#A29BFE' },
+                    { name: '惊讶', emoji: '😮', color: '#00CEC9' },
+                    { name: '害羞', emoji: '😳', color: '#FD79A8' },
+                    { name: '酷', emoji: '😎', color: '#636E72' },
+                    { name: '天使', emoji: '😇', color: '#FFEAA7' }
+                ]
+            },
+            nature: {
+                name: '自然类',
+                icon: '☀️',
+                color: '#FFEAA7',
+                emojis: [
+                    { name: '太阳', emoji: '☀️', color: '#FDCB6E' },
+                    { name: '月亮', emoji: '🌙', color: '#74B9FF' },
+                    { name: '星星', emoji: '⭐', color: '#FFEAA7' },
+                    { name: '彩虹', emoji: '🌈', color: '#FD79A8' },
+                    { name: '闪电', emoji: '⚡', color: '#FDCB6E' },
+                    { name: '雪花', emoji: '❄️', color: '#74B9FF' },
+                    { name: '火焰', emoji: '🔥', color: '#E17055' },
+                    { name: '水滴', emoji: '💧', color: '#0984E3' },
+                    { name: '玫瑰', emoji: '🌹', color: '#E84393' },
+                    { name: '向日葵', emoji: '🌻', color: '#FDCB6E' }
+                ]
+            }
+        };
+
+        function createCategoryCard(categoryId, category) {
+            return `
+                <div class="category-card">
+                    <h3>${category.name}</h3>
+                    <div style="font-size: 2rem; margin: 10px 0;">${category.icon}</div>
+                    <p>共 ${category.emojis.length} 个emoji</p>
+                    <div class="emoji-preview">
+                        ${category.emojis.slice(0, 8).map(emoji => 
+                            `<div class="emoji-item" style="background-color: ${emoji.color}" onclick="selectEmoji('${emoji.name}', '${emoji.emoji}', '${emoji.color}')">${emoji.emoji}</div>`
+                        ).join('')}
+                    </div>
+                    <button class="test-button" onclick="randomSelectCategory('${categoryId}')">🎲 随机选择</button>
+                </div>
+            `;
+        }
+
+        function showAllCategories() {
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = Object.entries(emojiCategories).map(([id, category]) => 
+                createCategoryCard(id, category)
+            ).join('');
+        }
+
+        function randomSelectAll() {
+            const allEmojis = Object.values(emojiCategories).flatMap(cat => cat.emojis);
+            const randomEmoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+            selectEmoji(randomEmoji.name, randomEmoji.emoji, randomEmoji.color);
+        }
+
+        function randomSelectCategory(categoryId) {
+            const category = emojiCategories[categoryId];
+            const randomEmoji = category.emojis[Math.floor(Math.random() * category.emojis.length)];
+            selectEmoji(randomEmoji.name, randomEmoji.emoji, randomEmoji.color);
+        }
+
+        function selectEmoji(name, emoji, color) {
+            const selectedDiv = document.getElementById('selectedEmoji');
+            selectedDiv.innerHTML = `
+                <h3>🎯 选中的Emoji</h3>
+                <div class="emoji-display" style="background-color: ${color}">
+                    ${emoji}
+                </div>
+                <h4>${name}</h4>
+                <p>颜色: ${color}</p>
+                <button class="test-button" onclick="copyEmoji('${emoji}')">📋 复制</button>
+                <button class="test-button" onclick="downloadSVG('${name}', '${emoji}', '${color}')">💾 下载SVG</button>
+            `;
+            selectedDiv.style.display = 'block';
+        }
+
+        function copyEmoji(emoji) {
+            navigator.clipboard.writeText(emoji).then(() => {
+                alert(`${emoji} 已复制到剪贴板！`);
+            });
+        }
+
+        function downloadSVG(name, emoji, color) {
+            const svg = `
+                <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="100" fill="${color}" />
+                    <text x="100" y="130" font-size="80" text-anchor="middle" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif">${emoji}</text>
+                </svg>
+            `;
+            
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${name}-emoji.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert(`${name} SVG已下载！`);
+        }
+
+        // 页面加载完成后显示所有分类
+        window.addEventListener('load', showAllCategories);
+    </script>
+</body>
+</html>

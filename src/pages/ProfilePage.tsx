@@ -3,7 +3,7 @@
  * 显示用户信息、设置和账户管理功能
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { 
+import {
   User,
   Settings,
   Shield,
@@ -43,7 +43,10 @@ import {
   Sparkles,
   TrendingUp,
   Award,
-  Zap
+  Zap,
+  RefreshCw,
+  Check,
+  AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
@@ -51,15 +54,33 @@ import TokenUsageSection from '@/components/profile/TokenUsageSection';
 import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 import { avatarService } from '@/services/avatarService';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AuthService from '@/services/authService';
+import { isDevelopment } from '@/utils/env-validator';
 
 /**
  * 个人中心页面组件
  * @returns React组件
  */
 export default function ProfilePage() {
-  const { user, isAuthenticated, logout } = useUnifiedAuth();
+  const { user, isAuthenticated, logout, updateUser } = useUnifiedAuth();
   const { toast } = useToast();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState({
+    phone: false,
+    email: false
+  });
+  const [verificationCodes, setVerificationCodes] = useState({
+    phone: '',
+    email: ''
+  });
+  const [showVerificationInput, setShowVerificationInput] = useState({
+    phone: false,
+    email: false
+  });
+  const [avatarKey, setAvatarKey] = useState(0); // 用于强制刷新头像
 
   // ✅ FIXED: 个人资料表单状态 - 使用安全的用户信息获取函数
   const [profileForm, setProfileForm] = useState({
@@ -85,21 +106,146 @@ export default function ProfilePage() {
     }
   };
 
-  // 模拟用户数据
-  const userStats = {
-    userId: 'temp_1752390537259_3180',
-    accountType: '体验版',
-    availableUses: 10,
-    tokenLimit: 100000,
-    usedTokens: 25000,
-    usedCount: 3,
-    registrationDate: '2025/7/12',
-    timeSaved: 45, // 分钟
-    contentGenerated: 3
+  /**
+   * 根据账户类型生成对应的统计数据
+   */
+  const generateUserStatsByAccountType = (accountType: string) => {
+    const baseStats = {
+      userId: 'temp_1752390537259_3180',
+      accountType,
+      usedCount: 3,
+      registrationDate: '2025/7/12',
+      timeSaved: 45,
+      contentGenerated: 3
+    };
+
+    switch (accountType) {
+      case '体验版':
+        return {
+          ...baseStats,
+          availableUses: 10,
+          tokenLimit: 100000,
+          usedTokens: 25000
+        };
+      case '专业版':
+        return {
+          ...baseStats,
+          availableUses: 100,
+          tokenLimit: 500000,
+          usedTokens: 125000
+        };
+      case '高级版':
+        return {
+          ...baseStats,
+          availableUses: -1, // 无限制
+          tokenLimit: -1,    // 无限制
+          usedTokens: 250000
+        };
+      default:
+        return {
+          ...baseStats,
+          availableUses: 10,
+          tokenLimit: 100000,
+          usedTokens: 25000
+        };
+    }
   };
+
+  // 模拟用户数据 - 可以修改accountType来测试不同版本
+  const userStats = generateUserStatsByAccountType('体验版'); // 可改为：'专业版' 或 '高级版'
 
   // 计算陪伴天数
   const companionDays = calculateCompanionDays(userStats.registrationDate);
+
+
+
+  /**
+   * 生成本地SVG头像（用于默认头像）
+   */
+  const generateLocalSVGAvatar = (seed: string, bgColor: string = '6366f1') => {
+    const initials = seed.substr(0, 2).toUpperCase();
+
+    const svg = `
+      <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bg-${seed}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#${bgColor};stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#${bgColor}dd;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <rect width="200" height="200" rx="100" fill="url(#bg-${seed})" />
+        <text x="100" y="120" font-family="Arial, sans-serif" font-size="60" font-weight="bold" text-anchor="middle" fill="white">${initials}</text>
+      </svg>
+    `;
+
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+  };
+
+  /**
+   * 获取当前表单头像
+   */
+  const getCurrentFormAvatar = () => {
+    // 如果有自定义头像，直接返回
+    if (profileForm.avatar) {
+      console.log('🖼️ 使用自定义头像:', profileForm.avatar);
+      return profileForm.avatar;
+    }
+
+    // 使用本地SVG生成默认头像
+    const safeName = profileForm.nickname || getUserDisplayName(user, 'User');
+    const defaultAvatar = generateLocalSVGAvatar(safeName, '6366f1');
+
+    console.log('🔤 使用本地SVG默认头像:', {
+      'profileForm.nickname': profileForm.nickname,
+      'getUserDisplayName(user)': getUserDisplayName(user, 'User'),
+      'safeName': safeName,
+      'user': user,
+      'defaultAvatar': defaultAvatar.substr(0, 50) + '...'
+    });
+    return defaultAvatar;
+  };
+
+  /**
+   * 获取当前显示的头像fallback文字
+   */
+  const getCurrentAvatarFallback = () => {
+    // 优先使用表单中的昵称
+    const displayName = profileForm.nickname || getUserDisplayName(user, 'User');
+
+    // 如果显示名称为空或者是默认值，返回U
+    if (!displayName || displayName === 'User' || displayName === '用户') {
+      return 'U';
+    }
+
+    const firstChar = displayName.charAt(0);
+
+    // 如果是中文字符，根据常见中文名字映射到英文字母
+    if (/[\u4e00-\u9fa5]/.test(firstChar)) {
+      // 常见中文姓氏映射
+      const chineseToEnglish: { [key: string]: string } = {
+        '张': 'Z', '王': 'W', '李': 'L', '赵': 'Z', '陈': 'C', '刘': 'L', '杨': 'Y', '黄': 'H',
+        '周': 'Z', '吴': 'W', '徐': 'X', '孙': 'S', '马': 'M', '朱': 'Z', '胡': 'H', '林': 'L',
+        '郭': 'G', '何': 'H', '高': 'G', '罗': 'L', '郑': 'Z', '梁': 'L', '谢': 'X', '宋': 'S'
+      };
+
+      return chineseToEnglish[firstChar] || 'U';
+    }
+
+    // 英文字符直接返回大写
+    return firstChar.toUpperCase();
+  };
+
+  // 调试信息 - 必须在所有条件渲染之前
+  useEffect(() => {
+    console.log('🔍 ProfilePage状态调试:', {
+      'profileForm.avatar': profileForm.avatar,
+      'getCurrentFormAvatar()': getCurrentFormAvatar(),
+      'getCurrentAvatarFallback()': getCurrentAvatarFallback(),
+      'avatarKey': avatarKey,
+      'user': user,
+      'profileForm': profileForm
+    });
+  }, [profileForm.avatar, avatarKey, user, profileForm]);
 
   // 如果用户未登录，显示登录提示
   if (!isAuthenticated || !user) {
@@ -151,17 +297,7 @@ export default function ProfilePage() {
     }
   };
 
-  /**
-   * 获取当前表单头像
-   */
-  const getCurrentFormAvatar = () => {
-    if (profileForm.avatar) {
-      return profileForm.avatar;
-    }
-    // 使用安全的显示名称生成头像种子
-    const safeName = profileForm.nickname || getUserDisplayName(user, 'User');
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${safeName}`;
-  };
+
 
   /**
    * 处理表单变化
@@ -177,13 +313,188 @@ export default function ProfilePage() {
   /**
    * 保存个人资料
    */
-  const handleSaveProfile = () => {
-    // 这里应该调用API保存数据
-    toast({
-      title: "保存成功",
-      description: "个人资料已更新",
-    });
-    setHasUnsavedChanges(false);
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      // 正式环境：调用后端（Authing）更新资料
+      if (!isDevelopment()) {
+        const authService = AuthService.getInstance();
+        const accessToken = (user as any)?.accessToken || '';
+        const remote = await authService.updateUserInfo(accessToken, {
+          nickname: profileForm.nickname,
+          email: profileForm.email,
+          phone: profileForm.phone,
+          photo: profileForm.avatar
+        });
+        // 以服务端为准更新前端
+        updateUser({
+          nickname: remote.nickname || profileForm.nickname,
+          email: remote.email || profileForm.email,
+          phone: remote.phone || profileForm.phone,
+          avatar: remote.avatar || remote.photo || profileForm.avatar
+        });
+      } else {
+        // 开发环境：直接更新前端上下文与本地存储
+        updateUser({
+          nickname: profileForm.nickname,
+          email: profileForm.email,
+          phone: profileForm.phone,
+          avatar: profileForm.avatar
+        });
+      }
+
+      toast({
+        title: "保存成功",
+        description: "个人资料已更新",
+      });
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      toast({
+        title: "保存失败",
+        description: "请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
+   * 发送手机验证码
+   */
+  const handleSendPhoneCode = async () => {
+    if (!profileForm.phone) {
+      toast({
+        title: "请先输入手机号",
+        description: "请输入有效的手机号码",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsVerifyingPhone(true);
+    try {
+      // 这里应该调用API发送验证码
+      // await sendPhoneVerificationCode(profileForm.phone);
+
+      setShowVerificationInput(prev => ({ ...prev, phone: true }));
+      toast({
+        title: "验证码已发送",
+        description: "请查收短信验证码并在下方输入",
+      });
+    } catch (error) {
+      toast({
+        title: "发送失败",
+        description: "发送验证码失败，请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsVerifyingPhone(false);
+    }
+  };
+
+  /**
+   * 验证手机号码
+   */
+  const handleVerifyPhone = async () => {
+    if (!verificationCodes.phone) {
+      toast({
+        title: "请输入验证码",
+        description: "请输入收到的短信验证码",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsVerifyingPhone(true);
+    try {
+      // 这里应该调用API验证验证码
+      // await verifyPhoneCode(profileForm.phone, verificationCodes.phone);
+
+      setVerificationStatus(prev => ({ ...prev, phone: true }));
+      setShowVerificationInput(prev => ({ ...prev, phone: false }));
+      toast({
+        title: "手机号验证成功",
+        description: "您的手机号已验证",
+      });
+    } catch (error) {
+      toast({
+        title: "验证失败",
+        description: "验证码错误，请重新输入",
+        variant: "destructive",
+      });
+    } finally {
+      setIsVerifyingPhone(false);
+    }
+  };
+
+  /**
+   * 发送邮箱验证码
+   */
+  const handleSendEmailCode = async () => {
+    if (!profileForm.email) {
+      toast({
+        title: "请先输入邮箱",
+        description: "请输入有效的邮箱地址",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsVerifyingEmail(true);
+    try {
+      // 这里应该调用API发送验证邮件
+      // await sendEmailVerification(profileForm.email);
+
+      setShowVerificationInput(prev => ({ ...prev, email: true }));
+      toast({
+        title: "验证码已发送",
+        description: "请查收邮箱中的验证码并在下方输入",
+      });
+    } catch (error) {
+      toast({
+        title: "发送失败",
+        description: "发送验证码失败，请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setIsVerifyingEmail(false);
+    }
+  };
+
+  /**
+   * 验证邮箱
+   */
+  const handleVerifyEmail = async () => {
+    if (!verificationCodes.email) {
+      toast({
+        title: "请输入验证码",
+        description: "请输入收到的邮箱验证码",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsVerifyingEmail(true);
+    try {
+      // 这里应该调用API验证验证码
+      // await verifyEmailCode(profileForm.email, verificationCodes.email);
+
+      setVerificationStatus(prev => ({ ...prev, email: true }));
+      setShowVerificationInput(prev => ({ ...prev, email: false }));
+      toast({
+        title: "邮箱验证成功",
+        description: "您的邮箱已验证，获得10次免费使用机会！",
+      });
+    } catch (error) {
+      toast({
+        title: "验证失败",
+        description: "验证码错误，请重新输入",
+        variant: "destructive",
+      });
+    } finally {
+      setIsVerifyingEmail(false);
+    }
   };
 
   /**
@@ -238,22 +549,64 @@ export default function ProfilePage() {
   };
 
   /**
-   * 生成随机头像
+   * 生成随机动物头像 - 使用统一emoji系统
    */
-  const handleRandomAvatar = () => {
-    const safeName = getUserDisplayName(user, 'User');
-    // 使用时间戳和随机数确保每次生成不同的头像
-    const randomSeed = `${safeName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const newAvatar = avatarService.generateRandomAvatar(randomSeed);
-    setProfileForm(prev => ({
-      ...prev,
-      avatar: newAvatar
-    }));
-    setHasUnsavedChanges(true);
-    toast({
-      title: "头像已更新",
-      description: "已生成新的随机头像",
-    });
+  const handleRandomAvatar = async () => {
+    console.log('🎨 开始生成随机动物头像...');
+
+    try {
+      // 动态导入统一emoji系统
+      const { getRandomEmojis, getAllEmojis, generateEmojiSVG } = await import('@/services/unifiedEmojiSystem');
+
+      // 优先从“动物类”选择，若不足则退回“全量”
+      let pool = getRandomEmojis(1, 'animals');
+      if (pool.length === 0) {
+        const all = getAllEmojis();
+        if (all.length === 0) throw new Error('没有可用的emoji');
+        pool = [all[Math.floor(Math.random() * all.length)]];
+      }
+
+      const selectedEmoji = pool[0];
+
+      console.log('🎨 选择的动物:', {
+        id: selectedEmoji.id,
+        name: selectedEmoji.name,
+        emoji: selectedEmoji.emoji,
+        color: selectedEmoji.color
+      });
+
+      // 生成动物头像SVG
+      const avatarUrl = generateEmojiSVG(selectedEmoji);
+
+      console.log('🎯 生成的动物头像:', {
+        animal: selectedEmoji.name,
+        avatarUrl: avatarUrl.substr(0, 50) + '...'
+      });
+
+      // 直接更新头像（本地表单 + 全局用户上下文），确保顶部头像同步
+      setProfileForm(prev => ({
+        ...prev,
+        avatar: avatarUrl
+      }));
+      updateUser({ avatar: avatarUrl });
+      setHasUnsavedChanges(true);
+      setAvatarKey(prev => prev + 1);
+
+      toast({
+        title: "头像已更新",
+        description: `随机选择了可爱的${selectedEmoji.name} ${selectedEmoji.emoji}`,
+      });
+
+      console.log('✅ 动物头像更新完成');
+
+    } catch (error) {
+      console.error('❌ 随机动物头像生成失败:', error);
+      toast({
+        title: "生成失败",
+        description: "动物头像生成失败，请重试",
+        variant: "destructive",
+      });
+    }
   };
 
   /**
@@ -329,60 +682,72 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <PageNavigation
-        title="个人中心"
-        description="管理您的账户信息和设置"
-        showAdaptButton={false}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+      {/* 背景装饰元素 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-1/4 right-0 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl transform translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-gradient-to-br from-emerald-200/30 to-teal-200/30 rounded-full blur-3xl transform translate-y-1/2"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-br from-orange-200/30 to-red-200/30 rounded-full blur-3xl"></div>
+      </div>
+      <div className="relative z-10">
+        <PageNavigation
+          title="个人中心"
+          description="管理您的账户信息和设置"
+          showAdaptButton={false}
+        />
 
-      {/* 未保存更改提示 */}
-      {hasUnsavedChanges && (
-        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
-          <div className="flex items-center">
-            <Info className="h-5 w-5 text-amber-400 mr-3" />
-            <p className="text-sm text-amber-700">
-              您有未保存的更改，请点击保存按钮
-            </p>
-          </div>
-        </div>
-      )}
+
 
       {/* 使用更宽的容器，减少两侧空白 */}
       <div className="max-w-7xl mx-auto px-4 py-8">
 
-        {/* 重新设计的个人资料区域 - 使用三列布局充分利用空间 */}
-        <div className="mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-              <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5" />
+        {/* 精简的个人资料区域 - 减少高度占用 */}
+        <div className="mb-6">
+          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-indigo-50/50 pointer-events-none"></div>
+            <CardHeader className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 text-white relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                    <User className="w-6 h-6 drop-shadow-sm" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold drop-shadow-sm">个人资料</div>
+                    <div className="text-blue-100 text-sm font-normal">管理您的个人信息</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xl font-bold">个人资料</div>
-                  <div className="text-blue-100 text-sm font-normal">管理您的个人信息</div>
-                </div>
-              </CardTitle>
+              </div>
             </CardHeader>
 
-            {/* 重新设计的内容区域 - 使用网格布局分散信息密度 */}
-            <CardContent className="p-4 md:p-6 lg:p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* 精简的内容区域 - 使用两列布局 */}
+            <CardContent className="p-6 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* 左侧：头像和基本信息 */}
                 <div className="lg:col-span-1">
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-100">
-                    <div className="text-center space-y-4">
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-5 border-2 border-blue-100">
+                    <div className="text-center space-y-3">
                       {/* 头像区域 */}
                       <div className="relative inline-block">
-                        <Avatar className="w-24 h-24 border-4 border-blue-200">
+                        <Avatar key={avatarKey} className="w-20 h-20 border-4 border-blue-200">
                           <AvatarImage
                             src={getCurrentFormAvatar()}
                             alt={getUserAltText(user, '头像')}
+                            onError={() => {
+                              console.log('❌ 头像加载失败:', getCurrentFormAvatar());
+                              toast({
+                                title: "头像加载失败",
+                                description: "头像服务暂时不可用",
+                                variant: "destructive",
+                              });
+                            }}
+                            onLoad={() => {
+                              console.log('✅ 头像加载成功:', getCurrentFormAvatar());
+                            }}
                           />
-                          <AvatarFallback className="text-xl bg-blue-100 text-blue-600">
-                            {getUserAvatarFallback(user)}
+                          <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
+                            {getCurrentAvatarFallback()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="absolute -bottom-1 -right-1">
@@ -392,10 +757,14 @@ export default function ProfilePage() {
                                 <Button
                                   size="sm"
                                   variant="secondary"
-                                  className="w-8 h-8 rounded-full p-0 bg-blue-500 hover:bg-blue-600 shadow-lg border-2 border-white"
-                                  onClick={handleRandomAvatar}
+                                  className="w-8 h-8 rounded-full p-0 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg border-2 border-white transition-all duration-300"
+                                  onClick={() => {
+                                    console.log('🎯 点击随机头像按钮');
+                                    console.log('🎯 当前头像URL:', getCurrentFormAvatar());
+                                    handleRandomAvatar();
+                                  }}
                                 >
-                                  <Sparkles className="w-3 h-3 text-white" />
+                                  <Sparkles className="w-4 h-4 text-white drop-shadow-sm" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -408,17 +777,20 @@ export default function ProfilePage() {
 
                       {/* 用户基本信息 */}
                       <div>
-                        <h2 className="text-xl font-bold text-gray-800 mb-3">
-                          {getUserDisplayName(user, '用户')}
+                        <h2 className="text-lg font-bold text-gray-800 mb-2">
+                          {profileForm.nickname || getUserDisplayName(user, '用户')}
                         </h2>
-                        <div className="flex flex-wrap gap-2 justify-center mb-4">
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                        <div className="flex flex-wrap gap-1 justify-center mb-3">
+                          <Badge
+                            variant="secondary"
+                            className={`text-xs ${
+                              userStats.accountType === '体验版' ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                              userStats.accountType === '专业版' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                              'bg-purple-100 text-purple-700 border-purple-200'
+                            }`}
+                          >
                             <Crown className="w-3 h-3 mr-1" />
                             {userStats.accountType}
-                          </Badge>
-                          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
-                            <Activity className="w-3 h-3 mr-1" />
-                            {userStats.usedCount}/{userStats.availableUses} 次
                           </Badge>
                         </div>
 
@@ -427,9 +799,9 @@ export default function ProfilePage() {
                           variant="outline"
                           size="sm"
                           onClick={handleUploadAvatar}
-                          className="bg-white border-blue-200 text-blue-600 hover:bg-blue-50"
+                          className="bg-white border-blue-200 text-blue-600 hover:bg-blue-50 h-8 text-xs"
                         >
-                          <Upload className="w-4 h-4 mr-2" />
+                          <Upload className="w-3 h-3 mr-1" />
                           上传头像
                         </Button>
                       </div>
@@ -437,16 +809,16 @@ export default function ProfilePage() {
                   </div>
 
                   {/* 用户统计信息卡片 */}
-                  <div className="mt-6 grid grid-cols-1 gap-4">
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border-2 border-gray-200">
-                      <div className="text-gray-600 text-sm mb-1 flex items-center gap-2">
+                  <div className="mt-4 grid grid-cols-1 gap-3">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-3 border-2 border-gray-200">
+                      <div className="text-gray-600 text-xs mb-1 flex items-center gap-2">
                         <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                         用户ID
                       </div>
-                      <div className="font-mono text-lg font-semibold text-gray-800">{userStats.userId}</div>
+                      <div className="font-mono text-sm font-semibold text-gray-800 break-all">{userStats.userId}</div>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border-2 border-purple-200">
-                      <div className="text-purple-600 text-sm mb-1 flex items-center gap-2">
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border-2 border-purple-200">
+                      <div className="text-purple-600 text-xs mb-1 flex items-center gap-2">
                         <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                         已陪伴
                         <TooltipProvider>
@@ -462,21 +834,20 @@ export default function ProfilePage() {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                      <div className="text-lg font-semibold text-purple-800">{companionDays}天</div>
+                      <div className="text-base font-semibold text-purple-800">{companionDays}天</div>
                     </div>
                   </div>
                 </div>
-                {/* 中间：表单区域 */}
-                <div className="lg:col-span-1">
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border-2 border-gray-200 h-full">
-                    <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                {/* 右侧：表单区域 */}
+                <div className="md:col-span-1">
+                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-5 border-2 border-gray-200 h-full">
+                    <h3 className="text-base font-bold text-gray-800 mb-4">
                       编辑信息
                     </h3>
 
-                    <div className="space-y-6">
-                      <div className="space-y-3">
-                        <Label htmlFor="nickname" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="nickname" className="text-xs font-semibold text-gray-700 flex items-center gap-2">
                           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           昵称
                         </Label>
@@ -485,184 +856,301 @@ export default function ProfilePage() {
                           value={profileForm.nickname}
                           onChange={(e) => handleFormChange('nickname', e.target.value)}
                           placeholder="请输入昵称"
-                          className="h-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 transition-colors bg-white"
+                          className="h-9 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-0 transition-colors bg-white text-sm"
                         />
                       </div>
 
-                      <div className="space-y-3">
-                        <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="text-xs font-semibold text-gray-700 flex items-center gap-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                           手机号
+                          {verificationStatus.phone && (
+                            <Check className="w-3 h-3 text-green-500" />
+                          )}
                         </Label>
-                        <Input
-                          id="phone"
-                          value={profileForm.phone}
-                          onChange={(e) => handleFormChange('phone', e.target.value)}
-                          placeholder="请输入手机号"
-                          className="h-12 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-0 transition-colors bg-white"
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            id="phone"
+                            value={profileForm.phone}
+                            onChange={(e) => handleFormChange('phone', e.target.value)}
+                            placeholder="请输入手机号"
+                            className="h-9 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-0 transition-colors bg-white text-sm flex-1"
+                            disabled={verificationStatus.phone}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={showVerificationInput.phone ? handleVerifyPhone : handleSendPhoneCode}
+                            disabled={isVerifyingPhone || !profileForm.phone || verificationStatus.phone}
+                            className="h-9 px-3 border-2 border-green-300 hover:border-green-500 hover:bg-green-50 text-green-600 rounded-lg transition-all duration-200 text-xs"
+                          >
+                            {isVerifyingPhone ? (
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : verificationStatus.phone ? (
+                              <Check className="w-3 h-3" />
+                            ) : showVerificationInput.phone ? (
+                              '确认'
+                            ) : (
+                              '发送验证码'
+                            )}
+                          </Button>
+                        </div>
+
+                        {/* 验证码输入框 */}
+                        {showVerificationInput.phone && !verificationStatus.phone && (
+                          <div className="mt-2">
+                            <Input
+                              value={verificationCodes.phone}
+                              onChange={(e) => setVerificationCodes(prev => ({ ...prev, phone: e.target.value }))}
+                              placeholder="请输入短信验证码"
+                              className="h-9 border-2 border-green-200 rounded-lg focus:border-green-500 focus:ring-0 transition-colors bg-green-50 text-sm"
+                              maxLength={6}
+                            />
+                          </div>
+                        )}
                       </div>
 
-                      <div className="space-y-3">
-                        <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-xs font-semibold text-gray-700 flex items-center gap-2">
                           <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                           邮箱
+                          {verificationStatus.email && (
+                            <Check className="w-3 h-3 text-green-500" />
+                          )}
                         </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={profileForm.email}
-                          onChange={(e) => handleFormChange('email', e.target.value)}
-                          placeholder="请输入邮箱"
-                          className="h-12 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-0 transition-colors bg-white"
-                        />
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
-                          <p className="text-xs text-purple-700 flex items-center gap-2">
-                            <Gift className="w-3 h-3" />
-                            首次验证奖励: 完成邮箱验证可获10次免费使用
+                        <div className="flex gap-2">
+                          <Input
+                            id="email"
+                            type="email"
+                            value={profileForm.email}
+                            onChange={(e) => handleFormChange('email', e.target.value)}
+                            placeholder="请输入邮箱"
+                            className="h-9 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-0 transition-colors bg-white text-sm flex-1"
+                            disabled={verificationStatus.email}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={showVerificationInput.email ? handleVerifyEmail : handleSendEmailCode}
+                            disabled={isVerifyingEmail || !profileForm.email || verificationStatus.email}
+                            className="h-9 px-3 border-2 border-purple-300 hover:border-purple-500 hover:bg-purple-50 text-purple-600 rounded-lg transition-all duration-200 text-xs"
+                          >
+                            {isVerifyingEmail ? (
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : verificationStatus.email ? (
+                              <Check className="w-3 h-3" />
+                            ) : showVerificationInput.email ? (
+                              '确认'
+                            ) : (
+                              '发送验证码'
+                            )}
+                          </Button>
+                        </div>
+
+                        {/* 验证码输入框 */}
+                        {showVerificationInput.email && !verificationStatus.email && (
+                          <div className="mt-2">
+                            <Input
+                              value={verificationCodes.email}
+                              onChange={(e) => setVerificationCodes(prev => ({ ...prev, email: e.target.value }))}
+                              placeholder="请输入邮箱验证码"
+                              className="h-9 border-2 border-purple-200 rounded-lg focus:border-purple-500 focus:ring-0 transition-colors bg-purple-50 text-sm"
+                              maxLength={6}
+                            />
+                          </div>
+                        )}
+
+                        <div className={`bg-gradient-to-r from-purple-50 to-pink-50 border rounded-md p-2 ${
+                          verificationStatus.email ? 'border-green-200' : 'border-purple-200'
+                        }`}>
+                          <p className={`text-xs flex items-center gap-2 ${
+                            verificationStatus.email ? 'text-green-700' : 'text-purple-700'
+                          }`}>
+                            {verificationStatus.email ? (
+                              <>
+                                <Check className="w-3 h-3" />
+                                验证成功！已获得10次免费使用机会
+                              </>
+                            ) : (
+                              <>
+                                <Gift className="w-3 h-3" />
+                                首次验证奖励: 完成邮箱验证可获10次免费使用
+                              </>
+                            )}
                           </p>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* 右侧：操作按钮区域 */}
-                <div className="lg:col-span-1">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border-2 border-blue-200 h-full">
-                    <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      账户操作
-                    </h3>
-
-                    <div className="space-y-4">
-                      <Button
-                        onClick={handleSaveProfile}
-                        className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                        disabled={!hasUnsavedChanges}
-                      >
-                        <Save className="w-5 h-5 mr-2" />
-                        保存更改
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className="w-full h-12 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 text-gray-700 hover:text-red-600 font-semibold rounded-xl transition-all duration-200"
-                        onClick={handleLogout}
-                      >
-                        <LogOut className="w-5 h-5 mr-2" />
-                        退出登录
-                      </Button>
-                    </div>
-
-                    {/* 额外的账户信息 */}
-                    <div className="mt-6 pt-6 border-t border-blue-200">
-                      <div className="text-sm text-gray-600 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                          <span>账户类型：{userStats.accountType}</span>
+                      {/* 未保存更改提示 - 移动到保存按钮上方 */}
+                      {hasUnsavedChanges && (
+                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-3 mb-3">
+                          <div className="flex items-center">
+                            <Info className="h-4 w-4 text-amber-500 mr-2 flex-shrink-0" />
+                            <p className="text-sm text-amber-700 font-medium">
+                              您有未保存的更改，请点击下方保存按钮
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 bg-green-400 rounded-full"></div>
-                          <span>剩余使用：{userStats.availableUses - userStats.usedCount} 次</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 bg-purple-400 rounded-full"></div>
-                          <span>注册时间：{userStats.registrationDate}</span>
-                        </div>
+                      )}
+
+                      {/* 保存按钮移动到编辑信息区域底部 */}
+                      <div className="pt-3 border-t border-gray-200">
+                        <Button
+                          onClick={handleSaveProfile}
+                          className={`w-full h-10 font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-sm ${
+                            hasUnsavedChanges
+                              ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white animate-pulse'
+                              : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white'
+                          }`}
+                          disabled={!hasUnsavedChanges || isSaving}
+                        >
+                          {isSaving ? (
+                            <>
+                              <RefreshCw className="w-3 h-3 mr-2 animate-spin" />
+                              保存中...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-3 h-3 mr-2" />
+                              保存更改
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
                   </div>
                 </div>
+
+
 
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* 第二行：使用统计和邀请奖励 - 优化布局 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        {/* 第二行：使用统计和邀请奖励 - 确保按钮水平对齐 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:items-stretch">
           {/* 左侧：使用统计 */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 flex">
             <TokenUsageSection
               userTier={userStats.accountType === '体验版' ? 'trial' :
                        userStats.accountType === '专业版' ? 'pro' : 'premium'}
               showDetails={true}
+              className="w-full"
+              externalUserStats={{
+                availableUses: userStats.availableUses,
+                usedCount: userStats.usedCount,
+                tokenLimit: userStats.tokenLimit,
+                usedTokens: userStats.usedTokens
+              }}
             />
           </div>
 
           {/* 右侧：邀请奖励 */}
-          <div className="lg:col-span-1">
-            <Card className="h-full flex flex-col bg-white/80 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-pink-500 to-red-500 text-white">
-                <CardTitle className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                    <Gift className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold">邀请奖励</div>
-                    <div className="text-pink-100 text-sm font-normal">邀请好友获得免费次数</div>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col p-8">
-                <div className="flex-1 space-y-6">
-                  {/* 奖励说明 */}
-                  <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl border-2 border-orange-200 shadow-inner">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                        <Award className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="font-bold text-orange-800 text-lg">邀请奖励规则</span>
+          <div className="lg:col-span-1 flex">
+            <Card className="w-full h-full flex flex-col bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-orange-50/30 to-red-50/50 pointer-events-none"></div>
+              <CardHeader className="bg-gradient-to-r from-pink-500 via-rose-500 to-orange-500 text-white relative z-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                      <Gift className="w-6 h-6 drop-shadow-sm" />
                     </div>
-                    <p className="text-orange-700 font-medium">
+                    <div>
+                      <div className="text-xl font-bold drop-shadow-sm">邀请奖励</div>
+                      <div className="text-pink-100 text-sm font-normal">邀请好友获得免费次数</div>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyInviteLink}
+                    className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 rounded-xl shadow-lg transition-all duration-300"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col p-6 relative z-10">
+                {/* 邀请统计卡片 - 优化布局密度以平衡左侧 */}
+                <div className="flex-1 space-y-4">
+                  {/* 邀请奖励规则卡片 - 减少高度 */}
+                  <div className="bg-gradient-to-br from-orange-50/80 via-pink-50/60 to-red-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-100/20 to-pink-100/20 pointer-events-none"></div>
+                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Award className="w-5 h-5 text-white drop-shadow-sm" />
+                      </div>
+                      <h3 className="font-bold text-gray-800 text-lg">邀请奖励规则</h3>
+                    </div>
+                    <p className="text-gray-700 font-medium text-sm relative z-10">
                       每邀请1人注册，双方各得20次免费使用机会，永久有效！
                     </p>
                   </div>
 
-                  {/* 邀请统计 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 shadow-inner">
-                      <div className="text-3xl font-bold text-blue-600 mb-1">0</div>
-                      <div className="text-sm font-semibold text-blue-700">成功邀请</div>
-                    </div>
-                    <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border-2 border-green-200 shadow-inner">
-                      <div className="text-3xl font-bold text-green-600 mb-1">0</div>
-                      <div className="text-sm font-semibold text-green-700">获得次数</div>
-                    </div>
-                  </div>
+                  {/* 邀请统计和邀请链接合并卡片 - 提高空间利用率 */}
+                  <div className="bg-gradient-to-br from-cyan-50/80 via-blue-50/60 to-indigo-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-100/20 to-blue-100/20 pointer-events-none"></div>
+                    {/* 邀请统计部分 */}
+                    <div className="mb-5 relative z-10">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                          <Users className="w-5 h-5 text-white drop-shadow-sm" />
+                        </div>
+                        <h3 className="font-bold text-gray-800 text-lg">邀请统计</h3>
+                      </div>
 
-                  {/* 邀请方式 */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                      邀请链接
-                    </Label>
-                    <div className="flex gap-3">
-                      <Input
-                        value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`}
-                        readOnly
-                        className="text-xs h-12 border-2 border-gray-200 rounded-xl bg-gray-50/50 font-mono"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopyInviteLink}
-                        className="h-12 px-4 border-2 border-pink-300 hover:border-pink-500 hover:bg-pink-50 text-pink-600 rounded-xl transition-all duration-200"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center p-3 bg-gradient-to-br from-cyan-100/50 to-blue-100/50 backdrop-blur-sm border-0 rounded-xl shadow-lg">
+                          <div className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-1">0</div>
+                          <div className="text-sm font-medium text-gray-600">成功邀请</div>
+                        </div>
+                        <div className="text-center p-3 bg-gradient-to-br from-blue-100/50 to-indigo-100/50 backdrop-blur-sm border-0 rounded-xl shadow-lg">
+                          <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">0</div>
+                          <div className="text-sm font-medium text-gray-600">获得次数</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 邀请链接部分 */}
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                          <Copy className="w-5 h-5 text-white drop-shadow-sm" />
+                        </div>
+                        <h3 className="font-bold text-gray-800 text-lg">邀请链接</h3>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Input
+                          value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`}
+                          readOnly
+                          className="text-sm h-11 border-0 rounded-xl bg-gradient-to-r from-emerald-50/80 to-teal-50/80 backdrop-blur-sm font-mono flex-1 shadow-inner"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopyInviteLink}
+                          className="h-11 px-4 border-0 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl shadow-lg transition-all duration-300"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-gray-200">
+                {/* 邀请按钮 - 与内容对齐 */}
+                <div className="mt-5">
                   <Button
-                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-invite-gradient"
+                    className="w-full h-14 text-white font-bold text-lg rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center relative overflow-hidden btn-invite-gradient"
                     onClick={handleInviteFriends}
                   >
-                    <Users className="w-5 h-5 mr-3" />
-                    立即邀请好友
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none"></div>
+                    <div className="flex items-center justify-center gap-3 relative z-10">
+                      <Users className="w-6 h-6 drop-shadow-sm" />
+                      <span className="drop-shadow-sm">立即邀请好友</span>
+                    </div>
                   </Button>
                 </div>
               </CardContent>
@@ -670,6 +1158,7 @@ export default function ProfilePage() {
           </div>
 
         </div>
+      </div>
       </div>
     </div>
   );

@@ -12,16 +12,16 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmojiPicker, EmojiButton } from '@/components/ui/EmojiPicker';
-import { 
-  getAllEmojis, 
-  searchEmojis, 
-  getPlatformIcons, 
+import {
+  getAllEmojis,
+  searchEmojis,
+  getPlatformIcons,
   getEmojiCategories,
   getEmojiDisplay,
   getCDNConfigs,
   type EmojiItem,
   type EmojiDisplayMode
-} from '@/services/emojiService';
+} from '@/services/emojiServiceAdapter';
 
 /**
  * Emoji 测试页面组件

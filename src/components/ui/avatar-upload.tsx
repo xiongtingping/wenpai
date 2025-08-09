@@ -74,29 +74,59 @@ export function AvatarUpload({
   };
 
   /**
-   * 生成随机头像
+   * 生成随机头像 - 使用统一emoji系统
    */
   const generateRandomAvatar = async () => {
     setIsGenerating(true);
     try {
-      // 使用 Dicebear API 生成随机头像
-      const seed = nickname + Date.now();
-      const randomAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
-      
-      setAvatarUrl(randomAvatarUrl);
-      onAvatarChange?.(randomAvatarUrl);
-      
-      toast({
-        title: "头像生成成功",
-        description: "已为您生成新的随机头像",
-      });
+      // 动态导入统一emoji系统
+      const { getRandomEmojis, getAllEmojis, generateEmojiSVG } = await import('@/services/unifiedEmojiSystem');
+
+      // 优先动物类，若空则退回全量
+      let pool = getRandomEmojis(1, 'animals');
+      if (pool.length === 0) {
+        const all = getAllEmojis();
+        if (all.length === 0) throw new Error('没有可用的emoji');
+        pool = [all[Math.floor(Math.random() * all.length)]];
+      }
+
+      if (pool.length > 0) {
+        const selectedEmoji = pool[0];
+        const randomAvatarUrl = generateEmojiSVG(selectedEmoji);
+
+        setAvatarUrl(randomAvatarUrl);
+        onAvatarChange?.(randomAvatarUrl);
+
+        toast({
+          title: "头像生成成功",
+          description: `已为您生成可爱的${selectedEmoji.name} ${selectedEmoji.emoji}头像`,
+        });
+      } else {
+        throw new Error('没有可用的emoji');
+      }
     } catch (error) {
-      console.error('生成随机头像失败:', error);
-      toast({
-        title: "生成失败",
-        description: "随机头像生成失败，请重试",
-        variant: "destructive"
-      });
+      console.error('生成随机emoji头像失败，回退到Dicebear API:', error);
+
+      // 回退到Dicebear API
+      try {
+        const seed = nickname + Date.now();
+        const randomAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
+
+        setAvatarUrl(randomAvatarUrl);
+        onAvatarChange?.(randomAvatarUrl);
+
+        toast({
+          title: "头像生成成功",
+          description: "已为您生成新的随机头像",
+        });
+      } catch (fallbackError) {
+        console.error('Dicebear API也失败了:', fallbackError);
+        toast({
+          title: "生成失败",
+          description: "随机头像生成失败，请重试",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsGenerating(false);
     }

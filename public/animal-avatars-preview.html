@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 动物头像预览</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .avatar-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .avatar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+        .avatar-display {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .avatar-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .avatar-emoji {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .avatar-color {
+            font-size: 0.9rem;
+            color: #666;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .stats {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+        }
+        .stats h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+        }
+        .test-button {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .test-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🐾 动物头像系统</h1>
+        <p>30个可爱的动物头像，每次随机选择一个</p>
+    </div>
+
+    <div class="stats">
+        <h3>📊 头像统计</h3>
+        <p>总共 <strong>30</strong> 个动物头像 | 每次点击随机选择 | 100% 本地生成</p>
+        <button class="test-button" onclick="testRandomSelection()">🎲 模拟随机选择</button>
+        <button class="test-button" onclick="showAllAvatars()">👀 显示所有头像</button>
+    </div>
+
+    <div class="avatar-grid" id="avatarGrid">
+        <!-- 动物头像将在这里显示 -->
+    </div>
+
+    <script>
+        // 动物头像数据（与ProfilePage.tsx中的数据一致）
+        const animalAvatars = [
+            { name: '小猫', emoji: '🐱', color: '#FF6B6B' },
+            { name: '小狗', emoji: '🐶', color: '#4ECDC4' },
+            { name: '小熊', emoji: '🐻', color: '#45B7D1' },
+            { name: '小兔', emoji: '🐰', color: '#96CEB4' },
+            { name: '小狐狸', emoji: '🦊', color: '#FFEAA7' },
+            { name: '小熊猫', emoji: '🐼', color: '#DDA0DD' },
+            { name: '小猴子', emoji: '🐵', color: '#74B9FF' },
+            { name: '小老虎', emoji: '🐯', color: '#FD79A8' },
+            { name: '小狮子', emoji: '🦁', color: '#FDCB6E' },
+            { name: '小牛', emoji: '🐮', color: '#6C5CE7' },
+            { name: '小猪', emoji: '🐷', color: '#A29BFE' },
+            { name: '小青蛙', emoji: '🐸', color: '#00B894' },
+            { name: '小鸡', emoji: '🐥', color: '#FDCB6E' },
+            { name: '小企鹅', emoji: '🐧', color: '#636E72' },
+            { name: '小鸟', emoji: '🐦', color: '#00CEC9' },
+            { name: '小鱼', emoji: '🐠', color: '#0984E3' },
+            { name: '小章鱼', emoji: '🐙', color: '#E17055' },
+            { name: '小蝴蝶', emoji: '🦋', color: '#FD79A8' },
+            { name: '小蜜蜂', emoji: '🐝', color: '#FDCB6E' },
+            { name: '小瓢虫', emoji: '🐞', color: '#E84393' },
+            { name: '小蜗牛', emoji: '🐌', color: '#A29BFE' },
+            { name: '小海豚', emoji: '🐬', color: '#74B9FF' },
+            { name: '小鲸鱼', emoji: '🐳', color: '#0984E3' },
+            { name: '小鳄鱼', emoji: '🐊', color: '#00B894' },
+            { name: '小乌龟', emoji: '🐢', color: '#00CEC9' },
+            { name: '小蛇', emoji: '🐍', color: '#6C5CE7' },
+            { name: '小龙', emoji: '🐲', color: '#E17055' },
+            { name: '小独角兽', emoji: '🦄', color: '#FD79A8' },
+            { name: '小考拉', emoji: '🐨', color: '#636E72' },
+            { name: '小袋鼠', emoji: '🦘', color: '#FDCB6E' }
+        ];
+
+        function createAvatarCard(animal, index) {
+            return `
+                <div class="avatar-card" onclick="selectAvatar(${index})">
+                    <div class="avatar-display" style="background-color: ${animal.color}">
+                        ${animal.emoji}
+                    </div>
+                    <div class="avatar-name">${animal.name}</div>
+                    <div class="avatar-emoji">${animal.emoji}</div>
+                    <div class="avatar-color">${animal.color}</div>
+                </div>
+            `;
+        }
+
+        function showAllAvatars() {
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = animalAvatars.map((animal, index) => 
+                createAvatarCard(animal, index)
+            ).join('');
+        }
+
+        function testRandomSelection() {
+            const randomIndex = Math.floor(Math.random() * animalAvatars.length);
+            const selectedAnimal = animalAvatars[randomIndex];
+            
+            // 清空网格
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; color: white; padding: 40px;">
+                    <h2>🎲 随机选择结果</h2>
+                    <div style="background: white; border-radius: 20px; padding: 30px; display: inline-block; margin: 20px;">
+                        <div style="font-size: 4rem; margin-bottom: 15px;">${selectedAnimal.emoji}</div>
+                        <div style="font-size: 1.5rem; color: #333; font-weight: 600;">${selectedAnimal.name}</div>
+                        <div style="color: #666; margin-top: 10px;">颜色: ${selectedAnimal.color}</div>
+                        <div style="color: #666;">索引: ${randomIndex}</div>
+                    </div>
+                    <br>
+                    <button class="test-button" onclick="testRandomSelection()">🔄 再次随机</button>
+                    <button class="test-button" onclick="showAllAvatars()">📋 查看全部</button>
+                </div>
+            `;
+        }
+
+        function selectAvatar(index) {
+            const animal = animalAvatars[index];
+            alert(`选择了: ${animal.name} ${animal.emoji}\n颜色: ${animal.color}\n索引: ${index}`);
+        }
+
+        // 页面加载完成后显示所有头像
+        window.addEventListener('load', showAllAvatars);
+    </script>
+</body>
+</html>
