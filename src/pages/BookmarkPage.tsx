@@ -978,14 +978,14 @@ export default function BookmarkPage() {
                               <typeInfo.icon className="w-4 h-4" />
                               <span className="ml-1">{typeInfo.name}</span>
                             </Badge>
-                            <h3 
-                              className="font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+                            <h3
+                              className="font-semibold cursor-pointer hover:text-foreground transition-colors"
                               onClick={() => viewContent(item)}
                             >
                               {item.title}
                             </h3>
                             {item.isFavorite && (
-                              <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                              <Star className="w-4 h-4 text-primary fill-current" />
                             )}
                             {item.isUsed && (
                               <Badge variant="secondary" className="text-xs">
@@ -993,28 +993,28 @@ export default function BookmarkPage() {
                               </Badge>
                             )}
                           </div>
-                          
-                          <div 
-                            className="text-sm text-gray-600 mb-3 line-clamp-2 cursor-pointer hover:text-gray-800 transition-colors"
+
+                          <div
+                            className="text-sm text-muted-foreground mb-3 line-clamp-2 cursor-pointer hover:text-foreground transition-colors"
                             onClick={() => viewContent(item)}
                           >
                             {item.content}
                           </div>
 
                           {item.source && (
-                            <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
                               <Link2 className="w-3 h-3" />
                               <span className="truncate">{item.source}</span>
                             </div>
                           )}
 
                           {item.summary && (
-                            <div className="mb-3 p-2 bg-purple-50 rounded text-xs">
+                            <div className="mb-3 p-2 bg-accent rounded text-xs border border-border">
                               <div className="flex items-center gap-1 mb-1">
-                                <Sparkles className="w-3 h-3 text-purple-500" />
-                                <span className="font-medium text-purple-700">AI总结</span>
+                                <Sparkles className="w-3 h-3 text-foreground" />
+                                <span className="font-medium text-foreground">AI总结</span>
                               </div>
-                              <p className="text-purple-600">{item.summary}</p>
+                              <p className="text-foreground">{item.summary}</p>
                             </div>
                           )}
                           
@@ -1026,7 +1026,7 @@ export default function BookmarkPage() {
                             ))}
                           </div>
                           
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {formatTime(item.updatedAt)}
