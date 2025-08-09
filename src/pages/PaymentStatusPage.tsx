@@ -153,13 +153,13 @@ export default function PaymentStatusPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-foreground" />;
       case 'error':
-        return <XCircle className="h-5 w-5 text-red-500" />;
+        return <XCircle className="h-5 w-5 text-destructive" />;
       case 'warning':
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-500" />;
+        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -169,13 +169,13 @@ export default function PaymentStatusPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'success':
-        return 'bg-green-50 border-green-200';
+        return 'bg-accent border-border';
       case 'error':
-        return 'bg-red-50 border-red-200';
+        return 'bg-accent border-border';
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200';
+        return 'bg-accent border-border';
       default:
-        return 'bg-gray-50 border-gray-200';
+        return 'bg-accent border-border';
     }
   };
 
@@ -190,10 +190,10 @@ export default function PaymentStatusPage() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* 页面标题 */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           支付服务状态检查
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           诊断支付相关的配置和连接问题
         </p>
       </div>
@@ -227,32 +227,32 @@ export default function PaymentStatusPage() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-foreground">
                   {checkResults.filter(r => r.status === 'success').length}
                 </div>
-                <div className="text-sm text-gray-600">正常</div>
+                <div className="text-sm text-muted-foreground">正常</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">
+                <div className="text-2xl font-bold text-foreground">
                   {checkResults.filter(r => r.status === 'warning').length}
                 </div>
-                <div className="text-sm text-gray-600">警告</div>
+                <div className="text-sm text-muted-foreground">警告</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-2xl font-bold text-foreground">
                   {checkResults.filter(r => r.status === 'error').length}
                 </div>
-                <div className="text-sm text-gray-600">错误</div>
+                <div className="text-sm text-muted-foreground">错误</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-600">
+                <div className="text-2xl font-bold text-foreground">
                   {checkResults.length}
                 </div>
-                <div className="text-sm text-gray-600">总计</div>
+                <div className="text-sm text-muted-foreground">总计</div>
               </div>
             </div>
             {lastCheckTime && (
-              <div className="text-center mt-4 text-sm text-gray-500">
+              <div className="text-center mt-4 text-sm text-muted-foreground">
                 最后检查时间: {lastCheckTime}
               </div>
             )}
@@ -269,7 +269,7 @@ export default function PaymentStatusPage() {
                 {getStatusIcon(result.status)}
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900">{result.name}</h3>
+                    <h3 className="font-semibold text-foreground">{result.name}</h3>
                     <Badge 
                       variant={result.status === 'success' ? 'default' : 'destructive'}
                       className="text-xs"
@@ -302,11 +302,11 @@ export default function PaymentStatusPage() {
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h4 className="font-semibold text-foreground flex items-center gap-2">
                 <Wifi className="h-4 w-4" />
                 网络问题
               </h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• 检查网络连接是否正常</li>
                 <li>• 尝试刷新页面</li>
                 <li>• 检查防火墙设置</li>
@@ -315,11 +315,11 @@ export default function PaymentStatusPage() {
             </div>
             
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h4 className="font-semibold text-foreground flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
                 支付问题
               </h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• 确保支付宝App已安装</li>
                 <li>• 检查支付宝账户余额</li>
                 <li>• 确认支付限额设置</li>
@@ -328,11 +328,11 @@ export default function PaymentStatusPage() {
             </div>
             
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h4 className="font-semibold text-foreground flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 配置问题
               </h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• 检查环境变量配置</li>
                 <li>• 确认API密钥有效性</li>
                 <li>• 验证域名设置</li>
@@ -341,11 +341,11 @@ export default function PaymentStatusPage() {
             </div>
             
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h4 className="font-semibold text-foreground flex items-center gap-2">
                 <Smartphone className="h-4 w-4" />
                 浏览器问题
               </h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• 使用现代浏览器</li>
                 <li>• 清除浏览器缓存</li>
                 <li>• 禁用广告拦截器</li>
@@ -358,7 +358,7 @@ export default function PaymentStatusPage() {
 
       {/* 联系客服 */}
       <div className="text-center mt-8">
-        <p className="text-gray-600 mb-2">
+        <p className="text-muted-foreground mb-2">
           如果问题持续存在，请联系客服获取帮助
         </p>
         <Button variant="outline" onClick={() => window.open('mailto:hello@wenpai.xyz')}>

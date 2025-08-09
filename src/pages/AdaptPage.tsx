@@ -316,9 +316,42 @@ function validateCharacterCount(content: string, platformId: string, userSetLimi
 
 // Helper function to get platform icon
 function getPlatformIcon(platformId: string): JSX.Element {
-  
   switch (platformId) {
+    case 'xiaohongshu':
+      return <Book className="h-4 w-4 text-primary" />;
     case 'zhihu':
+      return <MessageSquare className="h-4 w-4 text-primary" />;
+    case 'douyin':
+      return <Video className="h-4 w-4 text-foreground" />;
+    case 'weibo':
+      return <Send className="h-4 w-4 text-primary" />;
+    case 'wechat':
+      return <MessageSquare className="h-4 w-4 text-primary" />;
+    case 'bilibili':
+      return <Video className="h-4 w-4 text-primary" />;
+    case 'twitter':
+      return <Twitter className="h-4 w-4 text-foreground" />;
+    case 'video':
+      return <SquarePlay className="h-4 w-4 text-primary" />;
+    case 'baijia':
+      return <Globe className="h-4 w-4 text-primary" />;
+    case 'kuaishou':
+      return <Zap className="h-4 w-4 text-primary" />;
+    case 'wangyi':
+      return <Rss className="h-4 w-4 text-primary" />;
+    case 'toutiao':
+      return <Globe className="h-4 w-4 text-primary" />;
+    case 'facebook':
+      return <Facebook className="h-4 w-4 text-primary" />;
+    case 'linkedin':
+      return <Linkedin className="h-4 w-4 text-primary" />;
+    case 'instagram':
+      return <Instagram className="h-4 w-4 text-primary" />;
+    case 'douban':
+      return <User className="h-4 w-4 text-primary" />;
+    default:
+      return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
+  }
 }
 
 // Helper functions for character count ranges based on platform requirements
@@ -415,7 +448,7 @@ function CheckboxCard({
         "relative border cursor-pointer transition-all duration-200 h-36 flex flex-col rounded-xl",
         checked
           ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/20"
-          : "bg-white/90 backdrop-blur-sm hover:shadow-e1 hover:border-gray-300"
+          : "bg-card/90 backdrop-blur-sm hover:shadow-e1 hover:border-border"
       )}
       onClick={handleCardClick}
     >
@@ -3845,7 +3878,7 @@ ${charCountControl.source === 'platform-specific'
                       setOriginalContent(newContent);
                     }}
                   />
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     从品牌库、资料库、雷达收藏快速导入内容
                   </span>
                 </div>
@@ -4526,7 +4559,7 @@ ${charCountControl.source === 'platform-specific'
 
 
           <Tabs defaultValue={results[0]?.platformId} className="w-full">
-            <TabsList className="mb-4 flex flex-wrap gap-2 w-full h-auto p-2 bg-gray-50 rounded-lg shadow-sm">
+            <TabsList className="mb-4 flex flex-wrap gap-2 w-full h-auto p-2 bg-accent rounded-lg shadow-sm">
               {results.map(result => {
                 const isCompleted = !!(result.content || (result.versions && result.versions.length > 0));
                 const hasError = !!result.error;
@@ -4578,7 +4611,7 @@ ${charCountControl.source === 'platform-specific'
             {results.map(result => (
               <TabsContent key={result.platformId} value={result.platformId}>
                 <Card
-                  className="p-1 sm:p-2 lg:p-3 shadow-sm border border-gray-200 bg-white"
+                  className="p-1 sm:p-2 lg:p-3 shadow-sm border border-border bg-card"
                   data-testid="platform-card"
                   data-platform-id={result.platformId}
                 >
@@ -4596,8 +4629,8 @@ ${charCountControl.source === 'platform-specific'
                   <CardContent className="space-y-1 pt-0">
                     {/* 详细错误信息 */}
                     {result.error && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <div className="text-sm text-red-700">{result.error}</div>
+                      <div className="bg-accent border border-border rounded-lg p-3">
+                        <div className="text-sm text-destructive">{result.error}</div>
                       </div>
                     )}
                     
@@ -4606,8 +4639,8 @@ ${charCountControl.source === 'platform-specific'
 
                       {/* 1. 智能标题生成 */}
                       {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
-                        <div className="bg-white rounded-lg border border-gray-200 shadow-md mb-4">
-                          <div className="px-3 py-2 border-b border-gray-100">
+                        <div className="bg-card rounded-lg border border-border shadow-md mb-4">
+                          <div className="px-3 py-2 border-b border-border">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
@@ -4618,9 +4651,9 @@ ${charCountControl.source === 'platform-specific'
                                   <p className="text-xs text-gray-500">基于内容智能生成吸引眼球的标题</p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground bg-accent px-2 py-1 rounded border border-border">
                                 <span>{getPlatformName(result.platformId, platforms)}</span>
-                                <span className="text-gray-400">(限{getPlatformMaxCharCount(result.platformId)}字)</span>
+                                <span className="text-muted-foreground">(限{getPlatformMaxCharCount(result.platformId)}字)</span>
                               </div>
                             </div>
                           </div>
@@ -4644,8 +4677,8 @@ ${charCountControl.source === 'platform-specific'
 
 
                       {/* 2. 智能内容生成 */}
-                      <div className="bg-white rounded-lg border border-gray-200 shadow-md min-h-[120px] mb-4">
-                        <div className="px-3 py-2 border-b border-gray-100">
+                      <div className="bg-card rounded-lg border border-border shadow-md min-h-[120px] mb-4">
+                        <div className="px-3 py-2 border-b border-border">
                           <div className="flex items-center gap-2">
                             <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                               <span className="text-white text-xs font-bold">容</span>
@@ -4777,9 +4810,9 @@ ${charCountControl.source === 'platform-specific'
                                           size="sm"
                                           variant="outline"
                                           onClick={() => handleFavorite(result.platformId, 'version-a')}
-                                          className={persistentFavorites.has(`${result.platformId}-version-a`) || favoriteStates.has(`${result.platformId}-version-a`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
+                                          className={persistentFavorites.has(`${result.platformId}-version-a`) || favoriteStates.has(`${result.platformId}-version-a`) ? 'bg-accent border-border text-foreground' : ''}
                                         >
-                                          <Heart className={`h-4 w-4 mr-1 ${persistentFavorites.has(`${result.platformId}-version-a`) || favoriteStates.has(`${result.platformId}-version-a`) ? 'fill-red-500 text-red-500' : ''}`} />
+                                          <Heart className={`h-4 w-4 mr-1 ${persistentFavorites.has(`${result.platformId}-version-a`) || favoriteStates.has(`${result.platformId}-version-a`) ? 'fill-current text-primary' : ''}`} />
                                           {persistentFavorites.has(`${result.platformId}-version-a`) ? '已收藏 ❤️' : favoriteStates.has(`${result.platformId}-version-a`) ? '已收藏 ❤️' : '收藏'}
                                         </Button>
 
@@ -4787,7 +4820,7 @@ ${charCountControl.source === 'platform-specific'
                                           size="sm"
                                           variant="outline"
                                           onClick={() => copyToClipboard(result.versions![0].content, `copy-version-a-${result.platformId}`)}
-                                          className={copyStates.has(`copy-version-a-${result.platformId}`) ? 'bg-green-50 border-green-200 text-green-600' : ''}
+                                          className={copyStates.has(`copy-version-a-${result.platformId}`) ? 'bg-accent border-border text-foreground' : ''}
                                         >
                                           <Copy className="h-4 w-4 mr-1" />
                                           {copyStates.has(`copy-version-a-${result.platformId}`) ? '已复制 ✓' : '复制'}
@@ -4925,9 +4958,9 @@ ${charCountControl.source === 'platform-specific'
                                           size="sm"
                                           variant="outline"
                                           onClick={() => handleFavorite(result.platformId, 'version-b')}
-                                          className={persistentFavorites.has(`${result.platformId}-version-b`) || favoriteStates.has(`${result.platformId}-version-b`) ? 'bg-red-50 border-red-200 text-red-600' : ''}
+                                          className={persistentFavorites.has(`${result.platformId}-version-b`) || favoriteStates.has(`${result.platformId}-version-b`) ? 'bg-accent border-border text-foreground' : ''}
                                         >
-                                          <Heart className={`h-4 w-4 mr-1 ${persistentFavorites.has(`${result.platformId}-version-b`) || favoriteStates.has(`${result.platformId}-version-b`) ? 'fill-red-500 text-red-500' : ''}`} />
+                                          <Heart className={`h-4 w-4 mr-1 ${persistentFavorites.has(`${result.platformId}-version-b`) || favoriteStates.has(`${result.platformId}-version-b`) ? 'fill-current text-primary' : ''}`} />
                                           {persistentFavorites.has(`${result.platformId}-version-b`) ? '已收藏 ❤️' : favoriteStates.has(`${result.platformId}-version-b`) ? '已收藏 ❤️' : '收藏'}
                                         </Button>
 
@@ -4935,7 +4968,7 @@ ${charCountControl.source === 'platform-specific'
                                           size="sm"
                                           variant="outline"
                                           onClick={() => copyToClipboard(result.versions![1].content, `copy-version-b-${result.platformId}`)}
-                                          className={copyStates.has(`copy-version-b-${result.platformId}`) ? 'bg-green-50 border-green-200 text-green-600' : ''}
+                                          className={copyStates.has(`copy-version-b-${result.platformId}`) ? 'bg-accent border-border text-foreground' : ''}
                                         >
                                           <Copy className="h-4 w-4 mr-1" />
                                           {copyStates.has(`copy-version-b-${result.platformId}`) ? '已复制 ✓' : '复制'}
@@ -4991,7 +5024,7 @@ ${charCountControl.source === 'platform-specific'
                                         <Button
                                           size="sm"
                                           onClick={() => handleSaveEdit(result.platformId, result.content)}
-                                          className="bg-green-600 hover:bg-green-700"
+                                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                         >
                                           保存
                                         </Button>
@@ -5019,7 +5052,7 @@ ${charCountControl.source === 'platform-specific'
                                       }`}>
                                         {/* 平台标识 - 只保留在右上角 */}
                                         <div className="absolute top-4 right-4">
-                                          <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
+                                          <div className="bg-card/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-foreground shadow-sm">
                                             {getPlatformName(result.platformId, platforms)}
                                           </div>
                                         </div>
@@ -5027,13 +5060,13 @@ ${charCountControl.source === 'platform-specific'
                                       </div>
                                       {/* 字符数信息 - 移动到底部 */}
                                       {result.content && (
-                                        <div className="flex justify-between items-center text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border">
-                                          <span className="font-medium">{getPlatformName(result.platformId, platforms)}</span>
+                                        <div className="flex justify-between items-center text-sm text-muted-foreground bg-accent px-4 py-2 rounded-lg border border-border">
+                                          <span className="font-medium text-foreground">{getPlatformName(result.platformId, platforms)}</span>
                                           <div className={`flex items-center gap-2 font-medium ${
                                             (result as any).charCount && (result as any).targetCharCount &&
                                             Math.abs((result as any).charCount - (result as any).targetCharCount) > (result as any).targetCharCount * 0.2
-                                              ? 'text-orange-600'
-                                              : 'text-green-600'
+                                              ? 'text-foreground'
+                                              : 'text-foreground'
                                           }`}>
                                             <span>{result.content.length}</span>
                                             {(result as any).targetCharCount && (
@@ -5051,14 +5084,14 @@ ${charCountControl.source === 'platform-specific'
                                     </div>
                                   )
                                 ) : result.error ? (
-                                  <div className="rounded-lg border-2 border-dashed border-red-200 p-12 flex items-center justify-center bg-red-50">
+                                  <div className="rounded-lg border-2 border-dashed border-border p-12 flex items-center justify-center bg-accent">
                                     <div className="text-center">
-                                      <p className="text-red-600 text-lg font-medium">生成失败</p>
-                                      <p className="text-red-500 text-sm mt-2">{result.error}</p>
+                                      <p className="text-destructive text-lg font-medium">生成失败</p>
+                                      <p className="text-destructive text-sm mt-2">{result.error}</p>
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
+                                  <div className="rounded-lg border-2 border-dashed border-border bg-accent">
                                     {generating ? (
                                       <div className="p-6">
                                         <AIContentGenerationAnimation
@@ -5082,8 +5115,8 @@ ${charCountControl.source === 'platform-specific'
 
                       {/* 3. 智能标签生成 */}
                       {(result.content || (result.versions && result.versions.length > 0)) && !result.error && (
-                        <div className="bg-white rounded-lg border border-gray-200 shadow-md mb-4">
-                          <div className="px-3 py-2 border-b border-gray-100">
+                        <div className="bg-card rounded-lg border border-border shadow-md mb-4">
+                          <div className="px-3 py-2 border-b border-border">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
@@ -5266,7 +5299,7 @@ ${charCountControl.source === 'platform-specific'
             {batchCurrent?.content}
           </div>
 
-          <div className="mt-3 text-xs text-gray-500">
+          <div className="mt-3 text-xs text-muted-foreground">
             剩余平台：{batchQueue.length - 1} 个
           </div>
         </div>
@@ -5281,13 +5314,13 @@ ${charCountControl.source === 'platform-specific'
         <DialogHeader>
           <DialogTitle>转发历史</DialogTitle>
         </DialogHeader>
-        <div className="py-2 text-gray-700 max-h-[60vh] overflow-auto">
+        <div className="py-2 text-foreground max-h-[60vh] overflow-auto">
           {shareHistory.length === 0 ? (
-            <div className="text-center text-gray-400 py-8">暂无转发历史</div>
+            <div className="text-center text-muted-foreground py-8">暂无转发历史</div>
           ) : (
             <div className="space-y-4">
               {shareHistory.map(item => (
-                <div key={item.id} className="border rounded p-2 bg-gray-50">
+                <div key={item.id} className="border rounded p-2 bg-accent">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-blue-600">{item.platformName}</span>
                     <span className="text-xs text-gray-400">{new Date(item.time).toLocaleString()}</span>
