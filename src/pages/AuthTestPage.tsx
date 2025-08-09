@@ -153,7 +153,8 @@ const AuthTestPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="text-center">
@@ -354,6 +355,7 @@ const AuthTestPage: React.FC = () => {
             </CardContent>
           </Card>
         )}
+      </div>
       </div>
     </div>
   );

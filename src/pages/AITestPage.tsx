@@ -158,7 +158,8 @@ const AITestPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto py-8 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">AI功能测试</h1>
         <p className="text-muted-foreground">测试品牌资料分析功能的各项能力</p>
@@ -337,6 +338,7 @@ const AITestPage: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
     </div>
   );

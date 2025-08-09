@@ -47,7 +47,7 @@ function InvitePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       <div className="container mx-auto px-4 py-8">
         {/* 返回按钮 */}
         <Button

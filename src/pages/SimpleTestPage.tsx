@@ -31,8 +31,8 @@ const SimpleTestPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <div className="min-h-screen bg-gradient-primary particle-background p-8">
+      <div className="max-w-md mx-auto bg-white/90 backdrop-blur-sm rounded-xl shadow-e1 p-6">
         <h1 className="text-2xl font-bold mb-6">🧪 简单功能测试</h1>
         
         <div className="space-y-4">

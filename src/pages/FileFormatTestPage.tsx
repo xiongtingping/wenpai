@@ -178,7 +178,8 @@ export default function FileFormatTestPage() {
   const totalCount = testResults.length;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">文件格式支持测试</h1>
@@ -432,6 +433,7 @@ export default function FileFormatTestPage() {
           以验证文件解析功能是否正常工作。测试完成后可以下载详细的测试报告。
         </AlertDescription>
       </Alert>
+      </div>
     </div>
   );
 }

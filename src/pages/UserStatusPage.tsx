@@ -35,7 +35,8 @@ export default function UserStatusPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
           <CardTitle>用户状态调试</CardTitle>
@@ -91,6 +92,7 @@ export default function UserStatusPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
-} 
+}

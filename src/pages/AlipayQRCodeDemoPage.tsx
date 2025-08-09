@@ -44,7 +44,8 @@ export default function AlipayQRCodeDemoPage() {
   const selectedProductData = testProducts[selectedProduct];
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto py-8 px-4 max-w-6xl">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -253,6 +254,7 @@ export default function AlipayQRCodeDemoPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
-} 
+}

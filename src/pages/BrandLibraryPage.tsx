@@ -2000,9 +2000,9 @@ export default function BrandLibraryPageFixed() {
 
       <div className="container mx-auto px-4 py-8">
         {/* 使用提示 */}
-        <Alert className="mb-6">
-          <Info className="h-4 w-4" />
-          <AlertDescription>
+        <Alert className="mb-6 bg-white/90 backdrop-blur-sm border-indigo-200 rounded-xl">
+          <Info className="h-4 w-4 text-indigo-600" />
+          <AlertDescription className="text-gray-700">
             <strong>使用提示：</strong>上传品牌资料越多，AI分析越准确。建议上传品牌手册、产品介绍、营销文案等资料。
             所有维度都支持手动编辑。
           </AlertDescription>
@@ -2021,11 +2021,11 @@ export default function BrandLibraryPageFixed() {
 
         {/* 上传进度 */}
         {isUploading && (
-          <Card className="mb-6">
+          <Card variant="soft" className="mb-6 rounded-xl">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">上传进度</span>
-                <span className="text-sm text-muted-foreground">{Math.round(uploadProgress)}%</span>
+                <span className="text-sm font-medium text-gray-900">上传进度</span>
+                <span className="text-sm text-gray-600">{Math.round(uploadProgress)}%</span>
               </div>
               <Progress value={uploadProgress} className="w-full" />
             </CardContent>

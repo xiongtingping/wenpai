@@ -440,10 +440,10 @@ function CheckboxCard({
   return (
     <Card
       className={cn(
-        "relative border cursor-pointer transition-all duration-200 h-36 flex flex-col",
+        "relative border cursor-pointer transition-all duration-200 h-36 flex flex-col rounded-xl",
         checked
           ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/20"
-          : "bg-background hover:shadow-sm hover:border-gray-300"
+          : "bg-white/90 backdrop-blur-sm hover:shadow-e1 hover:border-gray-300"
       )}
       onClick={handleCardClick}
     >
@@ -453,7 +453,7 @@ function CheckboxCard({
             <div className="flex-shrink-0">
               {icon}
             </div>
-            <CardTitle className="text-sm font-semibold truncate leading-tight">{title}</CardTitle>
+            <CardTitle className="text-sm font-semibold truncate leading-tight text-gray-900">{title}</CardTitle>
           </div>
           <div className="flex-shrink-0">
             <Checkbox
@@ -468,7 +468,7 @@ function CheckboxCard({
         </div>
       </CardHeader>
       <CardContent className="pt-0 pb-4 flex-grow flex items-start">
-        <CardDescription className="text-xs leading-relaxed overflow-hidden" style={{
+        <CardDescription className="text-xs leading-relaxed overflow-hidden text-gray-600" style={{
           display: '-webkit-box',
           WebkitLineClamp: 4,
           WebkitBoxOrient: 'vertical' as const,
@@ -3912,9 +3912,9 @@ ${charCountControl.source === 'platform-specific'
 
       {/* Platform Selection Section */}
       <div className="mb-8 mt-8">
-        <Card>
+        <Card variant="soft" className="rounded-xl">
           <CardHeader>
-            <h1 className="text-2xl font-bold">选择目标平台</h1>
+            <h1 className="text-2xl font-bold text-gray-900">选择目标平台</h1>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
@@ -3934,12 +3934,12 @@ ${charCountControl.source === 'platform-specific'
 
         {/* Individual Platform Settings */}
         {selectedPlatforms.length > 0 && (
-          <Card className="mt-6">
+          <Card variant="soft" className="mt-6 rounded-xl">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  <h3 className="text-lg font-semibold">平台设置</h3>
+                  <Settings className="h-4 w-4 text-gray-700" />
+                  <h3 className="text-lg font-semibold text-gray-900">平台设置</h3>
                   <Badge variant="secondary" className="text-xs">
                     {selectedPlatforms.length}个平台
                   </Badge>

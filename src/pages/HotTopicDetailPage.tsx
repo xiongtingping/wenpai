@@ -175,11 +175,13 @@ export default function HotTopicDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">加载中...</p>
+      <div className="min-h-screen bg-gradient-primary particle-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+              <p className="text-white">加载中...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -188,17 +190,19 @@ export default function HotTopicDetailPage() {
 
   if (!topic) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">话题未找到</h1>
-          <Button onClick={handleBack}>返回热点话题</Button>
+      <div className="min-h-screen bg-gradient-primary particle-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-white mb-4 drop-shadow-sm">话题未找到</h1>
+            <Button variant="soft" onClick={handleBack}>返回热点话题</Button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       <PageNavigation />
       
       <div className="container mx-auto px-4 py-8">

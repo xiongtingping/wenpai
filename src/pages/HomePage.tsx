@@ -40,8 +40,8 @@ function HomePage() {
           <TrustSection />
         </div>
 
-        {/* How It Works - 浅灰背景 */}
-        <div className="bg-gray-50 py-20">
+        {/* How It Works - 浅色渐变背景 */}
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 py-20">
           <HowItWorks />
         </div>
 
@@ -49,9 +49,9 @@ function HomePage() {
         <div className="bg-white py-20">
           <FeaturesSection />
         </div>
-        
-        {/* Testimonials Section - 浅灰背景 */}
-        <div className="bg-gray-50 py-20">
+
+        {/* Testimonials Section - 浅色渐变背景 */}
+        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 py-20">
           <TestimonialsSection />
         </div>
 

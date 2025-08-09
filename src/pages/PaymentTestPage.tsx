@@ -113,7 +113,8 @@ export default function PaymentTestPage() {
   };
 
   return (
-    <div className="container mx-auto py-16 px-4 max-w-4xl">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto py-16 px-4 max-w-4xl">
       <div className="mb-12 text-center">
         <h1 className="text-3xl font-bold mb-2">支付测试页面</h1>
         <p className="text-muted-foreground">验证限时优惠和支付二维码联动</p>
@@ -249,6 +250,7 @@ export default function PaymentTestPage() {
           <p>节省金额: ¥{priceInfo.savedAmount}</p>
         </div>
       </div>
+      </div>
     </div>
   );
-} 
+}
