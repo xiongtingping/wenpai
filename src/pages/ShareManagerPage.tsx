@@ -533,7 +533,7 @@ export default function ShareManagerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       {/* 页面导航 */}
       <PageNavigation
         title="一键转发管理"

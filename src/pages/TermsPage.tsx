@@ -13,7 +13,8 @@ export default function TermsPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-5xl">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto py-8 px-4 max-w-5xl">
       {/* 返回按钮 */}
       <div className="mb-8">
         <Button 
@@ -348,6 +349,7 @@ export default function TermsPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
-} 
+}

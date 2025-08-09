@@ -14,7 +14,8 @@ import { Shield, Lock, Eye, Key, AlertTriangle } from 'lucide-react';
  */
 export default function SecurityPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">安全中心</h1>
         <p className="text-gray-600">
@@ -167,6 +168,7 @@ export default function SecurityPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
-} 
+}

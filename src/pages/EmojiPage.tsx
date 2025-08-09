@@ -314,7 +314,7 @@ const EmojiPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>

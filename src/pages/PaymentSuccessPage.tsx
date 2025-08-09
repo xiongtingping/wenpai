@@ -118,10 +118,10 @@ export default function PaymentSuccessPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-primary particle-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">正在处理支付结果...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="mt-4 text-white">正在处理支付结果...</p>
         </div>
       </div>
     );
@@ -131,7 +131,7 @@ export default function PaymentSuccessPage() {
   const subscriptionStatus = getSubscriptionStatus();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-16">
+    <div className="min-h-screen bg-gradient-primary particle-background py-16">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* 成功提示 */}
         <div className="text-center mb-12">

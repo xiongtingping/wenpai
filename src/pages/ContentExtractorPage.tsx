@@ -525,7 +525,7 @@ export default function ContentExtractorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       {/* 页面导航 */}
       <PageNavigation
         title="内容提取与AI总结"

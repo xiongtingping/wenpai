@@ -23,10 +23,10 @@ export default function ForgotPasswordPage() {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div style={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="min-h-screen bg-gradient-primary particle-background flex items-center justify-center p-4">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">请使用 Authing 重置密码</h2>
-        <p className="text-gray-600 mb-6">正在为您打开密码重置窗口...</p>
+        <h2 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">请使用 Authing 重置密码</h2>
+        <p className="text-indigo-100 mb-6">正在为您打开密码重置窗口...</p>
         <button 
           onClick={() => login()}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

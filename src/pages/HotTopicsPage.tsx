@@ -702,7 +702,7 @@ export default function HotTopicsPage() {
   const topThreeTopics = currentData.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       {/* 页面导航 */}
       <PageNavigation
         title="全网雷达"

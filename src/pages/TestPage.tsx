@@ -24,8 +24,8 @@ const TestPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+    <div className="min-h-screen bg-gradient-primary particle-background flex items-center justify-center">
+      <div className="bg-white/90 backdrop-blur-sm p-8 rounded-xl shadow-e1 max-w-md w-full">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">测试页面</h1>
         <p className="text-gray-600 mb-4">
           如果您能看到这个页面，说明基本功能正常。
