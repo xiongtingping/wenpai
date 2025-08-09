@@ -319,34 +319,6 @@ function getPlatformIcon(platformId: string): JSX.Element {
   
   switch (platformId) {
     case 'zhihu':
-      return (
-        <div className="flex items-center">
-          <MessageSquare className="h-4 w-4 text-primary mr-1" />
-        </div>
-      );
-    case 'weibo':
-      return <Send className="h-4 w-4 text-primary" />;
-    case 'xiaohongshu':
-      return <Book className="h-4 w-4 text-primary" />;
-    case 'wechat':
-      return <MessageSquare className="h-4 w-4 text-primary" />;
-    case 'douyin':
-      return <Video className="h-4 w-4 text-foreground" />;
-    case 'video':
-      return <SquarePlay className="h-4 w-4 text-primary" />;
-    case 'twitter':
-      return <Twitter className="h-4 w-4 text-foreground" />;
-    case 'bilibili':
-      return <Video className="h-4 w-4 text-primary" />;
-    case 'kuaishou':
-      return <Video className="h-4 w-4 text-primary" />;
-    case 'wangyi':
-      return <Rss className="h-4 w-4 text-primary" />;
-    case 'toutiao':
-      return <Globe className="h-4 w-4 text-primary" />;
-    default:
-      return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
-  }
 }
 
 // Helper functions for character count ranges based on platform requirements
@@ -468,7 +440,7 @@ function CheckboxCard({
         </div>
       </CardHeader>
       <CardContent className="pt-0 pb-4 flex-grow flex items-start">
-        <CardDescription className="text-xs leading-relaxed overflow-hidden text-gray-600" style={{
+        <CardDescription className="text-xs leading-relaxed overflow-hidden text-muted-foreground" style={{
           display: '-webkit-box',
           WebkitLineClamp: 4,
           WebkitBoxOrient: 'vertical' as const,
@@ -1236,22 +1208,22 @@ export default function AdaptPage() {
   const [premiumFeatureInfo, setPremiumFeatureInfo] = useState({ name: '', description: '' });
 
   const platforms = useMemo(() => [
-    { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-rose-500" /> },
-    { id: "zhihu", name: "知乎", description: "适合专业知识分享和理性讨论，强调逻辑和论证", icon: <MessageSquare className="h-4 w-4 text-blue-500" /> },
-    { id: "douyin", name: "抖音", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: <Video className="h-4 w-4 text-black" /> },
-    { id: "weibo", name: "新浪微博", description: "简短有力的观点表达，适合热点话题讨论", icon: <Send className="h-4 w-4 text-orange-500" /> },
-    { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: <MessageSquare className="h-4 w-4 text-green-500" /> },
-    { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: <Video className="h-4 w-4 text-blue-400" /> },
-    { id: "twitter", name: "X（推特）", description: "简短、直接的表达，支持多种语言和国际化视角", icon: <Twitter className="h-4 w-4 text-black" /> },
-    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: <SquarePlay className="h-4 w-4 text-green-600" /> },
-    { id: "baijia", name: "百家号", description: "长篇深度内容，SEO友好，权威感强，适合资讯类内容", icon: <Globe className="h-4 w-4 text-blue-700" /> },
-    { id: "kuaishou", name: "快手", description: "接地气表达，真实朴实，亲民风格，适合生活记录", icon: <Zap className="h-4 w-4 text-yellow-600" /> },
-    { id: "wangyi", name: "网易小蜜蜂", description: "注重原创性，文笔流畅，观点独特，适合深度评论", icon: <Rss className="h-4 w-4 text-red-500" /> },
-    { id: "toutiao", name: "头条号", description: "标题党友好，热点敏感，算法推荐，适合时事评论", icon: <Globe className="h-4 w-4 text-purple-600" /> },
-    { id: "facebook", name: "Facebook", description: "国际化社交平台，适合品牌推广和社区互动", icon: <Facebook className="h-4 w-4 text-blue-600" /> },
-    { id: "linkedin", name: "LinkedIn", description: "专业职场社交平台，适合商务内容和职业发展", icon: <Linkedin className="h-4 w-4 text-blue-700" /> },
-    { id: "instagram", name: "Instagram", description: "视觉化社交平台，适合图片和短视频内容", icon: <Instagram className="h-4 w-4 text-pink-500" /> },
-    { id: "douban", name: "豆瓣", description: "文艺青年聚集地，适合文化评论和生活方式分享", icon: <User className="h-4 w-4 text-green-700" /> }
+    { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-primary" /> },
+    { id: "zhihu", name: "知乎", description: "适合专业知识分享和理性讨论，强调逻辑和论证", icon: <MessageSquare className="h-4 w-4 text-primary" /> },
+    { id: "douyin", name: "抖音", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: <Video className="h-4 w-4 text-foreground" /> },
+    { id: "weibo", name: "新浪微博", description: "简短有力的观点表达，适合热点话题讨论", icon: <Send className="h-4 w-4 text-primary" /> },
+    { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: <MessageSquare className="h-4 w-4 text-primary" /> },
+    { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: <Video className="h-4 w-4 text-primary" /> },
+    { id: "twitter", name: "X（推特）", description: "简短、直接的表达，支持多种语言和国际化视角", icon: <Twitter className="h-4 w-4 text-foreground" /> },
+    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: <SquarePlay className="h-4 w-4 text-primary" /> },
+    { id: "baijia", name: "百家号", description: "长篇深度内容，SEO友好，权威感强，适合资讯类内容", icon: <Globe className="h-4 w-4 text-primary" /> },
+    { id: "kuaishou", name: "快手", description: "接地气表达，真实朴实，亲民风格，适合生活记录", icon: <Zap className="h-4 w-4 text-primary" /> },
+    { id: "wangyi", name: "网易小蜜蜂", description: "注重原创性，文笔流畅，观点独特，适合深度评论", icon: <Rss className="h-4 w-4 text-primary" /> },
+    { id: "toutiao", name: "头条号", description: "标题党友好，热点敏感，算法推荐，适合时事评论", icon: <Globe className="h-4 w-4 text-primary" /> },
+    { id: "facebook", name: "Facebook", description: "国际化社交平台，适合品牌推广和社区互动", icon: <Facebook className="h-4 w-4 text-primary" /> },
+    { id: "linkedin", name: "LinkedIn", description: "专业职场社交平台，适合商务内容和职业发展", icon: <Linkedin className="h-4 w-4 text-primary" /> },
+    { id: "instagram", name: "Instagram", description: "视觉化社交平台，适合图片和短视频内容", icon: <Instagram className="h-4 w-4 text-primary" /> },
+    { id: "douban", name: "豆瓣", description: "文艺青年聚集地，适合文化评论和生活方式分享", icon: <User className="h-4 w-4 text-primary" /> }
   ], []);
 
   const initializeDefaultSettings = useCallback(() => {
@@ -3903,7 +3875,7 @@ ${charCountControl.source === 'platform-specific'
                   <span className="text-xs text-amber-500 ml-1">（需开通高级功能）</span>
                 </p>
               </div>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex-shrink-0">
+              <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border flex-shrink-0">
                 {contentCharCount} 字符
               </Badge>
             </div>
@@ -3938,8 +3910,8 @@ ${charCountControl.source === 'platform-specific'
             <CardHeader className="pb-3">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-gray-700" />
-                  <h3 className="text-lg font-semibold text-gray-900">平台设置</h3>
+                  <Settings className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold text-foreground">平台设置</h3>
                   <Badge variant="secondary" className="text-xs">
                     {selectedPlatforms.length}个平台
                   </Badge>
@@ -3971,7 +3943,7 @@ ${charCountControl.source === 'platform-specific'
               <CardContent className="pt-0">
                 <div className="space-y-4">
                   {/* 全局设置 */}
-                  <div className="border-2 border-blue-200 bg-blue-50/30 rounded-lg p-4 mb-6">
+                  <div className="border-2 border-border bg-accent rounded-lg p-4 mb-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
@@ -3982,16 +3954,16 @@ ${charCountControl.source === 'platform-specific'
                               handleSettingsModeToggle('global');
                             }
                           }}
-                          className="data-[state=checked]:bg-blue-600 data-[state=checked]:text-white"
+                          className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                         />
-                        <Label htmlFor="global-settings-mode" className="text-base font-semibold cursor-pointer flex items-center text-blue-800">
+                        <Label htmlFor="global-settings-mode" className="text-base font-semibold cursor-pointer flex items-center text-foreground">
                           <Globe className="h-4 w-4 mr-2" />
                           全局设置
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
                         {(settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform') && (
-                          <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                          <div className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded border border-border">
                             已启用平台特定设置，全局设置已禁用
                           </div>
                         )}
@@ -4001,7 +3973,7 @@ ${charCountControl.source === 'platform-specific'
                     {/* 字符数限制 */}
                     <div className="mb-4">
                       <Label className={`text-sm font-medium flex items-center gap-2 mb-2 ${
-                        settingsMode.charCount === 'platform' ? 'text-gray-400' : 'text-gray-700'
+                        settingsMode.charCount === 'platform' ? 'text-muted-foreground' : 'text-foreground'
                       }`}>
                         <Hash className="h-3 w-3" />
                         字符数限制
@@ -4012,7 +3984,7 @@ ${charCountControl.source === 'platform-specific'
                         disabled={settingsMode.charCount === 'platform'}
                       >
                         <SelectTrigger className={`h-9 max-w-xs ${
-                          settingsMode.charCount === 'platform' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''
+                          settingsMode.charCount === 'platform' ? 'bg-muted text-muted-foreground cursor-not-allowed' : ''
                         }`}>
                           <SelectValue placeholder="选择字符数限制" />
                         </SelectTrigger>
@@ -4024,7 +3996,7 @@ ${charCountControl.source === 'platform-specific'
                         </SelectContent>
                       </Select>
                       <p className={`text-xs mt-1 ${
-                        settingsMode.charCount === 'platform' ? 'text-gray-400' : 'text-gray-500'
+                        settingsMode.charCount === 'platform' ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}>
                         {settingsMode.charCount === 'platform' ? '已禁用，使用平台特定设置' : '根据平台特点自动调整内容长度'}
                       </p>
@@ -4039,7 +4011,7 @@ ${charCountControl.source === 'platform-specific'
                           disabled={settingsMode.emoji === 'platform'}
                         />
                         <Label htmlFor="global-emoji" className={`text-sm cursor-pointer flex items-center ${
-                          settingsMode.emoji === 'platform' ? 'text-gray-400' : ''
+                          settingsMode.emoji === 'platform' ? 'text-muted-foreground' : 'text-foreground'
                         }`}>
                           <Smile className="h-3 w-3 mr-1" />
                           全局添加emoji表情
@@ -4054,7 +4026,7 @@ ${charCountControl.source === 'platform-specific'
                           disabled={settingsMode.mdFormat === 'platform'}
                         />
                         <Label htmlFor="global-md" className={`text-sm cursor-pointer flex items-center ${
-                          settingsMode.mdFormat === 'platform' ? 'text-gray-400' : ''
+                          settingsMode.mdFormat === 'platform' ? 'text-muted-foreground' : 'text-foreground'
                         }`}>
                           <FileText className="h-3 w-3 mr-1" />
                           全局MD格式
@@ -4070,8 +4042,8 @@ ${charCountControl.source === 'platform-specific'
                         />
                         <Label htmlFor="global-auto" className={`text-sm cursor-pointer flex items-center ${
                           settingsMode.charCount === 'platform' || settingsMode.emoji === 'platform' || settingsMode.mdFormat === 'platform'
-                            ? 'text-gray-500'
-                            : 'text-gray-700'
+                            ? 'text-muted-foreground'
+                            : 'text-foreground'
                         }`}>
                           <Hash className="h-3 w-3 mr-1" />
                           全局自动排版
@@ -4083,7 +4055,7 @@ ${charCountControl.source === 'platform-specific'
 
 
                   {/* 平台特定设置 */}
-                  <div className="border-2 border-green-200 bg-green-50/30 rounded-lg p-4">
+                  <div className="border-2 border-border bg-accent rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
                         <Checkbox
@@ -4094,17 +4066,17 @@ ${charCountControl.source === 'platform-specific'
                               handleSettingsModeToggle('platform');
                             }
                           }}
-                          className="data-[state=checked]:bg-green-600 data-[state=checked]:text-white"
+                          className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                         />
-                        <Label htmlFor="platform-settings-mode" className="text-base font-semibold cursor-pointer flex items-center text-green-800">
+                        <Label htmlFor="platform-settings-mode" className="text-base font-semibold cursor-pointer flex items-center text-foreground">
                           <Settings className="h-4 w-4 mr-2" />
                           平台特定设置
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
                         {(settingsMode.charCount === 'global' || settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
-                          <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                            已启用全局设置，平台特定设置已禁用
+                          <div className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded border border-border">
+                            已启用全局设置，全局设置已禁用
                           </div>
                         )}
                       </div>
@@ -4118,7 +4090,7 @@ ${charCountControl.source === 'platform-specific'
                         if (!platform) return null;
 
                         return (
-                          <div key={platformId} className="border rounded-lg p-3 bg-gray-50/50">
+                          <div key={platformId} className="border rounded-lg p-3 bg-accent/50">
                             <div className="flex items-center gap-2 mb-3">
                               {platform.icon}
                               <span className="text-sm font-medium">{platform.name}</span>
@@ -4132,7 +4104,7 @@ ${charCountControl.source === 'platform-specific'
                               <div>
                                 <div className="flex justify-between items-center mb-1">
                                   <Label className={`text-xs ${
-                                    settingsMode.charCount === 'global' ? 'text-gray-400' : ''
+                                    settingsMode.charCount === 'global' ? 'text-muted-foreground' : 'text-foreground'
                                   }`}>
                                     字符数: {settings.charCount || getPlatformRecommendedCharCount(platformId)}
                                   </Label>
@@ -4150,7 +4122,7 @@ ${charCountControl.source === 'platform-specific'
                                       推荐
                                     </Button>
                                     <span className={`text-xs ${
-                                      settingsMode.charCount === 'global' ? 'text-gray-400' : 'text-muted-foreground'
+                                      settingsMode.charCount === 'global' ? 'text-muted-foreground' : 'text-muted-foreground'
                                     }`}>
                                       最大{getPlatformMaxCharCount(platformId)}
                                     </span>
@@ -4176,7 +4148,7 @@ ${charCountControl.source === 'platform-specific'
                                 {/* 字符数限制说明和警告 */}
                                 {settingsMode.charCount !== 'global' && (
                                   <div className="mt-2 space-y-1">
-                                    <div className="text-xs text-gray-600">
+                                    <div className="text-xs text-muted-foreground">
                                       {getPlatformDescription(platformId)}
                                     </div>
                                     {(() => {
@@ -4186,13 +4158,13 @@ ${charCountControl.source === 'platform-specific'
 
                                       if (currentValue > maxChars) {
                                         return (
-                                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                                          <div className="text-xs text-destructive bg-accent px-2 py-1 rounded border border-border">
                                             ⚠️ 超出平台最大限制！将自动调整为{maxChars}字符
                                           </div>
                                         );
                                       } else {
                                         return (
-                                          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                                          <div className="text-xs text-foreground bg-accent px-2 py-1 rounded border border-border">
                                             ✅ 安全区域：{safetyRange.min}-{safetyRange.max}字符（实际生成范围）
                                           </div>
                                         );
@@ -4202,7 +4174,7 @@ ${charCountControl.source === 'platform-specific'
                                 )}
 
                                 {settingsMode.charCount === 'global' && (
-                                  <p className="text-xs text-gray-400 mt-1">已禁用，使用全局字符数设置</p>
+                                  <p className="text-xs text-muted-foreground mt-1">已禁用，使用全局字符数设置</p>
                                 )}
                               </div>
 
@@ -4216,7 +4188,7 @@ ${charCountControl.source === 'platform-specific'
                                     disabled={settingsMode.emoji === 'global'}
                                   />
                                   <Label htmlFor={`${platformId}-emoji`} className={`text-xs cursor-pointer flex items-center ${
-                                    settingsMode.emoji === 'global' ? 'text-gray-400' : ''
+                                    settingsMode.emoji === 'global' ? 'text-muted-foreground' : 'text-foreground'
                                   }`}>
                                     <Smile className="h-3 w-3 mr-1" />
                                     emoji
@@ -4231,7 +4203,7 @@ ${charCountControl.source === 'platform-specific'
                                     disabled={settingsMode.mdFormat === 'global'}
                                   />
                                   <Label htmlFor={`${platformId}-md`} className={`text-xs cursor-pointer flex items-center ${
-                                    settingsMode.mdFormat === 'global' ? 'text-gray-400' : ''
+                                    settingsMode.mdFormat === 'global' ? 'text-muted-foreground' : 'text-foreground'
                                   }`}>
                                     <FileText className="h-3 w-3 mr-1" />
                                     MD格式
@@ -4241,7 +4213,7 @@ ${charCountControl.source === 'platform-specific'
 
                               {/* 全局设置禁用提示 */}
                               {(settingsMode.emoji === 'global' || settingsMode.mdFormat === 'global') && (
-                                <div className="text-xs text-gray-400 mt-2 p-2 bg-gray-50 rounded">
+                                <div className="text-xs text-muted-foreground mt-2 p-2 bg-accent rounded border border-border">
                                   {settingsMode.emoji === 'global' && settingsMode.mdFormat === 'global'
                                     ? '已启用全局emoji和MD格式设置'
                                     : settingsMode.emoji === 'global'
@@ -4253,7 +4225,7 @@ ${charCountControl.source === 'platform-specific'
 
                               {/* 特殊平台提示 */}
                               {isSpecialPlatform && (
-                                <div className="bg-blue-50 p-2 rounded text-xs text-blue-600">
+                                <div className="bg-accent p-2 rounded text-xs text-foreground border border-border">
                                   {platformId === 'zhihu' && '知乎: MD格式优化专业排版，自动排版添加分割线'}
                                   {platformId === 'wechat' && '公众号: MD格式适合深度阅读，专业排版'}
                                   {platformId === 'weibo' && '微博: emoji提升互动性，字数限制2000字'}
@@ -4276,13 +4248,13 @@ ${charCountControl.source === 'platform-specific'
         <Card variant="soft" className="mt-6 rounded-xl">
           <CardHeader>
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">内容形式与表达风格</h3>
-              <span className="text-sm text-gray-600 font-normal">(可选)</span>
+              <h3 className="text-lg font-semibold text-foreground">内容形式与表达风格</h3>
+              <span className="text-sm text-muted-foreground font-normal">(可选)</span>
               {/* Help icon moved to proper position */}
               <Dialog>
                 <SafeTooltip content="查看详细说明">
                   <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600">
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground">
                       <Info className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
@@ -4296,12 +4268,12 @@ ${charCountControl.source === 'platform-specific'
                   </DialogHeader>
                   <div className="space-y-6">
                     {/* Content will be populated by ContentFormSelector */}
-                    <p className="text-sm text-gray-600">详细的内容形式和表达风格说明...</p>
+                    <p className="text-sm text-muted-foreground">详细的内容形式和表达风格说明...</p>
                   </div>
                 </DialogContent>
               </Dialog>
             </div>
-            <CardDescription className="text-gray-600">
+            <CardDescription className="text-muted-foreground">
               如果选择了会按照指定形式和风格生成内容，如果不选择就默认采用原始内容+平台默认风格
             </CardDescription>
           </CardHeader>
@@ -4326,10 +4298,10 @@ ${charCountControl.source === 'platform-specific'
       <Card variant="soft" className="mb-6 rounded-xl">
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 mb-3">
-            <Zap className="h-4 w-4 text-gray-700" />
-            <span className="text-sm font-medium text-gray-900">组合效果预览</span>
+            <Zap className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">组合效果预览</span>
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             <strong>当前配置：</strong>
             原始内容
             {useBrandLibrary && ' + 品牌库'}
@@ -4344,11 +4316,11 @@ ${charCountControl.source === 'platform-specific'
       {/* AI模型选择 */}
       <Card variant="soft" className="mb-6 rounded-xl">
         <CardContent className="pt-6">
-          <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-gray-700" />
+          <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+            <Cpu className="h-4 w-4 text-muted-foreground" />
             AI模型选择
           </h4>
-          <p className="text-xs text-gray-600 mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
+          <p className="text-xs text-muted-foreground mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {allModels.map((model) => {
