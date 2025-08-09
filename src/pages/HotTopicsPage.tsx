@@ -761,18 +761,18 @@ export default function HotTopicsPage() {
           <TabsContent value="hot">
             {/* 错误状态显示 */}
             {error && (
-              <Card className="mb-6 border-red-200 bg-red-50">
+              <Card className="mb-6 border-border bg-accent">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3">
                     <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <TrendingDown className="w-4 h-4 text-red-600" />
+                      <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center border border-border">
+                        <TrendingDown className="w-4 h-4 text-destructive" />
                       </div>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-sm font-medium text-red-800">获取热点数据失败</h3>
-                      <p className="text-sm text-red-700 mt-1">{error}</p>
-                      <p className="text-xs text-red-600 mt-2">
+                      <h3 className="text-sm font-medium text-destructive">获取热点数据失败</h3>
+                      <p className="text-sm text-destructive mt-1">{error}</p>
+                      <p className="text-xs text-muted-foreground mt-2">
                         可能原因：网络连接异常、API服务暂时不可用、或防火墙限制
                       </p>
                     </div>
@@ -781,7 +781,7 @@ export default function HotTopicsPage() {
                       size="sm"
                       onClick={handleRefresh}
                       disabled={refreshing}
-                      className="border-red-300 text-red-700 hover:bg-red-100"
+                      className="border-border text-foreground hover:bg-accent"
                     >
                       <RefreshCw className={`h-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                       重试
@@ -799,14 +799,14 @@ export default function HotTopicsPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="flex items-center gap-2">
-                          <Flame className="w-5 h-5 text-red-500" />
+                          <Flame className="w-5 h-5 text-foreground" />
                           今日最热门话题
                         </CardTitle>
                         <CardDescription>
                           各平台热门话题排行榜
                         </CardDescription>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-muted-foreground">
                         最后更新: {lastUpdateTime.toLocaleString('zh-CN')}（每15分钟自动更新）
                       </div>
                     </div>
@@ -829,8 +829,8 @@ export default function HotTopicsPage() {
                             <div
                               key={index}
                               className={`p-3 rounded-lg border transition-all hover:shadow-md h-48 flex flex-col ${
-                                isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
-                              } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
+                                isTopicRead(topic) ? 'bg-accent opacity-75' : 'bg-card'
+                              } ${isTopicBookmarked(topic) ? 'border-border bg-accent' : 'border-border'}`}
                             >
                               <div className="flex items-center gap-2 mb-2">
                                 <Badge variant="destructive" className="text-xs">
@@ -840,17 +840,17 @@ export default function HotTopicsPage() {
                                   {getPlatformDisplayName(topic.platform || '')}
                                 </Badge>
                               </div>
-                              <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 flex-1">
+                              <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-2 flex-1">
                                 {topic.title}
                               </h4>
-                              <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                                 <span>{formatHotValue(topic.hot)}</span>
                                 <div className="flex items-center gap-1">
                                   {isTopicBookmarked(topic) && (
-                                    <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
+                                    <Bookmark className="w-3 h-3 text-foreground" />
                                   )}
                                   {isTopicRead(topic) && (
-                                    <Eye className="w-3 h-3 text-gray-400" />
+                                    <Eye className="w-3 h-3 text-muted-foreground" />
                                   )}
                                 </div>
                               </div>
@@ -867,7 +867,7 @@ export default function HotTopicsPage() {
                                 <Button
                                   size="sm"
                                   variant={isTopicBookmarked(topic) ? "default" : "outline"}
-                                  className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
+                                  className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
                                   onClick={() => toggleBookmark(topic)}
                                 >
                                   <Bookmark className="w-3 h-3" />
@@ -880,15 +880,15 @@ export default function HotTopicsPage() {
                       {supportedPlatforms.map((platform) => (
                         <TabsContent key={platform} value={platform} className="mt-4">
                           {(allHotData.data[platform] || []).length === 0 ? (
-                            <div className="text-center text-gray-400 py-8">暂无数据</div>
+                            <div className="text-center text-muted-foreground py-8">暂无数据</div>
                           ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                               {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
                                 <div
                                   key={index}
                                   className={`p-3 rounded-lg border transition-all hover:shadow-md h-48 flex flex-col ${
-                                    isTopicRead(topic) ? 'bg-gray-50 opacity-75' : 'bg-white'
-                                  } ${isTopicBookmarked(topic) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}
+                                    isTopicRead(topic) ? 'bg-accent opacity-75' : 'bg-card'
+                                  } ${isTopicBookmarked(topic) ? 'border-border bg-accent' : 'border-border'}`}
                                 >
                                   <div className="flex items-center gap-2 mb-2">
                                     <Badge variant="destructive" className="text-xs">
@@ -898,17 +898,17 @@ export default function HotTopicsPage() {
                                       {getPlatformDisplayName(platform)}
                                     </Badge>
                                   </div>
-                                  <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 flex-1">
+                                  <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-2 flex-1">
                                     {topic.title}
                                   </h4>
-                                  <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                                  <div className="flex items-center justify之间 text-xs text-muted-foreground mb-2">
                                     <span>{formatHotValue(topic.hot)}</span>
                                     <div className="flex items-center gap-1">
                                       {isTopicBookmarked(topic) && (
-                                        <Bookmark className="w-3 h-3 text-yellow-500 fill-current" />
+                                        <Bookmark className="w-3 h-3 text-foreground" />
                                       )}
                                       {isTopicRead(topic) && (
-                                        <Eye className="w-3 h-3 text-gray-400" />
+                                        <Eye className="w-3 h-3 text-muted-foreground" />
                                       )}
                                     </div>
                                   </div>
@@ -965,37 +965,37 @@ export default function HotTopicsPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900">{subscriptionStats.total}</p>
-                    <p className="text-sm text-gray-600">总订阅数</p>
+                    <p className="text-2xl font-bold text-foreground">{subscriptionStats.total}</p>
+                    <p className="text-sm text-muted-foreground">总订阅数</p>
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-green-600">{subscriptionStats.active}</p>
-                    <p className="text-sm text-gray-600">活跃订阅</p>
+                    <p className="text-2xl font-bold text-foreground">{subscriptionStats.active}</p>
+                    <p className="text-sm text-muted-foreground">活跃订阅</p>
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-blue-600">{subscriptionStats.notificationEnabled}</p>
-                    <p className="text-sm text-gray-600">通知开启</p>
+                    <p className="text-2xl font-bold text-foreground">{subscriptionStats.notificationEnabled}</p>
+                    <p className="text-sm text-muted-foreground">通知开启</p>
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-purple-600">
+                    <p className="text-2xl font-bold text-foreground">
                       {Object.values(monitorResults).flat().length}
                     </p>
-                    <p className="text-sm text-gray-600">监控结果</p>
+                    <p className="text-sm text-muted-foreground">监控结果</p>
                   </div>
                 </CardContent>
               </Card>
@@ -1005,9 +1005,9 @@ export default function HotTopicsPage() {
             {subscriptions.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
-                  <BellOff className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">暂无话题订阅</h3>
-                  <p className="text-gray-600 mb-4">
+                  <BellOff className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">暂无话题订阅</h3>
+                  <p className="text-muted-foreground mb-4">
                     创建话题订阅，实时监控感兴趣的内容
                   </p>
                   <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -1023,14 +1023,14 @@ export default function HotTopicsPage() {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Target className="w-5 h-5 text-blue-600" />
+                          <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center border border-border">
+                            <Target className="w-5 h-5 text-foreground" />
                           </div>
                           <div>
-                            <h3 className="font-medium text-gray-900">{subscription.name}</h3>
-                            <p className="text-sm text-gray-600">关键词: {subscription.keyword}</p>
+                            <h3 className="font-medium text-foreground">{subscription.name}</h3>
+                            <p className="text-sm text-muted-foreground">关键词: {subscription.keyword}</p>
                             {subscription.description && (
-                              <p className="text-sm text-gray-500 mt-1">{subscription.description}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{subscription.description}</p>
                             )}
                           </div>
                         </div>
@@ -1064,7 +1064,7 @@ export default function HotTopicsPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteSubscription(subscription.id)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-destructive hover:opacity-90"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -1075,8 +1075,8 @@ export default function HotTopicsPage() {
                     <CardContent>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-500">状态:</span>
-                          <Badge 
+                          <span className="text-muted-foreground">状态:</span>
+                          <Badge
                             variant={subscription.isActive ? "default" : "secondary"}
                             className="ml-2"
                           >
@@ -1084,8 +1084,8 @@ export default function HotTopicsPage() {
                           </Badge>
                         </div>
                         <div>
-                          <span className="text-gray-500">通知:</span>
-                          <Badge 
+                          <span className="text-muted-foreground">通知:</span>
+                          <Badge
                             variant={subscription.notificationEnabled ? "default" : "secondary"}
                             className="ml-2"
                           >
@@ -1093,11 +1093,11 @@ export default function HotTopicsPage() {
                           </Badge>
                         </div>
                         <div>
-                          <span className="text-gray-500">检查间隔:</span>
+                          <span className="text-muted-foreground">检查间隔:</span>
                           <span className="ml-2">{subscription.checkInterval}分钟</span>
                         </div>
                         <div>
-                          <span className="text-gray-500">热度阈值:</span>
+                          <span className="text-muted-foreground">热度阈值:</span>
                           <span className="ml-2">{subscription.minHeatThreshold}-{subscription.maxHeatThreshold}</span>
                         </div>
                       </div>
@@ -1105,18 +1105,18 @@ export default function HotTopicsPage() {
                       {/* 监控结果 */}
                       {monitorResults[subscription.id] && monitorResults[subscription.id].length > 0 && (
                         <div className="mt-4">
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">监控结果</h4>
+                          <h4 className="text-sm font-medium text-foreground mb-2">监控结果</h4>
                           <div className="space-y-2">
                             {monitorResults[subscription.id].slice(0, 3).map((result, index) => (
-                              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                <span className="text-sm">{result.title}</span>
+                              <div key={index} className="flex items-center justify-between p-2 bg-accent rounded border border-border">
+                                <span className="text-sm text-foreground">{result.title}</span>
                                 <Badge variant="outline" className="text-xs">
                                   {result.platform}
                                 </Badge>
                               </div>
                             ))}
                             {monitorResults[subscription.id].length > 3 && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 还有 {monitorResults[subscription.id].length - 3} 个结果...
                               </p>
                             )}
@@ -1135,7 +1135,7 @@ export default function HotTopicsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Bookmark className="w-5 h-5 text-yellow-500" />
+                  <Bookmark className="w-5 h-5 text-foreground" />
                   灵感夹
                 </CardTitle>
                 <CardDescription>
@@ -1145,9 +1145,9 @@ export default function HotTopicsPage() {
               <CardContent>
                 {bookmarkedTopics.size === 0 ? (
                   <div className="text-center py-12">
-                    <Bookmark className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无收藏话题</h3>
-                    <p className="text-gray-600">
+                    <Bookmark className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">暂无收藏话题</h3>
+                    <p className="text-muted-foreground">
                       点击话题右侧的书签图标来收藏感兴趣的内容
                     </p>
               </div>
@@ -1169,15 +1169,15 @@ export default function HotTopicsPage() {
                       if (!topic) return null;
                       
                       return (
-                        <div 
+                        <div
                           key={topicId}
-                          className="p-4 rounded-lg border border-yellow-300 bg-yellow-50 cursor-pointer transition-all hover:shadow-md"
+                          className="p-4 rounded-lg border border-border bg-accent cursor-pointer transition-all hover:shadow-md"
                           onClick={() => handleTopicClick(topic!)}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <Badge className="bg-yellow-500 text-white text-xs">
+                                <Badge className="bg-primary text-primary-foreground text-xs">
                                   <Bookmark className="w-3 h-3 mr-1" />
                                   已收藏
                                 </Badge>
@@ -1191,16 +1191,16 @@ export default function HotTopicsPage() {
                                   </Badge>
                                 )}
                               </div>
-                              <h3 className="font-medium text-gray-900 mb-2">
+                              <h3 className="font-medium text-foreground mb-2">
                                 {topic.title}
                               </h3>
                               {topic.desc && (
-                                <p className="text-sm text-gray-600 mb-2">{topic.desc}</p>
+                                <p className="text-sm text-muted-foreground mb-2">{topic.desc}</p>
                               )}
                               {topic.content && (
-                                <p className="text-sm text-gray-500 mb-2 line-clamp-2">{topic.content}</p>
+                                <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{topic.content}</p>
                               )}
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                 <span>热度: {formatHotValue(topic.hot)}</span>
                                 <span>平台: {getPlatformDisplayName(topic.platform || '')}</span>
                                 {topic.rank && <span>排名: #{topic.rank}</span>}
@@ -1235,7 +1235,7 @@ export default function HotTopicsPage() {
                                   toggleBookmark(topic!);
                                 }}
                               >
-                                <Bookmark className="w-4 h-4 text-yellow-500 fill-current" />
+                                <Bookmark className="w-4 h-4 text-foreground fill-current" />
                               </Button>
                               <Button
                                 variant="ghost"
