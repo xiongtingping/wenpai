@@ -49,35 +49,35 @@ const SettingsPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-sm">
             设置中心
           </h1>
-          <p className="text-gray-600">
+          <p className="text-indigo-100">
             管理您的账户设置和偏好
           </p>
         </div>
 
         {/* 账户信息 */}
-        <Card className="mb-6">
+        <Card variant="soft" className="mb-6 rounded-xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <User className="h-5 w-5 text-gray-700" />
               账户信息
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">用户ID</span>
-                <span className="text-sm font-mono">{user?.id}</span>
+                <span className="text-sm text-gray-700">用户ID</span>
+                <span className="text-sm font-mono text-gray-900">{user?.id}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">邮箱</span>
-                <span className="text-sm">{user?.email}</span>
+                <span className="text-sm text-gray-700">邮箱</span>
+                <span className="text-sm text-gray-900">{user?.email}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">用户名</span>
-                <span className="text-sm">{user?.username || '未设置'}</span>
+                <span className="text-sm text-gray-700">用户名</span>
+                <span className="text-sm text-gray-900">{user?.username || '未设置'}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">VIP状态</span>
+                <span className="text-sm text-gray-700">VIP状态</span>
                 <Badge variant={user?.isVip ? "default" : "secondary"}>
                   {user?.isVip ? "VIP用户" : "普通用户"}
                 </Badge>
@@ -87,13 +87,13 @@ const SettingsPage: React.FC = () => {
         </Card>
 
         {/* 通知设置 */}
-        <Card className="mb-6">
+        <Card variant="soft" className="mb-6 rounded-xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <Bell className="h-5 w-5 text-gray-700" />
               通知设置
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600">
               管理您的通知偏好
             </CardDescription>
           </CardHeader>
@@ -101,8 +101,8 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">推送通知</p>
-                  <p className="text-sm text-gray-600">接收重要更新和提醒</p>
+                  <p className="text-sm font-medium text-gray-900">推送通知</p>
+                  <p className="text-sm text-gray-700">接收重要更新和提醒</p>
                 </div>
                 <Switch
                   checked={notifications}
@@ -114,13 +114,13 @@ const SettingsPage: React.FC = () => {
         </Card>
 
         {/* 应用设置 */}
-        <Card className="mb-6">
+        <Card variant="soft" className="mb-6 rounded-xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <Palette className="h-5 w-5 text-gray-700" />
               应用设置
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600">
               自定义应用行为
             </CardDescription>
           </CardHeader>
@@ -128,8 +128,8 @@ const SettingsPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">自动保存</p>
-                  <p className="text-sm text-gray-600">自动保存您的工作进度</p>
+                  <p className="text-sm font-medium text-gray-900">自动保存</p>
+                  <p className="text-sm text-gray-700">自动保存您的工作进度</p>
                 </div>
                 <Switch
                   checked={autoSave}
@@ -138,8 +138,8 @@ const SettingsPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">深色模式</p>
-                  <p className="text-sm text-gray-600">使用深色主题</p>
+                  <p className="text-sm font-medium text-gray-900">深色模式</p>
+                  <p className="text-sm text-gray-700">使用深色主题</p>
                 </div>
                 <Switch
                   checked={darkMode}
@@ -151,13 +151,13 @@ const SettingsPage: React.FC = () => {
         </Card>
 
         {/* 安全设置 */}
-        <Card className="mb-6">
+        <Card variant="soft" className="mb-6 rounded-xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <Shield className="h-5 w-5 text-gray-700" />
               安全设置
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600">
               管理您的账户安全
             </CardDescription>
           </CardHeader>

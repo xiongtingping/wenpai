@@ -4273,11 +4273,11 @@ ${charCountControl.source === 'platform-specific'
         )}
 
         {/* Content Form Selection */}
-        <Card className="mt-6">
+        <Card variant="soft" className="mt-6 rounded-xl">
           <CardHeader>
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold">内容形式与表达风格</h3>
-              <span className="text-sm text-gray-500 font-normal">(可选)</span>
+              <h3 className="text-lg font-semibold text-gray-900">内容形式与表达风格</h3>
+              <span className="text-sm text-gray-600 font-normal">(可选)</span>
               {/* Help icon moved to proper position */}
               <Dialog>
                 <SafeTooltip content="查看详细说明">
@@ -4301,7 +4301,7 @@ ${charCountControl.source === 'platform-specific'
                 </DialogContent>
               </Dialog>
             </div>
-            <CardDescription>
+            <CardDescription className="text-gray-600">
               如果选择了会按照指定形式和风格生成内容，如果不选择就默认采用原始内容+平台默认风格
             </CardDescription>
           </CardHeader>
@@ -4323,11 +4323,11 @@ ${charCountControl.source === 'platform-specific'
 
 
       {/* 组合效果预览 */}
-      <Card className="mb-6">
+      <Card variant="soft" className="mb-6 rounded-xl">
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 mb-3">
-            <Zap className="h-4 w-4 text-gray-600" />
-            <span className="text-sm font-medium text-gray-700">组合效果预览</span>
+            <Zap className="h-4 w-4 text-gray-700" />
+            <span className="text-sm font-medium text-gray-900">组合效果预览</span>
           </div>
           <p className="text-sm text-gray-600">
             <strong>当前配置：</strong>
@@ -4342,13 +4342,13 @@ ${charCountControl.source === 'platform-specific'
       </Card>
 
       {/* AI模型选择 */}
-      <Card className="mb-6">
+      <Card variant="soft" className="mb-6 rounded-xl">
         <CardContent className="pt-6">
-          <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-            <Cpu className="h-4 w-4" />
+          <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+            <Cpu className="h-4 w-4 text-gray-700" />
             AI模型选择
           </h4>
-          <p className="text-xs text-gray-500 mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
+          <p className="text-xs text-gray-600 mb-3">默认优先调用GPT-4o，备选deepseek v3模型，用户可自行选择自己喜欢的模型生成内容</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {allModels.map((model) => {
@@ -4365,12 +4365,12 @@ ${charCountControl.source === 'platform-specific'
               return (
                 <div
                   key={model.id}
-                  className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
+                  className={`p-3 border rounded-xl cursor-pointer transition-all hover:shadow-e1 ${
                     selectedModel === model.id
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-blue-500 bg-blue-50/80 backdrop-blur-sm'
                       : disabled
-                      ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? 'border-gray-200 bg-gray-100/60 opacity-60 cursor-not-allowed'
+                      : 'border-gray-200 bg-white/90 backdrop-blur-sm hover:border-blue-300'
                   }`}
                   onClick={() => handleModelSelect(model.id, disabled)}
                 >
@@ -4386,12 +4386,12 @@ ${charCountControl.source === 'platform-specific'
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1 mb-1">
-                        <span className="font-medium text-blue-600 text-sm">{model.name}</span>
+                        <span className="font-medium text-blue-700 text-sm">{model.name}</span>
                         {badge && (
-                          <Badge className="bg-gray-200 text-gray-600 text-xs">{badge}</Badge>
+                          <Badge className="bg-gray-200 text-gray-700 text-xs">{badge}</Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 leading-relaxed">{model.description}</p>
+                      <p className="text-xs text-gray-700 leading-relaxed">{model.description}</p>
                       {showUpgradeTip && (
                         <div
                           className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 cursor-pointer hover:bg-yellow-100 transition-colors"

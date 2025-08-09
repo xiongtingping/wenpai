@@ -84,8 +84,8 @@ export function ContentFormSelector({
         <div className="space-y-4">
           {/* 内容形式选择 */}
           <div className="space-y-3">
-            <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-3">
-              <Target className="h-4 w-4" />
+            <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-3">
+              <Target className="h-4 w-4 text-gray-700" />
               请选择内容形式
             </h4>
 
@@ -93,7 +93,7 @@ export function ContentFormSelector({
           <CollapsibleTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-600">请选择内容形式</span>
+                <span className="text-sm font-medium text-gray-700">请选择内容形式</span>
                 {selectedForm && (
                   <Badge variant="secondary" className="ml-2">
                     已选择：{selectedForm.name}
@@ -105,15 +105,15 @@ export function ContentFormSelector({
           </CollapsibleTrigger>
           
           <CollapsibleContent className="space-y-4 mt-4">
-            <div className="text-sm text-gray-600 mb-3">
+            <div className="text-sm text-gray-700 mb-3">
               选择内容形式来定制生成结构和风格（可选，不选择将使用平台默认结构）
             </div>
-            
+
             {contentCategories.map((category) => (
               <div key={category.id} className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{category.icon}</span>
-                  <h4 className="font-medium">{category.name}</h4>
+                  <h4 className="font-medium text-gray-900">{category.name}</h4>
                   <Badge variant="outline" className="text-xs">
                     {category.outputDescription}
                   </Badge>
@@ -121,10 +121,10 @@ export function ContentFormSelector({
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {category.forms.map((form) => (
-                    <Card 
-                      key={form.id} 
-                      className={`cursor-pointer transition-all hover:shadow-md p-3 ${
-                        selectedFormId === form.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                    <Card
+                      key={form.id}
+                      className={`cursor-pointer transition-all hover:shadow-e1 p-3 rounded-xl ${
+                        selectedFormId === form.id ? 'ring-2 ring-blue-500 bg-blue-50/80 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'
                       }`}
                       onClick={() => {
                         const newFormId = selectedFormId === form.id ? undefined : form.id;
@@ -136,12 +136,12 @@ export function ContentFormSelector({
                         <span className="text-base">{form.icon}</span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h5 className="font-medium text-sm">{form.name}</h5>
+                            <h5 className="font-medium text-sm text-gray-900">{form.name}</h5>
                             {selectedFormId === form.id && (
                               <Check className="h-4 w-4 text-blue-600" />
                             )}
                           </div>
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">{form.description}</p>
+                          <p className="text-xs text-gray-700 mt-1 line-clamp-2">{form.description}</p>
                         </div>
                       </div>
                     </Card>
@@ -194,8 +194,8 @@ export function ContentFormSelector({
 
         {/* 表达风格选择 */}
         <div className="space-y-3">
-          <h4 className="text-base font-semibold text-gray-800 flex items-center gap-2 mb-3">
-            <Heart className="h-4 w-4" />
+          <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2 mb-3">
+            <Heart className="h-4 w-4 text-gray-700" />
             请选择表达风格
           </h4>
 
@@ -205,7 +205,7 @@ export function ContentFormSelector({
               <div className="flex items-center gap-2">
                 {selectedStyle ? (
                   <>
-                    <span className="text-sm font-medium text-gray-600">请选择表达风格</span>
+                    <span className="text-sm font-medium text-gray-700">请选择表达风格</span>
                     <Badge variant="secondary" className="ml-2">
                       已选择：{availableStyles.find(s => s.id === selectedStyle)?.name}
                     </Badge>
@@ -219,16 +219,16 @@ export function ContentFormSelector({
           </CollapsibleTrigger>
           
           <CollapsibleContent className="space-y-3 mt-4">
-            <div className="text-sm text-gray-600 mb-3">
+            <div className="text-sm text-gray-700 mb-3">
               选择表达风格来调整语气、情绪和调性
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {availableStyles.map((style) => (
                 <Card
                   key={style.id}
-                  className={`cursor-pointer transition-all hover:shadow-md p-3 ${
-                    selectedStyle === style.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                  className={`cursor-pointer transition-all hover:shadow-e1 p-3 rounded-xl ${
+                    selectedStyle === style.id ? 'ring-2 ring-blue-500 bg-blue-50/80 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'
                   }`}
                   onClick={() => {
                     // 如果点击的是已选中的风格，则取消选择
@@ -243,12 +243,12 @@ export function ContentFormSelector({
                     <span className="text-lg">{style.icon}</span>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h5 className="font-medium text-sm">{style.name}</h5>
+                        <h5 className="font-medium text-sm text-gray-900">{style.name}</h5>
                         {selectedStyle === style.id && (
                           <Check className="h-4 w-4 text-blue-600" />
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 mt-1">{style.description}</p>
+                      <p className="text-xs text-gray-700 mt-1">{style.description}</p>
                       {selectedStyle === style.id && (
                         <p className="text-xs text-blue-600 mt-1 font-medium">
                           点击可取消选择
@@ -299,7 +299,7 @@ export function ContentFormSelector({
 
         {/* 自定义提示词输入 */}
         <div className="mt-6 pt-6 border-t">
-          <Label htmlFor="custom-prompt" className="text-sm font-medium text-gray-700">
+          <Label htmlFor="custom-prompt" className="text-sm font-medium text-gray-900">
             自定义提示词（可选）
           </Label>
           <Textarea
@@ -309,7 +309,7 @@ export function ContentFormSelector({
             placeholder="如：特定的表达方式、关键词、语气风格等..."
             className="mt-2 min-h-[60px] text-sm"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-600 mt-1">
             输入您的个性化创作要求，将与系统提示词结合使用
           </p>
         </div>
