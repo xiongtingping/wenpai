@@ -123,7 +123,7 @@ export function Header() {
   };
   
   return (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+    <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 shadow-e0">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - 清晰的熊猫Logo */}
         <Link to="/" className="flex items-center space-x-3 group">

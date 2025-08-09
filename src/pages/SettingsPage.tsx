@@ -38,14 +38,15 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Settings className="h-16 w-16 text-blue-500" />
+            <Settings className="h-16 w-16 text-white drop-shadow-sm" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-sm">
             设置中心
           </h1>
           <p className="text-gray-600">
@@ -187,6 +188,7 @@ const SettingsPage: React.FC = () => {
             退出登录
           </Button>
         </div>
+      </div>
       </div>
     </div>
   );

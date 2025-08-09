@@ -130,37 +130,38 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-primary particle-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">加载历史记录中...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="mt-4 text-white">加载历史记录中...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">历史记录</h1>
-        <p className="text-gray-600">
-          查看您之前生成的内容适配记录
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-sm">历史记录</h1>
+          <p className="text-indigo-100">
+            查看您之前生成的内容适配记录
+          </p>
+        </div>
 
-      {history.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">暂无历史记录</h3>
-            <p className="text-gray-600 mb-4">
-              您还没有生成过内容，快去试试内容适配功能吧！
-            </p>
-            <Button onClick={() => window.location.href = '/adapt'}>
-              开始生成内容
-            </Button>
-          </CardContent>
-        </Card>
+        {history.length === 0 ? (
+          <Card variant="soft" className="rounded-xl">
+            <CardContent className="text-center py-12">
+              <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">暂无历史记录</h3>
+              <p className="text-gray-600 mb-4">
+                您还没有生成过内容，快去试试内容适配功能吧！
+              </p>
+              <Button variant="gradient" onClick={() => window.location.href = '/adapt'}>
+                开始生成内容
+              </Button>
+            </CardContent>
+          </Card>
       ) : (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
@@ -169,8 +170,8 @@ export default function HistoryPage() {
                 共 {history.length} 条记录
               </Badge>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="soft"
               onClick={clearAllHistory}
               className="text-red-600 hover:text-red-700"
             >
@@ -181,7 +182,7 @@ export default function HistoryPage() {
 
           <div className="grid gap-4">
             {history.map((item, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
+              <Card key={index} variant="soft" className="rounded-xl hover:shadow-e2 transition-smooth">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
@@ -223,6 +224,7 @@ export default function HistoryPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
-} 
+}

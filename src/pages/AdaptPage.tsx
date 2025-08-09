@@ -3812,7 +3812,7 @@ ${charCountControl.source === 'platform-specific'
   console.log('AdaptPage rendering...', { generating, results: results.length });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       {/* 页面导航 */}
       <PageNavigation
         title="AI内容适配器"
@@ -3822,7 +3822,7 @@ ${charCountControl.source === 'platform-specific'
           <div className="flex items-center space-x-3">
             {/* History Button */}
             <Button
-              variant="outline"
+              variant="soft"
               size="sm"
               onClick={() => navigate('/history')}
               className="flex items-center space-x-2"
@@ -3838,7 +3838,7 @@ ${charCountControl.source === 'platform-specific'
 
       {/* Content Creation Section */}
       <div className="mb-8">
-        <Card>
+        <Card variant="soft" className="rounded-xl">
           <CardHeader>
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">输入原始内容</h1>
@@ -3881,7 +3881,7 @@ ${charCountControl.source === 'platform-specific'
             </div>
           </CardContent>
         </Card>
-        <Card className="mt-4">
+        <Card variant="soft" className="mt-4 rounded-xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <Checkbox 

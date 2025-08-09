@@ -15,7 +15,7 @@ import PageNavigation from '@/components/layout/PageNavigation';
  */
 const AboutPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       <PageNavigation
         title="关于我们"
         description="了解文派的使命和团队"
@@ -25,7 +25,7 @@ const AboutPage: React.FC = () => {
 
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* 团队介绍 */}
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <Card variant="gradient" className="rounded-xl">
           <CardContent className="p-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">文派 - AI内容创作平台</h1>
@@ -38,10 +38,10 @@ const AboutPage: React.FC = () => {
 
         {/* 核心价值 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="text-center">
+          <Card variant="soft" className="text-center rounded-xl">
             <CardContent className="p-6">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4 shadow-e0">
+                <Lightbulb className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold mb-2">创新驱动</h3>
               <p className="text-gray-600 text-sm">持续探索AI技术在内容创作领域的无限可能</p>

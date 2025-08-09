@@ -183,9 +183,9 @@ export const FeaturesSection: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+    <section className="py-16 relative overflow-hidden">
       {/* 背景装饰 - 顶部淡渐变色块 */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-blue-50/30 to-transparent"></div>
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-indigo-50/30 to-transparent"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         {/* 1️⃣ Banner 标题区域优化 */}
@@ -225,10 +225,10 @@ export const FeaturesSection: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mainFeatures.map((feature, index) => (
-              <Card 
-                key={index} 
-                variant="interactive" 
-                className="group animate-slideUp"
+              <Card
+                key={index}
+                variant="soft"
+                className="group animate-slideUp rounded-xl"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <CardHeader className="relative overflow-hidden">

@@ -1990,7 +1990,7 @@ export default function BrandLibraryPageFixed() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-primary particle-background">
       <PageNavigation
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"

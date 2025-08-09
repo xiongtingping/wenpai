@@ -61,7 +61,8 @@ const VIPPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="min-h-screen bg-gradient-primary particle-background">
+      <div className="container mx-auto py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-8">
