@@ -17,7 +17,13 @@ module.exports = {
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				// Modern Flat + Soft Neumorphism 圆角系统
+				'xs': '8px',
+				'sm': '12px',
+				'md': '16px',
+				'lg': '20px',
+				'xl': '24px'
 			},
 			colors: {
 				background: 'hsl(var(--background))',
@@ -84,6 +90,18 @@ module.exports = {
 					900: 'hsl(45, 30%, 15%)',
 					950: 'hsl(45, 20%, 10%)'
 				}
+			},
+			// Modern Flat + Soft Neumorphism 阴影系统
+			boxShadow: {
+				'e0': 'var(--shadow-e0)',
+				'e1': 'var(--shadow-e1)',
+				'e2': 'var(--shadow-e2)',
+				'glow': 'var(--shadow-glow)',
+				'glow-secondary': 'var(--shadow-glow-secondary)',
+				'glow-accent': 'var(--shadow-glow-accent)',
+				'inset-soft': 'var(--inset-soft)',
+				'inset-deep': 'var(--inset-deep)',
+				'highlight': 'var(--highlight)'
 			},
 			keyframes: {
 				'accordion-down': {

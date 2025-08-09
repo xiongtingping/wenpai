@@ -150,25 +150,24 @@ export function TokenUsageSection({
 
   return (
     <div className={`${className}`}>
-      <Card className="h-full flex flex-col bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-cyan-50/30 to-indigo-50/50 pointer-events-none"></div>
-        <CardHeader className="bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-600 text-white relative z-10">
+      <Card variant="soft" className="h-full flex flex-col rounded-xl overflow-hidden relative">
+        <CardHeader className="bg-gradient-secondary text-white relative z-10 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
                 <Database className="w-6 h-6 drop-shadow-sm" />
               </div>
               <div>
                 <div className="text-xl font-bold drop-shadow-sm">使用统计</div>
-                <div className="text-blue-100 text-sm font-normal">{planName} - 查看您的使用情况</div>
+                <div className="text-cyan-100 text-sm font-normal">{planName} - 查看您的使用情况</div>
               </div>
             </div>
             <Button
-              variant="outline"
+              variant="soft"
               size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 rounded-xl shadow-lg transition-all duration-300"
+              className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 rounded-lg"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
@@ -186,11 +185,10 @@ export function TokenUsageSection({
               {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
               <div className="flex-1 space-y-4">
                 {/* Token使用量统计卡片 */}
-                <div className="bg-gradient-to-br from-purple-50/80 via-blue-50/60 to-indigo-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-blue-100/20 pointer-events-none"></div>
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border border-purple-200 shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
                         <Zap className="w-5 h-5 text-white drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
@@ -236,9 +234,9 @@ export function TokenUsageSection({
                   </div>
 
                   {/* Token继承说明 */}
-                  <div className="mt-3 bg-gradient-to-r from-blue-50/80 to-purple-50/80 backdrop-blur-sm border border-blue-200/50 rounded-xl p-3 relative z-10">
+                  <div className="mt-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3 relative z-10 shadow-e0">
                     <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5 flex-shrink-0 shadow-lg">
+                      <div className="w-5 h-5 bg-gradient-primary rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5 flex-shrink-0">
                         ℹ️
                       </div>
                       <div className="text-sm text-gray-700">
@@ -250,11 +248,10 @@ export function TokenUsageSection({
                 </div>
 
                 {/* 使用次数统计卡片 */}
-                <div className="bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/20 to-cyan-100/20 pointer-events-none"></div>
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-10 h-10 bg-gradient-success rounded-lg flex items-center justify-center shadow-e0">
                         <Target className="w-5 h-5 text-white drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">

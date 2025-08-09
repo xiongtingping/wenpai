@@ -8,26 +8,43 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-border bg-card",
-        elevated: "border-border bg-card shadow-md hover:shadow-lg transform hover:scale-105",
+        default: "border-border bg-card shadow-e0",
+        elevated: "border-border bg-card shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
         outlined: "border-2 border-border bg-transparent",
-        glass: "border border-white/20 bg-white/10 backdrop-blur-md",
-        gradient: "border-0 bg-gradient-to-br from-blue-50 to-purple-50",
-        premium: "border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50 shadow-lg",
-        success: "border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50",
-        warning: "border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-red-50",
-        info: "border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50",
-        interactive: "border-border bg-card shadow-sm hover:shadow-lg hover:border-primary/50 transform hover:scale-105 cursor-pointer transition-all duration-300",
-        floating: "border-border bg-card shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500",
-        neon: "border-2 border-blue-500/50 bg-card shadow-lg hover:shadow-glow hover:border-blue-500 transform hover:scale-105",
-        neonPurple: "border-2 border-purple-500/50 bg-card shadow-lg hover:shadow-glow-purple hover:border-purple-500 transform hover:scale-105",
-        neonGreen: "border-2 border-green-500/50 bg-card shadow-lg hover:shadow-glow-green hover:border-green-500 transform hover:scale-105",
-        soft: "border border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transform hover:scale-105",
-        dark: "border border-gray-700 bg-gray-900 text-white shadow-lg hover:shadow-xl transform hover:scale-105",
-        light: "border border-gray-200 bg-gray-50 shadow-sm hover:shadow-md transform hover:scale-105",
-        glassBlue: "border border-blue-500/20 bg-blue-500/5 backdrop-blur-md shadow-sm hover:shadow-md transform hover:scale-105",
-        glassPurple: "border border-purple-500/20 bg-purple-500/5 backdrop-blur-md shadow-sm hover:shadow-md transform hover:scale-105",
-        glassGreen: "border border-green-500/20 bg-green-500/5 backdrop-blur-md shadow-sm hover:shadow-md transform hover:scale-105",
+
+        // 🎨 Modern Flat + Soft Neumorphism 新增变体
+        soft: "border border-gray-200 bg-gradient-to-b from-white to-gray-50 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5 [box-shadow:var(--shadow-e1),inset_0_1px_0_rgba(255,255,255,0.9)] hover:[box-shadow:var(--shadow-e2),inset_0_1px_0_rgba(255,255,255,0.9)]",
+        neumorph: "border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-100 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5 [box-shadow:var(--shadow-e1),inset_0_2px_4px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.9)]",
+
+        // 统一渐变变体
+        gradient: "border-0 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        gradientSecondary: "border-0 bg-gradient-to-br from-cyan-50 to-teal-50 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        gradientAccent: "border-0 bg-gradient-to-br from-amber-50 to-orange-50 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+
+        // 玻璃效果变体
+        glass: "border border-white/20 bg-white/10 backdrop-blur-md shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        glassBlue: "border border-blue-500/20 bg-blue-500/5 backdrop-blur-md shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        glassPurple: "border border-purple-500/20 bg-purple-500/5 backdrop-blur-md shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        glassGreen: "border border-green-500/20 bg-green-500/5 backdrop-blur-md shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+
+        // 语义化变体
+        premium: "border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50 shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
+        success: "border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        warning: "border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-red-50 shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
+        info: "border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+
+        // 交互变体
+        interactive: "border-border bg-card shadow-e0 hover:shadow-e2 hover:border-primary/50 hover:-translate-y-0.5 cursor-pointer",
+        floating: "border-border bg-card shadow-e1 hover:shadow-e2 hover:-translate-y-1",
+
+        // 发光变体
+        neon: "border-2 border-blue-500/50 bg-card shadow-e1 hover:shadow-glow hover:border-blue-500 hover:-translate-y-0.5",
+        neonPurple: "border-2 border-purple-500/50 bg-card shadow-e1 hover:shadow-glow hover:border-purple-500 hover:-translate-y-0.5",
+        neonGreen: "border-2 border-green-500/50 bg-card shadow-e1 hover:shadow-glow hover:border-green-500 hover:-translate-y-0.5",
+
+        // 主题变体
+        dark: "border border-gray-700 bg-gray-900 text-white shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        light: "border border-gray-200 bg-gray-50 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
       },
       size: {
         default: "p-6",

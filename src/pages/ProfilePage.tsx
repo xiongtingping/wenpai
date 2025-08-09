@@ -682,14 +682,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* 背景装饰元素 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute top-1/4 right-0 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl transform translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-gradient-to-br from-emerald-200/30 to-teal-200/30 rounded-full blur-3xl transform translate-y-1/2"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-br from-orange-200/30 to-red-200/30 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-primary particle-background geometric-rays relative overflow-hidden">
+      {/* 🎨 Modern Flat + Soft Neumorphism 背景装饰 - 统一轻量化 */}
       <div className="relative z-10">
         <PageNavigation
           title="个人中心"
@@ -702,19 +696,18 @@ export default function ProfilePage() {
       {/* 使用更宽的容器，减少两侧空白 */}
       <div className="max-w-7xl mx-auto px-4 py-8">
 
-        {/* 精简的个人资料区域 - 减少高度占用 */}
+        {/* 🎨 个人资料区域 - Modern Flat + Soft Neumorphism */}
         <div className="mb-6">
-          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-indigo-50/50 pointer-events-none"></div>
-            <CardHeader className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 text-white relative z-10">
+          <Card variant="soft" className="rounded-xl overflow-hidden relative">
+            <CardHeader className="bg-gradient-primary text-white relative z-10 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
                     <User className="w-6 h-6 drop-shadow-sm" />
                   </div>
                   <div>
                     <div className="text-xl font-bold drop-shadow-sm">个人资料</div>
-                    <div className="text-blue-100 text-sm font-normal">管理您的个人信息</div>
+                    <div className="text-indigo-100 text-sm font-normal">管理您的个人信息</div>
                   </div>
                 </div>
               </div>
@@ -726,11 +719,11 @@ export default function ProfilePage() {
 
                 {/* 左侧：头像和基本信息 */}
                 <div className="lg:col-span-1">
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-5 border-2 border-blue-100">
+                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100 shadow-e0">
                     <div className="text-center space-y-3">
                       {/* 头像区域 */}
                       <div className="relative inline-block">
-                        <Avatar key={avatarKey} className="w-20 h-20 border-4 border-blue-200">
+                        <Avatar key={avatarKey} className="w-20 h-20 border-2 border-indigo-200 shadow-e1">
                           <AvatarImage
                             src={getCurrentFormAvatar()}
                             alt={getUserAltText(user, '头像')}
@@ -746,7 +739,7 @@ export default function ProfilePage() {
                               console.log('✅ 头像加载成功:', getCurrentFormAvatar());
                             }}
                           />
-                          <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
+                          <AvatarFallback className="text-lg bg-indigo-100 text-indigo-600">
                             {getCurrentAvatarFallback()}
                           </AvatarFallback>
                         </Avatar>
@@ -756,8 +749,8 @@ export default function ProfilePage() {
                               <TooltipTrigger asChild>
                                 <Button
                                   size="sm"
-                                  variant="secondary"
-                                  className="w-8 h-8 rounded-full p-0 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg border-2 border-white transition-all duration-300"
+                                  variant="gradient"
+                                  className="w-8 h-8 rounded-full p-0 border-2 border-white"
                                   onClick={() => {
                                     console.log('🎯 点击随机头像按钮');
                                     console.log('🎯 当前头像URL:', getCurrentFormAvatar());
@@ -783,10 +776,10 @@ export default function ProfilePage() {
                         <div className="flex flex-wrap gap-1 justify-center mb-3">
                           <Badge
                             variant="secondary"
-                            className={`text-xs ${
-                              userStats.accountType === '体验版' ? 'bg-orange-100 text-orange-700 border-orange-200' :
-                              userStats.accountType === '专业版' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                              'bg-purple-100 text-purple-700 border-purple-200'
+                            className={`text-xs border ${
+                              userStats.accountType === '体验版' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                              userStats.accountType === '专业版' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                              'bg-purple-50 text-purple-700 border-purple-200'
                             }`}
                           >
                             <Crown className="w-3 h-3 mr-1" />
@@ -796,10 +789,10 @@ export default function ProfilePage() {
 
                         {/* 上传头像按钮 */}
                         <Button
-                          variant="outline"
+                          variant="soft"
                           size="sm"
                           onClick={handleUploadAvatar}
-                          className="bg-white border-blue-200 text-blue-600 hover:bg-blue-50 h-8 text-xs"
+                          className="h-8 text-xs"
                         >
                           <Upload className="w-3 h-3 mr-1" />
                           上传头像
@@ -810,21 +803,21 @@ export default function ProfilePage() {
 
                   {/* 用户统计信息卡片 */}
                   <div className="mt-4 grid grid-cols-1 gap-3">
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-3 border-2 border-gray-200">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-3 border border-gray-200 shadow-e0">
                       <div className="text-gray-600 text-xs mb-1 flex items-center gap-2">
                         <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                         用户ID
                       </div>
-                      <div className="font-mono text-sm font-semibold text-gray-800 break-all">{userStats.userId}</div>
+                      <div className="font-mono text-sm font-semibold text-gray-800 break-all tabular-nums">{userStats.userId}</div>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border-2 border-purple-200">
+                    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-3 border border-purple-200 shadow-e0">
                       <div className="text-purple-600 text-xs mb-1 flex items-center gap-2">
                         <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                         已陪伴
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-purple-200 hover:bg-purple-300 transition-colors">
+                              <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-purple-200 hover:bg-purple-300 transition-smooth">
                                 <span className="text-xs">ℹ️</span>
                               </button>
                             </TooltipTrigger>
@@ -834,13 +827,13 @@ export default function ProfilePage() {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                      <div className="text-base font-semibold text-purple-800">{companionDays}天</div>
+                      <div className="text-base font-semibold text-purple-800 tabular-nums">{companionDays}天</div>
                     </div>
                   </div>
                 </div>
                 {/* 右侧：表单区域 */}
                 <div className="md:col-span-1">
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-5 border-2 border-gray-200 h-full">
+                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 h-full shadow-e0">
                     <h3 className="text-base font-bold text-gray-800 mb-4">
                       编辑信息
                     </h3>
@@ -856,7 +849,7 @@ export default function ProfilePage() {
                           value={profileForm.nickname}
                           onChange={(e) => handleFormChange('nickname', e.target.value)}
                           placeholder="请输入昵称"
-                          className="h-9 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-0 transition-colors bg-white text-sm"
+                          className="h-9 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition-smooth bg-white text-sm"
                         />
                       </div>
 
@@ -874,15 +867,15 @@ export default function ProfilePage() {
                             value={profileForm.phone}
                             onChange={(e) => handleFormChange('phone', e.target.value)}
                             placeholder="请输入手机号"
-                            className="h-9 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-0 transition-colors bg-white text-sm flex-1"
+                            className="h-9 border border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 transition-smooth bg-white text-sm flex-1"
                             disabled={verificationStatus.phone}
                           />
                           <Button
-                            variant="outline"
+                            variant="soft"
                             size="sm"
                             onClick={showVerificationInput.phone ? handleVerifyPhone : handleSendPhoneCode}
                             disabled={isVerifyingPhone || !profileForm.phone || verificationStatus.phone}
-                            className="h-9 px-3 border-2 border-green-300 hover:border-green-500 hover:bg-green-50 text-green-600 rounded-lg transition-all duration-200 text-xs"
+                            className="h-9 px-3 text-emerald-600 hover:text-emerald-700 text-xs"
                           >
                             {isVerifyingPhone ? (
                               <RefreshCw className="w-3 h-3 animate-spin" />
@@ -903,7 +896,7 @@ export default function ProfilePage() {
                               value={verificationCodes.phone}
                               onChange={(e) => setVerificationCodes(prev => ({ ...prev, phone: e.target.value }))}
                               placeholder="请输入短信验证码"
-                              className="h-9 border-2 border-green-200 rounded-lg focus:border-green-500 focus:ring-0 transition-colors bg-green-50 text-sm"
+                              className="h-9 border border-emerald-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 transition-smooth bg-emerald-50 text-sm"
                               maxLength={6}
                             />
                           </div>
@@ -925,15 +918,15 @@ export default function ProfilePage() {
                             value={profileForm.email}
                             onChange={(e) => handleFormChange('email', e.target.value)}
                             placeholder="请输入邮箱"
-                            className="h-9 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-0 transition-colors bg-white text-sm flex-1"
+                            className="h-9 border border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/25 transition-smooth bg-white text-sm flex-1"
                             disabled={verificationStatus.email}
                           />
                           <Button
-                            variant="outline"
+                            variant="soft"
                             size="sm"
                             onClick={showVerificationInput.email ? handleVerifyEmail : handleSendEmailCode}
                             disabled={isVerifyingEmail || !profileForm.email || verificationStatus.email}
-                            className="h-9 px-3 border-2 border-purple-300 hover:border-purple-500 hover:bg-purple-50 text-purple-600 rounded-lg transition-all duration-200 text-xs"
+                            className="h-9 px-3 text-purple-600 hover:text-purple-700 text-xs"
                           >
                             {isVerifyingEmail ? (
                               <RefreshCw className="w-3 h-3 animate-spin" />
@@ -954,7 +947,7 @@ export default function ProfilePage() {
                               value={verificationCodes.email}
                               onChange={(e) => setVerificationCodes(prev => ({ ...prev, email: e.target.value }))}
                               placeholder="请输入邮箱验证码"
-                              className="h-9 border-2 border-purple-200 rounded-lg focus:border-purple-500 focus:ring-0 transition-colors bg-purple-50 text-sm"
+                              className="h-9 border border-purple-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/25 transition-smooth bg-purple-50 text-sm"
                               maxLength={6}
                             />
                           </div>
@@ -997,11 +990,8 @@ export default function ProfilePage() {
                       <div className="pt-3 border-t border-gray-200">
                         <Button
                           onClick={handleSaveProfile}
-                          className={`w-full h-10 font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-sm ${
-                            hasUnsavedChanges
-                              ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white animate-pulse'
-                              : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white'
-                          }`}
+                          variant={hasUnsavedChanges ? "gradientAccent" : "gradient"}
+                          className={`w-full h-10 font-semibold text-sm ${hasUnsavedChanges ? 'animate-pulse' : ''}`}
                           disabled={!hasUnsavedChanges || isSaving}
                         >
                           {isSaving ? (
@@ -1048,24 +1038,23 @@ export default function ProfilePage() {
 
           {/* 右侧：邀请奖励 */}
           <div className="lg:col-span-1 flex">
-            <Card className="w-full h-full flex flex-col bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-2xl overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-orange-50/30 to-red-50/50 pointer-events-none"></div>
-              <CardHeader className="bg-gradient-to-r from-pink-500 via-rose-500 to-orange-500 text-white relative z-10">
+            <Card variant="soft" className="w-full h-full flex flex-col rounded-xl overflow-hidden relative">
+              <CardHeader className="bg-gradient-accent text-white relative z-10 rounded-t-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
                       <Gift className="w-6 h-6 drop-shadow-sm" />
                     </div>
                     <div>
                       <div className="text-xl font-bold drop-shadow-sm">邀请奖励</div>
-                      <div className="text-pink-100 text-sm font-normal">邀请好友获得免费次数</div>
+                      <div className="text-orange-100 text-sm font-normal">邀请好友获得免费次数</div>
                     </div>
                   </div>
                   <Button
-                    variant="outline"
+                    variant="soft"
                     size="sm"
                     onClick={handleCopyInviteLink}
-                    className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 rounded-xl shadow-lg transition-all duration-300"
+                    className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 rounded-lg"
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
@@ -1075,8 +1064,7 @@ export default function ProfilePage() {
                 {/* 邀请统计卡片 - 优化布局密度以平衡左侧 */}
                 <div className="flex-1 space-y-4">
                   {/* 邀请奖励规则卡片 - 减少高度 */}
-                  <div className="bg-gradient-to-br from-orange-50/80 via-pink-50/60 to-red-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-100/20 to-pink-100/20 pointer-events-none"></div>
+                  <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-200 shadow-e1 relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-3 relative z-10">
                       <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
                         <Award className="w-5 h-5 text-white drop-shadow-sm" />
@@ -1089,24 +1077,23 @@ export default function ProfilePage() {
                   </div>
 
                   {/* 邀请统计和邀请链接合并卡片 - 提高空间利用率 */}
-                  <div className="bg-gradient-to-br from-cyan-50/80 via-blue-50/60 to-indigo-50/80 backdrop-blur-sm rounded-2xl p-5 border-0 shadow-xl relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-100/20 to-blue-100/20 pointer-events-none"></div>
+                  <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-5 border border-cyan-200 shadow-e1 relative overflow-hidden">
                     {/* 邀请统计部分 */}
                     <div className="mb-5 relative z-10">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <div className="w-10 h-10 bg-gradient-secondary rounded-lg flex items-center justify-center shadow-e0">
                           <Users className="w-5 h-5 text-white drop-shadow-sm" />
                         </div>
                         <h3 className="font-bold text-gray-800 text-lg">邀请统计</h3>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="text-center p-3 bg-gradient-to-br from-cyan-100/50 to-blue-100/50 backdrop-blur-sm border-0 rounded-xl shadow-lg">
-                          <div className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-1">0</div>
+                        <div className="text-center p-3 bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg shadow-e0">
+                          <div className="text-xl font-bold text-cyan-600 mb-1 tabular-nums">0</div>
                           <div className="text-sm font-medium text-gray-600">成功邀请</div>
                         </div>
-                        <div className="text-center p-3 bg-gradient-to-br from-blue-100/50 to-indigo-100/50 backdrop-blur-sm border-0 rounded-xl shadow-lg">
-                          <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">0</div>
+                        <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-e0">
+                          <div className="text-xl font-bold text-blue-600 mb-1 tabular-nums">0</div>
                           <div className="text-sm font-medium text-gray-600">获得次数</div>
                         </div>
                       </div>
@@ -1115,7 +1102,7 @@ export default function ProfilePage() {
                     {/* 邀请链接部分 */}
                     <div className="relative z-10">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <div className="w-10 h-10 bg-gradient-success rounded-lg flex items-center justify-center shadow-e0">
                           <Copy className="w-5 h-5 text-white drop-shadow-sm" />
                         </div>
                         <h3 className="font-bold text-gray-800 text-lg">邀请链接</h3>
@@ -1125,13 +1112,13 @@ export default function ProfilePage() {
                         <Input
                           value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`}
                           readOnly
-                          className="text-sm h-11 border-0 rounded-xl bg-gradient-to-r from-emerald-50/80 to-teal-50/80 backdrop-blur-sm font-mono flex-1 shadow-inner"
+                          className="text-sm h-11 border border-emerald-200 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 font-mono flex-1"
                         />
                         <Button
-                          variant="outline"
+                          variant="gradientSuccess"
                           size="sm"
                           onClick={handleCopyInviteLink}
-                          className="h-11 px-4 border-0 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl shadow-lg transition-all duration-300"
+                          className="h-11 px-4 rounded-lg"
                         >
                           <Copy className="w-4 h-4" />
                         </Button>

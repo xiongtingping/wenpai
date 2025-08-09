@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8 particle-background">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
@@ -109,8 +109,9 @@ const HeroSection: React.FC = () => {
             <div className="relative group inline-block">
               <Button
                 onClick={handleButtonClick}
+                variant="gradient"
                 size="lg"
-                className="relative inline-flex items-center justify-center bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white px-14 py-6 text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-3xl border-0 overflow-hidden group/button min-h-[4rem]"
+                className="relative inline-flex items-center justify-center px-14 py-6 text-xl font-bold rounded-xl overflow-hidden group/button min-h-[4rem]"
               >
                 <span className="relative z-10 hero-button-content gap-3">
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,8 +124,6 @@ const HeroSection: React.FC = () => {
                 </span>
                 {/* 动态背景效果 */}
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
-                {/* 增强光晕效果 */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur-lg opacity-40 group-hover/button:opacity-70 transition-all duration-300 animate-pulse"></div>
                 {/* 闪烁效果 */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
               </Button>
@@ -138,9 +137,9 @@ const HeroSection: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* 快速生成 */}
               <div className="group relative">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200 hover:border-blue-300 transition-all duration-300 hover:shadow-lg">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200 hover:border-blue-300 transition-smooth shadow-e0 hover:shadow-e1">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-smooth shadow-e0">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>

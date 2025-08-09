@@ -15,9 +15,9 @@ function HomePage() {
   useScrollAnimation()
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-primary">
       {/* 页面访问记录 */}
-      <PageTracker 
+      <PageTracker
         title="文派 - AI驱动的创意内容平台"
         description="专业的AI内容创作工具，助力品牌营销和内容创作"
         metadata={{
@@ -26,42 +26,42 @@ function HomePage() {
           pageType: 'home'
         }}
       />
-      
+
       <Header />
-      
+
       <main className="flex-1 w-full">
-        {/* Hero Section - 白色背景 */}
-        <div className="bg-white">
+        {/* Hero Section - 渐变背景 */}
+        <div className="bg-gradient-primary">
           <HeroSection />
         </div>
-        
-        {/* Trust Section - 浅灰背景 */}
-        <div className="bg-gray-50 py-16">
+
+        {/* Trust Section - 白色背景 */}
+        <div className="bg-white py-16">
           <TrustSection />
         </div>
-        
-        {/* How It Works - 白色背景 */}
-        <div className="bg-white py-20">
+
+        {/* How It Works - 浅灰背景 */}
+        <div className="bg-gray-50 py-20">
           <HowItWorks />
         </div>
-        
-        {/* Features Section - 浅灰背景 */}
-        <div className="bg-gray-50 py-20">
+
+        {/* Features Section - 白色背景 */}
+        <div className="bg-white py-20">
           <FeaturesSection />
         </div>
         
-        {/* Testimonials Section - 白色背景 */}
-        <div className="bg-white py-20">
+        {/* Testimonials Section - 浅灰背景 */}
+        <div className="bg-gray-50 py-20">
           <TestimonialsSection />
         </div>
-        
-        {/* Pricing Section - 浅灰背景 */}
-        <div className="bg-gray-50 py-20">
+
+        {/* Pricing Section - 白色背景 */}
+        <div className="bg-white py-20">
           <PricingSection />
         </div>
-        
-        {/* CTA Section - 白色背景 */}
-        <div className="bg-white py-20">
+
+        {/* CTA Section - 渐变背景 */}
+        <div className="bg-gradient-primary py-20">
           <CTASection />
         </div>
       </main>
