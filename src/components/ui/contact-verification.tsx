@@ -196,7 +196,7 @@ export function ContactVerification({
             <Phone className="h-5 w-5" />
             手机号验证
             {phoneVerified && (
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
+              <Badge variant="secondary" className="bg-accent text-foreground border border-border">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 已验证
               </Badge>
@@ -252,9 +252,9 @@ export function ContactVerification({
           )}
 
           {phoneVerified && (
-            <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-700">手机号已验证：{phone}</span>
+            <div className="flex items-center gap-2 p-3 bg-accent border border-border rounded-lg">
+              <CheckCircle className="h-4 w-4 text-foreground" />
+              <span className="text-sm text-foreground">手机号已验证：{phone}</span>
             </div>
           )}
         </CardContent>
@@ -267,7 +267,7 @@ export function ContactVerification({
             <Mail className="h-5 w-5" />
             邮箱验证
             {emailVerified && (
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
+              <Badge variant="secondary" className="bg-accent text-foreground border border-border">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 已验证
               </Badge>
@@ -299,16 +299,16 @@ export function ContactVerification({
           </div>
 
           {emailVerified && (
-            <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-700">邮箱已验证：{email}</span>
+            <div className="flex items-center gap-2 p-3 bg-accent border border-border rounded-lg">
+              <CheckCircle className="h-4 w-4 text-foreground" />
+              <span className="text-sm text-foreground">邮箱已验证：{email}</span>
             </div>
           )}
         </CardContent>
       </Card>
 
       {/* 提示信息 */}
-      <div className="text-xs text-gray-500 space-y-1">
+      <div className="text-xs text-muted-foreground space-y-1">
         <p>• 手机验证码有效期为5分钟</p>
         <p>• 测试环境验证码统一为：123456</p>
         <p>• 验证成功后联系方式将自动保存</p>
