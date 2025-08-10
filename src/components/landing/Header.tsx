@@ -123,7 +123,7 @@ export function Header() {
   };
   
   return (
-    <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 shadow-e0">
+    <header className="bg-background/90 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-e0">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - 清晰的熊猫Logo */}
         <Link to="/" className="flex items-center space-x-3 group">
@@ -137,13 +137,13 @@ export function Header() {
               />
             </div>
           </div>
-          <span className="font-bold text-xl bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">文派</span>
+          <span className="font-bold text-xl text-foreground">文派</span>
         </Link>
         
         {/* Desktop Menu */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-6">
-            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               console.log('Header AI内容适配器按钮被点击');
               console.log('当前认证状态:', isAuthenticated);
 
@@ -167,7 +167,7 @@ export function Header() {
             }}>
               AI内容适配器
             </Button>
-            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               console.log('Header 创意魔方按钮被点击');
               console.log('当前认证状态:', isAuthenticated);
               
@@ -190,7 +190,7 @@ export function Header() {
             }}>
               全网雷达
             </Button>
-            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               if (isAuthenticated) {
                 navigate('/library');
               } else {
@@ -199,7 +199,7 @@ export function Header() {
             }}>
               我的资料库
             </Button>
-            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               if (isAuthenticated) {
                 navigate('/brand-library');
               } else {
@@ -208,7 +208,7 @@ export function Header() {
             }}>
               品牌库
             </Button>
-            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
             }}>
               定价方案
@@ -230,7 +230,7 @@ export function Header() {
                     login('/payment');
                   }
                 }}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
+                className="btn-upgrade-gradient text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
               >
                 立即解锁高级功能
               </Button>
@@ -255,7 +255,7 @@ export function Header() {
                 <Button variant="outline" onClick={() => login()}>
                   登录
                 </Button>
-                <Button onClick={() => register()} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={() => register()} className="bg-primary hover:bg-primary/90">
                   注册
                 </Button>
               </div>
@@ -284,7 +284,7 @@ export function Header() {
                         login('/payment');
                       }
                     }}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
+                    className="btn-upgrade-gradient text-primary-foreground font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
                   >
                     立即解锁高级功能
                   </Button>
