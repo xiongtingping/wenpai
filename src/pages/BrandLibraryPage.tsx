@@ -2914,7 +2914,7 @@ export default function BrandLibraryPageFixed() {
 
         {/* 删除确认弹窗 */}
         {showDeleteDialog && assetToDelete && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-accent rounded-lg">
@@ -2967,7 +2967,7 @@ export default function BrandLibraryPageFixed() {
 
         {/* 批量删除确认弹窗 */}
         {showBatchDeleteDialog && selectedAssetsForBatch.size > 0 && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-accent rounded-lg">
@@ -3019,7 +3019,7 @@ export default function BrandLibraryPageFixed() {
 
         {/* 分类编辑弹窗 */}
         {showCategoryDialog && assetToEdit && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-accent rounded-lg">

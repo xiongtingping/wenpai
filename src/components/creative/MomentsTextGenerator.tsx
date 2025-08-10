@@ -72,12 +72,12 @@ const categories = [
  * 心情标签配置
  */
 const moodTags = [
-  { id: 'happy', name: '开心', emoji: '😊', color: 'bg-accent text-yellow-800' },
-  { id: 'romantic', name: '浪漫', emoji: '💕', color: 'bg-accent text-pink-800' },
-  { id: 'motivational', name: '励志', emoji: '💪', color: 'bg-accent text-blue-800' },
+  { id: 'happy', name: '开心', emoji: '😊', color: 'bg-accent text-muted-foreground' },
+  { id: 'romantic', name: '浪漫', emoji: '💕', color: 'bg-accent text-primary' },
+  { id: 'motivational', name: '励志', emoji: '💪', color: 'bg-accent text-primary' },
   { id: 'casual', name: '随性', emoji: '😎', color: 'bg-accent text-foreground' },
-  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-accent text-purple-800' },
-  { id: 'funny', name: '搞笑', emoji: '😂', color: 'bg-accent text-green-800' },
+  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-accent text-primary' },
+  { id: 'funny', name: '搞笑', emoji: '😂', color: 'bg-accent text-foreground' },
 ];
 
 /**

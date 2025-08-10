@@ -588,10 +588,10 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
               <div className="flex items-center gap-2 text-sm text-primary">
                 <Filter className="w-4 h-4" />
                 <span>活动过滤器:</span>
-                {searchQuery && <span className="bg-blue-200 px-2 py-1 rounded">搜索: {searchQuery}</span>}
-                {showFavoritesOnly && <span className="bg-blue-200 px-2 py-1 rounded">仅收藏</span>}
+                {searchQuery && <span className="bg-primary px-2 py-1 rounded">搜索: {searchQuery}</span>}
+                {showFavoritesOnly && <span className="bg-primary px-2 py-1 rounded">仅收藏</span>}
                 {selectedTags.map(tag => (
-                  <span key={tag} className="bg-blue-200 px-2 py-1 rounded">
+                  <span key={tag} className="bg-primary px-2 py-1 rounded">
                     标签: {tag}
                   </span>
                 ))}
@@ -766,7 +766,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                           e.stopPropagation();
                           handleDownloadEmoji(emoji);
                         }}
-                        className="w-8 h-8 rounded-full bg-accent text-primary flex items-center justify-center hover:bg-blue-200 transition-colors"
+                        className="w-8 h-8 rounded-full bg-accent text-primary flex items-center justify-center hover:bg-primary transition-colors"
                       >
                         <Download className="w-4 h-4" />
                       </button>

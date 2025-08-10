@@ -43,7 +43,7 @@ export function TrustSection() {
             <span className="text-sm font-medium text-foreground">抖音</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Video className="h-8 w-8 text-blue-400 mb-2" />
+            <Video className="h-8 w-8 text-primary mb-2" />
             <span className="text-sm font-medium text-foreground">B站</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
@@ -72,7 +72,7 @@ export function TrustSection() {
             <span className="text-sm font-medium text-foreground">Facebook</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Twitter className="h-8 w-8 text-blue-400 mb-2" />
+            <Twitter className="h-8 w-8 text-primary mb-2" />
             <span className="text-sm font-medium text-foreground">X（Twitter）</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
@@ -84,7 +84,7 @@ export function TrustSection() {
             <span className="text-sm font-medium text-foreground">Instagram</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <User className="h-8 w-8 text-green-700 mb-2" />
+            <User className="h-8 w-8 text-foreground mb-2" />
             <span className="text-sm font-medium text-foreground">豆瓣</span>
           </div>
 

@@ -341,7 +341,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>
                           {item.badge && (
-                            <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-foreground border-orange-200">
+                            <Badge variant="outline" className="text-xs bg-accent text-foreground border-border">
                               {item.badge}
                             </Badge>
                           )}
@@ -371,7 +371,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                 {title || PAGE_CONFIGS[path]?.title || '页面'}
               </h1>
               {PAGE_CONFIGS[path]?.badge && (
-                <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-foreground border-orange-200 animate-pulse">
+                <Badge variant="outline" className="text-xs bg-accent text-foreground border-border animate-pulse">
                   {PAGE_CONFIGS[path].badge}
                 </Badge>
               )}
@@ -414,14 +414,14 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                   onClick={() => navigate(module.path)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                     path === module.path
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105"
-                      : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 border-border hover:border-primary/50 hover:scale-105"
+                      ? "btn-gradient-primary text-primary-foreground shadow-lg scale-105"
+                      : "hover:bg-accent border-border hover:border-primary/50 hover:scale-105"
                   }`}
                 >
                   <module.icon className="w-4 h-4" />
                   <span className="font-medium">{module.title}</span>
                   {module.badge && (
-                    <Badge variant="secondary" className="ml-1 text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-foreground border-orange-200">
+                    <Badge variant="secondary" className="ml-1 text-xs bg-accent text-foreground border-border">
                       {module.badge}
                     </Badge>
                   )}

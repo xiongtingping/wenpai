@@ -3905,7 +3905,7 @@ ${charCountControl.source === 'platform-specific'
                 </Label>
                 <p className="text-xs text-muted-foreground mt-1">
                   AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
-                  <span className="text-xs text-amber-500 ml-1">（需开通高级功能）</span>
+                  <span className="text-xs text-muted-foreground ml-1">（需开通高级功能）</span>
                 </p>
               </div>
               <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border flex-shrink-0">
@@ -4749,14 +4749,14 @@ ${charCountControl.source === 'platform-specific'
                                         </div>
                                       ) : (
                                         <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
-                                          result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
+                                          result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
                                           result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
-                                          result.platformId === 'weibo' ? 'bg-accent border-orange-200' :
+                                          result.platformId === 'weibo' ? 'bg-accent border-border' :
                                           result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                           result.platformId === 'wechat' ? 'bg-accent border-border' :
-                                          result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
-                                          result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
-                                          result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
+                                          result.platformId === 'bilibili' ? 'bg-accent border-primary' :
+                                          result.platformId === 'video' ? 'bg-accent border-border' :
+                                          result.platformId === 'twitter' ? 'bg-accent border-border' :
                                           'bg-accent border-border'
                                         }`}>
                                           <div data-testid="version-a-content">{result.versions[0].content}</div>
@@ -4766,7 +4766,7 @@ ${charCountControl.source === 'platform-specific'
                                         {/* 融合版本标题和字符数验证状态 */}
                                         <div className={`flex justify-between items-center text-sm px-4 py-2 rounded-lg border ${
                                           result.versions[0].validation?.isValid
-                                            ? 'bg-accent border-border text-green-700'
+                                            ? 'bg-accent border-border text-foreground'
                                             : 'bg-accent border-border text-muted-foreground'
                                         }`}>
                                           <div className="flex items-center gap-2">
@@ -4897,14 +4897,14 @@ ${charCountControl.source === 'platform-specific'
                                         </div>
                                       ) : (
                                         <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
-                                          result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
+                                          result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
                                           result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
-                                          result.platformId === 'weibo' ? 'bg-accent border-orange-200' :
+                                          result.platformId === 'weibo' ? 'bg-accent border-border' :
                                           result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                           result.platformId === 'wechat' ? 'bg-accent border-border' :
-                                          result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
-                                          result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
-                                          result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
+                                          result.platformId === 'bilibili' ? 'bg-accent border-primary' :
+                                          result.platformId === 'video' ? 'bg-accent border-border' :
+                                          result.platformId === 'twitter' ? 'bg-accent border-border' :
                                           'bg-accent border-border'
                                         }`}>
                                           <div data-testid="version-b-content">{result.versions[1].content}</div>
@@ -4914,7 +4914,7 @@ ${charCountControl.source === 'platform-specific'
                                         {/* 融合版本标题和字符数验证状态 */}
                                         <div className={`flex justify-between items-center text-sm px-4 py-2 rounded-lg border ${
                                           result.versions[1].validation?.isValid
-                                            ? 'bg-accent border-border text-green-700'
+                                            ? 'bg-accent border-border text-foreground'
                                             : 'bg-accent border-border text-muted-foreground'
                                         }`}>
                                           <div className="flex items-center gap-2">
@@ -5040,14 +5040,14 @@ ${charCountControl.source === 'platform-specific'
                                   ) : (
                                     <div className="space-y-3">
                                       <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
-                                        result.platformId === 'xiaohongshu' ? 'bg-rose-50 border-rose-200' :
+                                        result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
                                         result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
-                                        result.platformId === 'weibo' ? 'bg-accent border-orange-200' :
+                                        result.platformId === 'weibo' ? 'bg-accent border-border' :
                                         result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                         result.platformId === 'wechat' ? 'bg-accent border-border' :
-                                        result.platformId === 'bilibili' ? 'bg-pink-50 border-pink-200' :
-                                        result.platformId === 'video' ? 'bg-emerald-50 border-emerald-200' :
-                                        result.platformId === 'twitter' ? 'bg-sky-50 border-sky-200' :
+                                        result.platformId === 'bilibili' ? 'bg-accent border-primary' :
+                                        result.platformId === 'video' ? 'bg-accent border-border' :
+                                        result.platformId === 'twitter' ? 'bg-accent border-border' :
                                         'bg-accent border-border'
                                       }`}>
                                         {/* 平台标识 - 只保留在右上角 */}
@@ -5232,7 +5232,7 @@ ${charCountControl.source === 'platform-specific'
         </DialogHeader>
         <div className="py-2 text-foreground">
           <div className="bg-accent border border-border rounded-lg p-3 mb-4">
-            <h4 className="font-semibold text-blue-800 mb-2">📋 版本选择说明</h4>
+            <h4 className="font-semibold text-primary mb-2">📋 版本选择说明</h4>
             <p className="text-sm text-primary">
               批量转发将使用您选择的版本内容。默认选择版本A，您可以在上方为每个平台单独选择版本A或版本B。
             </p>
@@ -5288,7 +5288,7 @@ ${charCountControl.source === 'platform-specific'
         </DialogHeader>
         <div className="py-2 text-foreground">
           <div className="bg-accent border border-border rounded-lg p-3 mb-4">
-            <h4 className="font-semibold text-blue-800 mb-2">📋 使用说明</h4>
+            <h4 className="font-semibold text-primary mb-2">📋 使用说明</h4>
             <p className="text-sm text-primary">
               内容已复制到剪贴板。跳转后请手动登录 {batchCurrent ? getPlatformName(batchCurrent.platformId, platforms) : ''} 平台，然后粘贴内容并发布。
             </p>

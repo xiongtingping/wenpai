@@ -176,7 +176,7 @@ export default function CreemAutoFixPage() {
                 <Button 
                   onClick={startAutoFix}
                   disabled={isRunning}
-                  className="bg-primary hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-primary text-white"
                 >
                   {isRunning ? '修复中...' : '开始自动修复'}
                 </Button>
@@ -219,9 +219,9 @@ export default function CreemAutoFixPage() {
                     key={index}
                     className={`p-2 rounded text-xs text-center ${
                       currentStep > index 
-                        ? 'bg-accent text-green-800 border border-green-300'
+                        ? 'bg-accent text-foreground border border-border'
                         : currentStep === index + 1
-                        ? 'bg-accent text-blue-800 border border-blue-300'
+                        ? 'bg-accent text-primary border border-primary'
                         : 'bg-accent text-muted-foreground border border-border'
                     }`}
                   >

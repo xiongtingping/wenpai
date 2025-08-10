@@ -182,7 +182,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
               {/* 优化后的使用说明 - 移至主标题下方，单行展示 */}
               <div className="flex items-center gap-2 mb-4 p-3 bg-accent/80 rounded-lg border border-border/60">
                 <Info className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-sm text-blue-800 font-medium">使用说明：</span>
+                <span className="text-sm text-foreground font-medium">使用说明：</span>
                 <span className="text-sm text-primary">
                   点击"跳转"→跳转至对应平台→分别复制标题、内容和标签→粘贴至对应平台→在对应平台完成发布→返回重复下一个平台
                 </span>
@@ -205,7 +205,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                           variant="outline"
                           size="sm"
                           onClick={() => openPlatformPage(platform)}
-                          className="h-7 px-3 text-sm border-blue-300 hover:border-primary hover:bg-accent"
+                          className="h-7 px-3 text-sm border-primary hover:border-primary hover:bg-accent"
                         >
                           <ExternalLink className="h-3 w-3 mr-1" />
                           跳转平台
@@ -230,8 +230,8 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                       {isContentSynced && (
                         <div className="flex items-center gap-2 mb-3 p-2 bg-accent rounded-lg border border-border">
                           <RefreshCw className="h-4 w-4 text-foreground" />
-                          <span className="text-sm text-green-700 font-medium">内容已同步</span>
-                          <Badge variant="outline" className="text-xs text-foreground border-green-300">
+                          <span className="text-sm text-foreground font-medium">内容已同步</span>
+                          <Badge variant="outline" className="text-xs text-foreground border-border">
                             {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : '已选择'}
                           </Badge>
                         </div>
@@ -301,7 +301,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                             <label className="text-sm font-semibold text-foreground block mb-2">
                               📝 标题
                               {isContentSynced && syncedContent.title && (
-                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-green-300">
+                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-border">
                                   已同步
                                 </Badge>
                               )}
@@ -314,7 +314,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                             <label className="text-sm font-semibold text-foreground block mb-2">
                               📄 内容
                               {isContentSynced && syncedContent.content && (
-                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-green-300">
+                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-border">
                                   已同步 - {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : ''}
                                 </Badge>
                               )}
@@ -327,7 +327,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                             <label className="text-sm font-semibold text-foreground block mb-2">
                               🏷️ 标签
                               {isContentSynced && syncedContent.tags.length > 0 && (
-                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-green-300">
+                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-border">
                                   已同步
                                 </Badge>
                               )}

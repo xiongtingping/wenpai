@@ -75,11 +75,11 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   const platform = platformConfig[platformId as keyof typeof platformConfig];
   const colorClasses = {
     red: 'from-red-50 to-red-100 border-border text-destructive',
-    orange: 'from-orange-50 to-orange-100 border-orange-200 text-foreground',
+    orange: 'from-orange-50 to-orange-100 border-border text-foreground',
     blue: 'from-blue-50 to-blue-100 border-border text-primary',
-    green: 'from-green-50 to-green-100 border-border text-green-700',
-    purple: 'from-purple-50 to-purple-100 border-purple-200 text-primary',
-    pink: 'from-pink-50 to-pink-100 border-pink-200 text-pink-700'
+    green: 'from-green-50 to-green-100 border-border text-foreground',
+    purple: 'from-purple-50 to-purple-100 border-primary text-primary',
+    pink: 'from-pink-50 to-pink-100 border-primary text-primary'
   };
 
   useEffect(() => {

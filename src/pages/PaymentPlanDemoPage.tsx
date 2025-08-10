@@ -222,8 +222,8 @@ export default function PaymentPlanDemoPage() {
           {/* 产品映射说明 */}
           <Separator />
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Creem产品映射说明</h4>
-            <div className="space-y-2 text-sm text-blue-800">
+            <h4 className="font-medium text-primary mb-2">Creem产品映射说明</h4>
+            <div className="space-y-2 text-sm text-primary">
               <div className="flex items-start gap-2">
                 <span className="font-medium">专业版月付:</span>
                 <span>prod_3nJOuQeVStqkp6JaDcrKHf (¥29)</span>
@@ -245,8 +245,8 @@ export default function PaymentPlanDemoPage() {
 
           {/* 支付流程说明 */}
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-medium text-green-900 mb-2">支付流程</h4>
-            <div className="space-y-2 text-sm text-green-800">
+            <h4 className="font-medium text-foreground mb-2">支付流程</h4>
+            <div className="space-y-2 text-sm text-foreground">
               <div className="flex items-start gap-2">
                 <span className="font-medium">1.</span>
                 <span>选择套餐和订阅周期</span>

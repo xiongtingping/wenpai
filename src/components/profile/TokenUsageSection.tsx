@@ -185,7 +185,7 @@ export function TokenUsageSection({
               {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
               <div className="flex-1 space-y-4">
                 {/* Token使用量统计卡片 */}
-                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border border-purple-200 shadow-e1 relative overflow-hidden">
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border border-primary shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">

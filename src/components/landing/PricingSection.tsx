@@ -291,21 +291,21 @@ export function PricingSection() {
                   <tr>
                     <th className="border border-border px-6 py-3 text-left font-semibold text-foreground">功能</th>
                     <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">体验版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-purple-900 bg-accent w-32">专业版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-yellow-900 bg-accent w-32">高级版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground bg-accent w-32">专业版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground bg-accent w-32">高级版</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   <tr className="hover:bg-accent/50 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">AI内容适配器</td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-blue-800 text-xs px-2 py-1 rounded-full">10次/月</span>
+                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">10次/月</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
-                      <span className="inline-block bg-accent text-purple-800 text-xs px-2 py-1 rounded-full">30次/月</span>
+                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">30次/月</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
-                      <span className="inline-block bg-accent text-yellow-800 text-xs px-2 py-1 rounded-full">不限量</span>
+                      <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">不限量</span>
                     </td>
                   </tr>
                   <tr className="hover:bg-accent/50 transition-colors">

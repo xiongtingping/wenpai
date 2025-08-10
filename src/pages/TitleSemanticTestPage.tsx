@@ -215,7 +215,7 @@ export default function TitleSemanticTestPage() {
                               <p className="text-sm font-medium text-foreground mb-1">✅ 优点：</p>
                               <div className="flex flex-wrap gap-1">
                                 {analysis.strengths.map(strength => (
-                                  <Badge key={strength} variant="secondary" className="text-xs bg-accent text-green-700">
+                                  <Badge key={strength} variant="secondary" className="text-xs bg-accent text-foreground">
                                     {strength}
                                   </Badge>
                                 ))}
@@ -246,7 +246,7 @@ export default function TitleSemanticTestPage() {
 
           {/* 修复说明 */}
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-2">🔧 修复内容说明</h4>
+            <h4 className="font-semibold text-primary mb-2">🔧 修复内容说明</h4>
             <ul className="text-sm text-primary space-y-1">
               <li>• <strong>语义完整性检查</strong>：确保"我用X后Y"的Y部分完整</li>
               <li>• <strong>具体对象提取</strong>：优先使用具体工具名而非泛化词汇</li>

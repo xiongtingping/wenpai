@@ -160,7 +160,7 @@ const ShareManager: React.FC = () => {
       id: 'bilibili',
       name: 'B站',
       icon: <Users className="w-4 h-4" />,
-      color: 'bg-pink-500',
+      color: 'bg-primary',
       maxLength: 500,
       features: ['视频', '专栏', '动态'],
       status: 'active',

@@ -267,7 +267,7 @@ export default function ImageGenerationTestPage() {
                   {result.success ? (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <Badge variant="default" className="bg-accent text-green-800">
+                        <Badge variant="default" className="bg-accent text-foreground">
                           成功
                         </Badge>
                         <span className="text-sm text-muted-foreground">

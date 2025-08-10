@@ -144,7 +144,7 @@ export const PaymentSuccessHandler: React.FC<PaymentSuccessHandlerProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 套餐信息 */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
+        <div className="bg-accent p-4 rounded-lg">
           <div className="flex items-center gap-3 mb-2">
             {getPlanIcon(subscription.planTier)}
             <h3 className="text-lg font-semibold">

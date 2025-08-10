@@ -99,7 +99,7 @@ export default function PaymentTimerTestPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">优惠状态</span>
                 {promoStatus.isActive ? (
-                  <Badge className="bg-accent text-green-800 border-border">
+                  <Badge className="bg-accent text-foreground border-border">
                     <Clock className="h-3 w-3 mr-1" />
                     优惠进行中
                   </Badge>

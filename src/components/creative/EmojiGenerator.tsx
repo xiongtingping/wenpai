@@ -266,7 +266,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
         <Button 
           onClick={handleGenerate} 
           disabled={isGenerating}
-          className="w-full bg-green-600 hover:bg-green-700 text-white"
+          className="w-full bg-accent hover:bg-accent text-white"
         >
           {isGenerating ? '生成中...' : '开始生成'}
         </Button>
@@ -279,7 +279,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                className="bg-accent h-2 rounded-full transition-all duration-300" 
                 style={{ width: `${progress}%` }}
               ></div>
             </div>

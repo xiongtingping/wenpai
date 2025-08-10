@@ -99,7 +99,7 @@ const mainFeatures = [
     path: '/brand-library',
     color: 'from-indigo-500 to-blue-500',
     bgColor: 'from-indigo-50 to-blue-50',
-    borderColor: 'border-indigo-200',
+    borderColor: 'border-primary',
     hoverColor: 'hover:from-indigo-100 hover:to-blue-100',
     badge: '👑 高级版',
     badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
@@ -194,7 +194,7 @@ export const FeaturesSection: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <Badge 
               variant="outline" 
-              className="text-sm px-3 py-1 rounded-full bg-accent text-primary border-border hover:bg-blue-200 transition-colors duration-300 animate-fadeInDown"
+              className="text-sm px-3 py-1 rounded-full bg-accent text-primary border-border hover:bg-primary transition-colors duration-300 animate-fadeInDown"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               🚀 核心功能

@@ -400,7 +400,7 @@ export function PDFChatDialog({
             <div className="mx-4 mt-3 mb-2 p-2 bg-accent border border-border rounded">
               <div className="flex items-center gap-2 text-sm">
                 <FileText className="h-4 w-4 text-primary" />
-                <span className="font-medium text-blue-900">文档：</span>
+                <span className="font-medium text-primary">文档：</span>
                 <div className="flex flex-wrap gap-1">
                   {documents.map((doc) => (
                     <Button

@@ -301,7 +301,7 @@ function HomePage() {
                 </div>
                 <div className="flex mb-3">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                    <Star key={i} className="h-4 w-4 text-muted-foreground fill-current" />
                   ))}
                 </div>
                 <p className="text-white/80 leading-relaxed">{testimonial.content}</p>
@@ -348,7 +348,7 @@ function HomePage() {
                 key={index}
                 className={`backdrop-blur-md border-white/20 p-8 hover:scale-105 transition-all duration-300 relative ${
                   plan.popular
-                    ? 'bg-gradient-to-br from-blue-500/20 to-purple-600/20 border-blue-400/50'
+                    ? 'bg-gradient-to-br from-blue-500/20 to-purple-600/20 border-primary/50'
                     : 'bg-card/10 hover:bg-card/20'
                 }`}
               >
@@ -368,7 +368,7 @@ function HomePage() {
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center text-white/80">
-                      <CheckCircle className="h-4 w-4 text-green-400 mr-3 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-foreground mr-3 flex-shrink-0" />
                       {feature}
                     </li>
                   ))}

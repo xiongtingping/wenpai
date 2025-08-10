@@ -65,14 +65,14 @@ export default function SimpleQRTestPage() {
         </div>
 
         {error && (
-          <div className="bg-destructive/10 border border-red-400 text-destructive px-4 py-3 rounded">
+          <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded">
             <strong>错误:</strong> {error}
           </div>
         )}
 
         {result && (
           <div className="space-y-4">
-            <div className="bg-accent border border-green-400 text-green-700 px-4 py-3 rounded">
+            <div className="bg-accent border border-border text-foreground px-4 py-3 rounded">
               <strong>成功!</strong> 接口调用成功
             </div>
             

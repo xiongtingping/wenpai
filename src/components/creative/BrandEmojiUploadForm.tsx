@@ -91,7 +91,7 @@ export default function BrandEmojiUploadForm({
   };
 
   return (
-    <Card className={`w-full max-w-3xl mx-auto shadow-lg border-2 border-blue-100 ${className}`}>
+    <Card className={`w-full max-w-3xl mx-auto shadow-lg border-2 border-primary ${className}`}>
       <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-border">
         <CardTitle className="flex items-center gap-3 text-2xl text-foreground">
           <div className="p-2 bg-accent rounded-lg">
@@ -108,7 +108,7 @@ export default function BrandEmojiUploadForm({
             <Image className="w-5 h-5 text-primary" />
             上传品牌角色图片
           </Label>
-          <div className="border-3 border-dashed border-blue-300 rounded-xl p-8 text-center hover:border-primary hover:bg-accent transition-all duration-200 bg-gradient-to-br from-blue-50 to-purple-50">
+          <div className="border-3 border-dashed border-primary rounded-xl p-8 text-center hover:border-primary hover:bg-accent transition-all duration-200 bg-gradient-to-br from-blue-50 to-purple-50">
             <Input
               type="file"
               accept="image/*"
@@ -179,7 +179,7 @@ export default function BrandEmojiUploadForm({
           <div className="relative">
             <Textarea
               placeholder="例如：穿汉服的小狐狸，戴眼镜，可爱风格，适合儿童品牌。请详细描述角色的外观特征、风格、适用场景等..."
-              className="min-h-[120px] resize-none border-2 border-border focus:border-blue-400 rounded-xl p-4 text-base"
+              className="min-h-[120px] resize-none border-2 border-border focus:border-primary rounded-xl p-4 text-base"
               value={description}
               onChange={handleDescriptionChange}
             />
@@ -187,7 +187,7 @@ export default function BrandEmojiUploadForm({
               {description.length}/500
             </div>
           </div>
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-primary">
             <p className="text-sm text-foreground font-medium mb-2">💡 描述建议：</p>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>• 角色外观：颜色、形状、特征（如：圆脸、大眼睛、毛茸茸）</li>
@@ -213,7 +213,7 @@ export default function BrandEmojiUploadForm({
 
         {/* 提示信息 */}
         <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-border">
-          <p className="text-sm font-medium text-yellow-800 mb-2">🎯 生成效果提示：</p>
+          <p className="text-sm font-medium text-muted-foreground mb-2">🎯 生成效果提示：</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-muted-foreground">
             <div>
               <p className="font-medium">📸 上传图片：</p>

@@ -31,16 +31,16 @@ const TestPage: React.FC = () => {
           如果您能看到这个页面，说明基本功能正常。
         </p>
         <div className="space-y-2">
-          <div className="p-3 bg-accent text-green-800 rounded">
+          <div className="p-3 bg-accent text-foreground rounded">
             ✅ React 组件渲染正常
           </div>
-          <div className="p-3 bg-accent text-blue-800 rounded">
+          <div className="p-3 bg-accent text-primary rounded">
             ✅ Tailwind CSS 样式正常
           </div>
-          <div className="p-3 bg-accent text-purple-800 rounded">
+          <div className="p-3 bg-accent text-primary rounded">
             ✅ 路由系统正常
           </div>
-          <div className="p-3 bg-accent text-yellow-800 rounded">
+          <div className="p-3 bg-accent text-muted-foreground rounded">
             <button 
               onClick={testPDFService}
               className="text-left w-full"
@@ -57,7 +57,7 @@ const TestPage: React.FC = () => {
         <div className="mt-6">
           <a 
             href="/" 
-            className="inline-block bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            className="inline-block bg-primary text-white px-4 py-2 rounded hover:bg-primary transition"
           >
             返回首页
           </a>

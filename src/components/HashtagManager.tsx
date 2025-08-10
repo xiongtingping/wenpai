@@ -179,15 +179,15 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
   // 获取维度颜色
   const getDimensionColor = (dimension: string) => {
     const colors: Record<string, string> = {
-      'industry': 'bg-accent text-blue-800',
-      'topic': 'bg-accent text-green-800',
-      'content': 'bg-accent text-purple-800',
-      'account': 'bg-accent text-orange-800',
-      'persona': 'bg-accent text-pink-800',
-      'trending': 'bg-destructive/10 text-red-800',
-      'brand': 'bg-accent text-yellow-800',
+      'industry': 'bg-accent text-primary',
+      'topic': 'bg-accent text-foreground',
+      'content': 'bg-accent text-primary',
+      'account': 'bg-accent text-foreground',
+      'persona': 'bg-accent text-primary',
+      'trending': 'bg-destructive/10 text-destructive',
+      'brand': 'bg-accent text-muted-foreground',
       'custom': 'bg-accent text-foreground',
-      'template': 'bg-accent text-indigo-800'
+      'template': 'bg-accent text-primary'
     };
     return colors[dimension] || 'bg-accent text-foreground';
   };
@@ -222,7 +222,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           <button
             id="copy-all-btn"
             onClick={copyAllTags}
-            className="flex items-center space-x-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center space-x-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
           >
             <Copy className="h-4 w-4" />
             <span>复制全部</span>
@@ -247,7 +247,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
             <button
               onClick={saveAsTemplate}
               disabled={!templateName.trim() || tags.length === 0}
-              className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+              className="px-3 py-2 bg-accent text-white rounded-lg hover:bg-accent disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
             >
               保存模板
             </button>
@@ -266,7 +266,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
                 <div className="flex items-center space-x-1">
                   <button
                     onClick={() => applyTemplate(template)}
-                    className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-blue-700"
+                    className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary"
                   >
                     应用
                   </button>
@@ -370,7 +370,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
 
       {/* 操作提示 */}
       <div className="bg-accent border border-border rounded-lg p-3">
-        <div className="text-sm text-blue-800">
+        <div className="text-sm text-primary">
           <strong>💡 使用提示：</strong>
           <ul className="mt-1 space-y-1 text-xs">
             <li>• 点击标签可以编辑内容</li>

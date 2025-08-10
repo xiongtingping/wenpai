@@ -119,9 +119,9 @@ export function AnalysisResultDialog({
    * 获取置信度颜色
    */
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'bg-accent text-green-800';
-    if (confidence >= 0.6) return 'bg-accent text-yellow-800';
-    return 'bg-destructive/10 text-red-800';
+    if (confidence >= 0.8) return 'bg-accent text-foreground';
+    if (confidence >= 0.6) return 'bg-accent text-muted-foreground';
+    return 'bg-destructive/10 text-destructive';
   };
 
   /**

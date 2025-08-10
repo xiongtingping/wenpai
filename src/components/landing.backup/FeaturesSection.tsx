@@ -60,7 +60,7 @@ const mainFeatures = [
     path: '/creative-studio',
     color: 'from-purple-500 to-pink-500',
     bgColor: 'from-purple-50 to-pink-50',
-    borderColor: 'border-purple-200',
+    borderColor: 'border-primary',
     hoverColor: 'hover:from-purple-100 hover:to-pink-100',
     badge: '⭐ 推荐',
     badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
@@ -73,7 +73,7 @@ const mainFeatures = [
     path: '/hot-topics',
     color: 'from-orange-500 to-red-500',
     bgColor: 'from-orange-50 to-red-50',
-    borderColor: 'border-orange-200',
+    borderColor: 'border-border',
     hoverColor: 'hover:from-orange-100 hover:to-red-100',
     badge: '🔥 实时监控',
     badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
@@ -99,7 +99,7 @@ const mainFeatures = [
     path: '/brand-library',
     color: 'from-indigo-500 to-blue-500',
     bgColor: 'from-indigo-50 to-blue-50',
-    borderColor: 'border-indigo-200',
+    borderColor: 'border-primary',
     hoverColor: 'hover:from-indigo-100 hover:to-blue-100',
     badge: '👑 高级版',
     badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
@@ -194,7 +194,7 @@ export const FeaturesSection: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <Badge 
               variant="outline" 
-              className="text-sm px-3 py-1 rounded-full bg-accent text-primary border-border hover:bg-blue-200 transition-colors duration-300 animate-fadeInDown"
+              className="text-sm px-3 py-1 rounded-full bg-accent text-primary border-border hover:bg-primary transition-colors duration-300 animate-fadeInDown"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               🚀 核心功能

@@ -783,7 +783,7 @@ export default function BookmarkPage() {
               <Button
                 onClick={handleExportData}
                 variant="outline"
-                className="flex items-center gap-2 bg-accent hover:bg-accent text-green-700 border-border"
+                className="flex items-center gap-2 bg-accent hover:bg-accent text-foreground border-border"
                 size="sm"
               >
                 <Download className="w-4 h-4" />

@@ -24,7 +24,7 @@ export const platformLinks = {
 export const platformIcons = {
   wechat: <SiWechat className="text-foreground" />,
   xiaohongshu: <SiXiaohongshu className="text-destructive" />,
-  bilibili: <SiBilibili className="text-pink-400" />,
+  bilibili: <SiBilibili className="text-primary" />,
   weibo: <SiSinaweibo className="text-foreground" />,
   douyin: <FaTiktok className="text-black" />,
   toutiao: <FaNewspaper className="text-destructive" />,
@@ -35,7 +35,7 @@ export const platformIcons = {
   sohu: <Globe className="text-foreground" />,
   iqiyi: <Video className="text-foreground" />,
   youtube: <FaYoutube className="text-destructive" />,
-  twitter: <Globe className="text-blue-400" />,
+  twitter: <Globe className="text-primary" />,
   linkedin: <Users className="text-primary" />,
   facebook: <Globe className="text-primary" />
 };

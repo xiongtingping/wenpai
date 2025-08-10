@@ -387,8 +387,8 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
             <div className="flex items-start gap-3">
               <Lightbulb className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-medium text-blue-900 mb-1">已选择标题</h4>
-                <p className="text-blue-800 mb-2">{selectedTitle.title}</p>
+                <h4 className="font-medium text-foreground mb-1">已选择标题</h4>
+                <p className="text-foreground mb-2">{selectedTitle.title}</p>
                 <div className="flex gap-4 text-xs text-primary">
                   <span>评分: {(selectedTitle.overallScore * 100).toFixed(0)}%</span>
                   <span>风格: {selectedTitle.style}</span>
@@ -399,7 +399,7 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
                 variant="outline"
                 size="sm"
                 onClick={() => handleTitleCopy(selectedTitle.title)}
-                className="border-blue-300 text-primary hover:bg-accent"
+                className="border-border text-primary hover:bg-accent"
               >
                 复制
               </Button>

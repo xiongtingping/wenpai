@@ -117,7 +117,7 @@ export default function CreemPaymentTestPage() {
                 <Button 
                   onClick={testAllConfigs}
                   disabled={loading}
-                  className="bg-primary hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-primary text-white"
                 >
                   {loading ? '测试中...' : '测试所有配置'}
                 </Button>

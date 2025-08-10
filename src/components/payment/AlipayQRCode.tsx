@@ -151,11 +151,11 @@ export default function AlipayQRCode({
   // 加载状态
   if (loading) {
     return (
-      <Card className="w-full max-w-sm mx-auto border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+      <Card className="w-full max-w-sm mx-auto border-primary bg-gradient-to-br from-blue-50 to-white">
         <CardHeader className="pb-4">
           <CardTitle className="text-center flex items-center justify-center gap-2">
             <AlipayLogo size={32} />
-            <span className="text-blue-900">{title}</span>
+            <span className="text-primary">{title}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
@@ -171,11 +171,11 @@ export default function AlipayQRCode({
   // 错误状态
   if (error) {
     return (
-      <Card className="w-full max-w-sm mx-auto border-red-100 bg-gradient-to-br from-red-50 to-white">
+      <Card className="w-full max-w-sm mx-auto border-destructive bg-gradient-to-br from-red-50 to-white">
         <CardHeader className="pb-4">
           <CardTitle className="text-center flex items-center justify-center gap-2">
             <AlertCircle className="h-6 w-6 text-destructive" />
-            <span className="text-red-900">支付二维码生成失败</span>
+            <span className="text-destructive">支付二维码生成失败</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
@@ -222,11 +222,11 @@ export default function AlipayQRCode({
 
   // 正常显示二维码
   return (
-    <Card className="w-full max-w-sm mx-auto border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+    <Card className="w-full max-w-sm mx-auto border-primary bg-gradient-to-br from-blue-50 to-white">
       <CardHeader className="pb-4">
         <CardTitle className="text-center flex items-center justify-center gap-2">
           <AlipayLogo size={32} />
-          <span className="text-blue-900">{title}</span>
+          <span className="text-primary">{title}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="text-center space-y-4">

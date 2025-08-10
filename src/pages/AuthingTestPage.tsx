@@ -94,7 +94,7 @@ const AuthingTestPage: React.FC = () => {
               <div>
                 <span className="font-medium">认证状态:</span>
                 <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                  isAuthenticated ? 'bg-accent text-green-800' : 'bg-destructive/10 text-red-800'
+                  isAuthenticated ? 'bg-accent text-foreground' : 'bg-destructive/10 text-destructive'
                 }`}>
                   {isAuthenticated ? '已登录' : '未登录'}
                 </span>
@@ -102,7 +102,7 @@ const AuthingTestPage: React.FC = () => {
               <div>
                 <span className="font-medium">加载状态:</span>
                 <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                  loading ? 'bg-accent text-yellow-800' : 'bg-accent text-green-800'
+                  loading ? 'bg-accent text-muted-foreground' : 'bg-accent text-foreground'
                 }`}>
                   {loading ? '加载中' : '已完成'}
                 </span>
@@ -110,16 +110,16 @@ const AuthingTestPage: React.FC = () => {
             </div>
             
             {error && (
-              <div className="mt-3 p-3 bg-destructive/10 border border-red-300 rounded">
-                <span className="font-medium text-red-800">错误:</span>
+              <div className="mt-3 p-3 bg-destructive/10 border border-destructive rounded">
+                <span className="font-medium text-destructive">错误:</span>
                 <span className="ml-2 text-destructive">{error}</span>
               </div>
             )}
             
             {user && (
-              <div className="mt-3 p-3 bg-accent border border-green-300 rounded">
-                <span className="font-medium text-green-800">用户信息:</span>
-                <pre className="mt-2 text-sm text-green-700 overflow-x-auto">
+              <div className="mt-3 p-3 bg-accent border border-border rounded">
+                <span className="font-medium text-foreground">用户信息:</span>
+                <pre className="mt-2 text-sm text-foreground overflow-x-auto">
                   {JSON.stringify(user, null, 2)}
                 </pre>
               </div>
@@ -131,7 +131,7 @@ const AuthingTestPage: React.FC = () => {
             <button
               onClick={runAuthingTest}
               disabled={testStatus === 'testing'}
-              className="px-4 py-2 bg-primary text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-primary text-white rounded hover:bg-primary disabled:opacity-50"
             >
               {testStatus === 'testing' ? '测试中...' : '🧪 运行测试'}
             </button>
@@ -139,7 +139,7 @@ const AuthingTestPage: React.FC = () => {
             {!isAuthenticated && (
               <button
                 onClick={handleLogin}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-4 py-2 bg-accent text-white rounded hover:bg-accent"
               >
                 🔐 测试登录
               </button>
@@ -148,7 +148,7 @@ const AuthingTestPage: React.FC = () => {
             {isAuthenticated && (
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-destructive text-white rounded hover:bg-red-700"
+                className="px-4 py-2 bg-destructive text-white rounded hover:bg-destructive"
               >
                 🚪 测试登出
               </button>
@@ -163,7 +163,7 @@ const AuthingTestPage: React.FC = () => {
           </div>
           
           {/* 测试结果 */}
-          <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm">
+          <div className="bg-gray-900 text-foreground p-4 rounded-lg font-mono text-sm">
             <h3 className="text-white font-semibold mb-3">📝 测试日志</h3>
             <div className="max-h-96 overflow-y-auto">
               {testResults.length === 0 ? (

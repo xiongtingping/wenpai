@@ -290,7 +290,7 @@ const AuthTestPage: React.FC = () => {
               <Button 
                 onClick={runAllTests}
                 disabled={loading}
-                className="bg-primary hover:bg-blue-700"
+                className="bg-primary hover:bg-primary"
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 运行所有测试

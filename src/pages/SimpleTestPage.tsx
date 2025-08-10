@@ -44,7 +44,7 @@ const SimpleTestPage: React.FC = () => {
 
           <button
             onClick={testDirectNavigation}
-            className="w-full bg-accent0 text-white py-2 px-4 rounded hover:bg-green-600"
+            className="w-full bg-accent0 text-white py-2 px-4 rounded hover:bg-accent"
           >
             测试直接导航 (返回首页)
           </button>
@@ -58,7 +58,7 @@ const SimpleTestPage: React.FC = () => {
 
           <button
             onClick={testLogin}
-            className="w-full bg-accent0 text-white py-2 px-4 rounded hover:bg-purple-600"
+            className="w-full bg-accent0 text-white py-2 px-4 rounded hover:bg-primary"
           >
             测试登录弹窗
           </button>
@@ -78,7 +78,7 @@ const SimpleTestPage: React.FC = () => {
         </div>
 
         <div className="mt-6 p-4 bg-accent rounded">
-          <h3 className="font-semibold text-yellow-800">使用说明</h3>
+          <h3 className="font-semibold text-foreground">使用说明</h3>
           <p className="text-sm text-muted-foreground mt-2">
             1. 点击按钮测试各种功能<br/>
             2. 查看控制台输出<br/>

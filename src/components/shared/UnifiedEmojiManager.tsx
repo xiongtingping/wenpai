@@ -1012,7 +1012,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                             e.stopPropagation();
                             handleDownloadEmoji(emoji);
                           }}
-                          className="w-8 h-8 rounded-full bg-accent text-primary flex items-center justify-center hover:bg-blue-200 transition-colors"
+                          className="w-8 h-8 rounded-full bg-accent text-primary flex items-center justify-center hover:bg-primary transition-colors"
                         >
                           <Download className="w-4 h-4" />
                         </button>

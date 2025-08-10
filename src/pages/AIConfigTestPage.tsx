@@ -56,7 +56,7 @@ export default function AIConfigTestPage() {
 
   const getStatusBadge = (status: boolean) => {
     return status ? (
-      <Badge variant="default" className="bg-accent text-green-800">
+      <Badge variant="default" className="bg-accent text-foreground">
         正常
       </Badge>
     ) : (

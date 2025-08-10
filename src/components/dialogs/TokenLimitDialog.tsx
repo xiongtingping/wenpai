@@ -66,7 +66,7 @@ function getLimitConfig(limitType: TokenLimitDialogProps['limitType']) {
         icon: AlertTriangle,
         iconColor: 'text-foreground',
         bgColor: 'bg-accent',
-        borderColor: 'border-orange-200',
+        borderColor: 'border-border',
         showContinue: true
       };
     case 'warning':
@@ -176,11 +176,11 @@ export function TokenLimitDialog({
           </div>
 
           {/* 升级建议 */}
-          <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+          <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-primary">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-primary" />
-                <span className="font-medium text-purple-800">升级到{upgrade.targetTier}</span>
+                <span className="font-medium text-primary">升级到{upgrade.targetTier}</span>
                 <Badge variant="outline" className="text-primary border-border">
                   {upgrade.price}
                 </Badge>

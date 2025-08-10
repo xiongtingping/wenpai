@@ -255,7 +255,7 @@ export function Header() {
                 <Button variant="outline" onClick={() => login()}>
                   登录
                 </Button>
-                <Button onClick={() => register()} className="bg-primary hover:bg-blue-700">
+                <Button onClick={() => register()} className="bg-primary hover:bg-primary">
                   注册
                 </Button>
               </div>

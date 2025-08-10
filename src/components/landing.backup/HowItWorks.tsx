@@ -85,7 +85,7 @@ export function HowItWorks() {
 
         {/* 3️⃣ 最下方蓝色提示条优化 */}
         <div className="mt-16 max-w-4xl mx-auto">
-          <div className="rounded-lg bg-accent text-center px-6 py-4 border border-blue-100">
+          <div className="rounded-lg bg-accent text-center px-6 py-4 border border-primary">
             <h3 className="text-lg font-semibold text-primary mb-2">
               提高效率，节省时间
             </h3>

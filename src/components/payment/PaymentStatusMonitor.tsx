@@ -174,14 +174,14 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
   const getStatusColor = () => {
     switch (paymentStatus.status) {
       case 'paid':
-        return 'bg-accent text-green-800 border-border';
+        return 'bg-accent text-foreground border-border';
       case 'processing':
-        return 'bg-accent text-blue-800 border-border';
+        return 'bg-accent text-primary border-border';
       case 'pending':
-        return 'bg-accent text-yellow-800 border-border';
+        return 'bg-accent text-muted-foreground border-border';
       case 'failed':
       case 'expired':
-        return 'bg-destructive/10 text-red-800 border-border';
+        return 'bg-destructive/10 text-destructive border-border';
       default:
         return 'bg-accent text-foreground border-border';
     }

@@ -149,15 +149,15 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-accent text-green-800';
+        return 'bg-accent text-foreground';
       case 'processing':
-        return 'bg-accent text-blue-800';
+        return 'bg-accent text-primary';
       case 'pending':
-        return 'bg-accent text-yellow-800';
+        return 'bg-accent text-muted-foreground';
       case 'failed':
       case 'expired':
       case 'cancelled':
-        return 'bg-destructive/10 text-red-800';
+        return 'bg-destructive/10 text-destructive';
       default:
         return 'bg-accent text-foreground';
     }

@@ -465,7 +465,7 @@ export default function EnhancedPaymentPage() {
           {/* 右侧：支付区域 */}
           <div className="space-y-6">
             {showQRCode && selectedPlan ? (
-              <Card data-qr-code className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
+              <Card data-qr-code className="border-primary bg-gradient-to-br from-blue-50 to-white">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
@@ -483,7 +483,7 @@ export default function EnhancedPaymentPage() {
                           <CreditCard className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-blue-900">{selectedPlan.name}</h4>
+                          <h4 className="font-semibold text-primary">{selectedPlan.name}</h4>
                           <p className="text-sm text-primary">
                             {selectedPeriod === 'monthly' ? '月付' : '年付'} · {selectedPlan.description}
                           </p>

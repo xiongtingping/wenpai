@@ -184,7 +184,7 @@ const TitleCard = memo<TitleCardProps>(({
         
         {/* 详细评分展开区域 */}
         {showScores && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="mt-3 pt-3 border-t border-border">
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">结构多样性:</span>

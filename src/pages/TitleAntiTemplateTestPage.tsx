@@ -279,7 +279,7 @@ export default function TitleAntiTemplateTestPage() {
                                 </div>
                               </div>
                             ) : (
-                              <Badge variant="secondary" className="text-xs bg-accent text-green-700">
+                              <Badge variant="secondary" className="text-xs bg-accent text-foreground">
                                 ✅ 无模板化行为
                               </Badge>
                             )}
@@ -311,7 +311,7 @@ export default function TitleAntiTemplateTestPage() {
 
           {/* 禁止模板说明 */}
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-semibold text-red-800 mb-2">🚫 严禁模板化句型</h4>
+            <h4 className="font-semibold text-destructive mb-2">🚫 严禁模板化句型</h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {prohibitedPatterns.map(pattern => (
                 <Badge key={pattern} variant="destructive" className="text-xs">
@@ -326,7 +326,7 @@ export default function TitleAntiTemplateTestPage() {
 
           {/* 维度要求说明 */}
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-2">✅ 维度覆盖要求</h4>
+            <h4 className="font-semibold text-primary mb-2">✅ 维度覆盖要求</h4>
             <p className="text-sm text-primary mb-2">
               生成的标题必须覆盖以下维度中的<strong>至少2个</strong>：
             </p>

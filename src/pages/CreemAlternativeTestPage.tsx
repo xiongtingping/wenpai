@@ -103,7 +103,7 @@ export default function CreemAlternativeTestPage() {
               <Button 
                 onClick={testAll}
                 disabled={loading}
-                className="bg-primary hover:bg-blue-700 text-white w-full"
+                className="bg-primary hover:bg-primary text-white w-full"
               >
                 {loading ? '测试中...' : '测试所有方法'}
               </Button>

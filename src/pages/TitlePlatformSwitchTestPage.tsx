@@ -180,7 +180,7 @@ export default function TitlePlatformSwitchTestPage() {
 
           {/* 测试说明 */}
           <div className="mt-6 bg-accent p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-2">🧪 测试说明</h4>
+            <h4 className="font-semibold text-foreground mb-2">🧪 测试说明</h4>
             <ul className="text-sm text-primary space-y-1">
               <li>• 切换平台时，标题生成器应该自动适配新平台的字符限制</li>
               <li>• 已生成的标题应该保持在历史记录中，不会丢失</li>

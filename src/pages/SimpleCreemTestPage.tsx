@@ -102,7 +102,7 @@ export default function SimpleCreemTestPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <XCircle className="h-5 w-5 text-destructive" />
-                  <h3 className="font-medium text-red-900">测试失败</h3>
+                  <h3 className="font-medium text-destructive">测试失败</h3>
                 </div>
                 <p className="text-destructive text-sm">{error}</p>
               </CardContent>
@@ -114,7 +114,7 @@ export default function SimpleCreemTestPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <CheckCircle className="h-5 w-5 text-foreground" />
-                  <h3 className="font-medium text-green-900">测试成功</h3>
+                  <h3 className="font-medium text-foreground">测试成功</h3>
                 </div>
                 <div className="space-y-2 text-sm">
                   <p><span className="font-medium">成功:</span> {result.success ? '是' : '否'}</p>
@@ -123,7 +123,7 @@ export default function SimpleCreemTestPage() {
                   )}
                   {result.checkout && (
                     <details className="mt-4">
-                      <summary className="cursor-pointer text-green-700 font-medium">
+                      <summary className="cursor-pointer text-foreground font-medium">
                         查看完整响应数据
                       </summary>
                       <pre className="mt-2 p-3 bg-card rounded border text-xs overflow-auto">
@@ -138,8 +138,8 @@ export default function SimpleCreemTestPage() {
 
           {/* 使用说明 */}
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">使用说明</h4>
-            <div className="space-y-2 text-sm text-blue-800">
+            <h4 className="font-medium text-primary mb-2">使用说明</h4>
+            <div className="space-y-2 text-sm text-primary">
               <p>• 输入有效的Creem价格ID（如：prod_3nJOuQeVStqkp6JaDcrKHf）</p>
               <p>• 输入客户邮箱（可选，但推荐填写）</p>
               <p>• 点击"测试Creem API"按钮</p>

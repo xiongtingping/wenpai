@@ -179,7 +179,7 @@ export default function CreemProductTestPage() {
                 <Button 
                   onClick={testCustomProduct}
                   disabled={loading}
-                  className="bg-primary hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-primary text-white"
                 >
                   {loading ? '测试中...' : '测试自定义产品'}
                 </Button>
@@ -187,7 +187,7 @@ export default function CreemProductTestPage() {
                 <Button 
                   onClick={testAllPredefined}
                   disabled={loading}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="bg-accent hover:bg-accent text-white"
                 >
                   {loading ? '测试中...' : '测试所有预定义产品'}
                 </Button>

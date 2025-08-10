@@ -50,7 +50,7 @@ const ButtonTestPage: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="p-4 bg-accent rounded-lg">
-                  <h3 className="font-semibold text-blue-800 mb-2">当前状态</h3>
+                  <h3 className="font-semibold text-primary mb-2">当前状态</h3>
                   <p className="text-sm text-primary">
                     认证状态: {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}
                   </p>

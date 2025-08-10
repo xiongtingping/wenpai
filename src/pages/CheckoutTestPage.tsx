@@ -218,8 +218,8 @@ export default function CheckoutTestPage() {
           {/* 支付流程说明 */}
           <Separator />
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">支付流程说明</h4>
-            <div className="space-y-2 text-sm text-blue-800">
+            <h4 className="font-medium text-primary mb-2">支付流程说明</h4>
+            <div className="space-y-2 text-sm text-primary">
               <div className="flex items-start gap-2">
                 <span className="font-medium">1.</span>
                 <span>选择产品和支付方式</span>

@@ -234,7 +234,7 @@ const TitleGeneratorTestPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="p-4 bg-accent border border-border rounded-lg">
-                  <p className="text-lg font-medium text-blue-900">{generatedTitle}</p>
+                  <p className="text-lg font-medium text-foreground">{generatedTitle}</p>
                   <p className="text-sm text-primary mt-2">字符数: {generatedTitle.length}</p>
                 </div>
               </CardContent>

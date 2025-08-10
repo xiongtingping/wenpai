@@ -249,7 +249,7 @@ export default function CreemDebugPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Bug className="h-5 w-5 text-destructive" />
-                  <h3 className="font-medium text-red-900">测试失败</h3>
+                  <h3 className="font-medium text-destructive">测试失败</h3>
                 </div>
                 <p className="text-destructive text-sm">{error}</p>
               </CardContent>
@@ -261,10 +261,10 @@ export default function CreemDebugPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Play className="h-5 w-5 text-foreground" />
-                  <h3 className="font-medium text-green-900">测试成功 - {result.method}</h3>
+                  <h3 className="font-medium text-foreground">测试成功 - {result.method}</h3>
                 </div>
                 <details className="mt-4">
-                  <summary className="cursor-pointer text-green-700 font-medium">
+                  <summary className="cursor-pointer text-foreground font-medium">
                     查看响应数据
                   </summary>
                   <pre className="mt-2 p-3 bg-card rounded border text-xs overflow-auto">
@@ -281,7 +281,7 @@ export default function CreemDebugPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Bug className="h-5 w-5 text-primary" />
-                  <h3 className="font-medium text-blue-900">调试信息</h3>
+                  <h3 className="font-medium text-primary">调试信息</h3>
                 </div>
                 <Textarea
                   value={debugInfo}

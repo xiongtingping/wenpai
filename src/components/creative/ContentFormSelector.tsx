@@ -156,7 +156,7 @@ export function ContentFormSelector({
                   variant="ghost"
                   size="sm"
                   onClick={() => onFormChange(undefined)}
-                  className="text-primary hover:text-blue-800"
+                  className="text-primary hover:text-primary"
                 >
                   清除选择，使用平台默认结构
                 </Button>
@@ -272,7 +272,7 @@ export function ContentFormSelector({
                       variant="ghost"
                       size="sm"
                       onClick={() => onStyleChange(undefined)}
-                      className="text-destructive hover:text-red-800 text-xs"
+                      className="text-destructive hover:text-destructive text-xs"
                     >
                       点击可取消选择
                     </Button>

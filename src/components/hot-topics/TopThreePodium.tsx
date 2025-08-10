@@ -93,11 +93,11 @@ export default function TopThreePodium({
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy className="w-8 h-8 text-yellow-800" />;
+        return <Trophy className="w-8 h-8 text-muted-foreground" />;
       case 2:
         return <Medal className="w-6 h-6 text-foreground" />;
       case 3:
-        return <Medal className="w-6 h-6 text-amber-800" />;
+        return <Medal className="w-6 h-6 text-foreground" />;
       default:
         return <TrendingUp className="w-4 h-4" />;
     }
@@ -106,11 +106,11 @@ export default function TopThreePodium({
   const getRankBadge = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Badge className="bg-accent0 text-yellow-900 hover:bg-yellow-600">🥇 第{rank}名</Badge>;
+        return <Badge className="bg-accent0 text-muted-foreground hover:bg-accent">🥇 第{rank}名</Badge>;
       case 2:
         return <Badge className="bg-gray-400 text-foreground hover:bg-accent0">🥈 第{rank}名</Badge>;
       case 3:
-        return <Badge className="bg-amber-600 text-amber-100 hover:bg-amber-700">🥉 第{rank}名</Badge>;
+        return <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">🥉 第{rank}名</Badge>;
       default:
         return <Badge variant="secondary">#{rank}</Badge>;
     }
@@ -127,7 +127,7 @@ export default function TopThreePodium({
   };
 
   return (
-    <Card className="w-full bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-border">
+    <Card className="w-full bg-accent border-2 border-border">
       <CardContent className="p-6">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">

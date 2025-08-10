@@ -251,7 +251,7 @@ export default function BrandEmojiGallery({
               <Button
                 size="sm"
                 variant="ghost"
-                className="w-6 h-6 p-0 text-foreground hover:text-green-700"
+                className="w-6 h-6 p-0 text-foreground hover:text-foreground"
                 onClick={() => onRegenerate(emoji.emotion)}
                 title="重新生成"
               >

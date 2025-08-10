@@ -207,9 +207,9 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
    */
   const getStatusColor = (platform: PlatformApiConfig) => {
     if (platform.isAuthorized) {
-      return "bg-accent text-green-800 border-border";
+      return "bg-accent text-foreground border-border";
     } else if (platform.accessToken) {
-      return "bg-accent text-yellow-800 border-border";
+      return "bg-accent text-muted-foreground border-border";
     } else {
       return "bg-accent text-muted-foreground border-border";
     }

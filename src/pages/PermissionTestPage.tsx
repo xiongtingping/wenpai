@@ -185,7 +185,7 @@ const PermissionTestPage: React.FC = () => {
                   <CardContent>
                     <PermissionGuard required="auth:required" autoRedirect={false}>
                       <div className="p-4 bg-accent border border-border rounded-lg">
-                        <p className="text-green-800">✅ 您已登录，可以看到这个内容</p>
+                        <p className="text-foreground">✅ 您已登录，可以看到这个内容</p>
                       </div>
                     </PermissionGuard>
                   </CardContent>
@@ -198,7 +198,7 @@ const PermissionTestPage: React.FC = () => {
                   <CardContent>
                     <PermissionGuard required="vip:required" autoRedirect={false}>
                       <div className="p-4 bg-accent border border-border rounded-lg">
-                        <p className="text-blue-800">👑 VIP专属内容</p>
+                        <p className="text-primary">👑 VIP专属内容</p>
                       </div>
                     </PermissionGuard>
                   </CardContent>
@@ -210,8 +210,8 @@ const PermissionTestPage: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <PermissionGuard required="feature:creative-studio" autoRedirect={false}>
-                      <div className="p-4 bg-accent border border-purple-200 rounded-lg">
-                        <p className="text-purple-800">🎨 创意魔方功能可用</p>
+                      <div className="p-4 bg-accent border border-primary rounded-lg">
+                        <p className="text-primary">🎨 创意魔方功能可用</p>
                       </div>
                     </PermissionGuard>
                   </CardContent>
@@ -223,8 +223,8 @@ const PermissionTestPage: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <PermissionGuard required="feature:brand-library" autoRedirect={false}>
-                      <div className="p-4 bg-accent border border-orange-200 rounded-lg">
-                        <p className="text-orange-800">📚 品牌库功能可用</p>
+                      <div className="p-4 bg-accent border border-border rounded-lg">
+                        <p className="text-foreground">📚 品牌库功能可用</p>
                       </div>
                     </PermissionGuard>
                   </CardContent>

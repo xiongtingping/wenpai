@@ -137,7 +137,7 @@ export function PricingSection() {
                 <div className="text-lg md:text-xl font-bold text-destructive">新用户限时优惠</div>
                 <div className="flex items-center gap-3">
                   <span className="text-xl font-bold text-destructive">限时优惠倒计时：</span>
-                  <span className="text-2xl font-bold bg-destructive/10 px-4 py-2 rounded-lg border-2 border-red-300">
+                  <span className="text-2xl font-bold bg-destructive/10 px-4 py-2 rounded-lg border-2 border-destructive">
                     {formattedTime}
                   </span>
                 </div>
@@ -151,7 +151,7 @@ export function PricingSection() {
               onClick={() => setBilling("monthly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "monthly" 
-                  ? "bg-primary hover:bg-blue-700 text-white shadow-lg" 
+                  ? "bg-primary hover:bg-primary text-white shadow-lg" 
                   : "text-muted-foreground hover:text-foreground border-border"
               }`}
             >
@@ -188,7 +188,7 @@ export function PricingSection() {
                 key={plan.id}
                 className={`border-2 p-8 flex flex-col relative ${
                   isRecommended 
-                    ? 'border-purple-600 shadow-2xl bg-gradient-to-br from-purple-50 to-blue-50' 
+                    ? 'border-primary shadow-2xl bg-gradient-to-br from-purple-50 to-blue-50' 
                     : 'border-border'
                 }`}
               >
@@ -291,21 +291,21 @@ export function PricingSection() {
                   <tr>
                     <th className="border border-border px-6 py-3 text-left font-semibold text-foreground">功能</th>
                     <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">体验版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-purple-900 bg-accent w-32">专业版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-yellow-900 bg-accent w-32">高级版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-primary bg-accent w-32">专业版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-muted-foreground bg-accent w-32">高级版</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   <tr className="hover:bg-accent/50 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">AI内容适配器</td>
                     <td className="border border-border px-4 py-3 text-center">
-                      <span className="inline-block bg-accent text-blue-800 text-xs px-2 py-1 rounded-full">10次/月</span>
+                      <span className="inline-block bg-accent text-primary text-xs px-2 py-1 rounded-full">10次/月</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
-                      <span className="inline-block bg-accent text-purple-800 text-xs px-2 py-1 rounded-full">30次/月</span>
+                      <span className="inline-block bg-accent text-primary text-xs px-2 py-1 rounded-full">30次/月</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
-                      <span className="inline-block bg-accent text-yellow-800 text-xs px-2 py-1 rounded-full">不限量</span>
+                      <span className="inline-block bg-accent text-muted-foreground text-xs px-2 py-1 rounded-full">不限量</span>
                     </td>
                   </tr>
                   <tr className="hover:bg-accent/50 transition-colors">

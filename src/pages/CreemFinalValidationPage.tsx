@@ -286,7 +286,7 @@ export default function CreemFinalValidationPage() {
                 <Button 
                   onClick={runValidation}
                   disabled={isRunning}
-                  className="bg-primary hover:bg-blue-700 text-white px-8 py-3"
+                  className="bg-primary hover:bg-primary text-white px-8 py-3"
                   size="lg"
                 >
                   {isRunning ? '验证中...' : '开始全面验证'}
@@ -314,9 +314,9 @@ export default function CreemFinalValidationPage() {
                     key={index}
                     className={`p-2 rounded text-xs text-center ${
                       currentStep > index + 1 
-                        ? 'bg-accent text-green-800 border border-green-300'
+                        ? 'bg-accent text-foreground border border-border'
                         : currentStep === index + 1
-                        ? 'bg-accent text-blue-800 border border-blue-300'
+                        ? 'bg-accent text-primary border border-primary'
                         : 'bg-accent text-muted-foreground border border-border'
                     }`}
                   >

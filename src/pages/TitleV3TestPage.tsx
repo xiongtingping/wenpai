@@ -363,7 +363,7 @@ export default function TitleV3TestPage() {
 
           {/* V3规范说明 */}
           <div className="bg-accent p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-2">🎯 V3核心目标</h4>
+            <h4 className="font-semibold text-primary mb-2">🎯 V3核心目标</h4>
             <ul className="text-sm text-primary space-y-1">
               <li>• <strong>与正文主旨强关联</strong>：不能跑题</li>
               <li>• <strong>表达自然流畅</strong>：语言完整</li>

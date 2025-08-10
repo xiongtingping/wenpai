@@ -151,8 +151,8 @@ VITE_ENABLE_IMAGE_GENERATION=true`;
             value={key}
             onChange={(e) => handleKeyChange(provider, e.target.value)}
             className={`pr-20 ${
-              status === 'valid' ? 'border-green-300' : 
-              status === 'invalid' ? 'border-red-300' : ''
+              status === 'valid' ? 'border-border' : 
+              status === 'invalid' ? 'border-destructive' : ''
             }`}
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">

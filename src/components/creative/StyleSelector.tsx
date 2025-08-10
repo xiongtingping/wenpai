@@ -74,9 +74,9 @@ export function StyleSelector({
       case 'funny':
         return 'bg-accent text-muted-foreground border-border';
       case 'real':
-        return 'bg-pink-50 text-pink-700 border-pink-200';
+        return 'bg-accent text-primary border-primary';
       case 'hook':
-        return 'bg-accent text-primary border-purple-200';
+        return 'bg-accent text-primary border-primary';
       default:
         return 'bg-accent text-foreground border-border';
     }

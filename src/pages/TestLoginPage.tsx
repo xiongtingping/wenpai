@@ -128,7 +128,7 @@ export const TestLoginPage: React.FC = () => {
           
           {/* 当前状态 */}
           <div className="mb-8 p-4 bg-accent rounded-lg">
-            <h2 className="text-lg font-semibold text-blue-900 mb-2">当前状态</h2>
+            <h2 className="text-lg font-semibold text-primary mb-2">当前状态</h2>
             <div className="space-y-1 text-sm">
               <p><strong>认证状态:</strong> {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}</p>
               <p><strong>用户信息:</strong> {user ? getUserDisplayName(user, '用户') : '无'}</p>
@@ -139,21 +139,21 @@ export const TestLoginPage: React.FC = () => {
           <div className="mb-8 space-x-4">
             <button
               onClick={testLogin}
-              className="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               🔐 测试登录弹窗
             </button>
             
             <button
               onClick={checkAuthStatus}
-              className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-accent hover:bg-accent text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               🔍 检查认证状态
             </button>
             
             <button
               onClick={inspectDOM}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               🔍 检查 DOM
             </button>
@@ -167,7 +167,7 @@ export const TestLoginPage: React.FC = () => {
           </div>
 
           {/* 测试日志 */}
-          <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
+          <div className="bg-gray-900 text-foreground p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
             <h3 className="text-white font-semibold mb-2">测试日志:</h3>
             {testResults.length === 0 ? (
               <p className="text-muted-foreground">点击上方按钮开始测试...</p>
@@ -182,8 +182,8 @@ export const TestLoginPage: React.FC = () => {
 
           {/* 说明 */}
           <div className="mt-8 p-4 bg-accent rounded-lg">
-            <h3 className="text-lg font-semibold text-yellow-900 mb-2">测试说明</h3>
-            <ul className="text-sm text-yellow-800 space-y-1">
+            <h3 className="text-lg font-semibold text-muted-foreground mb-2">测试说明</h3>
+            <ul className="text-sm text-muted-foreground space-y-1">
               <li>• <strong>测试登录弹窗:</strong> 调用登录函数，检查是否显示 Authing Guard 弹窗</li>
               <li>• <strong>检查认证状态:</strong> 查看当前用户登录状态和用户信息</li>
               <li>• <strong>检查 DOM:</strong> 查找页面中的 Authing 相关元素</li>

@@ -386,7 +386,7 @@ export default function ReferrerTestPage() {
               </div>
             </div>
             {/* 测试链接生成 */}
-            <Card className="border-2 border-purple-200">
+            <Card className="border-2 border-primary">
               <CardHeader>
                 <CardTitle className="text-lg">测试链接生成</CardTitle>
                 <CardDescription>
@@ -432,7 +432,7 @@ export default function ReferrerTestPage() {
             </Card>
 
             {/* localStorage数据 */}
-            <Card className="border-2 border-orange-200">
+            <Card className="border-2 border-border">
               <CardHeader>
                 <CardTitle className="text-lg">localStorage数据</CardTitle>
                 <CardDescription>

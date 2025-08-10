@@ -73,10 +73,10 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
         <div className="relative h-20 mb-6 overflow-hidden bg-accent rounded-lg">
           {/* 背景装饰 */}
           <div className="absolute inset-0">
-            <div className="absolute top-2 left-4 w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></div>
-            <div className="absolute top-6 right-8 w-1 h-1 bg-pink-300 rounded-full animate-pulse delay-300"></div>
-            <div className="absolute bottom-3 left-12 w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse delay-700"></div>
-            <div className="absolute bottom-2 right-4 w-2 h-2 bg-blue-300 rounded-full animate-pulse delay-500"></div>
+            <div className="absolute top-2 left-4 w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+            <div className="absolute top-6 right-8 w-1 h-1 bg-primary rounded-full animate-pulse delay-300"></div>
+            <div className="absolute bottom-3 left-12 w-1.5 h-1.5 bg-accent rounded-full animate-pulse delay-700"></div>
+            <div className="absolute bottom-2 right-4 w-2 h-2 bg-primary rounded-full animate-pulse delay-500"></div>
           </div>
 
           {/* 移动的小动物 */}
@@ -123,7 +123,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                className="w-2 h-2 bg-primary rounded-full animate-bounce"
                 style={{ animationDelay: `${i * 0.2}s` }}
               ></div>
             ))}
@@ -217,7 +217,7 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+              className="w-2 h-2 bg-primary rounded-full animate-bounce"
               style={{ animationDelay: `${i * 0.2}s` }}
             ></div>
           ))}

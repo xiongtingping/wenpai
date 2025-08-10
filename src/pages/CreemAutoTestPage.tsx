@@ -264,7 +264,7 @@ export default function CreemAutoTestPage() {
                 <Button 
                   onClick={startAutoTest}
                   disabled={isRunning}
-                  className="bg-primary hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-primary text-white"
                 >
                   {isRunning ? '测试中...' : '开始自动测试'}
                 </Button>

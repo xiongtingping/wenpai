@@ -207,11 +207,11 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'brand':
-        return 'bg-accent text-blue-800';
+        return 'bg-accent text-primary';
       case 'library':
-        return 'bg-accent text-green-800';
+        return 'bg-accent text-foreground';
       case 'radar':
-        return 'bg-accent text-purple-800';
+        return 'bg-accent text-primary';
       default:
         return 'bg-accent text-foreground';
     }

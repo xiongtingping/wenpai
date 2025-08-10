@@ -122,7 +122,7 @@ const TitleFixTestPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="bg-accent border border-border rounded-lg p-4">
-                    <p className="text-lg font-medium text-blue-900">{selectedTitle}</p>
+                    <p className="text-lg font-medium text-primary">{selectedTitle}</p>
                     <div className="flex items-center gap-4 mt-2 text-sm text-primary">
                       <span>长度: {selectedTitle.length} 字符</span>
                       <span>状态: {selectedTitle.length <= 20 ? '✅ 符合要求' : '⚠️ 超出限制'}</span>
@@ -139,7 +139,7 @@ const TitleFixTestPage: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="text-sm space-y-2">
-                  <h4 className="font-medium text-green-700">✅ 已修复的问题：</h4>
+                  <h4 className="font-medium text-foreground">✅ 已修复的问题：</h4>
                   <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                     <li>标题格式异常（如"感受就是终于不用在不同平｜真心话"）</li>
                     <li>标题截断问题（如"成短视频脚本+热方法详解"）</li>

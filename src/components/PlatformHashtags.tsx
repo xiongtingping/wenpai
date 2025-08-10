@@ -239,8 +239,8 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
             onClick={copyAllTags}
             className={`px-2 py-1 text-xs rounded transition-all duration-200 ${
               copyFeedback
-                ? 'bg-green-600 text-white'
-                : 'bg-primary text-white hover:bg-blue-700'
+                ? 'bg-accent text-white'
+                : 'bg-primary text-white hover:bg-primary'
             }`}
           >
             {copyFeedback ? '已复制 ✓' : '复制'}
@@ -256,7 +256,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
             {tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-2 py-1 bg-accent text-blue-800 text-xs rounded-full"
+                className="inline-flex items-center px-2 py-1 bg-accent text-primary text-xs rounded-full"
               >
                 #{tag}
               </span>
@@ -276,7 +276,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
               {tags.map((tag, index) => (
                 <div
                   key={index}
-                  className="inline-flex items-center bg-accent text-blue-800 text-xs rounded-full"
+                  className="inline-flex items-center bg-accent text-primary text-xs rounded-full"
                 >
                   {editingIndex === index ? (
                     <input
@@ -296,7 +296,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
                       <span className="px-2 py-1">#{tag}</span>
                       <button
                         onClick={() => setEditingIndex(index)}
-                        className="p-1 hover:bg-blue-200 rounded-r-full"
+                        className="p-1 hover:bg-primary rounded-r-full"
                       >
                         <Edit3 className="h-2 w-2" />
                       </button>
@@ -304,7 +304,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
                   )}
                   <button
                     onClick={() => removeTag(index)}
-                    className="p-1 hover:bg-blue-200 rounded-r-full"
+                    className="p-1 hover:bg-primary rounded-r-full"
                   >
                     <X className="h-2 w-2" />
                   </button>

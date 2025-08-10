@@ -266,7 +266,7 @@ const ApiTestPage = () => {
                 {/* <div className="flex items-center space-x-2">
                   <RadioGroupItem value="gemini" id="gemini" />
                   <Label htmlFor="gemini" className="flex items-center">
-                    <span className="text-emerald-600 font-semibold">Google Gemini</span>
+                    <span className="text-foreground font-semibold">Google Gemini</span>
                     <span className="ml-2 text-muted-foreground text-sm">(gemini-pro)</span>
                     <Badge variant="secondary" className="ml-2">
                       <Zap className="h-3 w-3 mr-1" /> 当前使用
@@ -298,7 +298,7 @@ const ApiTestPage = () => {
               <div className="flex items-center gap-2 mb-4">
                 <span>当前状态:</span>
                 {apiStatus.available ? (
-                  <Badge variant="outline" className="bg-accent text-green-700 border-border">
+                  <Badge variant="outline" className="bg-accent text-foreground border-border">
                     <CheckCircle2 className="w-4 h-4 mr-1" /> 可用
                   </Badge>
                 ) : (

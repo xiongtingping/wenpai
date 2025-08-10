@@ -266,8 +266,8 @@ export default function PaymentFlowTestPage() {
             <Separator />
             
             <div className="bg-accent p-4 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-2">测试要点</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <h4 className="font-medium text-primary mb-2">测试要点</h4>
+              <ul className="text-sm text-primary space-y-1">
                 <li>• 验证不同套餐的价格映射是否正确</li>
                 <li>• 检查支付二维码生成是否正常</li>
                 <li>• 测试支付状态监控功能</li>

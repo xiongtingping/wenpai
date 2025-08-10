@@ -173,7 +173,7 @@ export const EmojiReaction: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
   count?: number;
   active?: boolean;
 }> = ({ count, active = false, className = '', ...props }) => {
-  const activeClass = active ? 'bg-accent border-blue-300' : 'bg-accent border-border';
+  const activeClass = active ? 'bg-accent border-primary' : 'bg-accent border-border';
   
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border ${activeClass} ${className}`}>

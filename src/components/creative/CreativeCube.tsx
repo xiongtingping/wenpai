@@ -157,7 +157,7 @@ function DimensionCard({
       <CardContent>
         {selectedItem && (
           <div className="mb-2 p-2 bg-accent rounded flex items-center justify-between">
-            <span className="text-sm font-medium text-purple-800">{selectedItem}</span>
+            <span className="text-sm font-medium text-primary">{selectedItem}</span>
             <Button
               size="sm"
               variant="ghost"
@@ -1499,7 +1499,7 @@ ${generateStandardCallToAction()}
                   size="sm"
                   onClick={() => smartRandomGenerate(randomDimensionCount)}
                   disabled={isGenerating}
-                  className="border-purple-200 text-primary hover:bg-accent"
+                  className="border-primary text-primary hover:bg-accent"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   智能随机
@@ -1561,7 +1561,7 @@ ${generateStandardCallToAction()}
 
           {/* 生成内容展示 */}
           {currentContent && (
-            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+            <Card className="border-2 border-primary bg-gradient-to-br from-purple-50 to-blue-50">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">

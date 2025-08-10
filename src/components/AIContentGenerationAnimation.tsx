@@ -20,7 +20,7 @@ const platformConfig = {
   wechat: { name: '微信', icon: '💬', color: 'bg-accent text-foreground' },
   douyin: { name: '抖音', icon: '🎵', color: 'bg-accent text-primary' },
   bilibili: { name: 'B站', icon: '📺', color: 'bg-accent text-primary' },
-  twitter: { name: 'Twitter', icon: '🐦', color: 'bg-sky-100 text-sky-600' },
+  twitter: { name: 'Twitter', icon: '🐦', color: 'bg-accent text-foreground' },
   video: { name: '视频', icon: '🎬', color: 'bg-accent text-primary' }
 };
 
@@ -97,7 +97,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
-                    className="absolute w-2 h-2 bg-blue-400 rounded-full opacity-60"
+                    className="absolute w-2 h-2 bg-primary rounded-full opacity-60"
                     style={{
                       top: '50%',
                       left: '50%',
@@ -105,13 +105,13 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
                       animationDelay: `${i * 0.2}s`
                     }}
                   >
-                    <div className="w-full h-full bg-blue-400 rounded-full animate-pulse"></div>
+                    <div className="w-full h-full bg-primary rounded-full animate-pulse"></div>
                   </div>
                 ))}
               </div>
 
               {/* 雷达扫描效果 */}
-              <div className="absolute inset-0 rounded-full border-2 border-blue-300 opacity-30 animate-ping"></div>
+              <div className="absolute inset-0 rounded-full border-2 border-primary opacity-30 animate-ping"></div>
               <div className="absolute inset-0 rounded-full border border-border opacity-20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
             </div>
 
@@ -157,15 +157,15 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
                       key={platformId}
                       className={`relative flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-500 ${
                         isActive 
-                          ? 'bg-accent border-blue-300 shadow-md scale-105' 
+                          ? 'bg-accent border-primary shadow-md scale-105' 
                           : isCompleted
-                          ? 'bg-accent border-green-300'
+                          ? 'bg-accent border-border'
                           : 'bg-accent border-border'
                       }`}
                     >
                       <span className="text-lg">{platform?.icon}</span>
                       <span className={`text-xs font-medium transition-colors ${
-                        isActive ? 'text-primary' : isCompleted ? 'text-green-700' : 'text-muted-foreground'
+                        isActive ? 'text-primary' : isCompleted ? 'text-foreground' : 'text-muted-foreground'
                       }`}>
                         {platform?.name}
                       </span>
@@ -190,7 +190,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
 
           {/* 底部友好提示 */}
           <div className="mt-6 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/60 rounded-full border border-blue-100">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/60 rounded-full border border-primary">
               <Zap className="w-4 h-4 text-foreground animate-pulse" />
               <span className="text-xs text-muted-foreground">
                 AI正在为您量身定制优质内容

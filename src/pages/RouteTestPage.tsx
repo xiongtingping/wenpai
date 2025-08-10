@@ -71,7 +71,7 @@ const RouteTestPage: React.FC = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">路由测试页面</h1>
           <div className="bg-accent border border-border rounded-lg p-4">
-            <h2 className="font-semibold text-blue-800 mb-2">当前状态</h2>
+            <h2 className="font-semibold text-primary mb-2">当前状态</h2>
             <p className="text-primary">
               认证状态: {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}
             </p>
@@ -167,7 +167,7 @@ const RouteTestPage: React.FC = () => {
                       navigate('/login');
                     }
                   }}
-                  className="bg-primary hover:bg-blue-700"
+                  className="bg-primary hover:bg-primary"
                 >
                   测试登录
                 </Button>
