@@ -1,0 +1,70 @@
+{
+  "protectedComponents": [
+    {
+      "name": "HotTopicsPage",
+      "path": "src/pages/HotTopicsPage.tsx",
+      "protectionLevel": "HIGH",
+      "lockDate": "2025-01-10",
+      "description": "全网雷达页面 - 核心热点话题监控和订阅功能",
+      "protectedSections": [
+        "Core state management and hooks",
+        "Data loading functions (fetchHotData, loadSubscriptions)",
+        "Subscription management logic",
+        "Component initialization (useEffect)",
+        "Main render logic and UI structure"
+      ],
+      "modificationPolicy": {
+        "coreModification": "FORBIDDEN",
+        "featureRemoval": "FORBIDDEN",
+        "dataFlowChanges": "FORBIDDEN",
+        "newFeatures": "CREATE_SEPARATE_COMPONENTS",
+        "bugFixes": "REQUIRE_APPROVAL"
+      },
+      "contact": "System Administrator",
+      "lastModified": "2025-01-10",
+      "checksum": "auto-generated",
+      "dependencies": [
+        "@/api/hotTopicsService",
+        "@/api/topicSubscriptionService",
+        "@/components/hot-topics/*"
+      ]
+    }
+  ],
+  "protectionRules": {
+    "HIGH": {
+      "description": "Critical system components that cannot be modified",
+      "restrictions": [
+        "No core logic changes",
+        "No feature removal",
+        "No data flow modifications",
+        "Require admin approval for any changes"
+      ]
+    },
+    "MEDIUM": {
+      "description": "Important components with limited modification allowed",
+      "restrictions": [
+        "Minor UI changes allowed",
+        "Feature additions with approval",
+        "No core logic changes"
+      ]
+    },
+    "LOW": {
+      "description": "Components with basic protection",
+      "restrictions": [
+        "Document all changes",
+        "Test thoroughly before deployment"
+      ]
+    }
+  },
+  "enforcementMethods": [
+    "Code comments and warnings",
+    "Git hooks for protected files",
+    "Code review requirements",
+    "Automated protection checks"
+  ],
+  "bypassProcedure": {
+    "emergency": "Contact system administrator immediately",
+    "planned": "Submit modification request with detailed justification",
+    "approval": "Requires admin approval and backup creation"
+  }
+}
