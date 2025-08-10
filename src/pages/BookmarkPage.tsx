@@ -662,9 +662,9 @@ export default function BookmarkPage() {
         });
       }
 
-      // 导出收藏夹内容
+      // 导出我的收藏内容
       if (favoritesStore.favorites.length > 0) {
-        mdContent += `## ❤️ 收藏夹内容 (${favoritesStore.favorites.length} 项)\n\n`;
+        mdContent += `## ❤️ 我的收藏内容 (${favoritesStore.favorites.length} 项)\n\n`;
 
         favoritesStore.favorites.forEach((favorite, index) => {
           mdContent += `### ${index + 1}. ${favorite.title}\n\n`;
@@ -729,7 +729,7 @@ export default function BookmarkPage() {
       {/* 页面导航 */}
       <PageNavigation
         title="我的资料库"
-        description="统一管理网络收藏、内容提取和文案管理"
+        description="统一管理「我的收藏」、「网络剪藏」和文案管理"
         showAdaptButton={false}
       />
 
@@ -737,26 +737,26 @@ export default function BookmarkPage() {
         {/* 分类标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <TabsList className="grid w-full grid-cols-4 max-w-3xl bg-card/80 backdrop-blur-sm">
-              <TabsTrigger value="all" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
-                <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4" />
+            <TabsList className="unified-tabs-list grid w-full grid-cols-4 max-w-3xl">
+              <TabsTrigger value="all" className="unified-tab-trigger">
+                <FolderOpen className="tab-icon" />
                 <span>全部</span>
               </TabsTrigger>
-              <TabsTrigger value="favorites" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
-                <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span>收藏夹</span>
+              <TabsTrigger value="favorites" className="unified-tab-trigger">
+                <Heart className="tab-icon" />
+                <span>我的收藏</span>
                 {favoritesStore.totalCount > 0 && (
                   <Badge variant="secondary" className="ml-1 text-xs px-1 py-0 h-4 min-w-4">
                     {favoritesStore.totalCount}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="collection" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
-                <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
+              <TabsTrigger value="collection" className="unified-tab-trigger">
+                <Bookmark className="tab-icon" />
                 <span>网络剪藏</span>
               </TabsTrigger>
-              <TabsTrigger value="copywriting" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
-                <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
+              <TabsTrigger value="copywriting" className="unified-tab-trigger">
+                <Brain className="tab-icon" />
                 <span>文案管理</span>
               </TabsTrigger>
             </TabsList>
@@ -765,16 +765,17 @@ export default function BookmarkPage() {
             <div className="flex flex-wrap gap-2">
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
-                className="flex items-center gap-2"
+                className="library-action-button flex items-center gap-2"
+                variant="outline"
                 size="sm"
               >
                 <Plus className="w-4 h-4" />
-                <span>添加收藏</span>
+                <span>网络剪藏</span>
               </Button>
               <Button
                 onClick={() => setIsCopywritingDialogOpen(true)}
+                className="library-action-button flex items-center gap-2"
                 variant="outline"
-                className="flex items-center gap-2"
                 size="sm"
               >
                 <Brain className="w-4 h-4" />
@@ -782,8 +783,8 @@ export default function BookmarkPage() {
               </Button>
               <Button
                 onClick={handleExportData}
+                className="library-action-button flex items-center gap-2"
                 variant="outline"
-                className="flex items-center gap-2 bg-accent hover:bg-accent text-foreground border-border"
                 size="sm"
               >
                 <Download className="w-4 h-4" />
@@ -874,7 +875,7 @@ export default function BookmarkPage() {
             </CardContent>
           </Card>
 
-          {/* 收藏夹标签页内容 */}
+          {/* 我的收藏标签页内容 */}
           <TabsContent value="favorites" className="mt-0">
             <div className="grid gap-4">
               {favoritesStore.favorites.length === 0 ? (
@@ -930,7 +931,7 @@ export default function BookmarkPage() {
                                 favoritesStore.removeFavorite(favorite.id);
                                 toast({
                                   title: "取消收藏",
-                                  description: "已从收藏夹中移除",
+                                  description: "已从我的收藏中移除",
                                 });
                               }}
                               className="text-destructive hover:text-destructive"
@@ -1134,6 +1135,13 @@ export default function BookmarkPage() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => startEdit(item)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => {
                               navigator.clipboard.writeText(item.content);
                               toast({
@@ -1180,7 +1188,7 @@ export default function BookmarkPage() {
                     <Bookmark className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-foreground mb-2">暂无网络剪藏</h3>
                     <p className="text-muted-foreground">
-                      请使用右上角的"添加收藏"按钮开始剪藏网络内容
+                      请使用右上角的"网络剪藏"按钮开始剪藏网络内容
                     </p>
                   </CardContent>
                 </Card>
@@ -1210,6 +1218,13 @@ export default function BookmarkPage() {
                           </span>
                         </div>
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => startEdit(item)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"
@@ -1268,13 +1283,13 @@ export default function BookmarkPage() {
           </TabsContent>
         </Tabs>
 
-        {/* 添加收藏对话框 */}
+        {/* 网络剪藏对话框 */}
         <Dialog open={isAddDialogOpen} onOpenChange={handleDialogClose(setIsAddDialogOpen)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>添加收藏</DialogTitle>
+              <DialogTitle>网络剪藏</DialogTitle>
               <DialogDescription>
-                添加网络收藏到资料库
+                添加网络内容到资料库
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
