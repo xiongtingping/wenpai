@@ -7,6 +7,10 @@
  * 🔒 LOCKED: 请勿修改，如需变动请新建模块
  * 📌 已封装：热点话题显示、订阅管理、实时更新、数据过滤
  * ⚠️ 请勿改动：此组件已通过完整性验证，UI和逻辑稳定运行
+ *
+ * ✅ UPDATED: 深色模式适配和设计令牌标准化，修复于 2025-08-10
+ * 🎨 DESIGN: 按照设计令牌标准执行，修复深色模式下字体和图标颜色异常
+ * 🌙 THEME: 全面适配深色模式，确保所有元素在不同主题下正确显示
  */
 
 import React, { useState, useEffect } from 'react';
@@ -419,8 +423,8 @@ export default function HotTopicsRadar({
                         {getPlatformDisplayName(topic.platform)}
                       </Badge>
                       {topic.hot && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Flame className="w-3 h-3" />
+                        <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
+                          <Flame className="w-3 h-3 text-orange-500 dark:text-orange-400" />
                           <span>{topic.hot.toLocaleString()}</span>
                         </div>
                       )}
@@ -451,8 +455,10 @@ export default function HotTopicsRadar({
                         className="h-8 w-8 p-0"
                       >
                         <Heart
-                          className={`w-4 h-4 ${
-                            isBookmarked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'
+                          className={`w-4 h-4 transition-colors ${
+                            isBookmarked
+                              ? 'fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400'
+                              : 'text-muted-foreground hover:text-red-500 dark:hover:text-red-400'
                           }`}
                         />
                       </Button>
@@ -468,7 +474,7 @@ export default function HotTopicsRadar({
                         }}
                         className="h-8 w-8 p-0"
                       >
-                        <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                        <ExternalLink className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
                       </Button>
                     )}
                   </div>

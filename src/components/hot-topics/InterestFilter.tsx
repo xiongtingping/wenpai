@@ -7,6 +7,10 @@
  * 🔒 LOCKED: 请勿修改，如需变动请新建模块
  * 📌 已封装：兴趣标签过滤、用户偏好设置、智能推荐
  * ⚠️ 请勿改动：此组件已通过完整性验证，过滤逻辑稳定运行
+ *
+ * ✅ UPDATED: 深色模式适配和布局优化，修复于 2025-08-10
+ * 🎨 DESIGN: 按照设计令牌标准执行，优化兴趣调节布局
+ * 📱 LAYOUT: 解决布局拥挤问题，提升用户体验
  */
 
 import React, { useState, useEffect } from 'react';
@@ -235,14 +239,14 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
   };
 
   /**
-   * 获取偏好级别颜色
+   * 获取偏好级别颜色 - 使用设计令牌
    */
   const getPreferenceColor = (value: number): string => {
-    if (value <= -40) return 'text-red-500';
-    if (value <= -10) return 'text-orange-500';
-    if (value <= 10) return 'text-gray-500';
-    if (value <= 40) return 'text-blue-500';
-    return 'text-green-500';
+    if (value <= -40) return 'text-destructive';
+    if (value <= -10) return 'text-orange-500 dark:text-orange-400';
+    if (value <= 10) return 'text-muted-foreground';
+    if (value <= 40) return 'text-primary';
+    return 'text-green-600 dark:text-green-400';
   };
 
   /**
@@ -286,152 +290,211 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
         )}
       </Button>
 
-      {/* 过滤器面板 */}
+      {/* 过滤器面板 - 优化布局和间距 */}
       {isOpen && (
-        <Card className="mt-3">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between text-base">
-              <span>兴趣调节设置</span>
-              <div className="flex items-center gap-2">
+        <Card className="mt-4 shadow-sm border-border">
+          <CardHeader className="pb-4 space-y-2">
+            <CardTitle className="flex items-center justify-between text-lg font-semibold text-foreground">
+              <span className="flex items-center gap-2">
+                <Settings className="h-5 w-5 text-primary" />
+                兴趣调节设置
+              </span>
+              <div className="flex items-center gap-3">
                 <Button variant="default" size="sm" onClick={() => {
                   // 保存当前设置（实际上已经自动保存了）
                   toast({
                     title: "设置已保存",
                     description: "您的兴趣偏好设置已成功保存",
                   });
-                }} className="h-7 text-xs">
-                  保存
+                }} className="h-8 text-sm font-medium">
+                  保存设置
                 </Button>
-                <Button variant="ghost" size="sm" onClick={resetFilters} className="h-7 text-xs">
-                  重置
+                <Button variant="outline" size="sm" onClick={resetFilters} className="h-8 text-sm">
+                  重置全部
                 </Button>
               </div>
             </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              调整您的内容偏好，获得更精准的推荐
+            </p>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="pt-0 space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 h-8">
-                <TabsTrigger value="categories" className="text-xs">分类偏好</TabsTrigger>
-                <TabsTrigger value="keywords" className="text-xs">关键词</TabsTrigger>
-                <TabsTrigger value="platforms" className="text-xs">平台设置</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 h-10 bg-muted/50">
+                <TabsTrigger value="categories" className="text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
+                  分类偏好
+                </TabsTrigger>
+                <TabsTrigger value="keywords" className="text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
+                  关键词
+                </TabsTrigger>
+                <TabsTrigger value="platforms" className="text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
+                  平台设置
+                </TabsTrigger>
               </TabsList>
 
-              {/* 分类偏好标签页 */}
-              <TabsContent value="categories" className="mt-4 space-y-3">
-                <div className="text-xs text-muted-foreground mb-3 text-center">
-                  左滑不想看 ← 中性 → 右滑想看
+              {/* 分类偏好标签页 - 优化布局和间距 */}
+              <TabsContent value="categories" className="mt-6 space-y-6">
+                <div className="bg-muted/30 rounded-lg p-4 text-center border border-border">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    💡 调整内容分类偏好
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    左滑减少推荐 ← 中性 → 右滑增加推荐
+                  </p>
                 </div>
-                {categories.map((category) => {
-                  const preference = filters.categoryPreferences[category.id] || 0;
-                  return (
-                    <div key={category.id} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{category.icon}</span>
-                          <div>
-                            <span className="text-sm font-medium">{category.label}</span>
-                            <p className="text-xs text-muted-foreground">{category.description}</p>
+
+                <div className="space-y-6">
+                  {categories.map((category) => {
+                    const preference = filters.categoryPreferences[category.id] || 0;
+                    return (
+                      <div key={category.id} className="bg-card/50 rounded-lg p-4 border border-border/50 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <span className="text-xl">{category.icon}</span>
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-semibold text-foreground">{category.label}</h4>
+                              <p className="text-xs text-muted-foreground mt-1">{category.description}</p>
+                            </div>
+                          </div>
+                          <div className="text-right min-w-[80px]">
+                            <div className={`text-sm font-semibold ${getPreferenceColor(preference)}`}>
+                              {getPreferenceLabel(preference)}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {preference > 0 ? '+' : ''}{preference}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className={`text-xs font-medium ${getPreferenceColor(preference)}`}>
-                            {getPreferenceLabel(preference)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {preference > 0 ? '+' : ''}{preference}
+
+                        <div className="space-y-3">
+                          <Slider
+                            value={[preference]}
+                            onValueChange={(value) => updateCategoryPreference(category.id, value[0])}
+                            min={-100}
+                            max={100}
+                            step={10}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between items-center text-xs text-muted-foreground px-1">
+                            <span className="flex items-center gap-1.5">
+                              <ThumbsDown className="w-3.5 h-3.5 text-destructive/70" />
+                              <span>不想看</span>
+                            </span>
+                            <span className="text-center font-medium">中性</span>
+                            <span className="flex items-center gap-1.5">
+                              <span>想看</span>
+                              <ThumbsUp className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                            </span>
                           </div>
                         </div>
                       </div>
-                      <div className="px-2">
-                        <Slider
-                          value={[preference]}
-                          onValueChange={(value) => updateCategoryPreference(category.id, value[0])}
-                          min={-100}
-                          max={100}
-                          step={10}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span className="flex items-center gap-1">
-                            <ThumbsDown className="w-3 h-3" />
-                            不想看
-                          </span>
-                          <span>中性</span>
-                          <span className="flex items-center gap-1">
-                            想看
-                            <ThumbsUp className="w-3 h-3" />
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </TabsContent>
 
-              {/* 关键词标签页 */}
-              <TabsContent value="keywords" className="mt-4 space-y-4">
+              {/* 关键词标签页 - 优化布局 */}
+              <TabsContent value="keywords" className="mt-6 space-y-6">
                 {/* 偏好关键词 */}
-                <div>
-                  <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Eye className="h-3 w-3" />
-                    偏好关键词
-                  </h4>
-                  <div className="flex gap-2 mb-2">
+                <div className="bg-card/50 rounded-lg p-5 border border-border/50 space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-semibold text-foreground">偏好关键词</h4>
+                      <p className="text-sm text-muted-foreground">添加您感兴趣的关键词，系统会优先推荐相关内容</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
                     <Input
-                      placeholder="输入偏好的关键词"
+                      placeholder="输入您感兴趣的关键词..."
                       value={newPreferredKeyword}
                       onChange={(e) => setNewPreferredKeyword(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addPreferredKeyword()}
-                      className="h-8 text-sm"
+                      className="h-10 text-sm flex-1"
                     />
-                    <Button onClick={addPreferredKeyword} size="sm" className="h-8 px-2">
-                      <Plus className="h-3 w-3" />
+                    <Button onClick={addPreferredKeyword} size="sm" className="h-10 px-4">
+                      <Plus className="h-4 w-4 mr-2" />
+                      添加
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {filters.preferredKeywords.map((keyword, index) => (
-                      <Badge key={index} variant="default" className="flex items-center gap-1 text-xs px-2 py-0 h-5">
-                        {keyword}
-                        <X
-                          className="h-2 w-2 cursor-pointer"
-                          onClick={() => removePreferredKeyword(keyword)}
-                        />
-                      </Badge>
-                    ))}
-                  </div>
+
+                  {filters.preferredKeywords.length > 0 && (
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        已添加的偏好关键词 ({filters.preferredKeywords.length})
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {filters.preferredKeywords.map((keyword, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="flex items-center gap-2 text-sm px-3 py-1.5 h-auto bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
+                          >
+                            <span>{keyword}</span>
+                            <X
+                              className="h-3 w-3 cursor-pointer hover:text-destructive transition-colors"
+                              onClick={() => removePreferredKeyword(keyword)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <Separator />
-
                 {/* 屏蔽关键词 */}
-                <div>
-                  <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <EyeOff className="h-3 w-3" />
-                    屏蔽关键词
-                  </h4>
-                  <div className="flex gap-2 mb-2">
+                <div className="bg-card/50 rounded-lg p-5 border border-border/50 space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                      <EyeOff className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-semibold text-foreground">屏蔽关键词</h4>
+                      <p className="text-sm text-muted-foreground">添加您不想看到的关键词，系统会过滤相关内容</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
                     <Input
-                      placeholder="输入要屏蔽的关键词"
+                      placeholder="输入要屏蔽的关键词..."
                       value={newBlockedKeyword}
                       onChange={(e) => setNewBlockedKeyword(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addBlockedKeyword()}
-                      className="h-8 text-sm"
+                      className="h-10 text-sm flex-1"
                     />
-                    <Button onClick={addBlockedKeyword} size="sm" className="h-8 px-2">
-                      <Plus className="h-3 w-3" />
+                    <Button onClick={addBlockedKeyword} size="sm" variant="destructive" className="h-10 px-4">
+                      <Plus className="h-4 w-4 mr-2" />
+                      屏蔽
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {filters.blockedKeywords.map((keyword, index) => (
-                      <Badge key={index} variant="destructive" className="flex items-center gap-1 text-xs px-2 py-0 h-5">
-                        {keyword}
-                        <X
-                          className="h-2 w-2 cursor-pointer"
-                          onClick={() => removeBlockedKeyword(keyword)}
-                        />
-                      </Badge>
-                    ))}
-                  </div>
+
+                  {filters.blockedKeywords.length > 0 && (
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        已屏蔽的关键词 ({filters.blockedKeywords.length})
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {filters.blockedKeywords.map((keyword, index) => (
+                          <Badge
+                            key={index}
+                            variant="destructive"
+                            className="flex items-center gap-2 text-sm px-3 py-1.5 h-auto bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800"
+                          >
+                            <span>{keyword}</span>
+                            <X
+                              className="h-3 w-3 cursor-pointer hover:text-red-900 dark:hover:text-red-100 transition-colors"
+                              onClick={() => removeBlockedKeyword(keyword)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 

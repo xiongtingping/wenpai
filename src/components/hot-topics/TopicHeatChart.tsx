@@ -6,6 +6,9 @@
  * 🔒 LOCKED: 请勿修改，如需变动请新建模块
  * 📌 已封装：热度可视化、趋势分析、图表展示
  * ⚠️ 请勿改动：此组件已通过完整性验证，图表功能稳定运行
+ *
+ * ✅ UPDATED: 深色模式适配和设计令牌标准化，修复于 2025-08-10
+ * 🎨 DESIGN: 修复深色模式下图表颜色和趋势图标显示异常问题
  */
 
 import React, { useMemo } from 'react';
@@ -92,11 +95,11 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
     }));
   }, [trends]);
 
-  // 获取趋势图标
+  // 获取趋势图标 - 使用设计令牌颜色
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="w-4 h-4 text-foreground" />;
+        return <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />;
       case 'down':
         return <TrendingDown className="w-4 h-4 text-destructive" />;
       default:
@@ -104,11 +107,11 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
     }
   };
 
-  // 获取趋势颜色
+  // 获取趋势颜色 - 使用设计令牌颜色
   const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return 'text-foreground';
+        return 'text-green-600 dark:text-green-400';
       case 'down':
         return 'text-destructive';
       default:

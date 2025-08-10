@@ -8,6 +8,9 @@
  * 🔒 LOCKED: 请勿修改，如需变动请新建模块
  * 📌 已封装：热门话题排行、视觉化展示、动态效果
  * ⚠️ 请勿改动：此组件已通过完整性验证，排行展示稳定运行
+ *
+ * ✅ UPDATED: 深色模式适配和设计令牌标准化，修复于 2025-08-10
+ * 🎨 DESIGN: 修复深色模式下图标和文字颜色显示异常问题
  */
 
 import React from 'react';
@@ -100,24 +103,24 @@ export default function TopThreePodium({
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy className="w-8 h-8 text-muted-foreground" />;
+        return <Trophy className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />;
       case 2:
-        return <Medal className="w-6 h-6 text-foreground" />;
+        return <Medal className="w-6 h-6 text-gray-500 dark:text-gray-400" />;
       case 3:
-        return <Medal className="w-6 h-6 text-foreground" />;
+        return <Medal className="w-6 h-6 text-amber-600 dark:text-amber-500" />;
       default:
-        return <TrendingUp className="w-4 h-4" />;
+        return <TrendingUp className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
   const getRankBadge = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Badge className="bg-accent text-muted-foreground hover:bg-accent">🥇 第{rank}名</Badge>;
+        return <Badge className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700">🥇 第{rank}名</Badge>;
       case 2:
-        return <Badge className="bg-muted text-foreground hover:bg-accent">🥈 第{rank}名</Badge>;
+        return <Badge className="bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600">🥈 第{rank}名</Badge>;
       case 3:
-        return <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">🥉 第{rank}名</Badge>;
+        return <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700">🥉 第{rank}名</Badge>;
       default:
         return <Badge variant="secondary">#{rank}</Badge>;
     }
@@ -138,9 +141,9 @@ export default function TopThreePodium({
       <CardContent className="p-6">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
-            <Trophy className="w-6 h-6 text-foreground" />
+            <Trophy className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
             热度排行榜
-            <Flame className="w-6 h-6 text-destructive" />
+            <Flame className="w-6 h-6 text-orange-500 dark:text-orange-400" />
           </h2>
           <p className="text-muted-foreground">今日最热门话题前三名</p>
         </div>
@@ -179,8 +182,8 @@ export default function TopThreePodium({
 
                     {/* 热度值 */}
                     <div className="flex items-center justify-center gap-1 mb-2">
-                      <Zap className="w-3 h-3 text-foreground" />
-                      <span className="text-xs font-medium">
+                      <Zap className="w-3 h-3 text-yellow-500 dark:text-yellow-400" />
+                      <span className="text-xs font-medium text-foreground">
                         {formatHotValue(topic.hot)}
                       </span>
                     </div>

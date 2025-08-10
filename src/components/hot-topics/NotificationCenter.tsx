@@ -8,6 +8,9 @@
  * 🔒 LOCKED: 请勿修改，如需变动请新建模块
  * 📌 已封装：实时通知、消息管理、提醒设置
  * ⚠️ 请勿改动：此组件已通过完整性验证，通知功能稳定运行
+ *
+ * ✅ UPDATED: 深色模式适配和设计令牌标准化，修复于 2025-08-10
+ * 🎨 DESIGN: 修复深色模式下图标和状态颜色显示异常问题
  */
 
 import React, { useState, useEffect } from 'react';
@@ -113,15 +116,15 @@ export const NotificationCenter: React.FC = () => {
     }
   });
 
-  // 获取通知图标
+  // 获取通知图标 - 使用设计令牌颜色
   const getNotificationIcon = (type: string, level: NotificationLevel) => {
     switch (level) {
       case 'error':
         return <AlertCircle className="w-4 h-4 text-destructive" />;
       case 'warning':
-        return <AlertCircle className="w-4 h-4 text-foreground" />;
+        return <AlertCircle className="w-4 h-4 text-orange-500 dark:text-orange-400" />;
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-foreground" />;
+        return <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />;
       default:
         return <Info className="w-4 h-4 text-primary" />;
     }

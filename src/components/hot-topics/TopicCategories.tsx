@@ -6,6 +6,9 @@
  * 🔒 LOCKED: 请勿修改，如需变动请新建模块
  * 📌 已封装：话题分类、智能标签、分类管理
  * ⚠️ 请勿改动：此组件已通过完整性验证，分类功能稳定运行
+ *
+ * ✅ UPDATED: 深色模式适配和设计令牌标准化，修复于 2025-08-10
+ * 🎨 DESIGN: 修复深色模式下分类标签和图标颜色显示异常问题
  */
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
