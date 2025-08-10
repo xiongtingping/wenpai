@@ -56,23 +56,23 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
     // 创建简单的登录表单
     const form = document.createElement('div');
     form.innerHTML = `
-      <div style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <h2 style="margin-bottom: 20px; text-align: center;">登录</h2>
+      <div class="p-5 bg-background rounded-lg shadow-lg border border-border">
+        <h2 class="mb-5 text-center text-primary font-semibold">登录</h2>
         <form id="authing-login-form">
-          <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px;">用户名/邮箱</label>
-            <input type="text" id="username" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+          <div class="mb-4">
+            <label class="block mb-1 text-secondary">用户名/邮箱</label>
+            <input type="text" id="username" class="w-full p-2 border border-border rounded bg-background text-primary" />
           </div>
-          <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px;">密码</label>
-            <input type="password" id="password" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+          <div class="mb-4">
+            <label class="block mb-1 text-secondary">密码</label>
+            <input type="password" id="password" class="w-full p-2 border border-border rounded bg-background text-primary" />
           </div>
-          <button type="submit" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          <button type="submit" class="w-full p-2.5 bg-primary text-primary-foreground border-0 rounded cursor-pointer hover:opacity-90">
             登录
           </button>
         </form>
-        <div style="margin-top: 15px; text-align: center;">
-          <button id="authing-close" style="background: none; border: none; color: #666; cursor: pointer;">关闭</button>
+        <div class="mt-4 text-center">
+          <button id="authing-close" class="bg-transparent border-0 text-secondary cursor-pointer hover:text-primary">关闭</button>
         </div>
       </div>
     `;
@@ -118,23 +118,14 @@ export const AuthingGuard: React.FC<AuthingGuardProps> = ({
   if (!visible) return null;
 
   return (
-    <div 
+    <div
       ref={containerRef}
       id={containerId}
-      className="authing-guard-container"
-      style={{
-        position: mode === 'modal' ? 'fixed' : 'relative',
-        top: mode === 'modal' ? '50%' : 'auto',
-        left: mode === 'modal' ? '50%' : 'auto',
-        transform: mode === 'modal' ? 'translate(-50%, -50%)' : 'none',
-        zIndex: mode === 'modal' ? 1000 : 'auto',
-        backgroundColor: mode === 'modal' ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
-        width: mode === 'modal' ? '100vw' : '100%',
-        height: mode === 'modal' ? '100vh' : 'auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
+      className={`authing-guard-container flex items-center justify-center ${
+        mode === 'modal'
+          ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000] bg-foreground/50 w-screen h-screen'
+          : 'relative w-full h-auto bg-transparent'
+      }`}
     />
   );
 };

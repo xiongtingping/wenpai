@@ -469,7 +469,7 @@ export default function PaymentPage() {
                       price={getCurrentPrice()}
                     />
                   ) : (
-                    <div style={{ color: 'red' }}>请先选择有效的套餐和周期</div>
+                    <div className="text-destructive">请先选择有效的套餐和周期</div>
                   );
                 })()}
               </div>

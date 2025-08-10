@@ -122,16 +122,11 @@ const SimpleAuthTestPage: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      maxWidth: '800px', 
-      margin: '0 auto', 
-      padding: '20px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
+    <div className="max-w-4xl mx-auto p-5 font-sans">
       {/* 页面标题 */}
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>Authing 独立测试页面</h1>
-        <p style={{ color: '#666' }}>完全独立的 Authing 功能测试，不依赖外部组件</p>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl mb-2.5 text-primary font-bold">Authing 独立测试页面</h1>
+        <p className="text-secondary">完全独立的 Authing 功能测试，不依赖外部组件</p>
       </div>
 
       {/* 当前状态 */}

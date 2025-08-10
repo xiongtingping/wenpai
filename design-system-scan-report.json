@@ -1,11 +1,11 @@
 {
-  "timestamp": "2025-08-10T05:43:21.444Z",
-  "duration": 0.253,
+  "timestamp": "2025-08-10T05:53:43.944Z",
+  "duration": 0.252,
   "totalFiles": 424,
   "scannedFiles": 424,
-  "totalIssues": 35,
+  "totalIssues": 28,
   "issuesByType": {
-    "inline-styles": 35
+    "inline-styles": 28
   },
   "issuesByFile": {
     "src/automation/AutomationEngine.ts": [
@@ -172,34 +172,6 @@
         "severity": "medium"
       }
     ],
-    "src/components/auth/AuthingGuard.tsx": [
-      {
-        "type": "inline-styles",
-        "pattern": "style attribute",
-        "suggested": "使用Tailwind类替换内联样式",
-        "line": 70,
-        "content": "<button type=\"submit\" style=\"width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;\">",
-        "severity": "medium"
-      },
-      {
-        "type": "inline-styles",
-        "pattern": "style attribute",
-        "suggested": "使用Tailwind类替换内联样式",
-        "line": 75,
-        "content": "<button id=\"authing-close\" style=\"background: none; border: none; color: #666; cursor: pointer;\">关闭</button>",
-        "severity": "medium"
-      }
-    ],
-    "src/pages/PaymentPage.tsx": [
-      {
-        "type": "inline-styles",
-        "pattern": "style attribute",
-        "suggested": "使用Tailwind类替换内联样式",
-        "line": 472,
-        "content": "<div style={{ color: 'red' }}>请先选择有效的套餐和周期</div>",
-        "severity": "medium"
-      }
-    ],
     "src/pages/ProfilePage.tsx": [
       {
         "type": "inline-styles",
@@ -223,31 +195,7 @@
         "type": "inline-styles",
         "pattern": "style attribute",
         "suggested": "使用Tailwind类替换内联样式",
-        "line": 101,
-        "content": "<p style={{ textAlign: 'center', color: '#666' }}>",
-        "severity": "medium"
-      },
-      {
-        "type": "inline-styles",
-        "pattern": "style attribute",
-        "suggested": "使用Tailwind类替换内联样式",
-        "line": 115,
-        "content": "<p style={{ margin: 0, fontSize: '0.875rem', color: '#666' }}>{debugInfo}</p>",
-        "severity": "medium"
-      },
-      {
-        "type": "inline-styles",
-        "pattern": "style attribute",
-        "suggested": "使用Tailwind类替换内联样式",
-        "line": 149,
-        "content": "<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{config.priceId}</span>",
-        "severity": "medium"
-      },
-      {
-        "type": "inline-styles",
-        "pattern": "style attribute",
-        "suggested": "使用Tailwind类替换内联样式",
-        "line": 201,
+        "line": 167,
         "content": "<div style={{ color: '#dc2626', marginBottom: '16px' }}>{error}</div>",
         "severity": "medium"
       },
@@ -255,7 +203,7 @@
         "type": "inline-styles",
         "pattern": "style attribute",
         "suggested": "使用Tailwind类替换内联样式",
-        "line": 245,
+        "line": 211,
         "content": "<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>",
         "severity": "medium"
       },
@@ -263,7 +211,7 @@
         "type": "inline-styles",
         "pattern": "style attribute",
         "suggested": "使用Tailwind类替换内联样式",
-        "line": 250,
+        "line": 216,
         "content": "<div style={{ padding: '32px', color: '#6b7280' }}>",
         "severity": "medium"
       }
@@ -273,15 +221,7 @@
         "type": "inline-styles",
         "pattern": "style attribute",
         "suggested": "使用Tailwind类替换内联样式",
-        "line": 134,
-        "content": "<p style={{ color: '#666' }}>完全独立的 Authing 功能测试，不依赖外部组件</p>",
-        "severity": "medium"
-      },
-      {
-        "type": "inline-styles",
-        "pattern": "style attribute",
-        "suggested": "使用Tailwind类替换内联样式",
-        "line": 270,
+        "line": 265,
         "content": "<div style={{ textAlign: 'center', fontSize: '14px', color: '#666' }}>",
         "severity": "medium"
       }

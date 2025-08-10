@@ -93,90 +93,56 @@ export default function QRCodeTestPage() {
   }, []);
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px' }}>
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-center mb-2 text-primary">
           支付二维码测试
         </h1>
-        <p style={{ textAlign: 'center', color: '#666' }}>
+        <p className="text-center text-secondary">
           测试后端生成的支付二维码显示功能
         </p>
       </div>
 
       {/* 调试信息 */}
-      <div style={{ 
-        border: '1px solid #e5e7eb', 
-        borderRadius: '8px', 
-        padding: '16px', 
-        marginBottom: '24px',
-        backgroundColor: '#f9fafb'
-      }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '1.1rem', fontWeight: 'bold' }}>调试信息</h3>
-        <p style={{ margin: 0, fontSize: '0.875rem', color: '#666' }}>{debugInfo}</p>
+      <div className="border border-border rounded-lg p-4 mb-6 bg-accent">
+        <h3 className="m-0 mb-2 text-lg font-bold text-primary">调试信息</h3>
+        <p className="m-0 text-sm text-secondary">{debugInfo}</p>
       </div>
 
       {/* 测试按钮 */}
-      <div style={{ 
-        border: '1px solid #e5e7eb', 
-        borderRadius: '8px', 
-        padding: '16px', 
-        marginBottom: '24px'
-      }}>
-        <h3 style={{ margin: '0 0 16px 0', fontSize: '1.1rem', fontWeight: 'bold' }}>测试配置</h3>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '16px' 
-        }}>
+      <div className="border border-border rounded-lg p-4 mb-6">
+        <h3 className="m-0 mb-4 text-lg font-bold text-primary">测试配置</h3>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
           {testConfigs.map((config) => (
             <button
               key={config.priceId}
               onClick={() => generateQRCode(config.priceId, config.name)}
               disabled={loading}
-              style={{
-                padding: '16px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                backgroundColor: loading ? '#f3f4f6' : '#ffffff',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px'
-              }}
+              className={`p-4 border border-border rounded-md flex flex-col items-center gap-2 ${
+                loading
+                  ? 'bg-accent cursor-not-allowed'
+                  : 'bg-background cursor-pointer hover:bg-accent'
+              }`}
             >
-              <span style={{ fontWeight: '500' }}>{config.name}</span>
-              <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{config.priceId}</span>
+              <span className="font-medium text-primary">{config.name}</span>
+              <span className="text-xs text-secondary">{config.priceId}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* 二维码显示 */}
-      <div style={{ 
-        border: '1px solid #e5e7eb', 
-        borderRadius: '8px', 
-        padding: '16px', 
-        marginBottom: '24px'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '16px' 
-        }}>
-          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold' }}>支付二维码</h3>
+      <div className="border border-border rounded-lg p-4 mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="m-0 text-lg font-bold text-primary">支付二维码</h3>
           <button
             onClick={handleRefresh}
             disabled={refreshing || loading}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px',
-              backgroundColor: '#ffffff',
-              cursor: (refreshing || loading) ? 'not-allowed' : 'pointer',
-              fontSize: '0.875rem'
-            }}
+            className={`px-4 py-2 border border-border rounded bg-background text-sm ${
+              (refreshing || loading)
+                ? 'cursor-not-allowed opacity-60'
+                : 'cursor-pointer hover:bg-accent'
+            }`}
           >
             {refreshing ? '刷新中...' : '刷新'}
           </button>
