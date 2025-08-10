@@ -7,9 +7,9 @@ import { Twitter, Mail, ExternalLink } from "lucide-react"
  */
 export function Footer() {
   return (
-    <footer className="bg-gray-50 text-center text-sm text-gray-500 mt-10 border-t">
+    <footer className="bg-accent text-center text-sm text-muted-foreground mt-10 border-t">
       <div className="py-4 px-6 flex flex-col md:flex-row justify-center items-center gap-2 md:gap-4">
-        <span className="font-medium text-gray-600">AI内容适配 · 创意生成</span>
+        <span className="font-medium text-muted-foreground">AI内容适配 · 创意生成</span>
         <span className="hidden md:inline">|</span>
         <span>© 2025 文派（<a href="https://www.wenpai.xyz" className="underline hover:text-black">www.wenpai.xyz</a>）All rights reserved.</span>
         <span className="hidden md:inline">|</span>

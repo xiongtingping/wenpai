@@ -91,11 +91,11 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="w-4 h-4 text-green-600" />;
+        return <TrendingUp className="w-4 h-4 text-foreground" />;
       case 'down':
-        return <TrendingDown className="w-4 h-4 text-red-600" />;
+        return <TrendingDown className="w-4 h-4 text-destructive" />;
       default:
-        return <Minus className="w-4 h-4 text-gray-600" />;
+        return <Minus className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -103,11 +103,11 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
   const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return 'text-green-600';
+        return 'text-foreground';
       case 'down':
-        return 'text-red-600';
+        return 'text-destructive';
       default:
-        return 'text-gray-600';
+        return 'text-muted-foreground';
     }
   };
 
@@ -130,13 +130,13 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
               <div 
                 className={`w-full rounded-t transition-all duration-300 ${
                   isLatest 
-                    ? 'bg-blue-500' 
+                    ? 'bg-primary' 
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}
                 style={{ height: `${Math.max(height, 10)}%` }}
                 title={`${data.date || '未知日期'}: ${(data.heat || 0).toLocaleString()}`}
               />
-              <span className="text-xs text-gray-500 mt-1 transform rotate-45 origin-left">
+              <span className="text-xs text-muted-foreground mt-1 transform rotate-45 origin-left">
                 {data.date || '未知'}
               </span>
             </div>
@@ -152,7 +152,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-blue-600" />
+              <Activity className="w-5 h-5 text-primary" />
               热度趋势
             </CardTitle>
             <CardDescription>
@@ -187,17 +187,17 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
       <CardContent>
         {loading ? (
           <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : stats ? (
           <div className="space-y-4">
             {/* 统计概览 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-foreground">
                   {stats.current.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-500">当前热度</div>
+                <div className="text-sm text-muted-foreground">当前热度</div>
               </div>
               
               <div className="text-center">
@@ -207,28 +207,28 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
                   {getTrendIcon(stats.trend as 'up' | 'down' | 'stable')}
                   {stats.changePercent > 0 ? '+' : ''}{stats.changePercent.toFixed(1)}%
                 </div>
-                <div className="text-sm text-gray-500">变化趋势</div>
+                <div className="text-sm text-muted-foreground">变化趋势</div>
               </div>
               
               <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">
+                <div className="text-lg font-semibold text-foreground">
                   {stats.average.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-500">平均热度</div>
+                <div className="text-sm text-muted-foreground">平均热度</div>
               </div>
               
               <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">
+                <div className="text-lg font-semibold text-foreground">
                   {stats.max.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-500">最高热度</div>
+                <div className="text-sm text-muted-foreground">最高热度</div>
               </div>
             </div>
 
             {/* 趋势图表 */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-gray-700">热度变化</h4>
+                <h4 className="text-sm font-medium text-foreground">热度变化</h4>
                 <Badge variant="outline" className="text-xs">
                   {trends.length} 个数据点
                 </Badge>
@@ -239,7 +239,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
             {/* 平台分布 */}
             {trends.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">平台分布</h4>
+                <h4 className="text-sm font-medium text-foreground mb-2">平台分布</h4>
                 <div className="flex flex-wrap gap-2">
                   {Array.from(new Set(trends.flatMap(t => t.platforms))).map(platform => (
                     <Badge key={platform} variant="secondary" className="text-xs">
@@ -251,7 +251,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300" />
             <p>暂无热度趋势数据</p>
             <p className="text-sm">开始监控话题后即可查看热度变化</p>

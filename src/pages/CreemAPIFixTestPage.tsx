@@ -185,23 +185,23 @@ export default function CreemAPIFixTestPage() {
         <CardContent className="space-y-6">
           {/* 测试统计 */}
           {testResults.length > 0 && (
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-accent p-4 rounded-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-green-600 font-medium">成功: {getSuccessCount()}</span>
+                    <CheckCircle className="h-5 w-5 text-foreground" />
+                    <span className="text-foreground font-medium">成功: {getSuccessCount()}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-600" />
-                    <span className="text-red-600 font-medium">失败: {getTotalCount() - getSuccessCount()}</span>
+                    <XCircle className="h-5 w-5 text-destructive" />
+                    <span className="text-destructive font-medium">失败: {getTotalCount() - getSuccessCount()}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-blue-600" />
-                    <span className="text-blue-600 font-medium">总计: {getTotalCount()}</span>
+                    <AlertCircle className="h-5 w-5 text-primary" />
+                    <span className="text-primary font-medium">总计: {getTotalCount()}</span>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   成功率: {getTotalCount() > 0 ? Math.round((getSuccessCount() / getTotalCount()) * 100) : 0}%
                 </div>
               </div>
@@ -233,7 +233,7 @@ export default function CreemAPIFixTestPage() {
           </div>
 
           {/* 自定义测试 */}
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-3">自定义价格ID测试</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -277,7 +277,7 @@ export default function CreemAPIFixTestPage() {
                     <div>
                       <h4 className="font-medium">{config.name}</h4>
                       <p className="text-sm text-muted-foreground">{config.priceId}</p>
-                      <p className="text-xs text-gray-500">预期价格: ¥{config.expectedPrice}</p>
+                      <p className="text-xs text-muted-foreground">预期价格: ¥{config.expectedPrice}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">将测试3个函数</p>
@@ -296,7 +296,7 @@ export default function CreemAPIFixTestPage() {
             ) : (
               <div className="space-y-3">
                 {testResults.map((result, index) => (
-                  <Card key={index} className={`p-4 ${result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  <Card key={index} className={`p-4 ${result.success ? 'border-border bg-accent' : 'border-border bg-accent'}`}>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -309,14 +309,14 @@ export default function CreemAPIFixTestPage() {
                           </span>
                         </div>
                         {result.error && (
-                          <p className="text-red-600 text-sm">{result.error}</p>
+                          <p className="text-destructive text-sm">{result.error}</p>
                         )}
                         {result.success && result.data && (
                           <div className="text-sm">
-                            <p className="text-green-600">API调用成功</p>
+                            <p className="text-foreground">API调用成功</p>
                             <details className="mt-2">
                               <summary className="cursor-pointer text-muted-foreground">查看响应数据</summary>
-                              <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
+                              <pre className="mt-2 p-2 bg-accent rounded text-xs overflow-auto">
                                 {JSON.stringify(result.data, null, 2)}
                               </pre>
                             </details>

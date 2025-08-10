@@ -14,14 +14,14 @@ interface AIContentGenerationAnimationProps {
 
 // 平台配置
 const platformConfig = {
-  xiaohongshu: { name: '小红书', icon: '📱', color: 'bg-red-100 text-red-600' },
-  weibo: { name: '微博', icon: '🐦', color: 'bg-orange-100 text-orange-600' },
-  zhihu: { name: '知乎', icon: '🎓', color: 'bg-blue-100 text-blue-600' },
-  wechat: { name: '微信', icon: '💬', color: 'bg-green-100 text-green-600' },
-  douyin: { name: '抖音', icon: '🎵', color: 'bg-purple-100 text-purple-600' },
-  bilibili: { name: 'B站', icon: '📺', color: 'bg-pink-100 text-pink-600' },
+  xiaohongshu: { name: '小红书', icon: '📱', color: 'bg-destructive/10 text-destructive' },
+  weibo: { name: '微博', icon: '🐦', color: 'bg-accent text-foreground' },
+  zhihu: { name: '知乎', icon: '🎓', color: 'bg-accent text-primary' },
+  wechat: { name: '微信', icon: '💬', color: 'bg-accent text-foreground' },
+  douyin: { name: '抖音', icon: '🎵', color: 'bg-accent text-primary' },
+  bilibili: { name: 'B站', icon: '📺', color: 'bg-accent text-primary' },
   twitter: { name: 'Twitter', icon: '🐦', color: 'bg-sky-100 text-sky-600' },
-  video: { name: '视频', icon: '🎬', color: 'bg-indigo-100 text-indigo-600' }
+  video: { name: '视频', icon: '🎬', color: 'bg-accent text-primary' }
 };
 
 export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimationProps> = ({
@@ -79,16 +79,16 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
   return (
     <div className="relative w-full max-w-2xl mx-auto">
       {/* 主背景卡片 */}
-      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border border-blue-100 shadow-lg overflow-hidden">
+      <div className="bg-accent rounded-2xl border border-border shadow-lg overflow-hidden">
         {/* 顶部装饰条 */}
-        <div className="h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
+        <div className="h-1 btn-gradient-primary"></div>
         
         <div className="p-8">
           {/* 核心AI大脑动画区域 */}
           <div className="flex flex-col items-center mb-6">
             {/* AI大脑/机器人核心 */}
             <div className="relative mb-4">
-              <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg transition-all duration-500 ${brainPulse ? 'scale-110 shadow-xl' : 'scale-100'}`}>
+              <div className={`w-20 h-20 rounded-full btn-gradient-primary flex items-center justify-center shadow-lg transition-all duration-500 ${brainPulse ? 'scale-110 shadow-xl' : 'scale-100'}`}>
                 <Brain className={`w-10 h-10 text-white transition-all duration-500 ${brainPulse ? 'scale-110' : 'scale-100'}`} />
               </div>
               
@@ -112,24 +112,24 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
 
               {/* 雷达扫描效果 */}
               <div className="absolute inset-0 rounded-full border-2 border-blue-300 opacity-30 animate-ping"></div>
-              <div className="absolute inset-0 rounded-full border border-indigo-300 opacity-20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
+              <div className="absolute inset-0 rounded-full border border-border opacity-20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
             </div>
 
             {/* 动态文案 - 简化以避免重复 */}
             <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center justify-center gap-2">
-                <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
+              <h3 className="text-lg font-semibold text-foreground mb-2 flex items-center justify-center gap-2">
+                <Sparkles className="w-5 h-5 text-foreground animate-pulse" />
                 AI内容引擎
-                <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
+                <Sparkles className="w-5 h-5 text-foreground animate-pulse" />
               </h3>
-              <p className="text-sm text-gray-600 transition-all duration-500 min-h-[20px]">
+              <p className="text-sm text-muted-foreground transition-all duration-500 min-h-[20px]">
                 {currentMessage}
               </p>
             </div>
 
             {/* 进度波浪动画 */}
             <div className="w-32 h-1 bg-gray-200 rounded-full overflow-hidden mb-4">
-              <div className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-pulse" 
+              <div className="h-full btn-gradient-primary rounded-full animate-pulse"
                    style={{ 
                      width: '60%',
                      animation: 'wave 2s ease-in-out infinite'
@@ -142,8 +142,8 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
           {showProgress && (
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <Target className="w-4 h-4 text-gray-500" />
-                <span className="text-xs text-gray-500 font-medium">目标平台</span>
+                <Target className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground font-medium">目标平台</span>
               </div>
               
               <div className="flex flex-wrap justify-center gap-3">
@@ -157,28 +157,28 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
                       key={platformId}
                       className={`relative flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-500 ${
                         isActive 
-                          ? 'bg-blue-100 border-blue-300 shadow-md scale-105' 
+                          ? 'bg-accent border-blue-300 shadow-md scale-105' 
                           : isCompleted
-                          ? 'bg-green-100 border-green-300'
-                          : 'bg-gray-50 border-gray-200'
+                          ? 'bg-accent border-green-300'
+                          : 'bg-accent border-border'
                       }`}
                     >
                       <span className="text-lg">{platform?.icon}</span>
                       <span className={`text-xs font-medium transition-colors ${
-                        isActive ? 'text-blue-700' : isCompleted ? 'text-green-700' : 'text-gray-500'
+                        isActive ? 'text-primary' : isCompleted ? 'text-green-700' : 'text-muted-foreground'
                       }`}>
                         {platform?.name}
                       </span>
                       
                       {/* 完成状态图标 */}
                       {isCompleted && (
-                        <CheckCircle className="w-3 h-3 text-green-500 animate-bounce" />
+                        <CheckCircle className="w-3 h-3 text-foreground animate-bounce" />
                       )}
                       
                       {/* 活跃状态动画 */}
                       {isActive && (
                         <div className="absolute -top-1 -right-1">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
+                          <div className="w-2 h-2 bg-primary rounded-full animate-ping"></div>
                         </div>
                       )}
                     </div>
@@ -190,9 +190,9 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
 
           {/* 底部友好提示 */}
           <div className="mt-6 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 rounded-full border border-blue-100">
-              <Zap className="w-4 h-4 text-yellow-500 animate-pulse" />
-              <span className="text-xs text-gray-600">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-card/60 rounded-full border border-blue-100">
+              <Zap className="w-4 h-4 text-foreground animate-pulse" />
+              <span className="text-xs text-muted-foreground">
                 AI正在为您量身定制优质内容
               </span>
             </div>

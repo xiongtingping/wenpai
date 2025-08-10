@@ -37,7 +37,7 @@ const ButtonTestPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-accent py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <Card className="mb-8">
@@ -49,13 +49,13 @@ const ButtonTestPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="p-4 bg-blue-50 rounded-lg">
+                <div className="p-4 bg-accent rounded-lg">
                   <h3 className="font-semibold text-blue-800 mb-2">当前状态</h3>
-                  <p className="text-sm text-blue-600">
+                  <p className="text-sm text-primary">
                     认证状态: {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}
                   </p>
                   {user && (
-                    <p className="text-sm text-blue-600">
+                    <p className="text-sm text-primary">
                       用户: {getUserDisplayName(user, '未知用户')}
                     </p>
                   )}
@@ -202,12 +202,12 @@ const ButtonTestPage: React.FC = () => {
               <CardTitle>📋 使用说明</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-muted-foreground">
                 <p>1. <strong>直接导航测试</strong>: 测试无需认证的页面跳转功能</p>
                 <p>2. <strong>认证导航测试</strong>: 测试需要认证的页面跳转，未登录时会弹出登录窗口</p>
                 <p>3. <strong>登录功能测试</strong>: 专门测试Authing登录弹窗功能</p>
                 <p>4. <strong>调试信息</strong>: 查看当前状态和配置信息</p>
-                <p className="mt-4 text-blue-600">
+                <p className="mt-4 text-primary">
                   💡 如果按钮没有反应，请打开浏览器开发者工具查看控制台错误信息
                 </p>
               </div>

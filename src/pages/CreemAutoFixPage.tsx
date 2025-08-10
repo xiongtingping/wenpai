@@ -161,7 +161,7 @@ export default function CreemAutoFixPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="container mx-auto max-w-6xl">
         <Card className="mb-8">
           <CardHeader>
@@ -176,7 +176,7 @@ export default function CreemAutoFixPage() {
                 <Button 
                   onClick={startAutoFix}
                   disabled={isRunning}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-blue-700 text-white"
                 >
                   {isRunning ? '修复中...' : '开始自动修复'}
                 </Button>
@@ -206,7 +206,7 @@ export default function CreemAutoFixPage() {
                     <span>进度: {Math.round((currentStep / steps.length) * 100)}%</span>
                   </div>
                   <Progress value={(currentStep / steps.length) * 100} />
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     {steps[currentStep - 1] || '准备中...'}
                   </div>
                 </div>
@@ -219,10 +219,10 @@ export default function CreemAutoFixPage() {
                     key={index}
                     className={`p-2 rounded text-xs text-center ${
                       currentStep > index 
-                        ? 'bg-green-100 text-green-800 border border-green-300'
+                        ? 'bg-accent text-green-800 border border-green-300'
                         : currentStep === index + 1
-                        ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                        : 'bg-gray-100 text-gray-600 border border-gray-300'
+                        ? 'bg-accent text-blue-800 border border-blue-300'
+                        : 'bg-accent text-muted-foreground border border-border'
                     }`}
                   >
                     {step}
@@ -244,21 +244,21 @@ export default function CreemAutoFixPage() {
                 const stats = getStats();
                 return (
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-                      <div className="text-sm text-gray-600">总测试数</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-primary">{stats.total}</div>
+                      <div className="text-sm text-muted-foreground">总测试数</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-green-600">{stats.success}</div>
-                      <div className="text-sm text-gray-600">成功次数</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-foreground">{stats.success}</div>
+                      <div className="text-sm text-muted-foreground">成功次数</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-red-600">{stats.failure}</div>
-                      <div className="text-sm text-gray-600">失败次数</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-destructive">{stats.failure}</div>
+                      <div className="text-sm text-muted-foreground">失败次数</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-purple-600">{stats.successRate}%</div>
-                      <div className="text-sm text-gray-600">成功率</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-primary">{stats.successRate}%</div>
+                      <div className="text-sm text-muted-foreground">成功率</div>
                     </div>
                   </div>
                 );
@@ -279,19 +279,19 @@ export default function CreemAutoFixPage() {
                   <Badge variant={fixResults.success ? "default" : "destructive"}>
                     {fixResults.success ? '修复成功' : '修复失败'}
                   </Badge>
-                  <span className="text-sm text-gray-600">{fixResults.message}</span>
+                  <span className="text-sm text-muted-foreground">{fixResults.message}</span>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <h4 className="font-medium mb-2">最佳方法</h4>
-                    <div className="font-mono bg-gray-100 p-2 rounded">
+                    <div className="font-mono bg-accent p-2 rounded">
                       {fixResults.bestMethod}
                     </div>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">成功率</h4>
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-2xl font-bold text-foreground">
                       {fixResults.successRate}%
                     </div>
                   </div>
@@ -326,7 +326,7 @@ export default function CreemAutoFixPage() {
               <CardTitle>生成的优化代码</CardTitle>
             </CardHeader>
             <CardContent>
-              <pre className="bg-gray-100 p-4 rounded-lg overflow-auto text-sm">
+              <pre className="bg-accent p-4 rounded-lg overflow-auto text-sm">
                 {generatedCode}
               </pre>
             </CardContent>
@@ -342,7 +342,7 @@ export default function CreemAutoFixPage() {
             <CardContent>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {testResults.map((result, index) => (
-                  <div key={index} className="border rounded-lg p-3 bg-white">
+                  <div key={index} className="border rounded-lg p-3 bg-card">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-medium">{result.name}</h3>
                       <Badge variant={result.success ? "default" : "destructive"}>
@@ -350,7 +350,7 @@ export default function CreemAutoFixPage() {
                       </Badge>
                     </div>
                     
-                    <div className="text-sm text-gray-600 mb-2">
+                    <div className="text-sm text-muted-foreground mb-2">
                       时间: {new Date(result.timestamp).toLocaleString()}
                     </div>
                     
@@ -362,7 +362,7 @@ export default function CreemAutoFixPage() {
                     )}
                     
                     {!result.success && result.error && (
-                      <div className="text-sm text-red-600">
+                      <div className="text-sm text-destructive">
                         <strong>错误:</strong> {result.error}
                       </div>
                     )}

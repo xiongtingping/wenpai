@@ -106,7 +106,7 @@ export default function CreemFinalTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="container mx-auto max-w-6xl">
         <Card className="mb-8">
           <CardHeader>
@@ -120,7 +120,7 @@ export default function CreemFinalTestPage() {
                 <Button 
                   onClick={testAllConfigs}
                   disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-blue-700 text-white"
                 >
                   {loading ? '测试中...' : '测试所有配置'}
                 </Button>
@@ -162,21 +162,21 @@ export default function CreemFinalTestPage() {
                 const stats = getOptimizerStats();
                 return (
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-                      <div className="text-sm text-gray-600">总测试数</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-primary">{stats.total}</div>
+                      <div className="text-sm text-muted-foreground">总测试数</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-green-600">{stats.success}</div>
-                      <div className="text-sm text-gray-600">成功次数</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-foreground">{stats.success}</div>
+                      <div className="text-sm text-muted-foreground">成功次数</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-red-600">{stats.failure}</div>
-                      <div className="text-sm text-gray-600">失败次数</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-destructive">{stats.failure}</div>
+                      <div className="text-sm text-muted-foreground">失败次数</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="text-2xl font-bold text-purple-600">{stats.successRate}%</div>
-                      <div className="text-sm text-gray-600">成功率</div>
+                    <div className="bg-card p-4 rounded-lg border">
+                      <div className="text-2xl font-bold text-primary">{stats.successRate}%</div>
+                      <div className="text-sm text-muted-foreground">成功率</div>
                     </div>
                   </div>
                 );
@@ -186,14 +186,14 @@ export default function CreemFinalTestPage() {
                 <h4 className="font-medium mb-2">最佳方法: {getOptimizerStats().bestMethod}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {getOptimizerStats().configs.map((config, index) => (
-                    <div key={index} className="border rounded-lg p-3 bg-white">
+                    <div key={index} className="border rounded-lg p-3 bg-card">
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{config.method}</span>
                         <Badge variant={config.recommended ? "default" : "secondary"}>
                           {config.recommended ? '推荐' : '备选'}
                         </Badge>
                       </div>
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="text-sm text-muted-foreground mt-1">
                         成功率: {config.successRate}% | 平均耗时: {config.avgDuration}ms
                       </div>
                     </div>
@@ -221,7 +221,7 @@ export default function CreemFinalTestPage() {
                       </Badge>
                     </div>
                     
-                    <div className="text-sm text-gray-600 mb-2">
+                    <div className="text-sm text-muted-foreground mb-2">
                       时间: {new Date(result.timestamp).toLocaleString()}
                     </div>
                     
@@ -247,7 +247,7 @@ export default function CreemFinalTestPage() {
                         )}
                         <details className="text-xs">
                           <summary className="cursor-pointer">完整响应数据</summary>
-                          <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
+                          <pre className="mt-2 p-2 bg-accent rounded overflow-auto">
                             {JSON.stringify(result.data, null, 2)}
                           </pre>
                         </details>
@@ -255,7 +255,7 @@ export default function CreemFinalTestPage() {
                     )}
                     
                     {!result.success && result.error && (
-                      <div className="text-sm text-red-600">
+                      <div className="text-sm text-destructive">
                         <strong>错误:</strong> {result.error}
                       </div>
                     )}

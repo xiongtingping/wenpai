@@ -102,7 +102,7 @@ export function PricingSection() {
         
         return (
           <li key={index} className="flex items-start space-x-3">
-            <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-purple-500' : 'text-green-500'}`} />
+            <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-primary' : 'text-foreground'}`} />
             <div className="flex items-center gap-2 flex-1">
               <span className="font-medium">{text}</span>
             </div>
@@ -120,24 +120,24 @@ export function PricingSection() {
         {/* 🎯 标题区域优化 */}
         <div className="text-center max-w-4xl mx-auto py-12">
           {/* 主标题 */}
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 leading-snug">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground leading-snug">
             选择适合您的方案
           </h2>
           
           {/* 副标题 */}
-          <p className="text-base text-gray-500 text-center mt-2 leading-relaxed">
+          <p className="text-base text-muted-foreground text-center mt-2 leading-relaxed">
             从免费体验到高级版，全方位赋能新媒体创意工作者
           </p>
           
 
           {/* 登录用户显示倒计时 */}
           {isAuthenticated && inPromo && (
-            <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
+            <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-border rounded-lg shadow-lg">
               <div className="flex flex-col items-center gap-2">
-                <div className="text-lg md:text-xl font-bold text-red-600">新用户限时优惠</div>
+                <div className="text-lg md:text-xl font-bold text-destructive">新用户限时优惠</div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold text-red-600">限时优惠倒计时：</span>
-                  <span className="text-2xl font-bold bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
+                  <span className="text-xl font-bold text-destructive">限时优惠倒计时：</span>
+                  <span className="text-2xl font-bold bg-destructive/10 px-4 py-2 rounded-lg border-2 border-red-300">
                     {formattedTime}
                   </span>
                 </div>
@@ -151,8 +151,8 @@ export function PricingSection() {
               onClick={() => setBilling("monthly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "monthly" 
-                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg" 
-                  : "text-gray-600 hover:text-gray-800 border-gray-300"
+                  ? "bg-primary hover:bg-blue-700 text-white shadow-lg" 
+                  : "text-muted-foreground hover:text-foreground border-border"
               }`}
             >
               按月支付
@@ -168,7 +168,7 @@ export function PricingSection() {
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "yearly" 
                   ? "bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white shadow-lg scale-105" 
-                  : "bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200"
+                  : "bg-gradient-to-r from-orange-100 to-pink-100 text-foreground border-border hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200"
               }`}
             >
               按年订阅 <span className="text-xs ml-1">(省80-202元)</span>
@@ -189,7 +189,7 @@ export function PricingSection() {
                 className={`border-2 p-8 flex flex-col relative ${
                   isRecommended 
                     ? 'border-purple-600 shadow-2xl bg-gradient-to-br from-purple-50 to-blue-50' 
-                    : 'border-gray-200'
+                    : 'border-border'
                 }`}
               >
                 {isRecommended && (
@@ -201,55 +201,55 @@ export function PricingSection() {
                 
                 <div className="flex items-center gap-2 mb-4">
                   {plan.tier === 'premium' ? (
-                    <Crown className="w-6 h-6 text-yellow-600" />
+                    <Crown className="w-6 h-6 text-foreground" />
                   ) : plan.tier === 'pro' ? (
-                    <Crown className="w-6 h-6 text-purple-600" />
+                    <Crown className="w-6 h-6 text-primary" />
                   ) : (
-                    <Sparkles className="w-6 h-6 text-green-600" />
+                    <Sparkles className="w-6 h-6 text-foreground" />
                   )}
                   <h3 className="text-2xl font-semibold">{plan.name}</h3>
                 </div>
                 
-                <p className="mt-2 text-gray-500">{plan.description}</p>
+                <p className="mt-2 text-muted-foreground">{plan.description}</p>
                 
                 <div className="mt-6 pricing-container">
                   {isTrial ? (
                     <div className="text-center">
-                      <p className="text-5xl font-extrabold text-green-600 pricing-price">¥0</p>
-                      <p className="text-gray-500">永久免费</p>
+                      <p className="text-5xl font-extrabold text-foreground pricing-price">¥0</p>
+                      <p className="text-muted-foreground">永久免费</p>
                     </div>
                   ) : (
                     <div className="text-center">
                       {isAuthenticated && inPromo ? (
                         <div className="flex items-center justify-center gap-2">
                           <p className={`text-5xl font-extrabold pricing-price ${
-                            isRecommended ? 'text-purple-600' : 'text-gray-900'
+                            isRecommended ? 'text-primary' : 'text-foreground'
                           }`}>
                             <span className="pricing-price-symbol">¥</span>{pricing.discountPrice}
                           </p>
                           <div className="flex flex-col items-start">
-                            <span className="text-xs text-red-500 font-semibold">限时特惠</span>
-                            <span className="text-xs text-gray-500 line-through">¥{pricing.originalPrice}</span>
+                            <span className="text-xs text-destructive font-semibold">限时特惠</span>
+                            <span className="text-xs text-muted-foreground line-through">¥{pricing.originalPrice}</span>
                           </div>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2">
                           <p className={`text-5xl font-extrabold pricing-price ${
-                            isRecommended ? 'text-purple-600' : 'text-gray-900'
+                            isRecommended ? 'text-primary' : 'text-foreground'
                           }`}>
                             <span className="pricing-price-symbol">¥</span>{pricing.originalPrice}
                           </p>
                         </div>
                       )}
-                      <p className="text-gray-500">/{billing === "monthly" ? "月" : "年"}</p>
+                      <p className="text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</p>
                       {isAuthenticated && inPromo && (
-                        <p className="text-xs text-red-500 mt-1">省¥{pricing.savedAmount}</p>
+                        <p className="text-xs text-destructive mt-1">省¥{pricing.savedAmount}</p>
                       )}
                     </div>
                   )}
                 </div>
                 
-                <ul className="mt-8 space-y-4 text-gray-600 flex-grow">
+                <ul className="mt-8 space-y-4 text-muted-foreground flex-grow">
                   {renderFeatures(plan.features, plan)}
                 </ul>
                 
@@ -282,105 +282,105 @@ export function PricingSection() {
         {/* 功能对比表 */}
         <div className="mt-16">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-gray-900">功能详细对比</h3>
+            <h3 className="text-2xl font-bold text-foreground">功能详细对比</h3>
           </div>
           <div className="overflow-x-auto">
             <div className="max-w-6xl mx-auto">
-              <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                <thead className="bg-gray-50">
+              <table className="w-full border-collapse border border-border rounded-lg overflow-hidden shadow-sm">
+                <thead className="bg-accent">
                   <tr>
-                    <th className="border border-gray-200 px-6 py-3 text-left font-semibold text-gray-900">功能</th>
-                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-gray-900 w-32">体验版</th>
-                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-purple-900 bg-purple-50 w-32">专业版</th>
-                    <th className="border border-gray-200 px-4 py-3 text-center font-semibold text-yellow-900 bg-yellow-50 w-32">高级版</th>
+                    <th className="border border-border px-6 py-3 text-left font-semibold text-foreground">功能</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">体验版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-purple-900 bg-accent w-32">专业版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-yellow-900 bg-accent w-32">高级版</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI内容适配器</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">10次/月</span>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">AI内容适配器</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="inline-block bg-accent text-blue-800 text-xs px-2 py-1 rounded-full">10次/月</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">30次/月</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="inline-block bg-accent text-purple-800 text-xs px-2 py-1 rounded-full">30次/月</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">不限量</span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">全网雷达</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-green-600 font-medium">✅</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-green-600 font-medium">✅</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-green-600 font-medium">✅</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="inline-block bg-accent text-yellow-800 text-xs px-2 py-1 rounded-full">不限量</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">创意魔方</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-red-500 font-medium">❌</span>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">全网雷达</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-green-600 font-medium">✅</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-green-600 font-medium">✅</span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">我的资料库</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-green-600 font-medium">✅</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-green-600 font-medium">✅</span>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-green-600 font-medium">✅</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">品牌库</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-red-500 font-medium">❌</span>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">创意魔方</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-destructive font-medium">❌</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-red-500 font-medium">❌</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-green-600 font-medium">✅</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">AI模型</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-gray-600 pricing-table-text">基础模型</span>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">我的资料库</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 font-medium pricing-table-text">高级模型</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <div className="text-yellow-600 font-medium text-xs leading-tight pricing-table-cell">
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground font-medium">✅</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">品牌库</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-destructive font-medium">❌</span>
+                    </td>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-destructive font-medium">❌</span>
+                    </td>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground font-medium">✅</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">AI模型</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-muted-foreground pricing-table-text">基础模型</span>
+                    </td>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-primary font-medium pricing-table-text">高级模型</span>
+                    </td>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <div className="text-foreground font-medium text-xs leading-tight pricing-table-cell">
                         <div className="pricing-table-text">高级及</div>
                         <div className="pricing-table-text">最新模型</div>
                       </div>
                     </td>
                   </tr>
-                  <tr className="hover:bg-gray-50/50 transition-colors">
-                    <td className="border border-gray-200 px-6 py-3 font-medium text-gray-900">Token限制</td>
-                    <td className="border border-gray-200 px-4 py-3 text-center">
-                      <span className="text-gray-600 pricing-table-number">100,000</span>
+                  <tr className="hover:bg-accent/50 transition-colors">
+                    <td className="border border-border px-6 py-3 font-medium text-foreground">Token限制</td>
+                    <td className="border border-border px-4 py-3 text-center">
+                      <span className="text-muted-foreground pricing-table-number">100,000</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-purple-50">
-                      <span className="text-purple-600 pricing-table-number">200,000</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-primary pricing-table-number">200,000</span>
                     </td>
-                    <td className="border border-gray-200 px-4 py-3 text-center bg-yellow-50">
-                      <span className="text-yellow-600 pricing-table-number">500,000</span>
+                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                      <span className="text-foreground pricing-table-number">500,000</span>
                     </td>
                   </tr>
                 </tbody>

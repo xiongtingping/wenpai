@@ -401,13 +401,13 @@ export function ContentExtractor() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-foreground" />;
       case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
+        return <AlertCircle className="w-4 h-4 text-destructive" />;
       case 'processing':
-        return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />;
+        return <Loader2 className="w-4 h-4 text-primary animate-spin" />;
       default:
-        return <Info className="w-4 h-4 text-gray-500" />;
+        return <Info className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -539,11 +539,11 @@ export function ContentExtractor() {
                 </Button>
               </div>
               {selectedFile && (
-                <div className="mt-2 p-2 bg-gray-50 rounded">
+                <div className="mt-2 p-2 bg-accent rounded">
                   <div className="flex items-center gap-2">
                     <File className="w-4 h-4" />
                     <span className="text-sm">{selectedFile.name}</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       ({(selectedFile.size / 1024).toFixed(1)} KB)
                     </span>
                   </div>
@@ -610,7 +610,7 @@ export function ContentExtractor() {
                     {result.status === 'success' ? (
                       <div>
                         {result.metadata && (
-                          <div className="mb-3 p-2 bg-gray-50 rounded text-sm">
+                          <div className="mb-3 p-2 bg-accent rounded text-sm">
                             <div className="grid grid-cols-2 gap-2">
                               {result.metadata.title && (
                                 <div><strong>标题：</strong>{result.metadata.title}</div>
@@ -629,18 +629,18 @@ export function ContentExtractor() {
                         )}
                         
                         <div className="max-h-60 overflow-y-auto">
-                          <pre className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">
+                          <pre className="text-sm bg-accent p-3 rounded whitespace-pre-wrap">
                             {result.content}
                           </pre>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-red-500">
+                      <div className="text-destructive">
                         {result.error || '提取失败'}
                       </div>
                     )}
 
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-muted-foreground">
                       提取时间：{formatTime(result.extractedAt)}
                     </div>
                   </CardContent>

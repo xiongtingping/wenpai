@@ -110,13 +110,13 @@ export const NotificationCenter: React.FC = () => {
   const getNotificationIcon = (type: string, level: NotificationLevel) => {
     switch (level) {
       case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-600" />;
+        return <AlertCircle className="w-4 h-4 text-destructive" />;
       case 'warning':
-        return <AlertCircle className="w-4 h-4 text-yellow-600" />;
+        return <AlertCircle className="w-4 h-4 text-foreground" />;
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
+        return <CheckCircle className="w-4 h-4 text-foreground" />;
       default:
-        return <Info className="w-4 h-4 text-blue-600" />;
+        return <Info className="w-4 h-4 text-primary" />;
     }
   };
 
@@ -124,13 +124,13 @@ export const NotificationCenter: React.FC = () => {
   const getNotificationColor = (level: NotificationLevel) => {
     switch (level) {
       case 'error':
-        return 'border-red-200 bg-red-50';
+        return 'border-border bg-accent';
       case 'warning':
-        return 'border-yellow-200 bg-yellow-50';
+        return 'border-border bg-accent';
       case 'success':
-        return 'border-green-200 bg-green-50';
+        return 'border-border bg-accent';
       default:
-        return 'border-blue-200 bg-blue-50';
+        return 'border-border bg-accent';
     }
   };
 
@@ -153,7 +153,7 @@ export const NotificationCenter: React.FC = () => {
       {/* 通知中心头部 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-blue-600" />
+          <Bell className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">通知中心</h3>
           {unreadCount > 0 && (
             <Badge variant="destructive" className="ml-2">
@@ -279,8 +279,8 @@ export const NotificationCenter: React.FC = () => {
         <Card>
           <CardContent className="text-center py-8">
             <BellOff className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-            <p className="text-gray-500">暂无通知</p>
-            <p className="text-sm text-gray-400">当有话题更新或热度变化时会收到通知</p>
+            <p className="text-muted-foreground">暂无通知</p>
+            <p className="text-sm text-muted-foreground">当有话题更新或热度变化时会收到通知</p>
           </CardContent>
         </Card>
       ) : (
@@ -309,11 +309,11 @@ export const NotificationCenter: React.FC = () => {
                         )}
                       </div>
                       
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-muted-foreground mb-2">
                         {notification.message}
                       </p>
                       
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatTime(notification.createdAt)}
@@ -350,7 +350,7 @@ export const NotificationCenter: React.FC = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteNotification(notification.id)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                     >
                       <X className="w-4 h-4" />
                     </Button>

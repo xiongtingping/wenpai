@@ -237,26 +237,26 @@ export default function CreemFinalValidationPage() {
   const getStatusIcon = (status: ValidationResult['status']) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-foreground" />;
       case 'error':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       case 'warning':
-        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
+        return <AlertCircle className="h-4 w-4 text-foreground" />;
       case 'info':
-        return <Info className="h-4 w-4 text-blue-600" />;
+        return <Info className="h-4 w-4 text-primary" />;
     }
   };
 
   const getStatusColor = (status: ValidationResult['status']) => {
     switch (status) {
       case 'success':
-        return 'border-green-200 bg-green-50';
+        return 'border-border bg-accent';
       case 'error':
-        return 'border-red-200 bg-red-50';
+        return 'border-border bg-accent';
       case 'warning':
-        return 'border-yellow-200 bg-yellow-50';
+        return 'border-border bg-accent';
       case 'info':
-        return 'border-blue-200 bg-blue-50';
+        return 'border-border bg-accent';
     }
   };
 
@@ -271,7 +271,7 @@ export default function CreemFinalValidationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="container mx-auto max-w-6xl">
         <Card className="mb-8">
           <CardHeader>
@@ -286,7 +286,7 @@ export default function CreemFinalValidationPage() {
                 <Button 
                   onClick={runValidation}
                   disabled={isRunning}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+                  className="bg-primary hover:bg-blue-700 text-white px-8 py-3"
                   size="lg"
                 >
                   {isRunning ? '验证中...' : '开始全面验证'}
@@ -301,7 +301,7 @@ export default function CreemFinalValidationPage() {
                     <span>进度: {Math.round(progress)}%</span>
                   </div>
                   <Progress value={progress} />
-                  <div className="text-sm text-gray-600 text-center">
+                  <div className="text-sm text-muted-foreground text-center">
                     {validationSteps[currentStep - 1] || '准备中...'}
                   </div>
                 </div>
@@ -314,10 +314,10 @@ export default function CreemFinalValidationPage() {
                     key={index}
                     className={`p-2 rounded text-xs text-center ${
                       currentStep > index + 1 
-                        ? 'bg-green-100 text-green-800 border border-green-300'
+                        ? 'bg-accent text-green-800 border border-green-300'
                         : currentStep === index + 1
-                        ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                        : 'bg-gray-100 text-gray-600 border border-gray-300'
+                        ? 'bg-accent text-blue-800 border border-blue-300'
+                        : 'bg-accent text-muted-foreground border border-border'
                     }`}
                   >
                     {step}
@@ -339,25 +339,25 @@ export default function CreemFinalValidationPage() {
                 const summary = getSummary();
                 return (
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div className="bg-white p-4 rounded-lg border text-center">
-                      <div className="text-2xl font-bold text-blue-600">{summary.total}</div>
-                      <div className="text-sm text-gray-600">总测试数</div>
+                    <div className="bg-card p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-primary">{summary.total}</div>
+                      <div className="text-sm text-muted-foreground">总测试数</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border text-center">
-                      <div className="text-2xl font-bold text-green-600">{summary.success}</div>
-                      <div className="text-sm text-gray-600">成功</div>
+                    <div className="bg-card p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-foreground">{summary.success}</div>
+                      <div className="text-sm text-muted-foreground">成功</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border text-center">
-                      <div className="text-2xl font-bold text-red-600">{summary.error}</div>
-                      <div className="text-sm text-gray-600">错误</div>
+                    <div className="bg-card p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-destructive">{summary.error}</div>
+                      <div className="text-sm text-muted-foreground">错误</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border text-center">
-                      <div className="text-2xl font-bold text-yellow-600">{summary.warning}</div>
-                      <div className="text-sm text-gray-600">警告</div>
+                    <div className="bg-card p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-foreground">{summary.warning}</div>
+                      <div className="text-sm text-muted-foreground">警告</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border text-center">
-                      <div className="text-2xl font-bold text-blue-600">{summary.info}</div>
-                      <div className="text-sm text-gray-600">信息</div>
+                    <div className="bg-card p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-primary">{summary.info}</div>
+                      <div className="text-sm text-muted-foreground">信息</div>
                     </div>
                   </div>
                 );
@@ -388,12 +388,12 @@ export default function CreemFinalValidationPage() {
                             <summary className="cursor-pointer text-sm font-medium">
                               查看详情
                             </summary>
-                            <pre className="mt-2 p-2 bg-white rounded text-xs overflow-auto">
+                            <pre className="mt-2 p-2 bg-card rounded text-xs overflow-auto">
                               {JSON.stringify(result.details, null, 2)}
                             </pre>
                           </details>
                         )}
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-muted-foreground mt-1">
                           {new Date(result.timestamp).toLocaleString()}
                         </div>
                       </div>

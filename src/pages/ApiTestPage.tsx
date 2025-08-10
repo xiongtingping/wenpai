@@ -239,7 +239,7 @@ const ApiTestPage = () => {
 
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">多模型 API 连接测试工具</h1>
-        <p className="text-gray-500 mb-8">
+        <p className="text-muted-foreground mb-8">
           本页面用于测试与 AI API 的连接情况，支持 OpenAI、Google Gemini 和 DeepSeek，验证内容生成功能是否正常工作。
         </p>
 
@@ -258,8 +258,8 @@ const ApiTestPage = () => {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="openai" id="openai" />
                   <Label htmlFor="openai" className="flex items-center">
-                    <span className="text-blue-600 font-semibold">OpenAI</span>
-                    <span className="ml-2 text-gray-500 text-sm">(GPT-3.5/4系列)</span>
+                    <span className="text-primary font-semibold">OpenAI</span>
+                    <span className="ml-2 text-muted-foreground text-sm">(GPT-3.5/4系列)</span>
                   </Label>
                 </div>
                 {/* 暂时隐藏 Gemini API 选项 */}
@@ -267,7 +267,7 @@ const ApiTestPage = () => {
                   <RadioGroupItem value="gemini" id="gemini" />
                   <Label htmlFor="gemini" className="flex items-center">
                     <span className="text-emerald-600 font-semibold">Google Gemini</span>
-                    <span className="ml-2 text-gray-500 text-sm">(gemini-pro)</span>
+                    <span className="ml-2 text-muted-foreground text-sm">(gemini-pro)</span>
                     <Badge variant="secondary" className="ml-2">
                       <Zap className="h-3 w-3 mr-1" /> 当前使用
                     </Badge>
@@ -276,8 +276,8 @@ const ApiTestPage = () => {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="deepseek" id="deepseek" />
                   <Label htmlFor="deepseek" className="flex items-center">
-                    <span className="text-orange-600 font-semibold">DeepSeek</span>
-                    <span className="ml-2 text-gray-500 text-sm">(DeepSeek系列)</span>
+                    <span className="text-foreground font-semibold">DeepSeek</span>
+                    <span className="ml-2 text-muted-foreground text-sm">(DeepSeek系列)</span>
                     <Badge variant="secondary" className="ml-2">
                       <Zap className="h-3 w-3 mr-1" /> 新增
                     </Badge>
@@ -298,19 +298,19 @@ const ApiTestPage = () => {
               <div className="flex items-center gap-2 mb-4">
                 <span>当前状态:</span>
                 {apiStatus.available ? (
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge variant="outline" className="bg-accent text-green-700 border-border">
                     <CheckCircle2 className="w-4 h-4 mr-1" /> 可用
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                  <Badge variant="outline" className="bg-accent text-destructive border-border">
                     <XCircle className="w-4 h-4 mr-1" /> 不可用
                   </Badge>
                 )}
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-muted-foreground">
                 提供商: {apiStatus.provider}
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-muted-foreground">
                 模型: {apiStatus.model}
               </div>
             </CardContent>
@@ -338,15 +338,15 @@ const ApiTestPage = () => {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="free" id="free" />
                   <Label htmlFor="free" className="flex items-center">
-                    <span className="text-gray-600 font-semibold">免费版</span>
-                    <span className="ml-2 text-gray-500 text-sm">(基础模型)</span>
+                    <span className="text-muted-foreground font-semibold">免费版</span>
+                    <span className="ml-2 text-muted-foreground text-sm">(基础模型)</span>
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="pro" id="pro" />
                   <Label htmlFor="pro" className="flex items-center">
-                    <span className="text-blue-600 font-semibold">专业版</span>
-                    <span className="ml-2 text-gray-500 text-sm">(所有模型)</span>
+                    <span className="text-primary font-semibold">专业版</span>
+                    <span className="ml-2 text-muted-foreground text-sm">(所有模型)</span>
                     <Badge variant="secondary" className="ml-2">
                       <Zap className="h-3 w-3 mr-1" /> 推荐
                     </Badge>
@@ -374,7 +374,7 @@ const ApiTestPage = () => {
                         <SelectItem key={model} value={model}>
                           <div className="flex flex-col">
                             <span className="font-medium">{model}</span>
-                            <span className="text-xs text-gray-500">模型描述</span>
+                            <span className="text-xs text-muted-foreground">模型描述</span>
                           </div>
                         </SelectItem>
                       );
@@ -383,16 +383,16 @@ const ApiTestPage = () => {
                 </Select>
                 
                 {selectedModel && ( // Removed modelDescriptions[selectedModel] check
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <h4 className="font-medium text-gray-900 mb-2">
+                  <div className="bg-accent p-4 rounded-md">
+                    <h4 className="font-medium text-foreground mb-2">
                       {selectedModel}
                     </h4>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-sm text-muted-foreground mb-3">
                       模型描述
                     </p>
                     <div className="space-y-2">
                       <div>
-                        <span className="text-xs font-medium text-gray-500">适用场景:</span>
+                        <span className="text-xs font-medium text-muted-foreground">适用场景:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {/* Removed modelDescriptions[selectedModel]?.useCases */}
                           <Badge variant="outline" className="text-xs">
@@ -401,7 +401,7 @@ const ApiTestPage = () => {
                         </div>
                       </div>
                       <div>
-                        <span className="text-xs font-medium text-gray-500">优势:</span>
+                        <span className="text-xs font-medium text-muted-foreground">优势:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {/* Removed modelDescriptions[selectedModel]?.strengths */}
                           <Badge variant="secondary" className="text-xs">
@@ -410,8 +410,8 @@ const ApiTestPage = () => {
                         </div>
                       </div>
                       <div>
-                        <span className="text-xs font-medium text-gray-500">最适合:</span>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <span className="text-xs font-medium text-muted-foreground">最适合:</span>
+                        <p className="text-xs text-muted-foreground mt-1">
                           通用内容生成
                         </p>
                       </div>
@@ -431,7 +431,7 @@ const ApiTestPage = () => {
             </CardHeader>
             <CardContent>
               <div className="mb-4">
-                <label htmlFor="testContent" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="testContent" className="block text-sm font-medium text-foreground mb-1">
                   测试内容:
                 </label>
                 <Textarea
@@ -463,14 +463,14 @@ const ApiTestPage = () => {
                  apiProvider === 'gemini' ? 'Google Gemini API' : 
                  'DeepSeek API'}
                 {testResponse.error && (
-                  <span className="ml-2 text-red-500">
+                  <span className="ml-2 text-destructive">
                     (错误: {testResponse.error})
                   </span>
                 )}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-50 p-4 rounded-md whitespace-pre-wrap">
+              <div className="bg-accent p-4 rounded-md whitespace-pre-wrap">
                 {testResponse.content || "内容为空"}
               </div>
             </CardContent>

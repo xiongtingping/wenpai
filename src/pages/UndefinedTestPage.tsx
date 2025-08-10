@@ -176,7 +176,7 @@ const UndefinedTestPage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">🧪 undefined拼接问题测试</h1>
-        <p className="text-gray-600">专门用于重现和测试"undefinedundefined"问题</p>
+        <p className="text-muted-foreground">专门用于重现和测试"undefinedundefined"问题</p>
       </div>
 
       {/* 当前用户状态 */}
@@ -228,12 +228,12 @@ const UndefinedTestPage: React.FC = () => {
       {detectedIssues.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-red-600">🚨 检测到的问题</CardTitle>
+            <CardTitle className="text-destructive">🚨 检测到的问题</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
               {detectedIssues.map((issue, index) => (
-                <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                <div key={index} className="text-sm text-destructive bg-accent p-2 rounded">
                   {issue}
                 </div>
               ))}
@@ -251,7 +251,7 @@ const UndefinedTestPage: React.FC = () => {
           <CardContent>
             <div className="space-y-1 max-h-96 overflow-y-auto">
               {testResults.map((result, index) => (
-                <div key={index} className="text-sm font-mono bg-gray-50 p-2 rounded">
+                <div key={index} className="text-sm font-mono bg-accent p-2 rounded">
                   {result}
                 </div>
               ))}

@@ -136,7 +136,7 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
         {uploadType === 'image' && (
           <div className="space-y-4">
             <div
-              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+              className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
               onClick={triggerFileSelect}
             >
               {uploadedImage ? (
@@ -147,19 +147,19 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
                       alt="预览"
                       className="w-32 h-32 object-cover rounded-lg"
                     />
-                    <Badge className="absolute -top-2 -right-2 bg-green-500">
+                    <Badge className="absolute -top-2 -right-2 bg-accent0">
                       <CheckCircle className="w-3 h-3 mr-1" />
                       已上传
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-600">{uploadedImage.name}</p>
+                  <p className="text-sm text-muted-foreground">{uploadedImage.name}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <Upload className="w-12 h-12 mx-auto text-gray-400" />
+                  <Upload className="w-12 h-12 mx-auto text-muted-foreground" />
                   <div>
                     <p className="text-lg font-medium">点击上传品牌图片</p>
-                    <p className="text-sm text-gray-500">支持 JPG、PNG 格式，最大 5MB</p>
+                    <p className="text-sm text-muted-foreground">支持 JPG、PNG 格式，最大 5MB</p>
                   </div>
                 </div>
               )}
@@ -216,8 +216,8 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
         {/* 上传状态 */}
         {isUploading && (
           <div className="text-center py-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="text-sm text-gray-600 mt-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="text-sm text-muted-foreground mt-2">
               {uploadType === 'image' ? '正在上传图片...' : '正在处理描述...'}
             </p>
           </div>

@@ -165,12 +165,12 @@ VITE_ENABLE_IMAGE_GENERATION=true`;
             >
               {isVisible ? '🙈' : '👁️'}
             </Button>
-            {status === 'valid' && <CheckCircle className="h-4 w-4 text-green-500" />}
-            {status === 'invalid' && <AlertCircle className="h-4 w-4 text-red-500" />}
+            {status === 'valid' && <CheckCircle className="h-4 w-4 text-foreground" />}
+            {status === 'invalid' && <AlertCircle className="h-4 w-4 text-destructive" />}
           </div>
         </div>
         
-        <p className="text-xs text-gray-600">{description}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     );
   };

@@ -245,29 +245,29 @@ export default function CreemDebugPage() {
 
           {/* 结果显示 */}
           {error && (
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-border bg-accent">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Bug className="h-5 w-5 text-red-600" />
+                  <Bug className="h-5 w-5 text-destructive" />
                   <h3 className="font-medium text-red-900">测试失败</h3>
                 </div>
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-destructive text-sm">{error}</p>
               </CardContent>
             </Card>
           )}
 
           {result && (
-            <Card className="border-green-200 bg-green-50">
+            <Card className="border-border bg-accent">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Play className="h-5 w-5 text-green-600" />
+                  <Play className="h-5 w-5 text-foreground" />
                   <h3 className="font-medium text-green-900">测试成功 - {result.method}</h3>
                 </div>
                 <details className="mt-4">
                   <summary className="cursor-pointer text-green-700 font-medium">
                     查看响应数据
                   </summary>
-                  <pre className="mt-2 p-3 bg-white rounded border text-xs overflow-auto">
+                  <pre className="mt-2 p-3 bg-card rounded border text-xs overflow-auto">
                     {JSON.stringify(result.data, null, 2)}
                   </pre>
                 </details>
@@ -277,10 +277,10 @@ export default function CreemDebugPage() {
 
           {/* 调试信息 */}
           {debugInfo && (
-            <Card className="border-blue-200 bg-blue-50">
+            <Card className="border-border bg-accent">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Bug className="h-5 w-5 text-blue-600" />
+                  <Bug className="h-5 w-5 text-primary" />
                   <h3 className="font-medium text-blue-900">调试信息</h3>
                 </div>
                 <Textarea
@@ -294,9 +294,9 @@ export default function CreemDebugPage() {
           )}
 
           {/* 环境信息 */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-2">环境信息</h4>
-            <div className="space-y-2 text-sm text-gray-700">
+          <div className="bg-accent p-4 rounded-lg">
+            <h4 className="font-medium text-foreground mb-2">环境信息</h4>
+            <div className="space-y-2 text-sm text-foreground">
               <p><span className="font-medium">Creem SDK版本:</span> 0.3.37</p>
               <p><span className="font-medium">环境:</span> {import.meta.env.MODE}</p>
               <p><span className="font-medium">API密钥配置:</span> {apiKey ? '已配置' : '未配置'}</p>

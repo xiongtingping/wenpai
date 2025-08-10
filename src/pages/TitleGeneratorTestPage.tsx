@@ -126,7 +126,7 @@ const TitleGeneratorTestPage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">智能标题生成器测试</h1>
-        <p className="text-gray-600">测试AI驱动的智能标题生成功能</p>
+        <p className="text-muted-foreground">测试AI驱动的智能标题生成功能</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -147,7 +147,7 @@ const TitleGeneratorTestPage: React.FC = () => {
                   >
                     <div className="text-left">
                       <div className="font-medium">{content.name}</div>
-                      <div className="text-sm text-gray-500 mt-1">
+                      <div className="text-sm text-muted-foreground mt-1">
                         {content.content.substring(0, 50)}...
                       </div>
                     </div>
@@ -192,7 +192,7 @@ const TitleGeneratorTestPage: React.FC = () => {
                         </Badge>
                         <span className="font-medium">{result.testName}</span>
                       </div>
-                      <p className="text-sm text-gray-600">{result.message}</p>
+                      <p className="text-sm text-muted-foreground">{result.message}</p>
                     </div>
                   ))}
                 </div>
@@ -233,9 +233,9 @@ const TitleGeneratorTestPage: React.FC = () => {
                 <CardTitle>生成的标题</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="p-4 bg-accent border border-border rounded-lg">
                   <p className="text-lg font-medium text-blue-900">{generatedTitle}</p>
-                  <p className="text-sm text-blue-600 mt-2">字符数: {generatedTitle.length}</p>
+                  <p className="text-sm text-primary mt-2">字符数: {generatedTitle.length}</p>
                 </div>
               </CardContent>
             </Card>

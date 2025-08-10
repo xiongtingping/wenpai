@@ -70,8 +70,8 @@ export default function DirectLinkQRCodeTestPage() {
                   key={product.productId} 
                   className={`p-4 cursor-pointer transition-colors ${
                     selectedProduct === index 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'hover:border-gray-300'
+                      ? 'border-primary bg-accent' 
+                      : 'hover:border-border'
                   }`}
                   onClick={() => setSelectedProduct(index)}
                 >
@@ -112,7 +112,7 @@ export default function DirectLinkQRCodeTestPage() {
                     </p>
                   </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-accent p-4 rounded-lg">
                     <h5 className="font-medium mb-2">当前产品</h5>
                     <div className="space-y-1 text-sm">
                       <p><span className="font-medium">产品名称:</span> {selectedProductData.name}</p>
@@ -157,7 +157,7 @@ export default function DirectLinkQRCodeTestPage() {
 
           {/* 使用说明 */}
           <Separator />
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-medium text-blue-900 mb-2">使用说明</h4>
             <div className="space-y-2 text-sm text-blue-800">
               <div className="flex items-start gap-2">
@@ -184,9 +184,9 @@ export default function DirectLinkQRCodeTestPage() {
           </div>
 
           {/* 技术说明 */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-2">技术说明</h4>
-            <div className="space-y-2 text-sm text-gray-700">
+          <div className="bg-accent p-4 rounded-lg">
+            <h4 className="font-medium text-foreground mb-2">技术说明</h4>
+            <div className="space-y-2 text-sm text-foreground">
               <p><span className="font-medium">优势:</span> 无需API调用，直接使用Creem官方支付链接</p>
               <p><span className="font-medium">兼容性:</span> 支持所有Creem支付链接格式</p>
               <p><span className="font-medium">安全性:</span> 使用官方链接，确保支付安全</p>

@@ -92,7 +92,7 @@ export default function PaymentPlanDemoPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-bold">支</span>
             </div>
             支付计划演示
@@ -137,7 +137,7 @@ export default function PaymentPlanDemoPage() {
                 >
                   {plan.recommended && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-blue-500 text-white">
+                      <Badge className="bg-primary text-white">
                         <Star className="h-3 w-3 mr-1" />
                         推荐
                       </Badge>
@@ -146,7 +146,7 @@ export default function PaymentPlanDemoPage() {
                   
                   <CardHeader className="text-center">
                     <CardTitle className="text-xl flex items-center justify-center gap-2">
-                      {plan.tier === 'premium' && <Crown className="h-5 w-5 text-yellow-500" />}
+                      {plan.tier === 'premium' && <Crown className="h-5 w-5 text-foreground" />}
                       {plan.name}
                     </CardTitle>
                     <p className="text-muted-foreground text-sm">{plan.description}</p>
@@ -156,23 +156,23 @@ export default function PaymentPlanDemoPage() {
                     {/* 价格显示 */}
                     <div className="text-center">
                       {plan.tier === 'trial' ? (
-                        <div className="text-3xl font-bold text-green-600">免费</div>
+                        <div className="text-3xl font-bold text-foreground">免费</div>
                       ) : (
                         <div className="space-y-2">
-                          <div className="text-3xl font-bold text-blue-600">
+                          <div className="text-3xl font-bold text-primary">
                             ¥{currentPrice}
                           </div>
                           {savedAmount > 0 && (
-                            <div className="text-sm text-green-600">
+                            <div className="text-sm text-foreground">
                               省¥{savedAmount}
                             </div>
                           )}
                           {originalPrice > currentPrice && (
-                            <div className="text-sm text-gray-400 line-through">
+                            <div className="text-sm text-muted-foreground line-through">
                               ¥{originalPrice} 原价
                             </div>
                           )}
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-muted-foreground">
                             /{selectedPeriod === 'monthly' ? '月' : '年'}
                           </div>
                         </div>
@@ -183,7 +183,7 @@ export default function PaymentPlanDemoPage() {
                     <div className="space-y-2">
                       {plan.features.map((feature, index) => (
                         <div key={index} className="flex items-center gap-2 text-sm">
-                          <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <Check className="h-4 w-4 text-foreground flex-shrink-0" />
                           <span>{feature}</span>
                         </div>
                       ))}
@@ -191,12 +191,12 @@ export default function PaymentPlanDemoPage() {
 
                     {/* Creem产品信息 */}
                     {creemProductId && (
-                      <div className="bg-blue-50 p-3 rounded-lg">
-                        <div className="flex items-center gap-2 text-blue-700 mb-2">
+                      <div className="bg-accent p-3 rounded-lg">
+                        <div className="flex items-center gap-2 text-primary mb-2">
                           <CreditCard className="h-4 w-4" />
                           <span className="text-sm font-medium">Creem产品</span>
                         </div>
-                        <p className="text-xs text-blue-600 break-all">
+                        <p className="text-xs text-primary break-all">
                           {creemProductId}
                         </p>
                       </div>
@@ -221,7 +221,7 @@ export default function PaymentPlanDemoPage() {
 
           {/* 产品映射说明 */}
           <Separator />
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-medium text-blue-900 mb-2">Creem产品映射说明</h4>
             <div className="space-y-2 text-sm text-blue-800">
               <div className="flex items-start gap-2">
@@ -244,7 +244,7 @@ export default function PaymentPlanDemoPage() {
           </div>
 
           {/* 支付流程说明 */}
-          <div className="bg-green-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-medium text-green-900 mb-2">支付流程</h4>
             <div className="space-y-2 text-sm text-green-800">
               <div className="flex items-start gap-2">

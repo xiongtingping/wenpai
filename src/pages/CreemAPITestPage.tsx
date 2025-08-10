@@ -141,7 +141,7 @@ export default function CreemAPITestPage() {
             ) : (
               <div className="space-y-3">
                 {testResults.map((result, index) => (
-                  <Card key={index} className={`p-4 ${result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  <Card key={index} className={`p-4 ${result.success ? 'border-border bg-accent' : 'border-border bg-accent'}`}>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -154,14 +154,14 @@ export default function CreemAPITestPage() {
                           </span>
                         </div>
                         {result.error && (
-                          <p className="text-red-600 text-sm">{result.error}</p>
+                          <p className="text-destructive text-sm">{result.error}</p>
                         )}
                         {result.success && result.data && (
                           <div className="text-sm">
-                            <p className="text-green-600">API调用成功</p>
+                            <p className="text-foreground">API调用成功</p>
                             <details className="mt-2">
                               <summary className="cursor-pointer text-muted-foreground">查看响应数据</summary>
-                              <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
+                              <pre className="mt-2 p-2 bg-accent rounded text-xs overflow-auto">
                                 {JSON.stringify(result.data, null, 2)}
                               </pre>
                             </details>

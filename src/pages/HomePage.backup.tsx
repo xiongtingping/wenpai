@@ -31,37 +31,37 @@ function HomePage() {
       
       <main className="flex-1 w-full">
         {/* Hero Section - 白色背景 */}
-        <div className="bg-white">
+        <div className="bg-card">
           <HeroSection />
         </div>
         
         {/* Trust Section - 浅灰背景 */}
-        <div className="bg-gray-50 py-16">
+        <div className="bg-accent py-16">
           <TrustSection />
         </div>
         
         {/* How It Works - 白色背景 */}
-        <div className="bg-white py-20">
+        <div className="bg-card py-20">
           <HowItWorks />
         </div>
         
         {/* Features Section - 浅灰背景 */}
-        <div className="bg-gray-50 py-20">
+        <div className="bg-accent py-20">
           <FeaturesSection />
         </div>
         
         {/* Testimonials Section - 白色背景 */}
-        <div className="bg-white py-20">
+        <div className="bg-card py-20">
           <TestimonialsSection />
         </div>
         
         {/* Pricing Section - 浅灰背景 */}
-        <div className="bg-gray-50 py-20">
+        <div className="bg-accent py-20">
           <PricingSection />
         </div>
         
         {/* CTA Section - 白色背景 */}
-        <div className="bg-white py-20">
+        <div className="bg-card py-20">
           <CTASection />
         </div>
       </main>

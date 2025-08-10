@@ -116,7 +116,7 @@ const TitleGrammarTestPage: React.FC = () => {
             <Button onClick={runGrammarTest} className="flex items-center gap-2">
               🚀 运行语病测试
             </Button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               测试修复"X个的Y"等常见语病问题
             </span>
           </div>
@@ -137,7 +137,7 @@ const TitleGrammarTestPage: React.FC = () => {
                       <div className="text-sm space-y-1">
                         <p><strong>测试内容:</strong> {result.content.substring(0, 50)}...</p>
                         <p><strong>预期问题:</strong> {result.expectedIssue}</p>
-                        <p><strong>生成结果:</strong> <span className={result.isFixed ? 'text-green-600' : 'text-red-600'}>{result.result}</span></p>
+                        <p><strong>生成结果:</strong> <span className={result.isFixed ? 'text-foreground' : 'text-destructive'}>{result.result}</span></p>
                       </div>
                     </div>
                   </CardContent>

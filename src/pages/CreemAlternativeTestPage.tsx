@@ -90,7 +90,7 @@ export default function CreemAlternativeTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="container mx-auto max-w-4xl">
         <Card className="mb-8">
           <CardHeader>
@@ -103,7 +103,7 @@ export default function CreemAlternativeTestPage() {
               <Button 
                 onClick={testAll}
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white w-full"
+                className="bg-primary hover:bg-blue-700 text-white w-full"
               >
                 {loading ? '测试中...' : '测试所有方法'}
               </Button>
@@ -142,7 +142,7 @@ export default function CreemAlternativeTestPage() {
                       </Badge>
                     </div>
                     
-                    <div className="text-sm text-gray-600 mb-2">
+                    <div className="text-sm text-muted-foreground mb-2">
                       时间: {new Date(result.timestamp).toLocaleString()}
                     </div>
                     
@@ -156,7 +156,7 @@ export default function CreemAlternativeTestPage() {
                         </div>
                         <details className="text-xs">
                           <summary className="cursor-pointer">完整响应数据</summary>
-                          <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
+                          <pre className="mt-2 p-2 bg-accent rounded overflow-auto">
                             {JSON.stringify(result.data, null, 2)}
                           </pre>
                         </details>
@@ -164,7 +164,7 @@ export default function CreemAlternativeTestPage() {
                     )}
                     
                     {!result.success && result.error && (
-                      <div className="text-sm text-red-600">
+                      <div className="text-sm text-destructive">
                         <strong>错误:</strong> {result.error}
                       </div>
                     )}

@@ -278,9 +278,9 @@ export default function PaymentStatusPage() {
                        result.status === 'warning' ? '警告' : '错误'}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-700 mb-1">{result.message}</p>
+                  <p className="text-sm text-foreground mb-1">{result.message}</p>
                   {result.details && (
-                    <p className="text-xs text-gray-500">{result.details}</p>
+                    <p className="text-xs text-muted-foreground">{result.details}</p>
                   )}
                 </div>
               </div>

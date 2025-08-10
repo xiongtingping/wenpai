@@ -314,17 +314,17 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   const subModules = getSubModules();
 
   return (
-    <div className="border-b bg-white/90 backdrop-blur-sm shadow-e1">
+    <div className="border-b bg-card/90 backdrop-blur-sm shadow-e1">
       <div className="container mx-auto px-4 py-6">
         {/* 面包屑导航 */}
         {breadcrumbs.length > 0 && (
           <div className="mb-4">
             <Breadcrumb>
-              <BreadcrumbList className="flex-wrap text-gray-700">
+              <BreadcrumbList className="flex-wrap text-foreground">
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href="/"
-                    className="flex items-center gap-1 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:scale-105"
+                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105"
                   >
                     <Home className="w-4 h-4" />
                     <span className="hidden sm:inline">首页</span>
@@ -333,15 +333,15 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                 {breadcrumbs.map((item, index) => (
                   <React.Fragment key={item.path}>
                     <BreadcrumbSeparator>
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
                       {index === breadcrumbs.length - 1 ? (
-                        <BreadcrumbPage className="flex items-center gap-2 text-gray-900">
+                        <BreadcrumbPage className="flex items-center gap-2 text-foreground">
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>
                           {item.badge && (
-                            <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 border-orange-200">
+                            <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-foreground border-orange-200">
                               {item.badge}
                             </Badge>
                           )}
@@ -349,7 +349,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                       ) : (
                         <BreadcrumbLink
                           href={item.path}
-                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:scale-105"
+                          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105"
                         >
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>
@@ -367,17 +367,17 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                 {title || PAGE_CONFIGS[path]?.title || '页面'}
               </h1>
               {PAGE_CONFIGS[path]?.badge && (
-                <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 border-orange-200 animate-pulse">
+                <Badge variant="outline" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-foreground border-orange-200 animate-pulse">
                   {PAGE_CONFIGS[path].badge}
                 </Badge>
               )}
             </div>
             {description && (
-              <p className="text-sm sm:text-base text-gray-500 max-w-2xl leading-relaxed">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
                 {description}
               </p>
             )}
@@ -402,7 +402,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
         {subModules.length > 0 && PAGE_CONFIGS[path]?.level > 2 && (
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">相关功能</h3>
+              <h3 className="text-lg font-semibold text-foreground">相关功能</h3>
               <div className="flex-1 h-px bg-gradient-to-r from-gray-200 via-gray-300 to-transparent"></div>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -415,13 +415,13 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                     path === module.path
                       ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105"
-                      : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 border-gray-300 hover:border-blue-300 hover:scale-105"
+                      : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 border-border hover:border-primary/50 hover:scale-105"
                   }`}
                 >
                   <module.icon className="w-4 h-4" />
                   <span className="font-medium">{module.title}</span>
                   {module.badge && (
-                    <Badge variant="secondary" className="ml-1 text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 border-orange-200">
+                    <Badge variant="secondary" className="ml-1 text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-foreground border-orange-200">
                       {module.badge}
                     </Badge>
                   )}

@@ -109,9 +109,9 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
   };
 
   const getStatusColor = (value: number, thresholds: { good: number; warning: number }) => {
-    if (value <= thresholds.good) return 'text-green-600';
-    if (value <= thresholds.warning) return 'text-yellow-600';
-    return 'text-red-600';
+    if (value <= thresholds.good) return 'text-foreground';
+    if (value <= thresholds.warning) return 'text-foreground';
+    return 'text-destructive';
   };
 
   const getStatusBadge = (value: number, thresholds: { good: number; warning: number }) => {
@@ -191,7 +191,7 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
                   step={1}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>1</span>
                   <span>8</span>
                 </div>
@@ -213,7 +213,7 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
                     step={1}
                     className="w-full"
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
                     <span>2</span>
                     <span>20</span>
                   </div>
@@ -235,7 +235,7 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
                   step={1}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>低优先级</span>
                   <span>高优先级</span>
                 </div>
@@ -276,7 +276,7 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
                 </Button>
               </div>
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-muted-foreground">
               最后更新: {lastUpdate.toLocaleTimeString()}
             </div>
           </CardHeader>
@@ -284,10 +284,10 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* 活跃请求 */}
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-primary">
                   {stats.concurrency.activeRequests}
                 </div>
-                <div className="text-xs text-gray-500">活跃请求</div>
+                <div className="text-xs text-muted-foreground">活跃请求</div>
               </div>
 
               {/* 队列长度 */}
@@ -298,15 +298,15 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
                 )}>
                   {stats.concurrency.queuedRequests}
                 </div>
-                <div className="text-xs text-gray-500">队列长度</div>
+                <div className="text-xs text-muted-foreground">队列长度</div>
               </div>
 
               {/* 完成率 */}
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-foreground">
                   {stats.concurrency.completedRequests}
                 </div>
-                <div className="text-xs text-gray-500">已完成</div>
+                <div className="text-xs text-muted-foreground">已完成</div>
               </div>
 
               {/* 错误率 */}
@@ -317,7 +317,7 @@ export const ConcurrencyControl = memo<ConcurrencyControlProps>(({
                 )}>
                   {(stats.concurrency.errorRate * 100).toFixed(1)}%
                 </div>
-                <div className="text-xs text-gray-500">错误率</div>
+                <div className="text-xs text-muted-foreground">错误率</div>
               </div>
             </div>
 

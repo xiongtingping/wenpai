@@ -925,7 +925,7 @@ export default function HotTopicsPage() {
                                     <Button
                                       size="sm"
                                       variant={isTopicBookmarked(topic) ? "default" : "outline"}
-                                      className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
+                                      className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90' : ''}`}
                                       onClick={() => toggleBookmark(topic)}
                                     >
                                       <Bookmark className="w-3 h-3" />

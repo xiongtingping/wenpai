@@ -234,9 +234,9 @@ const AITestPage: React.FC = () => {
                   {testResults.map((test, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-2">
-                        {test.status === 'success' && <CheckCircle className="h-4 w-4 text-green-500" />}
-                        {test.status === 'error' && <XCircle className="h-4 w-4 text-red-500" />}
-                        {test.status === 'pending' && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
+                        {test.status === 'success' && <CheckCircle className="h-4 w-4 text-foreground" />}
+                        {test.status === 'error' && <XCircle className="h-4 w-4 text-destructive" />}
+                        {test.status === 'pending' && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
                         <span className="font-medium">{test.test}</span>
                       </div>
                       <div className="text-right">
@@ -306,7 +306,7 @@ const AITestPage: React.FC = () => {
                   <ul className="space-y-1">
                     {result.suggestions.map((suggestion, index) => (
                       <li key={index} className="text-sm flex items-start gap-2">
-                        <span className="text-blue-500 mt-1">•</span>
+                        <span className="text-primary mt-1">•</span>
                         {suggestion}
                       </li>
                     ))}

@@ -35,11 +35,11 @@ const TitleFixTestPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-accent py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">标题生成修复测试</h1>
-          <p className="text-gray-600">测试修复后的标题生成功能，确保不再出现格式问题</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">标题生成修复测试</h1>
+          <p className="text-muted-foreground">测试修复后的标题生成功能，确保不再出现格式问题</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -62,7 +62,7 @@ const TitleFixTestPage: React.FC = () => {
                         使用此案例
                       </Button>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{testCase.content}</p>
+                    <p className="text-sm text-muted-foreground mb-2">{testCase.content}</p>
                     <Badge variant="secondary" className="text-xs">
                       {testCase.expectedIssue}
                     </Badge>
@@ -121,9 +121,9 @@ const TitleFixTestPage: React.FC = () => {
                   <CardTitle>当前选中标题</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-accent border border-border rounded-lg p-4">
                     <p className="text-lg font-medium text-blue-900">{selectedTitle}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-blue-700">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-primary">
                       <span>长度: {selectedTitle.length} 字符</span>
                       <span>状态: {selectedTitle.length <= 20 ? '✅ 符合要求' : '⚠️ 超出限制'}</span>
                     </div>
@@ -140,7 +140,7 @@ const TitleFixTestPage: React.FC = () => {
               <CardContent className="space-y-3">
                 <div className="text-sm space-y-2">
                   <h4 className="font-medium text-green-700">✅ 已修复的问题：</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                     <li>标题格式异常（如"感受就是终于不用在不同平｜真心话"）</li>
                     <li>标题截断问题（如"成短视频脚本+热方法详解"）</li>
                     <li>语法错误和不完整表达</li>
@@ -150,8 +150,8 @@ const TitleFixTestPage: React.FC = () => {
                 </div>
                 
                 <div className="text-sm space-y-2">
-                  <h4 className="font-medium text-blue-700">🔧 修复措施：</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
+                  <h4 className="font-medium text-primary">🔧 修复措施：</h4>
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                     <li>增加输入验证，确保提取的关键词长度合理</li>
                     <li>修复标题模板，添加必要的连接词和空格</li>
                     <li>优化智能截断算法，在合适的标点处截断</li>

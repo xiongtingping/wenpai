@@ -21,9 +21,9 @@ export function HowItWorks() {
 
   // 渐变色配置
   const stepGradients = [
-    "from-blue-400 via-blue-500 to-indigo-500",
-    "from-purple-400 via-indigo-400 to-pink-400",
-    "from-pink-400 via-pink-500 to-red-400"
+    "btn-gradient-primary",
+    "btn-gradient-secondary",
+    "btn-gradient-accent"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
   const stepTitles = ["输入原始内容", "选择目标平台", "一键获取所有版本"]

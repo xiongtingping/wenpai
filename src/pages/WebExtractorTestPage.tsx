@@ -141,10 +141,10 @@ export default function WebExtractorTestPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             网页提取功能测试
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             测试和验证网页内容提取服务的各项功能
           </p>
         </div>
@@ -153,7 +153,7 @@ export default function WebExtractorTestPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-blue-600" />
+              <FileText className="h-5 w-5 text-primary" />
               基础功能测试
             </CardTitle>
             <CardDescription>
@@ -166,9 +166,9 @@ export default function WebExtractorTestPage() {
             </Button>
             
             {testResults.length > 0 && (
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-accent p-4 rounded-lg">
                 <h4 className="font-medium mb-2">测试结果:</h4>
-                <pre className="text-sm whitespace-pre-wrap text-gray-700">
+                <pre className="text-sm whitespace-pre-wrap text-foreground">
                   {testResults.join('\n')}
                 </pre>
               </div>
@@ -180,7 +180,7 @@ export default function WebExtractorTestPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-green-600" />
+              <Globe className="h-5 w-5 text-foreground" />
               网页内容提取测试
             </CardTitle>
             <CardDescription>
@@ -239,7 +239,7 @@ export default function WebExtractorTestPage() {
                   )}
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                <div className="bg-accent p-4 rounded-lg space-y-3">
                   <div>
                     <strong>标题:</strong> {extractionResult.title}
                   </div>
@@ -256,7 +256,7 @@ export default function WebExtractorTestPage() {
                   {extractionResult.status === 'success' && extractionResult.content && (
                     <div>
                       <strong>内容预览:</strong>
-                      <div className="mt-2 p-3 bg-white rounded border max-h-40 overflow-y-auto">
+                      <div className="mt-2 p-3 bg-card rounded border max-h-40 overflow-y-auto">
                         {extractionResult.content.substring(0, 500)}
                         {extractionResult.content.length > 500 && '...'}
                       </div>
@@ -305,7 +305,7 @@ export default function WebExtractorTestPage() {
             <CardTitle>使用说明</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2 text-sm text-gray-600">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>• <strong>基础功能测试:</strong> 验证URL处理、验证等核心功能</p>
               <p>• <strong>网页内容提取测试:</strong> 测试完整的内容提取和AI分析流程</p>
               <p>• <strong>建议测试URL:</strong> 使用公开的、内容丰富的网页进行测试</p>

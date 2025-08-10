@@ -180,26 +180,26 @@ const NewTitleGeneratorTestPage: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'running':
-        return <RefreshCw className="w-4 h-4 animate-spin text-blue-500" />;
+        return <RefreshCw className="w-4 h-4 animate-spin text-primary" />;
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-foreground" />;
       case 'error':
-        return <XCircle className="w-4 h-4 text-red-500" />;
+        return <XCircle className="w-4 h-4 text-destructive" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-400" />;
+        return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'running':
-        return 'border-blue-200 bg-blue-50';
+        return 'border-border bg-accent';
       case 'success':
-        return 'border-green-200 bg-green-50';
+        return 'border-border bg-accent';
       case 'error':
-        return 'border-red-200 bg-red-50';
+        return 'border-border bg-accent';
       default:
-        return 'border-gray-200';
+        return 'border-border';
     }
   };
 
@@ -211,7 +211,7 @@ const NewTitleGeneratorTestPage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">新标题生成器测试</h1>
-        <p className="text-gray-600">测试重构后的标题生成系统</p>
+        <p className="text-muted-foreground">测试重构后的标题生成系统</p>
       </div>
 
       {/* 系统信息 */}
@@ -225,25 +225,25 @@ const NewTitleGeneratorTestPage: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">版本:</span>
+              <span className="text-muted-foreground">版本:</span>
               <span className="ml-2 font-medium">{SYSTEM_INFO.version}</span>
             </div>
             <div>
-              <span className="text-gray-500">构建日期:</span>
+              <span className="text-muted-foreground">构建日期:</span>
               <span className="ml-2 font-medium">{SYSTEM_INFO.buildDate}</span>
             </div>
             <div>
-              <span className="text-gray-500">支持平台:</span>
+              <span className="text-muted-foreground">支持平台:</span>
               <span className="ml-2 font-medium">{SYSTEM_INFO.supportedPlatforms.length}个</span>
             </div>
             <div>
-              <span className="text-gray-500">支持风格:</span>
+              <span className="text-muted-foreground">支持风格:</span>
               <span className="ml-2 font-medium">{SYSTEM_INFO.supportedStyles.length}个</span>
             </div>
           </div>
           
           <div className="mt-4">
-            <span className="text-gray-500">功能特性:</span>
+            <span className="text-muted-foreground">功能特性:</span>
             <div className="flex flex-wrap gap-1 mt-2">
               {SYSTEM_INFO.features.map((feature, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
@@ -289,9 +289,9 @@ const NewTitleGeneratorTestPage: React.FC = () => {
 
             {testResults.length > 0 && (
               <div className="flex gap-4 text-sm">
-                <span className="text-green-600">✅ {successCount}</span>
-                <span className="text-red-600">❌ {errorCount}</span>
-                <span className="text-gray-500">总计: {totalTests}</span>
+                <span className="text-foreground">✅ {successCount}</span>
+                <span className="text-destructive">❌ {errorCount}</span>
+                <span className="text-muted-foreground">总计: {totalTests}</span>
               </div>
             )}
           </div>
@@ -333,8 +333,8 @@ const NewTitleGeneratorTestPage: React.FC = () => {
                   )}
                   
                   {result.result && result.status === 'success' && (
-                    <div className="mt-2 text-xs text-gray-600">
-                      <pre className="bg-gray-50 p-2 rounded text-xs overflow-auto max-h-32">
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <pre className="bg-accent p-2 rounded text-xs overflow-auto max-h-32">
                         {JSON.stringify(result.result, null, 2)}
                       </pre>
                     </div>

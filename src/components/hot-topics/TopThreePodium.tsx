@@ -95,7 +95,7 @@ export default function TopThreePodium({
       case 1:
         return <Trophy className="w-8 h-8 text-yellow-800" />;
       case 2:
-        return <Medal className="w-6 h-6 text-gray-700" />;
+        return <Medal className="w-6 h-6 text-foreground" />;
       case 3:
         return <Medal className="w-6 h-6 text-amber-800" />;
       default:
@@ -106,9 +106,9 @@ export default function TopThreePodium({
   const getRankBadge = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Badge className="bg-yellow-500 text-yellow-900 hover:bg-yellow-600">🥇 第{rank}名</Badge>;
+        return <Badge className="bg-accent0 text-yellow-900 hover:bg-yellow-600">🥇 第{rank}名</Badge>;
       case 2:
-        return <Badge className="bg-gray-400 text-gray-900 hover:bg-gray-500">🥈 第{rank}名</Badge>;
+        return <Badge className="bg-gray-400 text-foreground hover:bg-accent0">🥈 第{rank}名</Badge>;
       case 3:
         return <Badge className="bg-amber-600 text-amber-100 hover:bg-amber-700">🥉 第{rank}名</Badge>;
       default:
@@ -127,15 +127,15 @@ export default function TopThreePodium({
   };
 
   return (
-    <Card className="w-full bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200">
+    <Card className="w-full bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-border">
       <CardContent className="p-6">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
-            <Trophy className="w-6 h-6 text-yellow-500" />
+          <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
+            <Trophy className="w-6 h-6 text-foreground" />
             热度排行榜
-            <Flame className="w-6 h-6 text-red-500" />
+            <Flame className="w-6 h-6 text-destructive" />
           </h2>
-          <p className="text-gray-600">今日最热门话题前三名</p>
+          <p className="text-muted-foreground">今日最热门话题前三名</p>
         </div>
 
         <div className="flex items-end justify-center gap-4 h-[320px]">
@@ -172,7 +172,7 @@ export default function TopThreePodium({
 
                     {/* 热度值 */}
                     <div className="flex items-center justify-center gap-1 mb-2">
-                      <Zap className="w-3 h-3 text-orange-500" />
+                      <Zap className="w-3 h-3 text-foreground" />
                       <span className="text-xs font-medium">
                         {formatHotValue(topic.hot)}
                       </span>
@@ -189,7 +189,7 @@ export default function TopThreePodium({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-6 w-6 p-0 hover:bg-white/20"
+                      className="h-6 w-6 p-0 hover:bg-card/20"
                       onClick={(e) => {
                         e.stopPropagation();
                         onShare?.(topic);
@@ -200,7 +200,7 @@ export default function TopThreePodium({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-6 w-6 p-0 hover:bg-white/20"
+                      className="h-6 w-6 p-0 hover:bg-card/20"
                       onClick={(e) => {
                         e.stopPropagation();
                         onBookmark?.(topic);
@@ -216,7 +216,7 @@ export default function TopThreePodium({
         </div>
 
         {/* 底部说明 */}
-        <div className="text-center mt-4 text-xs text-gray-500">
+        <div className="text-center mt-4 text-xs text-muted-foreground">
           <p>点击话题查看详情 • 数据实时更新</p>
         </div>
       </CardContent>

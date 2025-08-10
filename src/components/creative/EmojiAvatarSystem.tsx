@@ -54,7 +54,7 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Emoji头像系统</h3>
-          <p className="text-sm text-gray-600">从500个精美emoji中选择或随机生成</p>
+          <p className="text-sm text-muted-foreground">从500个精美emoji中选择或随机生成</p>
         </div>
         <Button onClick={handleRandomSelect} className="flex items-center gap-2">
           <Shuffle className="w-4 h-4" />
@@ -75,7 +75,7 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({
               </div>
               <div>
                 <h4 className="text-lg">{selectedEmoji.name}</h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   {selectedEmoji.category} 类别
                 </p>
               </div>
@@ -100,7 +100,7 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({
         allowRandom={true}
         source="system"
         onEmojiSelect={handleEmojiSelect}
-        className="bg-white rounded-lg"
+        className="bg-card rounded-lg"
       />
     </div>
   );

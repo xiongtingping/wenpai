@@ -90,8 +90,8 @@ export default function CheckoutTestPage() {
                   key={product.priceId} 
                   className={`p-4 cursor-pointer transition-colors ${
                     selectedPriceId === product.priceId 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'hover:border-gray-300'
+                      ? 'border-primary bg-accent' 
+                      : 'hover:border-border'
                   }`}
                   onClick={() => handleProductSelect(product.priceId)}
                 >
@@ -148,7 +148,7 @@ export default function CheckoutTestPage() {
                     </p>
                   </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-accent p-4 rounded-lg">
                     <h5 className="font-medium mb-2">当前配置</h5>
                     <div className="space-y-1 text-sm">
                       <p><span className="font-medium">价格ID:</span> {selectedPriceId}</p>
@@ -217,7 +217,7 @@ export default function CheckoutTestPage() {
 
           {/* 支付流程说明 */}
           <Separator />
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-medium text-blue-900 mb-2">支付流程说明</h4>
             <div className="space-y-2 text-sm text-blue-800">
               <div className="flex items-start gap-2">

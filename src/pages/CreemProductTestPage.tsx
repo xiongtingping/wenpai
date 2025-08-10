@@ -142,7 +142,7 @@ export default function CreemProductTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="container mx-auto max-w-6xl">
         <Card className="mb-8">
           <CardHeader>
@@ -179,7 +179,7 @@ export default function CreemProductTestPage() {
                 <Button 
                   onClick={testCustomProduct}
                   disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-blue-700 text-white"
                 >
                   {loading ? '测试中...' : '测试自定义产品'}
                 </Button>
@@ -206,10 +206,10 @@ export default function CreemProductTestPage() {
                 <h3 className="text-lg font-medium mb-3">预定义产品列表</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {predefinedProducts.map((product, index) => (
-                    <div key={index} className="border rounded-lg p-3 bg-white">
+                    <div key={index} className="border rounded-lg p-3 bg-card">
                       <div className="font-medium">{product.name}</div>
-                      <div className="text-sm text-gray-600">{product.description}</div>
-                      <div className="text-xs text-gray-500 font-mono mt-1">{product.productId}</div>
+                      <div className="text-sm text-muted-foreground">{product.description}</div>
+                      <div className="text-xs text-muted-foreground font-mono mt-1">{product.productId}</div>
                       <Button 
                         onClick={() => testProduct(product.productId, customApiKey, product.name)}
                         disabled={loading}
@@ -236,7 +236,7 @@ export default function CreemProductTestPage() {
             <CardContent>
               <div className="space-y-4">
                 {testResults.map((result, index) => (
-                  <div key={index} className="border rounded-lg p-4 bg-white">
+                  <div key={index} className="border rounded-lg p-4 bg-card">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-medium">{result.name}</h3>
                       <Badge variant={result.success ? "default" : "destructive"}>
@@ -244,7 +244,7 @@ export default function CreemProductTestPage() {
                       </Badge>
                     </div>
                     
-                    <div className="text-sm text-gray-600 mb-2">
+                    <div className="text-sm text-muted-foreground mb-2">
                       <div>产品ID: <span className="font-mono">{result.productId}</span></div>
                       <div>API Key: <span className="font-mono">{result.apiKey}</span></div>
                       <div>时间: {new Date(result.timestamp).toLocaleString()}</div>
@@ -272,7 +272,7 @@ export default function CreemProductTestPage() {
                         )}
                         <details className="text-xs">
                           <summary className="cursor-pointer">完整响应数据</summary>
-                          <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
+                          <pre className="mt-2 p-2 bg-accent rounded overflow-auto">
                             {JSON.stringify(result.data, null, 2)}
                           </pre>
                         </details>
@@ -280,7 +280,7 @@ export default function CreemProductTestPage() {
                     )}
                     
                     {!result.success && result.error && (
-                      <div className="text-sm text-red-600">
+                      <div className="text-sm text-destructive">
                         <strong>错误:</strong> {result.error}
                       </div>
                     )}

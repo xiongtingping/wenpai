@@ -54,9 +54,9 @@ function getLimitConfig(limitType: TokenLimitDialogProps['limitType']) {
         title: 'Token额度已用完',
         description: '您已达到当前套餐的Token上限，无法继续使用AI功能',
         icon: AlertTriangle,
-        iconColor: 'text-red-500',
-        bgColor: 'bg-red-50',
-        borderColor: 'border-red-200',
+        iconColor: 'text-destructive',
+        bgColor: 'bg-accent',
+        borderColor: 'border-border',
         showContinue: false
       };
     case 'approaching':
@@ -64,8 +64,8 @@ function getLimitConfig(limitType: TokenLimitDialogProps['limitType']) {
         title: 'Token额度即将用完',
         description: '您的Token使用量已超过90%，建议升级套餐',
         icon: AlertTriangle,
-        iconColor: 'text-orange-500',
-        bgColor: 'bg-orange-50',
+        iconColor: 'text-foreground',
+        bgColor: 'bg-accent',
         borderColor: 'border-orange-200',
         showContinue: true
       };
@@ -75,9 +75,9 @@ function getLimitConfig(limitType: TokenLimitDialogProps['limitType']) {
         title: 'Token使用量较高',
         description: '您的Token使用量已超过80%，建议关注剩余额度',
         icon: TrendingUp,
-        iconColor: 'text-yellow-500',
-        bgColor: 'bg-yellow-50',
-        borderColor: 'border-yellow-200',
+        iconColor: 'text-foreground',
+        bgColor: 'bg-accent',
+        borderColor: 'border-border',
         showContinue: true
       };
   }
@@ -157,7 +157,7 @@ export function TokenLimitDialog({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-blue-500" />
+                  <Zap className="w-4 h-4 text-primary" />
                   <span className="font-medium">Token使用情况</span>
                 </div>
                 <Badge variant={stats.usagePercentage > 90 ? "destructive" : "secondary"}>
@@ -179,13 +179,13 @@ export function TokenLimitDialog({
           <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Crown className="w-4 h-4 text-purple-600" />
+                <Crown className="w-4 h-4 text-primary" />
                 <span className="font-medium text-purple-800">升级到{upgrade.targetTier}</span>
-                <Badge variant="outline" className="text-purple-600 border-purple-300">
+                <Badge variant="outline" className="text-primary border-border">
                   {upgrade.price}
                 </Badge>
               </div>
-              <ul className="space-y-1 text-sm text-purple-700">
+              <ul className="space-y-1 text-sm text-primary">
                 {upgrade.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-center gap-2">
                     <Gift className="w-3 h-3" />
@@ -197,10 +197,10 @@ export function TokenLimitDialog({
           </div>
 
           {/* 使用建议 */}
-          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="p-3 bg-accent rounded-lg border border-border">
             <div className="flex items-start gap-2">
-              <Clock className="w-4 h-4 text-blue-500 mt-0.5" />
-              <div className="text-sm text-blue-700">
+              <Clock className="w-4 h-4 text-primary mt-0.5" />
+              <div className="text-sm text-primary">
                 <div className="font-medium mb-1">使用建议</div>
                 <ul className="space-y-1 text-xs">
                   <li>• 优化提示词长度，减少不必要的描述</li>

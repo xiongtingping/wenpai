@@ -211,15 +211,15 @@ export function AIConnectionTest() {
   const getStatusIcon = (status: AIServiceStatus['status']) => {
     switch (status) {
       case 'checking':
-        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+        return <Loader2 className="h-4 w-4 animate-spin text-primary" />;
       case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-foreground" />;
       case 'error':
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       case 'not_configured':
-        return <AlertCircle className="h-4 w-4 text-gray-400" />;
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-400" />;
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -229,15 +229,15 @@ export function AIConnectionTest() {
   const getStatusColor = (status: AIServiceStatus['status']) => {
     switch (status) {
       case 'checking':
-        return 'bg-blue-50 border-blue-200';
+        return 'bg-accent border-border';
       case 'success':
-        return 'bg-green-50 border-green-200';
+        return 'bg-accent border-border';
       case 'error':
-        return 'bg-red-50 border-red-200';
+        return 'bg-accent border-border';
       case 'not_configured':
-        return 'bg-gray-50 border-gray-200';
+        return 'bg-accent border-border';
       default:
-        return 'bg-gray-50 border-gray-200';
+        return 'bg-accent border-border';
     }
   };
 
@@ -294,7 +294,7 @@ export function AIConnectionTest() {
       <CardContent className="space-y-4">
         {/* 配置向导 */}
         {showSetupWizard && (
-          <div className="border rounded-lg p-4 bg-gray-50">
+          <div className="border rounded-lg p-4 bg-accent">
             <AISetupWizard />
           </div>
         )}
@@ -322,9 +322,9 @@ export function AIConnectionTest() {
                   {getStatusIcon(service.status)}
                   <div>
                     <div className="font-medium">{service.name}</div>
-                    <div className="text-sm text-gray-600">{service.message}</div>
+                    <div className="text-sm text-muted-foreground">{service.message}</div>
                     {service.responseTime && (
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         响应时间: {service.responseTime}ms
                         {service.model && ` | 模型: ${service.model}`}
                       </div>

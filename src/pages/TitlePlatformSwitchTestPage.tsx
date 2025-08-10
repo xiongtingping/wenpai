@@ -84,7 +84,7 @@ export default function TitlePlatformSwitchTestPage() {
 
               <div>
                 <label className="block text-sm font-medium mb-2">当前平台信息</label>
-                <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="bg-accent p-3 rounded-lg">
                   <p><strong>平台:</strong> {currentPlatform?.name}</p>
                   <p><strong>字符限制:</strong> {currentPlatform?.limit}字</p>
                   <p><strong>平台ID:</strong> {selectedPlatform}</p>
@@ -161,15 +161,15 @@ export default function TitlePlatformSwitchTestPage() {
                     <div className="text-sm">
                       {generatedTitles[platform.id] ? (
                         <div>
-                          <p className="font-medium text-green-600">
+                          <p className="font-medium text-foreground">
                             {generatedTitles[platform.id]}
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             长度: {generatedTitles[platform.id].length}/{platform.limit}字
                           </p>
                         </div>
                       ) : (
-                        <p className="text-gray-400 italic">暂未生成标题</p>
+                        <p className="text-muted-foreground italic">暂未生成标题</p>
                       )}
                     </div>
                   </CardContent>
@@ -179,9 +179,9 @@ export default function TitlePlatformSwitchTestPage() {
           </div>
 
           {/* 测试说明 */}
-          <div className="mt-6 bg-blue-50 p-4 rounded-lg">
+          <div className="mt-6 bg-accent p-4 rounded-lg">
             <h4 className="font-semibold text-blue-800 mb-2">🧪 测试说明</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
+            <ul className="text-sm text-primary space-y-1">
               <li>• 切换平台时，标题生成器应该自动适配新平台的字符限制</li>
               <li>• 已生成的标题应该保持在历史记录中，不会丢失</li>
               <li>• 重新生成时应该考虑当前平台的特点</li>

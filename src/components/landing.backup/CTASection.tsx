@@ -36,18 +36,18 @@ export function CTASection() {
   };
 
   return (
-    <section className="py-16 bg-gray-50 relative overflow-hidden">
+    <section className="py-16 bg-accent relative overflow-hidden">
       {/* 装饰背景 - 增强视觉层次 */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-pink-50/30"></div>
       
       <div className="container mx-auto px-6 text-center relative z-10">
         {/* 1️⃣ 主标题 */}
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-2">
           准备好开始您的创作之旅了吗？
         </h2>
         
         {/* 2️⃣ 副标题 */}
-        <p className="text-base text-gray-500 text-center mb-6 max-w-xl mx-auto leading-relaxed">
+        <p className="text-base text-muted-foreground text-center mb-6 max-w-xl mx-auto leading-relaxed">
           立即加入，让AI成为你最得力的内容创作伙伴。
         </p>
         

@@ -737,7 +737,7 @@ export default function BookmarkPage() {
         {/* 分类标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <TabsList className="grid w-full grid-cols-4 max-w-3xl bg-white/80 backdrop-blur-sm">
+            <TabsList className="grid w-full grid-cols-4 max-w-3xl bg-card/80 backdrop-blur-sm">
               <TabsTrigger value="all" className="flex items-center justify-center gap-2 text-xs sm:text-sm py-2 px-3">
                 <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>全部</span>
@@ -783,7 +783,7 @@ export default function BookmarkPage() {
               <Button
                 onClick={handleExportData}
                 variant="outline"
-                className="flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                className="flex items-center gap-2 bg-accent hover:bg-accent text-green-700 border-border"
                 size="sm"
               >
                 <Download className="w-4 h-4" />
@@ -798,7 +798,7 @@ export default function BookmarkPage() {
               <div className="flex flex-wrap gap-4 items-center">
                 {/* 搜索框 */}
                 <div className="relative flex-1 min-w-[200px]">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     placeholder="搜索标题、内容或标签..."
                     value={searchQuery}
@@ -809,8 +809,8 @@ export default function BookmarkPage() {
 
                 {/* 筛选选项 */}
                 <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">筛选：</span>
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">筛选：</span>
                   <Button
                     size="sm"
                     variant={filterFavorite === null ? 'default' : 'outline'}
@@ -829,11 +829,11 @@ export default function BookmarkPage() {
 
                 {/* 排序选项 */}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">排序：</span>
+                  <span className="text-sm text-muted-foreground">排序：</span>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as 'time' | 'title' | 'type')}
-                    className="p-2 border border-gray-300 rounded-md text-sm"
+                    className="p-2 border border-border rounded-md text-sm"
                   >
                     <option value="time">时间</option>
                     <option value="title">标题</option>
@@ -842,7 +842,7 @@ export default function BookmarkPage() {
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                    className="p-2 border border-gray-300 rounded-md text-sm"
+                    className="p-2 border border-border rounded-md text-sm"
                   >
                     <option value="desc">降序</option>
                     <option value="asc">升序</option>
@@ -853,8 +853,8 @@ export default function BookmarkPage() {
               {/* 标签筛选 */}
               {getAllTags().length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2 items-center">
-                  <Tag className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">标签：</span>
+                  <Tag className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">标签：</span>
                   {getAllTags().map(tag => (
                     <Badge
                       key={tag}
@@ -880,9 +880,9 @@ export default function BookmarkPage() {
               {favoritesStore.favorites.length === 0 ? (
                 <Card>
                   <CardContent className="text-center py-12">
-                    <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无收藏内容</h3>
-                    <p className="text-gray-600 mb-4">
+                    <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">暂无收藏内容</h3>
+                    <p className="text-muted-foreground mb-4">
                       您还没有收藏任何内容，快去收藏一些有价值的内容吧！
                     </p>
                     <Button onClick={() => navigate('/adapt')}>
@@ -902,10 +902,10 @@ export default function BookmarkPage() {
                             <Badge variant="outline">
                               {formattedFavorite.typeName}
                             </Badge>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-muted-foreground">
                               {formattedFavorite.formattedDate}
                             </span>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-muted-foreground">
                               来源：{favorite.source}
                             </span>
                           </div>
@@ -933,7 +933,7 @@ export default function BookmarkPage() {
                                   description: "已从收藏夹中移除",
                                 });
                               }}
-                              className="text-red-600 hover:text-red-700"
+                              className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -941,8 +941,8 @@ export default function BookmarkPage() {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <h4 className="font-medium text-gray-900 mb-2">{favorite.title}</h4>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                        <h4 className="font-medium text-foreground mb-2">{favorite.title}</h4>
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
                           {formattedFavorite.contentPreview}
                         </p>
                         {favorite.tags.length > 0 && (
@@ -1066,7 +1066,7 @@ export default function BookmarkPage() {
                             variant="ghost"
                             onClick={() => toggleFavorite(item.id)}
                           >
-                            <Star className={`w-4 h-4 ${item.isFavorite ? 'text-yellow-500 fill-current' : ''}`} />
+                            <Star className={`w-4 h-4 ${item.isFavorite ? 'text-foreground fill-current' : ''}`} />
                           </Button>
                           <Button
                             size="sm"
@@ -1101,9 +1101,9 @@ export default function BookmarkPage() {
             {allItems.length === 0 && (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">暂无资料</h3>
-                  <p className="text-gray-600">
+                  <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">暂无资料</h3>
+                  <p className="text-muted-foreground">
                     {searchQuery || selectedTags.length > 0 ? '没有找到匹配的资料' : '请使用右上角的按钮开始添加您的第一个资料'}
                   </p>
                 </CardContent>
@@ -1122,11 +1122,11 @@ export default function BookmarkPage() {
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
-                          <typeInfo.icon className="w-4 h-4 text-blue-600" />
+                          <typeInfo.icon className="w-4 h-4 text-primary" />
                           <Badge variant="outline">
                             {typeInfo.name}
                           </Badge>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-muted-foreground">
                             {new Date(item.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -1148,7 +1148,7 @@ export default function BookmarkPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() => deleteItem(item.id)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -1156,8 +1156,8 @@ export default function BookmarkPage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <h4 className="font-medium text-gray-900 mb-2">{item.title}</h4>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                      <h4 className="font-medium text-foreground mb-2">{item.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
                         {item.content}
                       </p>
                       {item.tags.length > 0 && (
@@ -1177,9 +1177,9 @@ export default function BookmarkPage() {
               {collectionItems.length === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
-                    <Bookmark className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无网络剪藏</h3>
-                    <p className="text-gray-600">
+                    <Bookmark className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">暂无网络剪藏</h3>
+                    <p className="text-muted-foreground">
                       请使用右上角的"添加收藏"按钮开始剪藏网络内容
                     </p>
                   </CardContent>
@@ -1201,11 +1201,11 @@ export default function BookmarkPage() {
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
-                          <typeInfo.icon className="w-4 h-4 text-purple-600" />
+                          <typeInfo.icon className="w-4 h-4 text-primary" />
                           <Badge variant="outline">
                             {typeInfo.name}
                           </Badge>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-muted-foreground">
                             {new Date(item.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -1227,7 +1227,7 @@ export default function BookmarkPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() => deleteItem(item.id)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -1235,8 +1235,8 @@ export default function BookmarkPage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <h4 className="font-medium text-gray-900 mb-2">{item.title}</h4>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                      <h4 className="font-medium text-foreground mb-2">{item.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
                         {item.content}
                       </p>
                       {item.tags.length > 0 && (
@@ -1256,9 +1256,9 @@ export default function BookmarkPage() {
               {copywritingItems.length === 0 && (
                 <Card>
                   <CardContent className="p-12 text-center">
-                    <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">暂无文案管理</h3>
-                    <p className="text-gray-600">
+                    <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">暂无文案管理</h3>
+                    <p className="text-muted-foreground">
                       请使用右上角的"文案管理"按钮开始管理文案
                     </p>
                   </CardContent>
@@ -1516,12 +1516,12 @@ export default function BookmarkPage() {
 
                 {/* AI总结 */}
                 {viewingItem.summary && (
-                  <div className="p-4 bg-purple-50 rounded-lg border">
+                  <div className="p-4 bg-accent rounded-lg border">
                     <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="w-4 h-4 text-purple-500" />
-                      <span className="font-medium text-purple-700">AI总结</span>
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span className="font-medium text-primary">AI总结</span>
                     </div>
-                    <p className="text-purple-600 text-sm">{viewingItem.summary}</p>
+                    <p className="text-primary text-sm">{viewingItem.summary}</p>
                   </div>
                 )}
 
@@ -1534,7 +1534,7 @@ export default function BookmarkPage() {
 
                 {/* 元数据 */}
                 {viewingItem.metadata && (
-                  <div className="text-xs text-gray-500 space-y-1 border-t pt-4">
+                  <div className="text-xs text-muted-foreground space-y-1 border-t pt-4">
                     {viewingItem.metadata.wordCount && (
                       <div>字数：{viewingItem.metadata.wordCount}</div>
                     )}

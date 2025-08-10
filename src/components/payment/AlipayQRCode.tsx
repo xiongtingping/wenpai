@@ -23,7 +23,7 @@ interface AlipayQRCodeProps {
  */
 const AlipayLogo: React.FC<{ size?: number }> = ({ size = 24 }) => (
   <div 
-    className="bg-blue-500 text-white rounded flex items-center justify-center font-bold"
+    className="bg-primary text-white rounded flex items-center justify-center font-bold"
     style={{ width: size, height: size, fontSize: size * 0.6 }}
   >
     支
@@ -160,8 +160,8 @@ export default function AlipayQRCode({
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <div className="flex flex-col items-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <p className="text-sm text-gray-600">正在生成支付二维码...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">正在生成支付二维码...</p>
           </div>
         </CardContent>
       </Card>
@@ -174,13 +174,13 @@ export default function AlipayQRCode({
       <Card className="w-full max-w-sm mx-auto border-red-100 bg-gradient-to-br from-red-50 to-white">
         <CardHeader className="pb-4">
           <CardTitle className="text-center flex items-center justify-center gap-2">
-            <AlertCircle className="h-6 w-6 text-red-500" />
+            <AlertCircle className="h-6 w-6 text-destructive" />
             <span className="text-red-900">支付二维码生成失败</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
           <div className="space-y-3">
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-destructive">{error}</p>
             
             <div className="flex gap-2 justify-center">
               <Button 
@@ -210,7 +210,7 @@ export default function AlipayQRCode({
             </div>
             
             {retryCount >= 3 && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 如果问题持续存在，请联系客服
               </p>
             )}
@@ -232,7 +232,7 @@ export default function AlipayQRCode({
       <CardContent className="text-center space-y-4">
         {showPrice && price !== null && (
           <div className="space-y-2">
-            <Badge variant="outline" className="text-xl px-6 py-3 bg-blue-50 border-blue-200 text-blue-700 font-semibold">
+            <Badge variant="outline" className="text-xl px-6 py-3 bg-accent border-border text-primary font-semibold">
               ¥{price.toFixed(2)}
             </Badge>
           </div>
@@ -246,20 +246,20 @@ export default function AlipayQRCode({
                 <img 
                   src={qrCodeDataURL} 
                   alt="支付宝二维码" 
-                  className="border-4 border-blue-200 rounded-xl shadow-lg"
+                  className="border-4 border-border rounded-xl shadow-lg"
                   style={{ width: 220, height: 220 }}
                 />
                 {/* 二维码上的价格显示 */}
                 {showPrice && price !== null && (
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="bg-white bg-opacity-95 rounded-lg px-3 py-2 shadow-md border border-blue-200">
-                      <div className="text-blue-600 font-bold text-lg">¥{price.toFixed(2)}</div>
+                    <div className="bg-card bg-opacity-95 rounded-lg px-3 py-2 shadow-md border border-border">
+                      <div className="text-primary font-bold text-lg">¥{price.toFixed(2)}</div>
                     </div>
                   </div>
                 )}
                 {/* 支付宝logo覆盖 */}
                 <div className="absolute bottom-2 right-2">
-                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md border border-blue-200">
+                  <div className="w-8 h-8 bg-card rounded-full flex items-center justify-center shadow-md border border-border">
                     <AlipayLogo size={20} />
                   </div>
                 </div>
@@ -267,25 +267,25 @@ export default function AlipayQRCode({
             </div>
             
             {/* 安全提示 */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
-              <div className="flex items-center justify-center gap-2 text-blue-700">
+            <div className="bg-accent border border-border rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-center gap-2 text-primary">
                 <Shield className="h-4 w-4" />
                 <span className="text-sm font-medium">安全支付</span>
               </div>
               <p className="text-xs leading-5 text-center">
                 扫码后会跳转到
-                <span className="text-blue-600 font-bold mx-1">Creem</span>
+                <span className="text-primary font-bold mx-1">Creem</span>
                 安全支付页，请放心支付
               </p>
             </div>
             
             {/* 操作提示 */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <div className="flex items-center justify-center gap-2 text-gray-600 mb-2">
+            <div className="bg-accent border border-border rounded-lg p-3">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
                 <Smartphone className="h-4 w-4" />
                 <span className="text-sm font-medium">使用支付宝App扫码</span>
               </div>
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 请确保支付宝App已安装并登录
               </p>
             </div>

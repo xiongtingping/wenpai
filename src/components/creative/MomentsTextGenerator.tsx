@@ -72,12 +72,12 @@ const categories = [
  * 心情标签配置
  */
 const moodTags = [
-  { id: 'happy', name: '开心', emoji: '😊', color: 'bg-yellow-100 text-yellow-800' },
-  { id: 'romantic', name: '浪漫', emoji: '💕', color: 'bg-pink-100 text-pink-800' },
-  { id: 'motivational', name: '励志', emoji: '💪', color: 'bg-blue-100 text-blue-800' },
-  { id: 'casual', name: '随性', emoji: '😎', color: 'bg-gray-100 text-gray-800' },
-  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-purple-100 text-purple-800' },
-  { id: 'funny', name: '搞笑', emoji: '😂', color: 'bg-green-100 text-green-800' },
+  { id: 'happy', name: '开心', emoji: '😊', color: 'bg-accent text-yellow-800' },
+  { id: 'romantic', name: '浪漫', emoji: '💕', color: 'bg-accent text-pink-800' },
+  { id: 'motivational', name: '励志', emoji: '💪', color: 'bg-accent text-blue-800' },
+  { id: 'casual', name: '随性', emoji: '😎', color: 'bg-accent text-foreground' },
+  { id: 'thoughtful', name: '深思', emoji: '🤔', color: 'bg-accent text-purple-800' },
+  { id: 'funny', name: '搞笑', emoji: '😂', color: 'bg-accent text-green-800' },
 ];
 
 /**
@@ -560,7 +560,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                 <Sparkles className="w-5 h-5" />
                 朋友圈文案生成器
               </CardTitle>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 精选文案模板，支持搜索、收藏、AI生成
               </p>
             </div>
@@ -593,7 +593,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         <select
                           value={aiStyle}
                           onChange={(e) => setAIStyle(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md"
+                          className="w-full p-2 border border-border rounded-md"
                         >
                           <option value="casual">轻松随性</option>
                           <option value="romantic">浪漫温馨</option>
@@ -608,7 +608,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         <select
                           value={aiLength}
                           onChange={(e) => setAILength(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md"
+                          className="w-full p-2 border border-border rounded-md"
                         >
                           <option value="short">简短（50字以内）</option>
                           <option value="medium">适中（50-100字）</option>
@@ -675,7 +675,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         <select
                           value={newTemplate.category}
                           onChange={(e) => setNewTemplate(prev => ({ ...prev, category: e.target.value }))}
-                          className="w-full p-2 border border-gray-300 rounded-md"
+                          className="w-full p-2 border border-border rounded-md"
                         >
                           {categories.slice(1).map(category => (
                             <option key={category.id} value={category.id}>
@@ -690,7 +690,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                         <select
                           value={newTemplate.mood}
                           onChange={(e) => setNewTemplate(prev => ({ ...prev, mood: e.target.value as any }))}
-                          className="w-full p-2 border border-gray-300 rounded-md"
+                          className="w-full p-2 border border-border rounded-md"
                         >
                           {moodTags.map(mood => (
                             <option key={mood.id} value={mood.id}>
@@ -725,7 +725,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
           {/* 搜索栏 */}
           <div className="flex items-center gap-4 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="搜索文案、标签或内容..."
                 value={searchQuery}
@@ -819,15 +819,15 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                     className="h-8 w-8 p-0"
                   >
                     <Heart 
-                      className={`w-4 h-4 ${template.isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
+                      className={`w-4 h-4 ${template.isFavorite ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`} 
                     />
                   </Button>
                 </div>
               </CardHeader>
               
               <CardContent className="pt-0">
-                <div className="bg-gray-50 p-3 rounded-lg mb-3 max-h-32 overflow-hidden">
-                  <p className="text-sm text-gray-700 whitespace-pre-line line-clamp-4">
+                <div className="bg-accent p-3 rounded-lg mb-3 max-h-32 overflow-hidden">
+                  <p className="text-sm text-foreground whitespace-pre-line line-clamp-4">
                     {template.content}
                   </p>
                 </div>
@@ -872,9 +872,9 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">没有找到相关文案</h3>
-              <p className="text-gray-500 mb-4">
+              <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">没有找到相关文案</h3>
+              <p className="text-muted-foreground mb-4">
                 {searchQuery ? '尝试调整搜索关键词' : '尝试调整筛选条件'}
               </p>
               <Button onClick={clearFilters} variant="outline">

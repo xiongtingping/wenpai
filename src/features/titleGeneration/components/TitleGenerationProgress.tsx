@@ -29,37 +29,37 @@ const STAGE_CONFIG = {
     icon: Clock,
     label: '准备中',
     description: '等待开始生成',
-    color: 'text-gray-500'
+    color: 'text-muted-foreground'
   },
   validating: {
     icon: CheckCircle,
     label: '验证输入',
     description: '检查内容格式和长度',
-    color: 'text-blue-500'
+    color: 'text-primary'
   },
   calling_ai: {
     icon: Brain,
     label: 'AI生成',
     description: '调用AI模型生成标题',
-    color: 'text-purple-500'
+    color: 'text-primary'
   },
   processing: {
     icon: Sparkles,
     label: '处理结果',
     description: '解析和清理生成结果',
-    color: 'text-green-500'
+    color: 'text-foreground'
   },
   scoring: {
     icon: Calculator,
     label: '质量评分',
     description: '计算标题质量评分',
-    color: 'text-orange-500'
+    color: 'text-foreground'
   },
   complete: {
     icon: CheckCircle,
     label: '生成完成',
     description: '标题生成成功完成',
-    color: 'text-green-600'
+    color: 'text-foreground'
   }
 };
 
@@ -100,7 +100,7 @@ export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
                   {progress}%
                 </Badge>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {stageConfig.description}
               </p>
             </div>
@@ -112,7 +112,7 @@ export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
               value={progress} 
               className="h-2"
             />
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>0%</span>
               <span>100%</span>
             </div>
@@ -138,9 +138,9 @@ export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
                   <div
                     className={cn(
                       "w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all",
-                      isCompleted && "bg-green-100 text-green-600",
-                      isActive && !isCompleted && "bg-blue-100 text-blue-600",
-                      !isActive && !isCompleted && "bg-gray-100 text-gray-400"
+                      isCompleted && "bg-accent text-foreground",
+                      isActive && !isCompleted && "bg-accent text-primary",
+                      !isActive && !isCompleted && "bg-accent text-muted-foreground"
                     )}
                   >
                     {isCompleted ? (
@@ -159,9 +159,9 @@ export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
                     className={cn(
                       "text-xs text-center transition-all",
                       isActive && "font-medium",
-                      isCompleted && "text-green-600",
-                      isActive && !isCompleted && "text-blue-600",
-                      !isActive && !isCompleted && "text-gray-400"
+                      isCompleted && "text-foreground",
+                      isActive && !isCompleted && "text-primary",
+                      !isActive && !isCompleted && "text-muted-foreground"
                     )}
                   >
                     {config.label}
@@ -174,7 +174,7 @@ export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
           {/* 估计时间 */}
           {loading && currentStage !== 'complete' && (
             <div className="text-center">
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 预计剩余时间: {getEstimatedTime(currentStage)}
               </div>
             </div>
@@ -183,7 +183,7 @@ export const TitleGenerationProgress = memo<TitleGenerationProgressProps>(({
           {/* 完成状态 */}
           {currentStage === 'complete' && (
             <div className="text-center py-2">
-              <div className="text-green-600 text-sm font-medium">
+              <div className="text-foreground text-sm font-medium">
                 🎉 标题生成完成！
               </div>
             </div>

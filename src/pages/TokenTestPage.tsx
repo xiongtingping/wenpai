@@ -283,29 +283,29 @@ export default function TokenTestPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">
+            <div className="text-center p-4 bg-accent rounded-lg">
+              <div className="text-2xl font-bold text-primary">
                 {currentStats?.monthlyUsed?.toLocaleString() || 0}
               </div>
-              <div className="text-sm text-gray-600">本月已用</div>
+              <div className="text-sm text-muted-foreground">本月已用</div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">
+            <div className="text-center p-4 bg-accent rounded-lg">
+              <div className="text-2xl font-bold text-foreground">
                 {currentStats?.monthlyRemaining?.toLocaleString() || 0}
               </div>
-              <div className="text-sm text-gray-600">剩余额度</div>
+              <div className="text-sm text-muted-foreground">剩余额度</div>
             </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <div className="text-2xl font-bold text-orange-600">
+            <div className="text-center p-4 bg-accent rounded-lg">
+              <div className="text-2xl font-bold text-foreground">
                 {Math.round(currentStats?.usagePercentage || 0)}%
               </div>
-              <div className="text-sm text-gray-600">使用率</div>
+              <div className="text-sm text-muted-foreground">使用率</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">
+            <div className="text-center p-4 bg-accent rounded-lg">
+              <div className="text-2xl font-bold text-primary">
                 {usageHistory?.length || 0}
               </div>
-              <div className="text-sm text-gray-600">历史记录</div>
+              <div className="text-sm text-muted-foreground">历史记录</div>
             </div>
           </div>
           
@@ -417,7 +417,7 @@ export default function TokenTestPage() {
                     )}
                     
                     {result.error && (
-                      <div className="text-sm text-red-600">
+                      <div className="text-sm text-destructive">
                         错误: {result.error}
                       </div>
                     )}

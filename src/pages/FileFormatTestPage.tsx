@@ -183,7 +183,7 @@ export default function FileFormatTestPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">文件格式支持测试</h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             测试和验证所有支持的文件格式是否能正常解析内容
           </p>
         </div>
@@ -274,14 +274,14 @@ export default function FileFormatTestPage() {
             </div>
 
             {wordTestResults.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>已测试 {wordTestResults.length} 个文档</span>
                 <span>•</span>
-                <span className="text-green-600">
+                <span className="text-foreground">
                   成功 {wordTestResults.filter(r => r.success).length} 个
                 </span>
                 <span>•</span>
-                <span className="text-red-600">
+                <span className="text-destructive">
                   失败 {wordTestResults.filter(r => !r.success).length} 个
                 </span>
               </div>
@@ -294,25 +294,25 @@ export default function FileFormatTestPage() {
               <h4 className="font-medium">测试结果:</h4>
               <div className="max-h-40 overflow-y-auto space-y-2">
                 {wordTestResults.map((result, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                  <div key={index} className="flex items-center justify-between p-2 bg-accent rounded">
                     <div className="flex items-center gap-2">
                       {result.success ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <CheckCircle className="h-4 w-4 text-foreground" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
+                        <XCircle className="h-4 w-4 text-destructive" />
                       )}
                       <span className="text-sm font-medium">{result.fileInfo.name}</span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         ({(result.fileInfo.size / 1024).toFixed(1)} KB)
                       </span>
                     </div>
-                    <div className="text-xs text-gray-600">
+                    <div className="text-xs text-muted-foreground">
                       {result.success ? (
-                        <span className="text-green-600">
+                        <span className="text-foreground">
                           {result.parseInfo?.textLength} 字符
                         </span>
                       ) : (
-                        <span className="text-red-600">{result.error}</span>
+                        <span className="text-destructive">{result.error}</span>
                       )}
                     </div>
                   </div>
@@ -334,21 +334,21 @@ export default function FileFormatTestPage() {
         
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-600">{successCount}</div>
+            <div className="text-2xl font-bold text-foreground">{successCount}</div>
             <p className="text-xs text-muted-foreground">成功解析</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-red-600">{errorCount}</div>
+            <div className="text-2xl font-bold text-destructive">{errorCount}</div>
             <p className="text-xs text-muted-foreground">解析失败</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-primary">
               {totalCount > 0 ? ((successCount / totalCount) * 100).toFixed(1) : 0}%
             </div>
             <p className="text-xs text-muted-foreground">成功率</p>
@@ -369,20 +369,20 @@ export default function FileFormatTestPage() {
                 className="flex items-start justify-between p-4 border rounded-lg"
               >
                 <div className="flex items-start gap-3">
-                  <FileText className="h-5 w-5 mt-0.5 text-gray-500" />
+                  <FileText className="h-5 w-5 mt-0.5 text-muted-foreground" />
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{result.extension}</span>
                       <Badge variant="outline">{result.description}</Badge>
                     </div>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       MIME: {result.mimeType}
                     </p>
                     {result.testMessage && (
                       <p className="text-sm mt-2">{result.testMessage}</p>
                     )}
                     {result.sampleContent && (
-                      <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
+                      <div className="mt-2 p-2 bg-accent rounded text-xs">
                         <strong>示例内容：</strong>
                         <br />
                         {result.sampleContent}
@@ -399,16 +399,16 @@ export default function FileFormatTestPage() {
                   )}
                   
                   {result.testStatus === 'success' && (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-foreground" />
                   )}
                   {result.testStatus === 'error' && (
-                    <XCircle className="h-5 w-5 text-red-500" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   {result.testStatus === 'testing' && (
-                    <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
+                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
                   )}
                   {result.testStatus === 'not_tested' && (
-                    <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
+                    <div className="h-5 w-5 rounded-full border-2 border-border" />
                   )}
                 </div>
               </div>

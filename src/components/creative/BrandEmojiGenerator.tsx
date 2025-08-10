@@ -360,13 +360,13 @@ export default function BrandEmojiGenerator({
   const getStatusIcon = (status: GenerationResult['status']) => {
     switch (status) {
       case 'pending':
-        return <Clock className="w-4 h-4 text-gray-400" />;
+        return <Clock className="w-4 h-4 text-muted-foreground" />;
       case 'generating':
-        return <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" />;
+        return <RefreshCw className="w-4 h-4 text-primary animate-spin" />;
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-foreground" />;
       case 'error':
-        return <XCircle className="w-4 h-4 text-red-500" />;
+        return <XCircle className="w-4 h-4 text-destructive" />;
     }
   };
 
@@ -416,15 +416,15 @@ export default function BrandEmojiGenerator({
             {/* 原有的标准生成功能 */}
             <div className="space-y-6">
               {/* 生成设置 */}
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-accent">
                 <div className="space-y-2">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     品牌：<Badge variant="outline">{brand}</Badge>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     角色：<Badge variant="outline">{character}</Badge>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     待生成：<Badge variant="outline">{selectedPrompts.length}</Badge> 个表情
                   </div>
                 </div>
@@ -450,7 +450,7 @@ export default function BrandEmojiGenerator({
                     </Select>
                   </div>
                   
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     预计生成：<Badge variant="outline">{selectedPrompts.length * emojiCount}</Badge> 个图片
                   </div>
                 </div>
@@ -459,7 +459,7 @@ export default function BrandEmojiGenerator({
               {/* 生成控制 */}
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     总图片数：<Badge variant="outline">{totalImages}</Badge> 个
                   </div>
                 </div>
@@ -501,19 +501,19 @@ export default function BrandEmojiGenerator({
               {/* 统计信息 */}
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-foreground" />
                   <span>成功：{successCount}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <XCircle className="w-4 h-4 text-red-500" />
+                  <XCircle className="w-4 h-4 text-destructive" />
                   <span>失败：{errorCount}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4 text-gray-400" />
+                  <Clock className="w-4 h-4 text-muted-foreground" />
                   <span>等待：{results.filter(r => r.status === 'pending').length}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Image className="w-4 h-4 text-blue-500" />
+                  <Image className="w-4 h-4 text-primary" />
                   <span>图片：{totalImages}</span>
                 </div>
               </div>
@@ -526,12 +526,12 @@ export default function BrandEmojiGenerator({
                       key={result.emotion}
                       className={`p-4 border rounded-lg transition-all ${
                         result.status === 'success' 
-                          ? 'border-green-200 bg-green-50' 
+                          ? 'border-border bg-accent' 
                           : result.status === 'error'
-                          ? 'border-red-200 bg-red-50'
+                          ? 'border-border bg-accent'
                           : result.status === 'generating'
-                          ? 'border-blue-200 bg-blue-50'
-                          : 'border-gray-200 bg-gray-50'
+                          ? 'border-border bg-accent'
+                          : 'border-border bg-accent'
                       }`}
                     >
                       {/* 状态指示器 */}
@@ -564,15 +564,15 @@ export default function BrandEmojiGenerator({
                             </div>
                           ))
                         ) : (
-                          <div className="col-span-2 h-16 bg-gray-100 rounded flex items-center justify-center">
-                            <Image className="w-6 h-6 text-gray-400" />
+                          <div className="col-span-2 h-16 bg-accent rounded flex items-center justify-center">
+                            <Image className="w-6 h-6 text-muted-foreground" />
                           </div>
                         )}
                       </div>
                       
                       {/* 错误信息 */}
                       {result.status === 'error' && result.error && (
-                        <p className="text-xs text-red-500 mb-2">{result.error}</p>
+                        <p className="text-xs text-destructive mb-2">{result.error}</p>
                       )}
                       
                       {/* 操作按钮 */}
@@ -593,7 +593,7 @@ export default function BrandEmojiGenerator({
               </ScrollArea>
 
               {/* 提示信息 */}
-              <div className="text-xs text-gray-500 space-y-1">
+              <div className="text-xs text-muted-foreground space-y-1">
                 <p>💡 提示：</p>
                 <ul className="list-disc list-inside space-y-1 ml-2">
                   <li>AI生成需要一定时间，请耐心等待</li>
@@ -611,10 +611,10 @@ export default function BrandEmojiGenerator({
             {/* 个性化生成功能 */}
             <div className="space-y-4">
               <div className="text-center space-y-2">
-                <h3 className="text-lg font-semibold text-blue-600">
+                <h3 className="text-lg font-semibold text-primary">
                   个性化品牌 Emoji 生成器
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   上传品牌图片或输入描述，AI智能生成专属Emoji表情
                 </p>
               </div>

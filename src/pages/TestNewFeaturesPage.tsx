@@ -14,21 +14,21 @@ const TestNewFeaturesPage: React.FC = () => {
       description: '支持分类整理、时间、来源、分类等，网页支持跳转、支持备注批注、有复选框勾选是否已用等功能',
       icon: Bookmark,
       path: '/bookmarks',
-      color: 'bg-blue-500'
+      color: 'bg-primary'
     },
     {
       title: 'Emoji图片区',
       description: '参考thiings.co网站风格，支持点击下载、复制、粘贴。所有图片由AI生成，要求风格和这个网站的一模一样',
       icon: Smile,
       path: '/emojis',
-      color: 'bg-green-500'
+      color: 'bg-accent0'
     },
     {
       title: '微信朋友圈文案颜文字模版',
       description: '点击可以修改、复制、文案。要求有设计感、有emoj、节日、字数要求符合微信朋友圈最佳的展示字数',
       icon: MessageCircle,
       path: '/wechat-templates',
-      color: 'bg-purple-500'
+      color: 'bg-accent0'
     }
   ];
 

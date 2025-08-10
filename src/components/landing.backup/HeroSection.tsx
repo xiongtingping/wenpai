@@ -55,7 +55,7 @@ const HeroSection: React.FC = () => {
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
           <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
               <div className="flex items-center justify-center gap-4">
                 {/* 小熊猫图标 - 使用清晰的SVG文件 */}
                 <img
@@ -73,7 +73,7 @@ const HeroSection: React.FC = () => {
             <div className="max-w-4xl mx-auto text-center">
               {/* 第一行：核心价值主张 */}
               <div className="mb-6">
-                <p className="text-xl sm:text-2xl text-gray-800 font-bold leading-relaxed">
+                <p className="text-xl sm:text-2xl text-foreground font-bold leading-relaxed">
                   <strong className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     让 AI 为您的品牌创作独特内容
                   </strong>
@@ -81,22 +81,22 @@ const HeroSection: React.FC = () => {
               </div>
 
               {/* 第二行：四个要点 - 修复对齐问题 */}
-              <div className="text-lg sm:text-xl text-gray-600 font-medium">
+              <div className="text-lg sm:text-xl text-muted-foreground font-medium">
                 <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-12">
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-500 text-2xl leading-none">·</span>
+                    <span className="text-primary text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">智能分析</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-indigo-500 text-2xl leading-none">·</span>
+                    <span className="text-primary text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">多平台适配</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-purple-500 text-2xl leading-none">·</span>
+                    <span className="text-primary text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">一键生成</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-pink-500 text-2xl leading-none">·</span>
+                    <span className="text-primary text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">提升营销效果</span>
                   </div>
                 </div>
@@ -138,7 +138,7 @@ const HeroSection: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* 快速生成 */}
               <div className="group relative">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200 hover:border-blue-300 transition-all duration-300 hover:shadow-lg">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,19 +146,19 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">⚡ 快速生成</h3>
-                      <p className="text-sm text-blue-600 font-medium">AI秒级响应</p>
+                      <h3 className="text-lg font-bold text-foreground">⚡ 快速生成</h3>
+                      <p className="text-sm text-primary font-medium">AI秒级响应</p>
                     </div>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    智能分析需求，<span className="font-semibold text-blue-600">3秒内</span>生成高质量内容，大幅提升创作效率
+                  <p className="text-foreground leading-relaxed">
+                    智能分析需求，<span className="font-semibold text-primary">3秒内</span>生成高质量内容，大幅提升创作效率
                   </p>
                 </div>
               </div>
               
               {/* 品牌一致 */}
               <div className="group relative">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl border border-green-200 hover:border-green-300 transition-all duration-300 hover:shadow-lg">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl border border-border hover:border-border transition-all duration-300 hover:shadow-lg">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,19 +166,19 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">🎯 品牌一致</h3>
-                      <p className="text-sm text-green-600 font-medium">调性统一</p>
+                      <h3 className="text-lg font-bold text-foreground">🎯 品牌一致</h3>
+                      <p className="text-sm text-foreground font-medium">调性统一</p>
                     </div>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    智能学习品牌风格，确保<span className="font-semibold text-green-600">内容调性统一</span>，提升品牌识别度
+                  <p className="text-foreground leading-relaxed">
+                    智能学习品牌风格，确保<span className="font-semibold text-foreground">内容调性统一</span>，提升品牌识别度
                   </p>
                 </div>
               </div>
               
               {/* 成本节省 */}
               <div className="group relative">
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl border border-purple-200 hover:border-purple-300 transition-all duration-300 hover:shadow-lg">
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl border border-purple-200 hover:border-border transition-all duration-300 hover:shadow-lg">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,12 +186,12 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">💰 成本节省</h3>
-                      <p className="text-sm text-purple-600 font-medium">降本增效</p>
+                      <h3 className="text-lg font-bold text-foreground">💰 成本节省</h3>
+                      <p className="text-sm text-primary font-medium">降本增效</p>
                     </div>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    自动化内容创作流程，<span className="font-semibold text-purple-600">节省80%</span>人工成本，提升ROI
+                  <p className="text-foreground leading-relaxed">
+                    自动化内容创作流程，<span className="font-semibold text-primary">节省80%</span>人工成本，提升ROI
                   </p>
                 </div>
               </div>

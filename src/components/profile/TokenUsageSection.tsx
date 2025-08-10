@@ -64,7 +64,7 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
       <Tooltip>
         <TooltipTrigger asChild>
           <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors cursor-help">
-            <span className="text-xs font-bold text-gray-600">ℹ️</span>
+            <span className="text-xs font-bold text-muted-foreground">ℹ️</span>
           </button>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs">
@@ -73,7 +73,7 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
             <ul className="text-sm space-y-1">
               {content.map((item, index) => (
                 <li key={index} className="flex items-start gap-1">
-                  <span className="text-blue-500 mt-1">•</span>
+                  <span className="text-primary mt-1">•</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -151,15 +151,15 @@ export function TokenUsageSection({
   return (
     <div className={`${className}`}>
       <Card variant="soft" className="h-full flex flex-col rounded-xl overflow-hidden relative">
-        <CardHeader className="bg-gradient-secondary text-gray-900 relative z-10 rounded-t-xl">
+        <CardHeader className="bg-gradient-secondary text-foreground relative z-10 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
+              <div className="w-12 h-12 bg-card/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
                 <Database className="w-6 h-6 drop-shadow-sm" />
               </div>
               <div>
-                <div className="text-xl font-bold text-gray-900">使用统计</div>
-                <div className="text-gray-600 text-sm font-normal">{planName} - 查看您的使用情况</div>
+                <div className="text-xl font-bold text-foreground">使用统计</div>
+                <div className="text-muted-foreground text-sm font-normal">{planName} - 查看您的使用情况</div>
               </div>
             </div>
             <Button
@@ -167,7 +167,7 @@ export function TokenUsageSection({
               size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:border-white/50 rounded-lg"
+              className="bg-card/20 backdrop-blur-sm border-white/30 text-white hover:bg-card/30 hover:border-white/50 rounded-lg"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
@@ -177,8 +177,8 @@ export function TokenUsageSection({
         <CardContent className="flex-1 flex flex-col p-6 relative z-10">
           {loading && !finalTokenStats ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-              <span className="ml-3 text-lg font-medium text-gray-700">加载中...</span>
+              <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+              <span className="ml-3 text-lg font-medium text-foreground">加载中...</span>
             </div>
           ) : (
             <>
@@ -192,7 +192,7 @@ export function TokenUsageSection({
                         <Zap className="w-5 h-5 text-white drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-gray-800 text-lg">Token使用量</h3>
+                        <h3 className="font-bold text-foreground text-lg">Token使用量</h3>
                         <InfoTooltip
                           title="Token统计说明"
                           content={[
@@ -217,7 +217,7 @@ export function TokenUsageSection({
                     {finalTokenStats?.monthlyLimit === -1 ? (
                       <div className="text-center py-3 bg-gradient-to-r from-purple-100/50 to-blue-100/50 rounded-xl">
                         <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-1">∞</div>
-                        <div className="text-sm font-medium text-gray-600">无限制Token</div>
+                        <div className="text-sm font-medium text-muted-foreground">无限制Token</div>
                       </div>
                     ) : (
                       <>
@@ -225,7 +225,7 @@ export function TokenUsageSection({
                           value={Math.min(finalTokenStats?.usagePercentage || 0, 100)}
                           className="h-3 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full shadow-inner"
                         />
-                        <div className="flex justify-between text-sm font-medium text-gray-600">
+                        <div className="flex justify-between text-sm font-medium text-muted-foreground">
                           <span>已使用 {formatNumber(finalTokenStats?.monthlyUsed || 0)} tokens</span>
                           <span>剩余 {formatNumber(finalTokenStats?.monthlyRemaining || 0)} tokens</span>
                         </div>
@@ -234,12 +234,12 @@ export function TokenUsageSection({
                   </div>
 
                   {/* Token继承说明 */}
-                  <div className="mt-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3 relative z-10 shadow-e0">
+                  <div className="mt-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-border rounded-lg p-3 relative z-10 shadow-e0">
                     <div className="flex items-start gap-3">
                       <div className="w-5 h-5 bg-gradient-primary rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5 flex-shrink-0">
                         ℹ️
                       </div>
-                      <div className="text-sm text-gray-700">
+                      <div className="text-sm text-foreground">
                         <span className="font-bold">重要说明：</span>
                         tokens在会员有效期内可以继承到下个月续用，不会清零浪费。
                       </div>
@@ -255,7 +255,7 @@ export function TokenUsageSection({
                         <Target className="w-5 h-5 text-white drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-gray-800 text-lg">使用次数</h3>
+                        <h3 className="font-bold text-foreground text-lg">使用次数</h3>
                         <InfoTooltip
                           title="使用次数说明"
                           content={[
@@ -284,7 +284,7 @@ export function TokenUsageSection({
                           value={Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}
                           className="h-3 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full shadow-inner"
                         />
-                        <div className="flex justify-between text-sm font-medium text-gray-600">
+                        <div className="flex justify-between text-sm font-medium text-muted-foreground">
                           <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
                           <span>剩余 {finalUsageCountStats?.remainingUses || 0} 次</span>
                         </div>
@@ -292,7 +292,7 @@ export function TokenUsageSection({
                     ) : (
                       <div className="text-center py-3 bg-gradient-to-r from-emerald-100/50 to-teal-100/50 rounded-xl">
                         <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">∞</div>
-                        <div className="text-sm font-medium text-gray-600">无限制使用</div>
+                        <div className="text-sm font-medium text-muted-foreground">无限制使用</div>
                       </div>
                     )}
                   </div>

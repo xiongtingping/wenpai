@@ -34,15 +34,15 @@ const StatusIndicator: React.FC<{
     switch (status) {
       case 'healthy':
       case 'online':
-        return { icon: CheckCircle, color: 'text-green-500', bgColor: 'bg-green-100', label: '正常' };
+        return { icon: CheckCircle, color: 'text-foreground', bgColor: 'bg-accent', label: '正常' };
       case 'warning':
       case 'degraded':
-        return { icon: AlertTriangle, color: 'text-yellow-500', bgColor: 'bg-yellow-100', label: '警告' };
+        return { icon: AlertTriangle, color: 'text-foreground', bgColor: 'bg-accent', label: '警告' };
       case 'critical':
       case 'offline':
-        return { icon: XCircle, color: 'text-red-500', bgColor: 'bg-red-100', label: '异常' };
+        return { icon: XCircle, color: 'text-destructive', bgColor: 'bg-destructive/10', label: '异常' };
       default:
-        return { icon: Activity, color: 'text-gray-500', bgColor: 'bg-gray-100', label: '未知' };
+        return { icon: Activity, color: 'text-muted-foreground', bgColor: 'bg-accent', label: '未知' };
     }
   };
 
@@ -113,8 +113,8 @@ export const SystemStatusMonitor: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <RefreshCw className="h-6 w-6 animate-spin text-blue-500" />
-            <span className="ml-2 text-gray-600">正在加载系统状态...</span>
+            <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">正在加载系统状态...</span>
           </div>
         </CardContent>
       </Card>
@@ -161,37 +161,37 @@ export const SystemStatusMonitor: React.FC = () => {
               {/* 整体状态 */}
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">整体状态</p>
+                  <p className="text-sm text-muted-foreground">整体状态</p>
                   <StatusIndicator status={systemStatus.overall} size="lg" />
                 </div>
-                <Activity className="h-8 w-8 text-blue-500" />
+                <Activity className="h-8 w-8 text-primary" />
               </div>
 
               {/* 活跃用户 */}
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">活跃用户</p>
+                  <p className="text-sm text-muted-foreground">活跃用户</p>
                   <p className="text-2xl font-bold">{systemStatus.metrics.activeUsers}</p>
                 </div>
-                <Users className="h-8 w-8 text-green-500" />
+                <Users className="h-8 w-8 text-foreground" />
               </div>
 
               {/* 今日使用量 */}
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">今日使用量</p>
+                  <p className="text-sm text-muted-foreground">今日使用量</p>
                   <p className="text-2xl font-bold">{systemStatus.metrics.totalUsageToday}</p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-purple-500" />
+                <TrendingUp className="h-8 w-8 text-primary" />
               </div>
 
               {/* 响应时间 */}
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">平均响应时间</p>
+                  <p className="text-sm text-muted-foreground">平均响应时间</p>
                   <p className="text-2xl font-bold">{systemStatus.metrics.responseTime}ms</p>
                 </div>
-                <Zap className="h-8 w-8 text-yellow-500" />
+                <Zap className="h-8 w-8 text-foreground" />
               </div>
             </div>
           )}
@@ -213,7 +213,7 @@ export const SystemStatusMonitor: React.FC = () => {
                     <StatusIndicator status={service.status} />
                     <div>
                       <h4 className="font-medium">{service.name}</h4>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         错误次数: {service.errorCount}
                         {service.lastResponseTime && (
                           <span className="ml-2">
@@ -226,7 +226,7 @@ export const SystemStatusMonitor: React.FC = () => {
                   
                   {service.metrics && (
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">运行时间</div>
+                      <div className="text-sm text-muted-foreground">运行时间</div>
                       <div className="font-medium">{service.metrics.uptime}%</div>
                     </div>
                   )}
@@ -274,10 +274,10 @@ const AutomationTasksStatus: React.FC = () => {
       {tasks.map((task) => (
         <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${task.enabled ? 'bg-green-500' : 'bg-gray-400'}`} />
+            <div className={`w-3 h-3 rounded-full ${task.enabled ? 'bg-accent0' : 'bg-gray-400'}`} />
             <div>
               <h4 className="font-medium">{task.name}</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 执行次数: {task.executionCount} | 错误次数: {task.errorCount}
               </p>
             </div>
@@ -288,7 +288,7 @@ const AutomationTasksStatus: React.FC = () => {
               {task.enabled ? '运行中' : '已停止'}
             </Badge>
             {task.lastExecuted && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 最后执行: {new Date(task.lastExecuted).toLocaleTimeString()}
               </p>
             )}
@@ -297,7 +297,7 @@ const AutomationTasksStatus: React.FC = () => {
       ))}
       
       {tasks.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <Clock className="h-8 w-8 mx-auto mb-2" />
           <p>暂无自动化任务</p>
         </div>

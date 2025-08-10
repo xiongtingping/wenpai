@@ -122,14 +122,14 @@ export default function PaymentTestPage() {
 
       {/* 优惠倒计时 */}
       {timeLeft > 0 && (
-        <div className="mb-8 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
+        <div className="mb-8 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-border rounded-lg shadow-lg">
           <div className="flex flex-col items-center gap-2">
-            <div className="text-lg font-bold text-red-600">
+            <div className="text-lg font-bold text-destructive">
               新用户限时优惠：30分钟
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xl font-bold text-red-600">优惠倒计时：</span>
-              <span className="text-2xl font-bold bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
+              <span className="text-xl font-bold text-destructive">优惠倒计时：</span>
+              <span className="text-2xl font-bold bg-destructive/10 px-4 py-2 rounded-lg border-2 border-red-300">
                 {formatTimeLeft()}
               </span>
             </div>
@@ -142,14 +142,14 @@ export default function PaymentTestPage() {
         <Card className="border-green-100 bg-gradient-to-br from-green-50 to-white">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 bg-accent0 rounded-lg flex items-center justify-center shadow-sm">
                 <CreditCard className="h-4 w-4 text-white" />
               </div>
               价格信息
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="p-4 bg-accent border border-border rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-semibold text-green-900">{selectedPlan.name}</span>
                 <span className="text-sm text-green-700">
@@ -161,21 +161,21 @@ export default function PaymentTestPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-green-700">限时优惠价</span>
-                    <span className="text-2xl font-bold text-red-600">¥{priceInfo.currentPrice}</span>
+                    <span className="text-2xl font-bold text-destructive">¥{priceInfo.currentPrice}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-green-700">原价</span>
-                    <span className="text-lg text-gray-400 line-through">¥{priceInfo.originalPrice}</span>
+                    <span className="text-lg text-muted-foreground line-through">¥{priceInfo.originalPrice}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-green-700">节省金额</span>
-                    <span className="text-lg font-bold text-green-600">¥{priceInfo.savedAmount}</span>
+                    <span className="text-lg font-bold text-foreground">¥{priceInfo.savedAmount}</span>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-green-700">支付金额</span>
-                  <span className="text-2xl font-bold text-green-600">¥{priceInfo.currentPrice}</span>
+                  <span className="text-2xl font-bold text-foreground">¥{priceInfo.currentPrice}</span>
                 </div>
               )}
             </div>
@@ -183,7 +183,7 @@ export default function PaymentTestPage() {
             {!showQRCode && (
               <Button 
                 onClick={handlePayment}
-                className="w-full bg-green-500 hover:bg-green-600"
+                className="w-full bg-accent0 hover:bg-green-600"
                 size="lg"
               >
                 立即支付
@@ -197,7 +197,7 @@ export default function PaymentTestPage() {
           <Card data-qr-code className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
                   <span className="text-white text-sm font-bold">支</span>
                 </div>
                 支付宝扫码支付
@@ -205,23 +205,23 @@ export default function PaymentTestPage() {
             </CardHeader>
             <CardContent>
               {/* 支付信息摘要 */}
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mb-6 p-4 bg-accent border border-border rounded-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                       <CreditCard className="h-5 w-5 text-white" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-blue-900">{selectedPlan.name}</h4>
-                      <p className="text-sm text-blue-700">
+                      <p className="text-sm text-primary">
                         {selectedPeriod === 'monthly' ? '月付' : '年付'}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600">¥{priceInfo.currentPrice}</div>
+                    <div className="text-2xl font-bold text-primary">¥{priceInfo.currentPrice}</div>
                     {priceInfo.isDiscount && (
-                      <div className="text-sm text-green-600">限时优惠中</div>
+                      <div className="text-sm text-foreground">限时优惠中</div>
                     )}
                   </div>
                 </div>
@@ -239,7 +239,7 @@ export default function PaymentTestPage() {
       </div>
 
       {/* 测试信息 */}
-      <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="mt-8 p-4 bg-accent border border-border rounded-lg">
         <h3 className="font-semibold mb-2">测试信息</h3>
         <div className="text-sm space-y-1">
           <p>用户认证状态: {currentIsAuthenticated ? '已登录' : '未登录'}</p>

@@ -133,7 +133,7 @@ function DimensionCard({
   };
 
   return (
-    <Card className={`relative ${isRequired ? 'border-blue-500' : ''} ${selectedItem ? 'bg-purple-50' : ''}`}>
+    <Card className={`relative ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'bg-accent' : ''}`}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -156,7 +156,7 @@ function DimensionCard({
       </CardHeader>
       <CardContent>
         {selectedItem && (
-          <div className="mb-2 p-2 bg-purple-100 rounded flex items-center justify-between">
+          <div className="mb-2 p-2 bg-accent rounded flex items-center justify-between">
             <span className="text-sm font-medium text-purple-800">{selectedItem}</span>
             <Button
               size="sm"
@@ -1499,7 +1499,7 @@ ${generateStandardCallToAction()}
                   size="sm"
                   onClick={() => smartRandomGenerate(randomDimensionCount)}
                   disabled={isGenerating}
-                  className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                  className="border-purple-200 text-primary hover:bg-accent"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   智能随机
@@ -1520,7 +1520,7 @@ ${generateStandardCallToAction()}
                     <SelectItem value="5">5个</SelectItem>
                   </SelectContent>
                 </Select>
-                <span className="text-xs text-gray-500">可选维度</span>
+                <span className="text-xs text-muted-foreground">可选维度</span>
               </div>
               
               <Button
@@ -1565,7 +1565,7 @@ ${generateStandardCallToAction()}
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 text-purple-600" />
+                    <Lightbulb className="w-5 h-5 text-primary" />
                     生成结果
                   </CardTitle>
                   <div className="flex gap-2">
@@ -1596,7 +1596,7 @@ ${generateStandardCallToAction()}
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed p-4 bg-white rounded-lg border">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed p-4 bg-card rounded-lg border">
                   {currentContent}
                 </div>
               </CardContent>
@@ -1615,11 +1615,11 @@ ${generateStandardCallToAction()}
               <CardContent>
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {generatedIdeas.map((idea) => (
-                    <Card key={idea.id} className="border border-gray-200">
+                    <Card key={idea.id} className="border border-border">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="text-sm text-gray-600 mb-2">{idea.timestamp}</div>
+                            <div className="text-sm text-muted-foreground mb-2">{idea.timestamp}</div>
                             <div className="text-sm line-clamp-3">{idea.generatedContent}</div>
                           </div>
                           

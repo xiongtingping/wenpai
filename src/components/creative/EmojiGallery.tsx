@@ -26,13 +26,13 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
           <p className="text-xs">{emotion}</p>
           <div className="flex justify-center space-x-2 mt-1">
             <button 
-              className="text-red-500 text-xs" 
+              className="text-destructive text-xs" 
               onClick={() => onDelete(emotion)}
             >
               删除
             </button>
             <button 
-              className="text-blue-500 text-xs" 
+              className="text-primary text-xs" 
               onClick={() => onRegenerate(emotion)}
             >
               重生

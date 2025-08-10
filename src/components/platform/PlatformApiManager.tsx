@@ -177,11 +177,11 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
    */
   const getStatusIcon = (platform: PlatformApiConfig) => {
     if (platform.isAuthorized) {
-      return <CheckCircle className="w-4 h-4 text-green-500" />;
+      return <CheckCircle className="w-4 h-4 text-foreground" />;
     } else if (platform.accessToken) {
-      return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      return <AlertTriangle className="w-4 h-4 text-foreground" />;
     } else {
-      return <XCircle className="w-4 h-4 text-gray-400" />;
+      return <XCircle className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -207,11 +207,11 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
    */
   const getStatusColor = (platform: PlatformApiConfig) => {
     if (platform.isAuthorized) {
-      return "bg-green-100 text-green-800 border-green-200";
+      return "bg-accent text-green-800 border-border";
     } else if (platform.accessToken) {
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      return "bg-accent text-yellow-800 border-border";
     } else {
-      return "bg-gray-100 text-gray-600 border-gray-200";
+      return "bg-accent text-muted-foreground border-border";
     }
   };
 
@@ -236,8 +236,8 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Info className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm text-gray-600">
+                    <Info className="w-4 h-4 text-primary" />
+                    <span className="text-sm text-muted-foreground">
                       配置平台API密钥和访问令牌，支持内容直发功能
                     </span>
                   </div>
@@ -267,15 +267,15 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
                       
                       <CardContent className="space-y-3">
                         <div className="flex items-center gap-2 text-sm">
-                          <Key className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-600">
+                          <Key className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
                             API密钥: {platform.apiKey ? '已配置' : '未配置'}
                           </span>
                         </div>
                         
                         <div className="flex items-center gap-2 text-sm">
-                          <Shield className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-600">
+                          <Shield className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
                             访问令牌: {platform.accessToken ? '已配置' : '未配置'}
                           </span>
                         </div>
@@ -328,7 +328,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
                   <CardContent className="space-y-4">
                     <div>
                       <h4 className="font-semibold mb-2">什么是API直发？</h4>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         API直发功能允许您通过平台的官方API直接发布内容，无需手动复制粘贴。
                         配置完成后，可以一键将AI生成的内容直接发布到各平台。
                       </p>
@@ -336,7 +336,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
                     
                     <div>
                       <h4 className="font-semibold mb-2">支持的平台</h4>
-                      <ul className="text-sm text-gray-600 space-y-1">
+                      <ul className="text-sm text-muted-foreground space-y-1">
                         <li>• 微博 - 支持文本发布</li>
                         <li>• 知乎 - 支持文章发布</li>
                         <li>• Twitter - 支持推文发布</li>
@@ -346,7 +346,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
                     
                     <div>
                       <h4 className="font-semibold mb-2">配置步骤</h4>
-                      <ol className="text-sm text-gray-600 space-y-1">
+                      <ol className="text-sm text-muted-foreground space-y-1">
                         <li>1. 点击"授权"按钮，在平台官网完成授权</li>
                         <li>2. 获取API密钥和访问令牌</li>
                         <li>3. 在配置页面填入相关信息</li>
@@ -356,7 +356,7 @@ export function PlatformApiManager({ open, onOpenChange }: PlatformApiManagerPro
                     
                     <div>
                       <h4 className="font-semibold mb-2">安全说明</h4>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         所有API密钥和访问令牌仅存储在您的浏览器本地，不会上传到服务器。
                         请妥善保管您的密钥信息，不要泄露给他人。
                       </p>

@@ -115,9 +115,9 @@ export const EmojiButton: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
   variant?: 'default' | 'ghost' | 'outline';
 }> = ({ variant = 'default', className = '', ...props }) => {
   const variantClasses = {
-    default: 'bg-gray-100 hover:bg-gray-200',
-    ghost: 'hover:bg-gray-100',
-    outline: 'border border-gray-300 hover:bg-gray-50'
+    default: 'bg-accent hover:bg-gray-200',
+    ghost: 'hover:bg-accent',
+    outline: 'border border-border hover:bg-accent'
   };
   
   return (
@@ -156,7 +156,7 @@ export const EmojiBadge: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
     <div className="relative inline-flex">
       <AdaptiveEmoji {...props} context="badge" />
       {count !== undefined && count > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
           {count > 99 ? '99+' : count}
         </span>
       )}
@@ -173,7 +173,7 @@ export const EmojiReaction: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
   count?: number;
   active?: boolean;
 }> = ({ count, active = false, className = '', ...props }) => {
-  const activeClass = active ? 'bg-blue-100 border-blue-300' : 'bg-gray-100 border-gray-300';
+  const activeClass = active ? 'bg-accent border-blue-300' : 'bg-accent border-border';
   
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border ${activeClass} ${className}`}>

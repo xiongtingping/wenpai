@@ -137,9 +137,9 @@ export default function ImageGenerationTestPage() {
               {apiStatus === null ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : apiStatus ? (
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-foreground" />
               ) : (
-                <XCircle className="h-4 w-4 text-red-500" />
+                <XCircle className="h-4 w-4 text-destructive" />
               )}
               <span className="text-sm">
                 {apiStatus === null ? '检查中...' : 
@@ -267,7 +267,7 @@ export default function ImageGenerationTestPage() {
                   {result.success ? (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <Badge variant="default" className="bg-green-100 text-green-800">
+                        <Badge variant="default" className="bg-accent text-green-800">
                           成功
                         </Badge>
                         <span className="text-sm text-muted-foreground">

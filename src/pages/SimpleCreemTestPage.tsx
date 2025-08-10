@@ -98,22 +98,22 @@ export default function SimpleCreemTestPage() {
 
           {/* 结果显示 */}
           {error && (
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-border bg-accent">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <XCircle className="h-5 w-5 text-red-600" />
+                  <XCircle className="h-5 w-5 text-destructive" />
                   <h3 className="font-medium text-red-900">测试失败</h3>
                 </div>
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-destructive text-sm">{error}</p>
               </CardContent>
             </Card>
           )}
 
           {result && (
-            <Card className="border-green-200 bg-green-50">
+            <Card className="border-border bg-accent">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-5 w-5 text-foreground" />
                   <h3 className="font-medium text-green-900">测试成功</h3>
                 </div>
                 <div className="space-y-2 text-sm">
@@ -126,7 +126,7 @@ export default function SimpleCreemTestPage() {
                       <summary className="cursor-pointer text-green-700 font-medium">
                         查看完整响应数据
                       </summary>
-                      <pre className="mt-2 p-3 bg-white rounded border text-xs overflow-auto">
+                      <pre className="mt-2 p-3 bg-card rounded border text-xs overflow-auto">
                         {JSON.stringify(result.checkout, null, 2)}
                       </pre>
                     </details>
@@ -137,7 +137,7 @@ export default function SimpleCreemTestPage() {
           )}
 
           {/* 使用说明 */}
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-medium text-blue-900 mb-2">使用说明</h4>
             <div className="space-y-2 text-sm text-blue-800">
               <p>• 输入有效的Creem价格ID（如：prod_3nJOuQeVStqkp6JaDcrKHf）</p>

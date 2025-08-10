@@ -70,7 +70,7 @@ const CreativeCubePage: React.FC = () => {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-2">
-          <Sparkles className="text-purple-500" />
+          <Sparkles className="text-primary" />
           创意魔方
         </h1>
         <p className="text-lg text-muted-foreground">
@@ -83,7 +83,7 @@ const CreativeCubePage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Wand2 className="text-blue-500" />
+              <Wand2 className="text-primary" />
               创意输入
             </CardTitle>
             <CardDescription>
@@ -144,7 +144,7 @@ const CreativeCubePage: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="text-green-500" />
+              <Palette className="text-foreground" />
               生成结果
             </CardTitle>
             <CardDescription>
@@ -183,7 +183,7 @@ const CreativeCubePage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardContent className="text-center pt-6">
-              <Star className="w-8 h-8 mx-auto mb-4 text-yellow-500" />
+              <Star className="w-8 h-8 mx-auto mb-4 text-foreground" />
               <h3 className="font-semibold mb-2">智能创意</h3>
               <p className="text-sm text-muted-foreground">
                 基于AI技术，生成富有创意的内容
@@ -192,7 +192,7 @@ const CreativeCubePage: React.FC = () => {
           </Card>
           <Card>
             <CardContent className="text-center pt-6">
-              <Zap className="w-8 h-8 mx-auto mb-4 text-blue-500" />
+              <Zap className="w-8 h-8 mx-auto mb-4 text-primary" />
               <h3 className="font-semibold mb-2">快速生成</h3>
               <p className="text-sm text-muted-foreground">
                 几秒钟内生成高质量创意内容
@@ -201,7 +201,7 @@ const CreativeCubePage: React.FC = () => {
           </Card>
           <Card>
             <CardContent className="text-center pt-6">
-              <Palette className="w-8 h-8 mx-auto mb-4 text-purple-500" />
+              <Palette className="w-8 h-8 mx-auto mb-4 text-primary" />
               <h3 className="font-semibold mb-2">多种风格</h3>
               <p className="text-sm text-muted-foreground">
                 支持多种内容风格和语调

@@ -48,15 +48,15 @@ export default function AIConfigTestPage() {
 
   const getStatusIcon = (status: boolean) => {
     return status ? (
-      <CheckCircle className="h-4 w-4 text-green-500" />
+      <CheckCircle className="h-4 w-4 text-foreground" />
     ) : (
-      <XCircle className="h-4 w-4 text-red-500" />
+      <XCircle className="h-4 w-4 text-destructive" />
     );
   };
 
   const getStatusBadge = (status: boolean) => {
     return status ? (
-      <Badge variant="default" className="bg-green-100 text-green-800">
+      <Badge variant="default" className="bg-accent text-green-800">
         正常
       </Badge>
     ) : (

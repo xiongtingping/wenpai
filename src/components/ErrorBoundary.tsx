@@ -180,19 +180,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // 默认错误界面
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-accent flex items-center justify-center p-4">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
+              <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
-              <CardTitle className="text-xl text-gray-900">
+              <CardTitle className="text-xl text-foreground">
                 {this.state.isInitializationError ? '应用初始化失败' : '应用遇到问题'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   {this.state.isInitializationError 
                     ? '应用初始化过程中遇到问题，这通常是由于配置或依赖问题导致的。'
                     : '抱歉，应用遇到了一个意外错误。我们已经记录了这个问题。'
@@ -200,18 +200,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 </p>
                 
                 {this.state.error && (
-                  <div className="bg-gray-100 p-3 rounded-lg text-left">
-                    <p className="text-sm font-medium text-gray-900 mb-1">错误信息:</p>
-                    <p className="text-xs text-gray-600 break-words">
+                  <div className="bg-accent p-3 rounded-lg text-left">
+                    <p className="text-sm font-medium text-foreground mb-1">错误信息:</p>
+                    <p className="text-xs text-muted-foreground break-words">
                       {this.state.error.message}
                     </p>
                     {this.state.errorId && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         错误ID: {this.state.errorId}
                       </p>
                     )}
                     {this.state.isInitializationError && (
-                      <p className="text-xs text-blue-600 mt-1">
+                      <p className="text-xs text-primary mt-1">
                         💡 建议：尝试刷新页面或清除浏览器缓存
                       </p>
                     )}
@@ -249,11 +249,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
               {import.meta.env.DEV && this.state.errorInfo && (
                 <details className="mt-4">
-                  <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-900">
+                  <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
                     <Bug className="h-4 w-4 inline mr-1" />
                     开发模式：查看错误详情
                   </summary>
-                  <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40">
+                  <pre className="mt-2 p-3 bg-accent rounded text-xs overflow-auto max-h-40">
                     {this.state.errorInfo.componentStack}
                   </pre>
                 </details>

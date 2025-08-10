@@ -1375,7 +1375,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-yellow-500" />
+            <Sparkles className="h-5 w-5 text-foreground" />
             <span>智能标题生成</span>
           </div>
           <Badge variant="outline" className="text-xs">
@@ -1385,11 +1385,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="text-center py-4">
-            <div className="text-red-500 mb-2">
+            <div className="text-destructive mb-2">
               <X className="h-8 w-8 mx-auto" />
             </div>
-            <p className="text-sm text-gray-600 mb-2">标题生成遇到问题</p>
-            <p className="text-xs text-gray-500 mb-4">{errorMessage}</p>
+            <p className="text-sm text-muted-foreground mb-2">标题生成遇到问题</p>
+            <p className="text-xs text-muted-foreground mb-4">{errorMessage}</p>
             <Button size="sm" onClick={handleErrorRecovery}>
               重新尝试
             </Button>
@@ -1406,7 +1406,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-yellow-500" />
+              <Sparkles className="h-5 w-5 text-foreground" />
               <span>智能标题生成</span>
             </div>
             <Badge variant="outline" className="text-xs">
@@ -1416,11 +1416,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="text-center py-4">
-            <div className="text-red-500 mb-2">
+            <div className="text-destructive mb-2">
               <X className="h-8 w-8 mx-auto" />
             </div>
-            <p className="text-sm text-gray-600 mb-2">标题生成遇到问题</p>
-            <p className="text-xs text-gray-500 mb-4">AI服务暂时不可用，请稍后重试</p>
+            <p className="text-sm text-muted-foreground mb-2">标题生成遇到问题</p>
+            <p className="text-xs text-muted-foreground mb-4">AI服务暂时不可用，请稍后重试</p>
             <Button size="sm" onClick={handleErrorRecovery}>
               重新尝试
             </Button>
@@ -1435,7 +1435,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-yellow-500" />
+            <Sparkles className="h-5 w-5 text-foreground" />
             <span>智能标题生成</span>
           </div>
           <Badge variant="outline" className="text-xs">
@@ -1466,8 +1466,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         {isGenerating && (
           <div className="flex items-center justify-center py-6">
             <div className="text-center">
-              <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-blue-500" />
-              <p className="text-sm text-gray-600">正在进行内容语义分析...</p>
+              <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />
+              <p className="text-sm text-muted-foreground">正在进行内容语义分析...</p>
             </div>
           </div>
         )}
@@ -1480,8 +1480,8 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                 key={title.id}
                 className={`border rounded-lg p-3 transition-colors ${
                   selectedTitle === title.title
-                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-primary bg-accent ring-1 ring-blue-200'
+                    : 'border-border hover:border-border hover:bg-accent'
                 }`}
               >
                 {editingTitleId === title.id ? (
@@ -1495,7 +1495,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                       maxLength={titleLimit}
                     />
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {editingTitleText.length}/{titleLimit} 字符
                       </span>
                       <div className="flex items-center gap-1">
@@ -1526,11 +1526,11 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                     onClick={() => handleTitleSelect(title.title)}
                   >
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 leading-relaxed">
+                      <p className="text-sm font-medium text-foreground leading-relaxed">
                         {title.title}
                       </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           {title.length}/{titleLimit} 字符
                         </span>
                         <Badge variant="outline" className="text-xs">
@@ -1584,7 +1584,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
         {/* Empty state */}
         {!isGenerating && titles.length === 0 && (
-          <div className="text-center py-4 text-gray-500">
+          <div className="text-center py-4 text-muted-foreground">
             <p className="text-sm">暂无生成的标题</p>
             <Button size="sm" variant="outline" onClick={generateTitles} className="mt-2">
               开始智能分析

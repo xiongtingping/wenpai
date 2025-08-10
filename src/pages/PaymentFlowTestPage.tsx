@@ -79,13 +79,13 @@ export default function PaymentFlowTestPage() {
   const getStepIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-foreground" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-foreground" />;
       case 'failed':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -113,12 +113,12 @@ export default function PaymentFlowTestPage() {
             <TabsContent value="flow" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {testCases.map((testCase) => (
-                  <Card key={testCase.id} className="border-2 border-gray-200">
+                  <Card key={testCase.id} className="border-2 border-border">
                     <CardHeader>
                       <CardTitle className="text-lg">{testCase.name}</CardTitle>
-                      <p className="text-sm text-gray-600">{testCase.description}</p>
+                      <p className="text-sm text-muted-foreground">{testCase.description}</p>
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-blue-600">¥{testCase.price}</span>
+                        <span className="text-2xl font-bold text-primary">¥{testCase.price}</span>
                         <Badge variant="outline">{testCase.priceId}</Badge>
                       </div>
                     </CardHeader>
@@ -136,8 +136,8 @@ export default function PaymentFlowTestPage() {
                           {testResults[testCase.id].steps.map((step: any, index: number) => (
                             <div key={index} className="flex items-center gap-2 text-sm">
                               {getStepIcon(step.status)}
-                              <span className={step.status === 'success' ? 'text-green-600' : 
-                                               step.status === 'failed' ? 'text-red-600' : 'text-gray-600'}>
+                              <span className={step.status === 'success' ? 'text-foreground' : 
+                                               step.status === 'failed' ? 'text-destructive' : 'text-muted-foreground'}>
                                 {step.name}
                               </span>
                             </div>
@@ -175,7 +175,7 @@ export default function PaymentFlowTestPage() {
             <TabsContent value="monitor" className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">支付状态监控测试</h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   选择一个测试用例，然后使用上面的二维码进行支付，观察状态监控功能
                 </p>
                 
@@ -198,7 +198,7 @@ export default function PaymentFlowTestPage() {
                           
                           <Separator />
                           
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             <p>• 扫描二维码完成支付</p>
                             <p>• 观察支付状态变化</p>
                             <p>• 验证会员权限开通</p>
@@ -223,49 +223,49 @@ export default function PaymentFlowTestPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-blue-600 font-bold">1</span>
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-primary font-bold">1</span>
                 </div>
                 <h4 className="font-medium">选择套餐</h4>
-                <p className="text-sm text-gray-600">选择订阅计划和周期</p>
+                <p className="text-sm text-muted-foreground">选择订阅计划和周期</p>
               </div>
               
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-blue-600 font-bold">2</span>
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-primary font-bold">2</span>
                 </div>
                 <h4 className="font-medium">创建订单</h4>
-                <p className="text-sm text-gray-600">系统创建支付订单</p>
+                <p className="text-sm text-muted-foreground">系统创建支付订单</p>
               </div>
               
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-blue-600 font-bold">3</span>
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-primary font-bold">3</span>
                 </div>
                 <h4 className="font-medium">扫码支付</h4>
-                <p className="text-sm text-gray-600">使用支付宝扫码支付</p>
+                <p className="text-sm text-muted-foreground">使用支付宝扫码支付</p>
               </div>
               
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-blue-600 font-bold">4</span>
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-primary font-bold">4</span>
                 </div>
                 <h4 className="font-medium">回调处理</h4>
-                <p className="text-sm text-gray-600">支付平台回调处理</p>
+                <p className="text-sm text-muted-foreground">支付平台回调处理</p>
               </div>
               
               <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-green-600 font-bold">5</span>
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-foreground font-bold">5</span>
                 </div>
                 <h4 className="font-medium">开通会员</h4>
-                <p className="text-sm text-gray-600">自动开通对应会员权限</p>
+                <p className="text-sm text-muted-foreground">自动开通对应会员权限</p>
               </div>
             </div>
             
             <Separator />
             
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-accent p-4 rounded-lg">
               <h4 className="font-medium text-blue-900 mb-2">测试要点</h4>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• 验证不同套餐的价格映射是否正确</li>

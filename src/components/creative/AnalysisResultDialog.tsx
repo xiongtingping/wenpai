@@ -119,9 +119,9 @@ export function AnalysisResultDialog({
    * 获取置信度颜色
    */
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'bg-green-100 text-green-800';
-    if (confidence >= 0.6) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-red-100 text-red-800';
+    if (confidence >= 0.8) return 'bg-accent text-green-800';
+    if (confidence >= 0.6) return 'bg-accent text-yellow-800';
+    return 'bg-destructive/10 text-red-800';
   };
 
   /**
@@ -140,10 +140,10 @@ export function AnalysisResultDialog({
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Brain className="h-6 w-6 text-blue-600" />
+              <Brain className="h-6 w-6 text-primary" />
               <div>
                 <DialogTitle className="text-xl font-semibold">AI分析结果</DialogTitle>
-                <DialogDescription className="text-sm text-gray-600">
+                <DialogDescription className="text-sm text-muted-foreground">
                   {asset.name} • {fieldCount} 个提取字段
                 </DialogDescription>
               </div>
@@ -170,26 +170,26 @@ export function AnalysisResultDialog({
         </DialogHeader>
 
         {/* 概览信息 */}
-        <div className="flex-shrink-0 grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="flex-shrink-0 grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-accent rounded-lg">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{fieldCount}</div>
-            <div className="text-sm text-gray-600">提取字段</div>
+            <div className="text-2xl font-bold text-primary">{fieldCount}</div>
+            <div className="text-sm text-muted-foreground">提取字段</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-foreground">
               {result.overallConfidence ? Math.round(result.overallConfidence * 100) : 'N/A'}%
             </div>
-            <div className="text-sm text-gray-600">整体置信度</div>
+            <div className="text-sm text-muted-foreground">整体置信度</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{result.version || 'v1.0'}</div>
-            <div className="text-sm text-gray-600">分析版本</div>
+            <div className="text-2xl font-bold text-primary">{result.version || 'v1.0'}</div>
+            <div className="text-sm text-muted-foreground">分析版本</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-foreground">
               {result.processingTime ? `${result.processingTime}s` : 'N/A'}
             </div>
-            <div className="text-sm text-gray-600">处理时间</div>
+            <div className="text-sm text-muted-foreground">处理时间</div>
           </div>
         </div>
 
@@ -198,11 +198,11 @@ export function AnalysisResultDialog({
           <ScrollArea className="h-full">
             <div className="space-y-4 p-1">
               {Object.entries(extractedFields).map(([fieldName, fieldData]) => (
-                <div key={fieldName} className="border border-gray-200 rounded-lg p-4">
+                <div key={fieldName} className="border border-border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Target className="h-4 w-4 text-gray-500" />
-                      <h3 className="font-medium text-gray-900">{fieldName}</h3>
+                      <Target className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="font-medium text-foreground">{fieldName}</h3>
                     </div>
                     <div className="flex items-center gap-2">
                       {getConfidenceIcon(fieldData.confidence)}
@@ -214,8 +214,8 @@ export function AnalysisResultDialog({
                   
                   <div className="space-y-2">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">提取值:</label>
-                      <div className="mt-1 p-2 bg-blue-50 rounded border text-sm">
+                      <label className="text-sm font-medium text-foreground">提取值:</label>
+                      <div className="mt-1 p-2 bg-accent rounded border text-sm">
                         {typeof fieldData.value === 'object' 
                           ? JSON.stringify(fieldData.value, null, 2)
                           : String(fieldData.value)
@@ -225,8 +225,8 @@ export function AnalysisResultDialog({
                     
                     {fieldData.excerpt && (
                       <div>
-                        <label className="text-sm font-medium text-gray-700">原文摘录:</label>
-                        <div className="mt-1 p-2 bg-gray-50 rounded border text-sm text-gray-600">
+                        <label className="text-sm font-medium text-foreground">原文摘录:</label>
+                        <div className="mt-1 p-2 bg-accent rounded border text-sm text-muted-foreground">
                           "{fieldData.excerpt}"
                         </div>
                       </div>
@@ -236,7 +236,7 @@ export function AnalysisResultDialog({
               ))}
               
               {fieldCount === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
                   <p>暂无提取字段数据</p>
                 </div>

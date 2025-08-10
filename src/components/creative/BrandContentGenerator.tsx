@@ -172,19 +172,19 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
 
         {/* 当前品牌档案信息 */}
         {currentProfile && (
-          <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+          <div className="space-y-3 p-4 bg-accent rounded-lg">
             <h4 className="font-medium">当前品牌档案</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-gray-500">品牌名称：</span>
+                <span className="text-muted-foreground">品牌名称：</span>
                 <span className="font-medium">{currentProfile.name}</span>
               </div>
               <div>
-                <span className="text-gray-500">品牌语气：</span>
+                <span className="text-muted-foreground">品牌语气：</span>
                 <span className="font-medium">{currentProfile.tone}</span>
               </div>
               <div>
-                <span className="text-gray-500">关键词：</span>
+                <span className="text-muted-foreground">关键词：</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {currentProfile.keywords.map((keyword: string, index: number) => (
                     <Badge key={index} variant="secondary" className="text-xs">
@@ -194,7 +194,7 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
                 </div>
               </div>
               <div>
-                <span className="text-gray-500">禁用词：</span>
+                <span className="text-muted-foreground">禁用词：</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {currentProfile.forbiddenWords.map((word: string, index: number) => (
                     <Badge key={index} variant="destructive" className="text-xs">
@@ -222,12 +222,12 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
 
         {/* 内容检查结果 */}
         {contentCheckResult && (
-          <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+          <div className="space-y-3 p-4 bg-accent rounded-lg">
             <div className="flex items-center gap-2">
               {contentCheckResult.isValid ? (
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-foreground" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-red-500" />
+                <AlertCircle className="h-4 w-4 text-destructive" />
               )}
               <h4 className="font-medium">
                 {contentCheckResult.isValid ? '内容检查通过' : '内容需要优化'}
@@ -236,11 +236,11 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
             
             {contentCheckResult.issues.length > 0 && (
               <div>
-                <h5 className="text-sm font-medium text-red-600 mb-2">发现的问题：</h5>
+                <h5 className="text-sm font-medium text-destructive mb-2">发现的问题：</h5>
                 <ul className="space-y-1">
                   {contentCheckResult.issues.map((issue: string, index: number) => (
-                    <li key={index} className="text-sm text-red-600 flex items-start gap-2">
-                      <span className="text-xs bg-red-100 rounded-full w-4 h-4 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <li key={index} className="text-sm text-destructive flex items-start gap-2">
+                      <span className="text-xs bg-destructive/10 rounded-full w-4 h-4 flex items-center justify-center flex-shrink-0 mt-0.5">
                         !
                       </span>
                       {issue}
@@ -252,11 +252,11 @@ ${profile.name}始终秉持"${profile.slogans[0]}"的理念，致力于为用户
             
             {contentCheckResult.suggestions.length > 0 && (
               <div>
-                <h5 className="text-sm font-medium text-blue-600 mb-2">优化建议：</h5>
+                <h5 className="text-sm font-medium text-primary mb-2">优化建议：</h5>
                 <ul className="space-y-1">
                   {contentCheckResult.suggestions.map((suggestion: string, index: number) => (
-                    <li key={index} className="text-sm text-blue-600 flex items-start gap-2">
-                      <span className="text-xs bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <li key={index} className="text-sm text-primary flex items-start gap-2">
+                      <span className="text-xs bg-accent rounded-full w-4 h-4 flex items-center justify-center flex-shrink-0 mt-0.5">
                         💡
                       </span>
                       {suggestion}

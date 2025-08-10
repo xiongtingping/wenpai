@@ -49,7 +49,7 @@ export default function ButtonClickTestPage() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-blue-600" />
+              <AlertCircle className="w-5 h-5 text-primary" />
               按钮点击测试页面
             </CardTitle>
           </CardHeader>
@@ -60,12 +60,12 @@ export default function ButtonClickTestPage() {
                   {isAuthenticated ? '已登录' : '未登录'}
                 </Badge>
                 {user && (
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     用户: {getUserDisplayName(user, '未知用户')}
                   </span>
                 )}
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 <p>当前页面: {window.location.pathname}</p>
                 <p>测试时间: {new Date().toLocaleString()}</p>
               </div>
@@ -78,12 +78,12 @@ export default function ButtonClickTestPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-foreground" />
                 功能按钮测试
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 测试首页功能按钮的跳转逻辑（使用login方法）
               </p>
               {testButtons.map((button, index) => (
@@ -96,7 +96,7 @@ export default function ButtonClickTestPage() {
                     <span>{button.name}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
-                  <p className="text-xs text-gray-500">{button.description}</p>
+                  <p className="text-xs text-muted-foreground">{button.description}</p>
                 </div>
               ))}
             </CardContent>
@@ -106,12 +106,12 @@ export default function ButtonClickTestPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-red-600" />
+                <XCircle className="w-5 h-5 text-destructive" />
                 直接跳转测试
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 直接跳转到页面（绕过认证检查）
               </p>
               {testButtons.map((button, index) => (
@@ -124,7 +124,7 @@ export default function ButtonClickTestPage() {
                     <span>直接跳转 - {button.name}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
-                  <p className="text-xs text-gray-500">目标: {button.path}</p>
+                  <p className="text-xs text-muted-foreground">目标: {button.path}</p>
                 </div>
               ))}
             </CardContent>

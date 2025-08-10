@@ -190,13 +190,13 @@ export default function TitleV3TestPage() {
             <h3 className="text-lg font-semibold mb-3">🧩 V3推荐结构风格</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {v3Styles.map(style => (
-                <Card key={style.id} className="border-l-4 border-blue-500">
+                <Card key={style.id} className="border-l-4 border-primary">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">{style.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-xs text-gray-600 mb-2">{style.description}</p>
-                    <p className="text-xs font-medium bg-blue-50 p-2 rounded">{style.example}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{style.description}</p>
+                    <p className="text-xs font-medium bg-accent p-2 rounded">{style.example}</p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {style.keywords.map(keyword => (
                         <Badge key={keyword} variant="secondary" className="text-xs">
@@ -241,7 +241,7 @@ export default function TitleV3TestPage() {
                 <Card 
                   key={testCase.id} 
                   className={`cursor-pointer transition-all ${
-                    selectedCase.id === testCase.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                    selectedCase.id === testCase.id ? 'ring-2 ring-blue-500 bg-accent' : 'hover:bg-accent'
                   }`}
                   onClick={() => handleCaseSelect(testCase)}
                 >
@@ -249,7 +249,7 @@ export default function TitleV3TestPage() {
                     <CardTitle className="text-sm">{testCase.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-xs text-gray-600 mb-2">
+                    <p className="text-xs text-muted-foreground mb-2">
                       {testCase.content.substring(0, 150)}...
                     </p>
                   </CardContent>
@@ -266,7 +266,7 @@ export default function TitleV3TestPage() {
                 <Textarea
                   value={selectedCase.content}
                   readOnly
-                  className="min-h-[200px] bg-gray-50"
+                  className="min-h-[200px] bg-accent"
                 />
               </div>
 
@@ -293,13 +293,13 @@ export default function TitleV3TestPage() {
               <h3 className="text-lg font-semibold">V3规范分析结果</h3>
               
               {analysisResults.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   点击生成标题开始V3规范测试
                 </div>
               ) : (
                 <div className="space-y-4">
                   {analysisResults.map((result, index) => (
-                    <Card key={index} className={`${result.v3Compliance.score >= 4 ? 'border-green-200 bg-green-50' : result.v3Compliance.score >= 3 ? 'border-yellow-200 bg-yellow-50' : 'border-red-200 bg-red-50'}`}>
+                    <Card key={index} className={`${result.v3Compliance.score >= 4 ? 'border-border bg-accent' : result.v3Compliance.score >= 3 ? 'border-border bg-accent' : 'border-border bg-accent'}`}>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium flex items-center justify-between">
                           标题 {index + 1}
@@ -317,7 +317,7 @@ export default function TitleV3TestPage() {
                           <Badge variant="secondary" className="text-xs">
                             {result.style.name}
                           </Badge>
-                          <p className="text-xs text-gray-600 mt-1">{result.style.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{result.style.description}</p>
                         </div>
 
                         {/* 吸引力要素 */}
@@ -336,19 +336,19 @@ export default function TitleV3TestPage() {
                         <div>
                           <p className="text-sm font-medium mb-1">✅ V3规范检查:</p>
                           <div className="grid grid-cols-2 gap-1 text-xs">
-                            <span className={result.v3Compliance.checks.hasEmotion ? 'text-green-600' : 'text-red-600'}>
+                            <span className={result.v3Compliance.checks.hasEmotion ? 'text-foreground' : 'text-destructive'}>
                               {result.v3Compliance.checks.hasEmotion ? '✅' : '❌'} 情绪要素
                             </span>
-                            <span className={result.v3Compliance.checks.hasAction ? 'text-green-600' : 'text-red-600'}>
+                            <span className={result.v3Compliance.checks.hasAction ? 'text-foreground' : 'text-destructive'}>
                               {result.v3Compliance.checks.hasAction ? '✅' : '❌'} 行动要素
                             </span>
-                            <span className={result.v3Compliance.checks.hasContrast ? 'text-green-600' : 'text-red-600'}>
+                            <span className={result.v3Compliance.checks.hasContrast ? 'text-foreground' : 'text-destructive'}>
                               {result.v3Compliance.checks.hasContrast ? '✅' : '❌'} 反差要素
                             </span>
-                            <span className={result.v3Compliance.checks.hasSpecific ? 'text-green-600' : 'text-red-600'}>
+                            <span className={result.v3Compliance.checks.hasSpecific ? 'text-foreground' : 'text-destructive'}>
                               {result.v3Compliance.checks.hasSpecific ? '✅' : '❌'} 具体对象
                             </span>
-                            <span className={result.v3Compliance.checks.lengthOk ? 'text-green-600' : 'text-red-600'}>
+                            <span className={result.v3Compliance.checks.lengthOk ? 'text-foreground' : 'text-destructive'}>
                               {result.v3Compliance.checks.lengthOk ? '✅' : '❌'} 长度适中
                             </span>
                           </div>
@@ -362,9 +362,9 @@ export default function TitleV3TestPage() {
           </div>
 
           {/* V3规范说明 */}
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-semibold text-blue-800 mb-2">🎯 V3核心目标</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
+            <ul className="text-sm text-primary space-y-1">
               <li>• <strong>与正文主旨强关联</strong>：不能跑题</li>
               <li>• <strong>表达自然流畅</strong>：语言完整</li>
               <li>• <strong>结构清晰有节奏</strong>：使用清晰的语言结构</li>

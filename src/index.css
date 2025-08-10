@@ -241,6 +241,19 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+
+  /* 深色主题渐变系统 - 降低亮度，保持对比度 */
+  --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+  --gradient-secondary: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  --gradient-accent: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+  --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+
+  /* 深色主题背景渐变 - 微妙的深色变化 */
+  --bg-gradient-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 100%);
+  --bg-gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --bg-gradient-accent: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 }
 
 [data-theme="green"] {

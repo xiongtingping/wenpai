@@ -177,13 +177,13 @@ export default function HotTopicsAPITestPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-foreground" />;
       case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
+        return <AlertCircle className="w-4 h-4 text-destructive" />;
       case 'warning':
-        return <Info className="w-4 h-4 text-yellow-500" />;
+        return <Info className="w-4 h-4 text-foreground" />;
       default:
-        return <Activity className="w-4 h-4 text-gray-500" />;
+        return <Activity className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -193,12 +193,12 @@ export default function HotTopicsAPITestPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-accent p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* 页面标题 */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">全网雷达API测试</h1>
-          <p className="text-gray-600">测试新的API封装功能、缓存机制和性能表现</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">全网雷达API测试</h1>
+          <p className="text-muted-foreground">测试新的API封装功能、缓存机制和性能表现</p>
         </div>
 
         {/* 控制面板 */}
@@ -290,11 +290,11 @@ export default function HotTopicsAPITestPage() {
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">缓存条目数</p>
+                  <p className="text-sm text-muted-foreground">缓存条目数</p>
                   <p className="text-2xl font-bold">{cacheStats.size}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">最大容量</p>
+                  <p className="text-sm text-muted-foreground">最大容量</p>
                   <p className="text-2xl font-bold">{cacheStats.maxSize}</p>
                 </div>
               </div>
@@ -315,23 +315,23 @@ export default function HotTopicsAPITestPage() {
           </CardHeader>
           <CardContent>
             {testResults.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">暂无测试结果，点击上方按钮开始测试</p>
+              <p className="text-muted-foreground text-center py-8">暂无测试结果，点击上方按钮开始测试</p>
             ) : (
               <div className="space-y-3">
                 {testResults.slice(-10).reverse().map((result, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-accent rounded-lg">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(result.status)}
                       <div>
                         <p className="font-medium">{result.test}</p>
-                        <p className="text-sm text-gray-600">{result.details}</p>
+                        <p className="text-sm text-muted-foreground">{result.details}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <Badge variant={result.status === 'success' ? 'default' : 'destructive'}>
                         {result.time}ms
                       </Badge>
-                      <p className="text-xs text-gray-500 mt-1">{result.timestamp}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{result.timestamp}</p>
                     </div>
                   </div>
                 ))}
@@ -354,12 +354,12 @@ export default function HotTopicsAPITestPage() {
                 {Object.entries(allData.data).map(([platform, items]) => (
                   <div key={platform} className="p-4 border rounded-lg">
                     <h3 className="font-medium mb-2">{getPlatformDisplayName(platform)}</h3>
-                    <p className="text-sm text-gray-600 mb-3">{items.length} 条热点</p>
+                    <p className="text-sm text-muted-foreground mb-3">{items.length} 条热点</p>
                     <div className="space-y-2">
                       {items.slice(0, 3).map((item, index) => (
                         <div key={index} className="text-sm">
                           <p className="font-medium line-clamp-1">{item.title}</p>
-                          <p className="text-gray-500">热度: {item.hot}</p>
+                          <p className="text-muted-foreground">热度: {item.hot}</p>
                         </div>
                       ))}
                     </div>

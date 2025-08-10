@@ -53,8 +53,8 @@ export default function PaymentTimerTestPage() {
       <div className="container mx-auto max-w-4xl">
         {/* 页面标题 */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">支付计时器测试</h1>
-          <p className="text-gray-600">测试新用户限时优惠功能</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">支付计时器测试</h1>
+          <p className="text-muted-foreground">测试新用户限时优惠功能</p>
         </div>
 
         {/* 用户信息 */}
@@ -68,7 +68,7 @@ export default function PaymentTimerTestPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">登录状态</p>
+                <p className="text-sm text-muted-foreground">登录状态</p>
                 <p className="font-medium">
                   {currentIsAuthenticated ? (
                     <Badge variant="default">已登录</Badge>
@@ -78,7 +78,7 @@ export default function PaymentTimerTestPage() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">用户ID</p>
+                <p className="text-sm text-muted-foreground">用户ID</p>
                 <p className="font-mono text-sm">{currentUser?.id || '未登录'}</p>
               </div>
             </div>
@@ -97,9 +97,9 @@ export default function PaymentTimerTestPage() {
             <div className="space-y-4">
               {/* 优惠状态指示器 */}
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">优惠状态</span>
+                <span className="text-sm text-muted-foreground">优惠状态</span>
                 {promoStatus.isActive ? (
-                  <Badge className="bg-green-100 text-green-800 border-green-200">
+                  <Badge className="bg-accent text-green-800 border-border">
                     <Clock className="h-3 w-3 mr-1" />
                     优惠进行中
                   </Badge>
@@ -112,10 +112,10 @@ export default function PaymentTimerTestPage() {
 
               {/* 剩余时间 */}
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">剩余时间</span>
+                <span className="text-sm text-muted-foreground">剩余时间</span>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-blue-500" />
-                  <span className="font-mono text-lg font-bold text-blue-600">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span className="font-mono text-lg font-bold text-primary">
                     {promoStatus.formattedTime}
                   </span>
                 </div>
@@ -124,9 +124,9 @@ export default function PaymentTimerTestPage() {
               {/* 访问时间 */}
               {promoStatus.accessTime && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">访问时间</span>
+                  <span className="text-sm text-muted-foreground">访问时间</span>
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="font-mono text-sm">
                       {promoStatus.accessTime.toLocaleString()}
                     </span>
@@ -136,7 +136,7 @@ export default function PaymentTimerTestPage() {
 
               {/* 当前时间 */}
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">当前时间</span>
+                <span className="text-sm text-muted-foreground">当前时间</span>
                 <span className="font-mono text-sm">
                   {currentTime.toLocaleString()}
                 </span>
@@ -153,19 +153,19 @@ export default function PaymentTimerTestPage() {
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">优惠时长</span>
+                <span className="text-sm text-muted-foreground">优惠时长</span>
                 <span className="font-medium">30分钟</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">计时方式</span>
+                <span className="text-sm text-muted-foreground">计时方式</span>
                 <span className="font-medium">从访问支付中心开始计时</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">存储方式</span>
+                <span className="text-sm text-muted-foreground">存储方式</span>
                 <span className="font-medium">localStorage</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">存储键名</span>
+                <span className="text-sm text-muted-foreground">存储键名</span>
                 <span className="font-mono text-xs">
                   payment_center_access_time_{currentUser?.id || 'anonymous'}
                 </span>
@@ -202,7 +202,7 @@ export default function PaymentTimerTestPage() {
             </div>
             
             {!currentIsAuthenticated && (
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 请先登录以进行测试
               </p>
             )}
@@ -215,13 +215,13 @@ export default function PaymentTimerTestPage() {
             <CardTitle>使用说明</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2 text-sm text-gray-600">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>1. <strong>模拟访问支付中心</strong>：清除现有计时并重新开始30分钟倒计时</p>
               <p>2. <strong>重置计时器</strong>：清除localStorage中的访问时间记录</p>
               <p>3. <strong>优惠状态</strong>：实时显示当前优惠是否有效</p>
               <p>4. <strong>剩余时间</strong>：显示距离优惠结束的剩余时间</p>
               <Separator className="my-4" />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 注意：此功能仅用于测试。在实际使用中，用户第一次访问支付中心页面时会自动开始计时。
               </p>
             </div>

@@ -157,16 +157,16 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
   const getStatusIcon = () => {
     switch (paymentStatus.status) {
       case 'paid':
-        return <CheckCircle className="h-6 w-6 text-green-500" />;
+        return <CheckCircle className="h-6 w-6 text-foreground" />;
       case 'processing':
-        return <RefreshCw className="h-6 w-6 text-blue-500 animate-spin" />;
+        return <RefreshCw className="h-6 w-6 text-primary animate-spin" />;
       case 'pending':
-        return <Clock className="h-6 w-6 text-yellow-500" />;
+        return <Clock className="h-6 w-6 text-foreground" />;
       case 'failed':
       case 'expired':
-        return <AlertCircle className="h-6 w-6 text-red-500" />;
+        return <AlertCircle className="h-6 w-6 text-destructive" />;
       default:
-        return <Clock className="h-6 w-6 text-gray-500" />;
+        return <Clock className="h-6 w-6 text-muted-foreground" />;
     }
   };
 
@@ -174,16 +174,16 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
   const getStatusColor = () => {
     switch (paymentStatus.status) {
       case 'paid':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-accent text-green-800 border-border';
       case 'processing':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-accent text-blue-800 border-border';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-accent text-yellow-800 border-border';
       case 'failed':
       case 'expired':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-destructive/10 text-red-800 border-border';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-accent text-foreground border-border';
     }
   };
 
@@ -214,7 +214,7 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
 
         {/* 进度条 */}
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-sm text-muted-foreground">
             <span>支付进度</span>
             <span>{paymentStatus.progress}%</span>
           </div>
@@ -223,8 +223,8 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
 
         {/* 支付详情 */}
         {paymentStatus.amount && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="text-sm text-gray-600">支付金额</div>
+          <div className="bg-accent p-3 rounded-lg">
+            <div className="text-sm text-muted-foreground">支付金额</div>
             <div className="text-lg font-semibold">
               ¥{(paymentStatus.amount / 100).toFixed(2)}
             </div>
@@ -233,8 +233,8 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
 
         {/* 支付时间 */}
         {paymentStatus.paidAt && (
-          <div className="bg-green-50 p-3 rounded-lg">
-            <div className="text-sm text-green-600">支付时间</div>
+          <div className="bg-accent p-3 rounded-lg">
+            <div className="text-sm text-foreground">支付时间</div>
             <div className="text-sm font-medium">
               {new Date(paymentStatus.paidAt).toLocaleString()}
             </div>
@@ -243,8 +243,8 @@ export const PaymentStatusMonitor: React.FC<PaymentStatusMonitorProps> = ({
 
         {/* 错误信息 */}
         {paymentStatus.error && (
-          <div className="bg-red-50 p-3 rounded-lg">
-            <div className="text-sm text-red-600">错误信息</div>
+          <div className="bg-accent p-3 rounded-lg">
+            <div className="text-sm text-destructive">错误信息</div>
             <div className="text-sm">{paymentStatus.error}</div>
           </div>
         )}

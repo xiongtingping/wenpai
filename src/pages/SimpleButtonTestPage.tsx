@@ -58,7 +58,7 @@ const SimpleButtonTestPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-accent py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         <Card className="mb-8">
           <CardHeader>
@@ -82,7 +82,7 @@ const SimpleButtonTestPage: React.FC = () => {
               </Alert>
 
               {/* 测试统计 */}
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 <p>点击次数: {clickCount}</p>
                 <p>最后操作: {lastAction || '无'}</p>
               </div>
@@ -159,10 +159,10 @@ const SimpleButtonTestPage: React.FC = () => {
               {/* 调试信息 */}
               {import.meta.env.DEV && (
                 <details className="mt-4">
-                  <summary className="cursor-pointer text-sm font-medium text-gray-700">
+                  <summary className="cursor-pointer text-sm font-medium text-foreground">
                     调试信息
                   </summary>
-                  <div className="mt-2 p-3 bg-gray-100 rounded text-xs">
+                  <div className="mt-2 p-3 bg-accent rounded text-xs">
                     <p><strong>当前URL:</strong> {window.location.href}</p>
                     <p><strong>用户代理:</strong> {navigator.userAgent}</p>
                     <p><strong>在线状态:</strong> {navigator.onLine ? '在线' : '离线'}</p>

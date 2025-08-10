@@ -181,12 +181,12 @@ export default function BrandEmojiGallery({
       {filteredEmojis.map((emoji) => (
         <div
           key={emoji.emotion}
-          className="group relative p-3 border rounded-lg hover:shadow-md transition-all duration-200 bg-white"
+          className="group relative p-3 border rounded-lg hover:shadow-md transition-all duration-200 bg-card"
         >
           {/* 收藏标记 */}
           {emoji.isFavorite && (
             <div className="absolute top-1 right-1 z-10">
-              <Heart className="w-4 h-4 text-red-500 fill-current" />
+              <Heart className="w-4 h-4 text-destructive fill-current" />
             </div>
           )}
           
@@ -241,7 +241,7 @@ export default function BrandEmojiGallery({
             <Button
               size="sm"
               variant="ghost"
-              className="w-6 h-6 p-0 text-blue-500 hover:text-blue-700"
+              className="w-6 h-6 p-0 text-primary hover:text-primary"
               onClick={() => onToggleFavorite?.(emoji.emotion)}
               title={emoji.isFavorite ? "取消收藏" : "收藏"}
             >
@@ -251,7 +251,7 @@ export default function BrandEmojiGallery({
               <Button
                 size="sm"
                 variant="ghost"
-                className="w-6 h-6 p-0 text-green-500 hover:text-green-700"
+                className="w-6 h-6 p-0 text-foreground hover:text-green-700"
                 onClick={() => onRegenerate(emoji.emotion)}
                 title="重新生成"
               >
@@ -262,7 +262,7 @@ export default function BrandEmojiGallery({
               <Button
                 size="sm"
                 variant="ghost"
-                className="w-6 h-6 p-0 text-red-500 hover:text-red-700"
+                className="w-6 h-6 p-0 text-destructive hover:text-destructive"
                 onClick={() => onDelete(emoji.emotion)}
                 title="删除"
               >
@@ -283,7 +283,7 @@ export default function BrandEmojiGallery({
       {filteredEmojis.map((emoji) => (
         <div
           key={emoji.emotion}
-          className="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-4 p-3 border rounded-lg hover:bg-accent transition-colors"
         >
           {/* 图片 */}
           <img
@@ -298,13 +298,13 @@ export default function BrandEmojiGallery({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <p className="font-medium truncate">{emoji.emotion}</p>
-              {emoji.isFavorite && <Heart className="w-4 h-4 text-red-500 fill-current" />}
+              {emoji.isFavorite && <Heart className="w-4 h-4 text-destructive fill-current" />}
             </div>
             {emoji.brand && (
-              <p className="text-sm text-gray-500">品牌：{emoji.brand}</p>
+              <p className="text-sm text-muted-foreground">品牌：{emoji.brand}</p>
             )}
             {emoji.createdAt && (
-              <p className="text-xs text-gray-400">创建时间：{emoji.createdAt}</p>
+              <p className="text-xs text-muted-foreground">创建时间：{emoji.createdAt}</p>
             )}
           </div>
           
@@ -337,7 +337,7 @@ export default function BrandEmojiGallery({
                 variant="outline"
                 onClick={() => onToggleFavorite(emoji.emotion)}
               >
-                <Heart className={`w-4 h-4 ${emoji.isFavorite ? 'fill-current text-red-500' : ''}`} />
+                <Heart className={`w-4 h-4 ${emoji.isFavorite ? 'fill-current text-destructive' : ''}`} />
               </Button>
             )}
             {onRegenerate && (
@@ -378,7 +378,7 @@ export default function BrandEmojiGallery({
           <div className="flex items-center gap-4">
             {/* 搜索 */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="搜索表情..."
                 value={searchTerm}
@@ -429,7 +429,7 @@ export default function BrandEmojiGallery({
         </div>
 
         {/* 统计信息 */}
-        <div className="flex items-center gap-4 text-sm text-gray-500">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span>总计：{emojis.length} 个</span>
           <span>显示：{filteredEmojis.length} 个</span>
           <span>收藏：{emojis.filter(e => e.isFavorite).length} 个</span>
@@ -439,9 +439,9 @@ export default function BrandEmojiGallery({
         {filteredEmojis.length === 0 ? (
           <div className="text-center py-12">
             <Image className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">暂无emoji结果</p>
+            <p className="text-muted-foreground">暂无emoji结果</p>
             {searchTerm && (
-              <p className="text-sm text-gray-400 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 没有找到包含 "{searchTerm}" 的emoji
               </p>
             )}
@@ -516,7 +516,7 @@ export default function BrandEmojiGallery({
         </Dialog>
 
         {/* 提示信息 */}
-        <div className="text-xs text-gray-500 space-y-1">
+        <div className="text-xs text-muted-foreground space-y-1">
           <p>💡 提示：</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>点击图片可预览大图</li>

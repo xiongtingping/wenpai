@@ -103,8 +103,8 @@ const EnhancedCreemAlipayQRCode: React.FC<{
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-gray-600">正在生成支付二维码...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p className="text-muted-foreground">正在生成支付二维码...</p>
       </div>
     );
   }
@@ -112,10 +112,10 @@ const EnhancedCreemAlipayQRCode: React.FC<{
   if (error) {
     return (
       <div className="text-center py-8">
-        <div className="text-red-500 mb-4">
+        <div className="text-destructive mb-4">
           <QrCode className="h-16 w-16 mx-auto mb-2" />
           <p className="text-lg font-medium">二维码获取失败</p>
-          <p className="text-sm text-gray-600">{error}</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
         </div>
         <Button onClick={handleRetry} variant="outline">
           <RefreshCw className="h-4 w-4 mr-2" />
@@ -129,7 +129,7 @@ const EnhancedCreemAlipayQRCode: React.FC<{
     <div className="space-y-4">
       {price !== null && (
         <div className="text-center">
-          <div className="text-3xl font-bold text-blue-600 mb-2">¥{price.toFixed(2)}</div>
+          <div className="text-3xl font-bold text-primary mb-2">¥{price.toFixed(2)}</div>
           <Badge variant="secondary">支付宝扫码支付</Badge>
         </div>
       )}
@@ -140,18 +140,18 @@ const EnhancedCreemAlipayQRCode: React.FC<{
             <img 
               src={qrUrl} 
               alt="支付宝二维码" 
-              className="w-48 h-48 border-2 border-gray-200 rounded-lg"
+              className="w-48 h-48 border-2 border-border rounded-lg"
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-lg">
+            <div className="absolute inset-0 flex items-center justify-center bg-card bg-opacity-90 rounded-lg">
               <div className="text-center">
-                <Smartphone className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                <p className="text-sm text-gray-600">请使用支付宝扫码</p>
+                <Smartphone className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">请使用支付宝扫码</p>
               </div>
             </div>
           </div>
           
           <div className="text-center space-y-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               扫码后会跳转到Creem安全支付页，请放心支付
             </p>
           </div>
@@ -333,7 +333,7 @@ export default function EnhancedPaymentPage() {
   // 如果支付成功，显示成功处理页面
   if (paymentStatus === 'paid' && currentCheckout) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-accent p-8">
         <div className="container mx-auto max-w-4xl">
           <PaymentSuccessHandler 
             paymentData={currentCheckout}
@@ -345,7 +345,7 @@ export default function EnhancedPaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="container mx-auto max-w-6xl">
         {/* 返回按钮 */}
         <div className="mb-6">
@@ -375,7 +375,7 @@ export default function EnhancedPaymentPage() {
               <CardHeader>
                 <CardTitle className="text-2xl font-bold">选择套餐</CardTitle>
                 {isInPromoPeriod() && (
-                  <div className="flex items-center gap-2 text-orange-600">
+                  <div className="flex items-center gap-2 text-foreground">
                     <Clock className="h-4 w-4" />
                     <span className="text-sm font-medium">
                       限时优惠倒计时: {formatTimeLeft()}
@@ -389,15 +389,15 @@ export default function EnhancedPaymentPage() {
                     key={plan.tier}
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedPlan?.tier === plan.tier
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-primary bg-accent'
+                        : 'border-border hover:border-border'
                     }`}
                     onClick={() => handlePlanSelect(plan)}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <h3 className="font-semibold text-lg">{plan.name}</h3>
-                        <p className="text-gray-600 text-sm">{plan.description}</p>
+                        <p className="text-muted-foreground text-sm">{plan.description}</p>
                       </div>
                       <Badge variant={plan.tier === 'premium' ? 'default' : 'secondary'}>
                         {plan.tier === 'premium' ? '推荐' : plan.tier}
@@ -405,18 +405,18 @@ export default function EnhancedPaymentPage() {
                     </div>
                     
                     <div className="flex items-center gap-4">
-                      <div className="text-2xl font-bold text-blue-600">
+                      <div className="text-2xl font-bold text-primary">
                         ¥{getCurrentPrice()}
                       </div>
                       {isInPromoPeriod() && (
-                        <div className="text-sm text-gray-500 line-through">
+                        <div className="text-sm text-muted-foreground line-through">
                           ¥{getOriginalPrice()}
                         </div>
                       )}
                     </div>
                     
                     {isInPromoPeriod() && getSavedAmount() > 0 && (
-                      <div className="text-sm text-green-600 mt-1">
+                      <div className="text-sm text-foreground mt-1">
                         节省 ¥{getSavedAmount().toFixed(2)}
                       </div>
                     )}
@@ -439,7 +439,7 @@ export default function EnhancedPaymentPage() {
                   >
                     <div className="text-center">
                       <div className="font-semibold">月付</div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-muted-foreground">
                         ¥{selectedPlan ? getCurrentPrice() : 0}/月
                       </div>
                     </div>
@@ -451,7 +451,7 @@ export default function EnhancedPaymentPage() {
                   >
                     <div className="text-center">
                       <div className="font-semibold">年付</div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-muted-foreground">
                         ¥{selectedPlan ? getCurrentPrice() : 0}/年
                       </div>
                       <Badge variant="secondary" className="mt-1">更优惠</Badge>
@@ -468,7 +468,7 @@ export default function EnhancedPaymentPage() {
               <Card data-qr-code className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
                       <span className="text-white text-sm font-bold">支</span>
                     </div>
                     支付宝扫码支付
@@ -476,23 +476,23 @@ export default function EnhancedPaymentPage() {
                 </CardHeader>
                 <CardContent>
                   {/* 支付信息摘要 */}
-                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mb-6 p-4 bg-accent border border-border rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                           <CreditCard className="h-5 w-5 text-white" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-blue-900">{selectedPlan.name}</h4>
-                          <p className="text-sm text-blue-700">
+                          <p className="text-sm text-primary">
                             {selectedPeriod === 'monthly' ? '月付' : '年付'} · {selectedPlan.description}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-600">¥{getCurrentPrice()}</div>
+                        <div className="text-2xl font-bold text-primary">¥{getCurrentPrice()}</div>
                         {isInPromoPeriod() && (
-                          <div className="text-sm text-red-600">限时特惠</div>
+                          <div className="text-sm text-destructive">限时特惠</div>
                         )}
                       </div>
                     </div>
@@ -511,8 +511,8 @@ export default function EnhancedPaymentPage() {
                   <CardTitle>支付信息</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center py-8">
-                  <QrCode className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                  <p className="text-gray-600">请先选择套餐</p>
+                  <QrCode className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">请先选择套餐</p>
                 </CardContent>
               </Card>
             )}

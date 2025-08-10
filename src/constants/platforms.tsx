@@ -22,22 +22,22 @@ export const platformLinks = {
 };
 
 export const platformIcons = {
-  wechat: <SiWechat className="text-green-500" />,
-  xiaohongshu: <SiXiaohongshu className="text-red-500" />,
+  wechat: <SiWechat className="text-foreground" />,
+  xiaohongshu: <SiXiaohongshu className="text-destructive" />,
   bilibili: <SiBilibili className="text-pink-400" />,
-  weibo: <SiSinaweibo className="text-orange-500" />,
+  weibo: <SiSinaweibo className="text-foreground" />,
   douyin: <FaTiktok className="text-black" />,
-  toutiao: <FaNewspaper className="text-red-600" />,
-  kuaishou: <Zap className="text-yellow-500" />,
-  wangyi: <Rss className="text-red-500" />,
-  qutoutiao: <BookOpen className="text-purple-500" />,
-  pengpai: <Monitor className="text-blue-700" />,
-  sohu: <Globe className="text-orange-600" />,
-  iqiyi: <Video className="text-green-600" />,
-  youtube: <FaYoutube className="text-red-500" />,
+  toutiao: <FaNewspaper className="text-destructive" />,
+  kuaishou: <Zap className="text-foreground" />,
+  wangyi: <Rss className="text-destructive" />,
+  qutoutiao: <BookOpen className="text-primary" />,
+  pengpai: <Monitor className="text-primary" />,
+  sohu: <Globe className="text-foreground" />,
+  iqiyi: <Video className="text-foreground" />,
+  youtube: <FaYoutube className="text-destructive" />,
   twitter: <Globe className="text-blue-400" />,
-  linkedin: <Users className="text-blue-700" />,
-  facebook: <Globe className="text-blue-600" />
+  linkedin: <Users className="text-primary" />,
+  facebook: <Globe className="text-primary" />
 };
 
 export const platformNameMap = {

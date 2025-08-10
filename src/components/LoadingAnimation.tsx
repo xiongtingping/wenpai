@@ -68,9 +68,9 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+      <div className="bg-card rounded-lg p-8 max-w-md w-full mx-4 text-center">
         {/* 动画容器 */}
-        <div className="relative h-20 mb-6 overflow-hidden bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+        <div className="relative h-20 mb-6 overflow-hidden bg-accent rounded-lg">
           {/* 背景装饰 */}
           <div className="absolute inset-0">
             <div className="absolute top-2 left-4 w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></div>
@@ -109,10 +109,10 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
 
         {/* 加载消息 */}
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-gray-800">
+          <h3 className="text-lg font-semibold text-foreground">
             {currentAnimal.name}正在努力创作中...
           </h3>
-          <p className="text-gray-600 text-sm">
+          <p className="text-muted-foreground text-sm">
             {currentMessage}
           </p>
         </div>
@@ -131,7 +131,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
         </div>
 
         {/* 提示文字 */}
-        <div className="mt-4 text-xs text-gray-500">
+        <div className="mt-4 text-xs text-muted-foreground">
           AI正在为您生成高质量内容，请稍候片刻
         </div>
       </div>
@@ -194,7 +194,7 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
     <div className="flex items-center justify-center py-16">
       <div className="text-center max-w-md mx-auto">
         {/* 小动物动画 - 调整更大 */}
-        <div className="relative h-20 w-48 mx-auto mb-6 overflow-hidden bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-sm">
+        <div className="relative h-20 w-48 mx-auto mb-6 overflow-hidden bg-accent rounded-xl shadow-sm">
           <div
             className="absolute top-1/2 transform -translate-y-1/2 text-4xl"
             style={{
@@ -206,8 +206,8 @@ export const InlineLoadingAnimation: React.FC<{ message?: string }> = ({ message
         </div>
 
         {/* 消息 - 调整样式和位置 */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 mb-4">
-          <p className="text-base text-gray-700 font-medium">
+        <div className="bg-card rounded-lg shadow-sm border p-4 mb-4">
+          <p className="text-base text-foreground font-medium">
             {message || `${currentAnimal.name}正在创作中...`}
           </p>
         </div>

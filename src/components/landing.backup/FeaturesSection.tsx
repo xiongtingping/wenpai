@@ -47,7 +47,7 @@ const mainFeatures = [
     path: '/adapt',
     color: 'from-blue-500 to-cyan-500',
     bgColor: 'from-blue-50 to-cyan-50',
-    borderColor: 'border-blue-200',
+    borderColor: 'border-border',
     hoverColor: 'hover:from-blue-100 hover:to-cyan-100',
     badge: '🔥 热门',
     badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500',
@@ -86,7 +86,7 @@ const mainFeatures = [
     path: '/library',
     color: 'from-green-500 to-emerald-500',
     bgColor: 'from-green-50 to-emerald-50',
-    borderColor: 'border-green-200',
+    borderColor: 'border-border',
     hoverColor: 'hover:from-green-100 hover:to-emerald-100',
     badge: '💡 实用',
     badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
@@ -149,29 +149,29 @@ const advantages = [
     title: '🤖 AI驱动',
     description: '先进的AI技术，智能分析内容，提供精准建议和优化方案',
     icon: Target,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
+    color: 'text-primary',
+    bgColor: 'bg-accent',
   },
   {
     title: '🌐 多平台适配',
     description: '一键适配微信、微博、抖音等主流平台，覆盖全媒体矩阵',
     icon: Globe,
-    color: 'text-green-600',
-    bgColor: 'bg-green-50',
+    color: 'text-foreground',
+    bgColor: 'bg-accent',
   },
   {
     title: '🎨 专业工具',
     description: '丰富的专业工具套件，满足不同内容创作场景和需求',
     icon: Palette,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
+    color: 'text-primary',
+    bgColor: 'bg-accent',
   },
   {
     title: '🔒 安全可靠',
     description: '企业级安全保障，数据加密存储，保护您的创作成果',
     icon: Shield,
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-50',
+    color: 'text-foreground',
+    bgColor: 'bg-accent',
   },
 ];
 
@@ -194,7 +194,7 @@ export const FeaturesSection: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <Badge 
               variant="outline" 
-              className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-600 border-blue-200 hover:bg-blue-200 transition-colors duration-300 animate-fadeInDown"
+              className="text-sm px-3 py-1 rounded-full bg-accent text-primary border-border hover:bg-blue-200 transition-colors duration-300 animate-fadeInDown"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               🚀 核心功能
@@ -209,9 +209,9 @@ export const FeaturesSection: React.FC = () => {
           </h2>
           
           {/* 3️⃣ 副标题（描述文本）优化 */}
-          <p className="text-base text-gray-500 leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+          <p className="text-base text-muted-foreground leading-relaxed max-w-4xl mx-auto mt-4 mb-10 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
             从内容创作到分发管理，文派提供全方位的
-            <span className="text-blue-600 font-semibold">AI驱动工具</span>，
+            <span className="text-primary font-semibold">AI驱动工具</span>，
             助力创作者提升效率和质量
           </p>
         </div>
@@ -219,7 +219,7 @@ export const FeaturesSection: React.FC = () => {
         {/* 主要功能区域 */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">主要功能</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-4">主要功能</h3>
             <p className="text-muted-foreground">探索文派的核心功能，提升您的内容创作效率</p>
           </div>
           
@@ -243,10 +243,10 @@ export const FeaturesSection: React.FC = () => {
                         {feature.badge}
                       </Badge>
                     </div>
-                    <CardTitle className="text-xl font-bold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors duration-300">
+                    <CardTitle className="text-xl font-bold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">
                       {feature.title}
                     </CardTitle>
-                    <CardDescription className="text-gray-600 leading-relaxed">
+                    <CardDescription className="text-muted-foreground leading-relaxed">
                       {feature.description}
                     </CardDescription>
                   </div>
@@ -254,8 +254,8 @@ export const FeaturesSection: React.FC = () => {
                 <CardContent className="relative z-10">
                   <div className="space-y-3 mb-6">
                     {feature.features.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle className="w-4 h-4 text-foreground flex-shrink-0" />
                         <span>{item}</span>
                       </div>
                     ))}
@@ -288,7 +288,7 @@ export const FeaturesSection: React.FC = () => {
         {/* 快速工具区域 */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">快速工具</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-4">快速工具</h3>
             <p className="text-muted-foreground">便捷的小工具，让创作更加高效</p>
           </div>
           
@@ -304,10 +304,10 @@ export const FeaturesSection: React.FC = () => {
                   <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tool.color} text-white mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
                     <tool.icon className="w-6 h-6" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors duration-300">
+                  <h4 className="font-semibold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">
                     {tool.title}
                   </h4>
-                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                     {tool.description}
                   </p>
                   <Link to={tool.path}>
@@ -329,8 +329,8 @@ export const FeaturesSection: React.FC = () => {
         <div className="py-16">
           {/* 标题部分优化 */}
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">平台优势</h3>
-            <p className="text-gray-500 text-base mt-2 mb-8">
+            <h3 className="text-2xl font-bold text-foreground mb-2">平台优势</h3>
+            <p className="text-muted-foreground text-base mt-2 mb-8">
               为什么选择文派？我们为您提供最优质的服务
             </p>
           </div>
@@ -350,12 +350,12 @@ export const FeaturesSection: React.FC = () => {
                   </div>
                   
                   {/* 标题 */}
-                  <h4 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-gray-900 transition-colors duration-300">
+                  <h4 className="text-lg font-semibold text-foreground mb-1 group-hover:text-foreground transition-colors duration-300">
                     {advantage.title}
                   </h4>
                   
                   {/* 描述文字 */}
-                  <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+                  <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
                     {advantage.description}
                   </p>
                 </CardContent>

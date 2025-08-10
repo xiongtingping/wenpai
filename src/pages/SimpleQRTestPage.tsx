@@ -51,32 +51,32 @@ export default function SimpleQRTestPage() {
       <div className="space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-2">简单二维码测试</h1>
-          <p className="text-gray-600">测试后端接口是否正常工作</p>
+          <p className="text-muted-foreground">测试后端接口是否正常工作</p>
         </div>
 
         <div className="text-center">
           <button
             onClick={handleTestCheckout}
             disabled={loading}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary disabled:opacity-50"
           >
             {loading ? '测试中...' : '测试二维码接口'}
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="bg-destructive/10 border border-red-400 text-destructive px-4 py-3 rounded">
             <strong>错误:</strong> {error}
           </div>
         )}
 
         {result && (
           <div className="space-y-4">
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            <div className="bg-accent border border-green-400 text-green-700 px-4 py-3 rounded">
               <strong>成功!</strong> 接口调用成功
             </div>
             
-            <div className="bg-gray-100 p-4 rounded">
+            <div className="bg-accent p-4 rounded">
               <h3 className="font-bold mb-2">返回数据:</h3>
               <pre className="text-sm overflow-auto">
                 {JSON.stringify(result, null, 2)}
@@ -89,10 +89,10 @@ export default function SimpleQRTestPage() {
                 <img 
                   src={result.qrCodeDataURL} 
                   alt="支付二维码" 
-                  className="border-2 border-gray-200 rounded-lg mx-auto"
+                  className="border-2 border-border rounded-lg mx-auto"
                   style={{ width: 300, height: 300 }}
                 />
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-muted-foreground">
                   二维码数据长度: {result.qrCodeDataURL.length} 字符
                 </p>
               </div>

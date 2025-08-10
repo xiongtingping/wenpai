@@ -29,14 +29,14 @@ interface PlatformTabStatusProps {
 const getStatusIcon = (status: PlatformTabStatusProps['status']) => {
   switch (status) {
     case 'completed':
-      return <Check className="h-3 w-3 text-green-500" />;
+      return <Check className="h-3 w-3 text-foreground" />;
     case 'generating':
-      return <Clock className="h-3 w-3 text-yellow-500 animate-spin" />;
+      return <Clock className="h-3 w-3 text-foreground animate-spin" />;
     case 'error':
-      return <X className="h-3 w-3 text-red-500" />;
+      return <X className="h-3 w-3 text-destructive" />;
     case 'waiting':
     default:
-      return <AlertCircle className="h-3 w-3 text-gray-400" />;
+      return <AlertCircle className="h-3 w-3 text-muted-foreground" />;
   }
 };
 
@@ -63,14 +63,14 @@ const getStatusText = (status: PlatformTabStatusProps['status']) => {
 const getStatusColor = (status: PlatformTabStatusProps['status']) => {
   switch (status) {
     case 'completed':
-      return 'text-green-600';
+      return 'text-foreground';
     case 'generating':
-      return 'text-yellow-600';
+      return 'text-foreground';
     case 'error':
-      return 'text-red-600';
+      return 'text-destructive';
     case 'waiting':
     default:
-      return 'text-gray-500';
+      return 'text-muted-foreground';
   }
 };
 

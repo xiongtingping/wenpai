@@ -34,17 +34,17 @@ export function HowItWorks() {
   ]
 
   return (
-    <section className="py-16 bg-white" id="how-it-works-section">
+    <section className="py-16 bg-card" id="how-it-works-section">
       <div className="container mx-auto px-6">
         {/* 1️⃣ 标题区优化 */}
         <div className="text-center max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
             三步搞定，就这么简单
           </h2>
-          <p className="text-lg text-gray-500 mb-4">
+          <p className="text-lg text-muted-foreground mb-4">
             告别繁琐的内容适配流程，把时间用在创意上。
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-green-600 mt-4">
+          <div className="flex items-center justify-center gap-2 text-sm text-foreground mt-4">
             <span className="text-lg">✅</span>
             每天帮您节省45分钟内容创作时间，提高内容转化效率200%
           </div>
@@ -57,7 +57,7 @@ export function HowItWorks() {
             return (
               <div
                 key={title}
-                className="group bg-white rounded-xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                className="group bg-card rounded-xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
                 style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
               >
                 <div className="flex flex-col items-center text-center">
@@ -69,12 +69,12 @@ export function HowItWorks() {
                   </div>
                   
                   {/* 主标题 */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  <h3 className="text-lg font-semibold text-foreground mb-3">
                     {title}
                   </h3>
                   
                   {/* 描述文字 */}
-                  <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
+                  <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
                     {stepDescs[i]}
                   </p>
                 </div>
@@ -85,14 +85,14 @@ export function HowItWorks() {
 
         {/* 3️⃣ 最下方蓝色提示条优化 */}
         <div className="mt-16 max-w-4xl mx-auto">
-          <div className="rounded-lg bg-blue-50 text-center px-6 py-4 border border-blue-100">
-            <h3 className="text-lg font-semibold text-blue-700 mb-2">
+          <div className="rounded-lg bg-accent text-center px-6 py-4 border border-blue-100">
+            <h3 className="text-lg font-semibold text-primary mb-2">
               提高效率，节省时间
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               传统多平台内容适配每篇需要
               <span className="line-through mx-1">60-90分钟</span>
-              <span className="text-green-600 font-semibold mx-1">现在只需15分钟</span>
+              <span className="text-foreground font-semibold mx-1">现在只需15分钟</span>
               即可完成全平台内容分发，让您专注于创意本身！
             </p>
           </div>

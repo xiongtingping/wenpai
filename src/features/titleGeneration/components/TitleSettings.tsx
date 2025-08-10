@@ -73,7 +73,7 @@ export const TitleSettings = memo<TitleSettingsProps>(({
                 <SelectItem key={id} value={id}>
                   <div className="flex items-center justify-between w-full">
                     <span>{config.name}</span>
-                    <span className="text-xs text-gray-500 ml-2">
+                    <span className="text-xs text-muted-foreground ml-2">
                       {config.maxLength}字符
                     </span>
                   </div>
@@ -83,7 +83,7 @@ export const TitleSettings = memo<TitleSettingsProps>(({
           </Select>
           
           {/* 平台信息 */}
-          <div className="text-xs text-gray-500 space-y-1">
+          <div className="text-xs text-muted-foreground space-y-1">
             <div className="flex justify-between">
               <span>字符限制:</span>
               <span>{currentPlatformConfig.minLength}-{currentPlatformConfig.maxLength}</span>
@@ -117,7 +117,7 @@ export const TitleSettings = memo<TitleSettingsProps>(({
                   size="sm"
                   className={cn(
                     "justify-start text-xs h-auto py-2 px-3",
-                    isRecommended && !isSelected && "border-blue-200 bg-blue-50"
+                    isRecommended && !isSelected && "border-border bg-accent"
                   )}
                   onClick={() => handleStyleToggle(style as TitleStyle)}
                 >
@@ -130,7 +130,7 @@ export const TitleSettings = memo<TitleSettingsProps>(({
                         </Badge>
                       )}
                     </div>
-                    <span className="text-xs text-gray-500 text-left">
+                    <span className="text-xs text-muted-foreground text-left">
                       {config.description}
                     </span>
                   </div>
@@ -139,7 +139,7 @@ export const TitleSettings = memo<TitleSettingsProps>(({
             })}
           </div>
           
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             💡 选择多个风格可以增加标题多样性
           </div>
         </div>
@@ -165,12 +165,12 @@ export const TitleSettings = memo<TitleSettingsProps>(({
             />
           </div>
           
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-muted-foreground">
             <span>{generationConfig.minOutputCount}个</span>
             <span>{generationConfig.maxOutputCount}个</span>
           </div>
           
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             💡 更多数量可以提供更多选择，但会增加生成时间
           </div>
         </div>
@@ -178,13 +178,13 @@ export const TitleSettings = memo<TitleSettingsProps>(({
         {/* 平台特殊规则 */}
         {currentPlatformConfig.specialRules && currentPlatformConfig.specialRules.length > 0 && (
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-orange-600">
+            <Label className="text-sm font-medium text-foreground">
               平台特殊要求
             </Label>
             <div className="space-y-1">
               {currentPlatformConfig.specialRules.map((rule, index) => (
-                <div key={index} className="text-xs text-gray-600 flex items-start gap-2">
-                  <span className="text-orange-500 mt-0.5">•</span>
+                <div key={index} className="text-xs text-muted-foreground flex items-start gap-2">
+                  <span className="text-foreground mt-0.5">•</span>
                   <span>{rule}</span>
                 </div>
               ))}

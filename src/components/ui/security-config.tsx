@@ -361,7 +361,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <EyeOff className="w-5 h-5 text-red-600" />
+              <EyeOff className="w-5 h-5 text-destructive" />
               敏感数据预览（已脱敏）
             </CardTitle>
             <CardDescription>
@@ -387,18 +387,18 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
                   );
 
                   return (
-                    <div key={key} className="p-2 bg-gray-50 rounded text-xs">
-                      <div className="font-mono text-gray-700">{key}:</div>
-                      <div className="text-gray-600 mt-1">
+                    <div key={key} className="p-2 bg-accent rounded text-xs">
+                      <div className="font-mono text-foreground">{key}:</div>
+                      <div className="text-muted-foreground mt-1">
                         {JSON.stringify(maskedValue, null, 2)}
                       </div>
                     </div>
                   );
                 } catch (error) {
                   return (
-                    <div key={key} className="p-2 bg-gray-50 rounded text-xs">
-                      <div className="font-mono text-gray-700">{key}:</div>
-                      <div className="text-gray-600 mt-1">*** (无法解析)</div>
+                    <div key={key} className="p-2 bg-accent rounded text-xs">
+                      <div className="font-mono text-foreground">{key}:</div>
+                      <div className="text-muted-foreground mt-1">*** (无法解析)</div>
                     </div>
                   );
                 }

@@ -129,17 +129,17 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'paid':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-foreground" />;
       case 'processing':
-        return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />;
+        return <RefreshCw className="h-4 w-4 text-primary animate-spin" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-foreground" />;
       case 'failed':
       case 'expired':
       case 'cancelled':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -149,17 +149,17 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-100 text-green-800';
+        return 'bg-accent text-green-800';
       case 'processing':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-accent text-blue-800';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-accent text-yellow-800';
       case 'failed':
       case 'expired':
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-destructive/10 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-accent text-foreground';
     }
   };
 
@@ -181,8 +181,8 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="flex flex-col items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">正在检查支付状态...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+          <p className="text-muted-foreground">正在检查支付状态...</p>
         </CardContent>
       </Card>
     );
@@ -197,12 +197,12 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-orange-500" />
+            <AlertCircle className="h-5 w-5 text-foreground" />
             发现未完成的支付
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             检测到 {activePayments.length} 个未完成的支付，是否恢复监控？
           </p>
           
@@ -238,17 +238,17 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
               </div>
               
               {payment.amount && (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   金额: ¥{(payment.amount / 100).toFixed(2)}
                 </div>
               )}
               
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 创建时间: {formatTime(payment.createdAt)}
               </div>
               
               {payment.lastChecked && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   最后检查: {formatTime(payment.lastChecked)}
                 </div>
               )}

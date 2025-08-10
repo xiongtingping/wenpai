@@ -67,7 +67,7 @@ export function SchemeSelector({
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-gray-600" />
+            <Settings className="h-5 w-5 text-muted-foreground" />
             <h3 className="text-lg font-semibold">内容形式</h3>
           </div>
           
@@ -180,7 +180,7 @@ export function SchemeSelector({
                         <div className="space-y-3">
                           <div>
                             <h4 className="font-medium text-sm mb-2">风格特点</h4>
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm text-muted-foreground space-y-1">
                               {style.id === 'professional' && (
                                 <>
                                   <div>• 使用专业术语和行业词汇</div>
@@ -218,7 +218,7 @@ export function SchemeSelector({
                           
                           <div>
                             <h4 className="font-medium text-sm mb-2">适用场景</h4>
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm text-muted-foreground space-y-1">
                               {style.id === 'professional' && (
                                 <>
                                   <div>• 专业报告和行业分析</div>
@@ -265,8 +265,8 @@ export function SchemeSelector({
               key={scheme.id}
               className={`cursor-pointer transition-all hover:shadow-md ${
                 selectedScheme === scheme.id 
-                  ? 'ring-2 ring-blue-500 bg-blue-50' 
-                  : 'hover:bg-gray-50'
+                  ? 'ring-2 ring-blue-500 bg-accent' 
+                  : 'hover:bg-accent'
               }`}
               onClick={() => handleSchemeChange(scheme.id)}
             >
@@ -277,7 +277,7 @@ export function SchemeSelector({
                     <CardTitle className="text-base">{scheme.name}</CardTitle>
                   </div>
                   {selectedScheme === scheme.id && (
-                    <Check className="h-4 w-4 text-blue-500" />
+                    <Check className="h-4 w-4 text-primary" />
                   )}
                 </div>
                 <CardDescription className="text-sm">
@@ -335,7 +335,7 @@ export function SchemeSelector({
       {(selectedSchemeInfo || selectedStyle) && (
         <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-5 w-5 text-blue-600" />
+            <Sparkles className="h-5 w-5 text-primary" />
             <h4 className="font-medium">当前配置</h4>
           </div>
           
@@ -354,7 +354,7 @@ export function SchemeSelector({
                   </Badge>
                 )}
               </div>
-              <p className="text-gray-600 mt-1">{selectedSchemeInfo?.description}</p>
+              <p className="text-muted-foreground mt-1">{selectedSchemeInfo?.description}</p>
             </div>
             
             <div>
@@ -381,7 +381,7 @@ export function SchemeSelector({
                   </Badge>
                 )}
               </div>
-              <p className="text-gray-600 mt-1">
+              <p className="text-muted-foreground mt-1">
                 {selectedStyle === 'professional' && '专业 + 客观 + 洞察'}
                 {selectedStyle === 'funny' && '幽默 + 自嘲 + 网络热词 + 惊叹 + 标题党'}
                 {selectedStyle === 'real' && '真实感 + 主观 + 分享型'}
@@ -390,8 +390,8 @@ export function SchemeSelector({
             </div>
           </div>
           
-          <div className="mt-4 p-3 bg-white rounded border">
-            <p className="text-sm text-gray-600">
+          <div className="mt-4 p-3 bg-card rounded border">
+            <p className="text-sm text-muted-foreground">
               <strong>组合效果：</strong>
               {selectedSchemeInfo?.name} + {selectedStyle === 'professional' ? '专业风格' : 
                 selectedStyle === 'funny' ? '幽默风格' : 

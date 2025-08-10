@@ -114,7 +114,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     <>
       {/* 最小化状态 - 固定在右下角 */}
       {isMinimized && (
-        <div className="fixed bottom-4 right-4 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-[300px]">
+        <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-lg shadow-lg p-3 min-w-[300px]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded"></div>
@@ -133,7 +133,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleClose}
-                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                className="h-6 w-6 p-0 text-destructive hover:text-destructive"
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -151,8 +151,8 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
             onEscapeKeyDown={(e) => e.preventDefault()}
           >
             {/* 优化后的紧凑头部 - 去除冗余留白 */}
-            <DialogHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3 border-b bg-gray-50/50">
-              <DialogTitle className="text-lg font-semibold text-gray-800">
+            <DialogHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3 border-b bg-accent/50">
+              <DialogTitle className="text-lg font-semibold text-foreground">
                 批量转发工作台 ({platforms.length}个平台)
               </DialogTitle>
               <div className="flex items-center gap-1">
@@ -169,7 +169,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={handleClose}
-                  className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-accent"
                   title="关闭"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -180,10 +180,10 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
             {/* 优化后的紧凑内容区域 */}
             <div className="flex-1 overflow-y-auto px-4 py-3">
               {/* 优化后的使用说明 - 移至主标题下方，单行展示 */}
-              <div className="flex items-center gap-2 mb-4 p-3 bg-blue-50/80 rounded-lg border border-blue-200/60">
-                <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 mb-4 p-3 bg-accent/80 rounded-lg border border-border/60">
+                <Info className="h-4 w-4 text-primary flex-shrink-0" />
                 <span className="text-sm text-blue-800 font-medium">使用说明：</span>
-                <span className="text-sm text-blue-700">
+                <span className="text-sm text-primary">
                   点击"跳转"→跳转至对应平台→分别复制标题、内容和标签→粘贴至对应平台→在对应平台完成发布→返回重复下一个平台
                 </span>
               </div>
@@ -191,21 +191,21 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
               {/* 优化后的平台网格 - 增加分组边框 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {platforms.map((platform) => (
-                  <Card key={platform.id} className="border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm">
+                  <Card key={platform.id} className="border-2 border-border hover:border-primary/50 transition-colors shadow-sm">
                     {/* 优化后的卡片头部 */}
-                    <CardHeader className="pb-3 pt-4 px-4 border-b border-gray-100 bg-gray-50/30">
+                    <CardHeader className="pb-3 pt-4 px-4 border-b border-gray-100 bg-accent/30">
                       <CardTitle className="flex items-center gap-3 text-base">
                         <div className="w-6 h-6 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
                           <span className="text-white text-sm font-bold">
                             {platform.icon}
                           </span>
                         </div>
-                        <span className="flex-1 font-semibold text-gray-800">{platform.name}</span>
+                        <span className="flex-1 font-semibold text-foreground">{platform.name}</span>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => openPlatformPage(platform)}
-                          className="h-7 px-3 text-sm border-blue-300 hover:border-blue-400 hover:bg-blue-50"
+                          className="h-7 px-3 text-sm border-blue-300 hover:border-primary hover:bg-accent"
                         >
                           <ExternalLink className="h-3 w-3 mr-1" />
                           跳转平台
@@ -214,7 +214,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                           variant="ghost"
                           size="sm"
                           onClick={() => togglePlatformExpanded(platform.id)}
-                          className="h-7 w-7 p-0 hover:bg-gray-100"
+                          className="h-7 w-7 p-0 hover:bg-accent"
                         >
                           {expandedPlatforms.has(platform.id) ?
                             <ChevronUp className="h-4 w-4" /> :
@@ -228,10 +228,10 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                     <CardContent className="pt-4 pb-4 px-4">
                       {/* 内容同步状态提示 */}
                       {isContentSynced && (
-                        <div className="flex items-center gap-2 mb-3 p-2 bg-green-50 rounded-lg border border-green-200">
-                          <RefreshCw className="h-4 w-4 text-green-600" />
+                        <div className="flex items-center gap-2 mb-3 p-2 bg-accent rounded-lg border border-border">
+                          <RefreshCw className="h-4 w-4 text-foreground" />
                           <span className="text-sm text-green-700 font-medium">内容已同步</span>
-                          <Badge variant="outline" className="text-xs text-green-600 border-green-300">
+                          <Badge variant="outline" className="text-xs text-foreground border-green-300">
                             {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : '已选择'}
                           </Badge>
                         </div>
@@ -247,10 +247,10 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                             '标题',
                             platform.name
                           )}
-                          className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                          className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
                           {getCopyButtonState(platform.name, '标题') ? (
-                            <Check className="h-3 w-3 text-green-600 mr-1" />
+                            <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
                           )}
@@ -264,10 +264,10 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                             '内容',
                             platform.name
                           )}
-                          className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                          className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
                           {getCopyButtonState(platform.name, '内容') ? (
-                            <Check className="h-3 w-3 text-green-600 mr-1" />
+                            <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
                           )}
@@ -283,10 +283,10 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                             '标签',
                             platform.name
                           )}
-                          className="flex-1 h-8 text-sm border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                          className="flex-1 h-8 text-sm border-border hover:border-primary hover:bg-accent"
                         >
                           {getCopyButtonState(platform.name, '标签') ? (
-                            <Check className="h-3 w-3 text-green-600 mr-1" />
+                            <Check className="h-3 w-3 text-foreground mr-1" />
                           ) : (
                             <Copy className="h-3 w-3 mr-1" />
                           )}
@@ -296,43 +296,43 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
 
                       {/* 优化后的详细内容区域 - 可折叠，优先显示同步内容 */}
                       {expandedPlatforms.has(platform.id) && (
-                        <div className="space-y-4 border-t border-gray-200 pt-4">
+                        <div className="space-y-4 border-t border-border pt-4">
                           <div>
-                            <label className="text-sm font-semibold text-gray-700 block mb-2">
+                            <label className="text-sm font-semibold text-foreground block mb-2">
                               📝 标题
                               {isContentSynced && syncedContent.title && (
-                                <Badge variant="outline" className="ml-2 text-xs text-green-600 border-green-300">
+                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-green-300">
                                   已同步
                                 </Badge>
                               )}
                             </label>
-                            <div className="p-3 bg-gray-50/80 rounded-lg text-sm border border-gray-200 max-h-20 overflow-y-auto">
+                            <div className="p-3 bg-accent/80 rounded-lg text-sm border border-border max-h-20 overflow-y-auto">
                               {isContentSynced && syncedContent.title ? syncedContent.title : platform.title}
                             </div>
                           </div>
                           <div>
-                            <label className="text-sm font-semibold text-gray-700 block mb-2">
+                            <label className="text-sm font-semibold text-foreground block mb-2">
                               📄 内容
                               {isContentSynced && syncedContent.content && (
-                                <Badge variant="outline" className="ml-2 text-xs text-green-600 border-green-300">
+                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-green-300">
                                   已同步 - {contentSync.selectedVersion ? `版本${contentSync.selectedVersion}` : ''}
                                 </Badge>
                               )}
                             </label>
-                            <div className="p-3 bg-gray-50/80 rounded-lg text-sm border border-gray-200 max-h-32 overflow-y-auto">
+                            <div className="p-3 bg-accent/80 rounded-lg text-sm border border-border max-h-32 overflow-y-auto">
                               {isContentSynced && syncedContent.content ? syncedContent.content : platform.content}
                             </div>
                           </div>
                           <div>
-                            <label className="text-sm font-semibold text-gray-700 block mb-2">
+                            <label className="text-sm font-semibold text-foreground block mb-2">
                               🏷️ 标签
                               {isContentSynced && syncedContent.tags.length > 0 && (
-                                <Badge variant="outline" className="ml-2 text-xs text-green-600 border-green-300">
+                                <Badge variant="outline" className="ml-2 text-xs text-foreground border-green-300">
                                   已同步
                                 </Badge>
                               )}
                             </label>
-                            <div className="p-3 bg-gray-50/80 rounded-lg border border-gray-200">
+                            <div className="p-3 bg-accent/80 rounded-lg border border-border">
                               <div className="flex flex-wrap gap-1">
                                 {(isContentSynced && syncedContent.tags.length > 0 ? syncedContent.tags : platform.tags).map((tag, index) => (
                                   <Badge key={index} variant="secondary" className="text-xs px-2 py-1">

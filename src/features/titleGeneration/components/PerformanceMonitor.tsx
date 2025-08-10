@@ -84,9 +84,9 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
   };
 
   const getStatusColor = (value: number, thresholds: { good: number; warning: number }) => {
-    if (value >= thresholds.good) return 'text-green-600';
-    if (value >= thresholds.warning) return 'text-yellow-600';
-    return 'text-red-600';
+    if (value >= thresholds.good) return 'text-foreground';
+    if (value >= thresholds.warning) return 'text-foreground';
+    return 'text-destructive';
   };
 
   const getStatusBadge = (value: number, thresholds: { good: number; warning: number }) => {
@@ -132,7 +132,7 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
               </Button>
             </div>
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             最后更新: {lastUpdate.toLocaleTimeString()}
           </div>
         </CardHeader>
@@ -143,12 +143,12 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Clock className="w-8 h-8 text-blue-500" />
+              <Clock className="w-8 h-8 text-primary" />
               <div>
                 <div className="text-2xl font-bold">
                   {metrics.recentResponseTime.toFixed(0)}ms
                 </div>
-                <div className="text-xs text-gray-500">平均响应时间</div>
+                <div className="text-xs text-muted-foreground">平均响应时间</div>
               </div>
             </div>
           </CardContent>
@@ -157,12 +157,12 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <CheckCircle className="w-8 h-8 text-green-500" />
+              <CheckCircle className="w-8 h-8 text-foreground" />
               <div>
                 <div className="text-2xl font-bold">
                   {(metrics.recentSuccessRate * 100).toFixed(1)}%
                 </div>
-                <div className="text-xs text-gray-500">成功率</div>
+                <div className="text-xs text-muted-foreground">成功率</div>
               </div>
             </div>
           </CardContent>
@@ -171,12 +171,12 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Database className="w-8 h-8 text-purple-500" />
+              <Database className="w-8 h-8 text-primary" />
               <div>
                 <div className="text-2xl font-bold">
                   {(report.metrics.cacheHitRate * 100).toFixed(1)}%
                 </div>
-                <div className="text-xs text-gray-500">缓存命中率</div>
+                <div className="text-xs text-muted-foreground">缓存命中率</div>
               </div>
             </div>
           </CardContent>
@@ -185,12 +185,12 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Zap className="w-8 h-8 text-orange-500" />
+              <Zap className="w-8 h-8 text-foreground" />
               <div>
                 <div className="text-2xl font-bold">
                   {report.metrics.throughput.toFixed(1)}
                 </div>
-                <div className="text-xs text-gray-500">请求/分钟</div>
+                <div className="text-xs text-muted-foreground">请求/分钟</div>
               </div>
             </div>
           </CardContent>
@@ -299,7 +299,7 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
           {report.alerts.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-orange-600">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                   <AlertTriangle className="w-5 h-5" />
                   告警 ({report.alerts.length})
                 </CardTitle>
@@ -326,7 +326,7 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
           {/* 优化建议 */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-600">
+              <CardTitle className="flex items-center gap-2 text-primary">
                 <CheckCircle className="w-5 h-5" />
                 优化建议
               </CardTitle>
@@ -335,7 +335,7 @@ export const PerformanceMonitorComponent = memo<PerformanceMonitorProps>(({
               <div className="space-y-2">
                 {report.recommendations.map((recommendation: string, index: number) => (
                   <div key={index} className="flex items-start gap-2 text-sm">
-                    <span className="text-blue-500 mt-1">•</span>
+                    <span className="text-primary mt-1">•</span>
                     <span>{recommendation}</span>
                   </div>
                 ))}

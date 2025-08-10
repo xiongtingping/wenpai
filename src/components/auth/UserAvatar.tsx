@@ -94,7 +94,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {showUsername && (
-        <span className="text-sm text-gray-700 hidden sm:block">
+        <span className="text-sm text-foreground hidden sm:block">
           {getUserDisplayName(user, '用户')}
         </span>
       )}
@@ -107,7 +107,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
                 src={getUserAvatar(user)}
                 alt={getUserDisplayName(user, '用户头像')}
               />
-              <AvatarFallback className="bg-blue-100 text-blue-600">
+              <AvatarFallback className="bg-accent text-primary">
                 {getUserAvatarFallback(user)}
               </AvatarFallback>
             </Avatar>
@@ -136,8 +136,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           {/* VIP 标识 */}
           {user?.roles?.includes('vip') && (
             <DropdownMenuItem disabled>
-              <Crown className="mr-2 h-4 w-4 text-yellow-500" />
-              <span className="text-yellow-600">VIP 用户</span>
+              <Crown className="mr-2 h-4 w-4 text-foreground" />
+              <span className="text-foreground">VIP 用户</span>
             </DropdownMenuItem>
           )}
           
@@ -146,7 +146,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
           <DropdownMenuItem 
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="text-red-600 focus:text-red-600"
+            className="text-destructive focus:text-destructive"
           >
             <LogOut className="mr-2 h-4 w-4" />
             <span>{isLoggingOut ? '登出中...' : '登出'}</span>

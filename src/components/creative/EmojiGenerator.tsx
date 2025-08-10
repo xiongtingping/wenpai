@@ -273,7 +273,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
 
         {isGenerating && (
           <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm text-muted-foreground">
               <span>生成进度</span>
               <span>{currentCount}/{totalCount} ({Math.round(progress)}%)</span>
             </div>
@@ -284,11 +284,11 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
               ></div>
             </div>
             {currentEmotion && (
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-muted-foreground text-center">
                 正在生成: {currentEmotion}
               </p>
             )}
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-muted-foreground text-center">
               预计剩余时间: {Math.ceil((totalCount - currentCount) * 8)} 秒
             </p>
           </div>
@@ -303,7 +303,7 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
                   alt={emotion} 
                   className="w-16 h-16 object-contain mx-auto border rounded-lg" 
                 />
-                <p className="text-xs mt-1 text-gray-600">{emotion}</p>
+                <p className="text-xs mt-1 text-muted-foreground">{emotion}</p>
               </div>
             ))}
           </div>

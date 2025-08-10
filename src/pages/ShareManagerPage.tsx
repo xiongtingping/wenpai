@@ -959,13 +959,13 @@ export default function ShareManagerPage() {
                 <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-medium text-gray-900">{template.name}</h3>
+                      <h3 className="font-medium text-foreground">{template.name}</h3>
                       <Badge variant="outline" className="text-xs">
                         使用 {template.useCount} 次
                       </Badge>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                       {template.title}
                     </p>
                     

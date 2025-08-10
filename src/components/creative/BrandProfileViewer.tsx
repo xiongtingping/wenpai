@@ -25,7 +25,7 @@ export default function BrandProfileViewer({ profile }: BrandProfileViewerProps)
         {/* 基本信息 */}
         <div>
           <h3 className="text-lg font-semibold mb-2">{profile.name}</h3>
-          <p className="text-sm text-gray-600">{profile.description}</p>
+          <p className="text-sm text-muted-foreground">{profile.description}</p>
         </div>
 
         {/* Slogan 展示 */}
@@ -33,7 +33,7 @@ export default function BrandProfileViewer({ profile }: BrandProfileViewerProps)
           <h4 className="text-sm font-medium mb-2">品牌 Slogan</h4>
           <div className="space-y-1">
             {profile.slogans.map((slogan, index) => (
-              <div key={index} className="text-sm bg-gray-50 p-2 rounded">
+              <div key={index} className="text-sm bg-accent p-2 rounded">
                 {slogan}
               </div>
             ))}
@@ -96,7 +96,7 @@ export default function BrandProfileViewer({ profile }: BrandProfileViewerProps)
             {/* 品牌个性 */}
             <div>
               <h5 className="text-sm font-medium mb-1">品牌个性</h5>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 {profile.aiAnalysis.brandPersonality}
               </p>
             </div>
@@ -107,7 +107,7 @@ export default function BrandProfileViewer({ profile }: BrandProfileViewerProps)
                 <Users className="h-4 w-4" />
                 目标受众
               </h5>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 {profile.aiAnalysis.targetAudience}
               </p>
             </div>
@@ -129,8 +129,8 @@ export default function BrandProfileViewer({ profile }: BrandProfileViewerProps)
               <h5 className="text-sm font-medium mb-1">内容建议</h5>
               <ul className="space-y-1">
                 {profile.aiAnalysis.contentSuggestions.map((suggestion, index) => (
-                  <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
-                    <span className="text-xs bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                    <span className="text-xs bg-accent rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
                       {index + 1}
                     </span>
                     {suggestion}

@@ -70,15 +70,15 @@ export function StyleSelector({
   const getStyleColor = (styleId: StyleType) => {
     switch (styleId) {
       case 'professional':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-accent text-primary border-border';
       case 'funny':
-        return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+        return 'bg-accent text-muted-foreground border-border';
       case 'real':
         return 'bg-pink-50 text-pink-700 border-pink-200';
       case 'hook':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-accent text-primary border-purple-200';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-accent text-foreground border-border';
     }
   };
 
@@ -103,7 +103,7 @@ export function StyleSelector({
     <div className={className}>
       <div className="flex items-center gap-3 mb-4">
         <div className="flex items-center gap-2">
-          <Palette className="h-5 w-5 text-gray-600" />
+          <Palette className="h-5 w-5 text-muted-foreground" />
           <h3 className="text-lg font-semibold">表达风格</h3>
         </div>
         
@@ -157,7 +157,7 @@ export function StyleSelector({
                         
                         <div>
                           <h4 className="font-medium text-sm mb-2">适用场景</h4>
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="text-sm text-muted-foreground space-y-1">
                             {style.id === 'professional' && (
                               <>
                                 <div>• 专业报告和行业分析</div>
@@ -204,8 +204,8 @@ export function StyleSelector({
             key={style.id}
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStyle === style.id 
-                ? 'ring-2 ring-blue-500 bg-blue-50' 
-                : 'hover:bg-gray-50'
+                ? 'ring-2 ring-blue-500 bg-accent' 
+                : 'hover:bg-accent'
             }`}
             onClick={() => handleStyleChange(style.id)}
           >
@@ -216,7 +216,7 @@ export function StyleSelector({
                   <CardTitle className="text-base">{style.name}</CardTitle>
                 </div>
                 {selectedStyle === style.id && (
-                  <Check className="h-4 w-4 text-blue-500" />
+                  <Check className="h-4 w-4 text-primary" />
                 )}
               </div>
               <CardDescription className="text-sm">
@@ -259,7 +259,7 @@ export function StyleSelector({
 
       {/* 当前选中风格的详细信息 */}
       {selectedStyleInfo && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-accent rounded-lg">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-xl">{selectedStyleInfo.icon}</span>
             <h4 className="font-medium">当前风格：{selectedStyleInfo.name}</h4>
@@ -288,7 +288,7 @@ export function StyleSelector({
             
             <div>
               <h5 className="font-medium mb-2">适用场景</h5>
-              <div className="text-sm text-gray-600 space-y-1">
+              <div className="text-sm text-muted-foreground space-y-1">
                 {selectedStyle === 'professional' && (
                   <>
                     <div>• 专业报告和行业分析</div>

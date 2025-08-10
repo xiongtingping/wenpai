@@ -186,7 +186,7 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
               className="min-h-[120px] resize-none"
               disabled={loading}
             />
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>
                 {content.length >= 5 ? '✅' : '⚠️'} 
                 {content.length} 字符 {content.length < 5 && '(至少需要5个字符)'}
@@ -332,19 +332,19 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">总请求数:</span>
+                          <span className="text-muted-foreground">总请求数:</span>
                           <span className="font-medium">{stats.totalRequests}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">成功率:</span>
-                          <span className="font-medium text-green-600">
+                          <span className="text-muted-foreground">成功率:</span>
+                          <span className="font-medium text-foreground">
                             {stats.totalRequests > 0 
                               ? ((stats.successfulRequests / stats.totalRequests) * 100).toFixed(1)
                               : 0}%
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">平均响应时间:</span>
+                          <span className="text-muted-foreground">平均响应时间:</span>
                           <span className="font-medium">
                             {stats.averageResponseTime.toFixed(0)}ms
                           </span>
@@ -352,17 +352,17 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">缓存命中率:</span>
-                          <span className="font-medium text-blue-600">
+                          <span className="text-muted-foreground">缓存命中率:</span>
+                          <span className="font-medium text-primary">
                             {(stats.cacheHitRate * 100).toFixed(1)}%
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">常用平台:</span>
+                          <span className="text-muted-foreground">常用平台:</span>
                           <span className="font-medium">{stats.mostUsedPlatform}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">常用模型:</span>
+                          <span className="text-muted-foreground">常用模型:</span>
                           <span className="font-medium">{stats.mostUsedModel}</span>
                         </div>
                       </div>
@@ -370,7 +370,7 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
                   </CardContent>
                 </Card>
               ) : (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   <BarChart3 className="w-8 h-8 mx-auto mb-2" />
                   <p>暂无统计数据</p>
                 </div>
@@ -382,14 +382,14 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
 
       {/* 选中标题显示 */}
       {selectedTitle && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-border bg-accent">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <Lightbulb className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="font-medium text-blue-900 mb-1">已选择标题</h4>
                 <p className="text-blue-800 mb-2">{selectedTitle.title}</p>
-                <div className="flex gap-4 text-xs text-blue-600">
+                <div className="flex gap-4 text-xs text-primary">
                   <span>评分: {(selectedTitle.overallScore * 100).toFixed(0)}%</span>
                   <span>风格: {selectedTitle.style}</span>
                   <span>长度: {selectedTitle.length}字符</span>
@@ -399,7 +399,7 @@ export const TitleGenerator = memo<TitleGeneratorProps>(({
                 variant="outline"
                 size="sm"
                 onClick={() => handleTitleCopy(selectedTitle.title)}
-                className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                className="border-blue-300 text-primary hover:bg-accent"
               >
                 复制
               </Button>

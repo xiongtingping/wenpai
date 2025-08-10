@@ -70,13 +70,13 @@ const RouteTestPage: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">路由测试页面</h1>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-accent border border-border rounded-lg p-4">
             <h2 className="font-semibold text-blue-800 mb-2">当前状态</h2>
-            <p className="text-blue-700">
+            <p className="text-primary">
               认证状态: {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}
             </p>
             {user && (
-              <p className="text-blue-700">
+              <p className="text-primary">
                 用户: {user.nickname || user.username || user.email}
               </p>
             )}
@@ -87,7 +87,7 @@ const RouteTestPage: React.FC = () => {
           {/* 公开路由 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-green-600">公开路由</CardTitle>
+              <CardTitle className="text-foreground">公开路由</CardTitle>
               <CardDescription>无需认证即可访问</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -108,7 +108,7 @@ const RouteTestPage: React.FC = () => {
           {/* 需要认证的路由 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-blue-600">认证路由</CardTitle>
+              <CardTitle className="text-primary">认证路由</CardTitle>
               <CardDescription>需要登录后访问</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -129,7 +129,7 @@ const RouteTestPage: React.FC = () => {
           {/* 支付相关路由 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-purple-600">支付路由</CardTitle>
+              <CardTitle className="text-primary">支付路由</CardTitle>
               <CardDescription>支付相关页面</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -151,7 +151,7 @@ const RouteTestPage: React.FC = () => {
         {/* 功能测试 */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-orange-600">功能测试</CardTitle>
+            <CardTitle className="text-foreground">功能测试</CardTitle>
             <CardDescription>测试认证和导航功能</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -167,7 +167,7 @@ const RouteTestPage: React.FC = () => {
                       navigate('/login');
                     }
                   }}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-primary hover:bg-blue-700"
                 >
                   测试登录
                 </Button>

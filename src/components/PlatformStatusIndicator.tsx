@@ -74,11 +74,11 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
 
   const platform = platformConfig[platformId as keyof typeof platformConfig];
   const colorClasses = {
-    red: 'from-red-50 to-red-100 border-red-200 text-red-700',
-    orange: 'from-orange-50 to-orange-100 border-orange-200 text-orange-700',
-    blue: 'from-blue-50 to-blue-100 border-blue-200 text-blue-700',
-    green: 'from-green-50 to-green-100 border-green-200 text-green-700',
-    purple: 'from-purple-50 to-purple-100 border-purple-200 text-purple-700',
+    red: 'from-red-50 to-red-100 border-border text-destructive',
+    orange: 'from-orange-50 to-orange-100 border-orange-200 text-foreground',
+    blue: 'from-blue-50 to-blue-100 border-border text-primary',
+    green: 'from-green-50 to-green-100 border-border text-green-700',
+    purple: 'from-purple-50 to-purple-100 border-purple-200 text-primary',
     pink: 'from-pink-50 to-pink-100 border-pink-200 text-pink-700'
   };
 
@@ -111,9 +111,9 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
       case 'generating':
         return <Brain className={`w-5 h-5 transition-all duration-500 ${pulseActive ? 'scale-110' : 'scale-100'}`} />;
       case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="w-5 h-5 text-foreground" />;
       case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-600" />;
+        return <AlertCircle className="w-5 h-5 text-destructive" />;
       default:
         return <Zap className="w-5 h-5" />;
     }
@@ -135,8 +135,8 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   };
 
   const getBgClasses = () => {
-    if (status === 'success') return 'from-green-50 to-green-100 border-green-200';
-    if (status === 'error') return 'from-red-50 to-red-100 border-red-200';
+    if (status === 'success') return 'from-green-50 to-green-100 border-border';
+    if (status === 'error') return 'from-red-50 to-red-100 border-border';
     return colorClasses[platform?.color as keyof typeof colorClasses] || colorClasses.blue;
   };
 
@@ -196,7 +196,7 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
       {/* 进度条（仅在生成时显示，水平布局） */}
       {status === 'generating' && (
         <div className="mt-2">
-          <div className="w-full h-1 bg-white/50 rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-card/50 rounded-full overflow-hidden">
             <div
               className="h-full bg-current rounded-full transition-all duration-1000 ease-out"
               style={{
@@ -211,7 +211,7 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
       {/* 成功状态的庆祝效果 */}
       {status === 'success' && (
         <div className="absolute -top-1 -right-1">
-          <div className="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+          <div className="w-3 h-3 bg-accent0 rounded-full animate-ping"></div>
         </div>
       )}
 

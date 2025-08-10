@@ -20,7 +20,7 @@ export const TitleList = memo<TitleListProps>(({
 }) => {
   if (titles.length === 0) {
     return (
-      <div className={cn("text-center py-8 text-gray-500", className)}>
+      <div className={cn("text-center py-8 text-muted-foreground", className)}>
         <div className="text-4xl mb-2">📝</div>
         <p>暂无生成的标题</p>
         <p className="text-sm mt-1">请输入内容并点击生成按钮</p>
@@ -38,9 +38,9 @@ export const TitleList = memo<TitleListProps>(({
   };
 
   const getScoreColor = (score: number): string => {
-    if (score >= 0.8) return 'text-green-600';
-    if (score >= 0.6) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 0.8) return 'text-foreground';
+    if (score >= 0.6) return 'text-foreground';
+    return 'text-destructive';
   };
 
   const getScoreBadgeVariant = (score: number): "default" | "secondary" | "destructive" | "outline" => {
@@ -95,7 +95,7 @@ const TitleCard = memo<TitleCardProps>(({
 }) => {
   return (
     <Card 
-      className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-blue-300"
+      className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50"
       onClick={onSelect}
     >
       <CardContent className="p-4">
@@ -109,17 +109,17 @@ const TitleCard = memo<TitleCardProps>(({
               <Badge variant="secondary" className="text-xs">
                 {title.style}
               </Badge>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {title.length}字
               </span>
             </div>
             
-            <h3 className="font-medium text-gray-900 leading-relaxed mb-2 break-words">
+            <h3 className="font-medium text-foreground leading-relaxed mb-2 break-words">
               {title.title}
             </h3>
             
             {title.generationReason && (
-              <p className="text-xs text-gray-500 mb-2 line-clamp-2">
+              <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                 💡 {title.generationReason}
               </p>
             )}
@@ -135,21 +135,21 @@ const TitleCard = memo<TitleCardProps>(({
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <span className="text-gray-400">语义:</span>
+                  <span className="text-muted-foreground">语义:</span>
                   <span className={getScoreColor(title.semanticFit)}>
                     {formatScore(title.semanticFit)}%
                   </span>
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <span className="text-gray-400">情感:</span>
+                  <span className="text-muted-foreground">情感:</span>
                   <span className={getScoreColor(title.emotionalScore)}>
                     {formatScore(title.emotionalScore)}%
                   </span>
                 </div>
                 
                 <div className="flex items-center gap-1">
-                  <span className="text-gray-400">完整:</span>
+                  <span className="text-muted-foreground">完整:</span>
                   <span className={getScoreColor(title.semanticCompleteness)}>
                     {formatScore(title.semanticCompleteness)}%
                   </span>
@@ -187,13 +187,13 @@ const TitleCard = memo<TitleCardProps>(({
           <div className="mt-3 pt-3 border-t border-gray-100">
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-gray-500">结构多样性:</span>
+                <span className="text-muted-foreground">结构多样性:</span>
                 <span className={getScoreColor(title.diversityScore)}>
                   {formatScore(title.diversityScore)}%
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">字符利用率:</span>
+                <span className="text-muted-foreground">字符利用率:</span>
                 <span className={getScoreColor(title.utilizationScore)}>
                   {formatScore(title.utilizationScore)}%
                 </span>

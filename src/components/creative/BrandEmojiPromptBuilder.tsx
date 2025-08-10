@@ -420,7 +420,7 @@ export default function BrandEmojiPromptBuilder({
                 <div
                   key={prompt.emotion}
                   className={`p-4 border rounded-lg transition-colors ${
-                    prompt.selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                    prompt.selected ? 'border-primary bg-accent' : 'border-border'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -443,7 +443,7 @@ export default function BrandEmojiPromptBuilder({
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                     {prompt.prompt}
                   </p>
                 </div>
@@ -454,7 +454,7 @@ export default function BrandEmojiPromptBuilder({
 
         {/* 操作按钮 */}
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             已选择 {prompts.filter(p => p.selected).length} / {prompts.length} 个表情
           </div>
           <Button
@@ -468,7 +468,7 @@ export default function BrandEmojiPromptBuilder({
         </div>
 
         {/* 提示信息 */}
-        <div className="text-xs text-gray-500 space-y-1">
+        <div className="text-xs text-muted-foreground space-y-1">
           <p>💡 提示：</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>系统预设了30种常用表情，您可以选择需要的表情进行生成</li>

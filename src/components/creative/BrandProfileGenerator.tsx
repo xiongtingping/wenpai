@@ -268,10 +268,10 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
             htmlFor="brand-files"
             className="cursor-pointer flex flex-col items-center justify-center"
           >
-            <Upload className="h-12 w-12 text-gray-400 mb-4" />
-            <div className="text-sm text-gray-600">
+            <Upload className="h-12 w-12 text-muted-foreground mb-4" />
+            <div className="text-sm text-muted-foreground">
               点击或拖拽上传品牌资料文件
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 支持多种文件格式，AI 将自动提取文本内容进行分析
               </p>
             </div>
@@ -280,28 +280,28 @@ export default function BrandProfileGenerator({ onProfileGenerated, existingProf
 
         {/* 支持的文件类型说明 */}
         <div className="space-y-3">
-          <h4 className="text-sm font-medium text-gray-700">支持的文件类型：</h4>
+          <h4 className="text-sm font-medium text-foreground">支持的文件类型：</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {supportedFileTypes.map((fileType) => (
-              <div key={fileType.extension} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                {fileType.extension === '.txt' && <FileType className="h-4 w-4 text-blue-500" />}
-                {fileType.extension === '.md' && <FileText className="h-4 w-4 text-green-500" />}
-                {fileType.extension === '.pdf' && <FileText className="h-4 w-4 text-red-500" />}
-                {fileType.extension === '.docx' && <FileText className="h-4 w-4 text-blue-600" />}
-                {fileType.extension === '.doc' && <FileText className="h-4 w-4 text-blue-600" />}
-                {fileType.extension === '.xlsx' && <FileSpreadsheet className="h-4 w-4 text-green-600" />}
-                {fileType.extension === '.xls' && <FileSpreadsheet className="h-4 w-4 text-green-600" />}
-                {fileType.extension === '.pptx' && <Presentation className="h-4 w-4 text-orange-600" />}
-                {fileType.extension === '.ppt' && <Presentation className="h-4 w-4 text-orange-600" />}
+              <div key={fileType.extension} className="flex items-center gap-2 p-2 bg-accent rounded-lg">
+                {fileType.extension === '.txt' && <FileType className="h-4 w-4 text-primary" />}
+                {fileType.extension === '.md' && <FileText className="h-4 w-4 text-foreground" />}
+                {fileType.extension === '.pdf' && <FileText className="h-4 w-4 text-destructive" />}
+                {fileType.extension === '.docx' && <FileText className="h-4 w-4 text-primary" />}
+                {fileType.extension === '.doc' && <FileText className="h-4 w-4 text-primary" />}
+                {fileType.extension === '.xlsx' && <FileSpreadsheet className="h-4 w-4 text-foreground" />}
+                {fileType.extension === '.xls' && <FileSpreadsheet className="h-4 w-4 text-foreground" />}
+                {fileType.extension === '.pptx' && <Presentation className="h-4 w-4 text-foreground" />}
+                {fileType.extension === '.ppt' && <Presentation className="h-4 w-4 text-foreground" />}
                 {(fileType.extension === '.jpg' || fileType.extension === '.jpeg' || 
                   fileType.extension === '.png' || fileType.extension === '.gif' || 
                   fileType.extension === '.bmp' || fileType.extension === '.webp') && 
-                  <Image className="h-4 w-4 text-purple-500" />
+                  <Image className="h-4 w-4 text-primary" />
                 }
                 <Badge variant="outline" className="text-xs">
                   {fileType.extension}
                 </Badge>
-                <span className="text-xs text-gray-600">{fileType.description}</span>
+                <span className="text-xs text-muted-foreground">{fileType.description}</span>
               </div>
             ))}
           </div>

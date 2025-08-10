@@ -123,7 +123,7 @@ export default function TitleSemanticTestPage() {
                 <Card 
                   key={testCase.id} 
                   className={`cursor-pointer transition-all ${
-                    selectedCase.id === testCase.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                    selectedCase.id === testCase.id ? 'ring-2 ring-blue-500 bg-accent' : 'hover:bg-accent'
                   }`}
                   onClick={() => handleCaseSelect(testCase)}
                 >
@@ -131,7 +131,7 @@ export default function TitleSemanticTestPage() {
                     <CardTitle className="text-sm">{testCase.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-xs text-gray-600 mb-2">
+                    <p className="text-xs text-muted-foreground mb-2">
                       {testCase.content.substring(0, 100)}...
                     </p>
                     <div className="flex flex-wrap gap-1">
@@ -155,7 +155,7 @@ export default function TitleSemanticTestPage() {
                 <Textarea
                   value={selectedCase.content}
                   readOnly
-                  className="min-h-[200px] bg-gray-50"
+                  className="min-h-[200px] bg-accent"
                 />
               </div>
 
@@ -193,7 +193,7 @@ export default function TitleSemanticTestPage() {
               <h3 className="text-lg font-semibold">生成结果分析</h3>
               
               {generatedTitles.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   点击生成标题开始测试
                 </div>
               ) : (
@@ -212,10 +212,10 @@ export default function TitleSemanticTestPage() {
                           
                           {analysis.strengths.length > 0 && (
                             <div className="mb-2">
-                              <p className="text-sm font-medium text-green-600 mb-1">✅ 优点：</p>
+                              <p className="text-sm font-medium text-foreground mb-1">✅ 优点：</p>
                               <div className="flex flex-wrap gap-1">
                                 {analysis.strengths.map(strength => (
-                                  <Badge key={strength} variant="secondary" className="text-xs bg-green-100 text-green-700">
+                                  <Badge key={strength} variant="secondary" className="text-xs bg-accent text-green-700">
                                     {strength}
                                   </Badge>
                                 ))}
@@ -225,7 +225,7 @@ export default function TitleSemanticTestPage() {
                           
                           {analysis.issues.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-red-600 mb-1">❌ 问题：</p>
+                              <p className="text-sm font-medium text-destructive mb-1">❌ 问题：</p>
                               <div className="flex flex-wrap gap-1">
                                 {analysis.issues.map(issue => (
                                   <Badge key={issue} variant="destructive" className="text-xs">
@@ -245,9 +245,9 @@ export default function TitleSemanticTestPage() {
           </div>
 
           {/* 修复说明 */}
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-semibold text-blue-800 mb-2">🔧 修复内容说明</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
+            <ul className="text-sm text-primary space-y-1">
               <li>• <strong>语义完整性检查</strong>：确保"我用X后Y"的Y部分完整</li>
               <li>• <strong>具体对象提取</strong>：优先使用具体工具名而非泛化词汇</li>
               <li>• <strong>量化效果保留</strong>：保持具体的数据和效果描述</li>

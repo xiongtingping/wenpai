@@ -121,13 +121,13 @@ export const TestLoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-accent py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow rounded-lg p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">🔐 登录功能测试</h1>
+        <div className="bg-card shadow rounded-lg p-6">
+          <h1 className="text-3xl font-bold text-foreground mb-8">🔐 登录功能测试</h1>
           
           {/* 当前状态 */}
-          <div className="mb-8 p-4 bg-blue-50 rounded-lg">
+          <div className="mb-8 p-4 bg-accent rounded-lg">
             <h2 className="text-lg font-semibold text-blue-900 mb-2">当前状态</h2>
             <div className="space-y-1 text-sm">
               <p><strong>认证状态:</strong> {isAuthenticated ? '✅ 已登录' : '❌ 未登录'}</p>
@@ -139,7 +139,7 @@ export const TestLoginPage: React.FC = () => {
           <div className="mb-8 space-x-4">
             <button
               onClick={testLogin}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               🔐 测试登录弹窗
             </button>
@@ -170,7 +170,7 @@ export const TestLoginPage: React.FC = () => {
           <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
             <h3 className="text-white font-semibold mb-2">测试日志:</h3>
             {testResults.length === 0 ? (
-              <p className="text-gray-500">点击上方按钮开始测试...</p>
+              <p className="text-muted-foreground">点击上方按钮开始测试...</p>
             ) : (
               testResults.map((result, index) => (
                 <div key={index} className="mb-1">
@@ -181,7 +181,7 @@ export const TestLoginPage: React.FC = () => {
           </div>
 
           {/* 说明 */}
-          <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
+          <div className="mt-8 p-4 bg-accent rounded-lg">
             <h3 className="text-lg font-semibold text-yellow-900 mb-2">测试说明</h3>
             <ul className="text-sm text-yellow-800 space-y-1">
               <li>• <strong>测试登录弹窗:</strong> 调用登录函数，检查是否显示 Authing Guard 弹窗</li>

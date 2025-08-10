@@ -147,7 +147,7 @@ export default function TitleAntiTemplateTestPage() {
                 <Card 
                   key={testCase.id} 
                   className={`cursor-pointer transition-all ${
-                    selectedCase.id === testCase.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                    selectedCase.id === testCase.id ? 'ring-2 ring-blue-500 bg-accent' : 'hover:bg-accent'
                   }`}
                   onClick={() => handleCaseSelect(testCase)}
                 >
@@ -155,17 +155,17 @@ export default function TitleAntiTemplateTestPage() {
                     <CardTitle className="text-sm">{testCase.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-xs text-gray-600 mb-2">
+                    <p className="text-xs text-muted-foreground mb-2">
                       {testCase.content.substring(0, 100)}...
                     </p>
                     <div className="space-y-1">
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         核心对象: {testCase.expectedDimensions.coreObjects.length}个
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         使用场景: {testCase.expectedDimensions.useScenarios.length}个
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         用户痛点: {testCase.expectedDimensions.userPainPoints.length}个
                       </div>
                     </div>
@@ -183,7 +183,7 @@ export default function TitleAntiTemplateTestPage() {
                 <Textarea
                   value={selectedCase.content}
                   readOnly
-                  className="min-h-[200px] bg-gray-50"
+                  className="min-h-[200px] bg-accent"
                 />
               </div>
 
@@ -246,7 +246,7 @@ export default function TitleAntiTemplateTestPage() {
               <h3 className="text-lg font-semibold">反模板化检测结果</h3>
               
               {testResults.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted-foreground">
                   点击生成标题开始检测
                 </div>
               ) : (
@@ -254,7 +254,7 @@ export default function TitleAntiTemplateTestPage() {
                   {testResults.map((result, index) => {
                     const qualityScore = getQualityScore(result);
                     return (
-                      <Card key={index} className={`${qualityScore >= 80 ? 'border-green-200 bg-green-50' : qualityScore >= 60 ? 'border-yellow-200 bg-yellow-50' : 'border-red-200 bg-red-50'}`}>
+                      <Card key={index} className={`${qualityScore >= 80 ? 'border-border bg-accent' : qualityScore >= 60 ? 'border-border bg-accent' : 'border-border bg-accent'}`}>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm font-medium flex items-center justify-between">
                             标题 {index + 1}
@@ -274,12 +274,12 @@ export default function TitleAntiTemplateTestPage() {
                                 <Badge variant="destructive" className="text-xs mb-1">
                                   检测到{result.templateCheck.detectedPatterns.length}个模板化句型
                                 </Badge>
-                                <div className="text-xs text-red-600">
+                                <div className="text-xs text-destructive">
                                   {result.templateCheck.detectedPatterns.join('、')}
                                 </div>
                               </div>
                             ) : (
-                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                              <Badge variant="secondary" className="text-xs bg-accent text-green-700">
                                 ✅ 无模板化行为
                               </Badge>
                             )}
@@ -290,12 +290,12 @@ export default function TitleAntiTemplateTestPage() {
                             <p className="text-sm font-medium mb-1">✅ 维度覆盖:</p>
                             <div className="flex flex-wrap gap-1 mb-1">
                               {result.dimensionCheck.coveredDimensions.map((dim: string) => (
-                                <Badge key={dim} variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                                <Badge key={dim} variant="secondary" className="text-xs bg-accent text-primary">
                                   {dim}
                                 </Badge>
                               ))}
                             </div>
-                            <div className="text-xs text-gray-600">
+                            <div className="text-xs text-muted-foreground">
                               覆盖率: {result.dimensionCheck.coverageScore * 100}% 
                               {result.dimensionCheck.isQualified ? ' ✅' : ' ❌ (需≥2个维度)'}
                             </div>
@@ -310,7 +310,7 @@ export default function TitleAntiTemplateTestPage() {
           </div>
 
           {/* 禁止模板说明 */}
-          <div className="bg-red-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-semibold text-red-800 mb-2">🚫 严禁模板化句型</h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {prohibitedPatterns.map(pattern => (
@@ -319,18 +319,18 @@ export default function TitleAntiTemplateTestPage() {
                 </Badge>
               ))}
             </div>
-            <p className="text-sm text-red-700 mt-2">
+            <p className="text-sm text-destructive mt-2">
               超过2处使用以上句型将被视为"偏离主旨模板化行为"并重新生成
             </p>
           </div>
 
           {/* 维度要求说明 */}
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-accent p-4 rounded-lg">
             <h4 className="font-semibold text-blue-800 mb-2">✅ 维度覆盖要求</h4>
-            <p className="text-sm text-blue-700 mb-2">
+            <p className="text-sm text-primary mb-2">
               生成的标题必须覆盖以下维度中的<strong>至少2个</strong>：
             </p>
-            <ul className="text-sm text-blue-700 space-y-1">
+            <ul className="text-sm text-primary space-y-1">
               <li>• <strong>核心对象</strong>：具体产品名（如"内容适配器"、"平台风格调整工具"）</li>
               <li>• <strong>使用场景</strong>：具体应用场景（如"公众号发文"、"小红书写文案"）</li>
               <li>• <strong>用户痛点</strong>：具体问题（如"调性不一致"、"改写太累"、"运营效率低"）</li>

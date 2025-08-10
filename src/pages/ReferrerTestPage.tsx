@@ -184,7 +184,7 @@ export default function ReferrerTestPage() {
         <Button
           variant="ghost"
           onClick={() => navigate('/')}
-          className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800"
+          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           返回首页
@@ -193,7 +193,7 @@ export default function ReferrerTestPage() {
         <Card className="shadow-xl">
           <CardHeader>
             <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <Gift className="h-6 w-6 text-green-600" />
+              <Gift className="h-6 w-6 text-foreground" />
               推荐人ID测试页面
             </CardTitle>
             <CardDescription>
@@ -204,20 +204,20 @@ export default function ReferrerTestPage() {
             
             {/* 当前状态 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="border-2 border-blue-200">
+              <Card className="border-2 border-border">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">当前状态</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">URL包含推荐人参数:</span>
+                    <span className="text-sm text-muted-foreground">URL包含推荐人参数:</span>
                     <Badge variant={hasReferrerParam ? "default" : "secondary"}>
                       {hasReferrerParam ? "是" : "否"}
                     </Badge>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">localStorage推荐人ID:</span>
+                    <span className="text-sm text-muted-foreground">localStorage推荐人ID:</span>
                     <div className="flex items-center gap-2">
                       {currentReferrerId ? (
                         <>
@@ -239,7 +239,7 @@ export default function ReferrerTestPage() {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">URL推荐人ID:</span>
+                    <span className="text-sm text-muted-foreground">URL推荐人ID:</span>
                     <div className="flex items-center gap-2">
                       {urlReferrerId ? (
                         <>
@@ -261,7 +261,7 @@ export default function ReferrerTestPage() {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">临时用户ID:</span>
+                    <span className="text-sm text-muted-foreground">临时用户ID:</span>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-xs font-mono">
                         {tempUserId}
@@ -291,7 +291,7 @@ export default function ReferrerTestPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="text-sm text-gray-600 mb-2 block">测试推荐人ID</label>
+                    <label className="text-sm text-muted-foreground mb-2 block">测试推荐人ID</label>
                     <div className="flex items-center gap-2">
                       <Input 
                         value={testReferrerId}
@@ -325,7 +325,7 @@ export default function ReferrerTestPage() {
                   
                   {validationResult !== null && (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600">验证结果:</span>
+                      <span className="text-sm text-muted-foreground">验证结果:</span>
                       <Badge variant={validationResult ? "default" : "destructive"}>
                         {validationResult ? "有效" : "无效"}
                       </Badge>
@@ -334,7 +334,7 @@ export default function ReferrerTestPage() {
                   
                   {processedStatus !== null && (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600">处理状态:</span>
+                      <span className="text-sm text-muted-foreground">处理状态:</span>
                       <Badge variant={processedStatus ? "default" : "secondary"}>
                         {processedStatus ? "已处理" : "未处理"}
                       </Badge>
@@ -398,7 +398,7 @@ export default function ReferrerTestPage() {
                   {['user123', 'invite456', 'test789'].map((id) => (
                     <div key={id} className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-500" />
+                        <User className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">推荐人ID: {id}</span>
                       </div>
                       <div className="flex gap-2">
@@ -442,10 +442,10 @@ export default function ReferrerTestPage() {
               <CardContent>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {Object.entries(localStorageData).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm font-mono text-gray-700">{key}</span>
+                    <div key={key} className="flex items-center justify-between p-2 bg-accent rounded">
+                      <span className="text-sm font-mono text-foreground">{key}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500 max-w-40 truncate">
+                        <span className="text-xs text-muted-foreground max-w-40 truncate">
                           {value}
                         </span>
                         <Button

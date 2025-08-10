@@ -179,33 +179,33 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
   // 获取维度颜色
   const getDimensionColor = (dimension: string) => {
     const colors: Record<string, string> = {
-      'industry': 'bg-blue-100 text-blue-800',
-      'topic': 'bg-green-100 text-green-800',
-      'content': 'bg-purple-100 text-purple-800',
-      'account': 'bg-orange-100 text-orange-800',
-      'persona': 'bg-pink-100 text-pink-800',
-      'trending': 'bg-red-100 text-red-800',
-      'brand': 'bg-yellow-100 text-yellow-800',
-      'custom': 'bg-gray-100 text-gray-800',
-      'template': 'bg-indigo-100 text-indigo-800'
+      'industry': 'bg-accent text-blue-800',
+      'topic': 'bg-accent text-green-800',
+      'content': 'bg-accent text-purple-800',
+      'account': 'bg-accent text-orange-800',
+      'persona': 'bg-accent text-pink-800',
+      'trending': 'bg-destructive/10 text-red-800',
+      'brand': 'bg-accent text-yellow-800',
+      'custom': 'bg-accent text-foreground',
+      'template': 'bg-accent text-indigo-800'
     };
-    return colors[dimension] || 'bg-gray-100 text-gray-800';
+    return colors[dimension] || 'bg-accent text-foreground';
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+    <div className="bg-card rounded-lg border border-border p-6 space-y-6">
       {/* 标题和控制按钮 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Tag className="h-6 w-6 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">智能标签管理</h3>
-          <span className="text-sm text-gray-500">({tags.length}个标签)</span>
+          <Tag className="h-6 w-6 text-primary" />
+          <h3 className="text-lg font-semibold text-foreground">智能标签管理</h3>
+          <span className="text-sm text-muted-foreground">({tags.length}个标签)</span>
         </div>
         
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowTemplates(!showTemplates)}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+            className="p-2 text-muted-foreground hover:text-muted-foreground rounded-lg hover:bg-accent"
             title="模板管理"
           >
             <Star className="h-4 w-4" />
@@ -213,7 +213,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           
           <button
             onClick={resetTags}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+            className="p-2 text-muted-foreground hover:text-muted-foreground rounded-lg hover:bg-accent"
             title="重置标签"
           >
             <RotateCcw className="h-4 w-4" />
@@ -222,7 +222,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           <button
             id="copy-all-btn"
             onClick={copyAllTags}
-            className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center space-x-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Copy className="h-4 w-4" />
             <span>复制全部</span>
@@ -232,8 +232,8 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
 
       {/* 模板管理面板 */}
       {showTemplates && (
-        <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-          <h4 className="font-medium text-gray-900">标签模板</h4>
+        <div className="bg-accent rounded-lg p-4 space-y-4">
+          <h4 className="font-medium text-foreground">标签模板</h4>
           
           {/* 保存新模板 */}
           <div className="flex items-center space-x-2">
@@ -242,7 +242,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
               placeholder="输入模板名称"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-primary focus:border-primary"
             />
             <button
               onClick={saveAsTemplate}
@@ -256,23 +256,23 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           {/* 模板列表 */}
           <div className="space-y-2 max-h-40 overflow-y-auto">
             {templates.map(template => (
-              <div key={template.id} className="flex items-center justify-between p-2 bg-white rounded border">
+              <div key={template.id} className="flex items-center justify-between p-2 bg-card rounded border">
                 <div className="flex-1">
                   <div className="font-medium text-sm">{template.name}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {template.tags.length}个标签 • 使用{template.usageCount}次
                   </div>
                 </div>
                 <div className="flex items-center space-x-1">
                   <button
                     onClick={() => applyTemplate(template)}
-                    className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-blue-700"
                   >
                     应用
                   </button>
                   <button
                     onClick={() => deleteTemplate(template.id)}
-                    className="p-1 text-gray-400 hover:text-red-600 rounded"
+                    className="p-1 text-muted-foreground hover:text-destructive rounded"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
@@ -281,7 +281,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
             ))}
             
             {templates.length === 0 && (
-              <div className="text-center text-gray-500 text-sm py-4">
+              <div className="text-center text-muted-foreground text-sm py-4">
                 暂无保存的模板
               </div>
             )}
@@ -291,7 +291,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
 
       {/* 标签显示和编辑区域 */}
       <div className="space-y-4">
-        <h4 className="font-medium text-gray-900">当前标签</h4>
+        <h4 className="font-medium text-foreground">当前标签</h4>
         
         {/* 标签列表 */}
         <div className="flex flex-wrap gap-2">
@@ -346,11 +346,11 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
                 }
               }}
               placeholder="添加标签"
-              className="px-2 py-1 border border-gray-300 rounded text-sm w-24 focus:ring-blue-500 focus:border-blue-500"
+              className="px-2 py-1 border border-border rounded text-sm w-24 focus:ring-primary focus:border-primary"
             />
             <button
               onClick={addNewTag}
-              className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+              className="p-1 text-primary hover:bg-accent rounded"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -358,7 +358,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
         </div>
 
         {/* 标签统计 */}
-        <div className="text-xs text-gray-500 space-y-1">
+        <div className="text-xs text-muted-foreground space-y-1">
           <div>维度分布: {Object.entries(
             tags.reduce((acc, tag) => {
               acc[tag.dimension] = (acc[tag.dimension] || 0) + 1;
@@ -369,7 +369,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
       </div>
 
       {/* 操作提示 */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+      <div className="bg-accent border border-border rounded-lg p-3">
         <div className="text-sm text-blue-800">
           <strong>💡 使用提示：</strong>
           <ul className="mt-1 space-y-1 text-xs">

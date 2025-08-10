@@ -264,7 +264,7 @@ export default function CreemAutoTestPage() {
                 <Button 
                   onClick={startAutoTest}
                   disabled={isRunning}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-blue-700 text-white"
                 >
                   {isRunning ? '测试中...' : '开始自动测试'}
                 </Button>
@@ -300,21 +300,21 @@ export default function CreemAutoTestPage() {
               {/* 统计信息 */}
               {testResults.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-2xl font-bold text-blue-600">{successCount}</div>
-                    <div className="text-sm text-gray-600">成功次数</div>
+                  <div className="bg-card p-4 rounded-lg border">
+                    <div className="text-2xl font-bold text-primary">{successCount}</div>
+                    <div className="text-sm text-muted-foreground">成功次数</div>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-2xl font-bold text-red-600">{failureCount}</div>
-                    <div className="text-sm text-gray-600">失败次数</div>
+                  <div className="bg-card p-4 rounded-lg border">
+                    <div className="text-2xl font-bold text-destructive">{failureCount}</div>
+                    <div className="text-sm text-muted-foreground">失败次数</div>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-2xl font-bold text-green-600">{getSuccessRate()}%</div>
-                    <div className="text-sm text-gray-600">成功率</div>
+                  <div className="bg-card p-4 rounded-lg border">
+                    <div className="text-2xl font-bold text-foreground">{getSuccessRate()}%</div>
+                    <div className="text-sm text-muted-foreground">成功率</div>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border">
-                    <div className="text-2xl font-bold text-purple-600">{testResults.length}</div>
-                    <div className="text-sm text-gray-600">总测试数</div>
+                  <div className="bg-card p-4 rounded-lg border">
+                    <div className="text-2xl font-bold text-primary">{testResults.length}</div>
+                    <div className="text-sm text-muted-foreground">总测试数</div>
                   </div>
                 </div>
               )}
@@ -330,10 +330,10 @@ export default function CreemAutoTestPage() {
                       <div>
                         <h4 className="font-medium mb-2">最佳API调用方法</h4>
                         <div className="text-sm">
-                          <div className="font-mono bg-gray-100 p-2 rounded">
+                          <div className="font-mono bg-accent p-2 rounded">
                             {getBestMethod().method}
                           </div>
-                          <div className="text-green-600 mt-1">
+                          <div className="text-foreground mt-1">
                             成功率: {getBestMethod().rate}%
                           </div>
                         </div>
@@ -341,10 +341,10 @@ export default function CreemAutoTestPage() {
                       <div>
                         <h4 className="font-medium mb-2">最佳产品ID</h4>
                         <div className="text-sm">
-                          <div className="font-mono bg-gray-100 p-2 rounded">
+                          <div className="font-mono bg-accent p-2 rounded">
                             {getBestProduct().productId}
                           </div>
-                          <div className="text-green-600 mt-1">
+                          <div className="text-foreground mt-1">
                             成功率: {getBestProduct().rate}%
                           </div>
                         </div>
@@ -366,7 +366,7 @@ export default function CreemAutoTestPage() {
             <CardContent>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {testResults.map((result, index) => (
-                  <div key={index} className="border rounded-lg p-3 bg-white">
+                  <div key={index} className="border rounded-lg p-3 bg-card">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">第{result.round}轮</span>
@@ -374,27 +374,27 @@ export default function CreemAutoTestPage() {
                           {result.success ? '成功' : '失败'}
                         </Badge>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {result.duration}ms
                       </div>
                     </div>
                     
-                    <div className="text-sm text-gray-600 mb-1">
+                    <div className="text-sm text-muted-foreground mb-1">
                       <div>方法: {result.method}</div>
                       <div>产品ID: <span className="font-mono">{result.productId}</span></div>
                       <div>时间: {new Date(result.timestamp).toLocaleString()}</div>
                     </div>
                     
                     {!result.success && result.error && (
-                      <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
+                      <div className="text-xs text-destructive bg-accent p-2 rounded">
                         <strong>错误:</strong> {result.error}
                       </div>
                     )}
                     
                     {result.success && result.data && (
                       <details className="text-xs">
-                        <summary className="cursor-pointer text-green-600">查看响应数据</summary>
-                        <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
+                        <summary className="cursor-pointer text-foreground">查看响应数据</summary>
+                        <pre className="mt-2 p-2 bg-accent rounded overflow-auto">
                           {JSON.stringify(result.data, null, 2)}
                         </pre>
                       </details>

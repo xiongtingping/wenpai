@@ -150,17 +150,17 @@ export default function PaymentStatusTestPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'paid':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-foreground" />;
       case 'processing':
-        return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />;
+        return <RefreshCw className="h-4 w-4 text-primary animate-spin" />;
       case 'pending':
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+        return <AlertCircle className="h-4 w-4 text-foreground" />;
       case 'failed':
       case 'expired':
       case 'cancelled':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />;
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -168,30 +168,30 @@ export default function PaymentStatusTestPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-100 text-green-800';
+        return 'bg-accent text-green-800';
       case 'processing':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-accent text-blue-800';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-accent text-yellow-800';
       case 'failed':
       case 'expired':
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-destructive/10 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-accent text-foreground';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="container mx-auto max-w-6xl">
         {/* 页面标题 */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <TestTube className="h-8 w-8 text-blue-600" />
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <TestTube className="h-8 w-8 text-primary" />
             支付状态检测测试
           </h1>
-          <p className="text-gray-600 mt-2">测试支付状态监控功能的各项特性</p>
+          <p className="text-muted-foreground mt-2">测试支付状态监控功能的各项特性</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -264,7 +264,7 @@ export default function PaymentStatusTestPage() {
                   </Button>
                 </div>
 
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   重试次数: {retryCount}
                 </div>
               </CardContent>
@@ -318,7 +318,7 @@ export default function PaymentStatusTestPage() {
                   </Badge>
                 </div>
                 
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   <div>状态: {paymentStatus.status}</div>
                   <div>进度: {paymentStatus.progress}%</div>
                   {paymentStatus.amount && (
@@ -328,7 +328,7 @@ export default function PaymentStatusTestPage() {
                     <div>最后检查: {new Date(paymentStatus.lastChecked).toLocaleTimeString()}</div>
                   )}
                   {paymentStatus.error && (
-                    <div className="text-red-600">错误: {paymentStatus.error}</div>
+                    <div className="text-destructive">错误: {paymentStatus.error}</div>
                   )}
                 </div>
               </CardContent>
@@ -395,7 +395,7 @@ export default function PaymentStatusTestPage() {
               <CardHeader>
                 <CardTitle>使用说明</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 text-sm text-gray-600">
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
                 <div>1. 输入一个有效的Checkout ID或点击"创建测试数据"</div>
                 <div>2. 点击"开始监控"开始实时监控支付状态</div>
                 <div>3. 可以暂停/恢复监控，或手动刷新状态</div>

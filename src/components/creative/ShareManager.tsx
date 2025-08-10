@@ -111,7 +111,7 @@ const ShareManager: React.FC = () => {
       id: 'wechat',
       name: '微信公众号',
       icon: <Globe className="w-4 h-4" />,
-      color: 'bg-green-500',
+      color: 'bg-accent0',
       maxLength: 5000,
       features: ['富文本', '图片', '链接'],
       status: 'active',
@@ -121,7 +121,7 @@ const ShareManager: React.FC = () => {
       id: 'xiaohongshu',
       name: '小红书',
       icon: <Smartphone className="w-4 h-4" />,
-      color: 'bg-red-500',
+      color: 'bg-destructive',
       maxLength: 1000,
       features: ['图片', '标签', '定位'],
       status: 'active',
@@ -131,7 +131,7 @@ const ShareManager: React.FC = () => {
       id: 'zhihu',
       name: '知乎',
       icon: <Monitor className="w-4 h-4" />,
-      color: 'bg-blue-500',
+      color: 'bg-primary',
       maxLength: 3000,
       features: ['专栏', '问答', '想法'],
       status: 'active',
@@ -141,7 +141,7 @@ const ShareManager: React.FC = () => {
       id: 'weibo',
       name: '新浪微博',
       icon: <Share2 className="w-4 h-4" />,
-      color: 'bg-orange-500',
+      color: 'bg-accent0',
       maxLength: 2000,
       features: ['话题', '图片', '@用户'],
       status: 'active',
@@ -170,7 +170,7 @@ const ShareManager: React.FC = () => {
       id: 'kuaishou',
       name: '快手',
       icon: <Zap className="w-4 h-4" />,
-      color: 'bg-yellow-500',
+      color: 'bg-accent0',
       maxLength: 200,
       features: ['视频', '直播', '话题'],
       status: 'inactive'
@@ -179,7 +179,7 @@ const ShareManager: React.FC = () => {
       id: 'baijia',
       name: '百家号',
       icon: <Globe className="w-4 h-4" />,
-      color: 'bg-blue-600',
+      color: 'bg-primary',
       maxLength: 4000,
       features: ['文章', '图片', 'SEO'],
       status: 'inactive'
@@ -399,13 +399,13 @@ const ShareManager: React.FC = () => {
   const getPlatformStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-foreground" />;
       case 'failed':
-        return <XCircle className="w-4 h-4 text-red-500" />;
+        return <XCircle className="w-4 h-4 text-destructive" />;
       case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
+        return <Clock className="w-4 h-4 text-foreground" />;
       default:
-        return <AlertCircle className="w-4 h-4 text-gray-500" />;
+        return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -413,28 +413,28 @@ const ShareManager: React.FC = () => {
     <div className="space-y-6">
       {/* 标签页导航 */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 bg-gray-50 rounded-lg shadow-sm mb-2">
+        <TabsList className="grid w-full grid-cols-4 bg-accent rounded-lg shadow-sm mb-2">
           <TabsTrigger
             value="publish"
-            className={activeTab === 'publish' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+            className={activeTab === 'publish' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
           >
             发布内容
           </TabsTrigger>
           <TabsTrigger
             value="history"
-            className={activeTab === 'history' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+            className={activeTab === 'history' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
           >
             发布历史
           </TabsTrigger>
           <TabsTrigger
             value="templates"
-            className={activeTab === 'templates' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+            className={activeTab === 'templates' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
           >
             内容模板
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className={activeTab === 'settings' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+            className={activeTab === 'settings' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
           >
             平台设置
           </TabsTrigger>
@@ -532,8 +532,8 @@ const ShareManager: React.FC = () => {
                       key={platform.id}
                       className={`p-3 border rounded-lg cursor-pointer transition-all ${
                         selectedPlatforms.includes(platform.id)
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-primary bg-accent'
+                          : 'border-border hover:border-border'
                       } ${platform.status === 'inactive' ? 'opacity-50' : ''}`}
                       onClick={() => platform.status === 'active' && togglePlatform(platform.id)}
                     >
@@ -555,12 +555,12 @@ const ShareManager: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {platform.status === 'active' && (
-                            <Badge variant="outline" className="text-green-600">
+                            <Badge variant="outline" className="text-foreground">
                               已连接
                             </Badge>
                           )}
                           {platform.status === 'inactive' && (
-                            <Badge variant="outline" className="text-gray-500">
+                            <Badge variant="outline" className="text-muted-foreground">
                               未连接
                             </Badge>
                           )}

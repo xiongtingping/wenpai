@@ -207,13 +207,13 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'brand':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-accent text-blue-800';
       case 'library':
-        return 'bg-green-100 text-green-800';
+        return 'bg-accent text-green-800';
       case 'radar':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-accent text-purple-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-accent text-foreground';
     }
   };
 
@@ -239,7 +239,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
         <div className="flex flex-col space-y-4 flex-1 overflow-hidden">
           {/* 搜索框 */}
           <div className="relative flex-shrink-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="搜索内容、标题或标签..."
               value={searchQuery}
@@ -250,24 +250,24 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
 
           {/* 标签页 */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 overflow-hidden">
-            <TabsList className="grid w-full grid-cols-3 flex-shrink-0 bg-gray-50 rounded-lg shadow-sm mb-2">
+            <TabsList className="grid w-full grid-cols-3 flex-shrink-0 bg-accent rounded-lg shadow-sm mb-2">
               <TabsTrigger
                 value="brand"
-                className={activeTab === 'brand' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+                className={activeTab === 'brand' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
               >
                 <Database className="h-4 w-4" />
                 品牌库
               </TabsTrigger>
               <TabsTrigger
                 value="library"
-                className={activeTab === 'library' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+                className={activeTab === 'library' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
               >
                 <Bookmark className="h-4 w-4" />
                 我的资料库
               </TabsTrigger>
               <TabsTrigger
                 value="radar"
-                className={activeTab === 'radar' ? 'font-bold text-primary shadow-md bg-white' : 'text-gray-400'}
+                className={activeTab === 'radar' ? 'font-bold text-primary shadow-md bg-card' : 'text-muted-foreground'}
               >
                 <Radar className="h-4 w-4" />
                 全网雷达
@@ -278,13 +278,13 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
               <ScrollArea className="h-full max-h-[50vh]">
                 <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                       <Database className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                       <p>暂无品牌库内容</p>
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`} onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2 flex-1">
@@ -306,7 +306,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                           </div>
                         </CardHeader>
                         <CardContent className="pt-0">
-                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                             {item.summary || (item.content ? item.content.substring(0, 100) + '...' : '暂无内容')}
                           </p>
                           <div className="flex items-center justify-between">
@@ -318,7 +318,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                                 </Badge>
                               ))}
                             </div>
-                            <div className="flex items-center text-xs text-gray-400">
+                            <div className="flex items-center text-xs text-muted-foreground">
                               <Clock className="h-3 w-3 mr-1" />
                               {new Date(item.createdAt).toLocaleDateString()}
                             </div>
@@ -335,13 +335,13 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
               <ScrollArea className="h-full max-h-[50vh]">
                 <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                       <Bookmark className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                       <p>暂无资料库内容</p>
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`} onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2 flex-1">
@@ -363,7 +363,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                           </div>
                         </CardHeader>
                         <CardContent className="pt-0">
-                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                             {item.summary || (item.content ? item.content.substring(0, 100) + '...' : '暂无内容')}
                           </p>
                           <div className="flex items-center justify-between">
@@ -375,13 +375,13 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                                 </Badge>
                               ))}
                             </div>
-                            <div className="flex items-center text-xs text-gray-400">
+                            <div className="flex items-center text-xs text-muted-foreground">
                               <Clock className="h-3 w-3 mr-1" />
                               {new Date(item.createdAt).toLocaleDateString()}
                             </div>
                           </div>
                           {item.source && (
-                            <div className="flex items-center mt-2 text-xs text-blue-600">
+                            <div className="flex items-center mt-2 text-xs text-primary">
                               <ExternalLink className="h-3 w-3 mr-1" />
                               {item.source}
                             </div>
@@ -398,13 +398,13 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
               <ScrollArea className="h-full max-h-[50vh]">
                 <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                       <Radar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                       <p>暂无雷达收藏内容</p>
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`} onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2 flex-1">
@@ -426,7 +426,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                           </div>
                         </CardHeader>
                         <CardContent className="pt-0">
-                          <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                             {item.summary || (item.content ? item.content.substring(0, 100) + '...' : '暂无内容')}
                           </p>
                           <div className="flex items-center justify-between">
@@ -438,13 +438,13 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                                 </Badge>
                               ))}
                             </div>
-                            <div className="flex items-center text-xs text-gray-400">
+                            <div className="flex items-center text-xs text-muted-foreground">
                               <Clock className="h-3 w-3 mr-1" />
                               {new Date(item.createdAt).toLocaleDateString()}
                             </div>
                           </div>
                           {item.source && (
-                            <div className="flex items-center mt-2 text-xs text-blue-600">
+                            <div className="flex items-center mt-2 text-xs text-primary">
                               <ExternalLink className="h-3 w-3 mr-1" />
                               {item.source}
                             </div>
@@ -463,7 +463,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
         {multiSelect && (
           <DialogFooter className="flex-shrink-0">
             <div className="flex items-center justify-between w-full">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 已选择 {selectedItems.size} 项内容
               </div>
               <div className="flex gap-2">

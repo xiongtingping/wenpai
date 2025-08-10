@@ -52,13 +52,13 @@ const HelpDocumentation = () => {
         {topics.map((topic, index) => (
           <div key={index} className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-blue-600 font-medium">{topic.title}</h4>
+              <h4 className="text-primary font-medium">{topic.title}</h4>
             </div>
-            <p className="text-gray-700 text-sm leading-relaxed">{topic.content}</p>
+            <p className="text-foreground text-sm leading-relaxed">{topic.content}</p>
           </div>
         ))}
         <div className="mb-6">
-          <h4 className="text-blue-600 font-medium mb-2">平台风格差异</h4>
+          <h4 className="text-primary font-medium mb-2">平台风格差异</h4>
           <div className="space-y-2 text-sm">
             <p><span className="font-medium">小红书</span>：轻松活泼风格，多用emoji表情，个人化视角，首尾互动引导</p>
             <p><span className="font-medium">公众号</span>：专业严谨风格，段落清晰，标题引人，适合深度阅读</p>
@@ -71,7 +71,7 @@ const HelpDocumentation = () => {
           </div>
         </div>
         <div className="pt-2 border-t">
-          <p className="text-xs text-gray-500">更多详细使用说明将持续更新</p>
+          <p className="text-xs text-muted-foreground">更多详细使用说明将持续更新</p>
         </div>
       </ScrollArea>
     </PopoverContent>
@@ -181,7 +181,7 @@ export function Header() {
             }}>
               创意魔方
             </Button>
-            <Button variant="ghost" className="text-gray-600 hover:text-blue-600 transition" onClick={() => {
+            <Button variant="ghost" className="text-muted-foreground hover:text-primary transition" onClick={() => {
               if (isAuthenticated) {
                 navigate('/hot-topics');
               } else {

@@ -152,12 +152,12 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
 
   if (isGenerating) {
     return (
-      <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-        <div className="flex items-center space-x-2 text-sm text-blue-700">
+      <div className="mt-3 p-3 bg-accent rounded-lg border border-border">
+        <div className="flex items-center space-x-2 text-sm text-primary">
           <Tag className="h-4 w-4 animate-spin" />
           <span>正在基于当前内容生成话题标签...</span>
         </div>
-        <div className="text-xs text-blue-600 mt-1">
+        <div className="text-xs text-primary mt-1">
           分析内容：{content.substring(0, 30)}...
         </div>
       </div>
@@ -167,8 +167,8 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
   // 确保即使没有标签也显示组件框架
   if (!content.trim()) {
     return (
-      <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
+      <div className="mt-3 p-3 bg-accent rounded-lg border border-border">
+        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
           <Tag className="h-4 w-4" />
           <span>等待内容生成后自动生成标签...</span>
         </div>
@@ -179,18 +179,18 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
   // 即使没有标签也显示组件，提供生成按钮
   if (tags.length === 0 && !isGenerating) {
     return (
-      <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="mt-3 p-3 bg-accent rounded-lg border border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Tag className="h-4 w-4 text-gray-400" />
-            <span className="text-sm text-gray-500">
+            <Tag className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
               {content.trim() ? '点击生成话题标签（或从内容中自动提取）' : '等待内容生成后可生成话题标签'}
             </span>
           </div>
           {content.trim() && (
             <button
               onClick={() => generateTags(true)}
-              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary transition-colors"
             >
               生成话题标签
             </button>
@@ -201,17 +201,17 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
   }
 
   return (
-    <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
+    <div className="mt-3 p-3 bg-accent rounded-lg border">
       {/* 标题和控制按钮 */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
-          <Tag className="h-4 w-4 text-blue-600" />
-          <span className="text-sm font-medium text-gray-700">话题标签</span>
-          <span className="text-xs text-gray-500">
+          <Tag className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">话题标签</span>
+          <span className="text-xs text-muted-foreground">
             ({tags.length}/{Math.min(getPlatformLimits(platformId).max, 8)}个)
           </span>
           {tags.length > 0 && (
-            <span className="text-xs text-green-600 bg-green-50 px-1 rounded">
+            <span className="text-xs text-foreground bg-accent px-1 rounded">
               {extractedTags && extractedTags.length > 0 ? '✓ 已提取' : '✓ 已生成'}
             </span>
           )}
@@ -220,7 +220,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
         <div className="flex items-center space-x-1">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 text-gray-400 hover:text-gray-600 rounded text-xs"
+            className="p-1 text-muted-foreground hover:text-muted-foreground rounded text-xs"
             title={isExpanded ? "收起" : "展开"}
           >
             {isExpanded ? "收起" : "展开"}
@@ -228,7 +228,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
 
           <button
             onClick={() => generateTags(true)}
-            className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+            className="p-1 text-muted-foreground hover:text-primary rounded transition-colors"
             title="刷新话题标签 - 基于当前内容重新生成"
             disabled={isGenerating}
           >
@@ -240,7 +240,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
             className={`px-2 py-1 text-xs rounded transition-all duration-200 ${
               copyFeedback
                 ? 'bg-green-600 text-white'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-primary text-white hover:bg-blue-700'
             }`}
           >
             {copyFeedback ? '已复制 ✓' : '复制'}
@@ -256,13 +256,13 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
             {tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                className="inline-flex items-center px-2 py-1 bg-accent text-blue-800 text-xs rounded-full"
               >
                 #{tag}
               </span>
             ))}
             {tags.length > 3 && (
-              <span className="text-xs text-gray-500 px-2 py-1">
+              <span className="text-xs text-muted-foreground px-2 py-1">
                 +{tags.length - 3}个
               </span>
             )}
@@ -276,7 +276,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
               {tags.map((tag, index) => (
                 <div
                   key={index}
-                  className="inline-flex items-center bg-blue-100 text-blue-800 text-xs rounded-full"
+                  className="inline-flex items-center bg-accent text-blue-800 text-xs rounded-full"
                 >
                   {editingIndex === index ? (
                     <input
@@ -324,11 +324,11 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
                   }
                 }}
                 placeholder="添加标签"
-                className="px-2 py-1 border border-gray-300 rounded text-xs w-24 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="px-2 py-1 border border-border rounded text-xs w-24 focus:ring-1 focus:ring-primary focus:border-primary"
               />
               <button
                 onClick={addTag}
-                className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+                className="p-1 text-primary hover:bg-accent rounded"
               >
                 <Plus className="h-3 w-3" />
               </button>

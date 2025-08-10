@@ -161,18 +161,18 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                       <Badge variant="outline" className="text-xs">
                         {topic.platform}
                       </Badge>
-                      <span className="text-xs text-gray-500">#{index + 1}</span>
+                      <span className="text-xs text-muted-foreground">#{index + 1}</span>
                     </div>
                     <h3 className="font-medium text-sm line-clamp-2 mb-2">
                       {topic.title}
                     </h3>
                     {topic.desc && (
-                      <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                         {topic.desc}
                       </p>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         热度: {topic.hot}
                       </span>
                       <Badge variant="secondary" className="text-xs">
@@ -185,7 +185,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
             </div>
             
             {getTopicsByCategory(category.id).length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 该分类下暂无话题
               </div>
             )}

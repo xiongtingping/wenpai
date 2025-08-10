@@ -264,13 +264,13 @@ export default function MarketingCalendar() {
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
       case 'high':
-        return <Star className="w-4 h-4 text-red-500" />;
+        return <Star className="w-4 h-4 text-destructive" />;
       case 'medium':
-        return <TrendingUp className="w-4 h-4 text-yellow-500" />;
+        return <TrendingUp className="w-4 h-4 text-foreground" />;
       case 'low':
-        return <Zap className="w-4 h-4 text-blue-500" />;
+        return <Zap className="w-4 h-4 text-primary" />;
       default:
-        return <Star className="w-4 h-4 text-gray-500" />;
+        return <Star className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -280,13 +280,13 @@ export default function MarketingCalendar() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'festival':
-        return <Gift className="w-4 h-4 text-red-500" />;
+        return <Gift className="w-4 h-4 text-destructive" />;
       case 'seasonal':
-        return <TrendingUp className="w-4 h-4 text-green-500" />;
+        return <TrendingUp className="w-4 h-4 text-foreground" />;
       case 'general':
-        return <Heart className="w-4 h-4 text-blue-500" />;
+        return <Heart className="w-4 h-4 text-primary" />;
       default:
-        return <Calendar className="w-4 h-4 text-gray-500" />;
+        return <Calendar className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -326,7 +326,7 @@ export default function MarketingCalendar() {
                   day: 'numeric' 
                 })}
             </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-muted-foreground">
                 {lunarInfo ? 
                   `${lunarInfo.getYearInGanZhi()}年 ${lunarInfo.getMonthInChinese()}月 ${lunarInfo.getDayInChinese()}` : 
                   currentDate.toLocaleDateString('zh-CN', { weekday: 'long' })
@@ -346,39 +346,39 @@ export default function MarketingCalendar() {
           {/* 农历信息 */}
           {lunarInfo ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-sm text-gray-600">农历</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">农历</div>
                 <div className="font-semibold">{lunarInfo.getMonthInChinese()}月{lunarInfo.getDayInChinese()}</div>
               </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-sm text-gray-600">干支</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">干支</div>
                 <div className="font-semibold">{lunarInfo.getYearInGanZhi()}</div>
                   </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-sm text-gray-600">生肖</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">生肖</div>
                 <div className="font-semibold">{lunarInfo.getYearShengXiao()}</div>
                     </div>
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-sm text-gray-600">星期</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">星期</div>
                 <div className="font-semibold">{currentDate.toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
                       </div>
                       </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-sm text-gray-600">月份</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">月份</div>
                 <div className="font-semibold">{currentDate.getMonth() + 1}月</div>
                         </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-sm text-gray-600">日期</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">日期</div>
                 <div className="font-semibold">{currentDate.getDate()}日</div>
                       </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-sm text-gray-600">星期</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">星期</div>
                 <div className="font-semibold">{currentDate.toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
                   </div>
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-sm text-gray-600">季度</div>
+              <div className="text-center p-3 bg-accent rounded-lg">
+                <div className="text-sm text-muted-foreground">季度</div>
                 <div className="font-semibold">Q{Math.ceil((currentDate.getMonth() + 1) / 3)}</div>
                 </div>
           </div>
@@ -424,7 +424,7 @@ export default function MarketingCalendar() {
                        suggestion.priority === 'medium' ? '中优先级' : '低优先级'}
                   </Badge>
                   </div>
-                  <p className="text-gray-600 mb-3">{suggestion.description}</p>
+                  <p className="text-muted-foreground mb-3">{suggestion.description}</p>
                   <div className="flex flex-wrap gap-1">
                     {suggestion.tags.map((tag, tagIndex) => (
                       <Badge key={tagIndex} variant="outline" className="text-xs">
@@ -436,7 +436,7 @@ export default function MarketingCalendar() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p>当前日期暂无特殊营销建议</p>
               <p className="text-sm">可以尝试选择其他日期查看</p>

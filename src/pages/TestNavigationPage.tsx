@@ -96,10 +96,10 @@ const TestNavigationPage: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl font-bold text-foreground mb-4">
             导航跳转测试页面
           </h1>
-          <p className="text-lg text-gray-600 mb-6">
+          <p className="text-lg text-muted-foreground mb-6">
             测试首页功能按钮跳转是否正常工作
           </p>
           
@@ -140,7 +140,7 @@ const TestNavigationPage: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {feature.description}
                   </p>
                   <div className="space-y-2">
@@ -153,7 +153,7 @@ const TestNavigationPage: React.FC = () => {
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </span>
                     </Button>
-                    <div className="text-xs text-gray-500 text-center">
+                    <div className="text-xs text-muted-foreground text-center">
                       目标路径: {feature.path}
                     </div>
                   </div>
@@ -164,9 +164,9 @@ const TestNavigationPage: React.FC = () => {
         </div>
 
         {/* 测试说明 */}
-        <div className="mt-12 bg-white rounded-lg p-6 shadow-sm">
+        <div className="mt-12 bg-card rounded-lg p-6 shadow-sm">
           <h3 className="text-lg font-semibold mb-4">测试说明</h3>
-          <div className="space-y-2 text-sm text-gray-600">
+          <div className="space-y-2 text-sm text-muted-foreground">
             <p>• 点击"测试跳转"按钮，观察控制台输出和页面行为</p>
             <p>• 已登录用户：应该直接跳转到目标页面</p>
             <p>• 未登录用户：应该弹出登录框，登录成功后跳转</p>
@@ -176,9 +176,9 @@ const TestNavigationPage: React.FC = () => {
         </div>
 
         {/* 调试信息 */}
-        <div className="mt-8 bg-gray-50 rounded-lg p-4">
+        <div className="mt-8 bg-accent rounded-lg p-4">
           <h4 className="font-semibold mb-2">调试信息</h4>
-          <div className="text-xs text-gray-600 space-y-1">
+          <div className="text-xs text-muted-foreground space-y-1">
             <p>当前时间: {new Date().toLocaleString()}</p>
             <p>用户代理: {navigator.userAgent}</p>
             <p>页面URL: {window.location.href}</p>

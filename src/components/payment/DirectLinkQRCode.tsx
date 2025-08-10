@@ -171,7 +171,7 @@ export default function DirectLinkQRCode({
 
         {/* 错误显示 */}
         {error && (
-          <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded">
+          <div className="text-destructive text-sm text-center p-2 bg-accent rounded">
             {error}
           </div>
         )}
@@ -188,7 +188,7 @@ export default function DirectLinkQRCode({
               <img 
                 src={qrCodeDataURL} 
                 alt="支付二维码" 
-                className="border-2 border-gray-200 rounded-lg"
+                className="border-2 border-border rounded-lg"
                 style={{ width: 300, height: 300 }}
               />
             </div>
@@ -222,7 +222,7 @@ export default function DirectLinkQRCode({
             </div>
 
             {/* 使用说明 */}
-            <div className="text-sm text-gray-600 space-y-2 text-center">
+            <div className="text-sm text-muted-foreground space-y-2 text-center">
               <p>扫码后会跳转到Creem安全支付页，请放心支付</p>
             </div>
           </div>
@@ -230,9 +230,9 @@ export default function DirectLinkQRCode({
 
         {/* 当前链接信息 */}
         {showControls && (
-          <div className="bg-gray-50 p-3 rounded-lg">
+          <div className="bg-accent p-3 rounded-lg">
             <h4 className="font-medium text-sm mb-2">当前链接</h4>
-            <p className="text-xs text-gray-600 break-all">
+            <p className="text-xs text-muted-foreground break-all">
               {paymentUrl}
             </p>
           </div>

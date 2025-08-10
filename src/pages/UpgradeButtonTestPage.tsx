@@ -149,7 +149,7 @@ export default function UpgradeButtonTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-accent p-8">
       <div className="max-w-4xl mx-auto">
         <Card className="mb-8">
           <CardHeader>
@@ -185,14 +185,14 @@ export default function UpgradeButtonTestPage() {
             <CardTitle>当前用户状态</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-gray-100 p-4 rounded-lg">
+            <div className="bg-accent p-4 rounded-lg">
               <pre className="text-sm overflow-auto">
                 {JSON.stringify(user, null, 2)}
               </pre>
             </div>
             <div className="mt-4 p-4 border rounded-lg">
               <p className="font-medium">升级按钮显示状态:</p>
-              <p className={`text-lg font-bold ${shouldShowUpgradeButton(user) ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-lg font-bold ${shouldShowUpgradeButton(user) ? 'text-foreground' : 'text-destructive'}`}>
                 {shouldShowUpgradeButton(user) ? '🟢 显示' : '🔴 隐藏'}
               </p>
             </div>
@@ -205,7 +205,7 @@ export default function UpgradeButtonTestPage() {
               <CardTitle>测试结果</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 p-4 rounded-lg">
+              <div className="bg-accent p-4 rounded-lg">
                 {testResults.map((result, index) => (
                   <div key={index} className="font-mono text-sm mb-1">
                     {result}

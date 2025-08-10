@@ -259,7 +259,7 @@ export default function PersonalizedEmojiGenerator() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             个性化品牌 Emoji 生成器
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             基于您的品牌特色，AI智能生成专属Emoji表情
           </p>
         </div>
@@ -274,8 +274,8 @@ export default function PersonalizedEmojiGenerator() {
                     <div className={`
                       w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
                       ${index <= currentStepIndex 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-200 text-gray-500'
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-200 text-muted-foreground'
                       }
                     `}>
                       {index < currentStepIndex ? (
@@ -286,13 +286,13 @@ export default function PersonalizedEmojiGenerator() {
                     </div>
                     <div className="text-xs mt-2 text-center max-w-20">
                       <div className="font-medium">{step.title}</div>
-                      <div className="text-gray-500">{step.description}</div>
+                      <div className="text-muted-foreground">{step.description}</div>
                     </div>
                   </div>
                   {index < steps.length - 1 && (
                     <div className={`
                       w-16 h-0.5 mx-4
-                      ${index < currentStepIndex ? 'bg-blue-500' : 'bg-gray-200'}
+                      ${index < currentStepIndex ? 'bg-primary' : 'bg-gray-200'}
                     `} />
                   )}
                 </div>
@@ -305,7 +305,7 @@ export default function PersonalizedEmojiGenerator() {
                 value={(currentStepIndex / (steps.length - 1)) * 100} 
                 className="w-full" 
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
                 <span>步骤 {currentStepIndex + 1} / {steps.length}</span>
                 <span>{Math.round((currentStepIndex / (steps.length - 1)) * 100)}% 完成</span>
               </div>
@@ -323,11 +323,11 @@ export default function PersonalizedEmojiGenerator() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-500" />
-                <span className="text-sm text-gray-600">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-sm text-muted-foreground">
                   已生成 {generatedImages.length} 个个性化Emoji
                   {generationMode === 'batch' && batchPrompts.length > 0 && (
-                    <span className="ml-2 text-blue-600">
+                    <span className="ml-2 text-primary">
                       (批量模式: {batchPrompts.length}个情绪)
                     </span>
                   )}

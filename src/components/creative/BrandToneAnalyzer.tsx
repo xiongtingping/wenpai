@@ -130,18 +130,18 @@ export default function BrandToneAnalyzer() {
    * 获取评分颜色
    */
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-green-600';
-    if (score >= 6) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 8) return 'text-foreground';
+    if (score >= 6) return 'text-foreground';
+    return 'text-destructive';
   };
 
   /**
    * 获取评分图标
    */
   const getScoreIcon = (score: number) => {
-    if (score >= 8) return <CheckCircle className="h-4 w-4 text-green-600" />;
-    if (score >= 6) return <Info className="h-4 w-4 text-yellow-600" />;
-    return <AlertTriangle className="h-4 w-4 text-red-600" />;
+    if (score >= 8) return <CheckCircle className="h-4 w-4 text-foreground" />;
+    if (score >= 6) return <Info className="h-4 w-4 text-foreground" />;
+    return <AlertTriangle className="h-4 w-4 text-destructive" />;
   };
 
   if (isLoading) {
@@ -153,7 +153,7 @@ export default function BrandToneAnalyzer() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         </CardContent>
       </Card>
@@ -195,7 +195,7 @@ export default function BrandToneAnalyzer() {
                     {score}/10
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 capitalize">
+                <p className="text-sm text-muted-foreground capitalize">
                   {key.replace(/([A-Z])/g, ' $1').trim()}
                 </p>
               </div>
@@ -263,7 +263,7 @@ export default function BrandToneAnalyzer() {
 
               <div className="space-y-2">
                 <h4 className="font-medium">价值观描述：</h4>
-                <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                   {analysis.coreValues.descriptions.map((desc, index) => (
                     <li key={index}>{desc}</li>
                   ))}
@@ -310,7 +310,7 @@ export default function BrandToneAnalyzer() {
                 <h4 className="font-medium">语调变化：</h4>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.entries(analysis.tone.variations).map(([key, value]) => (
-                    <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <div key={key} className="flex justify-between items-center p-2 bg-accent rounded">
                       <span className="text-sm capitalize">{key}：</span>
                       <Badge variant="secondary">{value}</Badge>
                     </div>
@@ -534,7 +534,7 @@ export default function BrandToneAnalyzer() {
                   <h4 className="font-medium">敏感话题：</h4>
                   <div className="flex flex-wrap gap-2">
                     {analysis.riskControl.sensitiveTopics.map((topic) => (
-                      <Badge key={topic} variant="outline" className="text-orange-600">
+                      <Badge key={topic} variant="outline" className="text-foreground">
                         {topic}
                       </Badge>
                     ))}
@@ -545,7 +545,7 @@ export default function BrandToneAnalyzer() {
                   <h4 className="font-medium">禁忌表达：</h4>
                   <div className="flex flex-wrap gap-2">
                     {analysis.riskControl.tabooExpressions.map((expression) => (
-                      <Badge key={expression} variant="secondary" className="text-red-600">
+                      <Badge key={expression} variant="secondary" className="text-destructive">
                         {expression}
                       </Badge>
                     ))}
