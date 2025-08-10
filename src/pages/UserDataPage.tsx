@@ -192,10 +192,16 @@ export default function UserDataPage() {
 
         {/* 详细数据 */}
         <Tabs defaultValue="pageVisits" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="pageVisits">页面访问</TabsTrigger>
-            <TabsTrigger value="featureUsage">功能使用</TabsTrigger>
-            <TabsTrigger value="contentCreated">内容创建</TabsTrigger>
+          <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+            <TabsTrigger value="pageVisits" className="unified-tab-trigger">
+              <span>页面访问</span>
+            </TabsTrigger>
+            <TabsTrigger value="featureUsage" className="unified-tab-trigger">
+              <span>功能使用</span>
+            </TabsTrigger>
+            <TabsTrigger value="contentCreated" className="unified-tab-trigger">
+              <span>内容创建</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* 页面访问记录 */}

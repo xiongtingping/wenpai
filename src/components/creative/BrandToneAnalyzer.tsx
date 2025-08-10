@@ -206,30 +206,30 @@ export default function BrandToneAnalyzer() {
 
       {/* 详细维度分析 */}
       <Tabs defaultValue="values" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="values" className="flex items-center gap-1">
-            <Target className="h-4 w-4" />
-            价值观
+        <TabsList className="unified-tabs-list grid w-full grid-cols-7">
+          <TabsTrigger value="values" className="unified-tab-trigger">
+            <Target className="tab-icon" />
+            <span>价值观</span>
           </TabsTrigger>
-          <TabsTrigger value="tone" className="flex items-center gap-1">
-            <MessageSquare className="h-4 w-4" />
-            语调
+          <TabsTrigger value="tone" className="unified-tab-trigger">
+            <MessageSquare className="tab-icon" />
+            <span>语调</span>
           </TabsTrigger>
-          <TabsTrigger value="topics" className="flex items-center gap-1">
-            <TrendingUp className="h-4 w-4" />
-            话题
+          <TabsTrigger value="topics" className="unified-tab-trigger">
+            <TrendingUp className="tab-icon" />
+            <span>话题</span>
           </TabsTrigger>
-          <TabsTrigger value="hashtags" className="flex items-center gap-1">
-            <Hash className="h-4 w-4" />
-            标签
+          <TabsTrigger value="hashtags" className="unified-tab-trigger">
+            <Hash className="tab-icon" />
+            <span>标签</span>
           </TabsTrigger>
-          <TabsTrigger value="keywords" className="flex items-center gap-1">
-            <Key className="h-4 w-4" />
-            关键词
+          <TabsTrigger value="keywords" className="unified-tab-trigger">
+            <Key className="tab-icon" />
+            <span>关键词</span>
           </TabsTrigger>
-          <TabsTrigger value="risk" className="flex items-center gap-1">
-            <Shield className="h-4 w-4" />
-            风险
+          <TabsTrigger value="risk" className="unified-tab-trigger">
+            <Shield className="tab-icon" />
+            <span>风险</span>
           </TabsTrigger>
         </TabsList>
 

@@ -154,8 +154,8 @@ export function TokenUsageSection({
         <CardHeader className="bg-gradient-secondary text-foreground relative z-10 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-card/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
-                <Database className="w-6 h-6 drop-shadow-sm text-foreground" />
+              <div className="w-12 h-12 bg-primary/10 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0 border border-border">
+                <Database className="w-6 h-6 drop-shadow-sm text-primary" />
               </div>
               <div>
                 <div className="text-xl font-bold text-foreground">使用统计</div>
@@ -169,7 +169,7 @@ export function TokenUsageSection({
               disabled={isRefreshing}
               className="bg-card/20 backdrop-blur-sm border-border/30 text-primary-foreground hover:bg-card/30 hover:border-border/50 rounded-lg"
             >
-              <RefreshCw className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </CardHeader>
@@ -188,7 +188,7 @@ export function TokenUsageSection({
                 <div className="bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
+                      <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-e0">
                         <Zap className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
@@ -236,7 +236,7 @@ export function TokenUsageSection({
                   {/* Token继承说明 */}
                   <div className="mt-3 bg-accent border border-border rounded-lg p-3 relative z-10 shadow-e0">
                     <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 bg-gradient-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold mt-0.5 flex-shrink-0">
+                      <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold mt-0.5 flex-shrink-0">
                         ℹ️
                       </div>
                       <div className="text-sm text-foreground">
@@ -251,7 +251,7 @@ export function TokenUsageSection({
 <div className="bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
+                      <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shadow-e0">
                         <Target className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
@@ -299,18 +299,7 @@ export function TokenUsageSection({
                 </div>
               </div>
 
-              {/* 升级按钮 - 与内容对齐 */}
-              {showUpgradeButton && (
-                <div className="mt-4">
-                  <Button
-                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-invite-gradient"
-                    onClick={handleUpgrade}
-                  >
-                    <Crown className="w-5 h-5 mr-3 text-white" />
-                    解锁高级功能
-                  </Button>
-                </div>
-              )}
+
             </>
           )}
         </CardContent>

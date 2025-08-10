@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { X, Plus, Filter, Eye, EyeOff, ThumbsUp, ThumbsDown, Settings } from 'lucide-react';
 
 interface InterestFilterProps {
@@ -34,6 +35,7 @@ export interface InterestFilters {
  * 兴趣调节组件
  */
 const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('categories');
   const [filters, setFilters] = useState<InterestFilters>({
@@ -283,9 +285,20 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between text-base">
               <span>兴趣调节设置</span>
-              <Button variant="ghost" size="sm" onClick={resetFilters} className="h-7 text-xs">
-                重置
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="default" size="sm" onClick={() => {
+                  // 保存当前设置（实际上已经自动保存了）
+                  toast({
+                    title: "设置已保存",
+                    description: "您的兴趣偏好设置已成功保存",
+                  });
+                }} className="h-7 text-xs">
+                  保存
+                </Button>
+                <Button variant="ghost" size="sm" onClick={resetFilters} className="h-7 text-xs">
+                  重置
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">

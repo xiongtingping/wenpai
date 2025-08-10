@@ -318,18 +318,19 @@ const EmojiPage: React.FC = () => {
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="gallery" className="flex items-center gap-2">
-              <Grid3X3 className="w-4 h-4" />
-              Emoji图库
+          <TabsList className="unified-tabs-list grid w-full grid-cols-3">
+            <TabsTrigger value="gallery" className="unified-tab-trigger">
+              <Grid3X3 className="tab-icon" />
+              <span>Emoji图库</span>
             </TabsTrigger>
-            <TabsTrigger value="ai-recommend" className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              AI推荐
+            <TabsTrigger value="ai-recommend" className="unified-tab-trigger">
+              <Sparkles className="tab-icon" />
+              <span>AI推荐</span>
             </TabsTrigger>
-            <TabsTrigger value="brand-emoji" className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" />
-              品牌Emoji生成器
+            <TabsTrigger value="brand-emoji" className="unified-tab-trigger">
+              <Building2 className="tab-icon" />
+              <span className="tab-text-mobile">品牌Emoji</span>
+              <span className="tab-text-desktop">品牌Emoji生成器</span>
             </TabsTrigger>
           </TabsList>
 

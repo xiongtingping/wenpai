@@ -43,12 +43,17 @@ const buttonVariants = cva(
         neonGreen: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
         dark: "bg-foreground text-primary-foreground hover:bg-foreground/90 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
         light: "bg-muted text-foreground hover:bg-muted/80 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
+
+        // 🎨 专用高级按钮变体
+        upgradePremium: "btn-upgrade-premium text-white font-bold",
+        invitePremium: "btn-invite-premium text-white font-bold",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         xl: "h-12 rounded-md px-10 text-base",
+        hero: "h-14 rounded-xl px-8 text-lg font-bold",
         icon: "h-10 w-10",
         iconSm: "h-8 w-8",
         iconLg: "h-12 w-12",

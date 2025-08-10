@@ -108,16 +108,7 @@ export function UsageStatsCard({ usageStats, planName, adaptUsageLimit, tokenLim
                 : "Token使用量即将达到上限，建议升级套餐"
               }
             </p>
-            {onUpgrade && (
-              <Button
-                size="sm"
-                onClick={onUpgrade}
-                className="mt-2 btn-upgrade-gradient text-primary-foreground"
-              >
-                <Crown className="h-3 w-3 mr-1" />
-                立即升级
-              </Button>
-            )}
+
           </div>
         ) : null}
 

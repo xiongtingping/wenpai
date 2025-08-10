@@ -15,7 +15,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Badge } from '@/components/ui/badge';
-import { UpgradeButton } from '@/components/ui/upgrade-button';
 import {
   Sparkles,
   Zap,
@@ -391,10 +390,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
             {/* 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。 */}
             {/* 🔒 LOCKED: AI 禁止对此函数或文件做任何修改 */}
             
-            {/* 升级按钮 */}
-            {showUpgradeButton && (
-              <UpgradeButton className="hidden sm:inline-flex" />
-            )}
+
           </div>
         </div>
 

@@ -162,10 +162,16 @@ export default function HotTopicsPage() {
   /**
    * 格式化热度值，统一单位为m
    */
-  const formatHotValue = (hot: string): string => {
+  const formatHotValue = (hot: string | undefined): string => {
+    if (!hot || hot === '' || hot === '0' || hot === 'undefined') {
+      return '暂无数据';
+    }
+
     const num = parseInt(hot);
-    if (isNaN(num)) return hot;
-    
+    if (isNaN(num)) {
+      return hot || '暂无数据';
+    }
+
     if (num >= 1000000) {
       return `${(num / 1000000).toFixed(1)}m`;
     } else if (num >= 1000) {

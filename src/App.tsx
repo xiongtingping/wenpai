@@ -66,6 +66,7 @@ import WebExtractorTestPage from '@/pages/WebExtractorTestPage';
 import FileFormatTestPage from '@/pages/FileFormatTestPage';
 import HistoryPage from '@/pages/HistoryPage';
 import RouteTestPage from '@/pages/RouteTestPage';
+import ButtonStyleTestPage from '@/pages/ButtonStyleTestPage';
 
 /**
  * 条件性导航组件
@@ -291,6 +292,7 @@ function AppContent() {
           <Route path="/title-v3-test" element={<TitleV3TestPage />} />
           <Route path="/web-extractor-test" element={<WebExtractorTestPage />} />
           <Route path="/file-format-test" element={<FileFormatTestPage />} />
+          <Route path="/button-style-test" element={<ButtonStyleTestPage />} />
 
           {/* 历史记录页面 */}
           <Route path="/history" element={

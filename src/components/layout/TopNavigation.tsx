@@ -189,6 +189,17 @@ export const TopNavigation: React.FC = () => {
 
             {/* 用户头像和登录状态 */}
             <div className="flex items-center gap-2">
+              {/* 立即解锁高级功能按钮 */}
+              {isAuthenticated && (
+                <Button
+                  onClick={() => navigate('/payment')}
+                  className="btn-upgrade-gradient text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg hidden sm:flex"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  立即解锁高级功能
+                </Button>
+              )}
+
               {/* 主题切换 */}
               <ThemeToggle />
 

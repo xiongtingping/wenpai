@@ -1942,26 +1942,43 @@ export default function BrandLibraryPageFixed() {
     setExtractionProgress(0);
 
     try {
-      setExtractionProgress(20);
+      // 验证URL格式
+      try {
+        new URL(webUrl);
+      } catch {
+        throw new Error('无效的URL格式，请输入有效的网页地址');
+      }
 
-      // 模拟网页内容提取
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setExtractionProgress(60);
+      console.log('🔍 开始网页内容提取:', webUrl);
+      setExtractionProgress(10);
 
-      const extractionResult = await webExtractor.extractContent(webUrl);
+      // 使用WebContentExtractorService进行内容提取
+      const extractionResult = await webExtractor.extractFromUrl(webUrl, {
+        includeBrandAnalysis: true,
+        maxContentLength: 5000
+      });
+
       setExtractionProgress(80);
 
       if (extractionResult.status === 'error') {
         throw new Error(extractionResult.error || '内容提取失败');
       }
 
+      console.log('✅ 网页内容提取成功:', {
+        title: extractionResult.title,
+        contentLength: extractionResult.content?.length || 0,
+        domain: extractionResult.metadata?.domain
+      });
+
       // 转换为品牌资产并添加到列表
       const actualCategory = selectedCategory === 'all' ? '品牌资料' : selectedCategory;
       const brandAsset = webExtractor.convertToBrandAsset(extractionResult, actualCategory);
 
-      setBrandAssets(prev => [...prev, brandAsset]);
+      setBrandAssets(prev => [brandAsset, ...prev]);
 
-      if (extractionResult.content) {
+      // 如果有品牌分析结果，可以自动更新语料库
+      if (extractionResult.brandAnalysis) {
+        console.log('🎯 检测到品牌分析结果，可用于语料库更新');
         // 这里可以添加自动分析逻辑
       }
 
@@ -1974,13 +1991,28 @@ export default function BrandLibraryPageFixed() {
 
       // 清空URL输入
       setWebUrl('');
-      setIsWebExtractOpen(false);
 
     } catch (error) {
-      console.error('网页内容提取失败:', error);
+      console.error('❌ 网页内容提取失败:', error);
+
+      let errorMessage = "网页内容提取失败";
+      if (error instanceof Error) {
+        if (error.message.includes('无效的URL')) {
+          errorMessage = "请检查URL格式是否正确";
+        } else if (error.message.includes('网络')) {
+          errorMessage = "网络连接失败，请检查网络或稍后重试";
+        } else if (error.message.includes('访问')) {
+          errorMessage = "无法访问该网页，可能需要登录或权限";
+        } else if (error.message.includes('超时')) {
+          errorMessage = "请求超时，请稍后重试";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       toast({
         title: "提取失败",
-        description: error instanceof Error ? error.message : "网页内容提取失败",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -2035,20 +2067,16 @@ export default function BrandLibraryPageFixed() {
 
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-accent rounded-lg">
-            <TabsTrigger
-              value="assets"
-              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
-              <Upload className="h-4 w-4" />
-              <span>上传品牌资料</span>
+          <TabsList className="unified-tabs-list grid w-full grid-cols-2">
+            <TabsTrigger value="assets" className="unified-tab-trigger">
+              <Upload className="tab-icon" />
+              <span className="tab-text-mobile">上传资料</span>
+              <span className="tab-text-desktop">上传品牌资料</span>
             </TabsTrigger>
-            <TabsTrigger
-              value="dimensions"
-              className="flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-md transition-all data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
-              <Database className="h-4 w-4" />
-              <span>品牌语料库</span>
+            <TabsTrigger value="dimensions" className="unified-tab-trigger">
+              <Database className="tab-icon" />
+              <span className="tab-text-mobile">语料库</span>
+              <span className="tab-text-desktop">品牌语料库</span>
             </TabsTrigger>
           </TabsList>
 
@@ -2129,24 +2157,44 @@ export default function BrandLibraryPageFixed() {
                     <Globe className="h-4 w-4 flex-shrink-0" />
                     <span className="leading-none">网页内容提取</span>
                   </h4>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="输入网页链接，如：https://example.com"
-                      value={webUrl}
-                      onChange={(e) => setWebUrl(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button 
-                      onClick={handleWebExtraction}
-                      disabled={isExtractingWeb || !webUrl.trim()}
-                    >
-                      {isExtractingWeb ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Download className="h-4 w-4 mr-2" />
-                      )}
-                      {isExtractingWeb ? '提取中...' : '提取内容'}
-                    </Button>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="输入网页链接，如：https://example.com"
+                        value={webUrl}
+                        onChange={(e) => setWebUrl(e.target.value)}
+                        className="flex-1"
+                        disabled={isExtractingWeb}
+                      />
+                      <Button
+                        onClick={handleWebExtraction}
+                        disabled={isExtractingWeb || !webUrl.trim()}
+                      >
+                        {isExtractingWeb ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 mr-2" />
+                        )}
+                        {isExtractingWeb ? '提取中...' : '提取内容'}
+                      </Button>
+                    </div>
+
+                    {/* 提取进度显示 */}
+                    {isExtractingWeb && extractionProgress > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">提取进度</span>
+                          <span className="font-medium">{extractionProgress}%</span>
+                        </div>
+                        <Progress value={extractionProgress} className="h-2" />
+                        <p className="text-xs text-muted-foreground">
+                          {extractionProgress < 20 && "正在验证URL..."}
+                          {extractionProgress >= 20 && extractionProgress < 60 && "正在提取网页内容..."}
+                          {extractionProgress >= 60 && extractionProgress < 90 && "正在分析内容..."}
+                          {extractionProgress >= 90 && "正在保存到资料库..."}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -2735,22 +2783,22 @@ export default function BrandLibraryPageFixed() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 基础信息 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 border-b border-border bg-card">
-                  <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-primary rounded-lg">
-                      <FileText className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
+                <CardHeader className="pb-4 brand-card-header">
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 icon-container-brand rounded-lg">
+                        <FileText className="h-5 w-5" />
+                      </div>
                       <span className="text-foreground font-semibold">基础信息</span>
-                      <CardDescription className="text-muted-foreground mt-1">
-                        品牌的基本信息和核心定位
-                      </CardDescription>
                     </div>
+                    <CardDescription className="text-muted-foreground text-sm">
+                      品牌的基本信息和核心定位
+                    </CardDescription>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-6">
+                <CardContent className="space-y-4 brand-card-content">
                   {getDimensionsByCategory('basic').map((dimension) => (
-                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
+                    <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
@@ -2774,22 +2822,22 @@ export default function BrandLibraryPageFixed() {
 
               {/* 语调风格 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 border-b border-border bg-card">
-                  <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-primary rounded-lg">
-                      <MessageSquare className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
+                <CardHeader className="pb-4 brand-card-header">
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 icon-container-brand rounded-lg">
+                        <MessageSquare className="h-5 w-5" />
+                      </div>
                       <span className="text-foreground font-semibold">语调风格</span>
-                      <CardDescription className="text-muted-foreground mt-1">
-                        品牌的语音特征和表达方式
-                      </CardDescription>
                     </div>
+                    <CardDescription className="text-muted-foreground text-sm">
+                      品牌的语音特征和表达方式
+                    </CardDescription>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-6">
+                <CardContent className="space-y-4 brand-card-content">
                   {getDimensionsByCategory('voice').map((dimension) => (
-                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
+                    <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
@@ -2813,22 +2861,22 @@ export default function BrandLibraryPageFixed() {
 
               {/* 品牌身份 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 border-b border-border bg-card">
-                  <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-primary rounded-lg">
-                      <Shield className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
+                <CardHeader className="pb-4 brand-card-header">
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 icon-container-brand rounded-lg">
+                        <Shield className="h-5 w-5" />
+                      </div>
                       <span className="text-foreground font-semibold">品牌身份</span>
-                      <CardDescription className="text-muted-foreground mt-1">
-                        品牌的核心价值观和使命愿景
-                      </CardDescription>
                     </div>
+                    <CardDescription className="text-muted-foreground text-sm">
+                      品牌的核心价值观和使命愿景
+                    </CardDescription>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-6">
+                <CardContent className="space-y-4 brand-card-content">
                   {getDimensionsByCategory('identity').map((dimension) => (
-                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
+                    <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>
@@ -2852,22 +2900,22 @@ export default function BrandLibraryPageFixed() {
 
               {/* 内容策略 */}
               <Card className="h-fit">
-                <CardHeader className="pb-4 border-b border-border bg-card">
-                  <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="p-2 bg-primary rounded-lg">
-                      <Lightbulb className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
+                <CardHeader className="pb-4 brand-card-header">
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 icon-container-brand rounded-lg">
+                        <Lightbulb className="h-5 w-5" />
+                      </div>
                       <span className="text-foreground font-semibold">内容策略</span>
-                      <CardDescription className="text-muted-foreground mt-1">
-                        品牌内容创作的核心要素和策略
-                      </CardDescription>
                     </div>
+                    <CardDescription className="text-muted-foreground text-sm">
+                      品牌内容创作的核心要素和策略
+                    </CardDescription>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 p-6">
+                <CardContent className="space-y-4 brand-card-content">
                   {getDimensionsByCategory('content').map((dimension) => (
-                    <div key={dimension.id} className="border border-border rounded-lg p-4 bg-card hover:bg-accent transition-colors">
+                    <div key={dimension.id} className="brand-dimension-item">
                       <div className="flex items-center gap-2 mb-3">
                         {dimension.icon}
                         <h4 className="font-medium text-sm text-foreground">{dimension.title}</h4>

@@ -76,26 +76,26 @@ export default function CreativeStudioPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* 子模块切换 */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
-                <TabsTrigger value="calendar" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">营销日历</span>
-                  <span className="sm:hidden">日历</span>
+              <TabsList className="unified-tabs-list grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
+                <TabsTrigger value="calendar" className="unified-tab-trigger">
+                  <Calendar className="tab-icon" />
+                  <span className="tab-text-mobile">日历</span>
+                  <span className="tab-text-desktop">营销日历</span>
                 </TabsTrigger>
-                <TabsTrigger value="cube" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">九宫格创意魔方</span>
-                  <span className="sm:hidden">魔方</span>
+                <TabsTrigger value="cube" className="unified-tab-trigger">
+                  <Sparkles className="tab-icon" />
+                  <span className="tab-text-mobile">魔方</span>
+                  <span className="tab-text-desktop">九宫格创意魔方</span>
                 </TabsTrigger>
-                <TabsTrigger value="wechat" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">朋友圈文案</span>
-                  <span className="sm:hidden">文案</span>
+                <TabsTrigger value="wechat" className="unified-tab-trigger">
+                  <MessageCircle className="tab-icon" />
+                  <span className="tab-text-mobile">文案</span>
+                  <span className="tab-text-desktop">朋友圈文案</span>
                 </TabsTrigger>
-                <TabsTrigger value="emoji" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <Smile className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Emoji生成器</span>
-                  <span className="sm:hidden">Emoji</span>
+                <TabsTrigger value="emoji" className="unified-tab-trigger">
+                  <Smile className="tab-icon" />
+                  <span className="tab-text-mobile">Emoji</span>
+                  <span className="tab-text-desktop">Emoji生成器</span>
                 </TabsTrigger>
               </TabsList>
             </div>

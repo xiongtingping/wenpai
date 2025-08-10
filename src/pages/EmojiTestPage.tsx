@@ -88,11 +88,19 @@ export default function EmojiTestPage() {
       </div>
 
       <Tabs defaultValue="picker" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="picker">选择器</TabsTrigger>
-          <TabsTrigger value="search">搜索</TabsTrigger>
-          <TabsTrigger value="platforms">平台图标</TabsTrigger>
-          <TabsTrigger value="display">显示模式</TabsTrigger>
+        <TabsList className="unified-tabs-list grid w-full grid-cols-4">
+          <TabsTrigger value="picker" className="unified-tab-trigger">
+            <span>选择器</span>
+          </TabsTrigger>
+          <TabsTrigger value="search" className="unified-tab-trigger">
+            <span>搜索</span>
+          </TabsTrigger>
+          <TabsTrigger value="platforms" className="unified-tab-trigger">
+            <span>平台图标</span>
+          </TabsTrigger>
+          <TabsTrigger value="display" className="unified-tab-trigger">
+            <span>显示模式</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Emoji 选择器测试 */}

@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 
 const HelpDocumentation = () => {
   const topics = [
@@ -219,23 +220,6 @@ export function Header() {
         {/* Action Buttons */}
         {!isMobile && (
           <div className="hidden md:flex items-center space-x-4">
-            {shouldShowUpgradeButton() && (
-              <Button
-                onClick={() => {
-                  if (isAuthenticated) {
-                    // 已登录用户直接跳转到支付页面
-                    navigate('/payment');
-                  } else {
-                    // 未登录用户先登录再跳转
-                    login('/payment');
-                  }
-                }}
-                className="btn-upgrade-gradient text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
-              >
-                立即解锁高级功能
-              </Button>
-            )}
-            
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1">
@@ -245,7 +229,10 @@ export function Header() {
               </PopoverTrigger>
               <HelpDocumentation />
             </Popover>
-            
+
+            {/* 主题切换 */}
+            <ThemeToggle />
+
             {isAuthenticated ? (
               <UserAvatar 
                 size="md"
@@ -273,23 +260,6 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                {shouldShowUpgradeButton() && (
-                  <Button
-                    onClick={() => {
-                      if (isAuthenticated) {
-                        // 已登录用户直接跳转到支付页面
-                        navigate('/payment');
-                      } else {
-                        // 未登录用户先登录再跳转
-                        login('/payment');
-                      }
-                    }}
-                    className="btn-upgrade-gradient text-primary-foreground font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
-                  >
-                    立即解锁高级功能
-                  </Button>
-                )}
-                
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {
                     navigate('/adapt');
@@ -345,6 +315,13 @@ export function Header() {
                   <HelpCircle className="h-4 w-4 mr-1" />
                   帮助文档
                 </Button>
+
+                {/* 移动端主题切换 */}
+                <div className="flex items-center justify-start px-2">
+                  <span className="text-sm font-medium mr-3">切换主题</span>
+                  <ThemeToggle />
+                </div>
+
                 <hr className="my-4" />
                 
                 {isAuthenticated ? (
