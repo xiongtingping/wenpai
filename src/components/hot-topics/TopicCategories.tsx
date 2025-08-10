@@ -128,11 +128,12 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
             分类热点信息流
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            按分类展示所有热点话题，一目了然查看全网热点
+            按分类多列展示所有热点话题，一目了然查看全网热点
           </p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
+          {/* 多列网格布局 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {categories.filter(cat => cat.id !== 'all').map((category) => {
               const categoryTopics = getTopicsByCategory(category.id);
               if (categoryTopics.length === 0) return null;
@@ -141,55 +142,45 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                 <div key={category.id} className="space-y-3">
                   {/* 分类标题 */}
                   <div className="flex items-center gap-2 pb-2 border-b">
-                    <span className="text-xl">{category.icon}</span>
-                    <h3 className="text-lg font-semibold">{category.label}</h3>
-                    <Badge variant="secondary" className="ml-2">
-                      {categoryTopics.length} 条
+                    <span className="text-lg">{category.icon}</span>
+                    <h3 className="text-base font-semibold">{category.label}</h3>
+                    <Badge variant="secondary" className="ml-auto text-xs">
+                      {categoryTopics.length}
                     </Badge>
                   </div>
 
                   {/* 话题列表 */}
                   <div className="space-y-2">
-                    {categoryTopics.slice(0, 10).map((topic, index) => (
+                    {categoryTopics.slice(0, 8).map((topic, index) => (
                       <div
                         key={`${topic.platform}-${index}`}
-                        className="flex items-start gap-3 p-3 rounded-lg border hover:shadow-md transition-all cursor-pointer bg-card"
+                        className="p-2 rounded-lg border hover:shadow-md transition-all cursor-pointer bg-card"
                         onClick={() => onTopicClick(topic)}
                       >
-                        {/* 排名 */}
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        {/* 排名和平台 */}
+                        <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-bold text-primary">#{index + 1}</span>
+                          <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                            {topic.platform}
+                          </Badge>
                         </div>
 
-                        {/* 内容 */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <h4 className="text-sm font-medium line-clamp-2 flex-1">
-                              {topic.title}
-                            </h4>
-                            <Badge variant="outline" className="text-xs flex-shrink-0">
-                              {topic.platform}
-                            </Badge>
-                          </div>
+                        {/* 标题 */}
+                        <h4 className="text-sm font-medium line-clamp-2 mb-1">
+                          {topic.title}
+                        </h4>
 
-                          {topic.desc && (
-                            <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
-                              {topic.desc}
-                            </p>
-                          )}
-
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>热度: {topic.hot || '暂无数据'}</span>
-                            <span className="text-primary">{category.label}</span>
-                          </div>
+                        {/* 热度 */}
+                        <div className="text-xs text-muted-foreground">
+                          热度: {topic.hot || '暂无数据'}
                         </div>
                       </div>
                     ))}
 
-                    {categoryTopics.length > 10 && (
-                      <div className="text-center py-2">
+                    {categoryTopics.length > 8 && (
+                      <div className="text-center py-1">
                         <span className="text-xs text-muted-foreground">
-                          还有 {categoryTopics.length - 10} 条话题...
+                          +{categoryTopics.length - 8} 更多
                         </span>
                       </div>
                     )}
