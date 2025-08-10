@@ -36,7 +36,8 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
     { id: 'society', label: '社会', icon: '👥' },
     { id: 'education', label: '教育', icon: '📚' },
     { id: 'health', label: '健康', icon: '🏥' },
-    { id: 'lifestyle', label: '生活', icon: '🏠' }
+    { id: 'lifestyle', label: '生活', icon: '🏠' },
+    { id: 'other', label: '其他', icon: '📝' }
   ];
 
   /**
@@ -131,7 +132,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   return (
     <div className="mb-6">
       <Tabs value={activeCategory} onValueChange={handleCategoryChange}>
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
+        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11">
           {categories.map((category) => (
             <TabsTrigger
               key={category.id}
