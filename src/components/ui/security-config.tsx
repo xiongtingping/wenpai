@@ -222,7 +222,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-600" />
+            <Shield className="w-5 h-5 text-foreground" />
             安全状态概览
           </CardTitle>
           <CardDescription>
@@ -231,9 +231,9 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-accent border border-border rounded-lg">
               <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-green-600" />
+                <Lock className="w-4 h-4 text-foreground" />
                 <span className="text-sm font-medium">数据加密</span>
               </div>
               <Badge variant={securityStatus.encryptionEnabled ? "default" : "destructive"}>
@@ -241,9 +241,9 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-accent border border-border rounded-lg">
               <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-blue-600" />
+                <Eye className="w-4 h-4 text-foreground" />
                 <span className="text-sm font-medium">数据脱敏</span>
               </div>
               <Badge variant={securityStatus.dataMaskingEnabled ? "default" : "destructive"}>
@@ -251,9 +251,9 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-accent border border-border rounded-lg">
               <div className="flex items-center gap-2">
-                <Key className="w-4 h-4 text-purple-600" />
+                <Key className="w-4 h-4 text-foreground" />
                 <span className="text-sm font-medium">安全日志</span>
               </div>
               <Badge variant={securityStatus.secureLoggingEnabled ? "default" : "destructive"}>
@@ -261,9 +261,9 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-accent border border-border rounded-lg">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-orange-600" />
+                <AlertTriangle className="w-4 h-4 text-foreground" />
                 <span className="text-sm font-medium">发现漏洞</span>
               </div>
               <Badge variant={securityStatus.vulnerabilitiesFound > 0 ? "destructive" : "default"}>
@@ -272,7 +272,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>最后检查: {new Date(securityStatus.lastSecurityCheck).toLocaleString()}</span>
             <Button
               variant="outline"
@@ -292,7 +292,7 @@ export function SecurityConfig({ className }: SecurityConfigProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="w-5 h-5 text-orange-600" />
+              <Info className="w-5 h-5 text-foreground" />
               安全建议
             </CardTitle>
             <CardDescription>

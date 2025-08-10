@@ -121,7 +121,7 @@ export const NetworkIndicator: React.FC = () => {
   if (isOnline) return null;
 
   return (
-    <div className="bg-red-500 text-white px-3 py-1 text-sm text-center">
+    <div className="bg-destructive text-primary-foreground px-3 py-1 text-sm text-center">
       <div className="flex items-center justify-center gap-2">
         <WifiOff className="h-3 w-3" />
         <span>网络连接断开</span>

@@ -46,7 +46,7 @@ export function NicknameSelector({
         disabled={disabled}
         maxLength={20}
       />
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-muted-foreground">
         支持中文、英文、数字，长度2-20位
       </p>
     </div>

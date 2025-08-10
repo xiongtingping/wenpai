@@ -7,7 +7,7 @@ export function TrustSection() {
       <div 
         className="absolute top-0 left-0 right-0 h-10"
         style={{
-          background: 'linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%)'
+          background: 'var(--bg-gradient-primary)'
         }}
       />
       
@@ -30,73 +30,73 @@ export function TrustSection() {
             <Book className="h-8 w-8 text-foreground mb-2" />
             <span className="text-sm font-medium text-muted-foreground">小红书</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <MessageSquare className="h-8 w-8 text-green-500 mb-2" />
-            <span className="text-sm font-medium text-gray-700">微信公众号</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <MessageSquare className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">微信公众号</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <MessageSquare className="h-8 w-8 text-blue-500 mb-2" />
-            <span className="text-sm font-medium text-gray-700">知乎</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <MessageSquare className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">知乎</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Video className="h-8 w-8 text-black mb-2" />
-            <span className="text-sm font-medium text-gray-700">抖音</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Video className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">抖音</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Video className="h-8 w-8 text-blue-400 mb-2" />
-            <span className="text-sm font-medium text-gray-700">B站</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Video className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">B站</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Send className="h-8 w-8 text-orange-500 mb-2" />
-            <span className="text-sm font-medium text-gray-700">微博</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Send className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">微博</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Globe className="h-8 w-8 text-blue-700 mb-2" />
-            <span className="text-sm font-medium text-gray-700">百家号</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Globe className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">百家号</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Zap className="h-8 w-8 text-yellow-600 mb-2" />
-            <span className="text-sm font-medium text-gray-700">快手</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Zap className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">快手</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Rss className="h-8 w-8 text-red-500 mb-2" />
-            <span className="text-sm font-medium text-gray-700">网易号</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Rss className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">网易号</span>
           </div>
           {/* 新增平台logo */}
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Newspaper className="h-8 w-8 text-orange-600 mb-2" />
-            <span className="text-sm font-medium text-gray-700">头条号</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Newspaper className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">头条号</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Facebook className="h-8 w-8 text-blue-600 mb-2" />
-            <span className="text-sm font-medium text-gray-700">Facebook</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Facebook className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">Facebook</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Twitter className="h-8 w-8 text-blue-400 mb-2" />
-            <span className="text-sm font-medium text-gray-700">X（Twitter）</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Twitter className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">X（Twitter）</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Linkedin className="h-8 w-8 text-blue-700 mb-2" />
-            <span className="text-sm font-medium text-gray-700">LinkedIn</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Linkedin className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">LinkedIn</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Instagram className="h-8 w-8 text-pink-500 mb-2" />
-            <span className="text-sm font-medium text-gray-700">Instagram</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <Instagram className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">Instagram</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <User className="h-8 w-8 text-green-700 mb-2" />
-            <span className="text-sm font-medium text-gray-700">豆瓣</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <User className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">豆瓣</span>
           </div>
 
-          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <SquarePlay className="h-8 w-8 text-green-600 mb-2" />
-            <span className="text-sm font-medium text-gray-700">视频号</span>
+          <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow mx-auto">
+            <SquarePlay className="h-8 w-8 text-foreground mb-2" />
+            <span className="text-sm font-medium text-muted-foreground">视频号</span>
           </div>
         </div>
         
         <div className="mt-12 text-center">
-          <span className="inline-flex items-center text-sm text-gray-500 bg-blue-50 px-4 py-2 rounded-full">
-            <span className="text-blue-600 mr-2">🔍</span>
+          <span className="inline-flex items-center text-sm text-muted-foreground bg-accent px-4 py-2 rounded-full">
+            <span className="text-foreground mr-2">🔍</span>
             支持14+主流平台，AI智能适配平台特性与用户习惯
           </span>
         </div>
@@ -106,7 +106,7 @@ export function TrustSection() {
       <div 
         className="absolute bottom-0 left-0 right-0 h-10"
         style={{
-          background: 'linear-gradient(to top, #ffffff 0%, #f9f9f9 100%)'
+          background: 'var(--bg-gradient-primary)'
         }}
       />
     </section>
