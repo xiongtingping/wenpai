@@ -50,7 +50,7 @@ export const globalContentAdaptationScheme: ContentScheme = {
   name: '全域内容适配方案',
   description: '针对小红书、微博、微信、抖音、知乎、B站等主流平台的专业内容适配方案，确保内容符合各平台特色和用户习惯',
   icon: '🌐',
-  color: 'from-purple-500 to-indigo-600',
+  color: 'from-hsl(var(--accent))-500 to-indigo-600',
   platforms: ['xiaohongshu', 'weibo', 'wechat', 'douyin', 'zhihu', 'bilibili'],
   features: [
     '多平台风格适配',
@@ -768,7 +768,7 @@ export const contentSchemes: ContentScheme[] = [
     name: '通用适配方案',
     description: '适用于大多数平台的基础内容适配，保持内容核心价值的同时进行适度调整',
     icon: '🔄',
-    color: 'from-blue-500 to-cyan-500',
+    color: 'from-hsl(var(--primary))-500 to-cyan-500',
     platforms: ['general'],
     features: [
       '通用内容适配',
@@ -782,7 +782,7 @@ export const contentSchemes: ContentScheme[] = [
     name: '营销推广方案',
     description: '专注于营销效果的内容适配，强调转化率和用户行动引导',
     icon: '📈',
-    color: 'from-green-500 to-emerald-500',
+    color: 'from-hsl(var(--success))-500 to-emerald-500',
     platforms: ['marketing'],
     features: [
       '营销导向',
@@ -796,7 +796,7 @@ export const contentSchemes: ContentScheme[] = [
     name: '创意写作方案',
     description: '注重创意性和独特性的内容生成，适合需要差异化表达的场景',
     icon: '✨',
-    color: 'from-purple-500 to-pink-500',
+    color: 'from-hsl(var(--accent))-500 to-hsl(var(--accent))-500',
     platforms: ['creative'],
     features: [
       '创意表达',

@@ -46,7 +46,7 @@ body *,
   font-variant-numeric: normal !important;
   font-feature-settings: normal !important;
   -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
+  -moz-osx-font-smoothing: hsl(var(--muted-foreground))scale !important;
 }
 
 /* 修复大字号数字显示 */

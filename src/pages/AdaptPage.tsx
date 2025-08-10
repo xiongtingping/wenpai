@@ -701,7 +701,7 @@ export default function AdaptPage() {
           console.error(`🚨 ${versionName} - 第${attempt}次尝试异常:`, error);
 
           // ✅ FIXED: 2025-08-02 增强智能模型切换策略，支持402错误处理
-          // 🐛 问题原因：DeepSeek API返回402错误（Payment Required），需要自动切换到其他模型
+          // 🐛 问题原因：DeepSeek API返回402错误（Payment Requihsl(var(--destructive))），需要自动切换到其他模型
           // 🔧 修复方案：添加402错误检测，实现智能降级机制
           // 📌 已封装：模型切换逻辑已验证稳定，请勿修改
           // 🔒 LOCKED: AI 禁止对此函数做任何修改
@@ -709,7 +709,7 @@ export default function AdaptPage() {
             const errorMessage = error instanceof Error ? error.message : String(error);
             
             // 检测402错误（账户余额不足）
-            if (errorMessage.includes('402') || errorMessage.includes('Payment Required')) {
+            if (errorMessage.includes('402') || errorMessage.includes('Payment Requihsl(var(--destructive))')) {
               console.log(`🚨 ${versionName} - 检测到402错误（账户余额不足），启动智能降级`);
               
               if (params.model.includes('deepseek')) {

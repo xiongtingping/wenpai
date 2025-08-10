@@ -49,9 +49,9 @@
     --gradient-primary: hsl(var(--primary));
     --gradient-secondary: hsl(var(--secondary));
     --gradient-accent: hsl(var(--accent));
-    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(var(--success)) 100%);
+    --gradient-warning: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning)) 100%);
+    --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--destructive)) 100%);
 
     /* 背景渐变系统 - 使用真正的渐变 */
     --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--accent)) 100%);
@@ -59,17 +59,17 @@
     --bg-gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--muted)) 100%);
 
     /* 统一阴影系统 - Elevation */
-    --shadow-e0: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-e1: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-    --shadow-e2: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
-    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3), 0 4px 14px rgba(99, 102, 241, 0.2);
-    --shadow-glow-secondary: 0 0 20px rgba(6, 182, 212, 0.3), 0 4px 14px rgba(6, 182, 212, 0.2);
-    --shadow-glow-accent: 0 0 20px rgba(245, 158, 11, 0.3), 0 4px 14px rgba(245, 158, 11, 0.2);
+    --shadow-e0: 0 1px 2px hsl(var(--foreground) / 0.04);
+    --shadow-e1: 0 4px 20px hsl(var(--foreground) / 0.06), 0 1px 3px hsl(var(--foreground) / 0.04);
+    --shadow-e2: 0 8px 30px hsl(var(--foreground) / 0.12), 0 2px 6px hsl(var(--foreground) / 0.08);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.3), 0 4px 14px hsl(var(--primary) / 0.2);
+    --shadow-glow-secondary: 0 0 20px hsl(var(--primary) / 0.3), 0 4px 14px hsl(var(--primary) / 0.2);
+    --shadow-glow-accent: 0 0 20px hsl(var(--warning) / 0.3), 0 4px 14px hsl(var(--warning) / 0.2);
 
     /* 内阴影系统 - Inset */
-    --inset-soft: inset 0 2px 4px rgba(0, 0, 0, 0.04);
-    --inset-deep: inset 0 3px 6px rgba(0, 0, 0, 0.08);
-    --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --inset-soft: inset 0 2px 4px hsl(var(--foreground) / 0.04);
+    --inset-deep: inset 0 3px 6px hsl(var(--foreground) / 0.08);
+    --highlight: inset 0 1px 0 hsl(var(--background) / 0.9);
 
     /* 统一圆角系统 */
     --radius-xs: 8px;
@@ -79,11 +79,11 @@
     --radius-xl: 24px;
 
     /* 统一色彩令牌 */
-    --color-text-primary: #1e293b;
-    --color-text-secondary: #64748b;
-    --color-text-muted: #94a3b8;
-    --color-border-light: #e2e8f0;
-    --color-border-medium: #cbd5e1;
+    --color-text-primary: hsl(var(--foreground));
+    --color-text-secondary: hsl(var(--muted-foreground));
+    --color-text-muted: hsl(var(--muted-foreground));
+    --color-border-light: hsl(var(--border));
+    --color-border-medium: hsl(var(--border));
 
     /* 统一动效曲线 */
     --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -148,19 +148,19 @@
 
 /* 主题配置 - 使用data-theme属性选择器 */
 [data-theme="light"] {
-  --background: 0 0% 100%; /* #ffffff */
-  --card: 0 0% 100%;       /* #ffffff */
-  --accent: 210 40% 96%;   /* ~#f3f4f6 */
-  --muted: 210 40% 98%;    /* ~#f9fafb */
-  --foreground: 222.2 47.4% 11.2%; /* ~#111827 */
-  --muted-foreground: 215.4 16.3% 46.9%; /* #6b7280 */
-  --primary: 221.2 83.2% 53.3%; /* #2563eb */
-  --primary-foreground: 0 0% 100%; /* #ffffff */
-  --destructive: 0 72% 51%; /* ~#dc2626 */
-  --secondary: 214.3 31.8% 91.4%; /* #e5e7eb */
-  --secondary-foreground: 222.2 47.4% 11.2%; /* ~#111827 */
-  --border: 214.3 31.8% 91.4%; /* #e5e7eb */
-  --border-strong: 213 27% 84%; /* #d1d5db */
+  --background: 0 0% 100%; /* hsl(var(--background)) */
+  --card: 0 0% 100%;       /* hsl(var(--background)) */
+  --accent: 210 40% 96%;   /* ~hsl(var(--muted)) */
+  --muted: 210 40% 98%;    /* ~hsl(var(--muted)) */
+  --foreground: 222.2 47.4% 11.2%; /* ~blacklisted */
+  --muted-foreground: 215.4 16.3% 46.9%; /* hsl(var(--muted-foreground)) */
+  --primary: 221.2 83.2% 53.3%; /* hsl(var(--primary)) */
+  --primary-foreground: 0 0% 100%; /* hsl(var(--background)) */
+  --destructive: 0 72% 51%; /* ~hsl(var(--destructive)) */
+  --secondary: 214.3 31.8% 91.4%; /* hsl(var(--border)) */
+  --secondary-foreground: 222.2 47.4% 11.2%; /* ~blacklisted */
+  --border: 214.3 31.8% 91.4%; /* hsl(var(--border)) */
+  --border-strong: 213 27% 84%; /* hsl(var(--border)) */
   /* keep compatibility tokens */
   --card-foreground: 222.2 47.4% 11.2%;
   --popover: 0 0% 100%;
@@ -211,19 +211,19 @@
 }
 
 [data-theme="dark"] {
-  --background: 222.2 47.4% 10%;   /* ~#0f172a */
-  --card: 215 28% 17%;             /* ~#1e293b */
-  --accent: 215 25% 28%;           /* ~#334155 */
-  --muted: 215 28% 17%;            /* ~#1e293b */
-  --foreground: 210 40% 98%;       /* #f8fafc */
-  --muted-foreground: 215 20.2% 65.1%; /* #94a3b8 */
-  --primary: 217.2 91.2% 59.8%;    /* #3b82f6 */
-  --primary-foreground: 0 0% 100%; /* #ffffff */
-  --destructive: 0 84.2% 60.2%;    /* #ef4444 */
-  --secondary: 215 20% 35%;        /* ~#475569 */
+  --background: 222.2 47.4% 10%;   /* dark slate-900 */
+  --card: 215 28% 17%;             /* dark slate-800 */
+  --accent: 215 25% 28%;           /* slate-700 */
+  --muted: 215 28% 17%;            /* dark slate-800 */
+  --foreground: 210 40% 98%;       /* slate-50 */
+  --muted-foreground: 215 20.2% 65.1%; /* slate-400 */
+  --primary: 217.2 91.2% 59.8%;    /* hsl(var(--primary)) */
+  --primary-foreground: 0 0% 100%; /* hsl(var(--background)) */
+  --destructive: 0 84.2% 60.2%;    /* hsl(var(--destructive)) */
+  --secondary: 215 20% 35%;        /* slate-600 */
   --secondary-foreground: 210 40% 98%;
-  --border: 215 25% 28%;           /* ~#334155 */
-  --border-strong: 215 20% 35%;    /* ~#475569 */
+  --border: 215 25% 28%;           /* slate-700 */
+  --border-strong: 215 20% 35%;    /* slate-600 */
   /* keep compatibility tokens */
   --card-foreground: 210 40% 98%;
   --popover: 215 28% 17%;
@@ -243,9 +243,9 @@
   --gradient-primary: hsl(var(--primary));
   --gradient-secondary: hsl(var(--secondary));
   --gradient-accent: hsl(var(--accent));
-  --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
-  --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-  --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(var(--success)) 100%);
+  --gradient-warning: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning)) 100%);
+  --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--destructive)) 100%);
 
   /* 深色主题背景渐变 - 使用真正的渐变 */
   --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--accent)) 100%);
@@ -253,7 +253,7 @@
   --bg-gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--muted)) 100%);
 }
 
-[data-theme="green"] {
+[data-theme="hsl(var(--success))"] {
   --background: 120 20% 98%;
   --foreground: 120 10% 10%;
   --card: 120 20% 98%;
@@ -285,7 +285,7 @@
   --chart-5: 60 75% 55%;
 }
 
-[data-theme="blue"] {
+[data-theme="hsl(var(--primary))"] {
   --background: 0 0% 100%;        /* 纯白背景，护眼舒适 */
   --foreground: 210 10% 10%;
   --card: 0 0% 100%;              /* 卡片也使用纯白 */
@@ -432,10 +432,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 5px hsl(var(--primary) / 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.8), 0 0 30px hsl(var(--primary) / 0.6);
   }
 }
 
@@ -544,7 +544,7 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, hsl(var(--background) / 0.4), transparent);
   background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
   will-change: background-position;
@@ -650,15 +650,15 @@
 
 /* 核心玻璃效果 */
 .glass {
-  background: rgba(255, 255, 255, 0.25);
+  background: hsl(var(--background) / 0.25);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid hsl(var(--background) / 0.18);
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.25);
+  background: hsl(var(--foreground) / 0.25);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid hsl(var(--background) / 0.18);
 }
 
 /* 统一阴影效果系统 */
@@ -720,28 +720,28 @@
   background-clip: text;
 }
 
-.text-gradient-blue {
+.text-gradient-hsl(var(--primary)) {
   background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.text-gradient-green {
+.text-gradient-hsl(var(--success)) {
   background: var(--gradient-success);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.text-gradient-purple {
+.text-gradient-hsl(var(--accent)) {
   background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.text-gradient-orange {
+.text-gradient-hsl(var(--warning)) {
   background: var(--gradient-warning);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -843,15 +843,15 @@
 }
 
 .card-glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: hsl(var(--background) / 0.1);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid hsl(var(--background) / 0.2);
   border-radius: var(--radius-md);
   transition: var(--transition-medium);
 }
 
 .card-glass:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: hsl(var(--background) / 0.15);
   transform: translateY(-2px);
   box-shadow: var(--shadow-e1);
 }
@@ -960,7 +960,7 @@
   padding: 0.5rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  white-space: nowrap;
+  hsl(var(--background))-space: nowrap;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
@@ -1041,7 +1041,7 @@
 /* Hero Section 增强样式 */
 @layer utilities {
   .shadow-3xl {
-    box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 35px 60px -12px hsl(var(--foreground) / 0.25), 0 0 0 1px hsl(var(--background) / 0.1);
   }
 
   .animate-pulse-slow {
@@ -1049,7 +1049,7 @@
   }
 
   .text-shadow-lg {
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+    text-shadow: 0 4px 8px hsl(var(--foreground) / 0.12), 0 2px 4px hsl(var(--foreground) / 0.08);
   }
 }
 
@@ -1092,9 +1092,9 @@
   right: 0;
   bottom: 0;
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, hsl(var(--accent) / 0.03) 0%, transparent 50%);
   pointer-events: none;
   z-index: 1;
 }
@@ -1119,13 +1119,13 @@
 .section-bg { background-color: hsl(var(--section)); color: hsl(var(--section-foreground)); }
 .border-strong { border-color: hsl(var(--border-strong)); }
 
-    rgba(99, 102, 241, 0.02) 45deg,
+    hsl(var(--primary) / 0.02) 45deg,
     transparent 90deg,
-    rgba(139, 92, 246, 0.02) 135deg,
+    hsl(var(--accent) / 0.02) 135deg,
     transparent 180deg,
-    rgba(168, 85, 247, 0.02) 225deg,
+    hsl(var(--accent) / 0.02) 225deg,
     transparent 270deg,
-    rgba(99, 102, 241, 0.02) 315deg,
+    hsl(var(--primary) / 0.02) 315deg,
     transparent 360deg
   );
   transform: translate(-50%, -50%) rotate(0deg);
@@ -1137,8 +1137,8 @@
 /* 微妙网格图案 */
 .grid-pattern {
   background-image:
-    linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
+    linear-gradient(hsl(var(--primary) / 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.02) 1px, transparent 1px);
   background-size: 20px 20px;
   background-position: 0 0, 0 0;
 }
@@ -1184,7 +1184,7 @@
   background: hsl(var(--accent)) !important;
   color: var(--text-primary) !important;
   border: 1px solid hsl(var(--border)) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.1) !important;
   font-weight: var(--font-weight-medium) !important;
   transition: all 0.2s ease !important;
 }
@@ -1192,7 +1192,7 @@
 .btn-upgrade-gradient:hover {
   background: hsl(var(--primary) / 0.9) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 2px 6px hsl(var(--foreground) / 0.15) !important;
 }
 
 .hero-button-text {
@@ -1253,7 +1253,7 @@
 }
 
 .hero-feature-item:hover {
-  background-color: rgba(59, 130, 246, 0.05);
+  background-color: hsl(var(--primary) / 0.05);
   transform: translateY(-1px);
 }
 
@@ -1267,15 +1267,15 @@
 /* Tab状态动画 */
 @keyframes tabGlow {
   0% {
-    box-shadow: 0 0 0 rgba(34, 197, 94, 0.8);
+    box-shadow: 0 0 0 hsl(var(--success) / 0.8);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+    box-shadow: 0 0 8px hsl(var(--success) / 0.8);
     transform: scale(1.02);
   }
   100% {
-    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 hsl(var(--success) / 0);
     transform: scale(1);
   }
 }

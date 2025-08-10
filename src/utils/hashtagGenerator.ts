@@ -193,7 +193,7 @@ export class HashtagGenerator {
         if (word.length < 2 || word.length > 8) return false;
 
         // 排除黑名单词汇
-        if (blacklist.some(black => word.includes(black))) return false;
+        if (blacklist.some(blacklisted => word.includes(blacklisted))) return false;
 
         // 排除纯英文、纯数字
         if (/^[a-zA-Z]+$/.test(word) || /^\d+$/.test(word)) return false;

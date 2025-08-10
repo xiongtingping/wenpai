@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 px-4 sm:px-6 lg:px-8">
+    <section className="relative bg-gradient-to-br from-hsl(var(--primary))-50 to-indigo-100 py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
                   alt="文派Logo"
                   className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
                 />
-                <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-indigo-600 via-hsl(var(--primary))-600 to-hsl(var(--accent))-600 bg-clip-text text-transparent">
                   文派 AI 智能创作平台
                 </span>
               </div>
@@ -110,7 +110,7 @@ const HeroSection: React.FC = () => {
               <Button
                 onClick={handleButtonClick}
                 size="lg"
-                className="relative inline-flex items-center justify-center bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-primary-foreground px-14 py-6 text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-3xl border-0 overflow-hidden group/button min-h-[4rem]"
+                className="relative inline-flex items-center justify-center bg-gradient-to-r from-hsl(var(--primary))-600 via-indigo-600 to-hsl(var(--accent))-600 hover:from-hsl(var(--primary))-700 hover:via-indigo-700 hover:to-hsl(var(--accent))-700 text-primary-foreground px-14 py-6 text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-110 shadow-2xl hover:shadow-3xl border-0 overflow-hidden group/button min-h-[4rem]"
               >
                 <span className="relative z-10 hero-button-content gap-3">
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,11 +122,11 @@ const HeroSection: React.FC = () => {
                   </svg>
                 </span>
                 {/* 动态背景效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-hsl(var(--background))/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
                 {/* 增强光晕效果 */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur-lg opacity-40 group-hover/button:opacity-70 transition-all duration-300 animate-pulse"></div>
+                <div className="absolute -inset-2 bg-gradient-to-r from-hsl(var(--primary))-600 via-indigo-600 to-hsl(var(--accent))-600 rounded-2xl blur-lg opacity-40 group-hover/button:opacity-70 transition-all duration-300 animate-pulse"></div>
                 {/* 闪烁效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-hsl(var(--background))/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
               </Button>
 
 
@@ -140,7 +140,7 @@ const HeroSection: React.FC = () => {
               <div className="group relative">
                 <div className="bg-gradient-to-br bg-primary/10 p-6 rounded-2xl border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-gradient-to-br from-hsl(var(--primary))-500 to-hsl(var(--primary))-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
@@ -160,7 +160,7 @@ const HeroSection: React.FC = () => {
               <div className="group relative">
                 <div className="bg-gradient-to-br bg-accent p-6 rounded-2xl border border-border hover:border-border transition-all duration-300 hover:shadow-lg">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-gradient-to-br from-hsl(var(--success))-500 to-hsl(var(--success))-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -180,7 +180,7 @@ const HeroSection: React.FC = () => {
               <div className="group relative">
                 <div className="bg-gradient-to-br bg-primary/10 p-6 rounded-2xl border border-primary hover:border-border transition-all duration-300 hover:shadow-lg">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-gradient-to-br from-hsl(var(--accent))-500 to-hsl(var(--accent))-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                       </svg>

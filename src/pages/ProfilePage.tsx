@@ -174,7 +174,7 @@ export default function ProfilePage() {
           </linearGradient>
         </defs>
         <rect width="200" height="200" rx="100" fill="url(#bg-${seed})" />
-        <text x="100" y="120" font-family="Arial, sans-serif" font-size="60" font-weight="bold" text-anchor="middle" fill="white">${initials}</text>
+        <text x="100" y="120" font-family="Arial, sans-serif" font-size="60" font-weight="bold" text-anchor="middle" fill="hsl(var(--background))">${initials}</text>
       </svg>
     `;
 
@@ -1039,10 +1039,10 @@ export default function ProfilePage() {
           {/* 右侧：邀请奖励 */}
           <div className="lg:col-span-1 flex">
             <Card variant="soft" className="w-full h-full flex flex-col rounded-xl overflow-hidden relative">
-              <CardHeader className="border-b border-border relative z-10 rounded-t-xl bg-card">
+              <CardHeader className="bg-gradient-secondary text-foreground relative z-10 rounded-t-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-primary/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
+                    <div className="w-12 h-12 bg-card/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
                       <Gift className="w-6 h-6 drop-shadow-sm" />
                     </div>
                     <div>
@@ -1054,7 +1054,7 @@ export default function ProfilePage() {
                     variant="soft"
                     size="sm"
                     onClick={handleCopyInviteLink}
-                    className="bg-primary/20 backdrop-blur-sm border-primary/30 text-foreground hover:bg-primary/30 hover:border-primary/50 rounded-lg"
+                    className="bg-card/20 backdrop-blur-sm border-border/30 text-primary-foreground hover:bg-card/30 hover:border-border/50 rounded-lg"
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
@@ -1064,10 +1064,10 @@ export default function ProfilePage() {
                 {/* 邀请统计卡片 - 优化布局密度以平衡左侧 */}
                 <div className="flex-1 space-y-4">
                   {/* 邀请奖励规则卡片 - 减少高度 */}
-                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-card">
+                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-accent">
                     <div className="flex items-center gap-3 mb-3 relative z-10">
-                      <div className="w-10 h-10 btn-gradient-secondary rounded-2xl flex items-center justify-center shadow-lg">
-                        <Award className="w-5 h-5 text-primary drop-shadow-sm" />
+                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
+                        <Award className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                       </div>
                       <h3 className="font-bold text-foreground text-lg">邀请奖励规则</h3>
                     </div>
@@ -1077,22 +1077,22 @@ export default function ProfilePage() {
                   </div>
 
                   {/* 邀请统计和邀请链接合并卡片 - 提高空间利用率 */}
-                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-card">
+                  <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-accent">
                     {/* 邀请统计部分 */}
                     <div className="mb-5 relative z-10">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-gradient-secondary rounded-lg flex items-center justify-center shadow-e0">
-                          <Users className="w-5 h-5 text-primary drop-shadow-sm" />
+                        <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
+                          <Users className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                         </div>
                         <h3 className="font-bold text-foreground text-lg">邀请统计</h3>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="text-center p-3 border border-border rounded-lg shadow-e0 bg-card">
+                        <div className="text-center p-3 border border-border rounded-lg shadow-e0 bg-accent">
                           <div className="text-xl font-bold text-foreground mb-1 tabular-nums">0</div>
                           <div className="text-sm font-medium text-muted-foreground">成功邀请</div>
                         </div>
-                        <div className="text-center p-3 border border-border rounded-lg shadow-e0 bg-card">
+                        <div className="text-center p-3 border border-border rounded-lg shadow-e0 bg-accent">
                           <div className="text-xl font-bold text-foreground mb-1 tabular-nums">0</div>
                           <div className="text-sm font-medium text-muted-foreground">获得次数</div>
                         </div>
@@ -1102,8 +1102,8 @@ export default function ProfilePage() {
                     {/* 邀请链接部分 */}
                     <div className="relative z-10">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-gradient-success rounded-lg flex items-center justify-center shadow-e0">
-                          <Copy className="w-5 h-5 text-primary drop-shadow-sm" />
+                        <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
+                          <Copy className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                         </div>
                         <h3 className="font-bold text-foreground text-lg">邀请链接</h3>
                       </div>
@@ -1112,13 +1112,13 @@ export default function ProfilePage() {
                         <Input
                           value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`}
                           readOnly
-                          className="text-sm h-11 border border-border rounded-lg bg-gradient-to-r bg-accent font-mono flex-1"
+                          className="text-sm h-11 border border-border rounded-lg bg-accent font-mono flex-1"
                         />
                         <Button
-                          variant="gradientSuccess"
+                          variant="soft"
                           size="sm"
                           onClick={handleCopyInviteLink}
-                          className="h-11 px-4 rounded-lg"
+                          className="h-11 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
@@ -1133,7 +1133,7 @@ export default function ProfilePage() {
                     className="w-full h-14 text-primary-foreground bg-primary font-bold text-lg rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center"
                     onClick={handleInviteFriends}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-hsl(var(--background))/10 to-transparent pointer-events-none"></div>
                     <div className="flex items-center justify-center gap-3 relative z-10">
                       <Users className="w-6 h-6 drop-shadow-sm" />
                       <span className="drop-shadow-sm">立即邀请好友</span>

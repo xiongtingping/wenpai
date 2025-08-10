@@ -10,14 +10,14 @@ import {
 
 const THEME_KEY = 'wenpai-theme';
 
-type Theme = 'light' | 'dark' | 'blue' | 'beige' | 'green';
+type Theme = 'light' | 'dark' | 'hsl(var(--primary))' | 'beige' | 'hsl(var(--success))';
 
 const themes: { value: Theme; label: string; icon: React.ReactNode }[] = [
   { value: 'light', label: '浅色', icon: <Sun className="h-4 w-4" /> },
   { value: 'dark', label: '深色', icon: <Moon className="h-4 w-4" /> },
-  { value: 'blue', label: '蓝色', icon: <div className="w-4 h-4 rounded-full bg-accent0" /> },
+  { value: 'hsl(var(--primary))', label: '蓝色', icon: <div className="w-4 h-4 rounded-full bg-accent0" /> },
   { value: 'beige', label: '护眼米色', icon: <div className="w-4 h-4 rounded-full bg-amber-200" /> },
-  { value: 'green', label: '绿色', icon: <div className="w-4 h-4 rounded-full bg-green-500" /> },
+  { value: 'hsl(var(--success))', label: '绿色', icon: <div className="w-4 h-4 rounded-full bg-hsl(var(--success))-500" /> },
 ];
 
 function getInitialTheme(): Theme {

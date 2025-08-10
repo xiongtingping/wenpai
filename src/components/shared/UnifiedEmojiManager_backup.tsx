@@ -183,7 +183,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     }
 
     setEmojiCategories([
-      { id: 'all', name: '全部', icon: '🎨', color: '#6C5CE7', count: 0, description: '所有emoji' },
+      { id: 'all', name: '全部', icon: '🎨', color: 'hsl(var(--accent))', count: 0, description: '所有emoji' },
       ...filteredCategories
     ]);
 
@@ -429,13 +429,13 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
 
   return (
     <div className={`min-h-screen ${className}`} style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)',
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
       {/* 头部标题区 - 沿用旧版风格 */}
       <div className="text-center text-primary-foreground mb-8 pt-8">
         <h1 className="text-4xl font-bold mb-4" style={{
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+          textShadow: '2px 2px 4px hsl(var(--foreground) / 0.3)'
         }}>
           🎨 Emoji管理系统
         </h1>
@@ -645,7 +645,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={(e) => handleEmojiClick(emoji, e)}
                   style={{
                     transform: isSelected ? 'translateY(-5px)' : 'none',
-                    boxShadow: isSelected ? '0 12px 40px rgba(0,0,0,0.2)' : '0 8px 32px rgba(0,0,0,0.1)'
+                    boxShadow: isSelected ? '0 12px 40px hsl(var(--foreground) / 0.2)' : '0 8px 32px hsl(var(--foreground) / 0.1)'
                   }}
                 >
                   {/* 收藏按钮 */}
@@ -658,7 +658,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                       className="absolute top-2 right-2 w-6 h-6 rounded-full bg-card shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     >
                       <Heart
-                        className={`w-3 h-3 ${isFavorited ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`}
+                        className={`w-3 h-3 ${isFavorited ? 'fill-hsl(var(--destructive))-500 text-destructive' : 'text-muted-foreground'}`}
                       />
                     </button>
                   )}
@@ -756,7 +756,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                         className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-muted transition-colors"
                       >
                         <Heart
-                          className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`}
+                          className={`w-4 h-4 ${isFavorited ? 'fill-hsl(var(--destructive))-500 text-destructive' : 'text-muted-foreground'}`}
                         />
                       </button>
                     )}
@@ -800,7 +800,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                       className="absolute top-4 right-4 w-8 h-8 rounded-full bg-card shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     >
                       <Heart
-                        className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`}
+                        className={`w-4 h-4 ${isFavorited ? 'fill-hsl(var(--destructive))-500 text-destructive' : 'text-muted-foreground'}`}
                       />
                     </button>
                   )}

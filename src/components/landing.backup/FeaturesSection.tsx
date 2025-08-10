@@ -46,9 +46,9 @@ const mainFeatures = [
     icon: Zap,
     path: '/adapt',
     color: 'btn-gradient-primary',
-    bgColor: 'from-blue-50 to-cyan-50',
+    bgColor: 'from-hsl(var(--primary))-50 to-cyan-50',
     borderColor: 'border-border',
-    hoverColor: 'hover:from-blue-100 hover:to-cyan-100',
+    hoverColor: 'hover:from-hsl(var(--primary))-100 hover:to-cyan-100',
     badge: '🔥 热门',
     badgeColor: 'bg-gradient-to-r btn-gradient-primary',
     features: ['智能内容分析', '多平台格式适配', '一键生成优化建议', '实时预览效果']
@@ -58,10 +58,10 @@ const mainFeatures = [
     description: 'AI驱动的创意生成工具，激发无限灵感，创造独特而富有吸引力的内容',
     icon: Sparkles,
     path: '/creative-studio',
-    color: 'from-purple-500 to-pink-500',
-    bgColor: 'from-purple-50 to-pink-50',
+    color: 'from-hsl(var(--accent))-500 to-hsl(var(--accent))-500',
+    bgColor: 'from-hsl(var(--accent))-50 to-hsl(var(--accent))-50',
     borderColor: 'border-primary',
-    hoverColor: 'hover:from-purple-100 hover:to-pink-100',
+    hoverColor: 'hover:from-hsl(var(--accent))-100 hover:to-hsl(var(--accent))-100',
     badge: '⭐ 推荐',
     badgeColor: 'btn-gradient-primary',
     features: ['AI创意生成', '多种创意模板', '灵感库管理', '创意协作']
@@ -71,12 +71,12 @@ const mainFeatures = [
     description: '实时监控热点话题，精准把握趋势脉搏，抢占内容传播先机',
     icon: TrendingUp,
     path: '/hot-topics',
-    color: 'from-orange-500 to-red-500',
-    bgColor: 'from-orange-50 to-red-50',
+    color: 'from-hsl(var(--warning))-500 to-hsl(var(--destructive))-500',
+    bgColor: 'from-hsl(var(--warning))-50 to-hsl(var(--destructive))-50',
     borderColor: 'border-border',
-    hoverColor: 'hover:from-orange-100 hover:to-red-100',
+    hoverColor: 'hover:from-hsl(var(--warning))-100 hover:to-hsl(var(--destructive))-100',
     badge: '🔥 实时监控',
-    badgeColor: 'bg-gradient-to-r from-orange-500 to-red-500',
+    badgeColor: 'bg-gradient-to-r from-hsl(var(--warning))-500 to-hsl(var(--destructive))-500',
     features: ['实时热点监控', '趋势分析报告', '竞品内容追踪', '话题预测']
   },
   {
@@ -84,12 +84,12 @@ const mainFeatures = [
     description: '个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及',
     icon: FolderOpen,
     path: '/library',
-    color: 'from-green-500 to-emerald-500',
-    bgColor: 'from-green-50 to-emerald-50',
+    color: 'from-hsl(var(--success))-500 to-emerald-500',
+    bgColor: 'from-hsl(var(--success))-50 to-emerald-50',
     borderColor: 'border-border',
-    hoverColor: 'hover:from-green-100 hover:to-emerald-100',
+    hoverColor: 'hover:from-hsl(var(--success))-100 hover:to-emerald-100',
     badge: '💡 实用',
-    badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
+    badgeColor: 'bg-gradient-to-r from-hsl(var(--success))-500 to-emerald-500',
     features: ['内容收藏管理', '智能分类标签', '快速搜索检索', '云端同步']
   },
   {
@@ -97,10 +97,10 @@ const mainFeatures = [
     description: '专业品牌资产管理系统，统一管理品牌元素，提升品牌一致性和识别度',
     icon: Users,
     path: '/brand-library',
-    color: 'from-indigo-500 to-blue-500',
-    bgColor: 'from-indigo-50 to-blue-50',
+    color: 'from-indigo-500 to-hsl(var(--primary))-500',
+    bgColor: 'from-indigo-50 to-hsl(var(--primary))-50',
     borderColor: 'border-primary',
-    hoverColor: 'hover:from-indigo-100 hover:to-blue-100',
+    hoverColor: 'hover:from-indigo-100 hover:to-hsl(var(--primary))-100',
     badge: '👑 高级版',
     badgeColor: 'bg-gradient-to-r btn-gradient-secondary',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
@@ -116,7 +116,7 @@ const quickTools = [
     description: '智能生成生动表情符号，让内容更有趣更有感染力',
     icon: Smile,
     path: '/emoji-generator',
-    color: 'from-yellow-400 to-orange-400',
+    color: 'from-hsl(var(--warning))-400 to-hsl(var(--warning))-400',
   },
   {
     title: '🚀 一键转发',
@@ -130,14 +130,14 @@ const quickTools = [
     description: '精美模板快速生成，让您的朋友圈内容脱颖而出',
     icon: MessageCircle,
     path: '/wechat-templates',
-    color: 'from-pink-400 to-rose-400',
+    color: 'from-hsl(var(--accent))-400 to-rose-400',
   },
   {
     title: '📊 历史记录',
     description: '智能追踪创作轨迹，优化内容策略和创作方向',
     icon: Clock,
     path: '/history',
-    color: 'from-gray-400 to-slate-400',
+    color: 'from-hsl(var(--muted-foreground))-400 to-slate-400',
   },
 ];
 
@@ -183,9 +183,9 @@ export const FeaturesSection: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+    <section className="py-16 bg-gradient-to-br from-hsl(var(--muted-foreground))-50 to-hsl(var(--background)) relative overflow-hidden">
       {/* 背景装饰 - 顶部淡渐变色块 */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-blue-50/30 to-transparent"></div>
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-hsl(var(--primary))-50/30 to-transparent"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         {/* 1️⃣ Banner 标题区域优化 */}

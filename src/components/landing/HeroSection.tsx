@@ -123,9 +123,9 @@ const HeroSection: React.FC = () => {
                   </svg>
                 </span>
                 {/* 动态背景效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-hsl(var(--background))/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
                 {/* 闪烁效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-hsl(var(--background))/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
               </Button>
 
 

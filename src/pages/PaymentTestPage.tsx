@@ -139,7 +139,7 @@ export default function PaymentTestPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* 左侧：价格信息 */}
-        <Card className="border-border bg-gradient-to-br from-green-50 to-white">
+        <Card className="border-border bg-gradient-to-br from-hsl(var(--success))-50 to-hsl(var(--background))">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center shadow-sm">
@@ -194,7 +194,7 @@ export default function PaymentTestPage() {
 
         {/* 右侧：支付二维码 */}
         {showQRCode && (
-          <Card data-qr-code className="border-primary bg-gradient-to-br from-blue-50 to-white">
+          <Card data-qr-code className="border-primary bg-gradient-to-br from-hsl(var(--primary))-50 to-hsl(var(--background))">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">

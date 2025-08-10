@@ -28,25 +28,25 @@ function HomePage() {
       icon: <Lightbulb className="h-6 w-6" />,
       title: "AI内容创作",
       description: "智能生成高质量营销文案，让创意无限延伸",
-      gradient: "from-yellow-400 to-orange-500"
+      gradient: "from-hsl(var(--warning))-400 to-hsl(var(--warning))-500"
     },
     {
       icon: <Palette className="h-6 w-6" />,
       title: "品牌语料库",
       description: "构建专属品牌知识库，确保内容风格一致",
-      gradient: "from-purple-400 to-pink-500"
+      gradient: "from-hsl(var(--accent))-400 to-hsl(var(--accent))-500"
     },
     {
       icon: <BarChart3 className="h-6 w-6" />,
       title: "多平台适配",
       description: "一键适配小红书、抖音、微博等主流平台",
-      gradient: "from-blue-400 to-cyan-500"
+      gradient: "from-hsl(var(--primary))-400 to-cyan-500"
     },
     {
       icon: <MessageSquare className="h-6 w-6" />,
       title: "智能对话",
       description: "与AI助手深度交流，获得专业创作建议",
-      gradient: "from-green-400 to-emerald-500"
+      gradient: "from-hsl(var(--success))-400 to-emerald-500"
     }
   ]
 
@@ -86,26 +86,26 @@ function HomePage() {
 
       {/* 动态渐变背景 */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 opacity-80" />
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-400 to-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000" />
+        <div className="absolute inset-0 bg-gradient-to-br from-hsl(var(--primary))-400 via-hsl(var(--accent))-500 to-hsl(var(--accent))-500 opacity-80" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-hsl(var(--warning))-400 to-hsl(var(--warning))-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-hsl(var(--success))-400 to-hsl(var(--primary))-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000" />
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-gradient-to-br from-hsl(var(--accent))-400 to-hsl(var(--accent))-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000" />
 
         {/* 几何装饰线条 */}
         <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 1000 1000">
           <defs>
             <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="white" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="white" stopOpacity="0.2" />
+              <stop offset="0%" stopColor="hsl(var(--background))" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="hsl(var(--background))" stopOpacity="0.2" />
             </linearGradient>
           </defs>
           <path d="M100,200 Q300,100 500,200 T900,200" stroke="url(#lineGradient)" strokeWidth="2" fill="none" />
           <path d="M200,400 Q400,300 600,400 T1000,400" stroke="url(#lineGradient)" strokeWidth="2" fill="none" />
           <path d="M0,600 Q200,500 400,600 T800,600" stroke="url(#lineGradient)" strokeWidth="2" fill="none" />
-          <circle cx="150" cy="150" r="3" fill="white" opacity="0.6" />
-          <circle cx="850" cy="250" r="3" fill="white" opacity="0.6" />
-          <circle cx="300" cy="700" r="3" fill="white" opacity="0.6" />
-          <circle cx="700" cy="800" r="3" fill="white" opacity="0.6" />
+          <circle cx="150" cy="150" r="3" fill="hsl(var(--background))" opacity="0.6" />
+          <circle cx="850" cy="250" r="3" fill="hsl(var(--background))" opacity="0.6" />
+          <circle cx="300" cy="700" r="3" fill="hsl(var(--background))" opacity="0.6" />
+          <circle cx="700" cy="800" r="3" fill="hsl(var(--background))" opacity="0.6" />
         </svg>
       </div>
 
@@ -123,7 +123,7 @@ function HomePage() {
               </div>
 
               <div className="hidden md:flex items-center gap-8">
-                <a href="#features" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">功能特色</a>
+                <a href="yellowtures" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">功能特色</a>
                 <a href="#testimonials" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">用户评价</a>
                 <a href="#pricing" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">价格方案</a>
               </div>
@@ -157,7 +157,7 @@ function HomePage() {
 
             <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-6 leading-tight">
               让AI成为你的
-              <span className="bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-hsl(var(--warning))-300 to-hsl(var(--warning))-400 bg-clip-text text-transparent">
                 创意伙伴
               </span>
             </h1>
@@ -270,7 +270,7 @@ function HomePage() {
                     <div className="w-16 h-16 bg-gradient-to-br btn-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                       {item.icon}
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-hsl(var(--warning))-400 to-hsl(var(--warning))-500 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                       {item.step}
                     </div>
                   </div>
@@ -348,7 +348,7 @@ function HomePage() {
                 key={index}
                 className={`backdrop-blur-md border-border/20 p-8 hover:scale-105 transition-all duration-300 relative ${
                   plan.popular
-                    ? 'bg-gradient-to-br from-blue-500/20 to-purple-600/20 border-primary/50'
+                    ? 'bg-gradient-to-br from-hsl(var(--primary))-500/20 to-hsl(var(--accent))-600/20 border-primary/50'
                     : 'bg-card/10 hover:bg-card/20'
                 }`}
               >

@@ -137,7 +137,7 @@ export function Header() {
               />
             </div>
           </div>
-          <span className="font-bold text-xl bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">文派</span>
+          <span className="font-bold text-xl bg-gradient-to-r from-hsl(var(--muted-foreground))-800 to-hsl(var(--muted-foreground))-600 bg-clip-text text-transparent group-hover:from-hsl(var(--primary))-600 group-hover:to-hsl(var(--accent))-600 transition-all duration-300">文派</span>
         </Link>
         
         {/* Desktop Menu */}
@@ -230,7 +230,7 @@ export function Header() {
                     login('/payment');
                   }
                 }}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
+                className="bg-gradient-to-r from-hsl(var(--accent))-600 to-hsl(var(--accent))-600 hover:from-hsl(var(--accent))-700 hover:to-hsl(var(--accent))-700 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
               >
                 立即解锁高级功能
               </Button>
@@ -284,7 +284,7 @@ export function Header() {
                         login('/payment');
                       }
                     }}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-primary-foreground font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
+                    className="bg-gradient-to-r from-hsl(var(--accent))-600 to-hsl(var(--accent))-600 hover:from-hsl(var(--accent))-700 hover:to-hsl(var(--accent))-700 text-primary-foreground font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
                   >
                     立即解锁高级功能
                   </Button>

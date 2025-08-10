@@ -47,13 +47,18 @@ export default function DirectLinkQRCode({
         throw new Error('请输入有效的Creem支付链接');
       }
 
+      // 获取当前主题的颜色值
+      const computedStyle = getComputedStyle(document.documentElement);
+      const foregroundColor = computedStyle.getPropertyValue('--foreground').trim();
+      const backgroundColor = computedStyle.getPropertyValue('--background').trim();
+
       // 生成二维码
       const qrCodeDataURL = await QRCode.toDataURL(url, {
         width: 300,
         margin: 2,
         color: {
-          dark: '#000000',
-          light: '#FFFFFF'
+          dark: foregroundColor ? `hsl(${foregroundColor})` : 'hsl(222.2 47.4% 11.2%)',
+          light: backgroundColor ? `hsl(${backgroundColor})` : 'hsl(0 0% 100%)'
         },
         errorCorrectionLevel: 'H' // 高纠错级别
       });

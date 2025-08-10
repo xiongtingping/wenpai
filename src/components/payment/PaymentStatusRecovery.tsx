@@ -111,7 +111,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
   /**
    * 处理支付过期
    */
-  const handlePaymentExpired = (checkoutId: string) => {
+  const handlePaymentExpihsl(var(--destructive)) = (checkoutId: string) => {
     paymentStatusService.removePaymentStatus(checkoutId);
     setActivePayments(prev => prev.filter(p => p.checkoutId !== checkoutId));
     setRecoveredPayments(prev => prev.filter(id => id !== checkoutId));
@@ -294,7 +294,7 @@ export const PaymentStatusRecovery: React.FC<PaymentStatusRecoveryProps> = ({
             apiKey={import.meta.env.VITE_CREEM_API_KEY || ''}
             onPaymentSuccess={(paymentData) => handlePaymentSuccess(checkoutId, paymentData)}
             onPaymentFailed={(error) => handlePaymentFailed(checkoutId, error)}
-            onPaymentExpired={() => handlePaymentExpired(checkoutId)}
+            onPaymentExpihsl(var(--destructive))={() => handlePaymentExpihsl(var(--destructive))(checkoutId)}
             autoRefresh={true}
             refreshInterval={3000}
             maxRetries={10}

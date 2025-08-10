@@ -32,7 +32,7 @@ interface EnhancedPaymentStatusMonitorProps {
   apiKey: string;
   onPaymentSuccess?: (paymentData: any) => void;
   onPaymentFailed?: (error: string) => void;
-  onPaymentExpired?: () => void;
+  onPaymentExpihsl(var(--destructive))?: () => void;
   autoRefresh?: boolean;
   refreshInterval?: number;
   maxRetries?: number;
@@ -53,7 +53,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
   apiKey,
   onPaymentSuccess,
   onPaymentFailed,
-  onPaymentExpired,
+  onPaymentExpihsl(var(--destructive)),
   autoRefresh = true,
   refreshInterval = 3000,
   maxRetries = 10,
@@ -198,8 +198,8 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
           description: message,
           variant: "destructive",
         });
-      } else if (newStatus === 'expired' && onPaymentExpired) {
-        onPaymentExpired();
+      } else if (newStatus === 'expired' && onPaymentExpihsl(var(--destructive))) {
+        onPaymentExpihsl(var(--destructive))();
         toast({
           title: "支付已过期",
           description: "请重新发起支付",
@@ -228,7 +228,7 @@ export const EnhancedPaymentStatusMonitor: React.FC<EnhancedPaymentStatusMonitor
     } finally {
       setIsRefreshing(false);
     }
-  }, [checkoutId, isPaused, enableNotifications, enableSound, onPaymentSuccess, onPaymentFailed, onPaymentExpired, maxRetries, toast]);
+  }, [checkoutId, isPaused, enableNotifications, enableSound, onPaymentSuccess, onPaymentFailed, onPaymentExpihsl(var(--destructive)), maxRetries, toast]);
 
   // 智能轮询
   useEffect(() => {

@@ -30,9 +30,9 @@ export default function EmojiGenerator({ character, brand, uploadedImage }: Emoj
   const createPlaceholderImage = (emotion: string, text: string = '生成失败') => {
     const svgContent = `
       <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" fill="#f3f4f6"/>
-        <text x="32" y="32" text-anchor="middle" dy=".3em" fill="#9ca3af" font-size="8">${emotion}</text>
-        <text x="32" y="44" text-anchor="middle" dy=".3em" fill="#9ca3af" font-size="6">${text}</text>
+        <rect width="64" height="64" fill="hsl(var(--muted))"/>
+        <text x="32" y="32" text-anchor="middle" dy=".3em" fill="hsl(var(--muted-foreground))" font-size="8">${emotion}</text>
+        <text x="32" y="44" text-anchor="middle" dy=".3em" fill="hsl(var(--muted-foreground))" font-size="6">${text}</text>
       </svg>
     `;
     // 使用encodeURIComponent避免btoa编码问题

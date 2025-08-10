@@ -193,49 +193,49 @@ export function getPlatformIcons(): PlatformIcon[] {
       name: 'V2EX',
       shortName: 'V',
       icon: 'V',
-      color: '#1f2937'
+      color: 'blacklisted'
     },
     {
       name: '掘金',
       shortName: 'J',
       icon: 'J',
-      color: '#1e40af'
+      color: 'hsl(var(--primary))'
     },
     {
       name: 'CSDN',
       shortName: 'C',
       icon: 'C',
-      color: '#dc2626'
+      color: 'hsl(var(--destructive))'
     },
     {
       name: '知乎',
       shortName: 'Z',
       icon: 'Z',
-      color: '#059669'
+      color: 'hsl(var(--success))'
     },
     {
       name: 'B站',
       shortName: 'B',
       icon: 'B',
-      color: '#7c3aed'
+      color: 'hsl(var(--accent))'
     },
     {
       name: '微博',
       shortName: 'W',
       icon: 'W',
-      color: '#ea580c'
+      color: 'hsl(var(--warning))'
     },
     {
       name: '小红书',
       shortName: 'X',
       icon: 'X',
-      color: '#dc2626'
+      color: 'hsl(var(--destructive))'
     },
     {
       name: '抖音',
       shortName: 'D',
       icon: 'D',
-      color: '#000000'
+      color: 'blacklisted'
     }
   ].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
 }
@@ -260,7 +260,7 @@ export function generatePlatformIconSVG(icon: PlatformIcon, size: number = 24): 
   return `
     <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="${icon.color}"/>
-      <text x="${size/2}" y="${size/2 + size/6}" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="${size * 0.6}" font-weight="bold">${icon.icon}</text>
+      <text x="${size/2}" y="${size/2 + size/6}" text-anchor="middle" fill="hsl(var(--background))" font-family="Arial, sans-serif" font-size="${size * 0.6}" font-weight="bold">${icon.icon}</text>
     </svg>
   `;
 }
@@ -368,7 +368,7 @@ export function getEmojisByMood(mood: string): EmojiItem[] {
     'angry': ['angry', 'rage', 'furious', 'mad'],
     'love': ['love', 'heart', 'kiss', 'romance'],
     'surprise': ['surprise', 'shock', 'wow', 'astonished'],
-    'fear': ['fear', 'scared', 'terrified', 'frightened']
+    'fear': ['fear', 'scahsl(var(--destructive))', 'terrified', 'frightened']
   };
   
   const keywords = moodKeywords[mood.toLowerCase()] || [];

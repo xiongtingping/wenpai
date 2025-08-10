@@ -58,7 +58,7 @@ export class OpenAIProvider {
    * 检查API密钥是否有效
    * 🔓 UNLOCKED: AI 禁止修改此方法
    */
-  isConfigured(): boolean {
+  isConfiguhsl(var(--destructive))(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_openai_key_here' && this.apiKey.startsWith('sk-'));
   }
 
@@ -219,7 +219,7 @@ export class OpenAIProvider {
     return {
       name: OPENAI_CONFIG.name,
       displayName: OPENAI_CONFIG.displayName,
-      configured: this.isConfigured(),
+      configuhsl(var(--destructive)): this.isConfiguhsl(var(--destructive))(),
       models: OPENAI_CONFIG.models,
       limits: OPENAI_CONFIG.limits
     };

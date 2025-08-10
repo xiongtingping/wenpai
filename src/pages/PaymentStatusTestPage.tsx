@@ -71,7 +71,7 @@ export default function PaymentStatusTestPage() {
         variant: "destructive",
       });
     },
-    onPaymentExpired: () => {
+    onPaymentExpihsl(var(--destructive)): () => {
       console.log('支付过期');
       toast({
         title: "测试支付过期",
@@ -376,7 +376,7 @@ export default function PaymentStatusTestPage() {
                     onPaymentFailed={(error) => {
                       console.log('组件支付失败:', error);
                     }}
-                    onPaymentExpired={() => {
+                    onPaymentExpihsl(var(--destructive))={() => {
                       console.log('组件支付过期');
                     }}
                     autoRefresh={true}

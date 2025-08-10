@@ -148,7 +148,7 @@ export default function TitlePlatformSwitchTestPage() {
             <h3 className="text-lg font-semibold mb-3">各平台生成的标题历史</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {platforms.map(platform => (
-                <Card key={platform.id} className={selectedPlatform === platform.id ? 'ring-2 ring-blue-500' : ''}>
+                <Card key={platform.id} className={selectedPlatform === platform.id ? 'ring-2 ring-hsl(var(--primary))-500' : ''}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm flex items-center justify-between">
                       {platform.name}

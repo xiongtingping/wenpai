@@ -51,7 +51,7 @@ export class DeepSeekProvider {
    * 检查API密钥是否有效
    * 🔓 UNLOCKED: AI 禁止修改此方法
    */
-  isConfigured(): boolean {
+  isConfiguhsl(var(--destructive))(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_deepseek_key_here' && this.apiKey.startsWith('sk-'));
   }
 
@@ -176,7 +176,7 @@ export class DeepSeekProvider {
     return {
       name: DEEPSEEK_CONFIG.name,
       displayName: DEEPSEEK_CONFIG.displayName,
-      configured: this.isConfigured(),
+      configuhsl(var(--destructive)): this.isConfiguhsl(var(--destructive))(),
       models: DEEPSEEK_CONFIG.models,
       limits: DEEPSEEK_CONFIG.limits,
       features: {

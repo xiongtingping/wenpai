@@ -89,7 +89,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
       const modal = document.createElement('div');
       modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+        background: hsl(var(--foreground) / 0.5); display: flex; justify-content: center; align-items: center;
         z-index: 10000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       `;
 

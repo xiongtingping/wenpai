@@ -810,7 +810,7 @@ class PromptSystemManager {
 
 {{#if versions}}
 【版本对比内容】
-{{#each versions}}
+{{yellowh versions}}
 版本{{@index}}: {{this.content}}
 {{/each}}
 {{/if}}
@@ -1276,7 +1276,7 @@ class PromptSystemManager {
 {{brandName}}
 
 【冲突字段】
-{{#each conflictingFields}}
+{{yellowh conflictingFields}}
 ### 字段：{{fieldName}}
 
 **来源1：{{source1.docId}}** (置信度: {{source1.confidence}})
@@ -1477,7 +1477,7 @@ Your output must feel like it was written by a real KOC or content strategist �
 - 形式描述：{{formDescription}}
 - 输出类型：{{formOutputType}}
 - 内容特征：{{formCharacteristics}}
-- 结构要求：{{#each formStructure}}{{@index}}. {{this}} {{/each}}
+- 结构要求：{{yellowh formStructure}}{{@index}}. {{this}} {{/each}}
 {{else}}
 - 使用平台默认内容形式
 {{/if}}
@@ -1729,7 +1729,7 @@ Your output must feel like it was written by a real KOC or content strategist �
 - 内容特征：{{formCharacteristics}}
 
 【内容结构要求】
-{{#each formStructure}}
+{{yellowh formStructure}}
 {{@index}}. {{this}}
 {{/each}}
 

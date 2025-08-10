@@ -814,7 +814,7 @@ export default function HotTopicsPage() {
                   <CardContent>
                     <Tabs defaultValue="all" className="w-full">
                       {/* Tab栏横向滚动优化 */}
-                      <TabsList className="flex w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                      <TabsList className="flex w-full overflow-x-auto scrollbar-thin scrollbar-thumb-hsl(var(--muted-foreground))-200 scrollbar-track-transparent">
                         <TabsTrigger value="all" className="min-w-[72px]">总榜</TabsTrigger>
                         {supportedPlatforms.map((platform) => (
                           <TabsTrigger key={platform} value={platform} className="min-w-[72px]">

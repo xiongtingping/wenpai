@@ -82,25 +82,25 @@
 
 /* 警告模态框样式 */
 .automation-modal-warning-box {
-  @apply bg-yellow-50 p-4 rounded-lg mb-5 border border-yellow-200;
+  @apply bg-amber-50 p-4 rounded-lg mb-5 border border-amber-200;
 }
 
 .automation-modal-warning-text {
-  @apply m-0 font-medium text-yellow-800;
+  @apply m-0 font-medium text-amber-800;
 }
 
 .automation-modal-warning-info {
-  @apply mt-1 mb-0 text-sm text-yellow-800;
+  @apply mt-1 mb-0 text-sm text-amber-800;
 }
 
 /* 深色主题适配 */
 [data-theme="dark"] .automation-modal-warning-box {
-  @apply bg-yellow-900/20 border-yellow-700/30;
+  @apply bg-amber-900/20 border-amber-700/30;
 }
 
 [data-theme="dark"] .automation-modal-warning-text,
 [data-theme="dark"] .automation-modal-warning-info {
-  @apply text-yellow-200;
+  @apply text-amber-200;
 }
 
 /* 其他主题适配 */

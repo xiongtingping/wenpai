@@ -38,7 +38,7 @@ export function CTASection() {
   return (
     <section className="py-16 bg-accent relative overflow-hidden">
       {/* 装饰背景 - 增强视觉层次 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-pink-50/30"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-hsl(var(--accent))-50/30 via-transparent to-hsl(var(--accent))-50/30"></div>
       
       <div className="container mx-auto px-6 text-center relative z-10">
         {/* 1️⃣ 主标题 */}
@@ -55,7 +55,7 @@ export function CTASection() {
         <div className="flex justify-center">
           <Button
             size="lg"
-            className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 text-primary-foreground px-10 py-5 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-0 overflow-hidden group"
+            className="relative bg-gradient-to-r from-hsl(var(--accent))-500 via-hsl(var(--accent))-500 to-rose-500 hover:from-hsl(var(--accent))-600 hover:via-hsl(var(--accent))-600 hover:to-rose-600 text-primary-foreground px-10 py-5 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-0 overflow-hidden group"
             onClick={handleButtonClick}
           >
             <span className="relative z-10 flex items-center gap-3">
@@ -68,9 +68,9 @@ export function CTASection() {
               </svg>
             </span>
             {/* 动态背景效果 */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-hsl(var(--background))/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             {/* 光晕效果 */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-hsl(var(--accent))-500 via-hsl(var(--accent))-500 to-rose-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
           </Button>
         </div>
       </div>

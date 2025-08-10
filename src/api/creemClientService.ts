@@ -173,8 +173,8 @@ export async function generateAlipayQRCode(priceId: string, customerEmail?: stri
       width: 200,
       margin: 2,
       color: {
-        dark: '#000000',
-        light: '#FFFFFF'
+        dark: 'blacklisted',
+        light: 'hsl(var(--background))'
       }
     });
 

@@ -52,7 +52,7 @@
 .pricing-price,
 .text-5xl.font-extrabold {
   -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
+  -moz-osx-font-smoothing: hsl(var(--muted-foreground))scale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
   font-variant-numeric: normal !important;
@@ -108,7 +108,7 @@
   text-align: inherit !important;
   vertical-align: baseline !important;
   -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
+  -moz-osx-font-smoothing: hsl(var(--muted-foreground))scale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
   font-variant-numeric: normal !important;
@@ -129,7 +129,7 @@
   text-align: inherit !important;
   vertical-align: baseline !important;
   -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
+  -moz-osx-font-smoothing: hsl(var(--muted-foreground))scale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
   font-variant-numeric: normal !important;
@@ -150,7 +150,7 @@
   text-align: inherit !important;
   vertical-align: baseline !important;
   -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
+  -moz-osx-font-smoothing: hsl(var(--muted-foreground))scale !important;
   font-feature-settings: "kern" 1, "liga" 1 !important;
   text-rendering: optimizeLegibility !important;
   font-variant-numeric: normal !important;

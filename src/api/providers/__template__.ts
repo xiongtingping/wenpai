@@ -53,7 +53,7 @@ export class TemplateProvider {
    * 检查API密钥是否有效
    * 🔓 UNLOCKED: AI 禁止修改此方法签名
    */
-  isConfigured(): boolean {
+  isConfiguhsl(var(--destructive))(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_template_key_here');
   }
 
@@ -195,7 +195,7 @@ export class TemplateProvider {
     return {
       name: TEMPLATE_CONFIG.name,
       displayName: TEMPLATE_CONFIG.displayName,
-      configured: this.isConfigured(),
+      configuhsl(var(--destructive)): this.isConfiguhsl(var(--destructive))(),
       models: TEMPLATE_CONFIG.models,
       limits: TEMPLATE_CONFIG.limits
     };

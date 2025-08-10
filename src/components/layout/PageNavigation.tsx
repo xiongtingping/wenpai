@@ -403,7 +403,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
               <h3 className="text-lg font-semibold text-foreground">相关功能</h3>
-              <div className="flex-1 h-px bg-gradient-to-r from-gray-200 via-gray-300 to-transparent"></div>
+              <div className="flex-1 h-px bg-gradient-to-r from-hsl(var(--muted-foreground))-200 via-hsl(var(--muted-foreground))-300 to-transparent"></div>
             </div>
             <div className="flex flex-wrap gap-3">
               {subModules.map((module) => (

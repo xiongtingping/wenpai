@@ -20,42 +20,42 @@ const platformConfig = {
   xiaohongshu: { 
     name: '小红书', 
     icon: '📱', 
-    color: 'red',
+    color: 'hsl(var(--destructive))',
     generateMessage: '正在生成小红书种草内容...',
     longContentMessage: '正在创作小红书深度种草文案，内容丰富有趣...'
   },
   weibo: {
     name: '微博',
     icon: '🐦',
-    color: 'blue',
+    color: 'hsl(var(--primary))',
     generateMessage: '正在生成微博热门内容...',
     longContentMessage: '正在创作微博长文，确保内容有趣有料...'
   },
   zhihu: { 
     name: '知乎', 
     icon: '🎓', 
-    color: 'blue',
+    color: 'hsl(var(--primary))',
     generateMessage: '正在生成知乎专业回答...',
     longContentMessage: '正在撰写知乎深度回答，确保内容有见解、有价值...'
   },
   wechat: { 
     name: '微信公众号', 
     icon: '💬', 
-    color: 'green',
+    color: 'hsl(var(--success))',
     generateMessage: '正在生成公众号文章...',
     longContentMessage: '正在创作专业的公众号文章，内容更丰富，生成时间较长...'
   },
   douyin: { 
     name: '抖音', 
     icon: '🎵', 
-    color: 'purple',
+    color: 'hsl(var(--accent))',
     generateMessage: '正在生成抖音短视频文案...',
     longContentMessage: '正在创作抖音爆款文案，确保内容有趣有梗...'
   },
   bilibili: { 
     name: 'B站', 
     icon: '📺', 
-    color: 'pink',
+    color: 'hsl(var(--accent))',
     generateMessage: '正在生成B站视频文案...',
     longContentMessage: '正在创作B站优质内容，确保专业有趣...'
   }
@@ -74,13 +74,13 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
 
   const platform = platformConfig[platformId as keyof typeof platformConfig];
   const colorClasses = {
-    red: 'bg-destructive/10 border-border text-destructive',
-    orange: 'bg-accent border-border text-foreground',
-    yellow: 'bg-accent border-border text-foreground',
-    blue: 'bg-primary/10 border-border text-primary',
-    green: 'bg-accent border-border text-foreground',
-    purple: 'bg-primary/10 border-primary text-primary',
-    pink: 'bg-primary/10 border-primary text-primary'
+    hsl(var(--destructive)): 'bg-destructive/10 border-border text-destructive',
+    hsl(var(--warning)): 'bg-accent border-border text-foreground',
+    hsl(var(--warning)): 'bg-accent border-border text-foreground',
+    hsl(var(--primary)): 'bg-primary/10 border-border text-primary',
+    hsl(var(--success)): 'bg-accent border-border text-foreground',
+    hsl(var(--accent)): 'bg-primary/10 border-primary text-primary',
+    hsl(var(--accent)): 'bg-primary/10 border-primary text-primary'
   };
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   const getBgClasses = () => {
     if (status === 'success') return 'bg-accent border-border';
     if (status === 'error') return 'bg-destructive/10 border-border';
-    return colorClasses[platform?.color as keyof typeof colorClasses] || colorClasses.blue;
+    return colorClasses[platform?.color as keyof typeof colorClasses] || colorClasses.hsl(var(--primary));
   };
 
   return (

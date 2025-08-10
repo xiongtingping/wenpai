@@ -131,25 +131,25 @@ const SimpleAuthTestPage: React.FC = () => {
 
       {/* 当前状态 */}
       <div style={{ 
-        background: '#f8f9fa', 
+        background: 'hsl(var(--muted))', 
         padding: '20px', 
         borderRadius: '8px', 
         marginBottom: '20px' 
       }}>
         <h3 style={{ marginTop: 0 }}>当前状态</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px' }}>
-          <div style={{ padding: '10px', background: 'white', borderRadius: '4px' }}>
+          <div style={{ padding: '10px', background: 'hsl(var(--background))', borderRadius: '4px' }}>
             <strong>认证状态:</strong> {user ? '✅ 已认证' : '❌ 未认证'}
           </div>
-          <div style={{ padding: '10px', background: 'white', borderRadius: '4px' }}>
+          <div style={{ padding: '10px', background: 'hsl(var(--background))', borderRadius: '4px' }}>
             <strong>加载状态:</strong> {loading ? '🔄 加载中' : '✅ 就绪'}
           </div>
         </div>
 
         {error && (
           <div style={{ 
-            background: '#fee', 
-            color: '#c33', 
+            background: 'hsl(var(--warning))', 
+            color: 'hsl(var(--destructive))', 
             padding: '10px', 
             borderRadius: '4px', 
             marginBottom: '10px' 
@@ -160,8 +160,8 @@ const SimpleAuthTestPage: React.FC = () => {
 
         {testStatus && (
           <div style={{ 
-            background: '#e8f4fd', 
-            color: '#0066cc', 
+            background: 'hsl(var(--primary) / 0.1)', 
+            color: 'hsl(var(--primary))', 
             padding: '10px', 
             borderRadius: '4px' 
           }}>
@@ -171,13 +171,13 @@ const SimpleAuthTestPage: React.FC = () => {
 
         {user && (
           <div style={{ 
-            background: '#e8f5e8', 
+            background: 'hsl(var(--success) / 0.1)', 
             padding: '15px', 
             borderRadius: '4px', 
             marginTop: '15px' 
           }}>
             <h4 style={{ marginTop: 0 }}>用户信息</h4>
-            <div style={{ fontSize: '14px' }}>
+            <div style={{ fontSize: '0.875rem' }}>
               <p><strong>ID:</strong> {getUserId(user, '未知')}</p>
               <p><strong>用户名:</strong> {getUserUsername(user, '未设置')}</p>
               <p><strong>邮箱:</strong> {getUserEmail(user, '未设置')}</p>
@@ -190,7 +190,7 @@ const SimpleAuthTestPage: React.FC = () => {
 
       {/* 功能测试 */}
       <div style={{ 
-        background: '#f8f9fa', 
+        background: 'hsl(var(--muted))', 
         padding: '20px', 
         borderRadius: '8px', 
         marginBottom: '20px' 
@@ -202,8 +202,8 @@ const SimpleAuthTestPage: React.FC = () => {
             disabled={loading}
             style={{
               padding: '10px 15px',
-              background: '#007bff',
-              color: 'white',
+              background: 'hsl(var(--primary))',
+              color: 'hsl(var(--background))',
               border: 'none',
               borderRadius: '4px',
               cursor: loading ? 'not-allowed' : 'pointer',
@@ -218,8 +218,8 @@ const SimpleAuthTestPage: React.FC = () => {
             disabled={loading}
             style={{
               padding: '10px 15px',
-              background: '#28a745',
-              color: 'white',
+              background: 'hsl(var(--success))',
+              color: 'hsl(var(--background))',
               border: 'none',
               borderRadius: '4px',
               cursor: loading ? 'not-allowed' : 'pointer',
@@ -234,8 +234,8 @@ const SimpleAuthTestPage: React.FC = () => {
             disabled={loading || !user}
             style={{
               padding: '10px 15px',
-              background: '#dc3545',
-              color: 'white',
+              background: 'hsl(var(--destructive))',
+              color: 'hsl(var(--background))',
               border: 'none',
               borderRadius: '4px',
               cursor: (loading || !user) ? 'not-allowed' : 'pointer',
@@ -250,8 +250,8 @@ const SimpleAuthTestPage: React.FC = () => {
             disabled={loading}
             style={{
               padding: '10px 15px',
-              background: '#6c757d',
-              color: 'white',
+              background: 'hsl(var(--muted-foreground))',
+              color: 'hsl(var(--background))',
               border: 'none',
               borderRadius: '4px',
               cursor: loading ? 'not-allowed' : 'pointer',
@@ -270,12 +270,12 @@ const SimpleAuthTestPage: React.FC = () => {
 
       {/* 测试说明 */}
       <div style={{ 
-        background: '#f8f9fa', 
+        background: 'hsl(var(--muted))', 
         padding: '20px', 
         borderRadius: '8px' 
       }}>
         <h3 style={{ marginTop: 0 }}>测试说明</h3>
-        <div style={{ fontSize: '14px' }}>
+        <div style={{ fontSize: '0.875rem' }}>
           <p>1. 点击"测试登录"或"测试注册"按钮</p>
           <p>2. 系统会模拟真实的认证流程</p>
           <p>3. 用户信息会保存到本地存储</p>
@@ -287,13 +287,13 @@ const SimpleAuthTestPage: React.FC = () => {
 
       {/* 环境信息 */}
       <div style={{ 
-        background: '#f8f9fa', 
+        background: 'hsl(var(--muted))', 
         padding: '20px', 
         borderRadius: '8px', 
         marginTop: '20px' 
       }}>
         <h3 style={{ marginTop: 0 }}>环境信息</h3>
-        <div style={{ fontSize: '14px' }}>
+        <div style={{ fontSize: '0.875rem' }}>
           <p><strong>页面 URL:</strong> {window.location.href}</p>
           <p><strong>用户代理:</strong> {navigator.userAgent}</p>
           <p><strong>本地存储:</strong> {localStorage.getItem('authing_user') ? '有用户数据' : '无用户数据'}</p>

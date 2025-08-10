@@ -32,7 +32,7 @@ body.authing-guard-open {
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  background-color: rgba(0, 0, 0, 0.5) !important;
+  background-color: hsl(var(--foreground) / 0.5) !important;
   backdrop-filter: blur(4px) !important;
 }
 
@@ -42,9 +42,9 @@ body.authing-guard-open {
   width: 90vw !important;
   max-width: 400px !important;
   max-height: 90vh !important;
-  background: white !important;
+  background: hsl(var(--background)) !important;
   border-radius: 12px !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25) !important;
   overflow: hidden !important;
   z-index: 100000 !important;
   animation: authing-modal-fade-in 0.3s ease-out !important;
@@ -68,14 +68,14 @@ body.authing-guard-open {
   align-items: center !important;
   justify-content: space-between !important;
   padding: 24px 24px 0 24px !important;
-  border-bottom: 1px solid #f3f4f6 !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
   margin-bottom: 24px !important;
 }
 
 .authing-guard-title {
-  font-size: 20px !important;
+  font-size: 1.25rem !important;
   font-weight: 600 !important;
-  color: #111827 !important;
+  color: hsl(var(--foreground)) !important;
   margin: 0 !important;
 }
 
@@ -83,20 +83,20 @@ body.authing-guard-open {
   width: 32px !important;
   height: 32px !important;
   border: none !important;
-  background: #f9fafb !important;
+  background: hsl(var(--muted)) !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 18px !important;
-  color: #6b7280 !important;
+  font-size: 1.125rem !important;
+  color: hsl(var(--muted-foreground)) !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
 }
 
 .authing-guard-close-btn:hover {
-  background: #e5e7eb !important;
-  color: #374151 !important;
+  background: hsl(var(--accent)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 /* 弹窗内容 */
@@ -108,7 +108,7 @@ body.authing-guard-open {
 .authing-guard-tabs {
   display: flex !important;
   margin-bottom: 24px !important;
-  border-bottom: 1px solid #e5e7eb !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
 }
 
 .authing-guard-tab {
@@ -116,31 +116,31 @@ body.authing-guard-open {
   padding: 12px 16px !important;
   border: none !important;
   background: none !important;
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
   font-weight: 500 !important;
-  color: #6b7280 !important;
+  color: hsl(var(--muted-foreground)) !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
   border-bottom: 2px solid transparent !important;
 }
 
 .authing-guard-tab.active {
-  color: #3b82f6 !important;
-  border-bottom-color: #3b82f6 !important;
+  color: hsl(var(--primary)) !important;
+  border-bottom-color: hsl(var(--primary)) !important;
 }
 
 .authing-guard-tab:hover:not(.active) {
-  color: #374151 !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 /* 错误信息 */
 .authing-guard-error {
-  background: #fef2f2 !important;
-  border: 1px solid #fecaca !important;
-  color: #dc2626 !important;
+  background: hsl(var(--destructive) / 0.1) !important;
+  border: 1px solid hsl(var(--destructive)) !important;
+  color: hsl(var(--destructive)) !important;
   padding: 12px 16px !important;
   border-radius: 6px !important;
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
   margin-bottom: 16px !important;
 }
 
@@ -158,17 +158,17 @@ body.authing-guard-open {
 }
 
 .authing-guard-label {
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
   font-weight: 500 !important;
-  color: #374151 !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 .authing-guard-input {
   width: 100% !important;
   padding: 12px 16px !important;
-  border: 1px solid #d1d5db !important;
+  border: 1px solid hsl(var(--border)) !important;
   border-radius: 8px !important;
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
   line-height: 1.5 !important;
   transition: border-color 0.2s !important;
   box-sizing: border-box !important;
@@ -176,12 +176,12 @@ body.authing-guard-open {
 
 .authing-guard-input:focus {
   outline: none !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1) !important;
 }
 
 .authing-guard-input::placeholder {
-  color: #9ca3af !important;
+  color: hsl(var(--muted-foreground)) !important;
 }
 
 /* 验证码输入组 */
@@ -196,24 +196,24 @@ body.authing-guard-open {
 
 .authing-guard-code-btn {
   padding: 12px 16px !important;
-  border: 1px solid #d1d5db !important;
-  background: white !important;
-  color: #3b82f6 !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background: hsl(var(--background)) !important;
+  color: hsl(var(--primary)) !important;
   border-radius: 8px !important;
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
-  white-space: nowrap !important;
+  hsl(var(--background))-space: nowrap !important;
 }
 
 .authing-guard-code-btn:hover:not(:disabled) {
-  background: #f8fafc !important;
-  border-color: #3b82f6 !important;
+  background: hsl(var(--accent)) !important;
+  border-color: hsl(var(--primary)) !important;
 }
 
 .authing-guard-code-btn:disabled {
-  color: #9ca3af !important;
+  color: hsl(var(--muted-foreground)) !important;
   cursor: not-allowed !important;
 }
 
@@ -221,11 +221,11 @@ body.authing-guard-open {
 .authing-guard-submit-btn {
   width: 100% !important;
   padding: 12px 24px !important;
-  background: #3b82f6 !important;
-  color: white !important;
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
   border: none !important;
   border-radius: 8px !important;
-  font-size: 16px !important;
+  font-size: 1rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
@@ -233,13 +233,13 @@ body.authing-guard-open {
 }
 
 .authing-guard-submit-btn:hover:not(:disabled) {
-  background: #2563eb !important;
+  background: hsl(var(--primary)) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3) !important;
 }
 
 .authing-guard-submit-btn:disabled {
-  background: #9ca3af !important;
+  background: hsl(var(--muted)) !important;
   cursor: not-allowed !important;
   transform: none !important;
   box-shadow: none !important;
@@ -252,16 +252,16 @@ body.authing-guard-open {
 }
 
 .authing-guard-tip {
-  font-size: 14px !important;
-  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+  color: hsl(var(--muted-foreground)) !important;
   margin: 0 !important;
 }
 
 .authing-guard-link {
   background: none !important;
   border: none !important;
-  color: #3b82f6 !important;
-  font-size: 14px !important;
+  color: hsl(var(--primary)) !important;
+  font-size: 0.875rem !important;
   font-weight: 500 !important;
   cursor: pointer !important;
   text-decoration: underline !important;
@@ -269,7 +269,7 @@ body.authing-guard-open {
 }
 
 .authing-guard-link:hover {
-  color: #2563eb !important;
+  color: hsl(var(--primary)) !important;
 }
 
 /* 移动端适配 */
@@ -294,7 +294,7 @@ body.authing-guard-open {
   
   .authing-guard-tab {
     padding: 10px 12px !important;
-    font-size: 13px !important;
+    font-size: 0.8125rem !important;
   }
 }
 

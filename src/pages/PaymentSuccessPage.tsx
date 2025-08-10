@@ -106,14 +106,14 @@ export default function PaymentSuccessPage() {
    * 获取订阅状态显示
    */
   const getSubscriptionStatus = () => {
-    if (!user) return { status: 'unknown', text: '未知', color: 'gray' };
+    if (!user) return { status: 'unknown', text: '未知', color: 'hsl(var(--muted-foreground))' };
     
     // 这里可以根据实际的用户订阅状态逻辑来判断
     if (user.isVip || user.isProUser) {
-      return { status: 'active', text: '已激活', color: 'green' };
+      return { status: 'active', text: '已激活', color: 'hsl(var(--success))' };
     }
     
-    return { status: 'pending', text: '处理中', color: 'yellow' };
+    return { status: 'pending', text: '处理中', color: 'hsl(var(--warning))' };
   };
 
   if (loading) {
@@ -187,7 +187,7 @@ export default function PaymentSuccessPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">订阅状态：</span>
-                    <Badge variant={subscriptionStatus.color === 'green' ? 'default' : 'secondary'}>
+                    <Badge variant={subscriptionStatus.color === 'hsl(var(--success))' ? 'default' : 'secondary'}>
                       {subscriptionStatus.text}
                     </Badge>
                   </div>

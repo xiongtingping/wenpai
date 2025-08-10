@@ -125,7 +125,7 @@ const TitleGrammarTestPage: React.FC = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">测试结果</h3>
               {testResults.map((result, index) => (
-                <Card key={index} className={`border-l-4 ${result.isFixed ? 'border-l-green-500' : 'border-l-red-500'}`}>
+                <Card key={index} className={`border-l-4 ${result.isFixed ? 'border-l-hsl(var(--success))-500' : 'border-l-hsl(var(--destructive))-500'}`}>
                   <CardContent className="p-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">

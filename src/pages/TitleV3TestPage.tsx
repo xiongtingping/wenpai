@@ -241,7 +241,7 @@ export default function TitleV3TestPage() {
                 <Card 
                   key={testCase.id} 
                   className={`cursor-pointer transition-all ${
-                    selectedCase.id === testCase.id ? 'ring-2 ring-blue-500 bg-accent' : 'hover:bg-accent'
+                    selectedCase.id === testCase.id ? 'ring-2 ring-hsl(var(--primary))-500 bg-accent' : 'hover:bg-accent'
                   }`}
                   onClick={() => handleCaseSelect(testCase)}
                 >

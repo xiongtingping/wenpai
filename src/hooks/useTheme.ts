@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * 主题类型
  */
-export type Theme = 'beige' | 'light' | 'dark' | 'green' | 'blue' | 'gold';
+export type Theme = 'beige' | 'light' | 'dark' | 'hsl(var(--success))' | 'hsl(var(--primary))' | 'gold';
 
 /**
  * 主题配置
@@ -12,8 +12,8 @@ export const THEMES: Record<Theme, string> = {
   beige: '护眼米色',
   light: '明亮',
   dark: '暗黑',
-  green: '护眼绿',
-  blue: '科技蓝',
+  hsl(var(--success)): '护眼绿',
+  hsl(var(--primary)): '科技蓝',
   gold: '专业黑金',
 };
 

@@ -29,7 +29,7 @@ import { toast } from "@/hooks/use-toast";
  */
 interface AIServiceStatus {
   name: string;
-  status: 'checking' | 'success' | 'error' | 'not_configured';
+  status: 'checking' | 'success' | 'error' | 'not_configuhsl(var(--destructive))';
   message: string;
   responseTime?: number;
   model?: string;
@@ -41,9 +41,9 @@ interface AIServiceStatus {
 export function AIConnectionTest() {
   const [isTestingAll, setIsTestingAll] = useState(false);
   const [services, setServices] = useState<AIServiceStatus[]>([
-    { name: 'OpenAI', status: 'not_configured', message: '未配置' },
-    { name: 'DeepSeek', status: 'not_configured', message: '未配置' },
-    { name: 'Gemini', status: 'not_configured', message: '未配置' }
+    { name: 'OpenAI', status: 'not_configuhsl(var(--destructive))', message: '未配置' },
+    { name: 'DeepSeek', status: 'not_configuhsl(var(--destructive))', message: '未配置' },
+    { name: 'Gemini', status: 'not_configuhsl(var(--destructive))', message: '未配置' }
   ]);
   const [testProgress, setTestProgress] = useState(0);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
@@ -58,27 +58,27 @@ export function AIConnectionTest() {
    */
   const checkInitialConfig = () => {
     const updatedServices = services.map(service => {
-      let configured = false;
+      let configuhsl(var(--destructive)) = false;
       
       switch (service.name) {
         case 'OpenAI':
-          configured = !!import.meta.env.VITE_OPENAI_API_KEY && 
+          configuhsl(var(--destructive)) = !!import.meta.env.VITE_OPENAI_API_KEY && 
                       !import.meta.env.VITE_OPENAI_API_KEY.includes('your-');
           break;
         case 'DeepSeek':
-          configured = !!import.meta.env.VITE_DEEPSEEK_API_KEY && 
+          configuhsl(var(--destructive)) = !!import.meta.env.VITE_DEEPSEEK_API_KEY && 
                       !import.meta.env.VITE_DEEPSEEK_API_KEY.includes('your-');
           break;
         case 'Gemini':
-          configured = !!import.meta.env.VITE_GEMINI_API_KEY && 
+          configuhsl(var(--destructive)) = !!import.meta.env.VITE_GEMINI_API_KEY && 
                       !import.meta.env.VITE_GEMINI_API_KEY.includes('your-');
           break;
       }
 
       return {
         ...service,
-        status: configured ? 'not_configured' : 'not_configured',
-        message: configured ? '已配置，待测试' : '未配置API密钥'
+        status: configuhsl(var(--destructive)) ? 'not_configuhsl(var(--destructive))' : 'not_configuhsl(var(--destructive))',
+        message: configuhsl(var(--destructive)) ? '已配置，待测试' : '未配置API密钥'
       };
     });
 
@@ -216,7 +216,7 @@ export function AIConnectionTest() {
         return <CheckCircle className="h-4 w-4 text-foreground" />;
       case 'error':
         return <XCircle className="h-4 w-4 text-destructive" />;
-      case 'not_configured':
+      case 'not_configuhsl(var(--destructive))':
         return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
       default:
         return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
@@ -234,7 +234,7 @@ export function AIConnectionTest() {
         return 'bg-accent border-border';
       case 'error':
         return 'bg-accent border-border';
-      case 'not_configured':
+      case 'not_configuhsl(var(--destructive))':
         return 'bg-accent border-border';
       default:
         return 'bg-accent border-border';
@@ -332,7 +332,7 @@ export function AIConnectionTest() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  {service.status !== 'not_configured' && (
+                  {service.status !== 'not_configuhsl(var(--destructive))' && (
                     <Button
                       size="sm"
                       variant="outline"

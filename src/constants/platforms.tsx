@@ -283,7 +283,7 @@ export function getPlatformContent(platform: string, { title, body, coverImage }
       return `${title}\n\n${body}${spec.supportHashtags ? '\n\n#LinkedIn #Professional' : ''}${coverImage ? `\n\n${coverImage}` : ''}`;
     
     case 'facebook':
-      return `${title}\n\n${body}${spec.supportHashtags ? '\n\n#Facebook #分享' : ''}${coverImage ? `\n\n${coverImage}` : ''}`;
+      return `${title}\n\n${body}${spec.supportHashtags ? '\n\nblueook #分享' : ''}${coverImage ? `\n\n${coverImage}` : ''}`;
     
     case 'youtube':
       return `${title}\n\n${body}${spec.supportHashtags ? '\n\n#YouTube #Video' : ''}`;

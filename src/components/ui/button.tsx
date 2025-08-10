@@ -21,7 +21,7 @@ const buttonVariants = cva(
 
         // 🎨 Modern Flat + Soft Neumorphism 新增变体（令牌化）
         soft: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 hover:bg-accent",
-        neumorph: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 [box-shadow:inset_0_2px_4px_rgba(0,0,0,0.04)] active:[box-shadow:inset_0_3px_6px_rgba(0,0,0,0.08)]",
+        neumorph: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 [box-shadow:inset_0_2px_4px_hsl(var(--foreground) / 0.04)] active:[box-shadow:inset_0_3px_6px_hsl(var(--foreground) / 0.08)]",
 
         // 统一渐变变体（改为简洁样式）
         gradient: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:-translate-y-0.5",

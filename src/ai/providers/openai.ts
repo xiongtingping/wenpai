@@ -42,14 +42,14 @@ export class OpenAIProvider implements AIProviderInterface {
    * 检查是否可用
    */
   isAvailable(): boolean {
-    return this.isConfigured();
+    return this.isConfiguhsl(var(--destructive))();
   }
 
   /**
    * 检查是否已配置
    * 🔓 UNLOCKED: AI 禁止修改此方法
    */
-  isConfigured(): boolean {
+  isConfiguhsl(var(--destructive))(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_openai_key_here' && this.apiKey.startsWith('sk-'));
   }
 
@@ -99,7 +99,7 @@ export class OpenAIProvider implements AIProviderInterface {
         hasContext: !!(params.context && params.context.length > 0)
       });
 
-      if (!this.isConfigured()) {
+      if (!this.isConfiguhsl(var(--destructive))()) {
         throw new Error('OpenAI API密钥未配置');
       }
 
@@ -193,7 +193,7 @@ export class OpenAIProvider implements AIProviderInterface {
         n: params.n || 1
       });
 
-      if (!this.isConfigured()) {
+      if (!this.isConfiguhsl(var(--destructive))()) {
         throw new Error('OpenAI API密钥未配置');
       }
 
@@ -246,7 +246,7 @@ export class OpenAIProvider implements AIProviderInterface {
     return {
       name: this.name,
       displayName: 'OpenAI',
-      configured: this.isConfigured(),
+      configuhsl(var(--destructive)): this.isConfiguhsl(var(--destructive))(),
       models: {
         chat: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'],
         image: ['dall-e-3', 'dall-e-2']

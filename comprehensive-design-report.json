@@ -1,0 +1,34 @@
+{
+  "totalFiles": 460,
+  "scannedFiles": 431,
+  "totalIssues": 2,
+  "issuesByType": {
+    "hex-color": 2
+  },
+  "issuesByFile": {
+    "src/components/payment/DirectLinkQRCode.tsx": [
+      {
+        "type": "hex-color",
+        "pattern": "#000000",
+        "suggested": "bg-foreground",
+        "line": 60,
+        "content": "dark: foregroundColor ? `hsl(${foregroundColor})` : '#000000',",
+        "severity": "high"
+      },
+      {
+        "type": "hex-color",
+        "pattern": "#ffffff",
+        "suggested": "bg-background",
+        "line": 61,
+        "content": "light: backgroundColor ? `hsl(${backgroundColor})` : '#ffffff'",
+        "severity": "high"
+      }
+    ]
+  },
+  "issuesBySeverity": {
+    "critical": 0,
+    "high": 2,
+    "medium": 0,
+    "low": 0
+  }
+}

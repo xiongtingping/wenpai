@@ -57,15 +57,15 @@ interface TextTemplate {
  * 分类配置
  */
 const categories = [
-  { id: 'all', name: '全部', icon: <Tag className="w-4 h-4" />, color: 'gray' },
-  { id: 'daily', name: '日常生活', icon: <Coffee className="w-4 h-4" />, color: 'blue' },
-  { id: 'emotion', name: '情感心情', icon: <Heart className="w-4 h-4" />, color: 'red' },
-  { id: 'work', name: '工作学习', icon: <BookOpen className="w-4 h-4" />, color: 'green' },
-  { id: 'travel', name: '旅行生活', icon: <Plane className="w-4 h-4" />, color: 'purple' },
-  { id: 'food', name: '美食分享', icon: <Utensils className="w-4 h-4" />, color: 'yellow' },
+  { id: 'all', name: '全部', icon: <Tag className="w-4 h-4" />, color: 'hsl(var(--muted-foreground))' },
+  { id: 'daily', name: '日常生活', icon: <Coffee className="w-4 h-4" />, color: 'hsl(var(--primary))' },
+  { id: 'emotion', name: '情感心情', icon: <Heart className="w-4 h-4" />, color: 'hsl(var(--destructive))' },
+  { id: 'work', name: '工作学习', icon: <BookOpen className="w-4 h-4" />, color: 'hsl(var(--success))' },
+  { id: 'travel', name: '旅行生活', icon: <Plane className="w-4 h-4" />, color: 'hsl(var(--accent))' },
+  { id: 'food', name: '美食分享', icon: <Utensils className="w-4 h-4" />, color: 'hsl(var(--warning))' },
   { id: 'fitness', name: '健身运动', icon: <Dumbbell className="w-4 h-4" />, color: 'cyan' },
   { id: 'night', name: '深夜时光', icon: <Coffee className="w-4 h-4" />, color: 'indigo' },
-  { id: 'festival', name: '节日祝福', icon: <Gift className="w-4 h-4" />, color: 'pink' },
+  { id: 'festival', name: '节日祝福', icon: <Gift className="w-4 h-4" />, color: 'hsl(var(--accent))' },
 ];
 
 /**
@@ -544,7 +544,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
   const getCategoryStyle = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
     return {
-      color: category?.color || 'gray',
+      color: category?.color || 'hsl(var(--muted-foreground))',
       icon: category?.icon
     };
   };

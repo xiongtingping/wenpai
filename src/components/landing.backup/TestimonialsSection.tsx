@@ -19,9 +19,9 @@ const VirtualAvatar = ({ index }: { index: number }) => {
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="6" y="10" width="20" height="14" rx="6" fill="currentColor" />
         <rect x="12" y="6" width="8" height="6" rx="3" fill="currentColor" />
-        <circle cx="12" cy="17" r="2" fill="#fff" />
-        <circle cx="20" cy="17" r="2" fill="#fff" />
-        <rect x="14" y="21" width="4" height="2" rx="1" fill="#fff" />
+        <circle cx="12" cy="17" r="2" fill="hsl(var(--background))" />
+        <circle cx="20" cy="17" r="2" fill="hsl(var(--background))" />
+        <rect x="14" y="21" width="4" height="2" rx="1" fill="hsl(var(--background))" />
       </svg>
     </div>
   );

@@ -100,7 +100,7 @@
     color: var(--text-primary);
     letter-spacing: var(--tracking-normal);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    -moz-osx-font-smoothing: hsl(var(--muted-foreground))scale;
     text-rendering: optimizeLegibility;
   }
 

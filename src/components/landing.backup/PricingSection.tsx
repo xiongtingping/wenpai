@@ -112,9 +112,9 @@ export function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-12 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+    <section id="pricing" className="py-12 bg-gradient-to-br from-hsl(var(--muted-foreground))-50 to-hsl(var(--background)) relative overflow-hidden">
       {/* 装饰背景 - 突出定价方案推荐区 */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-blue-50/40 to-transparent"></div>
+      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-hsl(var(--primary))-50/40 to-transparent"></div>
       
       <div className="container mx-auto px-4 md:px-12 relative z-10">
         {/* 🎯 标题区域优化 */}
@@ -132,7 +132,7 @@ export function PricingSection() {
 
           {/* 登录用户显示倒计时 */}
           {isAuthenticated && inPromo && (
-            <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-border rounded-lg shadow-lg">
+            <div className="mt-6 p-4 bg-gradient-to-r from-hsl(var(--destructive))-50 to-hsl(var(--warning))-50 border-2 border-border rounded-lg shadow-lg">
               <div className="flex flex-col items-center gap-2">
                 <div className="text-lg md:text-xl font-bold text-destructive">新用户限时优惠</div>
                 <div className="flex items-center gap-3">
@@ -167,8 +167,8 @@ export function PricingSection() {
               onClick={() => setBilling("yearly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "yearly" 
-                  ? "bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-primary-foreground shadow-lg scale-105" 
-                  : "bg-gradient-to-r from-orange-100 to-pink-100 text-foreground border-border hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200"
+                  ? "bg-gradient-to-r from-hsl(var(--warning))-500 to-hsl(var(--accent))-500 hover:opacity-90 text-primary-foreground shadow-lg scale-105" 
+                  : "bg-gradient-to-r from-hsl(var(--warning))-100 to-hsl(var(--accent))-100 text-foreground border-border hover:bg-gradient-to-r hover:from-hsl(var(--warning))-200 hover:to-hsl(var(--accent))-200"
               }`}
             >
               按年订阅 <span className="text-xs ml-1">(省80-202元)</span>
@@ -295,7 +295,7 @@ export function PricingSection() {
                     <th className="border border-border px-4 py-3 text-center font-semibold text-muted-foreground bg-accent w-32">高级版</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-hsl(var(--muted-foreground))-200">
                   <tr className="hover:bg-accent/50 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">AI内容适配器</td>
                     <td className="border border-border px-4 py-3 text-center">

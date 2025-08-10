@@ -2,12 +2,12 @@ import { Book, Video, MessageSquare, Send, Twitter, SquarePlay, Globe, Rss, Zap,
 
 export function TrustSection() {
   return (
-    <section className="py-16 opacity-0 animate-fadeIn bg-[#f9f9f9] relative" id="trust-section">
+    <section className="py-16 opacity-0 animate-fadeIn bg-[hsl(var(--muted))] relative" id="trust-section">
       {/* 顶部渐变过渡层 - 从白色过渡到浅灰色 */}
       <div 
         className="absolute top-0 left-0 right-0 h-10"
         style={{
-          background: 'linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%)'
+          background: 'linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)'
         }}
       />
       
@@ -20,7 +20,7 @@ export function TrustSection() {
             覆盖全网主流内容平台，智能适配平台特性，打造多平台一体化内容方案
           </p>
           <div className="w-32 h-0.5 bg-gradient-to-r btn-gradient-primary mx-auto rounded-full relative">
-            <div className="absolute left-1/2 -translate-x-1/2 top-full w-20 h-2 bg-gradient-to-b from-blue-400/30 to-transparent rounded-full -mt-1"></div>
+            <div className="absolute left-1/2 -translate-x-1/2 top-full w-20 h-2 bg-gradient-to-b from-hsl(var(--primary))-400/30 to-transparent rounded-full -mt-1"></div>
           </div>
         </div>
 
@@ -106,7 +106,7 @@ export function TrustSection() {
       <div 
         className="absolute bottom-0 left-0 right-0 h-10"
         style={{
-          background: 'linear-gradient(to top, #ffffff 0%, #f9f9f9 100%)'
+          background: 'linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)'
         }}
       />
     </section>

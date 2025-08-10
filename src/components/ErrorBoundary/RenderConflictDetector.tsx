@@ -254,7 +254,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
       const defaultFallback = (
         <div style={{
           padding: '20px',
-          border: '2px solid #ef4444',
+          border: '2px solid hsl(var(--destructive))',
           borderRadius: '8px',
           backgroundColor: 'hsl(var(--destructive) / 0.1)',
           color: 'hsl(var(--destructive))',
@@ -268,8 +268,8 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
             onClick={() => this.attemptAutoRecovery()}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#228be6',
-              color: 'white',
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--background))',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer'

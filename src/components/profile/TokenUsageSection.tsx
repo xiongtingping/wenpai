@@ -185,7 +185,7 @@ export function TokenUsageSection({
               {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
               <div className="flex-1 space-y-4">
                 {/* Token使用量统计卡片 */}
-                <div className="bg-accent rounded-xl p-5 border border-primary shadow-e1 relative overflow-hidden">
+                <div className="bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
@@ -248,10 +248,10 @@ export function TokenUsageSection({
                 </div>
 
                 {/* 使用次数统计卡片 */}
-                <div className="bg-gradient-to-br bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
+<div className="bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-success rounded-lg flex items-center justify-center shadow-e0">
+                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
                         <Target className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ export function TokenUsageSection({
                     <Badge
                       variant={finalUsageCountStats && finalUsageCountStats.usagePercentage > 80 ? "destructive" :
                               finalUsageCountStats && finalUsageCountStats.usagePercentage > 60 ? "secondary" : "default"}
-                      className="text-xs font-bold"
+                      className="text-sm font-bold btn-gradient-primary text-primary-foreground border-0 shadow-lg rounded-xl px-3 py-1"
                     >
                       {userTier === 'premium' || (finalUsageCountStats && finalUsageCountStats.availableUses === -1) ? '无限制' :
                        `${finalUsageCountStats?.usedCount || 0}/${finalUsageCountStats?.availableUses || 0}`}

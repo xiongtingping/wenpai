@@ -63,8 +63,8 @@ export default function TopThreePodium({
         return {
           ...baseStyles,
           height: '280px',
-          background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
-          boxShadow: '0 8px 32px rgba(184, 134, 11, 0.3)',
+          background: 'linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning)) 100%)',
+          boxShadow: '0 8px 32px hsl(var(--warning) / 0.3)',
           transform: 'scale(1.05)',
           zIndex: 3
         };
@@ -72,8 +72,8 @@ export default function TopThreePodium({
         return {
           ...baseStyles,
           height: '240px',
-          background: 'linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%)',
-          boxShadow: '0 6px 24px rgba(192, 192, 192, 0.3)',
+          background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground)) 100%)',
+          boxShadow: '0 6px 24px hsl(var(--muted) / 0.3)',
           transform: 'scale(1.02)',
           zIndex: 2
         };
@@ -81,8 +81,8 @@ export default function TopThreePodium({
         return {
           ...baseStyles,
           height: '200px',
-          background: 'linear-gradient(135deg, #CD7F32 0%, #B8860B 100%)',
-          boxShadow: '0 4px 16px rgba(205, 127, 50, 0.3)',
+          background: 'linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning)) 100%)',
+          boxShadow: '0 4px 16px hsl(var(--warning) / 0.3)',
           zIndex: 1
         };
       default:

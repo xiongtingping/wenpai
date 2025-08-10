@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深色模式样式一致性测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 12px;
+            border: 1px solid #404040;
+        }
+        
+        .test-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #60a5fa;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .test-card {
+            background: #333333;
+            border: 1px solid #505050;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .icon-container {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .stat-item {
+            background: #404040;
+            border: 1px solid #505050;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #404040;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            width: 75%;
+            transition: width 0.3s ease;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #404040;
+            border: 1px solid #505050;
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .button {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .button:hover {
+            opacity: 0.9;
+        }
+        
+        .instructions {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h3 {
+            margin: 0 0 12px 0;
+            color: #60a5fa;
+        }
+        
+        .instructions p {
+            margin: 8px 0;
+            color: #bfdbfe;
+        }
+        
+        .code {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #60a5fa; margin-bottom: 40px;">深色模式样式一致性测试</h1>
+        
+        <div class="instructions">
+            <h3>测试说明</h3>
+            <p>1. 这个页面模拟了个人资料页面中使用统计和邀请奖励卡片的样式</p>
+            <p>2. 请检查两个卡片的边框颜色、背景色、图标样式是否一致</p>
+            <p>3. 在浏览器控制台中运行 <span class="code">checkDarkModeConsistency()</span> 来进行自动检查</p>
+            <p>4. 切换到实际的个人资料页面 <a href="http://localhost:5176/profile" style="color: #60a5fa;">http://localhost:5176/profile</a> 进行对比</p>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">使用统计和邀请奖励卡片对比</div>
+            <div class="test-grid">
+                <!-- 使用统计卡片 -->
+                <div class="test-card">
+                    <div class="card-header">
+                        <div class="icon-container">📊</div>
+                        <div>
+                            <div class="card-title">使用统计</div>
+                            <div class="card-subtitle">体验版 - 查看您的使用情况</div>
+                        </div>
+                        <div style="margin-left: auto;">
+                            <span class="badge">75%</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #404040; border: 1px solid #505050; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">⚡</div>
+                            <div style="font-weight: bold; color: #ffffff;">Token使用量</div>
+                            <div style="margin-left: auto;">
+                                <span class="badge">75%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #9ca3af;">
+                            <span>已使用 25.0K tokens</span>
+                            <span>剩余 75.0K tokens</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #404040; border: 1px solid #505050; border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">🎯</div>
+                            <div style="font-weight: bold; color: #ffffff;">使用次数</div>
+                            <div style="margin-left: auto;">
+                                <span class="badge">3/10</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #9ca3af;">
+                            <span>已使用 3 次</span>
+                            <span>剩余 7 次</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 邀请奖励卡片 -->
+                <div class="test-card">
+                    <div class="card-header">
+                        <div class="icon-container">🎁</div>
+                        <div>
+                            <div class="card-title">邀请奖励</div>
+                            <div class="card-subtitle">邀请好友获得免费次数</div>
+                        </div>
+                        <div style="margin-left: auto;">
+                            <button class="button" style="padding: 6px 12px; font-size: 12px;">📋</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #404040; border: 1px solid #505050; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">🏆</div>
+                            <div style="font-weight: bold; color: #ffffff;">邀请奖励规则</div>
+                        </div>
+                        <p style="color: #9ca3af; font-size: 14px; margin: 0;">每邀请1人注册，双方各得20次免费使用机会，永久有效！</p>
+                    </div>
+                    
+                    <div style="background: #404040; border: 1px solid #505050; border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">👥</div>
+                            <div style="font-weight: bold; color: #ffffff;">邀请统计</div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">成功邀请</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">获得次数</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">📋</div>
+                                <div style="font-weight: bold; color: #ffffff;">邀请链接</div>
+                            </div>
+                            <div class="input-group">
+                                <input class="input" value="http://localhost:5176?ref=user123" readonly>
+                                <button class="button">📋</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="dark-mode-consistency-check.js"></script>
+</body>
+</html>
