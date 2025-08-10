@@ -702,8 +702,8 @@ export default function ProfilePage() {
             <CardHeader className="border-b border-border relative z-10 rounded-t-xl bg-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
-                    <User className="w-6 h-6 drop-shadow-sm text-primary" />
+                  <div className="w-12 h-12 bg-card/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
+                    <User className="w-6 h-6 drop-shadow-sm text-foreground" />
                   </div>
                   <div>
                     <div className="text-xl font-bold text-foreground">个人资料</div>
@@ -775,12 +775,12 @@ export default function ProfilePage() {
                         </h2>
                         <div className="flex flex-wrap gap-1 justify-center mb-3">
                           <Badge
-                            variant="secondary"
-                            className={`text-xs border ${
-                              userStats.accountType === '体验版' ? 'bg-muted text-muted-foreground border-border' :
-                              userStats.accountType === '专业版' ? 'bg-secondary text-secondary-foreground border-border' :
-                              'bg-primary text-primary-foreground border-primary'
-                            }`}
+                            variant={
+                              userStats.accountType === '体验版' ? 'secondary' :
+                              userStats.accountType === '专业版' ? 'default' :
+                              'premium'
+                            }
+                            className="text-xs"
                           >
                             <Crown className="w-3 h-3 mr-1" />
                             {userStats.accountType}
@@ -789,12 +789,12 @@ export default function ProfilePage() {
 
                         {/* 上传头像按钮 */}
                         <Button
-                          variant="soft"
+                          variant="outline"
                           size="sm"
                           onClick={handleUploadAvatar}
-                          className="h-8 text-xs"
+                          className="h-8 text-xs border-border bg-card hover:bg-accent text-foreground"
                         >
-                          <Upload className="w-3 h-3 mr-1" />
+                          <Upload className="w-3 h-3 mr-1 text-muted-foreground" />
                           上传头像
                         </Button>
                       </div>
@@ -858,7 +858,7 @@ export default function ProfilePage() {
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
                           手机号
                           {verificationStatus.phone && (
-                            <Check className="w-3 h-3 text-primary" />
+                            <Check className="w-3 h-3 text-green-500" />
                           )}
                         </Label>
                         <div className="flex gap-2">
@@ -908,7 +908,7 @@ export default function ProfilePage() {
                           <div className="w-2 h-2 bg-primary rounded-full"></div>
                           邮箱
                           {verificationStatus.email && (
-                            <Check className="w-3 h-3 text-primary" />
+                            <Check className="w-3 h-3 text-green-500" />
                           )}
                         </Label>
                         <div className="flex gap-2">
@@ -990,8 +990,8 @@ export default function ProfilePage() {
                       <div className="pt-3 border-t border-border">
                         <Button
                           onClick={handleSaveProfile}
-                          variant={hasUnsavedChanges ? "gradientAccent" : "gradient"}
-                          className={`w-full h-10 font-semibold text-sm ${hasUnsavedChanges ? 'animate-pulse' : ''}`}
+                          variant={hasUnsavedChanges ? "default" : "secondary"}
+                          className={`w-full h-10 font-semibold text-sm ${hasUnsavedChanges ? 'animate-pulse bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
                           disabled={!hasUnsavedChanges || isSaving}
                         >
                           {isSaving ? (
@@ -1130,14 +1130,13 @@ export default function ProfilePage() {
                 {/* 邀请按钮 - 与内容对齐 */}
                 <div className="mt-5">
                   <Button
-                    className="w-full h-14 text-primary-foreground bg-primary font-bold text-lg rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center"
+                    variant="default"
+                    size="lg"
+                    className="w-full h-14 bg-primary text-primary-foreground font-bold text-lg rounded-xl shadow-e1 hover:shadow-e2 hover:-translate-y-0.5 transition-all duration-300"
                     onClick={handleInviteFriends}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-hsl(var(--background))/10 to-transparent pointer-events-none"></div>
-                    <div className="flex items-center justify-center gap-3 relative z-10">
-                      <Users className="w-6 h-6 drop-shadow-sm" />
-                      <span className="drop-shadow-sm">立即邀请好友</span>
-                    </div>
+                    <Users className="w-6 h-6 mr-3" />
+                    立即邀请好友
                   </Button>
                 </div>
               </CardContent>

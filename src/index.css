@@ -755,6 +755,36 @@
   box-shadow: var(--shadow-e1);
 }
 
+/* 统一图标样式系统 */
+.icon-primary {
+  color: hsl(var(--primary));
+}
+
+.icon-foreground {
+  color: hsl(var(--foreground));
+}
+
+.icon-muted {
+  color: hsl(var(--muted-foreground));
+}
+
+.icon-success {
+  color: hsl(var(--success));
+}
+
+.icon-container {
+  background: hsl(var(--card) / 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  box-shadow: var(--shadow-e0);
+}
+
+.icon-container-primary {
+  background: var(--bg-gradient-primary);
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-e0);
+}
+
 .btn-gradient:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-glow);

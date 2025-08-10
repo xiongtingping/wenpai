@@ -303,13 +303,13 @@ export function TokenUsageSection({
               {showUpgradeButton && (
                 <div className="mt-4">
                   <Button
-                    className="w-full h-14 text-primary-foreground font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-upgrade-gradient flex items-center justify-center"
+                    variant="default"
+                    size="lg"
+                    className="w-full h-14 bg-primary text-primary-foreground font-bold text-lg rounded-xl shadow-e1 hover:shadow-e2 hover:-translate-y-0.5 transition-all duration-300"
                     onClick={handleUpgrade}
                   >
-                    <div className="flex items-center justify-center gap-3">
-                      <Crown className="w-5 h-5" />
-                      <span>解锁高级功能</span>
-                    </div>
+                    <Crown className="w-5 h-5 mr-3" />
+                    解锁高级功能
                   </Button>
                 </div>
               )}

@@ -13,11 +13,11 @@ const THEME_KEY = 'wenpai-theme';
 type Theme = 'light' | 'dark' | 'hsl(var(--primary))' | 'beige' | 'hsl(var(--success))';
 
 const themes: { value: Theme; label: string; icon: React.ReactNode }[] = [
-  { value: 'light', label: '浅色', icon: <Sun className="h-4 w-4" /> },
-  { value: 'dark', label: '深色', icon: <Moon className="h-4 w-4" /> },
-  { value: 'hsl(var(--primary))', label: '蓝色', icon: <div className="w-4 h-4 rounded-full bg-accent0" /> },
-  { value: 'beige', label: '护眼米色', icon: <div className="w-4 h-4 rounded-full bg-amber-200" /> },
-  { value: 'hsl(var(--success))', label: '绿色', icon: <div className="w-4 h-4 rounded-full bg-hsl(var(--success))-500" /> },
+  { value: 'light', label: '浅色', icon: <Sun className="h-4 w-4 text-foreground" /> },
+  { value: 'dark', label: '深色', icon: <Moon className="h-4 w-4 text-foreground" /> },
+  { value: 'hsl(var(--primary))', label: '蓝色', icon: <div className="w-4 h-4 rounded-full bg-primary" /> },
+  { value: 'beige', label: '护眼米色', icon: <div className="w-4 h-4 rounded-full bg-accent border border-border" /> },
+  { value: 'hsl(var(--success))', label: '绿色', icon: <div className="w-4 h-4 rounded-full bg-green-500" /> },
 ];
 
 function getInitialTheme(): Theme {
@@ -54,10 +54,12 @@ export const ThemeToggle: React.FC = () => {
           variant="ghost"
           size="sm"
           aria-label="切换主题"
-          className="h-9 w-9 p-0 rounded-full hover:bg-accent"
+          className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm"
           title="切换主题"
         >
-          {currentTheme.icon}
+          <div className="text-foreground">
+            {currentTheme.icon}
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-32">
