@@ -39,12 +39,12 @@ export function CTASection() {
     <section className="py-16 relative overflow-hidden particle-background">
       <div className="container mx-auto px-6 text-center relative z-10">
         {/* 1️⃣ 主标题 */}
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-2 drop-shadow-sm">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-2 drop-shadow-sm">
           准备好开始您的创作之旅了吗？
         </h2>
 
         {/* 2️⃣ 副标题 */}
-        <p className="text-base text-indigo-100 text-center mb-6 max-w-xl mx-auto leading-relaxed">
+        <p className="text-base text-muted-foreground text-center mb-6 max-w-xl mx-auto leading-relaxed">
           立即加入，让AI成为你最得力的内容创作伙伴。
         </p>
         
