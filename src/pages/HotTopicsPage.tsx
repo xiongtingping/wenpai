@@ -834,7 +834,7 @@ export default function HotTopicsPage() {
                           今日最热门话题
                         </CardTitle>
                         <CardDescription>
-                          各平台热门话题排行榜
+                          各平台热门话题排行榜 · 总计 {stats.total} 条热点，来自 {stats.platforms} 个平台 · 总榜展示 {aggregateAndSortTopics(allHotData.data).length} 条
                         </CardDescription>
                       </div>
                       <div className="text-sm text-muted-foreground">
@@ -859,22 +859,22 @@ export default function HotTopicsPage() {
                           {aggregateAndSortTopics(allHotData.data).slice(0, 10).map((topic, index) => (
                             <div
                               key={index}
-                              className={`p-3 rounded-lg border transition-all hover:shadow-md h-48 flex flex-col ${
+                              className={`p-2 rounded-lg border transition-all hover:shadow-md h-36 flex flex-col ${
                                 isTopicRead(topic) ? 'bg-accent opacity-75' : 'bg-card'
                               } ${isTopicBookmarked(topic) ? 'border-border bg-accent' : 'border-border'}`}
                             >
-                              <div className="flex items-center gap-2 mb-2">
-                                <Badge variant="destructive" className="text-xs">
+                              <div className="flex items-center gap-1 mb-1">
+                                <Badge variant="destructive" className="text-xs px-1 py-0 h-4">
                                   #{index + 1}
                                 </Badge>
-                                <Badge variant="outline" className="text-xs">
+                                <Badge variant="outline" className="text-xs px-1 py-0 h-4">
                                   {getPlatformDisplayName(topic.platform || '')}
                                 </Badge>
                               </div>
-                              <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-2 flex-1">
+                              <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-1 flex-1">
                                 {topic.title}
                               </h4>
-                              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                                 <span>{formatHotValue(topic.hot)}</span>
                                 <div className="flex items-center gap-1">
                                   {isTopicBookmarked(topic) && (
@@ -885,11 +885,11 @@ export default function HotTopicsPage() {
                                   )}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2 mt-auto">
+                              <div className="flex items-center gap-1 mt-auto">
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="flex-1 text-xs h-7"
+                                  className="flex-1 text-xs h-6 px-2"
                                   onClick={() => handleViewSource(topic)}
                                 >
                                   <ExternalLink className="w-3 h-3 mr-1" />
@@ -898,7 +898,7 @@ export default function HotTopicsPage() {
                                 <Button
                                   size="sm"
                                   variant={isTopicBookmarked(topic) ? "default" : "outline"}
-                                  className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
+                                  className={`text-xs h-6 px-2 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
                                   onClick={() => toggleBookmark(topic)}
                                 >
                                   <Bookmark className="w-3 h-3" />
@@ -917,22 +917,22 @@ export default function HotTopicsPage() {
                               {(allHotData.data[platform] || []).slice(0, 10).map((topic, index) => (
                                 <div
                                   key={index}
-                                  className={`p-3 rounded-lg border transition-all hover:shadow-md h-48 flex flex-col ${
+                                  className={`p-2 rounded-lg border transition-all hover:shadow-md h-36 flex flex-col ${
                                     isTopicRead(topic) ? 'bg-accent opacity-75' : 'bg-card'
                                   } ${isTopicBookmarked(topic) ? 'border-border bg-accent' : 'border-border'}`}
                                 >
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Badge variant="destructive" className="text-xs">
+                                  <div className="flex items-center gap-1 mb-1">
+                                    <Badge variant="destructive" className="text-xs px-1 py-0 h-4">
                                       #{index + 1}
                                     </Badge>
-                                    <Badge variant="outline" className="text-xs">
+                                    <Badge variant="outline" className="text-xs px-1 py-0 h-4">
                                       {getPlatformDisplayName(platform)}
                                     </Badge>
                                   </div>
-                                  <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-2 flex-1">
+                                  <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-1 flex-1">
                                     {topic.title}
                                   </h4>
-                                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                                     <span>{formatHotValue(topic.hot)}</span>
                                     <div className="flex items-center gap-1">
                                       {isTopicBookmarked(topic) && (
@@ -943,11 +943,11 @@ export default function HotTopicsPage() {
                                       )}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2 mt-auto">
+                                  <div className="flex items-center gap-1 mt-auto">
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      className="flex-1 text-xs h-7"
+                                      className="flex-1 text-xs h-6 px-2"
                                       onClick={() => handleViewSource(topic)}
                                     >
                                       <ExternalLink className="w-3 h-3 mr-1" />
@@ -956,7 +956,7 @@ export default function HotTopicsPage() {
                                     <Button
                                       size="sm"
                                       variant={isTopicBookmarked(topic) ? "default" : "outline"}
-                                      className={`text-xs h-7 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90' : ''}`}
+                                      className={`text-xs h-6 px-2 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90' : ''}`}
                                       onClick={() => toggleBookmark(topic)}
                                     >
                                       <Bookmark className="w-3 h-3" />
@@ -992,41 +992,41 @@ export default function HotTopicsPage() {
           {/* 话题订阅标签页 */}
           <TabsContent value="subscriptions">
             {/* 订阅统计 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">{subscriptionStats.total}</p>
-                    <p className="text-sm text-muted-foreground">总订阅数</p>
+                    <p className="text-xl font-bold text-foreground">{subscriptionStats.total}</p>
+                    <p className="text-xs text-muted-foreground">总订阅数</p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">{subscriptionStats.active}</p>
-                    <p className="text-sm text-muted-foreground">活跃订阅</p>
+                    <p className="text-xl font-bold text-foreground">{subscriptionStats.active}</p>
+                    <p className="text-xs text-muted-foreground">活跃订阅</p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">{subscriptionStats.notificationEnabled}</p>
-                    <p className="text-sm text-muted-foreground">通知开启</p>
+                    <p className="text-xl font-bold text-foreground">{subscriptionStats.notificationEnabled}</p>
+                    <p className="text-xs text-muted-foreground">通知开启</p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">
+                    <p className="text-xl font-bold text-foreground">
                       {Object.values(monitorResults).flat().length}
                     </p>
-                    <p className="text-sm text-muted-foreground">监控结果</p>
+                    <p className="text-xs text-muted-foreground">监控结果</p>
                   </div>
                 </CardContent>
               </Card>
