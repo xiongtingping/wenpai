@@ -151,30 +151,28 @@
 
 /* 主题配置 - 使用data-theme属性选择器 */
 [data-theme="light"] {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --background: 0 0% 100%; /* #ffffff */
+  --card: 0 0% 100%;       /* #ffffff */
+  --accent: 210 40% 96%;   /* ~#f3f4f6 */
+  --muted: 210 40% 98%;    /* ~#f9fafb */
+  --foreground: 222.2 47.4% 11.2%; /* ~#111827 */
+  --muted-foreground: 215.4 16.3% 46.9%; /* #6b7280 */
+  --primary: 221.2 83.2% 53.3%; /* #2563eb */
+  --primary-foreground: 0 0% 100%; /* #ffffff */
+  --destructive: 0 72% 51%; /* ~#dc2626 */
+  --secondary: 214.3 31.8% 91.4%; /* #e5e7eb */
+  --secondary-foreground: 222.2 47.4% 11.2%; /* ~#111827 */
+  --border: 214.3 31.8% 91.4%; /* #e5e7eb */
+  --border-strong: 213 27% 84%; /* #d1d5db */
+  /* keep compatibility tokens */
+  --card-foreground: 222.2 47.4% 11.2%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222.2 84% 4.9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
+  --popover-foreground: 222.2 47.4% 11.2%;
   --input: 214.3 31.8% 91.4%;
   --ring: 221.2 83.2% 53.3%;
   --radius: 0.5rem;
-  /* New tokens */
   --section: 210 40% 98%;
-  --section-foreground: 222.2 84% 4.9%;
-  --border-strong: 214.3 31.8% 80%;
+  --section-foreground: 222.2 47.4% 11.2%;
   --chart-1: 12 76% 61%;
   --chart-2: 173 58% 39%;
   --chart-3: 197 37% 24%;
@@ -216,30 +214,28 @@
 }
 
 [data-theme="dark"] {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 84% 4.9%;
-  --secondary: 217.2 32.6% 17.5%;
+  --background: 222.2 47.4% 10%;   /* ~#0f172a */
+  --card: 215 28% 17%;             /* ~#1e293b */
+  --accent: 215 25% 28%;           /* ~#334155 */
+  --muted: 215 28% 17%;            /* ~#1e293b */
+  --foreground: 210 40% 98%;       /* #f8fafc */
+  --muted-foreground: 215 20.2% 65.1%; /* #94a3b8 */
+  --primary: 217.2 91.2% 59.8%;    /* #3b82f6 */
+  --primary-foreground: 0 0% 100%; /* #ffffff */
+  --destructive: 0 84.2% 60.2%;    /* #ef4444 */
+  --secondary: 215 20% 35%;        /* ~#475569 */
   --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 94.1%;
+  --border: 215 25% 28%;           /* ~#334155 */
+  --border-strong: 215 20% 35%;    /* ~#475569 */
+  /* keep compatibility tokens */
+  --card-foreground: 210 40% 98%;
+  --popover: 215 28% 17%;
+  --popover-foreground: 210 40% 98%;
+  --input: 215 25% 28%;
+  --ring: 217.2 91.2% 59.8%;
   --radius: 0.5rem;
-  /* New tokens */
   --section: 217.2 32.6% 15%;
   --section-foreground: 210 40% 98%;
-  --border-strong: 217.2 32.6% 30%;
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;

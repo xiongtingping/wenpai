@@ -13,17 +13,17 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { isDevelopment } from '@/utils/env-validator';
 import { UserAvatar } from '@/components/auth/UserAvatar';
-import { 
-  Home, 
-  FileText, 
-  Sparkles, 
-  TrendingUp, 
-  FolderOpen, 
-  Users, 
-  Menu, 
-  X, 
-  User, 
-  Settings, 
+import {
+  Home,
+  FileText,
+  Sparkles,
+  TrendingUp,
+  FolderOpen,
+  Users,
+  Menu,
+  X,
+  User,
+  Settings,
   LogOut,
   Crown,
   Star,
@@ -32,6 +32,7 @@ import {
   Gift,
   ChevronDown
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 /**
  * 顶部导航栏组件
@@ -188,6 +189,9 @@ export const TopNavigation: React.FC = () => {
 
             {/* 用户头像和登录状态 */}
             <div className="flex items-center gap-2">
+              {/* 主题切换 */}
+              <ThemeToggle />
+
               {/* 专业用户标识 */}
               {isAuthenticated && isPro && (
                 <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">

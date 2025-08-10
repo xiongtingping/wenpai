@@ -11,6 +11,24 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 
+// Initialize theme early to avoid FOUC
+(function initTheme() {
+  try {
+    const key = 'wenpai-theme';
+    const stored = localStorage.getItem(key);
+    const preferred = stored === 'light' || stored === 'dark'
+      ? stored
+      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const html = document.documentElement;
+    html.setAttribute('data-theme', preferred);
+    if (preferred === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  } catch {}
+})();
+
 // ✅ FIXED: 2025-08-04 修复React无限循环问题
 // 🐛 问题原因：undefined检测器和修复器在React渲染过程中不断修改DOM，导致无限循环
 // 🔧 修复方式：暂时禁用所有可能导致无限循环的检测器和修复器
