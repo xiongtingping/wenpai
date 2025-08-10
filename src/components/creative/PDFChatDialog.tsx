@@ -369,7 +369,7 @@ export function PDFChatDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl w-[95vw] h-[85vh] flex flex-col p-0 overflow-hidden">
         {/* ✅ ENHANCED: 2025-08-06 优化标题栏和新对话按钮 */}
-        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="flex items-center justify-between p-4 border-b bg-accent">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-accent rounded-lg">
               <MessageSquare className="h-5 w-5 text-primary" />
@@ -448,7 +448,7 @@ export function PDFChatDialog({
                         <div
                           className={`max-w-[75%] p-3 rounded-lg ${
                             message.role === 'user'
-                              ? 'bg-primary text-white rounded-br-sm'
+                              ? 'bg-primary text-primary-foreground rounded-br-sm'
                               : 'bg-accent text-foreground rounded-bl-sm'
                           }`}
                         >
@@ -536,7 +536,7 @@ export function PDFChatDialog({
         </div>
 
         {/* ✅ ENHANCED: 2025-08-06 增强输入区域和建议问题 */}
-        <div className="border-t bg-gradient-to-r from-gray-50 to-blue-50/30 p-4">
+        <div className="border-t bg-accent p-4">
           {/* 智能建议问题 - 分类显示 */}
           {messages.length <= 1 && selectedDocument && (
             <div className="mb-4 space-y-3">
@@ -609,7 +609,7 @@ export function PDFChatDialog({
               <Button
                 onClick={sendMessage}
                 disabled={!inputValue.trim() || isLoading || !selectedDocument || inputValue.length > 500}
-                className="px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                className="px-6 btn-gradient-primary hover:opacity-90"
                 size="lg"
               >
                 {isLoading ? (

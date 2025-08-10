@@ -139,36 +139,36 @@ export const TestLoginPage: React.FC = () => {
           <div className="mb-8 space-x-4">
             <button
               onClick={testLogin}
-              className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-primary hover:bg-primary text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
               🔐 测试登录弹窗
             </button>
             
             <button
               onClick={checkAuthStatus}
-              className="bg-accent hover:bg-accent text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-accent hover:bg-accent text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
               🔍 检查认证状态
             </button>
             
             <button
               onClick={inspectDOM}
-              className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-primary hover:bg-primary text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
               🔍 检查 DOM
             </button>
             
             <button
               onClick={clearLogs}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-muted hover:bg-muted text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
               🗑️ 清空日志
             </button>
           </div>
 
           {/* 测试日志 */}
-          <div className="bg-gray-900 text-foreground p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
-            <h3 className="text-white font-semibold mb-2">测试日志:</h3>
+          <div className="bg-popover text-foreground p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
+            <h3 className="text-primary-foreground font-semibold mb-2">测试日志:</h3>
             {testResults.length === 0 ? (
               <p className="text-muted-foreground">点击上方按钮开始测试...</p>
             ) : (

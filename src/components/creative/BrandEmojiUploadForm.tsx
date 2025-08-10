@@ -92,7 +92,7 @@ export default function BrandEmojiUploadForm({
 
   return (
     <Card className={`w-full max-w-3xl mx-auto shadow-lg border-2 border-primary ${className}`}>
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-border">
+      <CardHeader className="bg-accent border-b border-border">
         <CardTitle className="flex items-center gap-3 text-2xl text-foreground">
           <div className="p-2 bg-accent rounded-lg">
             <Upload className="w-6 h-6 text-primary" />
@@ -108,7 +108,7 @@ export default function BrandEmojiUploadForm({
             <Image className="w-5 h-5 text-primary" />
             上传品牌角色图片
           </Label>
-          <div className="border-3 border-dashed border-primary rounded-xl p-8 text-center hover:border-primary hover:bg-accent transition-all duration-200 bg-gradient-to-br from-blue-50 to-purple-50">
+          <div className="border-3 border-dashed border-primary rounded-xl p-8 text-center hover:border-primary hover:bg-accent transition-all duration-200 bg-accent">
             <Input
               type="file"
               accept="image/*"
@@ -187,7 +187,7 @@ export default function BrandEmojiUploadForm({
               {description.length}/500
             </div>
           </div>
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-primary">
+          <div className="bg-accent p-4 rounded-lg border border-primary">
             <p className="text-sm text-foreground font-medium mb-2">💡 描述建议：</p>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>• 角色外观：颜色、形状、特征（如：圆脸、大眼睛、毛茸茸）</li>
@@ -203,7 +203,7 @@ export default function BrandEmojiUploadForm({
           <Button
             onClick={handleConfirm}
             disabled={!isValid}
-            className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:bg-gray-300 disabled:text-muted-foreground transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="w-full py-4 text-lg font-semibold btn-gradient-primary hover:opacity-90 disabled:bg-muted disabled:text-muted-foreground transition-all duration-200 shadow-lg hover:shadow-xl"
             size="lg"
           >
             <Check className="w-5 h-5 mr-2" />
@@ -212,7 +212,7 @@ export default function BrandEmojiUploadForm({
         </div>
 
         {/* 提示信息 */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-border">
+        <div className="bg-accent p-4 rounded-lg border border-border">
           <p className="text-sm font-medium text-muted-foreground mb-2">🎯 生成效果提示：</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-muted-foreground">
             <div>

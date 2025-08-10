@@ -96,7 +96,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-1 h-1 bg-gray-300 rounded-full opacity-30"
+                  className="w-1 h-1 bg-muted-foreground rounded-full opacity-30"
                   style={{
                     animationDelay: `${i * 0.5}s`,
                     animation: 'fadeInOut 4s infinite'

@@ -257,7 +257,7 @@ export function PricingSection() {
                   variant={isTrial ? "outline" : "default"}
                   className={`mt-8 w-full ${
                     isRecommended 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90' 
+                      ? 'btn-gradient-primary hover:opacity-90'
                       : ''
                   }`}
                   onClick={() => isTrial ? handlePlanClick(plan.id) : handlePlanClick(plan.id)}

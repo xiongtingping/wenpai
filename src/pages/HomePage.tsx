@@ -51,7 +51,7 @@ function HomePage() {
         </div>
 
         {/* Testimonials Section - 浅色渐变背景 */}
-        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 py-20">
+        <div className="bg-accent py-20">
           <TestimonialsSection />
         </div>
 

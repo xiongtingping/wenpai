@@ -115,7 +115,7 @@ export const EmojiButton: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
   variant?: 'default' | 'ghost' | 'outline';
 }> = ({ variant = 'default', className = '', ...props }) => {
   const variantClasses = {
-    default: 'bg-accent hover:bg-gray-200',
+    default: 'bg-accent hover:bg-muted',
     ghost: 'hover:bg-accent',
     outline: 'border border-border hover:bg-accent'
   };
@@ -156,7 +156,7 @@ export const EmojiBadge: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
     <div className="relative inline-flex">
       <AdaptiveEmoji {...props} context="badge" />
       {count !== undefined && count > 0 && (
-        <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        <span className="absolute -top-1 -right-1 bg-destructive text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
           {count > 99 ? '99+' : count}
         </span>
       )}

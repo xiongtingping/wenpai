@@ -222,7 +222,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           <button
             id="copy-all-btn"
             onClick={copyAllTags}
-            className="flex items-center space-x-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
+            className="flex items-center space-x-2 px-3 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary transition-colors"
           >
             <Copy className="h-4 w-4" />
             <span>复制全部</span>
@@ -247,7 +247,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
             <button
               onClick={saveAsTemplate}
               disabled={!templateName.trim() || tags.length === 0}
-              className="px-3 py-2 bg-accent text-white rounded-lg hover:bg-accent disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+              className="px-3 py-2 bg-accent text-primary-foreground rounded-lg hover:bg-accent disabled:bg-muted disabled:cursor-not-allowed text-sm"
             >
               保存模板
             </button>
@@ -266,7 +266,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
                 <div className="flex items-center space-x-1">
                   <button
                     onClick={() => applyTemplate(template)}
-                    className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary"
+                    className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded hover:bg-primary"
                   >
                     应用
                   </button>

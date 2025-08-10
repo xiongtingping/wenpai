@@ -159,7 +159,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
           {isRunning ? (
             <button
               onClick={onCancelAutomation}
-              className="flex items-center space-x-2 px-4 py-2 bg-destructive text-white rounded-lg hover:bg-destructive transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-destructive text-primary-foreground rounded-lg hover:bg-destructive transition-colors"
             >
               <Square className="h-4 w-4" />
               <span>取消</span>
@@ -168,7 +168,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
             <button
               onClick={onBatchPublish || handleStartAutomation}
               disabled={selectedPlatforms.length === 0}
-              className="flex items-center space-x-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold"
+              className="flex items-center space-x-2 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed transition-colors font-semibold"
             >
               <ExternalLink className="h-5 w-5" />
               <span>批量一键转发</span>
@@ -232,7 +232,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
               {progress.completed}/{progress.total} ({getProgressPercentage()}%)
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-muted rounded-full h-2">
             <div
               className="bg-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${getProgressPercentage()}%` }}
@@ -354,7 +354,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
                   {!result.success && (
                     <button
                       onClick={() => onRetryPlatform(result.platformId)}
-                      className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary"
+                      className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded hover:bg-primary"
                     >
                       重试
                     </button>
@@ -382,7 +382,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
       {/* 帮助信息和状态提示 */}
       {!isRunning && selectedPlatforms.length === 0 && availablePlatforms.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          <Bot className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+          <Bot className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-medium text-foreground mb-2">等待内容生成</h3>
           <p className="text-sm text-muted-foreground mb-4">请先在上方生成平台内容，然后即可使用自动化转发功能</p>
           <div className="bg-accent border border-border rounded-lg p-4 text-left max-w-md mx-auto">
@@ -399,7 +399,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
 
       {!isRunning && selectedPlatforms.length === 0 && availablePlatforms.length > 0 && (
         <div className="text-center py-8 text-muted-foreground">
-          <Bot className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+          <Bot className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
           <p className="text-sm">请选择要转发的平台，然后点击"开始转发"</p>
         </div>
       )}

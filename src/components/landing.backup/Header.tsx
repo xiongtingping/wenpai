@@ -230,7 +230,7 @@ export function Header() {
                     login('/payment');
                   }
                 }}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg"
               >
                 立即解锁高级功能
               </Button>
@@ -284,7 +284,7 @@ export function Header() {
                         login('/payment');
                       }
                     }}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-primary-foreground font-medium py-3 rounded-lg transition-all duration-200 hover:shadow-lg w-full"
                   >
                     立即解锁高级功能
                   </Button>

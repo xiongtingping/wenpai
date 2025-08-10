@@ -148,7 +148,7 @@ function DimensionCard({
               onClick={onPin}
               className="h-6 w-6 p-0"
             >
-              <Pin className={`w-3 h-3 ${isPinned ? 'text-white' : ''}`} />
+              <Pin className={`w-3 h-3 ${isPinned ? 'text-primary-foreground' : ''}`} />
             </Button>
           )}
         </div>
@@ -1542,7 +1542,7 @@ ${generateStandardCallToAction()}
               <Button
                 onClick={handleGenerateContent}
                 disabled={!isValidGeneration || isGenerating}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90"
+                className="btn-gradient-primary hover:opacity-90"
               >
                 {isGenerating ? (
                   <>
@@ -1561,7 +1561,7 @@ ${generateStandardCallToAction()}
 
           {/* 生成内容展示 */}
           {currentContent && (
-            <Card className="border-2 border-primary bg-gradient-to-br from-purple-50 to-blue-50">
+            <Card className="border-2 border-primary bg-accent">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">

@@ -116,22 +116,22 @@ function HomePage() {
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-white" />
+                <div className="w-8 h-8 bg-gradient-to-br btn-gradient-primary rounded-lg flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-xl font-bold text-white">文派</span>
+                <span className="text-xl font-bold text-primary-foreground">文派</span>
               </div>
 
               <div className="hidden md:flex items-center gap-8">
-                <a href="#features" className="text-white/80 hover:text-white transition-colors">功能特色</a>
-                <a href="#testimonials" className="text-white/80 hover:text-white transition-colors">用户评价</a>
-                <a href="#pricing" className="text-white/80 hover:text-white transition-colors">价格方案</a>
+                <a href="#features" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">功能特色</a>
+                <a href="#testimonials" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">用户评价</a>
+                <a href="#pricing" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">价格方案</a>
               </div>
 
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
-                  className="text-white hover:bg-card/20"
+                  className="text-primary-foreground hover:bg-card/20"
                   onClick={() => navigate('/login')}
                 >
                   登录
@@ -150,19 +150,19 @@ function HomePage() {
         {/* Hero Section */}
         <section className="container mx-auto px-6 py-20 text-center">
           <div className="max-w-4xl mx-auto">
-            <Badge className="mb-6 bg-card/20 text-white border-white/30 hover:bg-card/30">
+            <Badge className="mb-6 bg-card/20 text-primary-foreground border-white/30 hover:bg-card/30">
               <Zap className="h-4 w-4 mr-2" />
               AI驱动的内容创作平台
             </Badge>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-6 leading-tight">
               让AI成为你的
               <span className="bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
                 创意伙伴
               </span>
             </h1>
 
-            <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto leading-relaxed">
               智能生成高质量营销文案，构建专属品牌语料库，一键适配多个平台。
               让创意无限延伸，让内容创作变得简单高效。
             </p>
@@ -179,7 +179,7 @@ function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-white hover:bg-card/20 px-8 py-4 text-lg"
+                className="border-white/30 text-primary-foreground hover:bg-card/20 px-8 py-4 text-lg"
                 onClick={() => navigate('/demo')}
               >
                 观看演示
@@ -193,12 +193,12 @@ function HomePage() {
                 <div className="space-y-4">
                   <div className="flex justify-end">
                     <div className="bg-card/20 backdrop-blur-sm rounded-2xl px-4 py-2 max-w-xs">
-                      <p className="text-white text-sm">帮我写一篇小红书种草文案</p>
+                      <p className="text-primary-foreground text-sm">帮我写一篇小红书种草文案</p>
                     </div>
                   </div>
                   <div className="flex justify-start">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl px-4 py-2 max-w-xs">
-                      <p className="text-white text-sm">好的！我来为你创作一篇吸引人的种草文案...</p>
+                    <div className="bg-gradient-to-r btn-gradient-primary rounded-2xl px-4 py-2 max-w-xs">
+                      <p className="text-primary-foreground text-sm">好的！我来为你创作一篇吸引人的种草文案...</p>
                     </div>
                   </div>
                 </div>
@@ -210,8 +210,8 @@ function HomePage() {
         {/* Features Section */}
         <section id="features" className="container mx-auto px-6 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">强大功能，简单易用</h2>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold text-primary-foreground mb-4">强大功能，简单易用</h2>
+            <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto">
               集成最先进的AI技术，为你提供全方位的内容创作解决方案
             </p>
           </div>
@@ -228,8 +228,8 @@ function HomePage() {
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     {feature.icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-white/70 text-sm leading-relaxed">{feature.description}</p>
+                  <h3 className="text-lg font-semibold text-primary-foreground mb-2">{feature.title}</h3>
+                  <p className="text-primary-foreground/70 text-sm leading-relaxed">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -239,8 +239,8 @@ function HomePage() {
         {/* How It Works */}
         <section className="container mx-auto px-6 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">三步开启创作之旅</h2>
-            <p className="text-xl text-white/80">简单几步，即可体验AI创作的魅力</p>
+            <h2 className="text-4xl font-bold text-primary-foreground mb-4">三步开启创作之旅</h2>
+            <p className="text-xl text-primary-foreground/80">简单几步，即可体验AI创作的魅力</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -267,15 +267,15 @@ function HomePage() {
               <div key={index} className="text-center">
                 <Card className="backdrop-blur-md bg-card/10 border-white/20 p-8 hover:bg-card/20 transition-all duration-300">
                   <div className="relative mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br btn-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                       {item.icon}
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                       {item.step}
                     </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
-                  <p className="text-white/70 leading-relaxed">{item.description}</p>
+                  <h3 className="text-xl font-semibold text-primary-foreground mb-3">{item.title}</h3>
+                  <p className="text-primary-foreground/70 leading-relaxed">{item.description}</p>
                 </Card>
               </div>
             ))}
@@ -285,8 +285,8 @@ function HomePage() {
         {/* Testimonials */}
         <section id="testimonials" className="container mx-auto px-6 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">用户真实反馈</h2>
-            <p className="text-xl text-white/80">看看其他创作者如何通过文派提升效率</p>
+            <h2 className="text-4xl font-bold text-primary-foreground mb-4">用户真实反馈</h2>
+            <p className="text-xl text-primary-foreground/80">看看其他创作者如何通过文派提升效率</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -295,8 +295,8 @@ function HomePage() {
                 <div className="flex items-center mb-4">
                   <div className="text-3xl mr-3">{testimonial.avatar}</div>
                   <div>
-                    <h4 className="text-white font-semibold">{testimonial.name}</h4>
-                    <p className="text-white/60 text-sm">{testimonial.role}</p>
+                    <h4 className="text-primary-foreground font-semibold">{testimonial.name}</h4>
+                    <p className="text-primary-foreground/60 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
                 <div className="flex mb-3">
@@ -304,7 +304,7 @@ function HomePage() {
                     <Star key={i} className="h-4 w-4 text-muted-foreground fill-current" />
                   ))}
                 </div>
-                <p className="text-white/80 leading-relaxed">{testimonial.content}</p>
+                <p className="text-primary-foreground/80 leading-relaxed">{testimonial.content}</p>
               </Card>
             ))}
           </div>
@@ -313,8 +313,8 @@ function HomePage() {
         {/* Pricing */}
         <section id="pricing" className="container mx-auto px-6 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">选择适合你的方案</h2>
-            <p className="text-xl text-white/80">灵活的定价，满足不同需求</p>
+            <h2 className="text-4xl font-bold text-primary-foreground mb-4">选择适合你的方案</h2>
+            <p className="text-xl text-primary-foreground/80">灵活的定价，满足不同需求</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -353,21 +353,21 @@ function HomePage() {
                 }`}
               >
                 {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r btn-gradient-primary text-primary-foreground">
                     最受欢迎
                   </Badge>
                 )}
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
-                  <p className="text-white/60 text-sm mb-4">{plan.description}</p>
+                  <h3 className="text-xl font-semibold text-primary-foreground mb-2">{plan.name}</h3>
+                  <p className="text-primary-foreground/60 text-sm mb-4">{plan.description}</p>
                   <div className="flex items-baseline justify-center">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    <span className="text-white/60 ml-1">{plan.period}</span>
+                    <span className="text-4xl font-bold text-primary-foreground">{plan.price}</span>
+                    <span className="text-primary-foreground/60 ml-1">{plan.period}</span>
                   </div>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center text-white/80">
+                    <li key={featureIndex} className="flex items-center text-primary-foreground/80">
                       <CheckCircle className="h-4 w-4 text-foreground mr-3 flex-shrink-0" />
                       {feature}
                     </li>
@@ -376,8 +376,8 @@ function HomePage() {
                 <Button
                   className={`w-full ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
-                      : 'bg-card/20 hover:bg-card/30 text-white'
+                      ? 'bg-gradient-to-r btn-gradient-primary hover:opacity-90'
+                      : 'bg-card/20 hover:bg-card/30 text-primary-foreground'
                   }`}
                   onClick={() => navigate('/register')}
                 >
@@ -391,14 +391,14 @@ function HomePage() {
         {/* CTA Section */}
         <section className="container mx-auto px-6 py-20 text-center">
           <Card className="backdrop-blur-md bg-card/10 border-white/20 p-12 max-w-4xl mx-auto">
-            <h2 className="text-4xl font-bold text-white mb-4">准备好开始创作了吗？</h2>
-            <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold text-primary-foreground mb-4">准备好开始创作了吗？</h2>
+            <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
               加入数万创作者的行列，让AI助力你的内容创作之旅
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-4 text-lg font-semibold"
+                className="bg-gradient-to-r btn-gradient-primary hover:opacity-90 px-8 py-4 text-lg font-semibold"
                 onClick={() => navigate('/register')}
               >
                 <Sparkles className="h-5 w-5 mr-2" />
@@ -407,7 +407,7 @@ function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-white hover:bg-card/20 px-8 py-4 text-lg"
+                className="border-white/30 text-primary-foreground hover:bg-card/20 px-8 py-4 text-lg"
                 onClick={() => navigate('/contact')}
               >
                 <Users className="h-5 w-5 mr-2" />
@@ -423,46 +423,46 @@ function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <Sparkles className="h-5 w-5 text-white" />
+                  <div className="w-8 h-8 bg-gradient-to-br btn-gradient-primary rounded-lg flex items-center justify-center">
+                    <Sparkles className="h-5 w-5 text-primary-foreground" />
                   </div>
-                  <span className="text-xl font-bold text-white">文派</span>
+                  <span className="text-xl font-bold text-primary-foreground">文派</span>
                 </div>
-                <p className="text-white/60 text-sm">
+                <p className="text-primary-foreground/60 text-sm">
                   AI驱动的创意内容平台，让创作变得简单高效
                 </p>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-4">产品</h4>
-                <ul className="space-y-2 text-white/60 text-sm">
-                  <li><a href="#" className="hover:text-white transition-colors">AI内容创作</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">品牌语料库</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">多平台适配</a></li>
+                <h4 className="text-primary-foreground font-semibold mb-4">产品</h4>
+                <ul className="space-y-2 text-primary-foreground/60 text-sm">
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">AI内容创作</a></li>
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">品牌语料库</a></li>
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">多平台适配</a></li>
                 </ul>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-4">支持</h4>
-                <ul className="space-y-2 text-white/60 text-sm">
-                  <li><a href="#" className="hover:text-white transition-colors">帮助中心</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">联系我们</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">用户反馈</a></li>
+                <h4 className="text-primary-foreground font-semibold mb-4">支持</h4>
+                <ul className="space-y-2 text-primary-foreground/60 text-sm">
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">帮助中心</a></li>
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">联系我们</a></li>
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">用户反馈</a></li>
                 </ul>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-4">关于</h4>
-                <ul className="space-y-2 text-white/60 text-sm">
-                  <li><a href="#" className="hover:text-white transition-colors">关于我们</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">隐私政策</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">服务条款</a></li>
+                <h4 className="text-primary-foreground font-semibold mb-4">关于</h4>
+                <ul className="space-y-2 text-primary-foreground/60 text-sm">
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">关于我们</a></li>
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">隐私政策</a></li>
+                  <li><a href="#" className="hover:text-primary-foreground transition-colors">服务条款</a></li>
                 </ul>
               </div>
             </div>
 
             <div className="border-t border-white/20 mt-8 pt-8 text-center">
-              <p className="text-white/60 text-sm">
+              <p className="text-primary-foreground/60 text-sm">
                 © 2024 文派. 保留所有权利.
               </p>
             </div>

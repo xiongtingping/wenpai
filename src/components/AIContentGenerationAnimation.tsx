@@ -89,7 +89,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
             {/* AI大脑/机器人核心 */}
             <div className="relative mb-4">
               <div className={`w-20 h-20 rounded-full btn-gradient-primary flex items-center justify-center shadow-lg transition-all duration-500 ${brainPulse ? 'scale-110 shadow-xl' : 'scale-100'}`}>
-                <Brain className={`w-10 h-10 text-white transition-all duration-500 ${brainPulse ? 'scale-110' : 'scale-100'}`} />
+                <Brain className={`w-10 h-10 text-primary-foreground transition-all duration-500 ${brainPulse ? 'scale-110' : 'scale-100'}`} />
               </div>
               
               {/* 环绕的能量粒子 */}
@@ -128,7 +128,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
             </div>
 
             {/* 进度波浪动画 */}
-            <div className="w-32 h-1 bg-gray-200 rounded-full overflow-hidden mb-4">
+            <div className="w-32 h-1 bg-muted rounded-full overflow-hidden mb-4">
               <div className="h-full btn-gradient-primary rounded-full animate-pulse"
                    style={{ 
                      width: '60%',

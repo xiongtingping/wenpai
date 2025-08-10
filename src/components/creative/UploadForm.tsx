@@ -136,7 +136,7 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
         {uploadType === 'image' && (
           <div className="space-y-4">
             <div
-              className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+              className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
               onClick={triggerFileSelect}
             >
               {uploadedImage ? (
@@ -147,7 +147,7 @@ export default function UploadForm({ onUploadComplete, onReset }: UploadFormProp
                       alt="预览"
                       className="w-32 h-32 object-cover rounded-lg"
                     />
-                    <Badge className="absolute -top-2 -right-2 bg-accent0">
+                    <Badge className="absolute -top-2 -right-2 bg-accent">
                       <CheckCircle className="w-3 h-3 mr-1" />
                       已上传
                     </Badge>

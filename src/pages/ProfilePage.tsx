@@ -1112,7 +1112,7 @@ export default function ProfilePage() {
                         <Input
                           value={`${window.location.origin}?ref=${userStats.userId || user?.id || 'unknown'}`}
                           readOnly
-                          className="text-sm h-11 border border-emerald-200 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 font-mono flex-1"
+                          className="text-sm h-11 border border-border rounded-lg bg-gradient-to-r bg-accent font-mono flex-1"
                         />
                         <Button
                           variant="gradientSuccess"

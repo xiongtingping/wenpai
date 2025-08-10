@@ -176,7 +176,7 @@ export function TokenLimitDialog({
           </div>
 
           {/* 升级建议 */}
-          <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-primary">
+          <div className="p-4 bg-accent rounded-lg border border-primary">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-primary" />
@@ -221,7 +221,7 @@ export function TokenLimitDialog({
           {onUpgrade && (
             <Button 
               onClick={onUpgrade}
-              className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="w-full sm:w-auto btn-gradient-primary hover:opacity-90"
             >
               <Crown className="w-4 h-4 mr-2" />
               立即升级

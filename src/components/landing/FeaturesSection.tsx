@@ -84,12 +84,12 @@ const mainFeatures = [
     description: '个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及',
     icon: FolderOpen,
     path: '/library',
-    color: 'from-green-500 to-emerald-500',
-    bgColor: 'from-green-50 to-emerald-50',
+    color: 'btn-gradient-accent',
+    bgColor: 'bg-accent',
     borderColor: 'border-border',
-    hoverColor: 'hover:from-green-100 hover:to-emerald-100',
+    hoverColor: 'hover:bg-accent/80',
     badge: '💡 实用',
-    badgeColor: 'bg-gradient-to-r from-green-500 to-emerald-500',
+    badgeColor: 'btn-gradient-accent',
     features: ['内容收藏管理', '智能分类标签', '快速搜索检索', '云端同步']
   },
   {
@@ -97,12 +97,12 @@ const mainFeatures = [
     description: '专业品牌资产管理系统，统一管理品牌元素，提升品牌一致性和识别度',
     icon: Users,
     path: '/brand-library',
-    color: 'from-indigo-500 to-blue-500',
-    bgColor: 'from-indigo-50 to-blue-50',
+    color: 'btn-gradient-primary',
+    bgColor: 'bg-accent',
     borderColor: 'border-primary',
-    hoverColor: 'hover:from-indigo-100 hover:to-blue-100',
+    hoverColor: 'hover:bg-accent/80',
     badge: '👑 高级版',
-    badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+    badgeColor: 'btn-gradient-secondary',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
   },
 ];
@@ -116,28 +116,28 @@ const quickTools = [
     description: '智能生成生动表情符号，让内容更有趣更有感染力',
     icon: Smile,
     path: '/emoji-generator',
-    color: 'from-yellow-400 to-orange-400',
+    color: 'btn-gradient-secondary',
   },
   {
     title: '🚀 一键转发',
     description: '多平台内容智能分发，最大化传播效果和影响力',
     icon: Upload,
     path: '/share-manager',
-    color: 'from-teal-400 to-cyan-400',
+    color: 'btn-gradient-accent',
   },
   {
     title: '💬 朋友圈模板',
     description: '精美模板快速生成，让您的朋友圈内容脱颖而出',
     icon: MessageCircle,
     path: '/wechat-templates',
-    color: 'from-pink-400 to-rose-400',
+    color: 'btn-gradient-primary',
   },
   {
     title: '📊 历史记录',
     description: '智能追踪创作轨迹，优化内容策略和创作方向',
     icon: Clock,
     path: '/history',
-    color: 'from-gray-400 to-slate-400',
+    color: 'bg-muted',
   },
 ];
 
@@ -203,7 +203,7 @@ export const FeaturesSection: React.FC = () => {
           
           {/* 2️⃣ 主标题「专业的新媒体创作工具」优化 */}
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight animate-fadeInUp">
-            <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
+            <span className="bg-gradient-to-r btn-gradient-primary bg-clip-text text-transparent animate-gradient">
               专业的新媒体创作工具
             </span>
           </h2>
@@ -236,10 +236,10 @@ export const FeaturesSection: React.FC = () => {
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgColor} opacity-50 group-hover:opacity-75 transition-opacity duration-300`}></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-white shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
+                      <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-primary-foreground shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
                         <feature.icon className="w-6 h-6" />
                       </div>
-                      <Badge className={`${feature.badgeColor} text-white border-0 shadow-sm`}>
+                      <Badge className={`${feature.badgeColor} text-primary-foreground border-0 shadow-sm`}>
                         {feature.badge}
                       </Badge>
                     </div>
@@ -301,7 +301,7 @@ export const FeaturesSection: React.FC = () => {
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <CardContent className="p-6">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tool.color} text-white mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tool.color} text-primary-foreground mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
                     <tool.icon className="w-6 h-6" />
                   </div>
                   <h4 className="font-semibold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">

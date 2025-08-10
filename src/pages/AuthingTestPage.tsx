@@ -131,7 +131,7 @@ const AuthingTestPage: React.FC = () => {
             <button
               onClick={runAuthingTest}
               disabled={testStatus === 'testing'}
-              className="px-4 py-2 bg-primary text-white rounded hover:bg-primary disabled:opacity-50"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary disabled:opacity-50"
             >
               {testStatus === 'testing' ? '测试中...' : '🧪 运行测试'}
             </button>
@@ -139,7 +139,7 @@ const AuthingTestPage: React.FC = () => {
             {!isAuthenticated && (
               <button
                 onClick={handleLogin}
-                className="px-4 py-2 bg-accent text-white rounded hover:bg-accent"
+                className="px-4 py-2 bg-accent text-primary-foreground rounded hover:bg-accent"
               >
                 🔐 测试登录
               </button>
@@ -148,7 +148,7 @@ const AuthingTestPage: React.FC = () => {
             {isAuthenticated && (
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-destructive text-white rounded hover:bg-destructive"
+                className="px-4 py-2 bg-destructive text-primary-foreground rounded hover:bg-destructive"
               >
                 🚪 测试登出
               </button>
@@ -156,15 +156,15 @@ const AuthingTestPage: React.FC = () => {
             
             <button
               onClick={() => setTestResults([])}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              className="px-4 py-2 bg-muted text-primary-foreground rounded hover:bg-muted"
             >
               🧹 清除日志
             </button>
           </div>
           
           {/* 测试结果 */}
-          <div className="bg-gray-900 text-foreground p-4 rounded-lg font-mono text-sm">
-            <h3 className="text-white font-semibold mb-3">📝 测试日志</h3>
+          <div className="bg-popover text-foreground p-4 rounded-lg font-mono text-sm">
+            <h3 className="text-primary-foreground font-semibold mb-3">📝 测试日志</h3>
             <div className="max-h-96 overflow-y-auto">
               {testResults.length === 0 ? (
                 <div className="text-muted-foreground">暂无测试结果...</div>

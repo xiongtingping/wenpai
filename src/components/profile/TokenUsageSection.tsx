@@ -63,7 +63,7 @@ function InfoTooltip({ title, content }: { title: string; content: string[] }) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors cursor-help">
+          <button className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted hover:bg-accent transition-colors cursor-help">
             <span className="text-xs font-bold text-muted-foreground">ℹ️</span>
           </button>
         </TooltipTrigger>
@@ -167,7 +167,7 @@ export function TokenUsageSection({
               size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="bg-card/20 backdrop-blur-sm border-white/30 text-white hover:bg-card/30 hover:border-white/50 rounded-lg"
+              className="bg-card/20 backdrop-blur-sm border-white/30 text-primary-foreground hover:bg-card/30 hover:border-white/50 rounded-lg"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
@@ -185,11 +185,11 @@ export function TokenUsageSection({
               {/* 改为垂直布局：Token使用量和使用次数上下排列 */}
               <div className="flex-1 space-y-4">
                 {/* Token使用量统计卡片 */}
-                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border border-primary shadow-e1 relative overflow-hidden">
+                <div className="bg-accent rounded-xl p-5 border border-primary shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-e0">
-                        <Zap className="w-5 h-5 text-white drop-shadow-sm" />
+                        <Zap className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-foreground text-lg">Token使用量</h3>
@@ -207,7 +207,7 @@ export function TokenUsageSection({
                       variant={finalTokenStats && finalTokenStats.monthlyLimit === -1 ? "default" :
                               finalTokenStats && finalTokenStats.usagePercentage > 80 ? "destructive" :
                               finalTokenStats && finalTokenStats.usagePercentage > 60 ? "secondary" : "default"}
-                      className="text-sm font-bold bg-gradient-to-r from-purple-500 to-blue-600 text-white border-0 shadow-lg rounded-xl px-3 py-1"
+                      className="text-sm font-bold btn-gradient-primary text-primary-foreground border-0 shadow-lg rounded-xl px-3 py-1"
                     >
                       {finalTokenStats?.monthlyLimit === -1 ? '无限制' : `${Math.round(finalTokenStats?.usagePercentage || 0)}%`}
                     </Badge>
@@ -215,15 +215,15 @@ export function TokenUsageSection({
 
                   <div className="space-y-4 relative z-10">
                     {finalTokenStats?.monthlyLimit === -1 ? (
-                      <div className="text-center py-3 bg-gradient-to-r from-purple-100/50 to-blue-100/50 rounded-xl">
-                        <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-1">∞</div>
+                      <div className="text-center py-3 bg-accent rounded-xl">
+                        <div className="text-2xl font-bold btn-gradient-primary bg-clip-text text-transparent mb-1">∞</div>
                         <div className="text-sm font-medium text-muted-foreground">无限制Token</div>
                       </div>
                     ) : (
                       <>
                         <Progress
                           value={Math.min(finalTokenStats?.usagePercentage || 0, 100)}
-                          className="h-3 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full shadow-inner"
+                          className="h-3 bg-muted rounded-full shadow-inner"
                         />
                         <div className="flex justify-between text-sm font-medium text-muted-foreground">
                           <span>已使用 {formatNumber(finalTokenStats?.monthlyUsed || 0)} tokens</span>
@@ -234,9 +234,9 @@ export function TokenUsageSection({
                   </div>
 
                   {/* Token继承说明 */}
-                  <div className="mt-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-border rounded-lg p-3 relative z-10 shadow-e0">
+                  <div className="mt-3 bg-accent border border-border rounded-lg p-3 relative z-10 shadow-e0">
                     <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 bg-gradient-primary rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5 flex-shrink-0">
+                      <div className="w-5 h-5 bg-gradient-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold mt-0.5 flex-shrink-0">
                         ℹ️
                       </div>
                       <div className="text-sm text-foreground">
@@ -248,11 +248,11 @@ export function TokenUsageSection({
                 </div>
 
                 {/* 使用次数统计卡片 */}
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200 shadow-e1 relative overflow-hidden">
+                <div className="bg-gradient-to-br bg-accent rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden">
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-success rounded-lg flex items-center justify-center shadow-e0">
-                        <Target className="w-5 h-5 text-white drop-shadow-sm" />
+                        <Target className="w-5 h-5 text-primary-foreground drop-shadow-sm" />
                       </div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-foreground text-lg">使用次数</h3>
@@ -282,7 +282,7 @@ export function TokenUsageSection({
                       <>
                         <Progress
                           value={Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}
-                          className="h-3 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full shadow-inner"
+                          className="h-3 bg-muted rounded-full shadow-inner"
                         />
                         <div className="flex justify-between text-sm font-medium text-muted-foreground">
                           <span>已使用 {finalUsageCountStats?.usedCount || 0} 次</span>
@@ -290,8 +290,8 @@ export function TokenUsageSection({
                         </div>
                       </>
                     ) : (
-                      <div className="text-center py-3 bg-gradient-to-r from-emerald-100/50 to-teal-100/50 rounded-xl">
-                        <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">∞</div>
+                      <div className="text-center py-3 bg-accent rounded-xl">
+                        <div className="text-2xl font-bold btn-gradient-accent bg-clip-text text-transparent mb-1">∞</div>
                         <div className="text-sm font-medium text-muted-foreground">无限制使用</div>
                       </div>
                     )}
@@ -303,7 +303,7 @@ export function TokenUsageSection({
               {showUpgradeButton && (
                 <div className="mt-4">
                   <Button
-                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-upgrade-gradient flex items-center justify-center"
+                    className="w-full h-14 text-primary-foreground font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-upgrade-gradient flex items-center justify-center"
                     onClick={handleUpgrade}
                   >
                     <div className="flex items-center justify-center gap-3">

@@ -4643,8 +4643,8 @@ ${charCountControl.source === 'platform-specific'
                           <div className="px-3 py-2 border-b border-border">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">标</span>
+                                <div className="w-5 h-5 bg-gradient-to-r btn-gradient-secondary rounded-lg flex items-center justify-center">
+                                  <span className="text-primary-foreground text-xs font-bold">标</span>
                                 </div>
                                 <div>
                                   <h3 className="text-base font-semibold text-foreground">智能标题生成</h3>
@@ -4681,7 +4681,7 @@ ${charCountControl.source === 'platform-specific'
                         <div className="px-3 py-2 border-b border-border">
                           <div className="flex items-center gap-2">
                             <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">容</span>
+                              <span className="text-primary-foreground text-xs font-bold">容</span>
                             </div>
                             <div>
                               <h3 className="text-base font-semibold text-foreground">智能内容生成</h3>
@@ -4750,7 +4750,7 @@ ${charCountControl.source === 'platform-specific'
                                       ) : (
                                         <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
                                           result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
-                                          result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
+                                          result.platformId === 'douyin' ? 'bg-black text-primary-foreground border-border' :
                                           result.platformId === 'weibo' ? 'bg-accent border-border' :
                                           result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                           result.platformId === 'wechat' ? 'bg-accent border-border' :
@@ -4898,7 +4898,7 @@ ${charCountControl.source === 'platform-specific'
                                       ) : (
                                         <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
                                           result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
-                                          result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
+                                          result.platformId === 'douyin' ? 'bg-black text-primary-foreground border-border' :
                                           result.platformId === 'weibo' ? 'bg-accent border-border' :
                                           result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                           result.platformId === 'wechat' ? 'bg-accent border-border' :
@@ -5041,7 +5041,7 @@ ${charCountControl.source === 'platform-specific'
                                     <div className="space-y-3">
                                       <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
                                         result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
-                                        result.platformId === 'douyin' ? 'bg-black text-white border-gray-800' :
+                                        result.platformId === 'douyin' ? 'bg-black text-primary-foreground border-border' :
                                         result.platformId === 'weibo' ? 'bg-accent border-border' :
                                         result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                         result.platformId === 'wechat' ? 'bg-accent border-border' :
@@ -5120,7 +5120,7 @@ ${charCountControl.source === 'platform-specific'
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">签</span>
+                                  <span className="text-primary-foreground text-xs font-bold">签</span>
                                 </div>
                                 <div>
                                   <h3 className="text-base font-semibold text-foreground">智能标签生成</h3>

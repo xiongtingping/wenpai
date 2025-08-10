@@ -131,7 +131,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
                 className={`w-full rounded-t transition-all duration-300 ${
                   isLatest 
                     ? 'bg-primary' 
-                    : 'bg-gray-300 hover:bg-gray-400'
+                    : 'bg-muted hover:bg-accent'
                 }`}
                 style={{ height: `${Math.max(height, 10)}%` }}
                 title={`${data.date || '未知日期'}: ${(data.heat || 0).toLocaleString()}`}
@@ -252,7 +252,7 @@ export const TopicHeatChart: React.FC<TopicHeatChartProps> = ({
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+            <Calendar className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
             <p>暂无热度趋势数据</p>
             <p className="text-sm">开始监控话题后即可查看热度变化</p>
           </div>

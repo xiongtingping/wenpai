@@ -74,12 +74,12 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
 
   const platform = platformConfig[platformId as keyof typeof platformConfig];
   const colorClasses = {
-    red: 'from-red-50 to-red-100 border-border text-destructive',
-    orange: 'from-orange-50 to-orange-100 border-border text-foreground',
-    blue: 'from-blue-50 to-blue-100 border-border text-primary',
-    green: 'from-green-50 to-green-100 border-border text-foreground',
-    purple: 'from-purple-50 to-purple-100 border-primary text-primary',
-    pink: 'from-pink-50 to-pink-100 border-primary text-primary'
+    red: 'bg-destructive/10 border-border text-destructive',
+    orange: 'bg-accent border-border text-foreground',
+    blue: 'bg-primary/10 border-border text-primary',
+    green: 'bg-accent border-border text-foreground',
+    purple: 'bg-primary/10 border-primary text-primary',
+    pink: 'bg-primary/10 border-primary text-primary'
   };
 
   useEffect(() => {
@@ -135,8 +135,8 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   };
 
   const getBgClasses = () => {
-    if (status === 'success') return 'from-green-50 to-green-100 border-border';
-    if (status === 'error') return 'from-red-50 to-red-100 border-border';
+    if (status === 'success') return 'bg-accent border-border';
+    if (status === 'error') return 'bg-destructive/10 border-border';
     return colorClasses[platform?.color as keyof typeof colorClasses] || colorClasses.blue;
   };
 
@@ -211,7 +211,7 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
       {/* 成功状态的庆祝效果 */}
       {status === 'success' && (
         <div className="absolute -top-1 -right-1">
-          <div className="w-3 h-3 bg-accent0 rounded-full animate-ping"></div>
+          <div className="w-3 h-3 bg-accent rounded-full animate-ping"></div>
         </div>
       )}
 

@@ -117,7 +117,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
         <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-lg shadow-lg p-3 min-w-[300px]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded"></div>
+              <div className="w-4 h-4 btn-gradient-primary rounded"></div>
               <span className="text-sm font-medium">批量转发工作台 ({platforms.length}个平台)</span>
             </div>
             <div className="flex items-center gap-1">
@@ -160,7 +160,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsMinimized(true)}
-                  className="h-7 w-7 p-0 hover:bg-gray-200"
+                  className="h-7 w-7 p-0 hover:bg-accent"
                   title="最小化"
                 >
                   <Minus className="h-3.5 w-3.5" />
@@ -193,10 +193,10 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                 {platforms.map((platform) => (
                   <Card key={platform.id} className="border-2 border-border hover:border-primary/50 transition-colors shadow-sm">
                     {/* 优化后的卡片头部 */}
-                    <CardHeader className="pb-3 pt-4 px-4 border-b border-gray-100 bg-accent/30">
+                    <CardHeader className="pb-3 pt-4 px-4 border-b border-border bg-accent/30">
                       <CardTitle className="flex items-center gap-3 text-base">
-                        <div className="w-6 h-6 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                          <span className="text-white text-sm font-bold">
+                        <div className="w-6 h-6 rounded btn-gradient-primary flex items-center justify-center">
+                          <span className="text-primary-foreground text-sm font-bold">
                             {platform.icon}
                           </span>
                         </div>

@@ -93,7 +93,7 @@ export default function PaymentPlanDemoPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-bold">支</span>
+              <span className="text-primary-foreground text-sm font-bold">支</span>
             </div>
             支付计划演示
             <Badge variant="secondary">版本对比</Badge>
@@ -137,7 +137,7 @@ export default function PaymentPlanDemoPage() {
                 >
                   {plan.recommended && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-primary text-white">
+                      <Badge className="bg-primary text-primary-foreground">
                         <Star className="h-3 w-3 mr-1" />
                         推荐
                       </Badge>

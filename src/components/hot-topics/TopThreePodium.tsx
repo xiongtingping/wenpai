@@ -106,9 +106,9 @@ export default function TopThreePodium({
   const getRankBadge = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Badge className="bg-accent0 text-muted-foreground hover:bg-accent">🥇 第{rank}名</Badge>;
+        return <Badge className="bg-accent text-muted-foreground hover:bg-accent">🥇 第{rank}名</Badge>;
       case 2:
-        return <Badge className="bg-gray-400 text-foreground hover:bg-accent0">🥈 第{rank}名</Badge>;
+        return <Badge className="bg-muted text-foreground hover:bg-accent">🥈 第{rank}名</Badge>;
       case 3:
         return <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">🥉 第{rank}名</Badge>;
       default:

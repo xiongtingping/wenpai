@@ -27,7 +27,7 @@ const testFeatures = [
     title: 'AI内容适配器',
     path: '/adapt',
     icon: Zap,
-    color: 'from-blue-500 to-cyan-500',
+    color: 'btn-gradient-primary',
     description: '测试AI内容适配器跳转'
   },
   {
@@ -133,7 +133,7 @@ const TestNavigationPage: React.FC = () => {
               <Card key={index} className="hover:shadow-lg transition-all duration-300">
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-white`}>
+                    <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-primary-foreground`}>
                       <IconComponent className="w-6 h-6" />
                     </div>
                     <CardTitle className="text-lg">{feature.title}</CardTitle>

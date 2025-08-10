@@ -178,7 +178,7 @@ export default function ReferrerTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+    <div className="min-h-screen bg-accent p-4">
       <div className="max-w-4xl mx-auto">
         {/* 返回按钮 */}
         <Button

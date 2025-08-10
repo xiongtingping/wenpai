@@ -279,7 +279,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                 <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      <Database className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <Database className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <p>暂无品牌库内容</p>
                     </div>
                   ) : (
@@ -336,7 +336,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                 <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      <Bookmark className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <Bookmark className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <p>暂无资料库内容</p>
                     </div>
                   ) : (
@@ -399,7 +399,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                 <div className="space-y-3 pr-4">
                   {filteredItems.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      <Radar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <Radar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <p>暂无雷达收藏内容</p>
                     </div>
                   ) : (

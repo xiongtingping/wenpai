@@ -176,7 +176,7 @@ export default function CreemAutoFixPage() {
                 <Button 
                   onClick={startAutoFix}
                   disabled={isRunning}
-                  className="bg-primary hover:bg-primary text-white"
+                  className="bg-primary hover:bg-primary text-primary-foreground"
                 >
                   {isRunning ? '修复中...' : '开始自动修复'}
                 </Button>

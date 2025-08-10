@@ -252,11 +252,11 @@ export default function PersonalizedEmojiGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+    <div className="min-h-screen bg-accent p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* 头部标题 */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold btn-gradient-primary bg-clip-text text-transparent">
             个性化品牌 Emoji 生成器
           </h1>
           <p className="text-muted-foreground">
@@ -274,8 +274,8 @@ export default function PersonalizedEmojiGenerator() {
                     <div className={`
                       w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
                       ${index <= currentStepIndex 
-                        ? 'bg-primary text-white' 
-                        : 'bg-gray-200 text-muted-foreground'
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-muted text-muted-foreground'
                       }
                     `}>
                       {index < currentStepIndex ? (
@@ -292,7 +292,7 @@ export default function PersonalizedEmojiGenerator() {
                   {index < steps.length - 1 && (
                     <div className={`
                       w-16 h-0.5 mx-4
-                      ${index < currentStepIndex ? 'bg-primary' : 'bg-gray-200'}
+                      ${index < currentStepIndex ? 'bg-primary' : 'bg-muted'}
                     `} />
                   )}
                 </div>

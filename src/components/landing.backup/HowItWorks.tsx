@@ -57,7 +57,7 @@ export function HowItWorks() {
             return (
               <div
                 key={title}
-                className="group bg-card rounded-xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                className="group bg-card rounded-xl p-8 border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
                 style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
               >
                 <div className="flex flex-col items-center text-center">
@@ -65,7 +65,7 @@ export function HowItWorks() {
                   <div
                     className={`flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br ${stepGradients[i]} shadow-lg mb-6 transition-transform duration-300 group-hover:scale-110`}
                   >
-                    <Icon className="w-10 h-10 text-white" />
+                    <Icon className="w-10 h-10 text-primary-foreground" />
                   </div>
                   
                   {/* 主标题 */}

@@ -433,7 +433,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
       {/* 头部标题区 - 沿用旧版风格 */}
-      <div className="text-center text-white mb-8 pt-8">
+      <div className="text-center text-primary-foreground mb-8 pt-8">
         <h1 className="text-4xl font-bold mb-4" style={{
           textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
         }}>
@@ -448,7 +448,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
 
       {/* 统计和控制区 - 沿用旧版毛玻璃风格 */}
       <div className="mb-8 mx-auto max-w-6xl px-4">
-        <div className="bg-card bg-opacity-20 backdrop-blur-lg rounded-2xl p-6 text-white text-center">
+        <div className="bg-card bg-opacity-20 backdrop-blur-lg rounded-2xl p-6 text-primary-foreground text-center">
           <h3 className="text-xl font-semibold mb-4">📊 功能控制台</h3>
 
           {/* 操作按钮组 */}
@@ -456,7 +456,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
             {allowRandom && (
               <button
                 onClick={handleRandomSelect}
-                className="bg-gradient-to-r from-pink-500 to-blue-500 text-white border-none px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                className="btn-gradient-primary text-primary-foreground border-none px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 🎲 随机选择
               </button>
@@ -468,8 +468,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={() => setViewMode('grid')}
                   className={`px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 ${
                     viewMode === 'grid'
-                      ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white'
-                      : 'bg-card bg-opacity-20 text-white hover:bg-opacity-30'
+                      ? 'btn-gradient-accent text-primary-foreground'
+                      : 'bg-card bg-opacity-20 text-primary-foreground hover:bg-opacity-30'
                   }`}
                 >
                   <Grid3X3 className="w-4 h-4 inline mr-2" />
@@ -479,8 +479,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={() => setViewMode('list')}
                   className={`px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 ${
                     viewMode === 'list'
-                      ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white'
-                      : 'bg-card bg-opacity-20 text-white hover:bg-opacity-30'
+                      ? 'btn-gradient-accent text-primary-foreground'
+                      : 'bg-card bg-opacity-20 text-primary-foreground hover:bg-opacity-30'
                   }`}
                 >
                   <List className="w-4 h-4 inline mr-2" />
@@ -490,8 +490,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   onClick={() => setViewMode('large')}
                   className={`px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 ${
                     viewMode === 'large'
-                      ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white'
-                      : 'bg-card bg-opacity-20 text-white hover:bg-opacity-30'
+                      ? 'btn-gradient-accent text-primary-foreground'
+                      : 'bg-card bg-opacity-20 text-primary-foreground hover:bg-opacity-30'
                   }`}
                 >
                   <Eye className="w-4 h-4 inline mr-2" />
@@ -505,8 +505,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
                 className={`px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 ${
                   showFavoritesOnly
-                    ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white'
-                    : 'bg-card bg-opacity-20 text-white hover:bg-opacity-30'
+                    ? 'btn-gradient-destructive text-primary-foreground'
+                    : 'bg-card bg-opacity-20 text-primary-foreground hover:bg-opacity-30'
                 }`}
               >
                 <Star className="w-4 h-4 inline mr-2" />
@@ -516,7 +516,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
 
             <button
               onClick={clearFilters}
-              className="bg-card bg-opacity-20 text-white px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-opacity-30"
+              className="bg-card bg-opacity-20 text-primary-foreground px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-opacity-30"
             >
               <RotateCcw className="w-4 h-4 inline mr-2" />
               清除过滤
@@ -571,8 +571,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                     onClick={() => toggleTag(tag)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
                       selectedTags.includes(tag)
-                        ? 'bg-primary text-white'
-                        : 'bg-accent text-foreground hover:bg-gray-200'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-accent text-foreground hover:bg-muted'
                     }`}
                   >
                     {tag}
@@ -612,15 +612,15 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 className={`px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-2 ${
                   selectedCategory === category.id
                     ? 'bg-card text-foreground shadow-lg'
-                    : 'bg-card bg-opacity-20 text-white hover:bg-opacity-30'
+                    : 'bg-card bg-opacity-20 text-primary-foreground hover:bg-opacity-30'
                 }`}
               >
                 <span className="text-lg">{category.icon}</span>
                 <span className="hidden sm:inline">{category.name}</span>
                 <span className={`text-xs px-2 py-1 rounded-full ${
                   selectedCategory === category.id
-                    ? 'bg-gray-200 text-foreground'
-                    : 'bg-card bg-opacity-30 text-white'
+                    ? 'bg-muted text-foreground'
+                    : 'bg-card bg-opacity-30 text-primary-foreground'
                 }`}>
                   {category.count}
                 </span>
@@ -664,7 +664,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                   )}
 
                   {/* 复制成功动画指示器 */}
-                  <div className="absolute inset-0 bg-accent0 opacity-0 rounded-2xl flex items-center justify-center text-white font-bold text-sm transition-opacity duration-300 copy-success-indicator">
+                  <div className="absolute inset-0 bg-accent opacity-0 rounded-2xl flex items-center justify-center text-primary-foreground font-bold text-sm transition-opacity duration-300 copy-success-indicator">
                     已复制!
                   </div>
 
@@ -701,7 +701,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                           e.stopPropagation();
                           handleDownloadEmoji(emoji);
                         }}
-                        className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary transition-colors"
+                        className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary transition-colors"
                         title="下载SVG"
                       >
                         <Download className="w-4 h-4" />
@@ -753,7 +753,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                           e.stopPropagation();
                           toggleFavorite(emoji.id);
                         }}
-                        className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-gray-200 transition-colors"
+                        className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-muted transition-colors"
                       >
                         <Heart
                           className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`}
@@ -836,7 +836,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                           e.stopPropagation();
                           handleDownloadEmoji(emoji);
                         }}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors flex items-center gap-2"
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary transition-colors flex items-center gap-2"
                       >
                         <Download className="w-4 h-4" />
                         下载SVG
@@ -853,8 +853,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
         {displayEmojis.length === 0 && (
           <div className="text-center py-16">
             <div className="text-8xl mb-6">🔍</div>
-            <h3 className="text-2xl font-bold text-white mb-4">没有找到相关emoji</h3>
-            <p className="text-white opacity-80 text-lg">尝试调整搜索条件或选择其他分类</p>
+            <h3 className="text-2xl font-bold text-primary-foreground mb-4">没有找到相关emoji</h3>
+            <p className="text-primary-foreground opacity-80 text-lg">尝试调整搜索条件或选择其他分类</p>
             <button
               onClick={clearFilters}
               className="mt-6 bg-card text-foreground px-6 py-3 rounded-full font-semibold hover:bg-accent transition-colors"
@@ -868,7 +868,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
       {/* 统计信息 */}
       {showStats && stats && (
         <div className="mt-8 mx-auto max-w-6xl px-4">
-          <div className="bg-card bg-opacity-20 backdrop-blur-lg rounded-2xl p-6 text-white">
+          <div className="bg-card bg-opacity-20 backdrop-blur-lg rounded-2xl p-6 text-primary-foreground">
             <h3 className="text-xl font-semibold mb-4 text-center">📊 统计信息</h3>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
               <div>

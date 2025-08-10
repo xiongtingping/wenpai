@@ -58,7 +58,7 @@ export default function SimpleQRTestPage() {
           <button
             onClick={handleTestCheckout}
             disabled={loading}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary disabled:opacity-50"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary disabled:opacity-50"
           >
             {loading ? '测试中...' : '测试二维码接口'}
           </button>

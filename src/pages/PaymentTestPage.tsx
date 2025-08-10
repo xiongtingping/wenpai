@@ -142,8 +142,8 @@ export default function PaymentTestPage() {
         <Card className="border-border bg-gradient-to-br from-green-50 to-white">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-accent0 rounded-lg flex items-center justify-center shadow-sm">
-                <CreditCard className="h-4 w-4 text-white" />
+              <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center shadow-sm">
+                <CreditCard className="h-4 w-4 text-primary-foreground" />
               </div>
               价格信息
             </CardTitle>
@@ -183,7 +183,7 @@ export default function PaymentTestPage() {
             {!showQRCode && (
               <Button 
                 onClick={handlePayment}
-                className="w-full bg-accent0 hover:bg-accent"
+                className="w-full bg-accent hover:bg-accent"
                 size="lg"
               >
                 立即支付
@@ -198,7 +198,7 @@ export default function PaymentTestPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-                  <span className="text-white text-sm font-bold">支</span>
+                  <span className="text-primary-foreground text-sm font-bold">支</span>
                 </div>
                 支付宝扫码支付
               </CardTitle>
@@ -209,7 +209,7 @@ export default function PaymentTestPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                      <CreditCard className="h-5 w-5 text-white" />
+                      <CreditCard className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-primary">{selectedPlan.name}</h4>

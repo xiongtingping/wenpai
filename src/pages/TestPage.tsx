@@ -57,7 +57,7 @@ const TestPage: React.FC = () => {
         <div className="mt-6">
           <a 
             href="/" 
-            className="inline-block bg-primary text-white px-4 py-2 rounded hover:bg-primary transition"
+            className="inline-block bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary transition"
           >
             返回首页
           </a>

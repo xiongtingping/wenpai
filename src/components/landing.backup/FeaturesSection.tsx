@@ -45,12 +45,12 @@ const mainFeatures = [
     description: '智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩',
     icon: Zap,
     path: '/adapt',
-    color: 'from-blue-500 to-cyan-500',
+    color: 'btn-gradient-primary',
     bgColor: 'from-blue-50 to-cyan-50',
     borderColor: 'border-border',
     hoverColor: 'hover:from-blue-100 hover:to-cyan-100',
     badge: '🔥 热门',
-    badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500',
+    badgeColor: 'bg-gradient-to-r btn-gradient-primary',
     features: ['智能内容分析', '多平台格式适配', '一键生成优化建议', '实时预览效果']
   },
   {
@@ -63,7 +63,7 @@ const mainFeatures = [
     borderColor: 'border-primary',
     hoverColor: 'hover:from-purple-100 hover:to-pink-100',
     badge: '⭐ 推荐',
-    badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
+    badgeColor: 'btn-gradient-primary',
     features: ['AI创意生成', '多种创意模板', '灵感库管理', '创意协作']
   },
   {
@@ -102,7 +102,7 @@ const mainFeatures = [
     borderColor: 'border-primary',
     hoverColor: 'hover:from-indigo-100 hover:to-blue-100',
     badge: '👑 高级版',
-    badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+    badgeColor: 'bg-gradient-to-r btn-gradient-secondary',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
   },
 ];
@@ -203,7 +203,7 @@ export const FeaturesSection: React.FC = () => {
           
           {/* 2️⃣ 主标题「专业的新媒体创作工具」优化 */}
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight animate-fadeInUp">
-            <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
+            <span className="bg-gradient-to-r btn-gradient-primary bg-clip-text text-transparent animate-gradient">
               专业的新媒体创作工具
             </span>
           </h2>
@@ -236,10 +236,10 @@ export const FeaturesSection: React.FC = () => {
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgColor} opacity-50 group-hover:opacity-75 transition-opacity duration-300`}></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-white shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
+                      <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-primary-foreground shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
                         <feature.icon className="w-6 h-6" />
                       </div>
-                      <Badge className={`${feature.badgeColor} text-white border-0 shadow-sm`}>
+                      <Badge className={`${feature.badgeColor} text-primary-foreground border-0 shadow-sm`}>
                         {feature.badge}
                       </Badge>
                     </div>
@@ -301,7 +301,7 @@ export const FeaturesSection: React.FC = () => {
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <CardContent className="p-6">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tool.color} text-white mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tool.color} text-primary-foreground mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
                     <tool.icon className="w-6 h-6" />
                   </div>
                   <h4 className="font-semibold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">

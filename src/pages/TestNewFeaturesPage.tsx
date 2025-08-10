@@ -21,14 +21,14 @@ const TestNewFeaturesPage: React.FC = () => {
       description: '参考thiings.co网站风格，支持点击下载、复制、粘贴。所有图片由AI生成，要求风格和这个网站的一模一样',
       icon: Smile,
       path: '/emojis',
-      color: 'bg-accent0'
+      color: 'bg-accent'
     },
     {
       title: '微信朋友圈文案颜文字模版',
       description: '点击可以修改、复制、文案。要求有设计感、有emoj、节日、字数要求符合微信朋友圈最佳的展示字数',
       icon: MessageCircle,
       path: '/wechat-templates',
-      color: 'bg-accent0'
+      color: 'bg-accent'
     }
   ];
 
@@ -46,7 +46,7 @@ const TestNewFeaturesPage: React.FC = () => {
             <Card key={index} className="hover:shadow-lg transition-all duration-200">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-lg ${feature.color} text-white`}>
+                  <div className={`p-3 rounded-lg ${feature.color} text-primary-foreground`}>
                     <IconComponent className="w-6 h-6" />
                   </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>

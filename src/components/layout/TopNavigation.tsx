@@ -142,7 +142,7 @@ export const TopNavigation: React.FC = () => {
                   }`}
                 >
                   <item.icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${
-                    isActivePath(item.path) ? 'text-white' : ''
+                    isActivePath(item.path) ? 'text-primary-foreground' : ''
                   }`} />
                   <span>{item.label}</span>
                   {isActivePath(item.path) && (

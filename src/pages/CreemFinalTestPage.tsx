@@ -120,7 +120,7 @@ export default function CreemFinalTestPage() {
                 <Button 
                   onClick={testAllConfigs}
                   disabled={loading}
-                  className="bg-primary hover:bg-primary text-white"
+                  className="bg-primary hover:bg-primary text-primary-foreground"
                 >
                   {loading ? '测试中...' : '测试所有配置'}
                 </Button>

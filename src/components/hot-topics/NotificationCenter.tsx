@@ -278,7 +278,7 @@ export const NotificationCenter: React.FC = () => {
       {filteredNotifications.length === 0 ? (
         <Card>
           <CardContent className="text-center py-8">
-            <BellOff className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+            <BellOff className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
             <p className="text-muted-foreground">暂无通知</p>
             <p className="text-sm text-muted-foreground">当有话题更新或热度变化时会收到通知</p>
           </CardContent>

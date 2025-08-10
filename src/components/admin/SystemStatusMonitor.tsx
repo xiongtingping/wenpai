@@ -274,7 +274,7 @@ const AutomationTasksStatus: React.FC = () => {
       {tasks.map((task) => (
         <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${task.enabled ? 'bg-accent0' : 'bg-gray-400'}`} />
+            <div className={`w-3 h-3 rounded-full ${task.enabled ? 'bg-accent' : 'bg-muted'}`} />
             <div>
               <h4 className="font-medium">{task.name}</h4>
               <p className="text-sm text-muted-foreground">

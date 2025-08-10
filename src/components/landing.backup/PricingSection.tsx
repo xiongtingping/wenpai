@@ -151,7 +151,7 @@ export function PricingSection() {
               onClick={() => setBilling("monthly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "monthly" 
-                  ? "bg-primary hover:bg-primary text-white shadow-lg" 
+                  ? "bg-primary hover:bg-primary text-primary-foreground shadow-lg" 
                   : "text-muted-foreground hover:text-foreground border-border"
               }`}
             >
@@ -167,7 +167,7 @@ export function PricingSection() {
               onClick={() => setBilling("yearly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "yearly" 
-                  ? "bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white shadow-lg scale-105" 
+                  ? "bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-primary-foreground shadow-lg scale-105" 
                   : "bg-gradient-to-r from-orange-100 to-pink-100 text-foreground border-border hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200"
               }`}
             >
@@ -188,12 +188,12 @@ export function PricingSection() {
                 key={plan.id}
                 className={`border-2 p-8 flex flex-col relative ${
                   isRecommended 
-                    ? 'border-primary shadow-2xl bg-gradient-to-br from-purple-50 to-blue-50' 
+                    ? 'border-primary shadow-2xl bg-accent' 
                     : 'border-border'
                 }`}
               >
                 {isRecommended && (
-                  <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full">
+                  <span className="absolute top-0 -translate-y-1/2 btn-gradient-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-full">
                     <Star className="w-3 h-3 mr-1 inline" />
                     推荐
                   </span>
@@ -257,7 +257,7 @@ export function PricingSection() {
                   variant={isTrial ? "outline" : "default"}
                   className={`mt-8 w-full ${
                     isRecommended 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90' 
+                      ? 'btn-gradient-primary hover:opacity-90' 
                       : ''
                   }`}
                   onClick={() => isTrial ? handlePlanClick(plan.id) : handlePlanClick(plan.id)}

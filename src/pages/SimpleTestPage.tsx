@@ -44,21 +44,21 @@ const SimpleTestPage: React.FC = () => {
 
           <button
             onClick={testDirectNavigation}
-            className="w-full bg-accent0 text-white py-2 px-4 rounded hover:bg-accent"
+            className="w-full bg-accent text-primary-foreground py-2 px-4 rounded hover:bg-accent"
           >
             测试直接导航 (返回首页)
           </button>
 
           <button
             onClick={testAuthNavigation}
-            className="w-full bg-primary text-white py-2 px-4 rounded hover:bg-primary"
+            className="w-full bg-primary text-primary-foreground py-2 px-4 rounded hover:bg-primary"
           >
             测试认证导航 (适配页面)
           </button>
 
           <button
             onClick={testLogin}
-            className="w-full bg-accent0 text-white py-2 px-4 rounded hover:bg-primary"
+            className="w-full bg-accent text-primary-foreground py-2 px-4 rounded hover:bg-primary"
           >
             测试登录弹窗
           </button>
@@ -71,7 +71,7 @@ const SimpleTestPage: React.FC = () => {
               console.log('当前URL:', window.location.href);
               alert('调试信息已输出到控制台');
             }}
-            className="w-full bg-accent0 text-white py-2 px-4 rounded hover:bg-gray-600"
+            className="w-full bg-accent text-primary-foreground py-2 px-4 rounded hover:bg-muted"
           >
             输出调试信息
           </button>

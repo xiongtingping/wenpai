@@ -85,15 +85,15 @@ export function StyleSelector({
   const getStyleGradient = (styleId: StyleType) => {
     switch (styleId) {
       case 'professional':
-        return 'from-blue-500 to-cyan-500';
+        return 'btn-gradient-primary';
       case 'funny':
-        return 'from-yellow-500 to-orange-500';
+        return 'btn-gradient-secondary';
       case 'real':
-        return 'from-pink-500 to-rose-500';
+        return 'btn-gradient-primary';
       case 'hook':
-        return 'from-purple-500 to-indigo-500';
+        return 'btn-gradient-primary';
       default:
-        return 'from-gray-500 to-gray-600';
+        return 'bg-muted';
     }
   };
 

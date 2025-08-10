@@ -286,7 +286,7 @@ export default function CreemFinalValidationPage() {
                 <Button 
                   onClick={runValidation}
                   disabled={isRunning}
-                  className="bg-primary hover:bg-primary text-white px-8 py-3"
+                  className="bg-primary hover:bg-primary text-primary-foreground px-8 py-3"
                   size="lg"
                 >
                   {isRunning ? '验证中...' : '开始全面验证'}

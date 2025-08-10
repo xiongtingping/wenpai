@@ -469,7 +469,7 @@ export default function EnhancedPaymentPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-                      <span className="text-white text-sm font-bold">支</span>
+                      <span className="text-primary-foreground text-sm font-bold">支</span>
                     </div>
                     支付宝扫码支付
                   </CardTitle>
@@ -480,7 +480,7 @@ export default function EnhancedPaymentPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                          <CreditCard className="h-5 w-5 text-white" />
+                          <CreditCard className="h-5 w-5 text-primary-foreground" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-primary">{selectedPlan.name}</h4>

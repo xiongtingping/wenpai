@@ -55,7 +55,7 @@ export function CTASection() {
         <div className="flex justify-center">
           <Button
             size="lg"
-            className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 text-white px-10 py-5 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-0 overflow-hidden group"
+            className="relative bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 text-primary-foreground px-10 py-5 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-0 overflow-hidden group"
             onClick={handleButtonClick}
           >
             <span className="relative z-10 flex items-center gap-3">

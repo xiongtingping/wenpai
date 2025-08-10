@@ -289,7 +289,7 @@ export function SchemeSelector({
                   <div className="flex items-center gap-2">
                     <Badge 
                       variant="outline" 
-                      className={`text-xs bg-gradient-to-r ${scheme.color} text-white border-0`}
+                      className={`text-xs bg-gradient-to-r ${scheme.color} text-primary-foreground border-0`}
                     >
                       {scheme.platforms.length} 平台
                     </Badge>
@@ -333,7 +333,7 @@ export function SchemeSelector({
 
       {/* 当前选择摘要 */}
       {(selectedSchemeInfo || selectedStyle) && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+        <div className="mt-6 p-4 bg-accent rounded-lg border">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="h-5 w-5 text-primary" />
             <h4 className="font-medium">当前配置</h4>

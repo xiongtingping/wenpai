@@ -111,7 +111,7 @@ const ShareManager: React.FC = () => {
       id: 'wechat',
       name: '微信公众号',
       icon: <Globe className="w-4 h-4" />,
-      color: 'bg-accent0',
+      color: 'bg-accent',
       maxLength: 5000,
       features: ['富文本', '图片', '链接'],
       status: 'active',
@@ -141,7 +141,7 @@ const ShareManager: React.FC = () => {
       id: 'weibo',
       name: '新浪微博',
       icon: <Share2 className="w-4 h-4" />,
-      color: 'bg-accent0',
+      color: 'bg-accent',
       maxLength: 2000,
       features: ['话题', '图片', '@用户'],
       status: 'active',
@@ -170,7 +170,7 @@ const ShareManager: React.FC = () => {
       id: 'kuaishou',
       name: '快手',
       icon: <Zap className="w-4 h-4" />,
-      color: 'bg-accent0',
+      color: 'bg-accent',
       maxLength: 200,
       features: ['视频', '直播', '话题'],
       status: 'inactive'
@@ -543,7 +543,7 @@ const ShareManager: React.FC = () => {
                             checked={selectedPlatforms.includes(platform.id)}
                             disabled={platform.status !== 'active'}
                           />
-                          <div className={`p-2 rounded-md ${platform.color} text-white`}>
+                          <div className={`p-2 rounded-md ${platform.color} text-primary-foreground`}>
                             {platform.icon}
                           </div>
                           <div>
@@ -619,7 +619,7 @@ const ShareManager: React.FC = () => {
                     return platform ? (
                       <div key={platformId} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                         <div className="flex items-center gap-2">
-                          <div className={`p-1 rounded ${platform.color} text-white`}>
+                          <div className={`p-1 rounded ${platform.color} text-primary-foreground`}>
                             {platform.icon}
                           </div>
                           <span className="text-sm font-medium">{platform.name}</span>
@@ -718,7 +718,7 @@ const ShareManager: React.FC = () => {
                 {platforms.map(platform => (
                   <div key={platform.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-md ${platform.color} text-white`}>
+                      <div className={`p-2 rounded-md ${platform.color} text-primary-foreground`}>
                         {platform.icon}
                       </div>
                       <div>

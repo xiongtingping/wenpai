@@ -23,7 +23,7 @@ interface AlipayQRCodeProps {
  */
 const AlipayLogo: React.FC<{ size?: number }> = ({ size = 24 }) => (
   <div 
-    className="bg-primary text-white rounded flex items-center justify-center font-bold"
+    className="bg-primary text-primary-foreground rounded flex items-center justify-center font-bold"
     style={{ width: size, height: size, fontSize: size * 0.6 }}
   >
     支

@@ -190,7 +190,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
           {content.trim() && (
             <button
               onClick={() => generateTags(true)}
-              className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary transition-colors"
+              className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded hover:bg-primary transition-colors"
             >
               生成话题标签
             </button>
@@ -239,8 +239,8 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
             onClick={copyAllTags}
             className={`px-2 py-1 text-xs rounded transition-all duration-200 ${
               copyFeedback
-                ? 'bg-accent text-white'
-                : 'bg-primary text-white hover:bg-primary'
+                ? 'bg-accent text-primary-foreground'
+                : 'bg-primary text-primary-foreground hover:bg-primary'
             }`}
           >
             {copyFeedback ? '已复制 ✓' : '复制'}

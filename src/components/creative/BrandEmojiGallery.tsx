@@ -438,7 +438,7 @@ export default function BrandEmojiGallery({
         {/* 内容区域 */}
         {filteredEmojis.length === 0 ? (
           <div className="text-center py-12">
-            <Image className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <Image className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">暂无emoji结果</p>
             {searchTerm && (
               <p className="text-sm text-muted-foreground mt-2">

@@ -437,7 +437,7 @@ export default function MarketingCalendar() {
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <p>当前日期暂无特殊营销建议</p>
               <p className="text-sm">可以尝试选择其他日期查看</p>
             </div>

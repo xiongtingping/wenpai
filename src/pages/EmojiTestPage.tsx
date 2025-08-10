@@ -185,7 +185,7 @@ export default function EmojiTestPage() {
                 {platformIcons.map((icon) => (
                   <div key={icon.name} className="text-center p-4 border rounded-lg">
                     <div 
-                      className="w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                      className="w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg"
                       style={{ backgroundColor: icon.color }}
                     >
                       {icon.icon}
