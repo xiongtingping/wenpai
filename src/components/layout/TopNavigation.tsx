@@ -96,7 +96,7 @@ export const TopNavigation: React.FC = () => {
           : 'text-primary hover:text-accent hover:bg-accent/50'
       }`}
     >
-      <item.icon className="w-5 h-5" />
+      <item.icon className="w-5 h-5 text-current" />
       <span>{item.label}</span>
     </button>
   );
@@ -141,7 +141,7 @@ export const TopNavigation: React.FC = () => {
                       : 'text-primary hover:text-accent hover:bg-accent/50 hover:border-b-2 hover:border-accent'
                   }`}
                 >
-                  <item.icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${
+                  <item.icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 text-current ${
                     isActivePath(item.path) ? 'text-primary' : ''
                   }`} />
                   <span>{item.label}</span>
@@ -156,7 +156,7 @@ export const TopNavigation: React.FC = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="lg:hidden hover:bg-accent/50">
-                  <Menu className="w-4 h-4" />
+                  <Menu className="w-4 h-4 text-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
@@ -168,7 +168,7 @@ export const TopNavigation: React.FC = () => {
                         isActivePath(item.path) ? 'bg-accent text-accent-foreground' : 'text-primary'
                       }`}
                     >
-                      <item.icon className="w-4 h-4" />
+                      <item.icon className="w-4 h-4 text-current" />
                       <span>{item.label}</span>
                     </button>
                   </DropdownMenuItem>

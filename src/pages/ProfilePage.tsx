@@ -878,9 +878,9 @@ export default function ProfilePage() {
                             className="h-9 px-3 text-primary hover:text-foreground text-xs"
                           >
                             {isVerifyingPhone ? (
-                              <RefreshCw className="w-3 h-3 animate-spin" />
+                              <RefreshCw className="w-3 h-3 animate-spin text-foreground" />
                             ) : verificationStatus.phone ? (
-                              <Check className="w-3 h-3" />
+                              <Check className="w-3 h-3 text-green-500" />
                             ) : showVerificationInput.phone ? (
                               '确认'
                             ) : (
@@ -929,9 +929,9 @@ export default function ProfilePage() {
                             className="h-9 px-3 text-primary hover:text-foreground text-xs"
                           >
                             {isVerifyingEmail ? (
-                              <RefreshCw className="w-3 h-3 animate-spin" />
+                              <RefreshCw className="w-3 h-3 animate-spin text-foreground" />
                             ) : verificationStatus.email ? (
-                              <Check className="w-3 h-3" />
+                              <Check className="w-3 h-3 text-green-500" />
                             ) : showVerificationInput.email ? (
                               '确认'
                             ) : (
@@ -961,12 +961,12 @@ export default function ProfilePage() {
                           }`}>
                             {verificationStatus.email ? (
                               <>
-                                <Check className="w-3 h-3" />
+                                <Check className="w-3 h-3 text-green-500" />
                                 验证成功！已获得10次免费使用机会
                               </>
                             ) : (
                               <>
-                                <Gift className="w-3 h-3" />
+                                <Gift className="w-3 h-3 text-primary" />
                                 首次验证奖励: 完成邮箱验证可获10次免费使用
                               </>
                             )}
@@ -996,12 +996,12 @@ export default function ProfilePage() {
                         >
                           {isSaving ? (
                             <>
-                              <RefreshCw className="w-3 h-3 mr-2 animate-spin" />
+                              <RefreshCw className="w-3 h-3 mr-2 animate-spin text-current" />
                               保存中...
                             </>
                           ) : (
                             <>
-                              <Save className="w-3 h-3 mr-2" />
+                              <Save className="w-3 h-3 mr-2 text-current" />
                               保存更改
                             </>
                           )}
@@ -1043,7 +1043,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-card/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
-                      <Gift className="w-6 h-6 drop-shadow-sm" />
+                      <Gift className="w-6 h-6 drop-shadow-sm text-foreground" />
                     </div>
                     <div>
                       <div className="text-xl font-bold text-foreground">邀请奖励</div>
@@ -1056,7 +1056,7 @@ export default function ProfilePage() {
                     onClick={handleCopyInviteLink}
                     className="bg-card/20 backdrop-blur-sm border-border/30 text-primary-foreground hover:bg-card/30 hover:border-border/50 rounded-lg"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-4 h-4 text-foreground" />
                   </Button>
                 </div>
               </CardHeader>
@@ -1120,7 +1120,7 @@ export default function ProfilePage() {
                           onClick={handleCopyInviteLink}
                           className="h-11 px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
                         >
-                          <Copy className="w-4 h-4" />
+                          <Copy className="w-4 h-4 text-foreground" />
                         </Button>
                       </div>
                     </div>
@@ -1130,12 +1130,10 @@ export default function ProfilePage() {
                 {/* 邀请按钮 - 与内容对齐 */}
                 <div className="mt-5">
                   <Button
-                    variant="default"
-                    size="lg"
-                    className="w-full h-14 bg-primary text-primary-foreground font-bold text-lg rounded-xl shadow-e1 hover:shadow-e2 hover:-translate-y-0.5 transition-all duration-300"
+                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-invite-gradient"
                     onClick={handleInviteFriends}
                   >
-                    <Users className="w-6 h-6 mr-3" />
+                    <Users className="w-6 h-6 mr-3 text-white" />
                     立即邀请好友
                   </Button>
                 </div>

@@ -155,7 +155,7 @@ export function TokenUsageSection({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-card/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-e0">
-                <Database className="w-6 h-6 drop-shadow-sm" />
+                <Database className="w-6 h-6 drop-shadow-sm text-foreground" />
               </div>
               <div>
                 <div className="text-xl font-bold text-foreground">使用统计</div>
@@ -169,7 +169,7 @@ export function TokenUsageSection({
               disabled={isRefreshing}
               className="bg-card/20 backdrop-blur-sm border-border/30 text-primary-foreground hover:bg-card/30 hover:border-border/50 rounded-lg"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </CardHeader>
@@ -303,12 +303,10 @@ export function TokenUsageSection({
               {showUpgradeButton && (
                 <div className="mt-4">
                   <Button
-                    variant="default"
-                    size="lg"
-                    className="w-full h-14 bg-primary text-primary-foreground font-bold text-lg rounded-xl shadow-e1 hover:shadow-e2 hover:-translate-y-0.5 transition-all duration-300"
+                    className="w-full h-14 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 btn-invite-gradient"
                     onClick={handleUpgrade}
                   >
-                    <Crown className="w-5 h-5 mr-3" />
+                    <Crown className="w-5 h-5 mr-3 text-white" />
                     解锁高级功能
                   </Button>
                 </div>
