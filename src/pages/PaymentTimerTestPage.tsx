@@ -49,7 +49,7 @@ export default function PaymentTimerTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-8">
+    <div className="min-h-screen bg-background p-8">
       <div className="container mx-auto max-w-4xl">
         {/* 页面标题 */}
         <div className="text-center mb-8">

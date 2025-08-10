@@ -4680,7 +4680,7 @@ ${charCountControl.source === 'platform-specific'
                       <div className="bg-card rounded-lg border border-border shadow-md min-h-[120px] mb-4">
                         <div className="px-3 py-2 border-b border-border">
                           <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                            <div className="w-5 h-5 btn-gradient-primary rounded-lg flex items-center justify-center">
                               <span className="text-primary-foreground text-xs font-bold">容</span>
                             </div>
                             <div>
@@ -5119,7 +5119,7 @@ ${charCountControl.source === 'platform-specific'
                           <div className="px-3 py-2 border-b border-border">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                <div className="w-5 h-5 btn-gradient-accent rounded-lg flex items-center justify-center">
                                   <span className="text-primary-foreground text-xs font-bold">签</span>
                                 </div>
                                 <div>

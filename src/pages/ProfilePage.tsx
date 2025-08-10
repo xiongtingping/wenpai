@@ -1066,7 +1066,7 @@ export default function ProfilePage() {
                   {/* 邀请奖励规则卡片 - 减少高度 */}
                   <div className="rounded-xl p-5 border border-border shadow-e1 relative overflow-hidden bg-card">
                     <div className="flex items-center gap-3 mb-3 relative z-10">
-                      <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-10 h-10 btn-gradient-secondary rounded-2xl flex items-center justify-center shadow-lg">
                         <Award className="w-5 h-5 text-primary drop-shadow-sm" />
                       </div>
                       <h3 className="font-bold text-foreground text-lg">邀请奖励规则</h3>

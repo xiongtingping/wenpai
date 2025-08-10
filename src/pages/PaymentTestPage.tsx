@@ -122,7 +122,7 @@ export default function PaymentTestPage() {
 
       {/* 优惠倒计时 */}
       {timeLeft > 0 && (
-        <div className="mb-8 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-border rounded-lg shadow-lg">
+        <div className="mb-8 p-4 bg-accent border-2 border-border rounded-lg shadow-lg">
           <div className="flex flex-col items-center gap-2">
             <div className="text-lg font-bold text-destructive">
               新用户限时优惠：30分钟

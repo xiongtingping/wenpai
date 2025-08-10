@@ -34,28 +34,28 @@ const testFeatures = [
     title: '创意魔方',
     path: '/creative-studio',
     icon: Sparkles,
-    color: 'from-purple-500 to-pink-500',
+    color: 'btn-gradient-primary',
     description: '测试创意魔方跳转'
   },
   {
     title: '全网雷达',
     path: '/hot-topics',
     icon: TrendingUp,
-    color: 'from-orange-500 to-red-500',
+    color: 'btn-gradient-secondary',
     description: '测试全网雷达跳转'
   },
   {
     title: '我的资料库',
     path: '/library',
     icon: FolderOpen,
-    color: 'from-green-500 to-emerald-500',
+    color: 'btn-gradient-accent',
     description: '测试我的资料库跳转'
   },
   {
     title: '品牌库',
     path: '/brand-library',
     icon: Users,
-    color: 'from-indigo-500 to-blue-500',
+    color: 'btn-gradient-primary',
     description: '测试品牌库跳转'
   }
 ];
@@ -92,7 +92,7 @@ const TestNavigationPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-8">
