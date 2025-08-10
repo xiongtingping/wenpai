@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DailyHotItem } from '@/api/hotTopicsService';
-import { ExternalLink, Bookmark, MoreVertical, ArrowUp, Eye, EyeOff, Pin, Trash2, GripVertical } from 'lucide-react';
+import { ExternalLink, Bookmark, MoreVertical, ArrowUp, Eye, EyeOff, Pin, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface TopicCategoriesProps {
@@ -43,6 +43,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(new Set());
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
   const [pinnedCategories, setPinnedCategories] = useState<Set<string>>(new Set());
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   // 处理收藏
   const handleBookmark = (topic: DailyHotItem) => {
@@ -79,24 +80,35 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
     }
   };
 
+  // 处理展开/收起
+  const toggleExpanded = (categoryId: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
   // 返回顶部
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 话题分类定义
+  // 话题分类定义（带主题色）
   const categories = [
     { id: 'all', label: '全部', icon: '🔥' },
-    { id: 'entertainment', label: '娱乐', icon: '🎬' },
-    { id: 'technology', label: '科技', icon: '💻' },
-    { id: 'sports', label: '体育', icon: '⚽' },
-    { id: 'politics', label: '政治', icon: '🏛️' },
-    { id: 'economy', label: '财经', icon: '💰' },
-    { id: 'society', label: '社会', icon: '👥' },
-    { id: 'education', label: '教育', icon: '📚' },
-    { id: 'health', label: '健康', icon: '🏥' },
-    { id: 'lifestyle', label: '生活', icon: '🏠' },
-    { id: 'other', label: '其他', icon: '📝' }
+    { id: 'entertainment', label: '娱乐', icon: '🎬', theme: 'from-pink-500/20 to-rose-500/20 border-pink-200' },
+    { id: 'technology', label: '科技', icon: '💻', theme: 'from-blue-500/20 to-cyan-500/20 border-blue-200' },
+    { id: 'sports', label: '体育', icon: '⚽', theme: 'from-green-500/20 to-emerald-500/20 border-green-200' },
+    { id: 'politics', label: '政治', icon: '🏛️', theme: 'from-purple-500/20 to-violet-500/20 border-purple-200' },
+    { id: 'economy', label: '财经', icon: '💰', theme: 'from-yellow-500/20 to-orange-500/20 border-yellow-200' },
+    { id: 'society', label: '社会', icon: '👥', theme: 'from-indigo-500/20 to-blue-500/20 border-indigo-200' },
+    { id: 'education', label: '教育', icon: '📚', theme: 'from-teal-500/20 to-cyan-500/20 border-teal-200' },
+    { id: 'health', label: '健康', icon: '🏥', theme: 'from-red-500/20 to-pink-500/20 border-red-200' },
+    { id: 'lifestyle', label: '生活', icon: '🏠', theme: 'from-amber-500/20 to-yellow-500/20 border-amber-200' },
+    { id: 'other', label: '其他', icon: '📝', theme: 'from-gray-500/20 to-slate-500/20 border-gray-200' }
   ];
 
   /**
@@ -192,9 +204,9 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
             按分类多列展示所有热点话题，一目了然查看全网热点
           </p>
         </CardHeader>
-        <CardContent>
-          {/* 多列网格布局 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <CardContent className="px-3">
+          {/* 固定2行5列网格布局 */}
+          <div className="grid grid-cols-5 gap-2">
             {categories
               .filter(cat => cat.id !== 'all' && !hiddenCategories.has(cat.id))
               .sort((a, b) => {
@@ -209,26 +221,31 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                 const categoryTopics = getTopicsByCategory(category.id);
                 if (categoryTopics.length === 0) return null;
                 const isPinned = pinnedCategories.has(category.id);
+                const isExpanded = expandedCategories.has(category.id);
+                const displayTopics = isExpanded ? categoryTopics : categoryTopics.slice(0, 5);
 
                 return (
-                  <Card key={category.id} className={`h-fit ${isPinned ? 'ring-2 ring-primary' : ''}`}>
-                    <CardHeader className="pb-3">
+                  <Card
+                    key={category.id}
+                    className={`h-fit bg-gradient-to-br ${category.theme} shadow-md hover:shadow-lg transition-all duration-300 ${isPinned ? 'ring-2 ring-primary' : ''}`}
+                  >
+                    <CardHeader className="pb-2 px-3 pt-3">
                       {/* 分类标题和操作 */}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
-                          <span className="text-lg">{category.icon}</span>
-                          <h3 className="text-base font-semibold">{category.label}</h3>
-                          {isPinned && <Pin className="w-3 h-3 text-primary" />}
+                        <div className="flex items-center gap-1">
+                          <GripVertical className="w-3 h-3 text-muted-foreground cursor-move" />
+                          <span className="text-base">{category.icon}</span>
+                          <h3 className="text-sm font-semibold">{category.label}</h3>
+                          {isPinned && <Pin className="w-2 h-2 text-primary" />}
                         </div>
                         <div className="flex items-center gap-1">
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
                             {categoryTopics.length}
                           </Badge>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                <MoreVertical className="w-3 h-3" />
+                              <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
+                                <MoreVertical className="w-2 h-2" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -250,65 +267,86 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                       </div>
                     </CardHeader>
 
-                    <CardContent className="pt-0">
+                    <CardContent className="pt-0 px-3 pb-3">
                       {/* 话题列表 */}
-                      <div className="space-y-2">
-                        {categoryTopics.slice(0, 6).map((topic, index) => {
+                      <div className="space-y-1">
+                        {displayTopics.map((topic, index) => {
                           const topicId = `${topic.platform}-${topic.title}`;
                           const isBookmarked = bookmarkedTopics.has(topicId);
 
                           return (
                             <div
                               key={`${topic.platform}-${index}`}
-                              className="p-2 rounded-lg border hover:shadow-md transition-all bg-card"
+                              className="p-1.5 rounded border hover:shadow-sm transition-all bg-white/50"
                             >
-                              {/* 排名和平台 */}
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-bold text-primary">#{index + 1}</span>
-                                <Badge variant="outline" className="text-xs px-1 py-0 h-4">
-                                  {getPlatformDisplayName(topic.platform || '')}
-                                </Badge>
-                              </div>
+                              {/* 单行布局：排名 + 标题 + 热度 + 操作按钮 */}
+                              <div className="flex items-center gap-1">
+                                {/* 排名 */}
+                                <span className="text-xs font-bold text-primary w-4 flex-shrink-0">#{index + 1}</span>
 
-                              {/* 标题 */}
-                              <h4 className="text-sm font-medium line-clamp-2 mb-2 cursor-pointer hover:text-primary"
-                                  onClick={() => onTopicClick(topic)}>
-                                {topic.title}
-                              </h4>
+                                {/* 标题 */}
+                                <h4 className="text-xs font-medium line-clamp-1 flex-1 cursor-pointer hover:text-primary"
+                                    onClick={() => onTopicClick(topic)}>
+                                  {topic.title}
+                                </h4>
 
-                              {/* 热度和操作按钮 */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">
-                                  热度: {topic.hot || '暂无数据'}
+                                {/* 热度 */}
+                                <span className="text-xs text-muted-foreground flex-shrink-0 w-12 text-right">
+                                  {topic.hot || '暂无'}
                                 </span>
-                                <div className="flex items-center gap-1">
+
+                                {/* 操作按钮 */}
+                                <div className="flex items-center gap-0.5 flex-shrink-0">
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-6 w-6 p-0"
+                                    className="h-4 w-4 p-0 hover:bg-primary/20"
                                     onClick={() => onTopicClick(topic)}
                                   >
-                                    <ExternalLink className="w-3 h-3" />
+                                    <Eye className="w-2.5 h-2.5" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className={`h-6 w-6 p-0 ${isBookmarked ? 'text-primary' : ''}`}
+                                    className={`h-4 w-4 p-0 hover:bg-primary/20 ${isBookmarked ? 'text-primary' : ''}`}
                                     onClick={() => handleBookmark(topic)}
                                   >
-                                    <Bookmark className="w-3 h-3" />
+                                    <Bookmark className="w-2.5 h-2.5" />
                                   </Button>
                                 </div>
+                              </div>
+
+                              {/* 平台标识 */}
+                              <div className="flex justify-end mt-0.5">
+                                <Badge variant="outline" className="text-xs px-1 py-0 h-3 text-xs">
+                                  {getPlatformDisplayName(topic.platform || '')}
+                                </Badge>
                               </div>
                             </div>
                           );
                         })}
 
-                        {categoryTopics.length > 6 && (
-                          <div className="text-center py-1">
-                            <span className="text-xs text-muted-foreground">
-                              +{categoryTopics.length - 6} 更多
-                            </span>
+                        {/* 展开/收起按钮 */}
+                        {categoryTopics.length > 5 && (
+                          <div className="text-center pt-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-xs text-muted-foreground hover:text-primary"
+                              onClick={() => toggleExpanded(category.id)}
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <ChevronUp className="w-3 h-3 mr-1" />
+                                  收起
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="w-3 h-3 mr-1" />
+                                  展开查看全部 ({categoryTopics.length - 5} 更多)
+                                </>
+                              )}
+                            </Button>
                           </div>
                         )}
                       </div>
