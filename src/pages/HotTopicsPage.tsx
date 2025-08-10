@@ -143,8 +143,10 @@ export default function HotTopicsPage() {
   // 搜索源配置
   const [searchSources] = useState<SearchSource[]>(getAvailableSearchSources());
   
-  // 支持的平台列表
-  const supportedPlatforms = getSupportedPlatforms();
+  // 支持的平台列表（只显示有数据的平台）
+  const supportedPlatforms = getSupportedPlatforms().filter(platform => {
+    return allHotData?.data?.[platform]?.length > 0;
+  });
 
   // 兴趣过滤器状态
   const [interestFilters, setInterestFilters] = useState<InterestFilters>({

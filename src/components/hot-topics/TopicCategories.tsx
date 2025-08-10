@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DailyHotItem } from '@/api/hotTopicsService';
+import { ExternalLink, Bookmark, MoreVertical, ArrowUp, Eye, EyeOff, Pin, Trash2, GripVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface TopicCategoriesProps {
   topics: DailyHotItem[];
@@ -22,6 +24,65 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
   onCategoryChange,
   onTopicClick
 }) => {
+  // 平台显示名称映射
+  const getPlatformDisplayName = (platform: string): string => {
+    const platformNames: Record<string, string> = {
+      'weibo': '微博',
+      'zhihu': '知乎',
+      'bilibili': 'B站',
+      'douyin': '抖音',
+      'toutiao': '头条',
+      'baidu': '百度',
+      '36kr': '36氪',
+      'ithome': 'IT之家'
+    };
+    return platformNames[platform] || platform;
+  };
+
+  // 状态管理
+  const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(new Set());
+  const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
+  const [pinnedCategories, setPinnedCategories] = useState<Set<string>>(new Set());
+
+  // 处理收藏
+  const handleBookmark = (topic: DailyHotItem) => {
+    const topicId = `${topic.platform}-${topic.title}`;
+    const newBookmarked = new Set(bookmarkedTopics);
+    if (newBookmarked.has(topicId)) {
+      newBookmarked.delete(topicId);
+    } else {
+      newBookmarked.add(topicId);
+    }
+    setBookmarkedTopics(newBookmarked);
+  };
+
+  // 处理分类操作
+  const handleCategoryAction = (categoryId: string, action: string) => {
+    switch (action) {
+      case 'hide':
+        setHiddenCategories(prev => new Set([...prev, categoryId]));
+        break;
+      case 'pin':
+        setPinnedCategories(prev => new Set([...prev, categoryId]));
+        break;
+      case 'unpin':
+        setPinnedCategories(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(categoryId);
+          return newSet;
+        });
+        break;
+      case 'delete':
+        // 这里可以添加删除逻辑
+        console.log('删除分类:', categoryId);
+        break;
+    }
+  };
+
+  // 返回顶部
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // 话题分类定义
   const categories = [
@@ -134,60 +195,138 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
         <CardContent>
           {/* 多列网格布局 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {categories.filter(cat => cat.id !== 'all').map((category) => {
-              const categoryTopics = getTopicsByCategory(category.id);
-              if (categoryTopics.length === 0) return null;
+            {categories
+              .filter(cat => cat.id !== 'all' && !hiddenCategories.has(cat.id))
+              .sort((a, b) => {
+                // 置顶分类排在前面
+                const aIsPinned = pinnedCategories.has(a.id);
+                const bIsPinned = pinnedCategories.has(b.id);
+                if (aIsPinned && !bIsPinned) return -1;
+                if (!aIsPinned && bIsPinned) return 1;
+                return 0;
+              })
+              .map((category) => {
+                const categoryTopics = getTopicsByCategory(category.id);
+                if (categoryTopics.length === 0) return null;
+                const isPinned = pinnedCategories.has(category.id);
 
-              return (
-                <div key={category.id} className="space-y-3">
-                  {/* 分类标题 */}
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <span className="text-lg">{category.icon}</span>
-                    <h3 className="text-base font-semibold">{category.label}</h3>
-                    <Badge variant="secondary" className="ml-auto text-xs">
-                      {categoryTopics.length}
-                    </Badge>
-                  </div>
-
-                  {/* 话题列表 */}
-                  <div className="space-y-2">
-                    {categoryTopics.slice(0, 8).map((topic, index) => (
-                      <div
-                        key={`${topic.platform}-${index}`}
-                        className="p-2 rounded-lg border hover:shadow-md transition-all cursor-pointer bg-card"
-                        onClick={() => onTopicClick(topic)}
-                      >
-                        {/* 排名和平台 */}
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-primary">#{index + 1}</span>
-                          <Badge variant="outline" className="text-xs px-1 py-0 h-4">
-                            {topic.platform}
+                return (
+                  <Card key={category.id} className={`h-fit ${isPinned ? 'ring-2 ring-primary' : ''}`}>
+                    <CardHeader className="pb-3">
+                      {/* 分类标题和操作 */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
+                          <span className="text-lg">{category.icon}</span>
+                          <h3 className="text-base font-semibold">{category.label}</h3>
+                          {isPinned && <Pin className="w-3 h-3 text-primary" />}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {categoryTopics.length}
                           </Badge>
-                        </div>
-
-                        {/* 标题 */}
-                        <h4 className="text-sm font-medium line-clamp-2 mb-1">
-                          {topic.title}
-                        </h4>
-
-                        {/* 热度 */}
-                        <div className="text-xs text-muted-foreground">
-                          热度: {topic.hot || '暂无数据'}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                <MoreVertical className="w-3 h-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleCategoryAction(category.id, isPinned ? 'unpin' : 'pin')}>
+                                <Pin className="w-3 h-3 mr-2" />
+                                {isPinned ? '取消置顶' : '置顶'}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleCategoryAction(category.id, 'hide')}>
+                                <EyeOff className="w-3 h-3 mr-2" />
+                                屏蔽
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleCategoryAction(category.id, 'delete')} className="text-destructive">
+                                <Trash2 className="w-3 h-3 mr-2" />
+                                删除
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
-                    ))}
+                    </CardHeader>
 
-                    {categoryTopics.length > 8 && (
-                      <div className="text-center py-1">
-                        <span className="text-xs text-muted-foreground">
-                          +{categoryTopics.length - 8} 更多
-                        </span>
+                    <CardContent className="pt-0">
+                      {/* 话题列表 */}
+                      <div className="space-y-2">
+                        {categoryTopics.slice(0, 6).map((topic, index) => {
+                          const topicId = `${topic.platform}-${topic.title}`;
+                          const isBookmarked = bookmarkedTopics.has(topicId);
+
+                          return (
+                            <div
+                              key={`${topic.platform}-${index}`}
+                              className="p-2 rounded-lg border hover:shadow-md transition-all bg-card"
+                            >
+                              {/* 排名和平台 */}
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-bold text-primary">#{index + 1}</span>
+                                <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                                  {getPlatformDisplayName(topic.platform || '')}
+                                </Badge>
+                              </div>
+
+                              {/* 标题 */}
+                              <h4 className="text-sm font-medium line-clamp-2 mb-2 cursor-pointer hover:text-primary"
+                                  onClick={() => onTopicClick(topic)}>
+                                {topic.title}
+                              </h4>
+
+                              {/* 热度和操作按钮 */}
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">
+                                  热度: {topic.hot || '暂无数据'}
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => onTopicClick(topic)}
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`h-6 w-6 p-0 ${isBookmarked ? 'text-primary' : ''}`}
+                                    onClick={() => handleBookmark(topic)}
+                                  >
+                                    <Bookmark className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {categoryTopics.length > 6 && (
+                          <div className="text-center py-1">
+                            <span className="text-xs text-muted-foreground">
+                              +{categoryTopics.length - 6} 更多
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+          </div>
+
+          {/* 返回顶部按钮 */}
+          <div className="fixed bottom-6 right-6 z-50">
+            <Button
+              onClick={scrollToTop}
+              className="rounded-full w-12 h-12 shadow-lg"
+              size="sm"
+            >
+              <ArrowUp className="w-4 h-4" />
+            </Button>
           </div>
         </CardContent>
       </Card>
