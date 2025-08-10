@@ -175,8 +175,72 @@ export default function HotTopicsPage() {
   };
 
   /**
+   * 根据关键词判断话题分类
+   */
+  const getTopicCategory = (topic: DailyHotItem): string => {
+    const title = topic.title.toLowerCase();
+    const desc = (topic.desc || '').toLowerCase();
+
+    // 娱乐类关键词
+    const entertainmentKeywords = ['明星', '演员', '歌手', '电影', '电视剧', '综艺', '娱乐', '艺人', '导演', '编剧'];
+    if (entertainmentKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'entertainment';
+    }
+
+    // 科技类关键词
+    const technologyKeywords = ['科技', '技术', '互联网', 'AI', '人工智能', '手机', '电脑', '软件', '编程', '算法', '芯片'];
+    if (technologyKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'technology';
+    }
+
+    // 体育类关键词
+    const sportsKeywords = ['足球', '篮球', '体育', '比赛', '运动员', '教练', '球队', '联赛', '冠军', '奥运会'];
+    if (sportsKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'sports';
+    }
+
+    // 政治类关键词
+    const politicsKeywords = ['政府', '政策', '政治', '官员', '选举', '法律', '法规', '国家', '领导人', '会议'];
+    if (politicsKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'politics';
+    }
+
+    // 财经类关键词
+    const economyKeywords = ['经济', '金融', '股票', '基金', '投资', '理财', '银行', '保险', '房地产', '股市'];
+    if (economyKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'economy';
+    }
+
+    // 社会类关键词
+    const societyKeywords = ['社会', '事件', '新闻', '调查', '报道', '事故', '案件', '纠纷'];
+    if (societyKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'society';
+    }
+
+    // 教育类关键词
+    const educationKeywords = ['教育', '学校', '学生', '老师', '考试', '学习', '培训', '课程', '大学', '高考'];
+    if (educationKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'education';
+    }
+
+    // 健康类关键词
+    const healthKeywords = ['健康', '医疗', '医院', '医生', '疾病', '治疗', '药物', '疫苗', '疫情', '保健'];
+    if (healthKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'health';
+    }
+
+    // 生活类关键词
+    const lifestyleKeywords = ['生活', '美食', '旅游', '购物', '时尚', '美容', '家居', '装修', '宠物', '园艺'];
+    if (lifestyleKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword))) {
+      return 'lifestyle';
+    }
+
+    return 'other';
+  };
+
+  /**
    * 智能过滤和排序话题
-   * 根据屏蔽词和偏好关键词进行动态过滤与优先推送
+   * 根据屏蔽词、偏好关键词和分类偏好进行动态过滤与优先推送
    */
   const applySmartFiltering = (topics: DailyHotItem[]): DailyHotItem[] => {
     // 1. 屏蔽词过滤
@@ -198,12 +262,13 @@ export default function HotTopicsPage() {
       return !isBlockedByKeyword && !isBlockedByPlatform;
     });
 
-    // 2. 偏好关键词标记和排序
+    // 2. 偏好关键词、分类偏好标记和排序
     const topicsWithPriority = filteredByBlocked.map(topic => {
       const title = topic.title.toLowerCase();
       const desc = (topic.desc || '').toLowerCase();
       const content = (topic.content || '').toLowerCase();
       const platform = topic.platform || '';
+      const category = getTopicCategory(topic);
 
       // 计算偏好分数
       let preferenceScore = 0;
@@ -223,39 +288,40 @@ export default function HotTopicsPage() {
         preferenceScore += 5;
       }
 
+      // 分类偏好加分/减分
+      const categoryPreference = interestFilters.categoryPreferences?.[category] || 0;
+      preferenceScore += categoryPreference / 10; // 将-100到100的范围转换为-10到10
+
       return {
         ...topic,
         preferenceScore,
         matchedKeywords,
+        category,
+        categoryPreference,
         isHighPriority: preferenceScore > 0
       };
     });
 
-    // 3. 按优先级分组和排序
-    const highPriority = topicsWithPriority
-      .filter(topic => topic.isHighPriority)
-      .sort((a, b) => {
-        // 按偏好关键词数量降序排序
-        if (b.preferenceScore !== a.preferenceScore) {
-          return b.preferenceScore - a.preferenceScore;
-        }
-        // 如果分数相同，按热度值降序排序
-        const hotA = parseInt(a.hot) || 0;
-        const hotB = parseInt(b.hot) || 0;
-        return hotB - hotA;
-      });
+    // 3. 按综合偏好分数排序
+    const sortedTopics = topicsWithPriority.sort((a, b) => {
+      // 首先按偏好分数降序排序
+      if (Math.abs(b.preferenceScore - a.preferenceScore) > 0.1) {
+        return b.preferenceScore - a.preferenceScore;
+      }
 
-    const normalPriority = topicsWithPriority
-      .filter(topic => !topic.isHighPriority)
-      .sort((a, b) => {
-        // 按热度值降序排序
-        const hotA = parseInt(a.hot) || 0;
-        const hotB = parseInt(b.hot) || 0;
-        return hotB - hotA;
-      });
+      // 如果偏好分数相近，按热度值降序排序
+      const hotA = parseInt(a.hot) || 0;
+      const hotB = parseInt(b.hot) || 0;
+      return hotB - hotA;
+    });
 
-    // 4. 合并结果：先推送高优先组，再推普通优先组
-    return [...highPriority, ...normalPriority];
+    // 4. 过滤掉用户明确不想看的内容（分类偏好 < -50）
+    const finalTopics = sortedTopics.filter(topic => {
+      const categoryPreference = topic.categoryPreference || 0;
+      return categoryPreference > -50; // 只过滤掉非常不想看的内容
+    });
+
+    return finalTopics;
   };
 
   /**
