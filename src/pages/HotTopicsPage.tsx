@@ -438,7 +438,7 @@ export default function HotTopicsPage() {
     }
 
     let allTopics: DailyHotItem[] = [];
-    
+
     if (currentPlatform === 'all') {
       // 获取所有平台的前10个话题
       Object.values(allHotData.data).forEach(platformTopics => {
@@ -451,6 +451,24 @@ export default function HotTopicsPage() {
 
     // 应用智能过滤和排序
     return applySmartFiltering(allTopics);
+  };
+
+  /**
+   * 获取所有话题数据（用于分类统计）
+   */
+  const getAllTopicsData = (): DailyHotItem[] => {
+    if (!allHotData || !allHotData.data) {
+      return [];
+    }
+
+    let allTopics: DailyHotItem[] = [];
+
+    // 获取所有平台的所有话题
+    Object.values(allHotData.data).forEach(platformTopics => {
+      allTopics = allTopics.concat(platformTopics);
+    });
+
+    return allTopics;
   };
 
   /**
@@ -978,9 +996,9 @@ export default function HotTopicsPage() {
             <InterestFilter onFilterChange={handleInterestFilterChange} />
 
             {/* 话题分类 */}
-            {currentPlatform === 'all' && !loading && currentData.length > 0 && (
+            {currentPlatform === 'all' && !loading && getAllTopicsData().length > 0 && (
               <TopicCategories
-                topics={currentData}
+                topics={getAllTopicsData()}
                 onCategoryChange={handleCategoryChange}
                 onTopicClick={handleTopicClick}
               />
