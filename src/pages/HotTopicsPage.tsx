@@ -715,21 +715,21 @@ export default function HotTopicsPage() {
         {/* 主标签页 */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hot' | 'subscriptions' | 'bookmarks')} className="w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <TabsList className="grid w-full grid-cols-3 max-w-md">
-              <TabsTrigger value="hot" className="flex items-center gap-2 text-xs sm:text-sm">
-                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">全网热点</span>
-                <span className="sm:hidden">热点</span>
+            <TabsList className="unified-tabs-list grid w-full grid-cols-3 max-w-md">
+              <TabsTrigger value="hot" className="unified-tab-trigger">
+                <TrendingUp className="tab-icon" />
+                <span className="tab-text-mobile">热点</span>
+                <span className="tab-text-desktop">全网热点</span>
               </TabsTrigger>
-              <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-xs sm:text-sm">
-                <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">话题订阅</span>
-                <span className="sm:hidden">订阅</span>
+              <TabsTrigger value="subscriptions" className="unified-tab-trigger">
+                <Bell className="tab-icon" />
+                <span className="tab-text-mobile">订阅</span>
+                <span className="tab-text-desktop">话题订阅</span>
               </TabsTrigger>
-              <TabsTrigger value="bookmarks" className="flex items-center gap-2 text-xs sm:text-sm">
-                <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">灵感夹</span>
-                <span className="sm:hidden">收藏</span>
+              <TabsTrigger value="bookmarks" className="unified-tab-trigger">
+                <Bookmark className="tab-icon" />
+                <span className="tab-text-mobile">收藏</span>
+                <span className="tab-text-desktop">灵感夹</span>
               </TabsTrigger>
             </TabsList>
             {/* 操作按钮区，添加订阅和刷新并列 */}
@@ -759,6 +759,37 @@ export default function HotTopicsPage() {
 
           {/* 全网热点标签页 */}
           <TabsContent value="hot">
+            {/* 加载状态显示 */}
+            {loading && !error && (
+              <Card className="mb-6">
+                <CardContent className="p-12">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                      <div>
+                        <h3 className="text-lg font-medium text-foreground">全网热点搜索中...</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          正在从各大平台获取最新热点话题，请稍候
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Globe className="w-4 h-4" />
+                      <span>微博</span>
+                      <span>•</span>
+                      <span>知乎</span>
+                      <span>•</span>
+                      <span>B站</span>
+                      <span>•</span>
+                      <span>抖音</span>
+                      <span>•</span>
+                      <span>百度</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* 错误状态显示 */}
             {error && (
               <Card className="mb-6 border-border bg-accent">
