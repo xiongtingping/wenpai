@@ -10,11 +10,11 @@ type TestimonialProps = {
 // 替换头像为虚拟SVG
 const VirtualAvatar = ({ index }: { index: number }) => {
   const colors = [
-    'text-blue-500', 'text-purple-500', 'text-pink-500', 'text-green-500'
+    'text-primary', 'text-foreground', 'text-muted-foreground', 'text-foreground'
   ];
   const color = colors[index % colors.length];
   return (
-    <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center border-2 ${color}`}>
+    <div className={`w-12 h-12 rounded-full bg-muted flex items-center justify-center border-2 ${color}`}>
       {/* 简单AI机器人SVG */}
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="6" y="10" width="20" height="14" rx="6" fill="currentColor" />
@@ -29,13 +29,13 @@ const VirtualAvatar = ({ index }: { index: number }) => {
 
 function TestimonialCard({ content, name, position, index }: TestimonialProps) {
   return (
-    <Card className="bg-gray-100 p-8 rounded-xl shadow-lg">
-      <p className="text-gray-700">{content}</p>
+    <Card className="bg-card p-8 rounded-xl shadow-lg border border-border">
+      <p className="text-muted-foreground">{content}</p>
       <div className="mt-6 flex items-start">
         <VirtualAvatar index={index} />
         <div className="ml-4 flex-1">
-          <p className="font-semibold text-gray-900">{name}</p>
-          <p className="text-sm text-gray-500">{position}</p>
+          <p className="font-semibold text-foreground">{name}</p>
+          <p className="text-sm text-muted-foreground">{position}</p>
         </div>
       </div>
     </Card>

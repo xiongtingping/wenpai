@@ -102,7 +102,7 @@ export function PricingSection() {
         
         return (
           <li key={index} className="flex items-start space-x-3">
-            <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-purple-500' : 'text-green-500'}`} />
+            <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-primary' : 'text-foreground'}`} />
             <div className="flex items-center gap-2 flex-1">
               <span className="font-medium">{text}</span>
             </div>
@@ -120,24 +120,24 @@ export function PricingSection() {
         {/* 🎯 标题区域优化 */}
         <div className="text-center max-w-4xl mx-auto py-12">
           {/* 主标题 */}
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 leading-snug">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground leading-snug">
             选择适合您的方案
           </h2>
           
           {/* 副标题 */}
-          <p className="text-base text-gray-500 text-center mt-2 leading-relaxed">
+          <p className="text-base text-muted-foreground text-center mt-2 leading-relaxed">
             从免费体验到高级版，全方位赋能新媒体创意工作者
           </p>
           
 
           {/* 登录用户显示倒计时 */}
           {isAuthenticated && inPromo && (
-            <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg shadow-lg">
+            <div className="mt-6 p-4 bg-accent border-2 border-border rounded-lg shadow-lg">
               <div className="flex flex-col items-center gap-2">
-                <div className="text-lg md:text-xl font-bold text-red-600">新用户限时优惠</div>
+                <div className="text-lg md:text-xl font-bold text-foreground">新用户限时优惠</div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold text-red-600">限时优惠倒计时：</span>
-                  <span className="text-2xl font-bold bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
+                  <span className="text-xl font-bold text-foreground">限时优惠倒计时：</span>
+                  <span className="text-2xl font-bold bg-accent px-4 py-2 rounded-lg border-2 border-border">
                     {formattedTime}
                   </span>
                 </div>
@@ -151,8 +151,8 @@ export function PricingSection() {
               onClick={() => setBilling("monthly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "monthly" 
-                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg" 
-                  : "text-gray-600 hover:text-gray-800 border-gray-300"
+                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+                  : "text-muted-foreground hover:text-foreground border-border"
               }`}
             >
               按月支付
@@ -167,8 +167,8 @@ export function PricingSection() {
               onClick={() => setBilling("yearly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "yearly" 
-                  ? "bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white shadow-lg scale-105" 
-                  : "bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-300 hover:bg-gradient-to-r hover:from-orange-200 hover:to-pink-200"
+                  ? "btn-gradient-accent hover:opacity-90 text-primary-foreground shadow-lg scale-105"
+                  : "bg-accent text-foreground border-border hover:bg-accent/80"
               }`}
             >
               按年订阅 <span className="text-xs ml-1">(省80-202元)</span>
@@ -188,12 +188,12 @@ export function PricingSection() {
                 key={plan.id}
                 className={`border-2 p-8 flex flex-col relative ${
                   isRecommended 
-                    ? 'border-purple-600 shadow-2xl bg-gradient-to-br from-purple-50 to-blue-50' 
-                    : 'border-gray-200'
+                    ? 'border-primary shadow-2xl bg-accent'
+                    : 'border-border'
                 }`}
               >
                 {isRecommended && (
-                  <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full">
+                  <span className="absolute top-0 -translate-y-1/2 btn-gradient-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-full">
                     <Star className="w-3 h-3 mr-1 inline" />
                     推荐
                   </span>
@@ -201,35 +201,35 @@ export function PricingSection() {
                 
                 <div className="flex items-center gap-2 mb-4">
                   {plan.tier === 'premium' ? (
-                    <Crown className="w-6 h-6 text-yellow-600" />
+                    <Crown className="w-6 h-6 text-foreground" />
                   ) : plan.tier === 'pro' ? (
-                    <Crown className="w-6 h-6 text-purple-600" />
+                    <Crown className="w-6 h-6 text-primary" />
                   ) : (
-                    <Sparkles className="w-6 h-6 text-green-600" />
+                    <Sparkles className="w-6 h-6 text-foreground" />
                   )}
                   <h3 className="text-2xl font-semibold">{plan.name}</h3>
                 </div>
                 
-                <p className="mt-2 text-gray-500">{plan.description}</p>
+                <p className="mt-2 text-muted-foreground">{plan.description}</p>
                 
                 <div className="mt-6 pricing-container">
                   {isTrial ? (
                     <div className="text-center">
-                      <p className="text-5xl font-extrabold text-green-600 pricing-price">¥0</p>
-                      <p className="text-gray-500">永久免费</p>
+                      <p className="text-5xl font-extrabold text-foreground pricing-price">¥0</p>
+                      <p className="text-muted-foreground">永久免费</p>
                     </div>
                   ) : (
                     <div className="text-center">
                       {isAuthenticated && inPromo ? (
                         <div className="flex items-center justify-center gap-2">
                           <p className={`text-5xl font-extrabold pricing-price ${
-                            isRecommended ? 'text-purple-600' : 'text-gray-900'
+                            isRecommended ? 'text-primary' : 'text-foreground'
                           }`}>
                             <span className="pricing-price-symbol">¥</span>{pricing.discountPrice}
                           </p>
                           <div className="flex flex-col items-start">
-                            <span className="text-xs text-red-500 font-semibold">限时特惠</span>
-                            <span className="text-xs text-gray-500 line-through">¥{pricing.originalPrice}</span>
+                            <span className="text-xs text-destructive font-semibold">限时特惠</span>
+                            <span className="text-xs text-muted-foreground line-through">¥{pricing.originalPrice}</span>
                           </div>
                         </div>
                       ) : (
