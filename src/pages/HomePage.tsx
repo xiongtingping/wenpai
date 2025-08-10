@@ -15,7 +15,7 @@ function HomePage() {
   useScrollAnimation()
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-primary">
+    <div className="min-h-screen flex flex-col bg-background" style={{ minHeight: '100vh', height: 'auto' }}>
       {/* 页面访问记录 */}
       <PageTracker
         title="文派 - AI驱动的创意内容平台"
@@ -29,39 +29,39 @@ function HomePage() {
 
       <Header />
 
-      <main className="flex-1 w-full">
-        {/* Hero Section - 渐变背景 */}
-        <div className="bg-gradient-primary">
+      <main className="flex-1 w-full bg-background">
+        {/* Hero Section - 统一背景 */}
+        <div className="bg-background">
           <HeroSection />
         </div>
 
-        {/* Trust Section - 白色背景 */}
+        {/* Trust Section - 统一背景 */}
         <div className="bg-background py-16">
           <TrustSection />
         </div>
 
-        {/* How It Works - 浅色渐变背景 */}
-        <div className="bg-accent py-20">
+        {/* How It Works - 统一背景 */}
+        <div className="bg-background py-20">
           <HowItWorks />
         </div>
 
-        {/* Features Section - 白色背景 */}
+        {/* Features Section - 统一背景 */}
         <div className="bg-background py-20">
           <FeaturesSection />
         </div>
 
-        {/* Testimonials Section - 浅色渐变背景 */}
-        <div className="bg-accent py-20">
+        {/* Testimonials Section - 统一背景 */}
+        <div className="bg-background py-20">
           <TestimonialsSection />
         </div>
 
-        {/* Pricing Section - 白色背景 */}
+        {/* Pricing Section - 统一背景 */}
         <div className="bg-background py-20">
           <PricingSection />
         </div>
 
-        {/* CTA Section - 渐变背景 */}
-        <div className="bg-gradient-primary py-20">
+        {/* CTA Section - 统一背景 */}
+        <div className="bg-background py-20">
           <CTASection />
         </div>
       </main>

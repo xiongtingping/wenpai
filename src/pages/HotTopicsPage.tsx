@@ -901,7 +901,7 @@ export default function HotTopicsPage() {
                                   <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-2 flex-1">
                                     {topic.title}
                                   </h4>
-                                  <div className="flex items-center justify之间 text-xs text-muted-foreground mb-2">
+                                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                                     <span>{formatHotValue(topic.hot)}</span>
                                     <div className="flex items-center gap-1">
                                       {isTopicBookmarked(topic) && (

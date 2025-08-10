@@ -93,7 +93,7 @@ export const TopNavigation: React.FC = () => {
       className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 w-full text-left ${
         isActivePath(item.path)
           ? 'btn-gradient-primary text-primary-foreground shadow-lg'
-          : 'text-foreground hover:text-primary hover:bg-accent/50'
+          : 'text-primary hover:text-accent hover:bg-accent/50'
       }`}
     >
       <item.icon className="w-5 h-5" />
@@ -102,7 +102,7 @@ export const TopNavigation: React.FC = () => {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/90 shadow-sm border-border">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* 左侧Logo和导航 */}
@@ -119,7 +119,7 @@ export const TopNavigation: React.FC = () => {
                   />
                 </div>
               </div>
-              <span className="text-xl font-bold text-foreground transition-all duration-200">
+              <span className="text-xl font-bold text-primary transition-all duration-200">
                 文派
               </span>
               {isDevelopment() && (
@@ -137,12 +137,12 @@ export const TopNavigation: React.FC = () => {
                   onClick={() => handleNavigation(item)}
                   className={`flex items-center space-x-2 px-4 py-2 text-base font-medium rounded-md transition-all duration-200 relative group ${
                     isActivePath(item.path)
-                      ? 'btn-gradient-primary text-primary-foreground shadow-md'
-                      : 'text-foreground hover:text-primary hover:bg-accent/50 hover:border-b-2 hover:border-primary'
+                      ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm'
+                      : 'text-primary hover:text-accent hover:bg-accent/50 hover:border-b-2 hover:border-accent'
                   }`}
                 >
                   <item.icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${
-                    isActivePath(item.path) ? 'text-primary-foreground' : ''
+                    isActivePath(item.path) ? 'text-primary' : ''
                   }`} />
                   <span>{item.label}</span>
                   {isActivePath(item.path) && (
@@ -165,7 +165,7 @@ export const TopNavigation: React.FC = () => {
                     <button
                       onClick={() => handleNavigation(item)}
                       className={`flex items-center space-x-2 text-sm font-medium w-full text-left ${
-                        isActivePath(item.path) ? 'bg-accent text-accent-foreground' : 'text-foreground'
+                        isActivePath(item.path) ? 'bg-accent text-accent-foreground' : 'text-primary'
                       }`}
                     >
                       <item.icon className="w-4 h-4" />
@@ -183,7 +183,7 @@ export const TopNavigation: React.FC = () => {
             {permissionLoading && !isDevelopment() && (
               <div className="hidden sm:flex items-center gap-1">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                <span className="text-xs text-muted-foreground">权限加载中...</span>
+                <span className="text-xs text-secondary">权限加载中...</span>
               </div>
             )}
 
@@ -194,7 +194,7 @@ export const TopNavigation: React.FC = () => {
 
               {/* 专业用户标识 */}
               {isAuthenticated && isPro && (
-                <Badge variant="premium" className="text-xs hidden sm:inline-flex btn-gradient-accent text-primary-foreground border-0">
+                <Badge variant="premium" className="text-xs hidden sm:inline-flex bg-primary text-primary-foreground border-0">
                   {isDevelopment() ? 'DEV' : 'PRO'}
                 </Badge>
               )}

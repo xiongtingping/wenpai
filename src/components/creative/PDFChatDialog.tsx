@@ -609,7 +609,7 @@ export function PDFChatDialog({
               <Button
                 onClick={sendMessage}
                 disabled={!inputValue.trim() || isLoading || !selectedDocument || inputValue.length > 500}
-                className="px-6 btn-gradient-primary hover:opacity-90"
+                className="px-6 bg-primary text-primary-foreground hover:bg-primary/90"
                 size="lg"
               >
                 {isLoading ? (

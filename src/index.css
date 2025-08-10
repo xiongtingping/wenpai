@@ -1,4 +1,5 @@
 @import './styles/number-display-fix.css';
+@import './styles/typography-system.css';
 
 /**
  * **IMPORTANT** Never break the original structure, only add highly customized new styles
@@ -43,18 +44,18 @@
 
     /* 🎨 Modern Flat + Soft Neumorphism Design Tokens */
 
-    /* 统一渐变系统 */
-    --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-    --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-    --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    /* 统一渐变系统 - 使用主题色令牌 */
+    --gradient-primary: hsl(var(--primary));
+    --gradient-secondary: hsl(var(--secondary));
+    --gradient-accent: hsl(var(--accent));
     --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
     --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 
-    /* 背景渐变系统 */
-    --bg-gradient-primary: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 25%, #e2e8f0 50%, #f8fafc 100%);
-    --bg-gradient-secondary: linear-gradient(135deg, #fefefe 0%, #f9fafb 100%);
-    --bg-gradient-accent: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    /* 背景渐变系统 - 使用真正的渐变 */
+    --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--accent)) 100%);
+    --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%);
+    --bg-gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--muted)) 100%);
 
     /* 统一阴影系统 - Elevation */
     --shadow-e0: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -96,12 +97,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-primary font-base;
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
+    height: auto;
     overflow-x: hidden;
-    /* 使用正常的系统字体，确保数字正确显示 */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    /* 字体由typography-system.css统一管理 */
   }
 
   html {
@@ -117,32 +118,27 @@
     color-scheme: dark;
   }
 
-  /* 强制应用主题样式 - 使用最高优先级 */
+  /* 温和的主题样式应用 - 避免过度强制 */
   /* 🎯 FIXED: 排除 Authing Guard 弹窗元素，避免样式冲突 */
-  html[data-theme] body,
-  html[data-theme] body *:not([class*="authing"]):not([id*="authing"]):not([role="dialog"]):not([aria-modal="true"]) {
-    background-color: hsl(var(--background)) !important;
-    color: hsl(var(--foreground)) !important;
+  html[data-theme] body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 
-  /* 特殊处理卡片和容器背景 */
-  html[data-theme] .card,
-  html[data-theme] [class*="bg-"] {
+  /* 特殊处理卡片和容器背景 - 仅针对特定类 */
+  html[data-theme] .bg-card {
     background-color: hsl(var(--card)) !important;
     color: hsl(var(--card-foreground)) !important;
   }
 
-  /* 处理边框 */
-  /* 🎯 FIXED: 排除 Authing Guard 弹窗元素，避免边框样式冲突 */
-  html[data-theme] *:not([class*="authing"]):not([id*="authing"]):not([role="dialog"]):not([aria-modal="true"]) {
-    border-color: hsl(var(--border)) !important;
+  html[data-theme] .bg-background {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
   }
 
-  /* 处理按钮和交互元素 */
-  html[data-theme] button,
-  html[data-theme] [class*="btn"] {
-    background-color: hsl(var(--primary)) !important;
-    color: hsl(var(--primary-foreground)) !important;
+  html[data-theme] .bg-accent {
+    background-color: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
   }
 
   /* 🎯 FIXED: 移除 Authing 样式覆盖，让 Authing Guard 使用原生样式 */
@@ -242,18 +238,18 @@
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
 
-  /* 深色主题渐变系统 - 降低亮度，保持对比度 */
-  --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
-  --gradient-secondary: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
-  --gradient-accent: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+  /* 深色主题渐变系统 - 使用主题色令牌 */
+  --gradient-primary: hsl(var(--primary));
+  --gradient-secondary: hsl(var(--secondary));
+  --gradient-accent: hsl(var(--accent));
   --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
   --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
   --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 
-  /* 深色主题背景渐变 - 微妙的深色变化 */
-  --bg-gradient-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 100%);
-  --bg-gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  --bg-gradient-accent: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  /* 深色主题背景渐变 - 使用真正的渐变 */
+  --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--accent)) 100%);
+  --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%);
+  --bg-gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--muted)) 100%);
 }
 
 [data-theme="green"] {
@@ -289,28 +285,28 @@
 }
 
 [data-theme="blue"] {
-  --background: 210 40% 98%;
+  --background: 0 0% 100%;        /* 纯白背景，护眼舒适 */
   --foreground: 210 10% 10%;
-  --card: 210 40% 98%;
+  --card: 0 0% 100%;              /* 卡片也使用纯白 */
   --card-foreground: 210 10% 10%;
-  --popover: 210 40% 98%;
+  --popover: 0 0% 100%;
   --popover-foreground: 210 10% 10%;
   --primary: 221 83% 53%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 30% 90%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 30% 95%;       /* 稍微调暗次要背景 */
   --secondary-foreground: 210 10% 10%;
-  --muted: 210 30% 90%;
+  --muted: 210 30% 95%;           /* 稍微调暗静音背景 */
   --muted-foreground: 210 15% 30%;
-  --accent: 210 30% 90%;
+  --accent: 210 30% 95%;          /* 稍微调暗强调背景 */
   --accent-foreground: 210 10% 10%;
   --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 0 0% 100%;
   --border: 210 20% 85%;
   --input: 210 20% 85%;
   --ring: 221 83% 53%;
   --radius: 0.5rem;
   /* New tokens */
-  --section: 210 30% 96%;
+  --section: 210 30% 97%;         /* 稍微调暗区域背景 */
   --section-foreground: 210 10% 10%;
   --border-strong: 210 20% 70%;
   --chart-1: 221 83% 53%;
@@ -593,9 +589,9 @@
   will-change: opacity, transform;
 }
 
-/* Emoji 字体支持 */
+/* Emoji 字体支持 - 使用统一字体令牌 */
 .emoji-font {
-  font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif;
+  @apply font-emoji;
   font-feature-settings: "liga" 1, "dlig" 1;
 }
 
@@ -603,8 +599,8 @@
 .emoji,
 [data-emoji],
 .emoji-picker .emoji-item {
-  font-family: 'Noto Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', 'EmojiOne Mozilla', 'Twemoji Mozilla', 'Segoe UI Symbol', sans-serif !important;
-  font-feature-settings: "liga" 1, "dlig" 1;
+  @apply font-emoji;
+  font-feature-settings: "liga" 1, "dlig" 1 !important;
 }
 
 /* 🎨 Modern Flat + Soft Neumorphism 核心样式类 */
@@ -715,37 +711,37 @@
   box-shadow: var(--shadow-e2);
 }
 
-/* 核心文本渐变 */
+/* 核心文本渐变 - 使用主题令牌 */
 .text-gradient {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-blue {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-green {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: var(--gradient-success);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-purple {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-orange {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: var(--gradient-warning);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -878,11 +874,11 @@
   }
 
   .mobile-text-sm {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
   }
 
   .mobile-text-xs {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
   }
 
   .mobile-p-2 {
@@ -900,7 +896,7 @@
   }
 
   .tablet-text-lg {
-    font-size: 1.125rem;
+    font-size: var(--text-lg);
   }
 
   .tablet-p-4 {
@@ -942,7 +938,7 @@
 
 /* 加载状态样式 */
 .loading-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--accent)) 50%, hsl(var(--muted)) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -1178,22 +1174,24 @@
 }
 
 .btn-invite-gradient:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  background: var(--gradient-danger) !important;
   transform: translateY(-1px) !important;
   box-shadow: var(--shadow-glow-accent) !important;
 }
 
 .btn-upgrade-gradient {
-  background: var(--gradient-accent) !important;
-  border: none !important;
-  box-shadow: var(--shadow-e1) !important;
-  transition: var(--transition-medium) !important;
+  background: hsl(var(--accent)) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  font-weight: var(--font-weight-medium) !important;
+  transition: all 0.2s ease !important;
 }
 
 .btn-upgrade-gradient:hover {
-  background: linear-gradient(135deg, #ea580c 0%, #d97706 100%) !important;
+  background: hsl(var(--primary) / 0.9) !important;
   transform: translateY(-1px) !important;
-  box-shadow: var(--shadow-glow-accent) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
 }
 
 .hero-button-text {
@@ -1240,8 +1238,8 @@
 
 /* 副标题排版优化 */
 .hero-subtitle-container {
-  line-height: 1.6;
-  letter-spacing: 0.02em;
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-wide);
 }
 
 .hero-feature-item {
@@ -1259,10 +1257,10 @@
 }
 
 .hero-feature-separator {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-size: 1.2em;
   margin-right: 0.5rem;
-  line-height: 1;
+  line-height: var(--leading-none);
 }
 
 /* Tab状态动画 */
@@ -1285,26 +1283,26 @@
   animation: tabGlow 1s ease-in-out;
 }
 
-/* Tab状态样式增强 */
+/* Tab状态样式增强 - 使用统一的字体令牌 */
 .tab-completed {
-  border: 2px solid #22c55e !important;
-  background-color: #f0fdf4 !important;
-  color: #15803d !important;
-  font-weight: 600 !important;
+  border: 2px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--accent)) !important;
+  color: var(--text-primary) !important;
+  font-weight: var(--font-weight-semibold) !important;
 }
 
 .tab-error {
-  border: 2px solid #ef4444 !important;
-  background-color: #fef2f2 !important;
-  color: #dc2626 !important;
-  font-weight: 600 !important;
+  border: 2px solid hsl(var(--destructive)) !important;
+  background-color: hsl(var(--accent)) !important;
+  color: var(--text-error) !important;
+  font-weight: var(--font-weight-semibold) !important;
 }
 
 .tab-generating {
-  border: 2px solid #eab308 !important;
-  background-color: #fefce8 !important;
-  color: #a16207 !important;
-  font-weight: 600 !important;
+  border: 2px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--muted)) !important;
+  color: var(--text-primary) !important;
+  font-weight: var(--font-weight-semibold) !important;
 }
 
 /* ✅ FIXED: 2025-08-04 SafeTooltip动画样式 */

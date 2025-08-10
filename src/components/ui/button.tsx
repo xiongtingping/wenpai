@@ -23,10 +23,10 @@ const buttonVariants = cva(
         soft: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 hover:bg-accent",
         neumorph: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 [box-shadow:inset_0_2px_4px_rgba(0,0,0,0.04)] active:[box-shadow:inset_0_3px_6px_rgba(0,0,0,0.08)]",
 
-        // 统一渐变变体（令牌化到 CSS 变量）
-        gradient: "btn-gradient-primary text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        gradientSecondary: "btn-gradient-secondary text-primary-foreground shadow-e1 hover:shadow-glow-secondary hover:-translate-y-0.5",
-        gradientAccent: "btn-gradient-accent text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
+        // 统一渐变变体（改为简洁样式）
+        gradient: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:-translate-y-0.5",
+        gradientSecondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/90 hover:-translate-y-0.5",
+        gradientAccent: "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90 hover:-translate-y-0.5",
         gradientSuccess: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
         gradientDanger: "gradient-bg-danger text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
 
@@ -34,7 +34,7 @@ const buttonVariants = cva(
         gradientGreen: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
         gradientOrange: "gradient-bg-warning text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
         glass: "bg-background/20 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/30 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        premium: "btn-gradient-accent text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5 animate-pulse",
+        premium: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 animate-pulse",
         success: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
         warning: "gradient-bg-warning text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
         info: "bg-primary/90 text-primary-foreground border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5",

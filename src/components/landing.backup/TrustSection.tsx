@@ -39,7 +39,7 @@ export function TrustSection() {
             <span className="text-sm font-medium text-foreground">知乎</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">
-            <Video className="h-8 w-8 text-black mb-2" />
+            <Video className="h-8 w-8 text-primary mb-2" />
             <span className="text-sm font-medium text-foreground">抖音</span>
           </div>
           <div className="flex flex-col items-center justify-center w-28 h-28 p-0 bg-card rounded-xl shadow-sm border hover:shadow-md transition-shadow mx-auto">

@@ -209,7 +209,7 @@ export function AvatarUpload({
         
         {/* 上传状态指示器 */}
         {(isUploading || isGenerating) && (
-          <div className="absolute inset-0 bg-black/20 rounded-full flex items-center justify-center">
+          <div className="absolute inset-0 bg-foreground/20 rounded-full flex items-center justify-center">
             <RefreshCw className="h-6 w-6 text-primary-foreground animate-spin" />
           </div>
         )}

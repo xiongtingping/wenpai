@@ -254,10 +254,10 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
       const defaultFallback = (
         <div style={{
           padding: '20px',
-          border: '2px solid #ff6b6b',
+          border: '2px solid #ef4444',
           borderRadius: '8px',
-          backgroundColor: '#fff5f5',
-          color: '#c92a2a',
+          backgroundColor: 'hsl(var(--destructive) / 0.1)',
+          color: 'hsl(var(--destructive))',
           margin: '10px'
         }}>
           <h3>🚨 渲染冲突检测器</h3>

@@ -201,7 +201,7 @@ export default function BrandEmojiGallery({
             />
             
             {/* 悬停操作按钮 */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
               <div className="flex items-center gap-1">
                 <Button
                   size="sm"

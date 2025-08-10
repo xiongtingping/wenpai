@@ -81,14 +81,14 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
       {/* 主背景卡片 */}
       <div className="bg-accent rounded-2xl border border-border shadow-lg overflow-hidden">
         {/* 顶部装饰条 */}
-        <div className="h-1 btn-gradient-primary"></div>
+        <div className="h-1 bg-primary"></div>
         
         <div className="p-8">
           {/* 核心AI大脑动画区域 */}
           <div className="flex flex-col items-center mb-6">
             {/* AI大脑/机器人核心 */}
             <div className="relative mb-4">
-              <div className={`w-20 h-20 rounded-full btn-gradient-primary flex items-center justify-center shadow-lg transition-all duration-500 ${brainPulse ? 'scale-110 shadow-xl' : 'scale-100'}`}>
+              <div className={`w-20 h-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg transition-all duration-500 ${brainPulse ? 'scale-110 shadow-xl' : 'scale-100'}`}>
                 <Brain className={`w-10 h-10 text-primary-foreground transition-all duration-500 ${brainPulse ? 'scale-110' : 'scale-100'}`} />
               </div>
               
@@ -129,7 +129,7 @@ export const AIContentGenerationAnimation: React.FC<AIContentGenerationAnimation
 
             {/* 进度波浪动画 */}
             <div className="w-32 h-1 bg-muted rounded-full overflow-hidden mb-4">
-              <div className="h-full btn-gradient-primary rounded-full animate-pulse"
+              <div className="h-full bg-primary rounded-full animate-pulse"
                    style={{ 
                      width: '60%',
                      animation: 'wave 2s ease-in-out infinite'

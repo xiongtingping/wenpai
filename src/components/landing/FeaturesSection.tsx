@@ -45,12 +45,12 @@ const mainFeatures = [
     description: '智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩',
     icon: Zap,
     path: '/adapt',
-    color: 'btn-gradient-primary',
+    color: 'bg-primary text-primary-foreground',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '🔥 热门',
-    badgeColor: 'btn-gradient-primary',
+    badgeColor: 'bg-primary text-primary-foreground',
     features: ['智能内容分析', '多平台格式适配', '一键生成优化建议', '实时预览效果']
   },
   {
@@ -58,12 +58,12 @@ const mainFeatures = [
     description: 'AI驱动的创意生成工具，激发无限灵感，创造独特而富有吸引力的内容',
     icon: Sparkles,
     path: '/creative-studio',
-    color: 'btn-gradient-secondary',
+    color: 'bg-secondary text-secondary-foreground',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '⭐ 推荐',
-    badgeColor: 'btn-gradient-secondary',
+    badgeColor: 'bg-secondary text-secondary-foreground',
     features: ['AI创意生成', '多种创意模板', '灵感库管理', '创意协作']
   },
   {
@@ -71,12 +71,12 @@ const mainFeatures = [
     description: '实时监控热点话题，精准把握趋势脉搏，抢占内容传播先机',
     icon: TrendingUp,
     path: '/hot-topics',
-    color: 'btn-gradient-accent',
+    color: 'bg-accent text-accent-foreground',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '🔥 实时监控',
-    badgeColor: 'btn-gradient-accent',
+    badgeColor: 'bg-accent text-accent-foreground',
     features: ['实时热点监控', '趋势分析报告', '竞品内容追踪', '话题预测']
   },
   {
@@ -84,12 +84,12 @@ const mainFeatures = [
     description: '个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及',
     icon: FolderOpen,
     path: '/library',
-    color: 'btn-gradient-accent',
+    color: 'bg-accent text-accent-foreground',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '💡 实用',
-    badgeColor: 'btn-gradient-accent',
+    badgeColor: 'bg-accent text-accent-foreground',
     features: ['内容收藏管理', '智能分类标签', '快速搜索检索', '云端同步']
   },
   {
@@ -97,12 +97,12 @@ const mainFeatures = [
     description: '专业品牌资产管理系统，统一管理品牌元素，提升品牌一致性和识别度',
     icon: Users,
     path: '/brand-library',
-    color: 'btn-gradient-primary',
+    color: 'bg-primary text-primary-foreground',
     bgColor: 'bg-accent',
     borderColor: 'border-primary',
     hoverColor: 'hover:bg-accent/80',
     badge: '👑 高级版',
-    badgeColor: 'btn-gradient-secondary',
+    badgeColor: 'bg-secondary text-secondary-foreground',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
   },
 ];
@@ -116,21 +116,21 @@ const quickTools = [
     description: '智能生成生动表情符号，让内容更有趣更有感染力',
     icon: Smile,
     path: '/emoji-generator',
-    color: 'btn-gradient-secondary',
+    color: 'bg-secondary text-secondary-foreground',
   },
   {
     title: '🚀 一键转发',
     description: '多平台内容智能分发，最大化传播效果和影响力',
     icon: Upload,
     path: '/share-manager',
-    color: 'btn-gradient-accent',
+    color: 'bg-accent text-accent-foreground',
   },
   {
     title: '💬 朋友圈模板',
     description: '精美模板快速生成，让您的朋友圈内容脱颖而出',
     icon: MessageCircle,
     path: '/wechat-templates',
-    color: 'btn-gradient-primary',
+    color: 'bg-primary text-primary-foreground',
   },
   {
     title: '📊 历史记录',
@@ -149,7 +149,7 @@ const advantages = [
     title: '🤖 AI驱动',
     description: '先进的AI技术，智能分析内容，提供精准建议和优化方案',
     icon: Target,
-    color: 'text-primary',
+    color: 'text-foreground',
     bgColor: 'bg-accent',
   },
   {
@@ -163,7 +163,7 @@ const advantages = [
     title: '🎨 专业工具',
     description: '丰富的专业工具套件，满足不同内容创作场景和需求',
     icon: Palette,
-    color: 'text-primary',
+    color: 'text-foreground',
     bgColor: 'bg-accent',
   },
   {
@@ -194,7 +194,7 @@ export const FeaturesSection: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <Badge 
               variant="outline" 
-              className="text-sm px-3 py-1 rounded-full bg-accent text-primary border-border hover:bg-primary transition-colors duration-300 animate-fadeInDown"
+              className="text-sm px-3 py-1 rounded-full bg-accent text-foreground border-border hover:bg-accent/80 transition-colors duration-300 animate-fadeInDown"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               🚀 核心功能
@@ -203,7 +203,7 @@ export const FeaturesSection: React.FC = () => {
           
           {/* 2️⃣ 主标题「专业的新媒体创作工具」优化 */}
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight animate-fadeInUp">
-            <span className="bg-gradient-to-r btn-gradient-primary bg-clip-text text-transparent animate-gradient">
+            <span className="text-foreground">
               专业的新媒体创作工具
             </span>
           </h2>
@@ -236,10 +236,10 @@ export const FeaturesSection: React.FC = () => {
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgColor} opacity-50 group-hover:opacity-75 transition-opacity duration-300`}></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`p-3 rounded-lg bg-gradient-to-r ${feature.color} text-primary-foreground shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
+                      <div className={`p-3 rounded-lg ${feature.color} shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
                         <feature.icon className="w-6 h-6" />
                       </div>
-                      <Badge className={`${feature.badgeColor} text-primary-foreground border-0 shadow-sm`}>
+                      <Badge className={`${feature.badgeColor} border-0 shadow-sm`}>
                         {feature.badge}
                       </Badge>
                     </div>
@@ -301,7 +301,7 @@ export const FeaturesSection: React.FC = () => {
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <CardContent className="p-6">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-r ${tool.color} text-primary-foreground mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${tool.color} mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
                     <tool.icon className="w-6 h-6" />
                   </div>
                   <h4 className="font-semibold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">

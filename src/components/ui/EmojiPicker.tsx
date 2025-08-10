@@ -147,7 +147,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   if (!open) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 ${className}`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 ${className}`}>
       <div className="bg-background border rounded-lg shadow-lg w-96 max-h-[600px] flex flex-col">
         {/* 头部 */}
         <div className="p-4 border-b">

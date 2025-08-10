@@ -414,7 +414,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                   onClick={() => navigate(module.path)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                     path === module.path
-                      ? "btn-gradient-primary text-primary-foreground shadow-lg scale-105"
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105"
                       : "hover:bg-accent border-border hover:border-primary/50 hover:scale-105"
                   }`}
                 >

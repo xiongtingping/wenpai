@@ -63,8 +63,8 @@ export default function TopThreePodium({
         return {
           ...baseStyles,
           height: '280px',
-          background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-          boxShadow: '0 8px 32px rgba(255, 215, 0, 0.3)',
+          background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+          boxShadow: '0 8px 32px rgba(184, 134, 11, 0.3)',
           transform: 'scale(1.05)',
           zIndex: 3
         };

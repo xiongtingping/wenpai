@@ -211,7 +211,7 @@ export class AutomationEngine {
         const tabContents = document.querySelectorAll('[role="tabpanel"], .tab-content, [data-state="active"]');
         tabContents.forEach((tabContent, index) => {
           // 查找平台标识
-          const platformIndicators = tabContent.querySelectorAll('.absolute.top-4.right-4 .bg-white\\/90, .platform-indicator, [class*="platform"]');
+          const platformIndicators = tabContent.querySelectorAll('.absolute.top-4.right-4 .bg-background\\/90, .platform-indicator, [class*="platform"]');
           let platformName = '';
 
           platformIndicators.forEach(indicator => {

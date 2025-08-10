@@ -67,7 +67,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50">
       <div className="bg-card rounded-lg p-8 max-w-md w-full mx-4 text-center">
         {/* 动画容器 */}
         <div className="relative h-20 mb-6 overflow-hidden bg-accent rounded-lg">

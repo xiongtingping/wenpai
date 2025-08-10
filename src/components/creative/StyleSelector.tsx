@@ -85,15 +85,15 @@ export function StyleSelector({
   const getStyleGradient = (styleId: StyleType) => {
     switch (styleId) {
       case 'professional':
-        return 'btn-gradient-primary';
+        return 'bg-primary text-primary-foreground';
       case 'funny':
-        return 'btn-gradient-secondary';
+        return 'bg-secondary text-secondary-foreground';
       case 'real':
-        return 'btn-gradient-primary';
+        return 'bg-primary text-primary-foreground';
       case 'hook':
-        return 'btn-gradient-primary';
+        return 'bg-primary text-primary-foreground';
       default:
-        return 'bg-muted';
+        return 'bg-muted text-muted-foreground';
     }
   };
 

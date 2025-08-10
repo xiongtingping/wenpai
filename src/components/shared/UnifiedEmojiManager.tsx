@@ -615,36 +615,35 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
 
 
   return (
-    <div className={`min-h-screen ${className}`} style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    <div className={`min-h-screen bg-background ${className}`} style={{
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
       {/* 头部标题区 - 调整图片/文字排版与层级 */}
       {/* 顶部留白（移除标题与统计文案） */}
       <div className="pt-6" />
 
-      {/* 统计和控制区 - 沿用旧版毛玻璃风格 */}
+      {/* 统计和控制区 - 使用统一令牌 */}
       <div className="mb-8 mx-auto max-w-6xl px-4 pb-6">
-        <div className="bg-card bg-opacity-20 backdrop-blur-lg rounded-2xl p-6 text-primary-foreground">
+        <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
           {/* 顶部工具条：排序 + 操作（随机/收藏/清除） + 视图图标 */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             {/* 查看全部：最高级，任何状态下都恢复完整列表（放在最左侧） */}
-            <button
+            <Button
               onClick={() => {
                 exitRandomView();
                 setSearchQuery('');
                 setShowFavoritesOnly(false);
                 setSelectedCategory('all');
               }}
-              className="px-3.5 py-1.5 rounded-full text-sm font-semibold btn-gradient-primary text-primary-foreground hover:opacity-90 shadow"
+              className="px-3.5 py-1.5 text-sm font-semibold"
               title="查看全部"
             >
               📋 查看全部
-            </button>
+            </Button>
 
             {/* 排序分段 */}
-            <div className="flex items-center gap-2 bg-card/15 rounded-full px-3 py-2">
-              <span className="text-sm font-medium">排序</span>
+            <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-2">
+              <span className="text-sm font-medium text-foreground">排序</span>
               <div className="flex items-center gap-1">
                 {([
                   { key: 'name', label: '名称' },
@@ -657,8 +656,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                     onClick={() => setSortMode(opt.key)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                       sortMode === opt.key
-                        ? 'bg-card text-foreground ring-2 ring-primary ring-offset-2 ring-offset-background'
-                        : 'bg-card/20 text-primary-foreground hover:bg-card/30'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-background text-foreground hover:bg-accent'
                     }`}
                   >
                     {opt.label}
@@ -669,67 +668,65 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
 
             {/* 随机选择 */}
             {allowRandom && (
-              <button
+              <Button
                 onClick={handleRandomSelect}
-                className="px-3 py-1.5 rounded-full text-sm font-medium bg-card/20 text-primary-foreground hover:bg-card/30"
+                variant="outline"
+                size="sm"
                 title="随机选择"
               >
                 <Shuffle className="w-4 h-4" />
-              </button>
+              </Button>
             )}
 
             {/* 仅显示收藏 */}
             {allowFavorites && (
-              <button
+              <Button
                 onClick={handleToggleFavoritesOnly}
-                className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                  showFavoritesOnly ? 'btn-gradient-destructive text-primary-foreground' : 'bg-card/20 text-primary-foreground hover:bg-card/30'
-                }`}
+                variant={showFavoritesOnly ? "destructive" : "outline"}
+                size="sm"
                 title={showFavoritesOnly ? '退出收藏视图' : '仅显示收藏'}
               >
                 <Star className="w-4 h-4" />
-              </button>
+              </Button>
             )}
 
             {/* 清除过滤 */}
-            <button
+            <Button
               onClick={clearFilters}
-              className="px-3 py-1.5 rounded-full text-sm font-semibold bg-card/20 text-primary-foreground hover:bg-card/30"
+              variant="outline"
+              size="sm"
               title="清除过滤"
             >
               <RotateCcw className="w-4 h-4" />
-            </button>
+            </Button>
 
             {/* 视图图标组在右侧 */}
             {allowViewSwitch && (
               <div className="ml-auto flex items-center gap-2">
-                <button
+                <Button
                   onClick={() => setViewMode('grid')}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                    viewMode === 'grid' ? 'bg-card text-foreground' : 'bg-card/20 text-primary-foreground hover:bg-card/30'
-                  }`}
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
                   title="网格视图"
                 >
                   <Grid3X3 className="w-4 h-4" />
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setViewMode('list')}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                    viewMode === 'list' ? 'bg-card text-foreground' : 'bg-card/20 text-primary-foreground hover:bg-card/30'
-                  }`}
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
                   title="列表视图"
                 >
                   <List className="w-4 h-4" />
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setViewMode('large')}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                    viewMode === 'large' ? 'bg-card text-foreground' : 'bg-card/20 text-primary-foreground hover:bg-card/30'
-                  }`}
+                  variant={viewMode === 'large' ? 'default' : 'outline'}
+                  size="sm"
                   title="大图视图"
                 >
                   <Eye className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -738,13 +735,13 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
           {showSearch && (
             <div className="mb-4">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary-foreground/90 w-6 h-6 z-10" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-6 h-6 z-10" />
                 <input
                   type="text"
                   placeholder="🔍 搜索emoji名称或关键词..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-14 pr-6 py-4 rounded-xl text-base text-foreground bg-card/90 backdrop-blur focus:outline-none focus:ring-4 focus:ring-white/50 focus:border-transparent shadow"
+                  className="w-full pl-14 pr-6 py-4 rounded-xl text-base text-foreground bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent shadow-sm"
                 />
               </div>
               {/* 引导关键词 Chips（动态 Top N，可二次点击移除） */}
@@ -755,7 +752,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                     <button
                       key={token}
                       onClick={() => toggleSearchToken(token)}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${active ? 'bg-card text-foreground shadow' : 'bg-card/20 text-primary-foreground hover:bg-card/30'}`}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${active ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground hover:bg-accent'}`}
                       title={active ? '点击移除该关键词' : '点击添加该关键词'}
                     >
                       {token}
@@ -777,16 +774,16 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                     onClick={() => handleCategoryChange(category.id)}
                     className={`px-6 py-3 rounded-full font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-2 ${
                       selectedCategory === category.id
-                        ? 'bg-card text-foreground shadow-lg'
-                        : 'bg-card/20 text-primary-foreground hover:bg-card/30'
+                        ? 'bg-primary text-primary-foreground shadow-lg'
+                        : 'bg-muted text-foreground hover:bg-accent'
                     }`}
                   >
                     <span className="text-lg">{category.icon}</span>
                     <span className="hidden sm:inline">{category.name}</span>
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       selectedCategory === category.id
-                        ? 'bg-muted text-foreground'
-                        : 'bg-card/30 text-primary-foreground'
+                        ? 'bg-primary-foreground/20 text-primary-foreground'
+                        : 'bg-background text-foreground'
                     }`}>
                       {category.count}
                     </span>
@@ -802,8 +799,8 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                       onClick={() => setSelectedSubcategory(prev => prev === sc.id ? null : sc.id)}
                       className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-colors ${
                         selectedSubcategory === sc.id
-                          ? 'bg-card text-foreground shadow'
-                          : 'bg-card/20 text-primary-foreground hover:bg-card/30'
+                          ? 'bg-primary text-primary-foreground shadow'
+                          : 'bg-secondary text-secondary-foreground hover:bg-accent'
                       }`}
                       title={`${sc.name}（${sc.count}）`}
                     >
@@ -854,32 +851,28 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
       {/* 复刻动物头像系统：随机结果视图 */}
       {showRandomResult && randomSelected && (
         <div className="mx-auto max-w-6xl px-4 pb-8">
-          <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'white', padding: '40px' }}>
-            <h2>🎲 随机选择结果</h2>
-            <div style={{ background: 'white', borderRadius: '20px', padding: '30px', display: 'inline-block', margin: '20px' }}>
-              <div style={{ fontSize: '4rem', marginBottom: '15px' }}>{randomSelected.emoji}</div>
-              <div style={{ fontSize: '1.5rem', color: '#333', fontWeight: 600 }}>{randomSelected.name}</div>
-              <div style={{ color: '#666', marginTop: '10px' }}>颜色: {randomSelected.color}</div>
+          <div className="text-center p-10 bg-card rounded-2xl shadow-lg">
+            <h2 className="text-2xl font-bold text-foreground mb-6">🎲 随机选择结果</h2>
+            <div className="bg-background rounded-2xl p-8 inline-block shadow-md">
+              <div className="text-6xl mb-4">{randomSelected.emoji}</div>
+              <div className="text-2xl font-semibold text-foreground mb-2">{randomSelected.name}</div>
+              <div className="text-muted-foreground">颜色: {randomSelected.color}</div>
             </div>
-            <br/>
-            <button
-              className="test-button"
-              onClick={() => handleRandomSelect()}
-              style={{
-                background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4)',
-                color: 'white', border: 'none', padding: '12px 24px', borderRadius: '25px', fontSize: '1rem', fontWeight: 600,
-                cursor: 'pointer', transition: 'all 0.3s ease', margin: '10px'
-              }}
-            >🔄 再次随机</button>
-            <button
-              className="test-button"
-              onClick={() => exitRandomView()}
-              style={{
-                background: 'linear-gradient(45deg, #FF6B6B, #4ECDC4)',
-                color: 'white', border: 'none', padding: '12px 24px', borderRadius: '25px', fontSize: '1rem', fontWeight: 600,
-                cursor: 'pointer', transition: 'all 0.3s ease', margin: '10px'
-              }}
-            >📋 查看全部</button>
+            <div className="mt-6 flex justify-center gap-4">
+              <Button
+                onClick={() => handleRandomSelect()}
+                className="px-6 py-3 text-base font-semibold"
+              >
+                🔄 再次随机
+              </Button>
+              <Button
+                onClick={() => exitRandomView()}
+                variant="outline"
+                className="px-6 py-3 text-base font-semibold"
+              >
+                📋 查看全部
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -1102,14 +1095,14 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
         {displayEmojis.length === 0 && (
           <div className="text-center py-16">
             <div className="text-8xl mb-6">🔍</div>
-            <h3 className="text-2xl font-bold text-primary-foreground mb-4">没有找到相关emoji</h3>
-            <p className="text-primary-foreground opacity-80 text-lg">尝试调整搜索条件或选择其他分类</p>
-            <button
+            <h3 className="text-2xl font-bold text-foreground mb-4">没有找到相关emoji</h3>
+            <p className="text-muted-foreground text-lg">尝试调整搜索条件或选择其他分类</p>
+            <Button
               onClick={clearFilters}
-              className="mt-6 bg-card text-foreground px-6 py-3 rounded-full font-semibold hover:bg-accent transition-colors"
+              className="mt-6 px-6 py-3 font-semibold"
             >
               清除所有过滤器
-            </button>
+            </Button>
           </div>
         )}
         </>

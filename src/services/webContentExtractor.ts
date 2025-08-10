@@ -166,7 +166,7 @@ export class WebContentExtractorService {
       extractedContent: this.formatExtractedContent(extractionResult),
       uploadDate: new Date(extractionResult.extractedAt),
       fileIcon: React.createElement('div', {
-        className: 'h-8 w-8 text-blue-500 flex items-center justify-center bg-blue-100 rounded',
+        className: 'h-8 w-8 text-accent flex items-center justify-center bg-accent rounded',
         children: '🌐'
       }),
       description: extractionResult.metadata.description || `从 ${extractionResult.metadata.domain} 提取的网页内容`,

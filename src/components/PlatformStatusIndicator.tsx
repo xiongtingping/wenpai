@@ -24,10 +24,10 @@ const platformConfig = {
     generateMessage: '正在生成小红书种草内容...',
     longContentMessage: '正在创作小红书深度种草文案，内容丰富有趣...'
   },
-  weibo: { 
-    name: '微博', 
-    icon: '🐦', 
-    color: 'orange',
+  weibo: {
+    name: '微博',
+    icon: '🐦',
+    color: 'blue',
     generateMessage: '正在生成微博热门内容...',
     longContentMessage: '正在创作微博长文，确保内容有趣有料...'
   },
@@ -76,6 +76,7 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   const colorClasses = {
     red: 'bg-destructive/10 border-border text-destructive',
     orange: 'bg-accent border-border text-foreground',
+    yellow: 'bg-accent border-border text-foreground',
     blue: 'bg-primary/10 border-border text-primary',
     green: 'bg-accent border-border text-foreground',
     purple: 'bg-primary/10 border-primary text-primary',

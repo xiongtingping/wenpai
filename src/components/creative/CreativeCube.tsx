@@ -1542,7 +1542,7 @@ ${generateStandardCallToAction()}
               <Button
                 onClick={handleGenerateContent}
                 disabled={!isValidGeneration || isGenerating}
-                className="btn-gradient-primary hover:opacity-90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {isGenerating ? (
                   <>

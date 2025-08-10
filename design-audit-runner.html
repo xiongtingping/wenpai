@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设计系统审查工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-1px);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-1px);
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
+        }
+        .results {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 400px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .theme-switcher {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .theme-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .theme-btn.active {
+            border-color: #007bff;
+            background: #007bff;
+            color: white;
+        }
+        .theme-btn:hover {
+            border-color: #007bff;
+        }
+        .status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 文派设计系统全面审查工具</h1>
+            <p>系统性检查所有页面、组件和样式的设计令牌使用情况</p>
+        </div>
+
+        <div class="theme-switcher">
+            <strong>主题切换测试：</strong>
+            <button class="theme-btn active" data-theme="beige">米色</button>
+            <button class="theme-btn" data-theme="light">浅色</button>
+            <button class="theme-btn" data-theme="dark">深色</button>
+            <button class="theme-btn" data-theme="blue">蓝色</button>
+            <button class="theme-btn" data-theme="green">绿色</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="openMainSite()">🌐 打开主站</button>
+            <button class="btn btn-success" onclick="runFullAudit()">🚀 开始全面审查</button>
+            <button class="btn btn-secondary" onclick="checkHardcodedColors()">🔍 检查硬编码颜色</button>
+            <button class="btn btn-secondary" onclick="checkTypography()">📝 检查字体系统</button>
+            <button class="btn btn-secondary" onclick="checkUIComponents()">🧩 检查UI组件</button>
+            <button class="btn btn-warning" onclick="testAllThemes()">🌈 测试所有主题</button>
+            <button class="btn btn-secondary" onclick="clearResults()">🗑️ 清空结果</button>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+        <div class="progress" id="progress-container" style="display: none;">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div id="results" class="results">
+            <div style="color: #666; text-align: center; padding: 50px 0;">
+                点击上方按钮开始审查...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let auditWindow = null;
+        let currentProgress = 0;
+
+        // 主题切换功能
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                
+                // 更新按钮状态
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 如果主站已打开，切换主题
+                if (auditWindow && !auditWindow.closed) {
+                    try {
+                        auditWindow.document.documentElement.setAttribute('data-theme', theme);
+                        logResult(`🎨 已切换到 ${btn.textContent} 主题`);
+                    } catch (e) {
+                        logResult(`❌ 无法切换主题: ${e.message}`);
+                    }
+                }
+            });
+        });
+
+        function showStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        function showProgress(percent) {
+            const container = document.getElementById('progress-container');
+            const bar = document.getElementById('progress-bar');
+            container.style.display = 'block';
+            bar.style.width = percent + '%';
+            currentProgress = percent;
+        }
+
+        function hideProgress() {
+            document.getElementById('progress-container').style.display = 'none';
+            currentProgress = 0;
+        }
+
+        function logResult(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            results.textContent += `[${timestamp}] ${message}\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = `
+                <div style="color: #666; text-align: center; padding: 50px 0;">
+                    结果已清空，点击上方按钮开始新的审查...
+                </div>
+            `;
+            hideStatus();
+            hideProgress();
+        }
+
+        function openMainSite() {
+            showStatus('正在打开主站...', 'loading');
+            
+            if (auditWindow && !auditWindow.closed) {
+                auditWindow.focus();
+                showStatus('主站已打开', 'success');
+                setTimeout(hideStatus, 2000);
+                return;
+            }
+
+            auditWindow = window.open('http://localhost:5174', 'audit-target', 'width=1400,height=900');
+            
+            if (auditWindow) {
+                logResult('🌐 主站已在新窗口中打开');
+                showStatus('主站已打开', 'success');
+                setTimeout(hideStatus, 2000);
+                
+                // 等待页面加载完成
+                auditWindow.addEventListener('load', () => {
+                    logResult('✅ 主站页面加载完成');
+                });
+            } else {
+                logResult('❌ 无法打开主站，请检查弹窗拦截设置');
+                showStatus('打开失败', 'error');
+                setTimeout(hideStatus, 3000);
+            }
+        }
+
+        async function runFullAudit() {
+            if (!auditWindow || auditWindow.closed) {
+                logResult('❌ 请先打开主站');
+                showStatus('请先打开主站', 'error');
+                setTimeout(hideStatus, 3000);
+                return;
+            }
+
+            showStatus('正在进行全面审查...', 'loading');
+            showProgress(0);
+            logResult('🚀 开始全面设计系统审查...');
+            logResult('=' .repeat(60));
+
+            try {
+                // 注入审查脚本
+                await injectAuditScript();
+                showProgress(20);
+
+                // 运行各项检查
+                await runAuditStep('硬编码颜色检查', 'scanForHardcodedColors()', 40);
+                await runAuditStep('字体系统检查', 'checkTypographyConsistency()', 60);
+                await runAuditStep('UI组件检查', 'checkUIComponents()', 80);
+                await runAuditStep('多主题兼容性检查', 'checkMultiThemeCompatibility()', 100);
+
+                showStatus('审查完成', 'success');
+                logResult('🎉 全面审查完成！');
+                
+                setTimeout(() => {
+                    hideStatus();
+                    hideProgress();
+                }, 3000);
+
+            } catch (error) {
+                logResult(`❌ 审查过程中出现错误: ${error.message}`);
+                showStatus('审查失败', 'error');
+                setTimeout(() => {
+                    hideStatus();
+                    hideProgress();
+                }, 3000);
+            }
+        }
+
+        async function injectAuditScript() {
+            return new Promise((resolve, reject) => {
+                try {
+                    // 读取并注入审查脚本
+                    fetch('/comprehensive-design-audit-cn.js')
+                        .then(response => response.text())
+                        .then(scriptContent => {
+                            const script = auditWindow.document.createElement('script');
+                            script.textContent = scriptContent;
+                            auditWindow.document.head.appendChild(script);
+                            logResult('✅ 审查脚本已注入');
+                            resolve();
+                        })
+                        .catch(error => {
+                            logResult('❌ 无法加载审查脚本，使用内联版本');
+                            // 使用简化的内联脚本
+                            injectInlineScript();
+                            resolve();
+                        });
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        function injectInlineScript() {
+            const script = auditWindow.document.createElement('script');
+            script.textContent = `
+                console.log('🎨 设计系统审查脚本已加载');
+                
+                window.scanForHardcodedColors = function() {
+                    console.log('🔍 开始扫描硬编码颜色...');
+                    const issues = [];
+                    const elements = document.querySelectorAll('*');
+                    
+                    elements.forEach(el => {
+                        const classes = el.className;
+                        if (typeof classes === 'string') {
+                            if (classes.includes('text-blue-') || classes.includes('bg-blue-') ||
+                                classes.includes('text-white') || classes.includes('text-black') ||
+                                classes.includes('text-gray-') || classes.includes('bg-gray-')) {
+                                issues.push({
+                                    element: el.tagName,
+                                    classes: classes,
+                                    text: el.textContent?.substring(0, 30)
+                                });
+                            }
+                        }
+                    });
+                    
+                    console.log('📊 发现', issues.length, '个硬编码颜色问题');
+                    return issues;
+                };
+                
+                window.checkTypographyConsistency = function() {
+                    console.log('📝 检查字体一致性...');
+                    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    const issues = [];
+                    
+                    headings.forEach(h => {
+                        const style = getComputedStyle(h);
+                        const weight = parseInt(style.fontWeight);
+                        if (weight < 600) {
+                            issues.push({
+                                element: h.tagName,
+                                weight: weight,
+                                text: h.textContent?.substring(0, 30)
+                            });
+                        }
+                    });
+                    
+                    console.log('📊 发现', issues.length, '个字体问题');
+                    return issues;
+                };
+                
+                window.checkUIComponents = function() {
+                    console.log('🧩 检查UI组件...');
+                    const buttons = document.querySelectorAll('button');
+                    const cards = document.querySelectorAll('.card, [class*="Card"]');
+                    
+                    console.log('📊 找到', buttons.length, '个按钮，', cards.length, '个卡片');
+                    return { buttons: buttons.length, cards: cards.length };
+                };
+                
+                window.checkMultiThemeCompatibility = function() {
+                    console.log('🌈 检查多主题兼容性...');
+                    const html = document.documentElement;
+                    const theme = html.getAttribute('data-theme') || 'default';
+                    console.log('📊 当前主题:', theme);
+                    return { currentTheme: theme };
+                };
+            `;
+            auditWindow.document.head.appendChild(script);
+        }
+
+        async function runAuditStep(stepName, functionCall, progressPercent) {
+            return new Promise((resolve) => {
+                try {
+                    logResult(`\n🔄 ${stepName}...`);
+                    const result = auditWindow.eval(functionCall);
+                    
+                    if (result && typeof result === 'object') {
+                        if (Array.isArray(result)) {
+                            logResult(`📊 ${stepName}完成，发现 ${result.length} 个问题`);
+                            if (result.length > 0) {
+                                result.slice(0, 3).forEach((issue, index) => {
+                                    logResult(`  ${index + 1}. ${JSON.stringify(issue, null, 2)}`);
+                                });
+                                if (result.length > 3) {
+                                    logResult(`  ... 还有 ${result.length - 3} 个类似问题`);
+                                }
+                            }
+                        } else {
+                            logResult(`📊 ${stepName}完成: ${JSON.stringify(result, null, 2)}`);
+                        }
+                    } else {
+                        logResult(`✅ ${stepName}完成`);
+                    }
+                    
+                    showProgress(progressPercent);
+                    setTimeout(resolve, 500);
+                } catch (error) {
+                    logResult(`❌ ${stepName}失败: ${error.message}`);
+                    setTimeout(resolve, 500);
+                }
+            });
+        }
+
+        async function checkHardcodedColors() {
+            if (!auditWindow || auditWindow.closed) {
+                logResult('❌ 请先打开主站');
+                return;
+            }
+
+            showStatus('检查硬编码颜色...', 'loading');
+            await injectAuditScript();
+            await runAuditStep('硬编码颜色检查', 'scanForHardcodedColors()', 100);
+            showStatus('检查完成', 'success');
+            setTimeout(hideStatus, 2000);
+        }
+
+        async function checkTypography() {
+            if (!auditWindow || auditWindow.closed) {
+                logResult('❌ 请先打开主站');
+                return;
+            }
+
+            showStatus('检查字体系统...', 'loading');
+            await injectAuditScript();
+            await runAuditStep('字体系统检查', 'checkTypographyConsistency()', 100);
+            showStatus('检查完成', 'success');
+            setTimeout(hideStatus, 2000);
+        }
+
+        async function checkUIComponents() {
+            if (!auditWindow || auditWindow.closed) {
+                logResult('❌ 请先打开主站');
+                return;
+            }
+
+            showStatus('检查UI组件...', 'loading');
+            await injectAuditScript();
+            await runAuditStep('UI组件检查', 'checkUIComponents()', 100);
+            showStatus('检查完成', 'success');
+            setTimeout(hideStatus, 2000);
+        }
+
+        async function testAllThemes() {
+            if (!auditWindow || auditWindow.closed) {
+                logResult('❌ 请先打开主站');
+                return;
+            }
+
+            showStatus('测试所有主题...', 'loading');
+            const themes = ['light', 'dark', 'blue', 'beige', 'green'];
+            
+            for (let i = 0; i < themes.length; i++) {
+                const theme = themes[i];
+                logResult(`\n🎨 测试主题: ${theme}`);
+                
+                try {
+                    auditWindow.document.documentElement.setAttribute('data-theme', theme);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    const computedStyle = auditWindow.getComputedStyle(auditWindow.document.documentElement);
+                    const bgColor = computedStyle.getPropertyValue('--background').trim();
+                    const textColor = computedStyle.getPropertyValue('--foreground').trim();
+                    
+                    logResult(`  背景色: ${bgColor || '未定义'}`);
+                    logResult(`  文字色: ${textColor || '未定义'}`);
+                    
+                    showProgress((i + 1) / themes.length * 100);
+                } catch (error) {
+                    logResult(`  ❌ 主题切换失败: ${error.message}`);
+                }
+            }
+            
+            // 切换回默认主题
+            auditWindow.document.documentElement.setAttribute('data-theme', 'beige');
+            logResult('\n✅ 所有主题测试完成，已切换回默认主题');
+            
+            showStatus('主题测试完成', 'success');
+            setTimeout(() => {
+                hideStatus();
+                hideProgress();
+            }, 2000);
+        }
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', () => {
+            logResult('🎨 设计系统审查工具已就绪');
+            logResult('💡 请先点击"打开主站"按钮，然后开始审查');
+        });
+    </script>
+</body>
+</html>

@@ -102,7 +102,7 @@ export function PricingSection() {
         
         return (
           <li key={index} className="flex items-start space-x-3">
-            <Check className={`w-5 h-5 mt-0.5 ${plan.recommended ? 'text-primary' : 'text-foreground'}`} />
+            <Check className={`w-5 h-5 mt-0.5 text-foreground`} />
             <div className="flex items-center gap-2 flex-1">
               <span className="font-medium">{text}</span>
             </div>
@@ -112,9 +112,7 @@ export function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-12 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
-      {/* 装饰背景 - 突出定价方案推荐区 */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-accent/40 to-transparent"></div>
+    <section id="pricing" className="py-12 bg-background relative overflow-hidden">
       
       <div className="container mx-auto px-4 md:px-12 relative z-10">
         {/* 🎯 标题区域优化 */}
@@ -167,7 +165,7 @@ export function PricingSection() {
               onClick={() => setBilling("yearly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
                 billing === "yearly" 
-                  ? "btn-gradient-accent hover:opacity-90 text-primary-foreground shadow-lg scale-105"
+                  ? "bg-primary/10 border-primary text-primary shadow-lg scale-105"
                   : "bg-accent text-foreground border-border hover:bg-accent/80"
               }`}
             >
@@ -193,7 +191,7 @@ export function PricingSection() {
                 }`}
               >
                 {isRecommended && (
-                  <span className="absolute top-0 -translate-y-1/2 btn-gradient-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-full">
+                  <span className="absolute top-0 -translate-y-1/2 bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-full">
                     <Star className="w-3 h-3 mr-1 inline" />
                     推荐
                   </span>
@@ -203,7 +201,7 @@ export function PricingSection() {
                   {plan.tier === 'premium' ? (
                     <Crown className="w-6 h-6 text-foreground" />
                   ) : plan.tier === 'pro' ? (
-                    <Crown className="w-6 h-6 text-primary" />
+                    <Crown className="w-6 h-6 text-foreground" />
                   ) : (
                     <Sparkles className="w-6 h-6 text-foreground" />
                   )}
@@ -222,9 +220,7 @@ export function PricingSection() {
                     <div className="text-center">
                       {isAuthenticated && inPromo ? (
                         <div className="flex items-center justify-center gap-2">
-                          <p className={`text-5xl font-extrabold pricing-price ${
-                            isRecommended ? 'text-primary' : 'text-foreground'
-                          }`}>
+                          <p className={`text-5xl font-extrabold pricing-price text-foreground`}>
                             <span className="pricing-price-symbol">¥</span>{pricing.discountPrice}
                           </p>
                           <div className="flex flex-col items-start">
@@ -234,9 +230,7 @@ export function PricingSection() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2">
-                          <p className={`text-5xl font-extrabold pricing-price ${
-                            isRecommended ? 'text-primary' : 'text-foreground'
-                          }`}>
+                          <p className={`text-5xl font-extrabold pricing-price text-foreground`}>
                             <span className="pricing-price-symbol">¥</span>{pricing.originalPrice}
                           </p>
                         </div>
@@ -256,8 +250,8 @@ export function PricingSection() {
                 <Button 
                   variant={isTrial ? "outline" : "default"}
                   className={`mt-8 w-full ${
-                    isRecommended 
-                      ? 'btn-gradient-primary hover:opacity-90'
+                    isRecommended
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                       : ''
                   }`}
                   onClick={() => isTrial ? handlePlanClick(plan.id) : handlePlanClick(plan.id)}
@@ -362,7 +356,7 @@ export function PricingSection() {
                       <span className="text-muted-foreground pricing-table-text">基础模型</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
-                      <span className="text-primary font-medium pricing-table-text">高级模型</span>
+                      <span className="text-foreground font-medium pricing-table-text">高级模型</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
                       <div className="text-foreground font-medium text-xs leading-tight pricing-table-cell">
@@ -377,7 +371,7 @@ export function PricingSection() {
                       <span className="text-muted-foreground pricing-table-number">100,000</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
-                      <span className="text-primary pricing-table-number">200,000</span>
+                      <span className="text-foreground pricing-table-number">200,000</span>
                     </td>
                     <td className="border border-border px-4 py-3 text-center bg-accent">
                       <span className="text-foreground pricing-table-number">500,000</span>

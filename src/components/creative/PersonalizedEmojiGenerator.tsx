@@ -256,7 +256,7 @@ export default function PersonalizedEmojiGenerator() {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* 头部标题 */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold btn-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-foreground">
             个性化品牌 Emoji 生成器
           </h1>
           <p className="text-muted-foreground">

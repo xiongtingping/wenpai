@@ -112,7 +112,7 @@ function HomePage() {
       {/* 主要内容 */}
       <div className="relative z-10">
         {/* 导航栏 */}
-        <nav className="backdrop-blur-md bg-card/10 border-b border-white/20">
+        <nav className="backdrop-blur-md bg-card/10 border-b border-border/20">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -150,7 +150,7 @@ function HomePage() {
         {/* Hero Section */}
         <section className="container mx-auto px-6 py-20 text-center">
           <div className="max-w-4xl mx-auto">
-            <Badge className="mb-6 bg-card/20 text-primary-foreground border-white/30 hover:bg-card/30">
+            <Badge className="mb-6 bg-card/20 text-primary-foreground border-border/30 hover:bg-card/30">
               <Zap className="h-4 w-4 mr-2" />
               AI驱动的内容创作平台
             </Badge>
@@ -179,7 +179,7 @@ function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-primary-foreground hover:bg-card/20 px-8 py-4 text-lg"
+                className="border-border/30 text-primary-foreground hover:bg-card/20 px-8 py-4 text-lg"
                 onClick={() => navigate('/demo')}
               >
                 观看演示
@@ -189,7 +189,7 @@ function HomePage() {
 
             {/* 模拟聊天界面预览 */}
             <div className="relative max-w-2xl mx-auto">
-              <Card className="backdrop-blur-md bg-card/10 border-white/20 p-6">
+              <Card className="backdrop-blur-md bg-card/10 border-border/20 p-6">
                 <div className="space-y-4">
                   <div className="flex justify-end">
                     <div className="bg-card/20 backdrop-blur-sm rounded-2xl px-4 py-2 max-w-xs">
@@ -220,7 +220,7 @@ function HomePage() {
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="backdrop-blur-md bg-card/10 border-white/20 hover:bg-card/20 transition-all duration-300 cursor-pointer group"
+                className="backdrop-blur-md bg-card/10 border-border/20 hover:bg-card/20 transition-all duration-300 cursor-pointer group"
                 onMouseEnter={() => setHoveredCard(index)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -265,7 +265,7 @@ function HomePage() {
               }
             ].map((item, index) => (
               <div key={index} className="text-center">
-                <Card className="backdrop-blur-md bg-card/10 border-white/20 p-8 hover:bg-card/20 transition-all duration-300">
+                <Card className="backdrop-blur-md bg-card/10 border-border/20 p-8 hover:bg-card/20 transition-all duration-300">
                   <div className="relative mb-6">
                     <div className="w-16 h-16 bg-gradient-to-br btn-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                       {item.icon}
@@ -291,7 +291,7 @@ function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="backdrop-blur-md bg-card/10 border-white/20 p-6 hover:bg-card/20 transition-all duration-300">
+              <Card key={index} className="backdrop-blur-md bg-card/10 border-border/20 p-6 hover:bg-card/20 transition-all duration-300">
                 <div className="flex items-center mb-4">
                   <div className="text-3xl mr-3">{testimonial.avatar}</div>
                   <div>
@@ -346,7 +346,7 @@ function HomePage() {
             ].map((plan, index) => (
               <Card
                 key={index}
-                className={`backdrop-blur-md border-white/20 p-8 hover:scale-105 transition-all duration-300 relative ${
+                className={`backdrop-blur-md border-border/20 p-8 hover:scale-105 transition-all duration-300 relative ${
                   plan.popular
                     ? 'bg-gradient-to-br from-blue-500/20 to-purple-600/20 border-primary/50'
                     : 'bg-card/10 hover:bg-card/20'
@@ -390,7 +390,7 @@ function HomePage() {
 
         {/* CTA Section */}
         <section className="container mx-auto px-6 py-20 text-center">
-          <Card className="backdrop-blur-md bg-card/10 border-white/20 p-12 max-w-4xl mx-auto">
+          <Card className="backdrop-blur-md bg-card/10 border-border/20 p-12 max-w-4xl mx-auto">
             <h2 className="text-4xl font-bold text-primary-foreground mb-4">准备好开始创作了吗？</h2>
             <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
               加入数万创作者的行列，让AI助力你的内容创作之旅
@@ -407,7 +407,7 @@ function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-primary-foreground hover:bg-card/20 px-8 py-4 text-lg"
+                className="border-border/30 text-primary-foreground hover:bg-card/20 px-8 py-4 text-lg"
                 onClick={() => navigate('/contact')}
               >
                 <Users className="h-5 w-5 mr-2" />
@@ -418,7 +418,7 @@ function HomePage() {
         </section>
 
         {/* Footer */}
-        <footer className="backdrop-blur-md bg-card/5 border-t border-white/20 py-12">
+        <footer className="backdrop-blur-md bg-card/5 border-t border-border/20 py-12">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
@@ -461,7 +461,7 @@ function HomePage() {
               </div>
             </div>
 
-            <div className="border-t border-white/20 mt-8 pt-8 text-center">
+            <div className="border-t border-border/20 mt-8 pt-8 text-center">
               <p className="text-primary-foreground/60 text-sm">
                 © 2024 文派. 保留所有权利.
               </p>

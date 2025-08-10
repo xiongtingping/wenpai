@@ -19,11 +19,11 @@ export function HowItWorks() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // 渐变色配置
-  const stepGradients = [
-    "btn-gradient-primary",
-    "btn-gradient-secondary",
-    "btn-gradient-accent"
+  // 简洁色彩配置
+  const stepColors = [
+    "bg-primary text-primary-foreground",
+    "bg-secondary text-secondary-foreground",
+    "bg-accent text-accent-foreground"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
   const stepTitles = ["输入原始内容", "选择目标平台", "一键获取所有版本"]
@@ -34,7 +34,7 @@ export function HowItWorks() {
   ]
 
   return (
-    <section className="py-16 bg-card" id="how-it-works-section">
+    <section className="py-16 bg-background" id="how-it-works-section">
       <div className="container mx-auto px-6">
         {/* 1️⃣ 标题区优化 */}
         <div className="text-center max-w-4xl mx-auto">
@@ -63,7 +63,7 @@ export function HowItWorks() {
                 <div className="flex flex-col items-center text-center">
                   {/* 渐变圆形背景图标 */}
                   <div
-                    className={`flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br ${stepGradients[i]} shadow-lg mb-6 transition-transform duration-300 group-hover:scale-110`}
+                    className={`flex items-center justify-center w-20 h-20 rounded-full ${stepColors[i]} shadow-lg mb-6 transition-transform duration-300 group-hover:scale-110`}
                   >
                     <Icon className="w-10 h-10 text-primary-foreground" />
                   </div>

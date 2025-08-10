@@ -221,7 +221,7 @@ export function TokenLimitDialog({
           {onUpgrade && (
             <Button 
               onClick={onUpgrade}
-              className="w-full sm:w-auto btn-gradient-primary hover:opacity-90"
+              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Crown className="w-4 h-4 mr-2" />
               立即升级

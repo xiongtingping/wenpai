@@ -167,7 +167,7 @@ export function TokenUsageSection({
               size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="bg-card/20 backdrop-blur-sm border-white/30 text-primary-foreground hover:bg-card/30 hover:border-white/50 rounded-lg"
+              className="bg-card/20 backdrop-blur-sm border-border/30 text-primary-foreground hover:bg-card/30 hover:border-border/50 rounded-lg"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>

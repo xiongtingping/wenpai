@@ -3558,7 +3558,7 @@ function DimensionForm({
 
       {/* 来源详情弹窗 */}
       {showSourceDialog && selectedSourceItem && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50">
           <div className="bg-card rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl max-h-[80vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-accent rounded-lg">

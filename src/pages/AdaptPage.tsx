@@ -318,39 +318,39 @@ function validateCharacterCount(content: string, platformId: string, userSetLimi
 function getPlatformIcon(platformId: string): JSX.Element {
   switch (platformId) {
     case 'xiaohongshu':
-      return <Book className="h-4 w-4 text-primary" />;
+      return <Book className="h-4 w-4 text-accent" />;
     case 'zhihu':
-      return <MessageSquare className="h-4 w-4 text-primary" />;
+      return <MessageSquare className="h-4 w-4 text-accent" />;
     case 'douyin':
-      return <Video className="h-4 w-4 text-foreground" />;
+      return <Video className="h-4 w-4 text-accent" />;
     case 'weibo':
-      return <Send className="h-4 w-4 text-primary" />;
+      return <Send className="h-4 w-4 text-accent" />;
     case 'wechat':
-      return <MessageSquare className="h-4 w-4 text-primary" />;
+      return <MessageSquare className="h-4 w-4 text-accent" />;
     case 'bilibili':
-      return <Video className="h-4 w-4 text-primary" />;
+      return <Video className="h-4 w-4 text-accent" />;
     case 'twitter':
-      return <Twitter className="h-4 w-4 text-foreground" />;
+      return <Twitter className="h-4 w-4 text-accent" />;
     case 'video':
-      return <SquarePlay className="h-4 w-4 text-primary" />;
+      return <SquarePlay className="h-4 w-4 text-accent" />;
     case 'baijia':
-      return <Globe className="h-4 w-4 text-primary" />;
+      return <Globe className="h-4 w-4 text-accent" />;
     case 'kuaishou':
-      return <Zap className="h-4 w-4 text-primary" />;
+      return <Zap className="h-4 w-4 text-accent" />;
     case 'wangyi':
-      return <Rss className="h-4 w-4 text-primary" />;
+      return <Rss className="h-4 w-4 text-accent" />;
     case 'toutiao':
-      return <Globe className="h-4 w-4 text-primary" />;
+      return <Globe className="h-4 w-4 text-accent" />;
     case 'facebook':
-      return <Facebook className="h-4 w-4 text-primary" />;
+      return <Facebook className="h-4 w-4 text-accent" />;
     case 'linkedin':
-      return <Linkedin className="h-4 w-4 text-primary" />;
+      return <Linkedin className="h-4 w-4 text-accent" />;
     case 'instagram':
-      return <Instagram className="h-4 w-4 text-primary" />;
+      return <Instagram className="h-4 w-4 text-accent" />;
     case 'douban':
-      return <User className="h-4 w-4 text-primary" />;
+      return <User className="h-4 w-4 text-accent" />;
     default:
-      return <MessageSquare className="h-4 w-4 text-muted-foreground" />;
+      return <MessageSquare className="h-4 w-4 text-secondary" />;
   }
 }
 
@@ -458,7 +458,7 @@ function CheckboxCard({
             <div className="flex-shrink-0">
               {icon}
             </div>
-            <CardTitle className="text-sm font-semibold truncate leading-tight text-foreground">{title}</CardTitle>
+            <CardTitle className="text-sm font-semibold truncate leading-tight text-primary">{title}</CardTitle>
           </div>
           <div className="flex-shrink-0">
             <Checkbox
@@ -473,7 +473,7 @@ function CheckboxCard({
         </div>
       </CardHeader>
       <CardContent className="pt-0 pb-4 flex-grow flex items-start">
-        <CardDescription className="text-xs leading-relaxed overflow-hidden text-muted-foreground" style={{
+        <CardDescription className="text-xs leading-relaxed overflow-hidden text-secondary" style={{
           display: '-webkit-box',
           WebkitLineClamp: 4,
           WebkitBoxOrient: 'vertical' as const,
@@ -1241,22 +1241,22 @@ export default function AdaptPage() {
   const [premiumFeatureInfo, setPremiumFeatureInfo] = useState({ name: '', description: '' });
 
   const platforms = useMemo(() => [
-    { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-primary" /> },
-    { id: "zhihu", name: "知乎", description: "适合专业知识分享和理性讨论，强调逻辑和论证", icon: <MessageSquare className="h-4 w-4 text-primary" /> },
-    { id: "douyin", name: "抖音", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: <Video className="h-4 w-4 text-foreground" /> },
-    { id: "weibo", name: "新浪微博", description: "简短有力的观点表达，适合热点话题讨论", icon: <Send className="h-4 w-4 text-primary" /> },
-    { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: <MessageSquare className="h-4 w-4 text-primary" /> },
-    { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: <Video className="h-4 w-4 text-primary" /> },
-    { id: "twitter", name: "X（推特）", description: "简短、直接的表达，支持多种语言和国际化视角", icon: <Twitter className="h-4 w-4 text-foreground" /> },
-    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: <SquarePlay className="h-4 w-4 text-primary" /> },
-    { id: "baijia", name: "百家号", description: "长篇深度内容，SEO友好，权威感强，适合资讯类内容", icon: <Globe className="h-4 w-4 text-primary" /> },
-    { id: "kuaishou", name: "快手", description: "接地气表达，真实朴实，亲民风格，适合生活记录", icon: <Zap className="h-4 w-4 text-primary" /> },
-    { id: "wangyi", name: "网易小蜜蜂", description: "注重原创性，文笔流畅，观点独特，适合深度评论", icon: <Rss className="h-4 w-4 text-primary" /> },
-    { id: "toutiao", name: "头条号", description: "标题党友好，热点敏感，算法推荐，适合时事评论", icon: <Globe className="h-4 w-4 text-primary" /> },
-    { id: "facebook", name: "Facebook", description: "国际化社交平台，适合品牌推广和社区互动", icon: <Facebook className="h-4 w-4 text-primary" /> },
-    { id: "linkedin", name: "LinkedIn", description: "专业职场社交平台，适合商务内容和职业发展", icon: <Linkedin className="h-4 w-4 text-primary" /> },
-    { id: "instagram", name: "Instagram", description: "视觉化社交平台，适合图片和短视频内容", icon: <Instagram className="h-4 w-4 text-primary" /> },
-    { id: "douban", name: "豆瓣", description: "文艺青年聚集地，适合文化评论和生活方式分享", icon: <User className="h-4 w-4 text-primary" /> }
+    { id: "xiaohongshu", name: "小红书", description: "适合生活方式、美妆、旅行等分享，强调个人体验和情感共鸣", icon: <Book className="h-4 w-4 text-accent" /> },
+    { id: "zhihu", name: "知乎", description: "适合专业知识分享和理性讨论，强调逻辑和论证", icon: <MessageSquare className="h-4 w-4 text-accent" /> },
+    { id: "douyin", name: "抖音", description: "适合短视频脚本，活泼有趣，强调视听效果", icon: <Video className="h-4 w-4 text-accent" /> },
+    { id: "weibo", name: "新浪微博", description: "简短有力的观点表达，适合热点话题讨论", icon: <Send className="h-4 w-4 text-accent" /> },
+    { id: "wechat", name: "公众号", description: "深度内容，适合教程、观点和专业分析", icon: <MessageSquare className="h-4 w-4 text-accent" /> },
+    { id: "bilibili", name: "B站", description: "适合视频脚本，兼具专业性和趣味性", icon: <Video className="h-4 w-4 text-accent" /> },
+    { id: "twitter", name: "X（推特）", description: "简短、直接的表达，支持多种语言和国际化视角", icon: <Twitter className="h-4 w-4 text-accent" /> },
+    { id: "video", name: "视频号", description: "视频内容与互动引导并重，亲和力强", icon: <SquarePlay className="h-4 w-4 text-accent" /> },
+    { id: "baijia", name: "百家号", description: "长篇深度内容，SEO友好，权威感强，适合资讯类内容", icon: <Globe className="h-4 w-4 text-accent" /> },
+    { id: "kuaishou", name: "快手", description: "接地气表达，真实朴实，亲民风格，适合生活记录", icon: <Zap className="h-4 w-4 text-accent" /> },
+    { id: "wangyi", name: "网易小蜜蜂", description: "注重原创性，文笔流畅，观点独特，适合深度评论", icon: <Rss className="h-4 w-4 text-accent" /> },
+    { id: "toutiao", name: "头条号", description: "标题党友好，热点敏感，算法推荐，适合时事评论", icon: <Globe className="h-4 w-4 text-accent" /> },
+    { id: "facebook", name: "Facebook", description: "国际化社交平台，适合品牌推广和社区互动", icon: <Facebook className="h-4 w-4 text-accent" /> },
+    { id: "linkedin", name: "LinkedIn", description: "专业职场社交平台，适合商务内容和职业发展", icon: <Linkedin className="h-4 w-4 text-accent" /> },
+    { id: "instagram", name: "Instagram", description: "视觉化社交平台，适合图片和短视频内容", icon: <Instagram className="h-4 w-4 text-accent" /> },
+    { id: "douban", name: "豆瓣", description: "文艺青年聚集地，适合文化评论和生活方式分享", icon: <User className="h-4 w-4 text-accent" /> }
   ], []);
 
   const initializeDefaultSettings = useCallback(() => {
@@ -3846,7 +3846,7 @@ ${charCountControl.source === 'platform-specific'
         <Card variant="soft" className="rounded-xl">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold">输入原始内容</h1>
+              <h1 className="text-2xl font-bold text-primary">输入原始内容</h1>
               {/* 🚨 DISABLED: 2025-08-04 暂时禁用Tooltip以排查无限循环问题 */}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">剩余次数:</span>
@@ -3878,7 +3878,7 @@ ${charCountControl.source === 'platform-specific'
                       setOriginalContent(newContent);
                     }}
                   />
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-secondary">
                     从品牌库、资料库、雷达收藏快速导入内容
                   </span>
                 </div>
@@ -3900,12 +3900,12 @@ ${charCountControl.source === 'platform-specific'
                 }}
               />
               <div className="flex-1">
-                <Label htmlFor="use-brand-library" className="text-sm cursor-pointer">
+                <Label htmlFor="use-brand-library" className="text-sm cursor-pointer text-primary">
                   使用品牌库资料进行创作
                 </Label>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-secondary mt-1">
                   AI自动遵循品牌语言规范，融入品牌价值，规避公关风险
-                  <span className="text-xs text-muted-foreground ml-1">（需开通高级功能）</span>
+                  <span className="text-xs text-secondary ml-1">（需开通高级功能）</span>
                 </p>
               </div>
               <Badge variant="outline" className="bg-secondary text-secondary-foreground border-border flex-shrink-0">
@@ -3919,7 +3919,7 @@ ${charCountControl.source === 'platform-specific'
       <div className="mb-8 mt-8">
         <Card variant="soft" className="rounded-xl">
           <CardHeader>
-            <h1 className="text-2xl font-bold text-foreground">选择目标平台</h1>
+            <h1 className="text-2xl font-bold text-primary">选择目标平台</h1>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
@@ -4750,7 +4750,7 @@ ${charCountControl.source === 'platform-specific'
                                       ) : (
                                         <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
                                           result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
-                                          result.platformId === 'douyin' ? 'bg-black text-primary-foreground border-border' :
+                                          result.platformId === 'douyin' ? 'bg-foreground text-primary-foreground border-border' :
                                           result.platformId === 'weibo' ? 'bg-accent border-border' :
                                           result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                           result.platformId === 'wechat' ? 'bg-accent border-border' :
@@ -4898,7 +4898,7 @@ ${charCountControl.source === 'platform-specific'
                                       ) : (
                                         <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
                                           result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
-                                          result.platformId === 'douyin' ? 'bg-black text-primary-foreground border-border' :
+                                          result.platformId === 'douyin' ? 'bg-foreground text-primary-foreground border-border' :
                                           result.platformId === 'weibo' ? 'bg-accent border-border' :
                                           result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                           result.platformId === 'wechat' ? 'bg-accent border-border' :
@@ -5041,7 +5041,7 @@ ${charCountControl.source === 'platform-specific'
                                     <div className="space-y-3">
                                       <div className={`whitespace-pre-wrap rounded-lg border-2 p-6 overflow-auto max-h-[600px] text-base leading-relaxed shadow-sm relative ${
                                         result.platformId === 'xiaohongshu' ? 'bg-accent border-border' :
-                                        result.platformId === 'douyin' ? 'bg-black text-primary-foreground border-border' :
+                                        result.platformId === 'douyin' ? 'bg-foreground text-primary-foreground border-border' :
                                         result.platformId === 'weibo' ? 'bg-accent border-border' :
                                         result.platformId === 'zhihu' ? 'bg-accent border-border' :
                                         result.platformId === 'wechat' ? 'bg-accent border-border' :
