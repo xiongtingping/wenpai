@@ -458,7 +458,7 @@ function CheckboxCard({
             <div className="flex-shrink-0">
               {icon}
             </div>
-            <CardTitle className="text-sm font-semibold truncate leading-tight text-gray-900">{title}</CardTitle>
+            <CardTitle className="text-sm font-semibold truncate leading-tight text-foreground">{title}</CardTitle>
           </div>
           <div className="flex-shrink-0">
             <Checkbox
@@ -3919,7 +3919,7 @@ ${charCountControl.source === 'platform-specific'
       <div className="mb-8 mt-8">
         <Card variant="soft" className="rounded-xl">
           <CardHeader>
-            <h1 className="text-2xl font-bold text-gray-900">选择目标平台</h1>
+            <h1 className="text-2xl font-bold text-foreground">选择目标平台</h1>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-fr">
@@ -4372,18 +4372,18 @@ ${charCountControl.source === 'platform-specific'
                   key={model.id}
                   className={`p-3 border rounded-xl cursor-pointer transition-all hover:shadow-e1 ${
                     selectedModel === model.id
-                      ? 'border-blue-500 bg-blue-50/80 backdrop-blur-sm'
+                      ? 'border-primary bg-accent/80 backdrop-blur-sm'
                       : disabled
-                      ? 'border-gray-200 bg-gray-100/60 opacity-60 cursor-not-allowed'
-                      : 'border-gray-200 bg-white/90 backdrop-blur-sm hover:border-blue-300'
+                      ? 'border-border bg-muted/60 opacity-60 cursor-not-allowed'
+                      : 'border-border bg-card/90 backdrop-blur-sm hover:border-primary/50'
                   }`}
                   onClick={() => handleModelSelect(model.id, disabled)}
                 >
                   <div className="flex items-start space-x-2">
                     <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
                       selectedModel === model.id
-                        ? 'border-blue-500 bg-blue-500'
-                        : 'border-gray-300'
+                        ? 'border-primary bg-primary'
+                        : 'border-border'
                     }`}>
                       {selectedModel === model.id && (
                         <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -4391,15 +4391,15 @@ ${charCountControl.source === 'platform-specific'
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1 mb-1">
-                        <span className="font-medium text-blue-700 text-sm">{model.name}</span>
+                        <span className="font-medium text-foreground text-sm">{model.name}</span>
                         {badge && (
-                          <Badge className="bg-gray-200 text-gray-700 text-xs">{badge}</Badge>
+                          <Badge className="bg-muted text-muted-foreground text-xs">{badge}</Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-700 leading-relaxed">{model.description}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{model.description}</p>
                       {showUpgradeTip && (
                         <div
-                          className="mt-1 p-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700 cursor-pointer hover:bg-yellow-100 transition-colors"
+                          className="mt-1 p-1 bg-accent border border-border rounded text-xs text-muted-foreground cursor-pointer hover:bg-accent/80 transition-colors"
                           onClick={handleUpgradeClick}
                         >
                           <span className="mr-1">🔒</span>
@@ -4423,7 +4423,7 @@ ${charCountControl.source === 'platform-specific'
           {/* 开发环境订阅等级切换 */}
           {import.meta.env.DEV && (
             <div className="mt-3 flex gap-2 items-center">
-              <span className="text-xs text-gray-500">开发环境订阅等级：</span>
+              <span className="text-xs text-muted-foreground">开发环境订阅等级：</span>
               <Button size="sm" variant={userPlan==='trial'?'default':'outline'} onClick={()=>setUserPlan('trial')}>免费版</Button>
               <Button size="sm" variant={userPlan==='pro'?'default':'outline'} onClick={()=>setUserPlan('pro')}>专业版</Button>
               <Button size="sm" variant={userPlan==='premium'?'default':'outline'} onClick={()=>setUserPlan('premium')}>高级版</Button>
@@ -4437,26 +4437,26 @@ ${charCountControl.source === 'platform-specific'
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">模型详细说明</h4>
+              <h4 className="text-sm font-medium text-foreground mb-3">模型详细说明</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">特点：</span>
-                    <span className="text-xs text-gray-700">{selectedModelDescription.features}</span>
+                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">特点：</span>
+                    <span className="text-xs text-foreground">{selectedModelDescription.features}</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">场景：</span>
-                    <span className="text-xs text-gray-700">{selectedModelDescription.scenarios}</span>
+                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">场景：</span>
+                    <span className="text-xs text-foreground">{selectedModelDescription.scenarios}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">风格：</span>
-                    <span className="text-xs text-gray-700">{selectedModelDescription.style}</span>
+                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">风格：</span>
+                    <span className="text-xs text-foreground">{selectedModelDescription.style}</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-gray-500 min-w-[60px]">速度：</span>
-                    <span className="text-xs text-gray-700">{selectedModelDescription.speed}</span>
+                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">速度：</span>
+                    <span className="text-xs text-foreground">{selectedModelDescription.speed}</span>
                   </div>
                 </div>
               </div>
@@ -4500,10 +4500,10 @@ ${charCountControl.source === 'platform-specific'
         <div className="mt-8">
           {/* 生成状态指示器 */}
           {generating && results.length === 0 && (
-            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-4 p-4 bg-accent border border-border rounded-lg">
               <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span className="text-blue-800 font-medium">正在生成内容，请稍候...</span>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                <span className="text-foreground font-medium">正在生成内容，请稍候...</span>
               </div>
             </div>
           )}
@@ -4515,7 +4515,7 @@ ${charCountControl.source === 'platform-specific'
                 {/* 网络状态指示器 */}
                 {networkStatus === 'offline' && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-lg text-xs">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-destructive/10 text-destructive rounded-lg text-xs">
                       <span>🚫</span>
                       <span>网络断开</span>
                     </div>
@@ -4531,7 +4531,7 @@ ${charCountControl.source === 'platform-specific'
                 )}
                 {networkStatus === 'slow' && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-accent text-muted-foreground rounded-lg text-xs">
                       <span>🐌</span>
                       <span>网络较慢</span>
                     </div>
@@ -4546,7 +4546,7 @@ ${charCountControl.source === 'platform-specific'
                   </div>
                 )}
                 {networkStatus === 'online' && (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs">
+                  <div className="flex items-center gap-1 px-2 py-1 bg-accent text-foreground rounded-lg text-xs">
                     <span>🌐</span>
                     <span>网络正常</span>
                   </div>
@@ -4578,7 +4578,7 @@ ${charCountControl.source === 'platform-specific'
                     key={result.platformId}
                     value={result.platformId}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap min-w-fit transition-all duration-300 relative rounded-lg border-2 border-transparent hover:border-gray-300 hover:bg-gray-100 data-[state=active]:bg-white data-[state=active]:border-blue-500 data-[state=active]:shadow-md data-[state=active]:font-bold data-[state=active]:text-blue-700",
+                      "flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap min-w-fit transition-all duration-300 relative rounded-lg border-2 border-transparent hover:border-border hover:bg-accent data-[state=active]:bg-card data-[state=active]:border-primary data-[state=active]:shadow-md data-[state=active]:font-bold data-[state=active]:text-foreground",
                       // 状态样式
                       isCompleted && "tab-completed",
                       hasError && "tab-error",
@@ -4647,8 +4647,8 @@ ${charCountControl.source === 'platform-specific'
                                   <span className="text-white text-xs font-bold">标</span>
                                 </div>
                                 <div>
-                                  <h3 className="text-base font-semibold text-gray-900">智能标题生成</h3>
-                                  <p className="text-xs text-gray-500">基于内容智能生成吸引眼球的标题</p>
+                                  <h3 className="text-base font-semibold text-foreground">智能标题生成</h3>
+                                  <p className="text-xs text-muted-foreground">基于内容智能生成吸引眼球的标题</p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground bg-accent px-2 py-1 rounded border border-border">
