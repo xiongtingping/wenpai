@@ -635,38 +635,30 @@ export class AutomationEngine {
     `;
 
     const content = document.createElement('div');
-    content.style.cssText = `
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      max-width: 500px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      max-height: 80vh;
-      overflow-y: auto;
-    `;
+    content.className = 'automation-modal-content max-h-[80vh] overflow-y-auto';
 
     content.innerHTML = `
-      <h3 style="margin: 0 0 20px 0; color: #333; display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 24px;">🚀</span>
+      <h3 class="automation-modal-header">
+        <span class="automation-modal-icon">🚀</span>
         ${platformContent.platformName} 发布指引
       </h3>
 
-      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <p style="margin: 0; font-weight: 500; color: #495057;">✅ 内容已复制到剪贴板</p>
-        <p style="margin: 5px 0 0 0; font-size: 14px; color: #6c757d;">
+      <div class="automation-modal-success-box">
+        <p class="automation-modal-success-text">✅ 内容已复制到剪贴板</p>
+        <p class="automation-modal-info-text">
           字符数：${platformContent.content.length} 字符
         </p>
         ${hashtags ? `
-          <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 6px;">
-            <p style="margin: 0; font-weight: 500; color: #1976d2; font-size: 14px;">🏷️ 智能标签已包含：</p>
-            <p style="margin: 5px 0 0 0; font-size: 12px; color: #1976d2;">${hashtags}</p>
+          <div class="automation-modal-hashtag-box">
+            <p class="automation-modal-hashtag-title">🏷️ 智能标签已包含：</p>
+            <p class="automation-modal-hashtag-content">${hashtags}</p>
           </div>
         ` : ''}
       </div>
 
-      <div style="margin-bottom: 20px;">
-        <h4 style="margin: 0 0 10px 0; color: #495057; font-size: 16px;">📋 操作步骤：</h4>
-        <ol style="margin: 0; padding-left: 20px; color: #666; line-height: 1.6;">
+      <div class="automation-modal-section">
+        <h4 class="automation-modal-section-title">📋 操作步骤：</h4>
+        <ol class="automation-modal-list">
           <li>在打开的页面中找到内容输入框</li>
           <li>粘贴内容 (Ctrl+V 或 Cmd+V)</li>
           ${hashtags ? '<li>标签已自动包含在内容中，无需单独添加</li>' : '<li>根据需要添加相关标签</li>'}
@@ -676,32 +668,16 @@ export class AutomationEngine {
         </ol>
       </div>
 
-      <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="margin: 0 0 10px 0; color: #1976d2; font-size: 14px;">💡 发布提示：</h4>
-        <ul style="margin: 0; padding-left: 20px; color: #1976d2; font-size: 14px; line-height: 1.5;">
+      <div class="automation-modal-tips-box">
+        <h4 class="automation-modal-tips-title">💡 发布提示：</h4>
+        <ul class="automation-modal-tips-list">
           ${this.getPlatformTips(platformContent.platformId).map(tip => `<li>${tip}</li>`).join('')}
         </ul>
       </div>
 
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button id="copyAgain" style="
-          background: #6c757d;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-        ">重新复制</button>
-        <button id="closeInstructions" style="
-          background: #007bff;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-        ">我知道了</button>
+      <div class="automation-modal-buttons">
+        <button id="copyAgain" class="automation-modal-button automation-modal-button-secondary">重新复制</button>
+        <button id="closeInstructions" class="automation-modal-button automation-modal-button-primary">我知道了</button>
       </div>
     `;
 
@@ -895,30 +871,24 @@ export class AutomationEngine {
     `;
 
     const content = document.createElement('div');
-    content.style.cssText = `
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      max-width: 500px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    `;
+    content.className = 'automation-modal-content';
 
     content.innerHTML = `
-      <h3 style="margin: 0 0 20px 0; color: #333; display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 24px;">⚠️</span>
+      <h3 class="automation-modal-header">
+        <span class="automation-modal-icon">⚠️</span>
         ${platformContent.platformName} 转发失败
       </h3>
 
-      <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeaa7;">
-        <p style="margin: 0; font-weight: 500; color: #856404;">✅ 内容已复制到剪贴板</p>
-        <p style="margin: 5px 0 0 0; font-size: 14px; color: #856404;">
+      <div class="automation-modal-warning-box">
+        <p class="automation-modal-warning-text">✅ 内容已复制到剪贴板</p>
+        <p class="automation-modal-warning-info">
           已自动打开 ${platformContent.platformName} 发布页面
         </p>
       </div>
 
-      <div style="margin-bottom: 20px;">
-        <h4 style="margin: 0 0 10px 0; color: #495057; font-size: 16px;">📋 请手动完成发布：</h4>
-        <ol style="margin: 0; padding-left: 20px; color: #666; line-height: 1.6;">
+      <div class="automation-modal-section">
+        <h4 class="automation-modal-section-title">📋 请手动完成发布：</h4>
+        <ol class="automation-modal-list">
           <li>在打开的页面中找到内容输入框</li>
           <li>粘贴内容 (Ctrl+V 或 Cmd+V)</li>
           <li>根据平台要求添加图片、标签等</li>
@@ -926,34 +896,10 @@ export class AutomationEngine {
         </ol>
       </div>
 
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button id="copyAgain" style="
-          background: #6c757d;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-        ">重新复制</button>
-        <button id="openAgain" style="
-          background: #28a745;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-        ">重新打开页面</button>
-        <button id="closeFallback" style="
-          background: #007bff;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-        ">我知道了</button>
+      <div class="automation-modal-buttons">
+        <button id="copyAgain" class="automation-modal-button automation-modal-button-secondary">重新复制</button>
+        <button id="openAgain" class="automation-modal-button automation-modal-button-success">重新打开页面</button>
+        <button id="closeFallback" class="automation-modal-button automation-modal-button-primary">我知道了</button>
       </div>
     `;
 

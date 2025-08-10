@@ -262,7 +262,7 @@ const SimpleAuthTestPage: React.FC = () => {
           </button>
         </div>
 
-        <div style={{ textAlign: 'center', fontSize: '14px', color: '#666' }}>
+        <div className="text-center text-sm text-secondary">
           <p>点击按钮测试基本的认证功能</p>
           <p>所有操作都会记录到浏览器控制台</p>
         </div>

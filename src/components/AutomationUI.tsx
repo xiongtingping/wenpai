@@ -94,15 +94,14 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
       `;
 
       modal.innerHTML = `
-        <div style="background: white; padding: 30px; border-radius: 12px; max-width: 400px; text-align: center;">
-          <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-          <h3 style="margin: 0 0 15px 0; color: #333;">请选择转发平台</h3>
-          <p style="margin: 0 0 20px 0; color: #666; line-height: 1.5;">
+        <div class="automation-modal-content text-center max-w-sm">
+          <div class="text-5xl mb-5">⚠️</div>
+          <h3 class="m-0 mb-4 text-primary">请选择转发平台</h3>
+          <p class="m-0 mb-5 text-secondary leading-relaxed">
             请至少选择一个有内容的平台进行自动化转发
           </p>
           <button onclick="document.body.removeChild(this.closest('div').parentElement)"
-                  style="background: #007bff; color: white; border: none; padding: 10px 20px;
-                         border-radius: 6px; cursor: pointer;">我知道了</button>
+                  class="automation-modal-button automation-modal-button-primary">我知道了</button>
         </div>
       `;
 

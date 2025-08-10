@@ -1,5 +1,6 @@
 @import './styles/number-display-fix.css';
 @import './styles/typography-system.css';
+@import './automation/automation-modal.css';
 
 /**
  * **IMPORTANT** Never break the original structure, only add highly customized new styles

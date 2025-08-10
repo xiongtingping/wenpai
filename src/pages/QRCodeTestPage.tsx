@@ -148,32 +148,18 @@ export default function QRCodeTestPage() {
           </button>
         </div>
         
-        <div style={{ textAlign: 'center' }}>
+        <div className="text-center">
           {loading ? (
-            <div style={{ padding: '32px' }}>
-              <div style={{ 
-                display: 'inline-block',
-                width: '24px',
-                height: '24px',
-                border: '2px solid #e5e7eb',
-                borderTop: '2px solid #3b82f6',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></div>
-              <p style={{ margin: '8px 0 0 0' }}>正在生成二维码...</p>
+            <div className="p-8">
+              <div className="inline-block w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin"></div>
+              <p className="mt-2 mb-0 text-secondary">正在生成二维码...</p>
             </div>
           ) : error ? (
-            <div style={{ padding: '32px' }}>
-              <div style={{ color: '#dc2626', marginBottom: '16px' }}>{error}</div>
+            <div className="p-8">
+              <div className="text-destructive mb-4">{error}</div>
               <button
                 onClick={handleRefresh}
-                style={{
-                  padding: '8px 16px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer'
-                }}
+                className="px-4 py-2 border border-border rounded bg-background cursor-pointer text-sm hover:bg-accent"
               >
                 重试
               </button>
@@ -181,39 +167,27 @@ export default function QRCodeTestPage() {
           ) : qrCodeDataURL ? (
             <div>
               {price !== null && (
-                <div style={{ marginBottom: '16px' }}>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '8px 16px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '4px',
-                    fontSize: '1.125rem',
-                    fontWeight: '500'
-                  }}>
+                <div className="mb-4">
+                  <span className="inline-block px-4 py-2 border border-border rounded text-lg font-medium bg-background">
                     ¥{price.toFixed(2)}
                   </span>
                 </div>
               )}
-              
-              <div style={{ marginBottom: '16px' }}>
-                <img 
-                  src={qrCodeDataURL} 
-                  alt="支付宝二维码" 
-                  style={{
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '8px',
-                    width: '300px',
-                    height: '300px'
-                  }}
+
+              <div className="mb-4">
+                <img
+                  src={qrCodeDataURL}
+                  alt="支付宝二维码"
+                  className="border-2 border-border rounded-lg w-[300px] h-[300px]"
                 />
               </div>
-              
-              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                <p style={{ margin: '0 0 4px 0' }}>扫码后会跳转到Creem安全支付页，请放心支付</p>
+
+              <div className="text-sm text-secondary">
+                <p className="m-0 mb-1">扫码后会跳转到Creem安全支付页，请放心支付</p>
               </div>
             </div>
           ) : (
-            <div style={{ padding: '32px', color: '#6b7280' }}>
+            <div className="p-8 text-secondary">
               请选择测试配置生成二维码
             </div>
           )}
@@ -222,17 +196,13 @@ export default function QRCodeTestPage() {
 
       {/* 调试信息 */}
       {qrCodeDataURL && (
-        <div style={{ 
-          border: '1px solid #e5e7eb', 
-          borderRadius: '8px', 
-          padding: '16px'
-        }}>
-          <h3 style={{ margin: '0 0 16px 0', fontSize: '1.1rem', fontWeight: 'bold' }}>调试信息</h3>
-          <div style={{ fontSize: '0.875rem' }}>
-            <div style={{ marginBottom: '8px' }}>
+        <div className="border border-border rounded-lg p-4">
+          <h3 className="m-0 mb-4 text-lg font-bold text-primary">调试信息</h3>
+          <div className="text-sm text-secondary">
+            <div className="mb-2">
               <strong>二维码数据长度:</strong> {qrCodeDataURL.length} 字符
             </div>
-            <div style={{ marginBottom: '8px' }}>
+            <div className="mb-2">
               <strong>价格:</strong> {price !== null ? `¥${price.toFixed(2)}` : '未获取'}
             </div>
             <div>

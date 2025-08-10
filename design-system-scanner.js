@@ -122,10 +122,16 @@ function scanFile(filePath) {
         }
       });
       
-      // 检查内联样式
-      if (line.includes('style=') && 
-          (line.includes('color:') || line.includes('background-color:') || 
+      // 检查内联样式 (排除SVG中的动态样式)
+      if (line.includes('style=') &&
+          (line.includes('color:') || line.includes('background-color:') ||
            line.includes('font-size:') || line.includes('font-weight:'))) {
+
+        // 排除SVG中的动态样式 (stop-color 和 stop-opacity)
+        if (line.includes('stop-color') || line.includes('stop-opacity')) {
+          return; // 跳过SVG动态样式
+        }
+
         issues.push({
           type: 'inline-styles',
           pattern: 'style attribute',

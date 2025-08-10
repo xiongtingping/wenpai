@@ -1,0 +1,129 @@
+/* 自动化引擎模态框样式 - 使用设计令牌 */
+
+.automation-modal-content {
+  @apply bg-background text-primary p-6 rounded-lg shadow-lg max-w-lg mx-auto;
+}
+
+.automation-modal-header {
+  @apply m-0 mb-5 text-primary flex items-center gap-2.5;
+}
+
+.automation-modal-icon {
+  @apply text-2xl;
+}
+
+.automation-modal-success-box {
+  @apply bg-accent p-4 rounded-lg mb-5;
+}
+
+.automation-modal-success-text {
+  @apply m-0 font-medium text-secondary;
+}
+
+.automation-modal-info-text {
+  @apply mt-1 mb-0 text-sm text-secondary;
+}
+
+.automation-modal-hashtag-box {
+  @apply mt-2.5 p-2.5 bg-accent rounded-md;
+}
+
+.automation-modal-hashtag-title {
+  @apply m-0 font-medium text-accent text-sm;
+}
+
+.automation-modal-hashtag-content {
+  @apply mt-1 mb-0 text-xs text-accent;
+}
+
+.automation-modal-section {
+  @apply mb-5;
+}
+
+.automation-modal-section-title {
+  @apply m-0 mb-2.5 text-secondary text-base;
+}
+
+.automation-modal-list {
+  @apply m-0 pl-5 text-secondary leading-relaxed;
+}
+
+.automation-modal-tips-box {
+  @apply bg-accent p-4 rounded-lg mb-5;
+}
+
+.automation-modal-tips-title {
+  @apply m-0 mb-2.5 text-accent text-sm;
+}
+
+.automation-modal-tips-list {
+  @apply m-0 pl-5 text-accent text-sm leading-normal;
+}
+
+.automation-modal-buttons {
+  @apply flex gap-2.5 justify-end;
+}
+
+.automation-modal-button {
+  @apply border-0 px-4 py-2 rounded-md cursor-pointer text-sm transition-opacity hover:opacity-90;
+}
+
+.automation-modal-button-secondary {
+  @apply bg-secondary text-primary-foreground;
+}
+
+.automation-modal-button-primary {
+  @apply bg-primary text-primary-foreground;
+}
+
+.automation-modal-button-success {
+  @apply bg-green-600 text-white;
+}
+
+/* 警告模态框样式 */
+.automation-modal-warning-box {
+  @apply bg-yellow-50 p-4 rounded-lg mb-5 border border-yellow-200;
+}
+
+.automation-modal-warning-text {
+  @apply m-0 font-medium text-yellow-800;
+}
+
+.automation-modal-warning-info {
+  @apply mt-1 mb-0 text-sm text-yellow-800;
+}
+
+/* 深色主题适配 */
+[data-theme="dark"] .automation-modal-warning-box {
+  @apply bg-yellow-900/20 border-yellow-700/30;
+}
+
+[data-theme="dark"] .automation-modal-warning-text,
+[data-theme="dark"] .automation-modal-warning-info {
+  @apply text-yellow-200;
+}
+
+/* 其他主题适配 */
+[data-theme="blue"] .automation-modal-hashtag-box,
+[data-theme="blue"] .automation-modal-tips-box {
+  @apply bg-blue-50;
+}
+
+[data-theme="blue"] .automation-modal-hashtag-title,
+[data-theme="blue"] .automation-modal-hashtag-content,
+[data-theme="blue"] .automation-modal-tips-title,
+[data-theme="blue"] .automation-modal-tips-list {
+  @apply text-blue-700;
+}
+
+[data-theme="green"] .automation-modal-hashtag-box,
+[data-theme="green"] .automation-modal-tips-box {
+  @apply bg-green-50;
+}
+
+[data-theme="green"] .automation-modal-hashtag-title,
+[data-theme="green"] .automation-modal-hashtag-content,
+[data-theme="green"] .automation-modal-tips-title,
+[data-theme="green"] .automation-modal-tips-list {
+  @apply text-green-700;
+}
