@@ -284,7 +284,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-primary bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2 flex-1">
@@ -341,7 +341,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-primary bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2 flex-1">
@@ -404,7 +404,7 @@ export function QuickReferenceSelector({ onSelect, className, multiSelect = fals
                     </div>
                   ) : (
                     filteredItems.map((item) => (
-                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-blue-500 bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
+                      <Card key={item.id} className={`cursor-pointer hover:shadow-md transition-shadow ${multiSelect && selectedItems.has(item.id) ? 'ring-2 ring-primary bg-accent' : ''}`} onClick={() => handleSelectItem(item)}>
                         <CardHeader className="pb-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2 flex-1">

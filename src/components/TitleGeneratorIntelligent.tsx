@@ -1480,7 +1480,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                 key={title.id}
                 className={`border rounded-lg p-3 transition-colors ${
                   selectedTitle === title.title
-                    ? 'border-primary bg-accent ring-1 ring-blue-200'
+                    ? 'border-primary bg-accent ring-1 ring-primary/20'
                     : 'border-border hover:border-border hover:bg-accent'
                 }`}
               >

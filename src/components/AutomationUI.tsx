@@ -203,7 +203,7 @@ export const AutomationUI: React.FC<AutomationUIProps> = ({
                     checked={selectedPlatforms.includes(platform.id)}
                     disabled={!platform.hasContent}
                     onChange={() => {}} // 由父级div的onClick处理
-                    className="rounded border-border text-primary focus:ring-purple-500"
+                    className="rounded border-border text-primary focus:ring-primary"
                   />
                   <span className="font-medium text-foreground">{platform.name}</span>
                 </div>

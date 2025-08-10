@@ -185,7 +185,7 @@ export const FeaturesSection: React.FC = () => {
   return (
     <section className="py-16 relative overflow-hidden">
       {/* 背景装饰 - 顶部淡渐变色块 */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-indigo-50/30 to-transparent"></div>
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-accent/30 to-transparent"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         {/* 1️⃣ Banner 标题区域优化 */}

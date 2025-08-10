@@ -120,7 +120,7 @@ export default function PaymentSuccessPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-primary particle-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-foreground mx-auto"></div>
           <p className="mt-4 text-primary-foreground">正在处理支付结果...</p>
         </div>
       </div>

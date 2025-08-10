@@ -819,7 +819,7 @@ ${aiStyle === 'romantic' ? '💕 爱情是生活中最美好的旋律' :
                     className="h-8 w-8 p-0"
                   >
                     <Heart 
-                      className={`w-4 h-4 ${template.isFavorite ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`} 
+                      className={`w-4 h-4 ${template.isFavorite ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`} 
                     />
                   </Button>
                 </div>

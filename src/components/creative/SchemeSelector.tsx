@@ -109,7 +109,7 @@ export function SchemeSelector({
               {activeTab === 'scheme' && (
                 <div className="space-y-4">
                   {contentSchemes.map((scheme) => (
-                    <Card key={scheme.id} className="border-l-4 border-l-blue-500">
+                    <Card key={scheme.id} className="border-l-4 border-l-primary">
                       <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
                           <span className="text-2xl">{scheme.icon}</span>
@@ -163,7 +163,7 @@ export function SchemeSelector({
               {activeTab === 'style' && (
                 <div className="space-y-4">
                   {getAvailableStyles().map((style) => (
-                    <Card key={style.id} className="border-l-4 border-l-purple-500">
+                    <Card key={style.id} className="border-l-4 border-l-primary">
                       <CardHeader className="pb-3">
                         <div className="flex items-center gap-2">
                           <span className="text-2xl">{style.icon}</span>
@@ -265,7 +265,7 @@ export function SchemeSelector({
               key={scheme.id}
               className={`cursor-pointer transition-all hover:shadow-md ${
                 selectedScheme === scheme.id 
-                  ? 'ring-2 ring-blue-500 bg-accent' 
+                  ? 'ring-2 ring-primary bg-accent' 
                   : 'hover:bg-accent'
               }`}
               onClick={() => handleSchemeChange(scheme.id)}

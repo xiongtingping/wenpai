@@ -114,7 +114,7 @@ export function PricingSection() {
   return (
     <section id="pricing" className="py-12 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
       {/* 装饰背景 - 突出定价方案推荐区 */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-blue-50/40 to-transparent"></div>
+      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-accent/40 to-transparent"></div>
       
       <div className="container mx-auto px-4 md:px-12 relative z-10">
         {/* 🎯 标题区域优化 */}
@@ -295,7 +295,7 @@ export function PricingSection() {
                     <th className="border border-border px-4 py-3 text-center font-semibold text-foreground bg-accent w-32">高级版</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   <tr className="hover:bg-accent/50 transition-colors">
                     <td className="border border-border px-6 py-3 font-medium text-foreground">AI内容适配器</td>
                     <td className="border border-border px-4 py-3 text-center">

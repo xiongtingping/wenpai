@@ -465,7 +465,7 @@ export default function EnhancedPaymentPage() {
           {/* 右侧：支付区域 */}
           <div className="space-y-6">
             {showQRCode && selectedPlan ? (
-              <Card data-qr-code className="border-primary bg-gradient-to-br from-blue-50 to-white">
+              <Card data-qr-code className="border-primary bg-accent">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">

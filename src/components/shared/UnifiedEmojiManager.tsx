@@ -657,7 +657,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                     onClick={() => setSortMode(opt.key)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                       sortMode === opt.key
-                        ? 'bg-card text-foreground ring-2 ring-white ring-offset-2 ring-offset-white/20'
+                        ? 'bg-card text-foreground ring-2 ring-primary ring-offset-2 ring-offset-background'
                         : 'bg-card/20 text-primary-foreground hover:bg-card/30'
                     }`}
                   >
@@ -905,7 +905,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 <div
                   key={emoji.id}
                   data-emoji-id={emoji.id}
-                  className={`avatar-card ${highlightedId === emoji.id ? 'ring-4 ring-yellow-400' : ''}`}
+                  className={`avatar-card ${highlightedId === emoji.id ? 'ring-4 ring-primary' : ''}`}
                   onClick={(e) => handleEmojiClick(emoji, e)}
                   style={{}}
                 >
@@ -919,7 +919,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                       className="absolute top-2 right-2 w-6 h-6 rounded-full bg-card shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     >
                       <Heart
-                        className={`w-3 h-3 ${isFavorited ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`}
+                        className={`w-3 h-3 ${isFavorited ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
                       />
                     </button>
                   )}
@@ -971,7 +971,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                 <div
                   key={emoji.id}
                   data-emoji-id={emoji.id}
-                  className={`bg-card rounded-lg p-3.5 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md flex items-center gap-3 group ${highlightedId === emoji.id ? 'ring-4 ring-yellow-400' : ''}`}
+                  className={`bg-card rounded-lg p-3.5 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md flex items-center gap-3 group ${highlightedId === emoji.id ? 'ring-4 ring-primary' : ''}`}
                   onClick={(e) => handleEmojiClick(emoji, e)}
                 >
                   {/* Emoji显示 */}
@@ -1003,7 +1003,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                         }}
                         className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-muted transition-colors"
                       >
-                        <Heart className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`} />
+                        <Heart className={`w-4 h-4 ${isFavorited ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`} />
                       </button>
                     )}
                       {allowDownload && (
@@ -1048,7 +1048,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
                       className="absolute top-4 right-4 w-8 h-8 rounded-full bg-card shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     >
                       <Heart
-                        className={`w-4 h-4 ${isFavorited ? 'fill-red-500 text-destructive' : 'text-muted-foreground'}`}
+                        className={`w-4 h-4 ${isFavorited ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
                       />
                     </button>
                   )}

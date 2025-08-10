@@ -125,7 +125,7 @@ export function StyleSelector({
               {styles.map((style) => {
                 const styleTemplate = getStylePromptTemplate(style.id);
                 return (
-                  <Card key={style.id} className="border-l-4 border-l-blue-500">
+                  <Card key={style.id} className="border-l-4 border-l-primary">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-2">
                         <span className="text-2xl">{style.icon}</span>
@@ -204,7 +204,7 @@ export function StyleSelector({
             key={style.id}
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStyle === style.id 
-                ? 'ring-2 ring-blue-500 bg-accent' 
+                ? 'ring-2 ring-primary bg-accent' 
                 : 'hover:bg-accent'
             }`}
             onClick={() => handleStyleChange(style.id)}

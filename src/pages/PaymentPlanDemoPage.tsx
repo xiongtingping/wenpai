@@ -133,7 +133,7 @@ export default function PaymentPlanDemoPage() {
               return (
                 <Card 
                   key={plan.id}
-                  className={`relative ${plan.recommended ? "ring-2 ring-blue-200" : ""}`}
+                  className={`relative ${plan.recommended ? "ring-2 ring-primary/20" : ""}`}
                 >
                   {plan.recommended && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">

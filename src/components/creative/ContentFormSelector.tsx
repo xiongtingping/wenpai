@@ -124,7 +124,7 @@ export function ContentFormSelector({
                     <Card
                       key={form.id}
                       className={`cursor-pointer transition-all hover:shadow-e1 p-3 rounded-xl ${
-                        selectedFormId === form.id ? 'ring-2 ring-blue-500 bg-accent/80 backdrop-blur-sm' : 'bg-card/90 backdrop-blur-sm'
+                        selectedFormId === form.id ? 'ring-2 ring-primary bg-accent/80 backdrop-blur-sm' : 'bg-card/90 backdrop-blur-sm'
                       }`}
                       onClick={() => {
                         const newFormId = selectedFormId === form.id ? undefined : form.id;
@@ -228,7 +228,7 @@ export function ContentFormSelector({
                 <Card
                   key={style.id}
                   className={`cursor-pointer transition-all hover:shadow-e1 p-3 rounded-xl ${
-                    selectedStyle === style.id ? 'ring-2 ring-blue-500 bg-accent/80 backdrop-blur-sm' : 'bg-card/90 backdrop-blur-sm'
+                    selectedStyle === style.id ? 'ring-2 ring-primary bg-accent/80 backdrop-blur-sm' : 'bg-card/90 backdrop-blur-sm'
                   }`}
                   onClick={() => {
                     // 如果点击的是已选中的风格，则取消选择

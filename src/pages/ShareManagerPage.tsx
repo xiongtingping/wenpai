@@ -195,7 +195,7 @@ export default function ShareManagerPage() {
       id: 'douyin',
       name: '抖音',
       icon: <Video className="w-4 h-4" />,
-      color: 'bg-black',
+      color: 'bg-foreground',
       maxLength: 100,
       features: ['视频', '话题', '音乐'],
       status: 'inactive',

@@ -318,7 +318,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
                   <span>#{tag.tag}</span>
                   <button
                     onClick={() => setEditingTag(tag.id)}
-                    className="ml-1 hover:bg-black hover:bg-opacity-10 rounded p-0.5"
+                    className="ml-1 hover:bg-accent rounded p-0.5"
                   >
                     <Edit3 className="h-3 w-3" />
                   </button>
@@ -327,7 +327,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
               
               <button
                 onClick={() => removeTag(tag.id)}
-                className="ml-1 hover:bg-black hover:bg-opacity-10 rounded p-0.5"
+                className="ml-1 hover:bg-accent rounded p-0.5"
               >
                 <X className="h-3 w-3" />
               </button>
