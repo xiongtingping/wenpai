@@ -27,7 +27,7 @@ export function PremiumFeatureDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-purple-600">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <Lock className="h-5 w-5" />
             高级功能权限
           </DialogTitle>
@@ -35,18 +35,18 @@ export function PremiumFeatureDialog({
         
         <div className="space-y-4">
           <div className="text-center">
-            <div className="text-xl font-bold text-gray-800 mb-2">
+            <div className="text-xl font-bold text-foreground mb-2">
               {featureName}
             </div>
-            <p className="text-gray-600">{featureDescription}</p>
+            <p className="text-muted-foreground">{featureDescription}</p>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
-            <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+          <div className="p-4 rounded-lg border border-border bg-accent">
+            <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
               <Crown className="h-4 w-4" />
               升级高级版解锁特权
             </h4>
-            <ul className="text-sm text-purple-700 space-y-1">
+            <ul className="text-sm text-muted-foreground space-y-1">
               <li>• 不限量AI内容适配</li>
               <li>• 创意魔方功能</li>
               <li>• 全网雷达功能</li>
@@ -57,8 +57,8 @@ export function PremiumFeatureDialog({
             </ul>
           </div>
 
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-3 rounded-lg border border-amber-200">
-            <div className="flex items-center gap-2 text-amber-800">
+          <div className="p-3 rounded-lg border border-border bg-accent">
+            <div className="flex items-center gap-2 text-foreground">
               <Sparkles className="h-4 w-4" />
               <span className="text-sm font-medium">限时优惠：年付省80-202元</span>
             </div>
@@ -69,9 +69,9 @@ export function PremiumFeatureDialog({
           <Button variant="outline" onClick={onClose}>
             稍后再说
           </Button>
-          <Button 
+          <Button
             onClick={onUpgrade}
-            className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700"
+            className="btn-upgrade-gradient text-primary-foreground"
           >
             立即升级解锁
             <ArrowRight className="h-4 w-4 ml-2" />

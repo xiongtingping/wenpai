@@ -202,7 +202,7 @@ export function AvatarUpload({
       <div className="relative">
         <Avatar className={getSizeClass()}>
           <AvatarImage src={avatarUrl} alt={getUserAltText({ nickname }, '头像')} />
-          <AvatarFallback className="bg-blue-500 text-white text-lg font-semibold">
+          <AvatarFallback className="bg-primary text-primary-foreground text-lg font-semibold">
             {getInitials()}
           </AvatarFallback>
         </Avatar>
@@ -210,7 +210,7 @@ export function AvatarUpload({
         {/* 上传状态指示器 */}
         {(isUploading || isGenerating) && (
           <div className="absolute inset-0 bg-black/20 rounded-full flex items-center justify-center">
-            <RefreshCw className="h-6 w-6 text-white animate-spin" />
+            <RefreshCw className="h-6 w-6 text-primary-foreground animate-spin" />
           </div>
         )}
       </div>
@@ -254,7 +254,7 @@ export function AvatarUpload({
       />
 
       {/* 提示信息 */}
-      <div className="text-xs text-gray-500 text-center">
+      <div className="text-xs text-muted-foreground text-center">
         <p>或点击"随机头像"生成个性化头像</p>
       </div>
     </div>

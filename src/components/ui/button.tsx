@@ -19,30 +19,30 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground hover:-translate-y-0.5",
         link: "text-primary underline-offset-4 hover:underline hover:-translate-y-0.5",
 
-        // 🎨 Modern Flat + Soft Neumorphism 新增变体
-        soft: "bg-gradient-to-b from-white to-gray-50 border border-gray-200 text-gray-700 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 [box-shadow:inset_0_1px_0_rgba(255,255,255,0.9)] hover:[box-shadow:var(--shadow-e1),inset_0_1px_0_rgba(255,255,255,0.9)]",
-        neumorph: "bg-gradient-to-b from-gray-50 to-gray-100 border border-gray-200 text-gray-700 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 [box-shadow:inset_0_2px_4px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.9)] active:[box-shadow:inset_0_3px_6px_rgba(0,0,0,0.08)]",
+        // 🎨 Modern Flat + Soft Neumorphism 新增变体（令牌化）
+        soft: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 hover:bg-accent",
+        neumorph: "bg-card border border-border text-foreground shadow-e0 hover:shadow-e1 hover:-translate-y-0.5 [box-shadow:inset_0_2px_4px_rgba(0,0,0,0.04)] active:[box-shadow:inset_0_3px_6px_rgba(0,0,0,0.08)]",
 
-        // 统一渐变变体
-        gradient: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-indigo-700 hover:to-purple-700",
-        gradientSecondary: "bg-gradient-to-r from-cyan-500 to-teal-600 text-white border-0 shadow-e1 hover:shadow-glow-secondary hover:-translate-y-0.5 hover:from-cyan-600 hover:to-teal-700",
-        gradientAccent: "bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5 hover:from-amber-600 hover:to-orange-700",
-        gradientSuccess: "bg-gradient-to-r from-emerald-500 to-green-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-emerald-600 hover:to-green-700",
-        gradientDanger: "bg-gradient-to-r from-red-500 to-rose-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-red-600 hover:to-rose-700",
+        // 统一渐变变体（令牌化到 CSS 变量）
+        gradient: "btn-gradient-primary text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        gradientSecondary: "btn-gradient-secondary text-primary-foreground shadow-e1 hover:shadow-glow-secondary hover:-translate-y-0.5",
+        gradientAccent: "btn-gradient-accent text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
+        gradientSuccess: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        gradientDanger: "gradient-bg-danger text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
 
-        // 保留原有变体（向后兼容）
-        gradientGreen: "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-green-600 hover:to-emerald-700",
-        gradientOrange: "bg-gradient-to-r from-orange-500 to-red-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-orange-600 hover:to-red-700",
-        glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        premium: "bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-yellow-500 hover:to-orange-600 animate-pulse",
-        success: "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-green-600 hover:to-emerald-700",
-        warning: "bg-gradient-to-r from-yellow-500 to-orange-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-yellow-600 hover:to-orange-700",
-        info: "bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5 hover:from-blue-600 hover:to-cyan-700",
-        neon: "bg-transparent border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        neonPurple: "bg-transparent border-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        neonGreen: "bg-transparent border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
-        dark: "bg-gray-900 text-white hover:bg-gray-800 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
-        light: "bg-gray-100 text-gray-900 hover:bg-gray-200 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
+        // 保留原有变体名（令牌化实现）
+        gradientGreen: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        gradientOrange: "gradient-bg-warning text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
+        glass: "bg-background/20 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/30 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        premium: "btn-gradient-accent text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5 animate-pulse",
+        success: "gradient-bg-success text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        warning: "gradient-bg-warning text-primary-foreground shadow-e1 hover:shadow-glow-accent hover:-translate-y-0.5",
+        info: "bg-primary/90 text-primary-foreground border-0 shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        neon: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        neonPurple: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        neonGreen: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-e1 hover:shadow-glow hover:-translate-y-0.5",
+        dark: "bg-foreground text-primary-foreground hover:bg-foreground/90 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        light: "bg-muted text-foreground hover:bg-muted/80 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
       },
       size: {
         default: "h-10 px-4 py-2",
