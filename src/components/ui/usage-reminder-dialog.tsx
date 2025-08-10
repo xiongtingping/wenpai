@@ -69,7 +69,7 @@ export function UsageReminderDialog({
 
           {userType === 'trial' && (
             <div className="p-4 rounded-lg border border-border bg-accent">
-              <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                 <Crown className="h-4 w-4" />
                 升级专业版特权
               </h4>
