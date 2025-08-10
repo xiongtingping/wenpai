@@ -42,14 +42,14 @@ export class DeepSeekProvider implements AIProviderInterface {
    * 检查是否可用
    */
   isAvailable(): boolean {
-    return this.isConfiguhsl(var(--destructive))();
+    return this.isConfigured();
   }
 
   /**
    * 检查是否已配置
    * 🔓 UNLOCKED: AI 禁止修改此方法
    */
-  isConfiguhsl(var(--destructive))(): boolean {
+  isConfigured(): boolean {
     return !!(this.apiKey && this.apiKey !== 'your_deepseek_key_here' && this.apiKey.startsWith('sk-'));
   }
 
@@ -93,7 +93,7 @@ export class DeepSeekProvider implements AIProviderInterface {
         hasContext: !!(params.context && params.context.length > 0)
       });
 
-      if (!this.isConfiguhsl(var(--destructive))()) {
+      if (!this.isConfigured()) {
         throw new Error('DeepSeek API密钥未配置');
       }
 
@@ -196,7 +196,7 @@ export class DeepSeekProvider implements AIProviderInterface {
     return {
       name: this.name,
       displayName: 'DeepSeek',
-      configuhsl(var(--destructive)): this.isConfiguhsl(var(--destructive))(),
+      configured: this.isConfigured(),
       models: {
         chat: ['deepseek-chat', 'deepseek-coder'],
         image: [] // DeepSeek暂不支持图像生成

@@ -62,23 +62,23 @@ export function AIConnectionTest() {
       
       switch (service.name) {
         case 'OpenAI':
-          configuhsl(var(--destructive)) = !!import.meta.env.VITE_OPENAI_API_KEY && 
+          configured = !!import.meta.env.VITE_OPENAI_API_KEY &&
                       !import.meta.env.VITE_OPENAI_API_KEY.includes('your-');
           break;
         case 'DeepSeek':
-          configuhsl(var(--destructive)) = !!import.meta.env.VITE_DEEPSEEK_API_KEY && 
+          configured = !!import.meta.env.VITE_DEEPSEEK_API_KEY &&
                       !import.meta.env.VITE_DEEPSEEK_API_KEY.includes('your-');
           break;
         case 'Gemini':
-          configuhsl(var(--destructive)) = !!import.meta.env.VITE_GEMINI_API_KEY && 
+          configured = !!import.meta.env.VITE_GEMINI_API_KEY &&
                       !import.meta.env.VITE_GEMINI_API_KEY.includes('your-');
           break;
       }
 
       return {
         ...service,
-        status: configuhsl(var(--destructive)) ? 'not_configuhsl(var(--destructive))' : 'not_configuhsl(var(--destructive))',
-        message: configuhsl(var(--destructive)) ? '已配置，待测试' : '未配置API密钥'
+        status: configured ? 'configured' : 'not_configured',
+        message: configured ? '已配置，待测试' : '未配置API密钥'
       };
     });
 
