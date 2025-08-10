@@ -984,7 +984,7 @@ export default function HotTopicsPage() {
                                   className="flex-1 text-xs h-6 px-2"
                                   onClick={() => handleViewSource(topic)}
                                 >
-                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  <Eye className="w-3 h-3 mr-1" />
                                   查看
                                 </Button>
                                 <Button
@@ -1042,7 +1042,7 @@ export default function HotTopicsPage() {
                                       className="flex-1 text-xs h-6 px-2"
                                       onClick={() => handleViewSource(topic)}
                                     >
-                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      <Eye className="w-3 h-3 mr-1" />
                                       查看
                                     </Button>
                                     <Button
@@ -1369,7 +1369,7 @@ export default function HotTopicsPage() {
                                   handleViewSource(topic!);
                                 }}
                               >
-                                <ExternalLink className="w-4 h-4" />
+                                <Eye className="w-4 h-4" />
                               </Button>
                             </div>
                           </div>

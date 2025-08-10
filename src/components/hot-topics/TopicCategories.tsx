@@ -39,6 +39,25 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
     return platformNames[platform] || platform;
   };
 
+  // 格式化热度值，统一为m单位
+  const formatHotValue = (hot: string | undefined): string => {
+    if (!hot || hot === '' || hot === '0' || hot === 'undefined') {
+      return '暂无数据';
+    }
+
+    const num = parseInt(hot);
+    if (isNaN(num)) {
+      return hot || '暂无数据';
+    }
+
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}m`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}k`;
+    }
+    return `${num}`;
+  };
+
   // 状态管理
   const [bookmarkedTopics, setBookmarkedTopics] = useState<Set<string>>(new Set());
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
@@ -227,9 +246,9 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                 return (
                   <Card
                     key={category.id}
-                    className={`h-fit bg-gradient-to-br ${category.theme} shadow-md hover:shadow-lg transition-all duration-300 ${isPinned ? 'ring-2 ring-primary' : ''}`}
+                    className={`h-80 bg-gradient-to-br ${category.theme} shadow-md hover:shadow-lg transition-all duration-300 ${isPinned ? 'ring-2 ring-primary' : ''}`}
                   >
-                    <CardHeader className="pb-2 px-3 pt-3">
+                    <CardHeader className="pb-2 px-2 pt-2">
                       {/* 分类标题和操作 */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1">
@@ -267,7 +286,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                       </div>
                     </CardHeader>
 
-                    <CardContent className="pt-0 px-3 pb-3">
+                    <CardContent className="pt-0 px-2 pb-2 flex-1 overflow-hidden">
                       {/* 话题列表 */}
                       <div className="space-y-1">
                         {displayTopics.map((topic, index) => {
@@ -277,50 +296,45 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                           return (
                             <div
                               key={`${topic.platform}-${index}`}
-                              className="p-1.5 rounded border hover:shadow-sm transition-all bg-white/50"
+                              className="p-2 rounded border hover:shadow-sm transition-all bg-white/50"
                             >
-                              {/* 单行布局：排名 + 标题 + 热度 + 操作按钮 */}
-                              <div className="flex items-center gap-1">
-                                {/* 排名 */}
-                                <span className="text-xs font-bold text-primary w-4 flex-shrink-0">#{index + 1}</span>
-
-                                {/* 标题 */}
-                                <h4 className="text-xs font-medium line-clamp-1 flex-1 cursor-pointer hover:text-primary"
+                              {/* 排名和标题 */}
+                              <div className="flex items-start gap-2 mb-2">
+                                <span className="text-xs font-bold text-primary flex-shrink-0 mt-0.5">#{index + 1}</span>
+                                <h4 className="text-xs font-medium line-clamp-2 flex-1 cursor-pointer hover:text-primary leading-relaxed"
                                     onClick={() => onTopicClick(topic)}>
                                   {topic.title}
                                 </h4>
-
-                                {/* 热度 */}
-                                <span className="text-xs text-muted-foreground flex-shrink-0 w-12 text-right">
-                                  {topic.hot || '暂无'}
-                                </span>
-
-                                {/* 操作按钮 */}
-                                <div className="flex items-center gap-0.5 flex-shrink-0">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-4 w-4 p-0 hover:bg-primary/20"
-                                    onClick={() => onTopicClick(topic)}
-                                  >
-                                    <Eye className="w-2.5 h-2.5" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className={`h-4 w-4 p-0 hover:bg-primary/20 ${isBookmarked ? 'text-primary' : ''}`}
-                                    onClick={() => handleBookmark(topic)}
-                                  >
-                                    <Bookmark className="w-2.5 h-2.5" />
-                                  </Button>
-                                </div>
                               </div>
 
-                              {/* 平台标识 */}
-                              <div className="flex justify-end mt-0.5">
-                                <Badge variant="outline" className="text-xs px-1 py-0 h-3 text-xs">
-                                  {getPlatformDisplayName(topic.platform || '')}
-                                </Badge>
+                              {/* 底部信息：来源 + 热度 + 操作按钮 */}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                                    {getPlatformDisplayName(topic.platform || '')}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatHotValue(topic.hot)}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 hover:bg-primary/20"
+                                    onClick={() => onTopicClick(topic)}
+                                  >
+                                    <Eye className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`h-5 w-5 p-0 hover:bg-primary/20 ${isBookmarked ? 'text-primary' : ''}`}
+                                    onClick={() => handleBookmark(topic)}
+                                  >
+                                    <Bookmark className="w-3 h-3" />
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           );
