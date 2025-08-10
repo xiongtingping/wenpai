@@ -53,27 +53,27 @@ export function UsageReminderDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-amber-600">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <AlertTriangle className="h-5 w-5" />
             {content.title}
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-red-600 mb-2">
+            <div className="text-2xl font-bold text-destructive mb-2">
               仅剩 {remainingCount} 次
             </div>
-            <p className="text-gray-600">{content.description}</p>
+            <p className="text-muted-foreground">{content.description}</p>
           </div>
 
           {userType === 'trial' && (
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+            <div className="p-4 rounded-lg border border-border bg-accent">
               <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
                 <Crown className="h-4 w-4" />
                 升级专业版特权
               </h4>
-              <ul className="text-sm text-blue-700 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• 30次/月AI内容适配</li>
                 <li>• 创意魔方功能</li>
                 <li>• 高级AI模型</li>
@@ -83,12 +83,12 @@ export function UsageReminderDialog({
           )}
 
           {userType === 'pro' && (
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200">
-              <h4 className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
+            <div className="p-4 rounded-lg border border-border bg-accent">
+              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                 <Crown className="h-4 w-4" />
                 升级高级版特权
               </h4>
-              <ul className="text-sm text-amber-700 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• 不限量AI内容适配</li>
                 <li>• 全网雷达功能</li>
                 <li>• 品牌库功能</li>
@@ -102,9 +102,9 @@ export function UsageReminderDialog({
           <Button variant="outline" onClick={onClose}>
             稍后再说
           </Button>
-          <Button 
+          <Button
             onClick={onUpgrade}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {content.upgradeText}
             <ArrowRight className="h-4 w-4 ml-2" />

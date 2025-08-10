@@ -55,11 +55,11 @@ export default function FileFormatDisplay({
 
   const getQualityIcon = (quality: string) => {
     switch (quality) {
-      case 'excellent': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'good': return <CheckCircle className="h-4 w-4 text-yellow-500" />;
-      case 'fair': return <AlertCircle className="h-4 w-4 text-orange-500" />;
-      case 'limited': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <HelpCircle className="h-4 w-4 text-gray-400" />;
+      case 'excellent': return <CheckCircle className="h-4 w-4 text-foreground" />;
+      case 'good': return <CheckCircle className="h-4 w-4 text-foreground" />;
+      case 'fair': return <AlertCircle className="h-4 w-4 text-foreground" />;
+      case 'limited': return <XCircle className="h-4 w-4 text-destructive" />;
+      default: return <HelpCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -75,11 +75,11 @@ export default function FileFormatDisplay({
 
   const getQualityColor = (quality: string) => {
     switch (quality) {
-      case 'excellent': return 'bg-green-100 text-green-800';
-      case 'good': return 'bg-yellow-100 text-yellow-800';
-      case 'fair': return 'bg-orange-100 text-orange-800';
-      case 'limited': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'excellent': return 'bg-accent border border-border text-foreground';
+      case 'good': return 'bg-accent border border-border text-foreground';
+      case 'fair': return 'bg-accent border border-border text-foreground';
+      case 'limited': return 'bg-accent border border-border text-destructive';
+      default: return 'bg-accent border border-border text-foreground';
     }
   };
 
@@ -95,24 +95,24 @@ export default function FileFormatDisplay({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{summary.totalFormats}</div>
-              <div className="text-sm text-gray-600">总计格式</div>
+              <div className="text-2xl font-bold text-foreground">{summary.totalFormats}</div>
+              <div className="text-sm text-muted-foreground">总计格式</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{summary.supportLevels.excellent}</div>
-              <div className="text-sm text-gray-600">完美支持</div>
+              <div className="text-2xl font-bold text-foreground">{summary.supportLevels.excellent}</div>
+              <div className="text-sm text-muted-foreground">完美支持</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">{summary.supportLevels.good}</div>
-              <div className="text-sm text-gray-600">良好支持</div>
+              <div className="text-2xl font-bold text-foreground">{summary.supportLevels.good}</div>
+              <div className="text-sm text-muted-foreground">良好支持</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{summary.supportLevels.fair}</div>
-              <div className="text-sm text-gray-600">基础支持</div>
+              <div className="text-2xl font-bold text-foreground">{summary.supportLevels.fair}</div>
+              <div className="text-sm text-muted-foreground">基础支持</div>
             </div>
           </div>
-          
-          <div className="text-sm text-gray-600">
+
+          <div className="text-sm text-muted-foreground">
             {formatService.generateUserFriendlyDescription()}
           </div>
         </CardContent>
@@ -123,7 +123,7 @@ export default function FileFormatDisplay({
   if (mode === 'compact') {
     return (
       <div className={`space-y-2 text-center ${className}`}>
-        <div className="text-sm font-medium text-gray-700">
+        <div className="text-sm font-medium text-foreground">
           支持 {summary.totalFormats} 种文件格式
         </div>
         <div className="flex flex-wrap justify-center gap-1">
@@ -137,7 +137,7 @@ export default function FileFormatDisplay({
             );
           })}
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-muted-foreground">
           文档、表格、演示、文本、图片等格式，支持批量上传和网页内容提取
         </div>
       </div>
@@ -180,7 +180,7 @@ export default function FileFormatDisplay({
                   <div key={format.extension} className="border rounded-lg p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                        <span className="font-mono text-sm bg-accent px-2 py-1 rounded border border-border">
                           {format.extension}
                         </span>
                         <span className="font-medium">{format.name}</span>
@@ -195,17 +195,17 @@ export default function FileFormatDisplay({
                       )}
                     </div>
                     
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       {format.description}
                     </div>
-                    
+
                     {format.features && format.features.length > 0 && (
                       <div className="space-y-1">
-                        <div className="text-xs font-medium text-green-700">✅ 支持功能:</div>
-                        <ul className="text-xs text-gray-600 space-y-0.5">
+                        <div className="text-xs font-medium text-foreground">✅ 支持功能:</div>
+                        <ul className="text-xs text-muted-foreground space-y-0.5">
                           {format.features.map((feature, index) => (
                             <li key={index} className="flex items-center gap-1">
-                              <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                              <span className="w-1 h-1 bg-primary rounded-full"></span>
                               {feature}
                             </li>
                           ))}
@@ -215,11 +215,11 @@ export default function FileFormatDisplay({
                     
                     {format.limitations && format.limitations.length > 0 && (
                       <div className="space-y-1">
-                        <div className="text-xs font-medium text-orange-700">⚠️ 使用限制:</div>
-                        <ul className="text-xs text-gray-600 space-y-0.5">
+                        <div className="text-xs font-medium text-foreground">⚠️ 使用限制:</div>
+                        <ul className="text-xs text-muted-foreground space-y-0.5">
                           {format.limitations.map((limitation, index) => (
                             <li key={index} className="flex items-center gap-1">
-                              <span className="w-1 h-1 bg-orange-500 rounded-full"></span>
+                              <span className="w-1 h-1 bg-primary rounded-full"></span>
                               {limitation}
                             </li>
                           ))}
@@ -229,11 +229,11 @@ export default function FileFormatDisplay({
                     
                     {format.recommendations && format.recommendations.length > 0 && (
                       <div className="space-y-1">
-                        <div className="text-xs font-medium text-blue-700">💡 使用建议:</div>
-                        <ul className="text-xs text-gray-600 space-y-0.5">
+                        <div className="text-xs font-medium text-foreground">💡 使用建议:</div>
+                        <ul className="text-xs text-muted-foreground space-y-0.5">
                           {format.recommendations.map((recommendation, index) => (
                             <li key={index} className="flex items-center gap-1">
-                              <span className="w-1 h-1 bg-blue-500 rounded-full"></span>
+                              <span className="w-1 h-1 bg-primary rounded-full"></span>
                               {recommendation}
                             </li>
                           ))}
@@ -247,9 +247,9 @@ export default function FileFormatDisplay({
           );
         })}
         
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <div className="text-sm font-medium text-blue-900 mb-2">💡 使用提示</div>
-          <div className="text-sm text-blue-800 space-y-1">
+        <div className="mt-6 p-4 bg-accent rounded-lg border border-border">
+          <div className="text-sm font-medium text-foreground mb-2">💡 使用提示</div>
+          <div className="text-sm text-muted-foreground space-y-1">
             <div>• 推荐格式：.txt, .docx, .xlsx, .pdf (解析效果最佳)</div>
             <div>• PDF文档：已支持无页数限制完整解析</div>
             <div>• PowerPoint：.pptx 支持文本提取，.ppt 建议转换</div>

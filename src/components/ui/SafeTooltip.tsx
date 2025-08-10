@@ -137,7 +137,7 @@ export const SafeTooltip: React.FC<SafeTooltipProps> = React.memo(({
       {isOpen && content && (
         <div
           className={`
-            absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg
+            absolute z-50 px-2 py-1 text-xs text-primary-foreground bg-foreground rounded shadow-lg
             whitespace-nowrap pointer-events-none
             ${side === 'top' ? 'bottom-full mb-1' : ''}
             ${side === 'bottom' ? 'top-full mt-1' : ''}

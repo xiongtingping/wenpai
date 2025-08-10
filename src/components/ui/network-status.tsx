@@ -35,17 +35,17 @@ const NetworkStatus: React.FC = () => {
 
   return (
     <div className="fixed top-4 right-4 z-50 max-w-sm">
-      <Alert className="border-l-4 bg-red-500 bg-white shadow-lg">
+      <Alert className="border-l-4 bg-accent border-border shadow-lg">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3">
-            <div className="mt-0.5 bg-red-500 text-white p-1 rounded">
+            <div className="mt-0.5 bg-destructive text-primary-foreground p-1 rounded">
               <WifiOff className="h-4 w-4" />
             </div>
             <div className="flex-1">
-              <AlertDescription className="font-medium text-gray-900">
+              <AlertDescription className="font-medium text-foreground">
                 网络连接断开
               </AlertDescription>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 请检查您的网络连接。应用的部分功能可能无法正常使用。
               </p>
               <div className="mt-2 flex items-center space-x-2">
@@ -64,7 +64,7 @@ const NetworkStatus: React.FC = () => {
             size="sm"
             variant="ghost"
             onClick={handleDismiss}
-            className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -99,7 +99,7 @@ export const NetworkIndicator: React.FC = () => {
   if (isOnline) return null;
 
   return (
-    <div className="bg-red-500 text-white px-3 py-1 text-sm text-center">
+    <div className="bg-destructive text-primary-foreground px-3 py-1 text-sm text-center">
       <div className="flex items-center justify-center gap-2">
         <WifiOff className="h-3 w-3" />
         <span>网络连接断开</span>
