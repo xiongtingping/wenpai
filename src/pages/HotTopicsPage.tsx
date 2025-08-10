@@ -404,12 +404,19 @@ export default function HotTopicsPage() {
   };
 
   /**
-   * 处理话题点击 - 现在只标记为已读，不跳转
+   * 处理话题点击 - 标记为已读并跳转
    */
   const handleTopicClick = (topic: DailyHotItem) => {
     // 标记为已读
     const topicId = `${topic.platform}-${topic.title}`;
     markAsRead(topicId);
+
+    // 跳转到原文
+    if (topic.url) {
+      window.open(topic.url, '_blank');
+    } else if (topic.mobil_url) {
+      window.open(topic.mobil_url, '_blank');
+    }
   };
 
   /**
@@ -977,24 +984,28 @@ export default function HotTopicsPage() {
                                   )}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1 mt-auto">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="flex-1 text-xs h-6 px-2"
-                                  onClick={() => handleViewSource(topic)}
-                                >
-                                  <Eye className="w-3 h-3 mr-1" />
-                                  查看
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant={isTopicBookmarked(topic) ? "default" : "outline"}
-                                  className={`text-xs h-6 px-2 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
-                                  onClick={() => toggleBookmark(topic)}
-                                >
-                                  <Bookmark className="w-3 h-3" />
-                                </Button>
+                              <div className="flex items-center justify-between mt-auto">
+                                <span className="text-xs text-muted-foreground">
+                                  热度: {formatHotValue(topic.hot)}
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() => handleViewSource(topic)}
+                                  >
+                                    <Eye className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className={`h-6 w-6 p-0 ${isTopicBookmarked(topic) ? 'text-primary' : ''}`}
+                                    onClick={() => toggleBookmark(topic)}
+                                  >
+                                    <Bookmark className="w-3 h-3" />
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -1035,24 +1046,28 @@ export default function HotTopicsPage() {
                                       )}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-1 mt-auto">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="flex-1 text-xs h-6 px-2"
-                                      onClick={() => handleViewSource(topic)}
-                                    >
-                                      <Eye className="w-3 h-3 mr-1" />
-                                      查看
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant={isTopicBookmarked(topic) ? "default" : "outline"}
-                                      className={`text-xs h-6 px-2 ${isTopicBookmarked(topic) ? 'bg-primary hover:bg-primary/90' : ''}`}
-                                      onClick={() => toggleBookmark(topic)}
-                                    >
-                                      <Bookmark className="w-3 h-3" />
-                                    </Button>
+                                  <div className="flex items-center justify-between mt-auto">
+                                    <span className="text-xs text-muted-foreground">
+                                      热度: {formatHotValue(topic.hot)}
+                                    </span>
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => handleViewSource(topic)}
+                                      >
+                                        <Eye className="w-3 h-3" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className={`h-6 w-6 p-0 ${isTopicBookmarked(topic) ? 'text-primary' : ''}`}
+                                        onClick={() => toggleBookmark(topic)}
+                                      >
+                                        <Bookmark className="w-3 h-3" />
+                                      </Button>
+                                    </div>
                                   </div>
                                 </div>
                               ))}

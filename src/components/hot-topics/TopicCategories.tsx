@@ -223,9 +223,9 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
             按分类多列展示所有热点话题，一目了然查看全网热点
           </p>
         </CardHeader>
-        <CardContent className="px-3">
+        <CardContent className="px-2">
           {/* 固定2行5列网格布局 */}
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-1">
             {categories
               .filter(cat => cat.id !== 'all' && !hiddenCategories.has(cat.id))
               .sort((a, b) => {
@@ -248,7 +248,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                     key={category.id}
                     className={`h-80 bg-gradient-to-br ${category.theme} shadow-md hover:shadow-lg transition-all duration-300 ${isPinned ? 'ring-2 ring-primary' : ''}`}
                   >
-                    <CardHeader className="pb-2 px-2 pt-2">
+                    <CardHeader className="pb-1 px-1.5 pt-1.5">
                       {/* 分类标题和操作 */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1">
@@ -286,7 +286,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                       </div>
                     </CardHeader>
 
-                    <CardContent className="pt-0 px-2 pb-2 flex-1 overflow-hidden">
+                    <CardContent className="pt-0 px-1.5 pb-1.5 flex-1 overflow-hidden">
                       {/* 话题列表 */}
                       <div className="space-y-1">
                         {displayTopics.map((topic, index) => {
@@ -296,10 +296,10 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
                           return (
                             <div
                               key={`${topic.platform}-${index}`}
-                              className="p-2 rounded border hover:shadow-sm transition-all bg-white/50"
+                              className="p-1 rounded border hover:shadow-sm transition-all bg-white/50"
                             >
                               {/* 排名和标题 */}
-                              <div className="flex items-start gap-2 mb-2">
+                              <div className="flex items-start gap-1 mb-1">
                                 <span className="text-xs font-bold text-primary flex-shrink-0 mt-0.5">#{index + 1}</span>
                                 <h4 className="text-xs font-medium line-clamp-2 flex-1 cursor-pointer hover:text-primary leading-relaxed"
                                     onClick={() => onTopicClick(topic)}>
