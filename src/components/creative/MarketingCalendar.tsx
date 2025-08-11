@@ -752,7 +752,11 @@ function MarketingCalendar() {
   const goToToday = () => {
     const today = new Date();
     setCurrentDate(today);
-    const todayStr = today.toISOString().split('T')[0];
+    // 使用本地时间格式化日期，避免时区问题
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
     setSelectedDate(todayStr);
   };
 
@@ -806,42 +810,24 @@ function MarketingCalendar() {
     }
   };
 
-  /**
-   * 获取指定日期的任务预览内容
-   */
-  const getTasksPreview = (dateStr: string) => {
-    const dateTasks = tasks.filter(task => task.date === dateStr);
-    if (dateTasks.length === 0) return null;
 
-    return dateTasks.slice(0, 5).map(task => ({
-      title: task.title,
-      priority: task.priority,
-      status: task.status,
-      type: task.type
-    }));
-  };
 
   return (
     <div className="space-y-6">
       {/* 上半部分 - 日历视图 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between mb-2">
+            <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
               <span>营销日历</span>
-              <Badge variant="outline" className="text-xs">
-                农历营销
+            </CardTitle>
+            {selectedDate && (
+              <Badge variant="secondary" className="text-xs">
+                已选择: {selectedDate}
               </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              {selectedDate && (
-                <Badge variant="secondary" className="text-xs">
-                  已选择: {selectedDate}
-                </Badge>
-              )}
-            </div>
-          </CardTitle>
+            )}
+          </div>
           <CardDescription>
             点击日期查看对应任务，显示农历、节气、节日等信息。双击日期快速添加任务。
           </CardDescription>
@@ -916,7 +902,6 @@ function MarketingCalendar() {
                   const isWeekend = dayIndex >= 5; // 周六、周日
                   const taskCountStyle = getTaskCountStyle(dayTasks.length);
                   const isDragOver = dragOverDate === dateStr;
-                  const tasksPreview = getTasksPreview(dateStr);
 
                   return (
                     <div
