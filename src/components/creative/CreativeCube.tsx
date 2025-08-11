@@ -348,7 +348,7 @@ export function CreativeCube() {
   useEffect(() => {
     const initialData: Record<string, string[]> = {};
     dimensions.forEach(dim => {
-      initialData[dim.id] = [...dim.defaultItems];
+      initialData[dim.id] = []; // 只初始化空数组，不包含默认项
     });
     setCubeData(initialData);
   }, [dimensions]);
