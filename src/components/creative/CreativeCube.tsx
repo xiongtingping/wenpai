@@ -181,19 +181,29 @@ function DimensionCard({
         )}
         
         <div className="grid grid-cols-2 gap-1">
-          {/* 显示默认项和自定义添加的项 */}
-          {[...dimension.defaultItems, ...cubeData].map((item, index) => (
-            <Button
-              key={`${item}-${index}`}
-              size="sm"
-              variant={selectedItem === item ? "default" : "outline"}
-              className="text-xs h-6 px-1.5 justify-start"
-              onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
-              disabled={!!selectedItem && selectedItem !== item}
-            >
-              <span className="truncate">{item}</span>
-            </Button>
-          ))}
+          {/* 显示默认项和自定义添加的项，去重处理 */}
+          {(() => {
+            // 合并默认项和自定义项，并去重
+            const allItems = [...dimension.defaultItems];
+            cubeData.forEach(item => {
+              if (!allItems.includes(item)) {
+                allItems.push(item);
+              }
+            });
+
+            return allItems.map((item, index) => (
+              <Button
+                key={`${item}-${index}`}
+                size="sm"
+                variant={selectedItem === item ? "default" : "outline"}
+                className="text-xs h-6 px-1.5 justify-start"
+                onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
+                disabled={!!selectedItem && selectedItem !== item}
+              >
+                <span className="truncate">{item}</span>
+              </Button>
+            ));
+          })()}
         </div>
         
         {!showAddInput ? (
