@@ -7,7 +7,7 @@ import { Twitter, Mail, ExternalLink } from "lucide-react"
  */
 export function Footer() {
   return (
-    <footer className="bg-card text-center text-sm text-muted-foreground mt-10 border-t border-border">
+    <footer className="surface-1 text-center text-sm text-muted-foreground mt-10 border-t border-border">
       <div className="py-4 px-6 flex flex-col md:flex-row justify-center items-center gap-2 md:gap-4">
         <span className="font-medium text-foreground">AI内容适配 · 创意生成</span>
         <span className="hidden md:inline">|</span>

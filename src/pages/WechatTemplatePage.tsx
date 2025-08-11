@@ -504,11 +504,11 @@ Good night, beautiful world 🌎
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 particle-background min-h-screen">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="creative-module-title">微信朋友圈文案模板</h1>
-          <p className="creative-module-description">精心设计的文案模板，让你的朋友圈更有魅力</p>
+          <h1 className="creative-module-title text-foreground">微信朋友圈文案模板</h1>
+          <p className="creative-module-description text-muted-foreground">精心设计的文案模板，让你的朋友圈更有魅力</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -527,12 +527,13 @@ Good night, beautiful world 🌎
       </div>
 
       {/* 搜索和过滤 */}
-      <Card>
+      <Card variant="enhanced">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
+                variant="enhanced"
                 placeholder="搜索文案..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

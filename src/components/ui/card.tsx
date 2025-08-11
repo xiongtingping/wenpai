@@ -12,6 +12,17 @@ const cardVariants = cva(
         elevated: "border-border bg-card shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
         outlined: "border-2 border-border bg-transparent",
 
+        // 🎨 新增表面层次变体 - 使用新的设计令牌
+        surface1: "border-border surface-1 shadow-e0 hover:shadow-e1 hover:-translate-y-0.5",
+        surface2: "border-border surface-2 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        surface3: "border-border surface-3 shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        surface4: "border-border surface-4 shadow-e2 hover:shadow-e3 hover:-translate-y-0.5",
+        bgElevated: "border-border bg-elevated shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
+        bgOverlay: "border-border bg-overlay shadow-e2 hover:shadow-e3 hover:-translate-y-0.5",
+
+        // 🎨 增强卡片变体 - 使用新的enhanced-card类
+        enhanced: "enhanced-card transition-all duration-300",
+
         // 🎨 Modern Flat + Soft Neumorphism 新增变体（令牌化）
         soft: "border border-border bg-card shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",
         neumorph: "border border-border bg-card shadow-e1 hover:shadow-e2 hover:-translate-y-0.5",

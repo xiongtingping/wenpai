@@ -67,9 +67,9 @@ const CreativeCubePage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-6xl particle-background min-h-screen">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-2">
+        <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-2 text-foreground">
           <Sparkles className="text-primary" />
           创意魔方
         </h1>
@@ -80,21 +80,22 @@ const CreativeCubePage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* 输入区域 */}
-        <Card>
+        <Card variant="enhanced">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Wand2 className="text-primary" />
               创意输入
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               描述你的需求，AI将为你生成创意内容
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="prompt">内容描述</Label>
+              <Label htmlFor="prompt" className="text-foreground">内容描述</Label>
               <Textarea
                 id="prompt"
+                variant="enhanced"
                 placeholder="例如：为我们的新产品写一段吸引人的营销文案..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -141,20 +142,20 @@ const CreativeCubePage: React.FC = () => {
         </Card>
 
         {/* 输出区域 */}
-        <Card>
+        <Card variant="enhanced">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="text-foreground" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Palette className="text-primary" />
               生成结果
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               AI生成的创意内容将在这里显示
             </CardDescription>
           </CardHeader>
           <CardContent>
             {generatedContent ? (
               <div className="space-y-4">
-                <div className="bg-muted p-4 rounded-lg whitespace-pre-wrap text-sm">
+                <div className="surface-2 p-4 rounded-lg whitespace-pre-wrap text-sm text-foreground">
                   {generatedContent}
                 </div>
                 <div className="flex gap-2">

@@ -105,7 +105,7 @@ export default function TopThreePodium({
       case 1:
         return <Trophy className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />;
       case 2:
-        return <Medal className="w-6 h-6 text-gray-500 dark:text-gray-400" />;
+        return <Medal className="w-6 h-6 text-muted-foreground" />;
       case 3:
         return <Medal className="w-6 h-6 text-amber-600 dark:text-amber-500" />;
       default:
@@ -118,7 +118,7 @@ export default function TopThreePodium({
       case 1:
         return <Badge className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-700">🥇 第{rank}名</Badge>;
       case 2:
-        return <Badge className="bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600">🥈 第{rank}名</Badge>;
+        return <Badge className="bg-muted text-muted-foreground border-border">🥈 第{rank}名</Badge>;
       case 3:
         return <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700">🥉 第{rank}名</Badge>;
       default:

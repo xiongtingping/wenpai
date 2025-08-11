@@ -38,46 +38,46 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen particle-background">
       <div className="container mx-auto py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Settings className="h-16 w-16 text-accent drop-shadow-sm" />
+            <Settings className="h-16 w-16 text-primary drop-shadow-sm" />
           </div>
-          <h1 className="text-3xl font-bold text-primary mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             设置中心
           </h1>
-          <p className="text-secondary">
+          <p className="text-muted-foreground">
             管理您的账户设置和偏好
           </p>
         </div>
 
         {/* 账户信息 */}
-        <Card variant="soft" className="mb-6 rounded-xl">
+        <Card variant="enhanced" className="mb-6 rounded-xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-primary">
-              <User className="h-5 w-5 text-secondary" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <User className="h-5 w-5 text-primary" />
               账户信息
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary">用户ID</span>
-                <span className="text-sm font-mono text-primary">{user?.id}</span>
+                <span className="text-sm text-muted-foreground">用户ID</span>
+                <span className="text-sm font-mono text-foreground">{user?.id}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary">邮箱</span>
-                <span className="text-sm text-primary">{user?.email}</span>
+                <span className="text-sm text-muted-foreground">邮箱</span>
+                <span className="text-sm text-foreground">{user?.email}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary">用户名</span>
-                <span className="text-sm text-primary">{user?.username || '未设置'}</span>
+                <span className="text-sm text-muted-foreground">用户名</span>
+                <span className="text-sm text-foreground">{user?.username || '未设置'}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary">VIP状态</span>
+                <span className="text-sm text-muted-foreground">VIP状态</span>
                 <Badge variant={user?.isVip ? "default" : "secondary"}>
                   {user?.isVip ? "VIP用户" : "普通用户"}
                 </Badge>

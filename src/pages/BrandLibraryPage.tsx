@@ -2022,7 +2022,7 @@ export default function BrandLibraryPageFixed() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen particle-background">
       <PageNavigation
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
@@ -2032,7 +2032,7 @@ export default function BrandLibraryPageFixed() {
 
       <div className="container mx-auto px-4 py-8">
         {/* 使用提示 */}
-        <Alert className="mb-6 bg-card/90 backdrop-blur-sm border-border rounded-xl">
+        <Alert className="mb-6 enhanced-card rounded-xl">
           <Info className="h-4 w-4 text-primary" />
           <AlertDescription className="text-muted-foreground">
             <strong className="text-foreground">使用提示：</strong>上传品牌资料越多，AI分析越准确。建议上传品牌手册、产品介绍、营销文案等资料。
@@ -2053,7 +2053,7 @@ export default function BrandLibraryPageFixed() {
 
         {/* 上传进度 */}
         {isUploading && (
-          <Card variant="soft" className="mb-6 rounded-xl">
+          <Card variant="enhanced" className="mb-6 rounded-xl">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-foreground">上传进度</span>

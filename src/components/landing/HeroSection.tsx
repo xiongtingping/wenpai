@@ -137,16 +137,16 @@ const HeroSection: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* 快速生成 */}
               <div className="group relative">
-                <div className="bg-card dark:enhanced-card p-6 rounded-xl border border-border transition-smooth shadow-e0 hover:shadow-e1 dark:hover:bg-surface-3">
+                <div className="enhanced-card p-6 rounded-xl transition-all duration-300 hover:scale-105">
                   <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-smooth shadow-e0">
+                    <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-all duration-300 shadow-e1">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-primary">⚡ 快速生成</h3>
-                      <p className="text-sm text-secondary font-medium">AI秒级响应</p>
+                      <h3 className="text-lg font-bold text-foreground">⚡ 快速生成</h3>
+                      <p className="text-sm text-muted-foreground font-medium">AI秒级响应</p>
                     </div>
                   </div>
                   <p className="text-secondary leading-relaxed">
@@ -157,7 +157,7 @@ const HeroSection: React.FC = () => {
               
               {/* 品牌一致 */}
               <div className="group relative">
-                <div className="bg-card dark:enhanced-card p-6 rounded-2xl border border-border transition-all duration-300 hover:shadow-lg dark:hover:bg-surface-3">
+                <div className="enhanced-card p-6 rounded-2xl transition-all duration-300 hover:scale-105">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,11 +165,11 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-primary">🎯 品牌一致</h3>
-                      <p className="text-sm text-secondary font-medium">调性统一</p>
+                      <h3 className="text-lg font-bold text-foreground">🎯 品牌一致</h3>
+                      <p className="text-sm text-muted-foreground font-medium">调性统一</p>
                     </div>
                   </div>
-                  <p className="text-secondary leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     智能学习品牌风格，确保<span className="font-semibold text-primary">内容调性统一</span>，提升品牌识别度
                   </p>
                 </div>
@@ -177,7 +177,7 @@ const HeroSection: React.FC = () => {
               
               {/* 成本节省 */}
               <div className="group relative">
-                <div className="bg-card dark:enhanced-card p-6 rounded-2xl border border-border transition-all duration-300 hover:shadow-lg dark:hover:bg-surface-3">
+                <div className="enhanced-card p-6 rounded-2xl transition-all duration-300 hover:scale-105">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
