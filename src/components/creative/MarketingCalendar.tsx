@@ -1125,7 +1125,7 @@ function MarketingCalendar() {
 
         {/* 任务统计 - 移到任务列表上方 */}
         {tasks.length > 0 && (
-          <div className="mx-4 mb-2 p-2 bg-muted/30 rounded-lg flex-shrink-0">
+          <div className="mx-4 mb-1 p-2 bg-muted/30 rounded-lg flex-shrink-0">
             <div className="grid grid-cols-4 gap-2 text-center">
               <div
                 className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
@@ -1167,7 +1167,7 @@ function MarketingCalendar() {
 
         <CardContent className="p-3 h-[480px] overflow-hidden flex flex-col">
           {/* 筛选和排序控件 - 更紧凑布局 */}
-          <div className="flex flex-wrap items-center gap-1.5 mb-2 p-2 bg-muted/30 rounded-lg flex-shrink-0 h-[70px]">
+          <div className="flex flex-wrap items-center gap-1.5 mb-1.5 p-2 bg-muted/30 rounded-lg flex-shrink-0 h-[70px]">
             <div className="flex items-center gap-1">
               <Filter className="w-3 h-3" />
               <span className="text-xs font-medium">筛选:</span>
@@ -1235,7 +1235,7 @@ function MarketingCalendar() {
           </div>
 
           {/* 任务列表 - 支持滚动 */}
-          <div className="h-[370px] overflow-y-auto pr-1">
+          <div className="h-[375px] overflow-y-auto pr-1">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
