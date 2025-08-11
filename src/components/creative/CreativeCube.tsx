@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { 
+import {
   Sparkles,
   RefreshCw,
   Copy,
@@ -44,7 +44,8 @@ import {
   ArrowRight,
   BookOpen,
   MoreHorizontal,
-  CheckCircle
+  CheckCircle,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MarketingCalendar from './MarketingCalendar';
@@ -1903,6 +1904,34 @@ ${generateStandardCallToAction()}
     }
   };
 
+  /**
+   * 重新生成内容 - 使用相同的维度选择和参数
+   */
+  const regenerateContent = async () => {
+    if (!currentContent) {
+      toast({
+        title: "无法重新生成",
+        description: "请先生成内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 检查是否有选择的维度
+    const hasSelectedItems = Object.keys(selectedItems).length > 0;
+    if (!hasSelectedItems) {
+      toast({
+        title: "无法重新生成",
+        description: "请先选择维度",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 使用相同的参数重新调用生成函数
+    await generateContent();
+  };
+
   // 旧的AI调用函数已移除，现在使用统一的callCreativeGeneration接口
 
   /**
@@ -2207,31 +2236,7 @@ ${generateStandardCallToAction()}
                     <Lightbulb className="w-5 h-5 text-primary" />
                     生成结果
                   </CardTitle>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyIdea(currentContent)}
-                    >
-                      <Copy className="w-4 h-4 mr-1" />
-                      复制
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={saveIdea}
-                    >
-                      <Save className="w-4 h-4 mr-1" />
-                      保存
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentContent('')}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
+
                 </div>
               </CardHeader>
               <CardContent>
@@ -2297,7 +2302,22 @@ ${generateStandardCallToAction()}
                       .replace(/【创作思路：[^】]*】/g, '')
                       .replace(/创作思路：[^\n]*/g, '');
 
-                    // 第六步：移除其他无效内容
+                    // 第六步：移除文案技巧和元信息提示
+                    cleanContent = cleanContent
+                      .replace(/（文案技巧：[^）]*）/g, '')
+                      .replace(/\(文案技巧：[^)]*\)/g, '')
+                      .replace(/【文案技巧：[^】]*】/g, '')
+                      .replace(/文案技巧：[^\n]*/g, '')
+                      .replace(/（技巧说明：[^）]*）/g, '')
+                      .replace(/\(技巧说明：[^)]*\)/g, '')
+                      .replace(/【技巧说明：[^】]*】/g, '')
+                      .replace(/技巧说明：[^\n]*/g, '')
+                      .replace(/（创作技巧：[^）]*）/g, '')
+                      .replace(/\(创作技巧：[^)]*\)/g, '')
+                      .replace(/【创作技巧：[^】]*】/g, '')
+                      .replace(/创作技巧：[^\n]*/g, '');
+
+                    // 第七步：移除其他无效内容
                     cleanContent = cleanContent
                       .replace(/（注：[^）]*）/g, '')
                       .replace(/\(注：[^)]*\)/g, '')
@@ -2308,7 +2328,7 @@ ${generateStandardCallToAction()}
                       .replace(/【备注：[^】]*】/g, '')
                       .replace(/备注：[^\n]*/g, '');
 
-                    // 第七步：清理多余的空行和空格
+                    // 第八步：清理多余的空行和空格
                     cleanContent = cleanContent
                       .replace(/\n\s*\n\s*\n/g, '\n\n') // 多个空行合并为两个
                       .replace(/^\s+|\s+$/g, '') // 去除首尾空格
@@ -2523,6 +2543,29 @@ ${generateStandardCallToAction()}
                     </div>
                   );
                 })()}
+
+                {/* 重新生成按钮 */}
+                <div className="mt-4 pt-4 border-t border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={regenerateContent}
+                    disabled={isGenerating}
+                    className="w-full"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        重新生成中...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        重新生成
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
