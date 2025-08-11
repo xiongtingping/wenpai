@@ -21,14 +21,16 @@ export const ThemeSwitcher: React.FC = () => {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="h-8 w-8 p-0"
+      className="h-8 w-8 p-0 transition-all duration-300 hover:scale-110 hover:bg-accent/50"
       title={`切换到${theme === 'light' ? '暗色' : '亮色'}主题`}
     >
-      {theme === 'light' ? (
-        <Moon className="h-4 w-4" />
-      ) : (
-        <Sun className="h-4 w-4" />
-      )}
+      <div className="relative">
+        {theme === 'light' ? (
+          <Moon className="h-4 w-4 transition-all duration-300 hover:rotate-12" />
+        ) : (
+          <Sun className="h-4 w-4 transition-all duration-300 hover:rotate-12" />
+        )}
+      </div>
     </Button>
   );
 }; 

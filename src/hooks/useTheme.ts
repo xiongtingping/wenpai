@@ -31,9 +31,17 @@ export function useTheme() {
 
   // 切换主题
   const switchTheme = useCallback((next: Theme) => {
+    // 添加过渡类
+    document.documentElement.classList.add('theme-transitioning');
+
     setTheme(next);
     localStorage.setItem(THEME_KEY, next);
     document.documentElement.setAttribute('data-theme', next);
+
+    // 过渡完成后移除过渡类
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    }, 400);
   }, []);
 
   // 切换亮暗主题

@@ -122,6 +122,23 @@
     scroll-behavior: smooth;
   }
 
+  /* 🎨 全局主题切换平滑过渡 */
+  * {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 🌙 主题切换时的增强过渡效果 */
+  html.theme-transitioning * {
+    transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+
   /* 确保主题样式优先级 */
   html[data-theme] {
     color-scheme: light;
@@ -136,22 +153,30 @@
   html[data-theme] body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* 特殊处理卡片和容器背景 - 仅针对特定类 */
   html[data-theme] .bg-card {
     background-color: hsl(var(--card)) !important;
     color: hsl(var(--card-foreground)) !important;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   html[data-theme] .bg-background {
     background-color: hsl(var(--background)) !important;
     color: hsl(var(--foreground)) !important;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   html[data-theme] .bg-accent {
     background-color: hsl(var(--accent)) !important;
     color: hsl(var(--accent-foreground)) !important;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   /* 🎯 FIXED: 移除 Authing 样式覆盖，让 Authing Guard 使用原生样式 */
