@@ -324,19 +324,22 @@ function DimensionCard({
               </div>
             );
           })}
+
+          {/* 添加自定义选项按钮 - 放在网格的最后 */}
+          {!showAddInput ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-xs h-6 border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50 w-full"
+              onClick={() => setShowAddInput(true)}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          ) : null}
         </div>
 
-        {!showAddInput ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="w-full mt-1.5 text-xs h-6 border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50"
-            onClick={() => setShowAddInput(true)}
-          >
-            <Plus className="w-3 h-3 mr-1" />
-            添加自定义选项
-          </Button>
-        ) : (
+        {/* 添加自定义选项输入框 - 显示在网格下方 */}
+        {showAddInput && (
           <div className="mt-1.5 flex gap-1">
             <Input
               value={newItem}
@@ -2159,7 +2162,7 @@ ${generateStandardCallToAction()}
                   disabled={isGenerating}
                   className="border-primary text-primary hover:bg-accent"
                 >
-                  🎲 试试随机选择
+                  🎲 随机一键生成
                 </Button>
               </div>
               
