@@ -830,17 +830,19 @@ function MarketingCalendar() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* 左侧 - 紧凑型日历视图 */}
       <Card className="h-full flex flex-col">
-        <CardHeader className="pb-2 flex-shrink-0">
-          <div className="flex items-center justify-between">
+        <CardHeader className="pb-2 flex-shrink-0 min-h-[80px]">
+          <div className="flex items-center justify-between min-h-[32px]">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calendar className="w-4 h-4 flex-shrink-0" />
               <span className="leading-none">营销日历</span>
             </CardTitle>
-            {selectedDate && (
-              <div className="text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
-                {selectedDate}
-              </div>
-            )}
+            <div className="min-w-[100px] text-right">
+              {selectedDate && (
+                <div className="text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
+                  {selectedDate}
+                </div>
+              )}
+            </div>
           </div>
           <CardDescription className="text-xs mt-1">
             点击日期查看任务，双击快速添加
@@ -1056,8 +1058,8 @@ function MarketingCalendar() {
 
       {/* 右侧 - Todo任务列表 */}
       <Card className="h-full flex flex-col">
-        <CardHeader className="pb-2 flex-shrink-0">
-          <div className="flex items-center justify-between mb-2">
+        <CardHeader className="pb-2 flex-shrink-0 min-h-[120px]">
+          <div className="flex items-center justify-between mb-2 min-h-[32px]">
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
               <span className="leading-none">营销任务</span>
