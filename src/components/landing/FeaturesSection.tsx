@@ -235,10 +235,8 @@ export const FeaturesSection: React.FC = () => {
                 className="group animate-slideUp rounded-xl"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <CardHeader className="relative overflow-hidden">
-                  {/* 背景装饰 */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgColor} opacity-50 group-hover:opacity-75 transition-opacity duration-300`}></div>
-                  <div className="relative z-10">
+                <CardHeader className="relative">
+                  <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className={`homepage-icon main-feature-icon p-3 rounded-lg ${feature.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
                         <feature.icon className="w-6 h-6" />
@@ -255,7 +253,7 @@ export const FeaturesSection: React.FC = () => {
                     </CardDescription>
                   </div>
                 </CardHeader>
-                <CardContent className="relative z-10">
+                <CardContent>
                   <div className="space-y-3 mb-6">
                     {feature.features.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
