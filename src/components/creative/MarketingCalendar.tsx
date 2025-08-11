@@ -985,13 +985,13 @@ function MarketingCalendar() {
             </Button>
 
             <div className="text-center flex-1 h-[48px] flex flex-col justify-center">
-              <div className="text-base font-semibold">
+              <div className="creative-module-subtitle">
                 {currentDate.toLocaleDateString('zh-CN', {
                   year: 'numeric',
                   month: 'long'
                 })}
               </div>
-              <div className="text-xs text-muted-foreground h-[16px] flex items-center justify-center">
+              <div className="creative-module-small h-[16px] flex items-center justify-center">
                 {lunarInfo ? (
                   `${lunarInfo.getYearInGanZhi()}年 ${lunarInfo.getYearShengXiao()}年`
                 ) : (
@@ -1005,7 +1005,7 @@ function MarketingCalendar() {
                 variant="outline"
                 size="sm"
                 onClick={goToToday}
-                className="text-xs px-2 py-1 h-7"
+                className="creative-module-button px-2 py-1 h-7"
               >
                 <CalendarDays className="w-3 h-3 mr-1" />
                 今天
@@ -1031,7 +1031,7 @@ function MarketingCalendar() {
             {/* 星期标题 - 更紧凑布局 */}
             <div className="grid grid-cols-7 bg-muted flex-shrink-0">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
-                <div key={index} className={`p-1.5 text-center text-xs font-medium ${
+                <div key={index} className={`p-1.5 text-center creative-module-label ${
                   index >= 5 ? 'text-red-600' : ''
                 }`}>
                   {day}

@@ -507,8 +507,8 @@ Good night, beautiful world 🌎
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">微信朋友圈文案模板</h1>
-          <p className="text-muted-foreground">精心设计的文案模板，让你的朋友圈更有魅力</p>
+          <h1 className="creative-module-title">微信朋友圈文案模板</h1>
+          <p className="creative-module-description">精心设计的文案模板，让你的朋友圈更有魅力</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -674,14 +674,14 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="creative-module-subtitle flex items-center gap-2">
               <span>{template.emoji}</span>
               <span>{template.title}</span>
             </CardTitle>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant="secondary">{template.category}</Badge>
-              {template.occasion && <Badge variant="outline">{template.occasion}</Badge>}
-              <Badge variant="outline">{template.wordCount}字</Badge>
+              <Badge variant="secondary" className="creative-module-label">{template.category}</Badge>
+              {template.occasion && <Badge variant="outline" className="creative-module-label">{template.occasion}</Badge>}
+              <Badge variant="outline" className="creative-module-label">{template.wordCount}字</Badge>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -811,7 +811,7 @@ const AddTemplateForm: React.FC<AddTemplateFormProps> = ({ onSubmit, categories,
       </div>
 
       <div>
-        <label className="text-sm font-medium">文案内容 *</label>
+        <label className="creative-module-button">文案内容 *</label>
         <Textarea
           value={formData.content}
           onChange={(e) => updateWordCount(e.target.value)}
@@ -819,7 +819,7 @@ const AddTemplateForm: React.FC<AddTemplateFormProps> = ({ onSubmit, categories,
           rows={4}
           required
         />
-        <div className="text-xs text-muted-foreground mt-1">
+        <div className="creative-module-small mt-1">
           字数: {formData.wordCount} (建议30-50字)
         </div>
       </div>

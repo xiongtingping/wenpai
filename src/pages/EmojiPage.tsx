@@ -338,11 +338,11 @@ const EmojiPage: React.FC = () => {
           <TabsContent value="gallery" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 creative-module-title">
                   <Grid3X3 className="w-5 h-5" />
                   Emoji图库
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="creative-module-description">
                   从500个精美emoji中选择，支持搜索、分类、点击复制等功能
                 </CardDescription>
               </CardHeader>
@@ -394,17 +394,17 @@ const EmojiPage: React.FC = () => {
           <TabsContent value="ai-recommend" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 creative-module-title">
                   <Sparkles className="w-5 h-5" />
                   AI Emoji推荐
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="creative-module-description">
                   输入内容场景，AI将为您推荐最合适的emoji表情符号
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">内容场景</Label>
+                  <Label className="creative-module-button mb-2 block">内容场景</Label>
                   <Textarea
                     placeholder="请输入需要emoji的内容场景，例如：分享一个健身减肥的成功案例、庆祝项目完成、表达对美食的喜爱等..."
                     value={contentContext}
@@ -436,14 +436,14 @@ const EmojiPage: React.FC = () => {
                 {recommendedEmojis.length > 0 && (
                   <Card className="border border-border section-bg">
                     <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
+                      <CardTitle className="creative-module-subtitle flex items-center gap-2">
                         <Star className="w-5 h-5 text-primary" />
                         AI推荐结果
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <Label className="text-sm font-medium mb-2 block">推荐的Emoji</Label>
+                        <Label className="creative-module-button mb-2 block">推荐的Emoji</Label>
                         <div className="flex flex-wrap gap-2 mb-3">
                           {recommendedEmojis.map((emoji, index) => (
                             <Button
@@ -481,9 +481,9 @@ const EmojiPage: React.FC = () => {
 
                       {recommendationReason && (
                         <div>
-                          <Label className="text-sm font-medium mb-2 block">推荐理由</Label>
+                          <Label className="creative-module-button mb-2 block">推荐理由</Label>
                           <div className="bg-card p-4 rounded-lg border border-border">
-                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{recommendationReason}</p>
+                            <p className="creative-module-small whitespace-pre-wrap">{recommendationReason}</p>
                           </div>
                         </div>
                       )}

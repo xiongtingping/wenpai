@@ -244,4 +244,66 @@
     .responsive-text-3xl { font-size: var(--text-lg) !important; }
     .responsive-text-2xl { font-size: var(--text-base) !important; }
   }
+
+  /* ===== 创意魔方模块统一字体样式 ===== */
+  /* 主标题样式 - 用于各模块的主要标题 */
+  .creative-module-title {
+    font-size: var(--text-xl) !important;
+    font-weight: var(--font-weight-bold) !important;
+    line-height: var(--leading-tight) !important;
+    color: var(--text-primary) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+
+  /* 副标题样式 - 用于各模块的副标题 */
+  .creative-module-subtitle {
+    font-size: var(--text-lg) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    line-height: var(--leading-normal) !important;
+    color: var(--text-primary) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+
+  /* 描述文字样式 - 用于各模块的描述信息 */
+  .creative-module-description {
+    font-size: var(--text-sm) !important;
+    font-weight: var(--font-weight-normal) !important;
+    line-height: var(--leading-relaxed) !important;
+    color: var(--text-secondary) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+
+  /* 内容文字样式 - 用于各模块的主要内容 */
+  .creative-module-content {
+    font-size: var(--text-base) !important;
+    font-weight: var(--font-weight-normal) !important;
+    line-height: var(--leading-normal) !important;
+    color: var(--text-primary) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+
+  /* 小号文字样式 - 用于各模块的辅助信息 */
+  .creative-module-small {
+    font-size: var(--text-xs) !important;
+    font-weight: var(--font-weight-normal) !important;
+    line-height: var(--leading-normal) !important;
+    color: var(--text-muted) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+
+  /* 按钮文字样式 - 用于各模块的按钮文字 */
+  .creative-module-button {
+    font-size: var(--text-sm) !important;
+    font-weight: var(--font-weight-medium) !important;
+    line-height: var(--leading-none) !important;
+    letter-spacing: var(--tracking-normal) !important;
+  }
+
+  /* 标签文字样式 - 用于各模块的标签和徽章 */
+  .creative-module-label {
+    font-size: var(--text-xs) !important;
+    font-weight: var(--font-weight-medium) !important;
+    line-height: var(--leading-none) !important;
+    letter-spacing: var(--tracking-wide) !important;
+  }
 }

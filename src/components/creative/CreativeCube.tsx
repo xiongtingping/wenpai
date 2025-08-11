@@ -175,8 +175,8 @@ function DimensionCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {dimension.icon}
-            <CardTitle className="text-sm font-bold text-slate-800">{dimension.name}</CardTitle>
-            {isRequired && <Badge variant="destructive" className="text-xs px-1.5 py-0.5">必选</Badge>}
+            <CardTitle className="creative-module-button text-slate-800">{dimension.name}</CardTitle>
+            {isRequired && <Badge variant="destructive" className="creative-module-label px-1.5 py-0.5">必选</Badge>}
           </div>
           {/* 一键还原按钮 - 替换钉图标 */}
           {hasHiddenDefaultItems && (
@@ -192,7 +192,7 @@ function DimensionCard({
           )}
         </div>
         {dimension.description && (
-          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{dimension.description}</p>
+          <p className="creative-module-small text-slate-600 mt-1">{dimension.description}</p>
         )}
       </CardHeader>
       {/* 内容区域 - 选项按钮 */}
@@ -222,7 +222,7 @@ function DimensionCard({
                   <Button
                     size="sm"
                     variant={selectedItem === item ? "default" : "outline"}
-                    className={`text-xs h-6 px-1.5 justify-center w-full transition-all ${
+                    className={`creative-module-button h-6 px-1.5 justify-center w-full transition-all ${
                       isPinned
                         ? 'border-amber-400 bg-amber-50 hover:bg-amber-100 shadow-sm'
                         : 'hover:shadow-sm'
@@ -2078,11 +2078,11 @@ ${generateStandardCallToAction()}
       {/* 九宫格创意魔方 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 creative-module-title">
             <Sparkles className="w-5 h-5" />
             <span>九宫格创意魔方</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="creative-module-description">
             选择不同维度的元素，AI将为你生成可直接使用的创意内容
           </CardDescription>
         </CardHeader>
