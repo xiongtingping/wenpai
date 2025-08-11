@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Calendar,
   ChevronLeft,
@@ -95,9 +96,17 @@ const getLunarDateDisplay = (date: Date): string => {
     const monthInChinese = lunar.getMonthInChinese();
     const dayInChinese = lunar.getDayInChinese();
 
-    // 处理闰月显示
-    const isLeapMonth = lunar.getMonth() !== lunar.getMonthInChinese().replace('闰', '').length;
-    const monthDisplay = isLeapMonth ? `闰${monthInChinese.replace('闰', '')}月` : `${monthInChinese}月`;
+    // 通过检查月份名称是否包含"闰"字来判断是否为闰月
+    const isLeapMonth = monthInChinese.includes('闰');
+    let monthDisplay;
+
+    if (isLeapMonth) {
+      // 如果是闰月，直接使用包含"闰"字的月份名称
+      monthDisplay = `${monthInChinese}月`;
+    } else {
+      // 普通月份
+      monthDisplay = `${monthInChinese}月`;
+    }
 
     return `${monthDisplay} ${dayInChinese}`;
   } catch (error) {
@@ -305,7 +314,8 @@ const SortableTodoItem: React.FC<{
   onToggleStatus: (id: string) => void;
   onEdit: (task: TodoTask) => void;
   onDelete: (id: string) => void;
-}> = ({ task, onToggleStatus, onEdit, onDelete }) => {
+  onDragStart?: (task: TodoTask) => void;
+}> = ({ task, onToggleStatus, onEdit, onDelete, onDragStart }) => {
   const {
     attributes,
     listeners,
@@ -339,6 +349,13 @@ const SortableTodoItem: React.FC<{
     }
   };
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', task.id);
+    if (onDragStart) {
+      onDragStart(task);
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -346,6 +363,8 @@ const SortableTodoItem: React.FC<{
       className={`p-4 border rounded-lg bg-white hover:shadow-md transition-all ${
         task.status === 'completed' ? 'opacity-60' : ''
       }`}
+      draggable
+      onDragStart={handleDragStart}
     >
       <div className="flex items-start gap-3">
         <div
@@ -445,6 +464,13 @@ function MarketingCalendar() {
 
   // 搜索状态
   const [searchQuery, setSearchQuery] = useState('');
+
+  // 任务预览状态
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+
+  // 拖拽状态
+  const [draggedTask, setDraggedTask] = useState<TodoTask | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
 
   // 拖拽传感器
   const sensors = useSensors(
@@ -749,6 +775,52 @@ function MarketingCalendar() {
     return 'bg-red-100 text-red-800 border-red-200';
   };
 
+  /**
+   * 处理任务拖拽到日历日期
+   */
+  const handleTaskDragToDate = (taskId: string, targetDate: string) => {
+    setTasks(prev => prev.map(task =>
+      task.id === taskId ? { ...task, date: targetDate } : task
+    ));
+    setDraggedTask(null);
+    setDragOverDate(null);
+  };
+
+  /**
+   * 处理日历日期的拖拽事件
+   */
+  const handleDateDragOver = (e: React.DragEvent, dateStr: string) => {
+    e.preventDefault();
+    setDragOverDate(dateStr);
+  };
+
+  const handleDateDragLeave = () => {
+    setDragOverDate(null);
+  };
+
+  const handleDateDrop = (e: React.DragEvent, dateStr: string) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    if (taskId && draggedTask) {
+      handleTaskDragToDate(taskId, dateStr);
+    }
+  };
+
+  /**
+   * 获取指定日期的任务预览内容
+   */
+  const getTasksPreview = (dateStr: string) => {
+    const dateTasks = tasks.filter(task => task.date === dateStr);
+    if (dateTasks.length === 0) return null;
+
+    return dateTasks.slice(0, 5).map(task => ({
+      title: task.title,
+      priority: task.priority,
+      status: task.status,
+      type: task.type
+    }));
+  };
+
   return (
     <div className="space-y-6">
       {/* 上半部分 - 日历视图 */}
@@ -758,6 +830,9 @@ function MarketingCalendar() {
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
               <span>营销日历</span>
+              <Badge variant="outline" className="text-xs">
+                农历营销
+              </Badge>
             </div>
             <div className="flex items-center gap-2">
               {selectedDate && (
@@ -765,13 +840,10 @@ function MarketingCalendar() {
                   已选择: {selectedDate}
                 </Badge>
               )}
-              <Badge variant="outline" className="text-xs">
-                农历营销
-              </Badge>
             </div>
           </CardTitle>
           <CardDescription>
-            点击日期查看对应任务，显示农历、节气、节日等信息
+            点击日期查看对应任务，显示农历、节气、节日等信息。双击日期快速添加任务。
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -843,36 +915,74 @@ function MarketingCalendar() {
                   const dayTasks = tasks.filter(task => task.date === dateStr);
                   const isWeekend = dayIndex >= 5; // 周六、周日
                   const taskCountStyle = getTaskCountStyle(dayTasks.length);
+                  const isDragOver = dragOverDate === dateStr;
+                  const tasksPreview = getTasksPreview(dateStr);
 
                   return (
                     <div
                       key={dayIndex}
                       className={`
-                        min-h-[80px] p-2 border-r border-b cursor-pointer transition-colors relative
-                        ${!isCurrentMonth ? 'bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
+                        min-h-[80px] p-2 border-r border-b cursor-pointer transition-all relative
+                        ${!isCurrentMonth ? 'opacity-40 bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
                         ${isToday ? 'bg-primary/10 border-primary' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary border-2' : ''}
                         ${dayInfo.isHoliday ? 'bg-red-50' : ''}
                         ${isWeekend && isCurrentMonth ? 'bg-blue-50/50' : ''}
                         ${dayInfo.isWorkday && isWeekend ? 'bg-orange-50' : ''}
+                        ${isDragOver ? 'bg-green-100 border-green-400 border-2' : ''}
                       `}
                       onClick={() => selectDate(dayInfo.date)}
                       onDoubleClick={() => quickAddTask(dayInfo.date)}
+                      onDragOver={(e) => handleDateDragOver(e, dateStr)}
+                      onDragLeave={handleDateDragLeave}
+                      onDrop={(e) => handleDateDrop(e, dateStr)}
                     >
                       {/* 日期数字 */}
                       <div className="flex items-center justify-between mb-1">
                         <span className={`text-sm font-medium ${
                           isToday ? 'text-primary font-bold' : ''
-                        } ${isWeekend ? 'text-red-600' : ''}`}>
+                        } ${isWeekend && isCurrentMonth ? 'text-red-600' : ''} ${
+                          !isCurrentMonth ? 'text-gray-400' : ''
+                        }`}>
                           {dayInfo.date.getDate()}
                         </span>
                         {dayTasks.length > 0 && (
-                          <div className={`
-                            text-xs h-5 w-5 rounded-full flex items-center justify-center font-medium
-                            ${taskCountStyle || 'bg-gray-100 text-gray-800'}
-                          `}>
-                            {dayTasks.length > 9 ? '9+' : dayTasks.length}
-                          </div>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className={`
+                                  text-xs h-5 w-5 rounded-full flex items-center justify-center font-medium cursor-help
+                                  ${taskCountStyle || 'bg-gray-100 text-gray-800'}
+                                  hover:scale-110 transition-transform
+                                `}>
+                                  {dayTasks.length > 9 ? '9+' : dayTasks.length}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <div className="space-y-1">
+                                  <div className="font-medium text-xs mb-2">
+                                    {dateStr} 的任务 ({dayTasks.length}个)
+                                  </div>
+                                  {dayTasks.slice(0, 5).map((task, idx) => (
+                                    <div key={idx} className="text-xs flex items-center gap-2">
+                                      <div className={`w-2 h-2 rounded-full ${
+                                        task.priority === 'high' ? 'bg-red-500' :
+                                        task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                                      }`} />
+                                      <span className={task.status === 'completed' ? 'line-through opacity-60' : ''}>
+                                        {task.title}
+                                      </span>
+                                    </div>
+                                  ))}
+                                  {dayTasks.length > 5 && (
+                                    <div className="text-xs text-muted-foreground">
+                                      还有 {dayTasks.length - 5} 个任务...
+                                    </div>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
 
@@ -967,27 +1077,27 @@ function MarketingCalendar() {
                   />
                 </DialogContent>
               </Dialog>
-
-              {/* 编辑任务对话框 */}
-              {editingTask && (
-                <Dialog open={!!editingTask} onOpenChange={() => setEditingTask(null)}>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>编辑任务</DialogTitle>
-                    </DialogHeader>
-                    <TaskForm
-                      task={editingTask}
-                      onSubmit={(taskData) => {
-                        editTask(editingTask.id, taskData);
-                        setEditingTask(null);
-                      }}
-                      onCancel={() => setEditingTask(null)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              )}
             </div>
           </CardTitle>
+
+          {/* 编辑任务对话框 */}
+          {editingTask && (
+            <Dialog open={!!editingTask} onOpenChange={() => setEditingTask(null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>编辑任务</DialogTitle>
+                </DialogHeader>
+                <TaskForm
+                  task={editingTask}
+                  onSubmit={(taskData) => {
+                    editTask(editingTask.id, taskData);
+                    setEditingTask(null);
+                  }}
+                  onCancel={() => setEditingTask(null)}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
           <CardDescription className="flex items-center justify-between">
             <span>
               {selectedDate
@@ -1103,6 +1213,7 @@ function MarketingCalendar() {
                       onToggleStatus={toggleTaskStatus}
                       onEdit={setEditingTask}
                       onDelete={deleteTask}
+                      onDragStart={setDraggedTask}
                     />
                   ))
                 ) : (
