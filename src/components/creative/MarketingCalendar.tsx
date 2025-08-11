@@ -12,10 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Calendar, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
   Plus,
   Clock,
   CheckCircle,
@@ -25,7 +25,10 @@ import {
   SortAsc,
   SortDesc,
   Star,
-  TrendingUp
+  TrendingUp,
+  CalendarDays,
+  Search,
+  X
 } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 import {
@@ -81,6 +84,25 @@ const getFestivalsForDate = (date: Date): string[] => {
   if (solarMonth === 12 && solarDay === 25) festivals.push('圣诞节');
 
   return festivals;
+};
+
+/**
+ * 获取正确格式的农历日期显示
+ */
+const getLunarDateDisplay = (date: Date): string => {
+  try {
+    const lunar = Lunar.fromDate(date);
+    const monthInChinese = lunar.getMonthInChinese();
+    const dayInChinese = lunar.getDayInChinese();
+
+    // 处理闰月显示
+    const isLeapMonth = lunar.getMonth() !== lunar.getMonthInChinese().replace('闰', '').length;
+    const monthDisplay = isLeapMonth ? `闰${monthInChinese.replace('闰', '')}月` : `${monthInChinese}月`;
+
+    return `${monthDisplay} ${dayInChinese}`;
+  } catch (error) {
+    return '';
+  }
 };
 
 /**
@@ -410,6 +432,7 @@ function MarketingCalendar() {
   const [tasks, setTasks] = useState<TodoTask[]>([]);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [editingTask, setEditingTask] = useState<TodoTask | null>(null);
+  const [quickAddDate, setQuickAddDate] = useState<string | null>(null);
 
   // 筛选和排序状态
   const [sortBy, setSortBy] = useState<SortOption>('priority');
@@ -419,6 +442,9 @@ function MarketingCalendar() {
     type: 'all',
     priority: 'all'
   });
+
+  // 搜索状态
+  const [searchQuery, setSearchQuery] = useState('');
 
   // 拖拽传感器
   const sensors = useSensors(
@@ -493,9 +519,12 @@ function MarketingCalendar() {
     // 获取当月第一天
     const firstDay = new Date(year, month, 1);
 
-    // 获取第一周的开始日期（周日开始）
+    // 获取第一周的开始日期（周一开始）
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    const dayOfWeek = firstDay.getDay();
+    // 如果是周日(0)，则需要往前推6天到周一；其他情况往前推(dayOfWeek-1)天
+    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    startDate.setDate(startDate.getDate() - daysToSubtract);
 
     // 生成6周的日期数据
     const weeks: CalendarDateInfo[][] = [];
@@ -507,20 +536,18 @@ function MarketingCalendar() {
       for (let day = 0; day < 7; day++) {
         const date = new Date(currentWeekDate);
 
-        // 获取农历信息
-        let lunarDate = '';
+        // 获取农历信息（使用新的格式化函数）
+        const lunarDate = getLunarDateDisplay(date);
         let solarTerm = null;
         try {
           const lunar = Lunar.fromDate(date);
-          lunarDate = `${lunar.getMonthInChinese()}${lunar.getDayInChinese()}`;
-
           // 检查节气
           const jieQi = lunar.getJieQi();
           if (jieQi) {
             solarTerm = jieQi;
           }
         } catch (error) {
-          lunarDate = '';
+          // 忽略错误
         }
 
         // 获取节日信息
@@ -558,6 +585,15 @@ function MarketingCalendar() {
     // 如果选择了特定日期，只显示该日期的任务
     if (selectedDate) {
       filtered = filtered.filter(task => task.date === selectedDate);
+    }
+
+    // 应用搜索筛选
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(task =>
+        task.title.toLowerCase().includes(query) ||
+        task.description.toLowerCase().includes(query)
+      );
     }
 
     // 应用筛选条件
@@ -599,7 +635,7 @@ function MarketingCalendar() {
     });
 
     return sorted;
-  }, [tasks, selectedDate, filters, sortBy, sortDirection]);
+  }, [tasks, selectedDate, searchQuery, filters, sortBy, sortDirection]);
 
   /**
    * 拖拽结束处理
@@ -684,6 +720,35 @@ function MarketingCalendar() {
     setSelectedDate(selectedDate === dateStr ? null : dateStr);
   };
 
+  /**
+   * 回到今天
+   */
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentDate(today);
+    const todayStr = today.toISOString().split('T')[0];
+    setSelectedDate(todayStr);
+  };
+
+  /**
+   * 快速添加任务到指定日期
+   */
+  const quickAddTask = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    setQuickAddDate(dateStr);
+    setIsAddingTask(true);
+  };
+
+  /**
+   * 获取任务数量的颜色和样式
+   */
+  const getTaskCountStyle = (count: number) => {
+    if (count === 0) return null;
+    if (count <= 2) return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (count <= 4) return 'bg-orange-100 text-orange-800 border-orange-200';
+    return 'bg-red-100 text-red-800 border-red-200';
+  };
+
   return (
     <div className="space-y-6">
       {/* 上半部分 - 日历视图 */}
@@ -720,7 +785,7 @@ function MarketingCalendar() {
               <ChevronLeft className="w-4 h-4" />
             </Button>
 
-            <div className="text-center">
+            <div className="text-center flex-1">
               <div className="text-xl font-semibold">
                 {currentDate.toLocaleDateString('zh-CN', {
                   year: 'numeric',
@@ -734,21 +799,34 @@ function MarketingCalendar() {
               )}
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => changeMonth('next')}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToToday}
+                className="text-xs"
+              >
+                <CalendarDays className="w-4 h-4 mr-1" />
+                回到今天
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => changeMonth('next')}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           {/* 月历视图 */}
           <div className="border rounded-lg overflow-hidden">
             {/* 星期标题 */}
             <div className="grid grid-cols-7 bg-muted">
-              {['日', '一', '二', '三', '四', '五', '六'].map((day, index) => (
-                <div key={index} className="p-3 text-center text-sm font-medium">
+              {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
+                <div key={index} className={`p-3 text-center text-sm font-medium ${
+                  index >= 5 ? 'text-red-600' : ''
+                }`}>
                   {day}
                 </div>
               ))}
@@ -763,29 +841,38 @@ function MarketingCalendar() {
                   const dateStr = dayInfo.date.toISOString().split('T')[0];
                   const isSelected = selectedDate === dateStr;
                   const dayTasks = tasks.filter(task => task.date === dateStr);
+                  const isWeekend = dayIndex >= 5; // 周六、周日
+                  const taskCountStyle = getTaskCountStyle(dayTasks.length);
 
                   return (
                     <div
                       key={dayIndex}
                       className={`
-                        min-h-[80px] p-2 border-r border-b cursor-pointer transition-colors
+                        min-h-[80px] p-2 border-r border-b cursor-pointer transition-colors relative
                         ${!isCurrentMonth ? 'bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
                         ${isToday ? 'bg-primary/10 border-primary' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary border-2' : ''}
                         ${dayInfo.isHoliday ? 'bg-red-50' : ''}
-                        ${dayInfo.isWorkday && dayInfo.date.getDay() === 0 || dayInfo.date.getDay() === 6 ? 'bg-orange-50' : ''}
+                        ${isWeekend && isCurrentMonth ? 'bg-blue-50/50' : ''}
+                        ${dayInfo.isWorkday && isWeekend ? 'bg-orange-50' : ''}
                       `}
                       onClick={() => selectDate(dayInfo.date)}
+                      onDoubleClick={() => quickAddTask(dayInfo.date)}
                     >
                       {/* 日期数字 */}
                       <div className="flex items-center justify-between mb-1">
-                        <span className={`text-sm font-medium ${isToday ? 'text-primary font-bold' : ''}`}>
+                        <span className={`text-sm font-medium ${
+                          isToday ? 'text-primary font-bold' : ''
+                        } ${isWeekend ? 'text-red-600' : ''}`}>
                           {dayInfo.date.getDate()}
                         </span>
                         {dayTasks.length > 0 && (
-                          <Badge variant="secondary" className="text-xs h-4 px-1">
-                            {dayTasks.length}
-                          </Badge>
+                          <div className={`
+                            text-xs h-5 w-5 rounded-full flex items-center justify-center font-medium
+                            ${taskCountStyle || 'bg-gray-100 text-gray-800'}
+                          `}>
+                            {dayTasks.length > 9 ? '9+' : dayTasks.length}
+                          </div>
                         )}
                       </div>
 
@@ -870,9 +957,13 @@ function MarketingCalendar() {
                     onSubmit={(taskData) => {
                       addTask(taskData);
                       setIsAddingTask(false);
+                      setQuickAddDate(null);
                     }}
-                    onCancel={() => setIsAddingTask(false)}
-                    defaultDate={selectedDate || new Date().toISOString().split('T')[0]}
+                    onCancel={() => {
+                      setIsAddingTask(false);
+                      setQuickAddDate(null);
+                    }}
+                    defaultDate={quickAddDate || selectedDate || new Date().toISOString().split('T')[0]}
                   />
                 </DialogContent>
               </Dialog>
@@ -897,10 +988,32 @@ function MarketingCalendar() {
               )}
             </div>
           </CardTitle>
-          <CardDescription>
-            {selectedDate
-              ? `显示 ${selectedDate} 的任务，支持拖拽排序`
-              : '显示所有任务，点击日历选择特定日期'}
+          <CardDescription className="flex items-center justify-between">
+            <span>
+              {selectedDate
+                ? `显示 ${selectedDate} 的任务，支持拖拽排序`
+                : '显示所有任务，点击日历选择特定日期，双击日期快速添加任务'}
+            </span>
+            {/* 搜索框 */}
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="搜索任务..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 w-48 h-8 text-xs"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
           </CardDescription>
         </CardHeader>
         <CardContent>
