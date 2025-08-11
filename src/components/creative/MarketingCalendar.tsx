@@ -1166,7 +1166,7 @@ function MarketingCalendar() {
               </div>
             )}
 
-            {/* 筛选和排序控件 */}
+            {/* 筛选和排序控件 - 单行布局 */}
             <div className="flex flex-wrap items-center gap-1.5">
               <div className="flex items-center gap-1">
                 <Filter className="w-3 h-3" />
@@ -1209,7 +1209,7 @@ function MarketingCalendar() {
                 </SelectContent>
               </Select>
 
-              <div className="flex items-center gap-1 ml-auto">
+              <div className="flex items-center gap-1 ml-2">
                 <span className="text-xs font-medium">排序:</span>
                 <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
                   <SelectTrigger className="w-24 h-7 text-xs">
@@ -1236,7 +1236,7 @@ function MarketingCalendar() {
           </div>
 
           {/* 任务列表 - 支持滚动 */}
-          <div className="h-[350px] overflow-y-auto pr-1">
+          <div className="h-[360px] overflow-y-auto pr-1">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
