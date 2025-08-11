@@ -833,8 +833,8 @@ function MarketingCalendar() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Calendar className="w-4 h-4" />
-              <span>营销日历</span>
+              <Calendar className="w-4 h-4 flex-shrink-0" />
+              <span className="leading-none">营销日历</span>
             </CardTitle>
             {selectedDate && (
               <div className="text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
@@ -1053,63 +1053,43 @@ function MarketingCalendar() {
       {/* 右侧 - Todo任务列表 */}
       <Card className="h-fit lg:h-full lg:overflow-hidden lg:flex lg:flex-col">
         <CardHeader className="pb-3 lg:flex-shrink-0">
-          <CardTitle className="flex items-center justify-between text-lg">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              <span>营销任务</span>
+          <div className="flex items-center justify-between mb-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="leading-none">营销任务</span>
               {selectedDate && (
                 <Badge variant="secondary" className="text-xs">
                   {selectedDate}
                 </Badge>
               )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <Plus className="w-4 h-4 mr-1" />
-                    添加任务
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>添加新任务</DialogTitle>
-                  </DialogHeader>
-                  <TaskForm
-                    onSubmit={(taskData) => {
-                      addTask(taskData);
-                      setIsAddingTask(false);
-                      setQuickAddDate(null);
-                    }}
-                    onCancel={() => {
-                      setIsAddingTask(false);
-                      setQuickAddDate(null);
-                    }}
-                    defaultDate={quickAddDate || selectedDate || new Date().toISOString().split('T')[0]}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardTitle>
-
-          {/* 编辑任务对话框 */}
-          {editingTask && (
-            <Dialog open={!!editingTask} onOpenChange={() => setEditingTask(null)}>
+            </CardTitle>
+            <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="h-8">
+                  <Plus className="w-4 h-4 mr-1" />
+                  添加任务
+                </Button>
+              </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>编辑任务</DialogTitle>
+                  <DialogTitle>添加新任务</DialogTitle>
                 </DialogHeader>
                 <TaskForm
-                  task={editingTask}
                   onSubmit={(taskData) => {
-                    editTask(editingTask.id, taskData);
-                    setEditingTask(null);
+                    addTask(taskData);
+                    setIsAddingTask(false);
+                    setQuickAddDate(null);
                   }}
-                  onCancel={() => setEditingTask(null)}
+                  onCancel={() => {
+                    setIsAddingTask(false);
+                    setQuickAddDate(null);
+                  }}
+                  defaultDate={quickAddDate || selectedDate || new Date().toISOString().split('T')[0]}
                 />
               </DialogContent>
             </Dialog>
-          )}
+          </div>
+
           <CardDescription className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
             <span className="text-xs">
               {selectedDate
@@ -1283,6 +1263,25 @@ function MarketingCalendar() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* 编辑任务对话框 */}
+          {editingTask && (
+            <Dialog open={!!editingTask} onOpenChange={() => setEditingTask(null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>编辑任务</DialogTitle>
+                </DialogHeader>
+                <TaskForm
+                  task={editingTask}
+                  onSubmit={(taskData) => {
+                    editTask(editingTask.id, taskData);
+                    setEditingTask(null);
+                  }}
+                  onCancel={() => setEditingTask(null)}
+                />
+              </DialogContent>
+            </Dialog>
           )}
         </CardContent>
       </Card>
