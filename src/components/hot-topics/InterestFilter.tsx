@@ -66,13 +66,23 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
     { id: 'entertainment', label: '娱乐', icon: '🎬', description: '明星、电影、综艺' },
     { id: 'technology', label: '科技', icon: '💻', description: '技术、AI、互联网' },
     { id: 'sports', label: '体育', icon: '⚽', description: '足球、篮球、比赛' },
-    { id: 'politics', label: '政治', icon: '🏛️', description: '政府、政策、法律' },
+    { id: 'gaming', label: '游戏', icon: '🎮', description: '电竞、游戏、直播' },
+    { id: 'automotive', label: '汽车', icon: '🚗', description: '汽车、新能源车' },
     { id: 'economy', label: '财经', icon: '💰', description: '经济、股票、投资' },
     { id: 'society', label: '社会', icon: '👥', description: '社会事件、新闻' },
     { id: 'education', label: '教育', icon: '📚', description: '学校、考试、培训' },
     { id: 'health', label: '健康', icon: '🏥', description: '医疗、疾病、保健' },
-    { id: 'lifestyle', label: '生活', icon: '🏠', description: '美食、旅游、时尚' },
-    { id: 'other', label: '其他', icon: '📝', description: '其他未分类内容' }
+    { id: 'lifestyle', label: '生活', icon: '🏠', description: '时尚、美容、家居' },
+    { id: 'travel', label: '旅游', icon: '✈️', description: '旅游、旅行、景点' },
+    { id: 'food', label: '美食', icon: '🍜', description: '美食、餐厅、烹饪' },
+    { id: 'science', label: '科学', icon: '🔬', description: '科学研究、学术' },
+    { id: 'culture', label: '文化', icon: '🎨', description: '文化、艺术、历史' },
+    { id: 'international', label: '国际', icon: '🌍', description: '国际新闻、外交' },
+    { id: 'realestate', label: '房产', icon: '🏢', description: '房产、房价、楼市' },
+    { id: 'weather', label: '天气', icon: '🌤️', description: '天气、气候、自然灾害' },
+    { id: 'environment', label: '环保', icon: '🌱', description: '环保、生态、节能' },
+    { id: 'agriculture', label: '农业', icon: '🌾', description: '农业、农村、农产品' },
+    { id: 'pets', label: '宠物', icon: '🐕', description: '宠物、猫狗、宠物用品' }
   ];
 
   // 平台选项
@@ -292,11 +302,11 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
 
       {/* 过滤器面板 - 优化布局和间距 */}
       {isOpen && (
-        <Card className="mt-4 shadow-sm border-border">
-          <CardHeader className="pb-4 space-y-2">
-            <CardTitle className="flex items-center justify-between text-lg font-semibold text-foreground">
-              <span className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-primary" />
+        <Card className="mt-6 shadow-sm border-border bg-card dark:bg-card max-w-none w-full">
+          <CardHeader className="pb-6 space-y-3">
+            <CardTitle className="flex items-center justify-between text-xl font-semibold text-foreground">
+              <span className="flex items-center gap-3">
+                <Settings className="h-6 w-6 text-primary" />
                 兴趣调节设置
               </span>
               <div className="flex items-center gap-3">
@@ -306,10 +316,10 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
                     title: "设置已保存",
                     description: "您的兴趣偏好设置已成功保存",
                   });
-                }} className="h-8 text-sm font-medium">
+                }} className="h-9 px-4 text-sm font-medium">
                   保存设置
                 </Button>
-                <Button variant="outline" size="sm" onClick={resetFilters} className="h-8 text-sm">
+                <Button variant="outline" size="sm" onClick={resetFilters} className="h-9 px-4 text-sm font-medium">
                   重置全部
                 </Button>
               </div>
@@ -318,9 +328,9 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
               调整您的内容偏好，获得更精准的推荐
             </p>
           </CardHeader>
-          <CardContent className="pt-0 space-y-6">
+          <CardContent className="pt-0 px-8 pb-8 space-y-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 h-10 bg-muted/50">
+              <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50">
                 <TabsTrigger value="categories" className="text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
                   分类偏好
                 </TabsTrigger>
@@ -333,36 +343,36 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
               </TabsList>
 
               {/* 分类偏好标签页 - 优化布局和间距 */}
-              <TabsContent value="categories" className="mt-6 space-y-6">
-                <div className="bg-muted/30 rounded-lg p-4 text-center border border-border">
-                  <p className="text-sm text-muted-foreground mb-2">
+              <TabsContent value="categories" className="mt-8 space-y-8">
+                <div className="bg-muted/30 rounded-xl p-6 text-center border border-border">
+                  <p className="text-base text-muted-foreground mb-3 font-medium">
                     💡 调整内容分类偏好
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     左滑减少推荐 ← 中性 → 右滑增加推荐
                   </p>
                 </div>
 
-                <div className="space-y-6">
+                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
                   {categories.map((category) => {
                     const preference = filters.categoryPreferences[category.id] || 0;
                     return (
-                      <div key={category.id} className="bg-card/50 rounded-lg p-4 border border-border/50 space-y-4">
+                      <div key={category.id} className="bg-card dark:bg-card rounded-xl p-6 border border-border space-y-5 shadow-sm">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <span className="text-xl">{category.icon}</span>
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                              <span className="text-2xl">{category.icon}</span>
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-sm font-semibold text-foreground">{category.label}</h4>
-                              <p className="text-xs text-muted-foreground mt-1">{category.description}</p>
+                              <h4 className="text-base font-semibold text-foreground">{category.label}</h4>
+                              <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
                             </div>
                           </div>
-                          <div className="text-right min-w-[80px]">
-                            <div className={`text-sm font-semibold ${getPreferenceColor(preference)}`}>
+                          <div className="text-right min-w-[100px]">
+                            <div className={`text-base font-semibold ${getPreferenceColor(preference)}`}>
                               {getPreferenceLabel(preference)}
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
+                            <div className="text-sm text-muted-foreground mt-1">
                               {preference > 0 ? '+' : ''}{preference}
                             </div>
                           </div>
@@ -396,10 +406,11 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
               </TabsContent>
 
               {/* 关键词标签页 - 优化布局 */}
-              <TabsContent value="keywords" className="mt-6 space-y-6">
-                {/* 偏好关键词 */}
-                <div className="bg-card/50 rounded-lg p-5 border border-border/50 space-y-4">
-                  <div className="flex items-center gap-3 mb-4">
+              <TabsContent value="keywords" className="mt-8 space-y-8">
+                <div className="grid gap-8 grid-cols-1 lg:grid-cols-2">
+                  {/* 偏好关键词 */}
+                  <div className="bg-card dark:bg-card rounded-xl p-6 border border-border space-y-5">
+                    <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                       <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </div>
@@ -447,9 +458,9 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
                   )}
                 </div>
 
-                {/* 屏蔽关键词 */}
-                <div className="bg-card/50 rounded-lg p-5 border border-border/50 space-y-4">
-                  <div className="flex items-center gap-3 mb-4">
+                  {/* 屏蔽关键词 */}
+                  <div className="bg-card dark:bg-card rounded-xl p-6 border border-border space-y-5">
+                    <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                       <EyeOff className="h-4 w-4 text-red-600 dark:text-red-400" />
                     </div>
@@ -495,6 +506,7 @@ const InterestFilter: React.FC<InterestFilterProps> = ({ onFilterChange }) => {
                       </div>
                     </div>
                   )}
+                  </div>
                 </div>
               </TabsContent>
 

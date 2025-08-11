@@ -1,0 +1,231 @@
+/**
+ * 瀑布流布局样式
+ * 为react-masonry-css提供样式支持
+ */
+
+/* 瀑布流容器 */
+.masonry-grid {
+  display: flex;
+  margin-left: -24px; /* 负边距抵消列的左边距 */
+  width: auto;
+}
+
+/* 瀑布流列 */
+.masonry-grid-column {
+  padding-left: 24px; /* 列间距 */
+  background-clip: padding-box;
+}
+
+/* 确保卡片不被分割 */
+.masonry-grid-column > div {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+
+/* 响应式间距调整 */
+@media (max-width: 768px) {
+  .masonry-grid {
+    margin-left: -16px;
+  }
+  
+  .masonry-grid-column {
+    padding-left: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .masonry-grid {
+    margin-left: -12px;
+  }
+  
+  .masonry-grid-column {
+    padding-left: 12px;
+  }
+}
+
+/* 卡片动画 */
+.subscription-card {
+  transition: all 0.3s ease;
+  transform: translateZ(0); /* 启用硬件加速 */
+}
+
+.subscription-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 加载动画 */
+.masonry-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.masonry-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 空状态样式 */
+.masonry-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+}
+
+.masonry-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  opacity: 0.5;
+}
+
+/* 瀑布流项目淡入动画 */
+.masonry-item {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.masonry-item:nth-child(1) { animation-delay: 0.1s; }
+.masonry-item:nth-child(2) { animation-delay: 0.2s; }
+.masonry-item:nth-child(3) { animation-delay: 0.3s; }
+.masonry-item:nth-child(4) { animation-delay: 0.4s; }
+.masonry-item:nth-child(5) { animation-delay: 0.5s; }
+.masonry-item:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 确保图片和内容不会溢出 */
+.masonry-card-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.masonry-card-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* 监控结果项目样式 */
+.monitor-result-item {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.monitor-result-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 平台标签样式 */
+.platform-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 时间标签样式 */
+.time-badge {
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* 热度指示器 */
+.heat-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.heat-indicator::before {
+  content: "🔥";
+  font-size: 12px;
+}
+
+/* 状态指示器 */
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.status-indicator.active {
+  background-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.status-indicator.inactive {
+  background-color: #6b7280;
+  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
+}
+
+/* 操作按钮组 */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.subscription-card:hover .action-buttons {
+  opacity: 1;
+}
+
+/* 结果计数标签 */
+.result-count {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* 无结果状态 */
+.no-results {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.no-results-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  opacity: 0.5;
+}

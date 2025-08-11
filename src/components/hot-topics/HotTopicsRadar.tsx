@@ -69,7 +69,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
-import NotificationCenter from '@/components/hot-topics/NotificationCenter';
+import NotificationBadge from '@/components/hot-topics/NotificationBadge';
 import TopThreePodium from '@/components/hot-topics/TopThreePodium';
 import { 
   getDailyHotAll,
@@ -206,6 +206,7 @@ export default function HotTopicsRadar({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [subscriptionStats, setSubscriptionStats] = useState(getSubscriptionStats());
+  const [monitoringTimer, setMonitoringTimer] = useState<NodeJS.Timeout | null>(null);
   
   // 热度趋势状态
   const [heatTrends, setHeatTrends] = useState<Record<string, TopicHeatTrend[]>>({});
@@ -240,6 +241,14 @@ export default function HotTopicsRadar({
   // 初始化
   useEffect(() => {
     initializeComponent();
+
+    // 启动话题订阅自动监控
+    startSubscriptionMonitoring();
+
+    // 清理函数
+    return () => {
+      stopSubscriptionMonitoring();
+    };
   }, []);
 
   const initializeComponent = async () => {
@@ -306,11 +315,73 @@ export default function HotTopicsRadar({
       await loadSubscriptions();
     }
     setRefreshing(false);
-    
+
     toast({
       title: "刷新成功",
       description: "数据已更新到最新状态",
     });
+  };
+
+  /**
+   * 启动话题订阅自动监控
+   */
+  const startSubscriptionMonitoring = () => {
+    // 如果已有定时器，先清除
+    if (monitoringTimer) {
+      clearInterval(monitoringTimer);
+    }
+
+    // 设置定时器，每5分钟检查一次订阅
+    const timer = setInterval(async () => {
+      try {
+        const activeSubscriptions = subscriptions.filter(s => s.isActive && s.notificationEnabled);
+        if (activeSubscriptions.length > 0) {
+          console.log('🔍 全网雷达自动检查话题订阅...');
+          const results = await checkAllSubscriptions();
+
+          // 静默更新结果
+          setMonitorResults(results);
+
+          const totalResults = Object.values(results).flat().length;
+          if (totalResults > 0) {
+            console.log(`✅ 全网雷达自动监控发现 ${totalResults} 个相关话题`);
+
+            // 发送通知
+            const { notifyTopicUpdate } = await import('@/services/notificationService');
+
+            // 为每个有结果的订阅发送通知
+            Object.entries(results).forEach(([subscriptionId, topicResults]) => {
+              if (topicResults.length > 0) {
+                const subscription = subscriptions.find(s => s.id === subscriptionId);
+                if (subscription) {
+                  notifyTopicUpdate(
+                    subscription.keyword,
+                    `发现 ${topicResults.length} 个相关话题`,
+                    topicResults[0].url // 第一个话题的链接
+                  );
+                }
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('全网雷达自动监控失败:', error);
+      }
+    }, 5 * 60 * 1000); // 5分钟
+
+    setMonitoringTimer(timer);
+    console.log('🚀 全网雷达话题订阅自动监控已启动（每5分钟检查一次）');
+  };
+
+  /**
+   * 停止话题订阅自动监控
+   */
+  const stopSubscriptionMonitoring = () => {
+    if (monitoringTimer) {
+      clearInterval(monitoringTimer);
+      setMonitoringTimer(null);
+      console.log('🛑 全网雷达话题订阅自动监控已停止');
+    }
   };
 
   // 处理话题点击
@@ -410,7 +481,7 @@ export default function HotTopicsRadar({
           return (
             <Card
               key={`${topic.platform}-${index}`}
-              className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+              className={`cursor-pointer transition-all duration-200 hover:shadow-md bg-card dark:bg-card border-border dark:border-border ${
                 isRead ? 'opacity-75' : ''
               } ${compact ? 'p-3' : ''}`}
               onClick={() => handleTopicClick(topic)}
@@ -489,7 +560,7 @@ export default function HotTopicsRadar({
 
   return (
     <div className={`hot-topics-radar ${className}`} style={{ maxHeight }}>
-      <Card className="h-full">
+      <Card className="h-full bg-card dark:bg-card border-border dark:border-border">
         <CardHeader className={compact ? 'pb-3' : 'pb-4'}>
           <div className="flex items-center justify-between">
             <div>
@@ -500,6 +571,9 @@ export default function HotTopicsRadar({
             </div>
 
             <div className="flex items-center gap-2">
+              {/* 通知红点 */}
+              <NotificationBadge className="mr-1" />
+
               <Button
                 variant="outline"
                 size="sm"

@@ -7,6 +7,7 @@ import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import { UserDataIsolationProvider } from '@/hooks/useUserDataIsolationInit';
 import PageTracker from '@/components/analytics/PageTracker';
 import { Toaster } from '@/components/ui/toaster';
+import '@/styles/masonry.css';
 // 🚨 DISABLED: 2025-08-04 暂时禁用UndefinedFixer以排查无限循环问题
 // import UndefinedFixer from '@/components/UndefinedFixer';
 

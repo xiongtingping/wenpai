@@ -10,7 +10,7 @@
  * PROTECTION LEVEL: HIGH
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -58,6 +58,7 @@ import {
   Loader2,
   Play,
   Pause,
+  Info,
   BarChart,
   PieChart,
   Star,
@@ -68,8 +69,10 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
 import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
-import NotificationCenter from '@/components/hot-topics/NotificationCenter';
+import NotificationBadge from '@/components/hot-topics/NotificationBadge';
 import TopThreePodium from '@/components/hot-topics/TopThreePodium';
+import SubscriptionMasonry from '@/components/hot-topics/SubscriptionMasonry';
+import { analyzeKeyword, debounceAnalyzeKeyword } from '@/services/keywordAnalysisService';
 import {
   getDailyHotAll,
   getDailyHotByPlatform,
@@ -94,6 +97,7 @@ import {
   checkAllSubscriptions,
   toggleSubscription,
   getSubscriptionStats,
+  markSubscriptionAsViewed,
   type TopicSubscription,
   type TopicMonitorResult,
   type TopicHeatTrend,
@@ -124,6 +128,9 @@ export default function HotTopicsPage() {
   // ========================================================================
   // PROTECTED HOOKS AND STATE - DO NOT MODIFY
   // ========================================================================
+
+  // 话题订阅自动监控定时器
+  const [monitoringTimer, setMonitoringTimer] = useState<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -165,6 +172,7 @@ export default function HotTopicsPage() {
   const [selectedSubscription, setSelectedSubscription] = useState<TopicSubscription | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState<TopicSubscription | null>(null);
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [subscriptionStats, setSubscriptionStats] = useState(getSubscriptionStats());
 
@@ -176,16 +184,36 @@ export default function HotTopicsPage() {
   // 新增订阅表单 - LOCKED
   const [newSubscription, setNewSubscription] = useState({
     keyword: '',
-    name: '',
     description: '',
-    platforms: [] as string[],
-    sources: [] as string[],
+    timeRange: '24h',
+    minHeatThreshold: 1000,
     isActive: true,
     notificationEnabled: true,
     checkInterval: 30,
-    minHeatThreshold: 1000,
     maxHeatThreshold: 50000
   });
+
+  // 关键词分析状态
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [descriptionEdited, setDescriptionEdited] = useState(false);
+  const [keywordAnalysis, setKeywordAnalysis] = useState<any>(null);
+
+  // 创建防抖的关键词分析函数
+  const debouncedAnalyze = useCallback(
+    debounceAnalyzeKeyword(async (analysis) => {
+      setKeywordAnalysis(analysis);
+      if (!descriptionEdited) {
+        setNewSubscription(prev => ({
+          ...prev,
+          description: analysis.description,
+          timeRange: analysis.suggestedTimeRange,
+          minHeatThreshold: analysis.suggestedHeatThreshold
+        }));
+      }
+      setIsAnalyzing(false);
+    }, 1000),
+    [descriptionEdited]
+  );
 
   // 搜索源配置 - PROTECTED
   const [searchSources] = useState<SearchSource[]>(getAvailableSearchSources());
@@ -702,6 +730,15 @@ export default function HotTopicsPage() {
       return;
     }
 
+    if (!newSubscription.description.trim()) {
+      toast({
+        title: "请输入描述",
+        description: "订阅描述不能为空",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // 如果启用了通知，检查浏览器通知权限
     if (newSubscription.notificationEnabled && 'Notification' in window) {
       if (Notification.permission === 'default') {
@@ -736,16 +773,15 @@ export default function HotTopicsPage() {
       // 重置表单
       setNewSubscription({
         keyword: '',
-        name: '',
         description: '',
-        platforms: [],
-        sources: [],
+        timeRange: '24h',
+        minHeatThreshold: 1000,
         isActive: true,
         notificationEnabled: true,
         checkInterval: 30,
-        minHeatThreshold: 1000,
         maxHeatThreshold: 50000
       });
+      setDescriptionEdited(false);
 
       setIsAddDialogOpen(false);
       loadSubscriptions();
@@ -784,6 +820,49 @@ export default function HotTopicsPage() {
   };
 
   /**
+   * 处理编辑订阅
+   */
+  const handleEditSubscription = (subscription: TopicSubscription) => {
+    setEditingSubscription({ ...subscription });
+    setIsEditDialogOpen(true);
+  };
+
+  /**
+   * 处理保存编辑
+   */
+  const handleSaveEdit = async () => {
+    if (!editingSubscription) return;
+
+    try {
+      const updated = updateTopicSubscription(editingSubscription.id, {
+        keyword: editingSubscription.keyword,
+        description: editingSubscription.description,
+        timeRange: editingSubscription.timeRange,
+        minHeatThreshold: editingSubscription.minHeatThreshold,
+        checkInterval: editingSubscription.checkInterval,
+        notificationEnabled: editingSubscription.notificationEnabled,
+        maxHeatThreshold: editingSubscription.maxHeatThreshold
+      });
+
+      if (updated) {
+        await loadSubscriptions();
+        setIsEditDialogOpen(false);
+        setEditingSubscription(null);
+        toast({
+          title: "保存成功",
+          description: "话题订阅已更新",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "保存失败",
+        description: "保存订阅时发生错误",
+        variant: "destructive"
+      });
+    }
+  };
+
+  /**
    * 处理切换订阅状态
    */
   const handleToggleSubscription = (id: string, isActive: boolean) => {
@@ -800,6 +879,19 @@ export default function HotTopicsPage() {
         description: "切换订阅状态时发生错误",
         variant: "destructive"
       });
+    }
+  };
+
+  /**
+   * 处理标记订阅为已查看（清除红点）
+   */
+  const handleMarkAsViewed = (subscriptionId: string) => {
+    try {
+      markSubscriptionAsViewed(subscriptionId);
+      loadSubscriptions(); // 重新加载订阅列表以更新红点状态
+      console.log(`✅ 订阅 ${subscriptionId} 已标记为已查看，红点已清除`);
+    } catch (error) {
+      console.error('标记已查看失败:', error);
     }
   };
 
@@ -845,7 +937,7 @@ export default function HotTopicsPage() {
     try {
       const results = await checkAllSubscriptions();
       setMonitorResults(results);
-      
+
       const totalResults = Object.values(results).flat().length;
       toast({
         title: "批量检查完成",
@@ -859,6 +951,68 @@ export default function HotTopicsPage() {
       });
     } finally {
       setIsMonitoring(false);
+    }
+  };
+
+  /**
+   * 启动话题订阅自动监控
+   */
+  const startSubscriptionMonitoring = () => {
+    // 如果已有定时器，先清除
+    if (monitoringTimer) {
+      clearInterval(monitoringTimer);
+    }
+
+    // 设置定时器，每5分钟检查一次订阅
+    const timer = setInterval(async () => {
+      try {
+        const activeSubscriptions = subscriptions.filter(s => s.isActive && s.notificationEnabled);
+        if (activeSubscriptions.length > 0) {
+          console.log('🔍 自动检查话题订阅...');
+          const results = await checkAllSubscriptions();
+
+          // 静默更新结果
+          setMonitorResults(results);
+
+          const totalResults = Object.values(results).flat().length;
+          if (totalResults > 0) {
+            console.log(`✅ 自动监控发现 ${totalResults} 个相关话题`);
+
+            // 发送通知
+            const { notifyTopicUpdate } = await import('@/services/notificationService');
+
+            // 为每个有结果的订阅发送通知
+            Object.entries(results).forEach(([subscriptionId, topicResults]) => {
+              if (topicResults.length > 0) {
+                const subscription = subscriptions.find(s => s.id === subscriptionId);
+                if (subscription) {
+                  notifyTopicUpdate(
+                    subscription.keyword,
+                    `发现 ${topicResults.length} 个相关话题`,
+                    topicResults[0].url // 第一个话题的链接
+                  );
+                }
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('自动监控失败:', error);
+      }
+    }, 5 * 60 * 1000); // 5分钟
+
+    setMonitoringTimer(timer);
+    console.log('🚀 话题订阅自动监控已启动（每5分钟检查一次）');
+  };
+
+  /**
+   * 停止话题订阅自动监控
+   */
+  const stopSubscriptionMonitoring = () => {
+    if (monitoringTimer) {
+      clearInterval(monitoringTimer);
+      setMonitoringTimer(null);
+      console.log('🛑 话题订阅自动监控已停止');
     }
   };
 
@@ -890,6 +1044,33 @@ export default function HotTopicsPage() {
     }
   };
 
+  // 兴趣设置保存和重置函数
+  const handleSaveInterestSettings = () => {
+    toast({
+      title: "设置已保存",
+      description: "您的兴趣偏好设置已成功保存",
+    });
+  };
+
+  const handleResetInterestSettings = () => {
+    // 重置兴趣过滤器到默认状态
+    setInterestFilters({
+      blockedKeywords: [],
+      blockedPlatforms: [],
+      preferredKeywords: [],
+      preferredPlatforms: [],
+      showBlocked: false
+    });
+
+    // 清除本地存储的兴趣设置
+    localStorage.removeItem('interest-filters');
+
+    toast({
+      title: "设置已重置",
+      description: "所有兴趣偏好设置已恢复默认",
+    });
+  };
+
   // ========================================================================
   // COMPONENT INITIALIZATION - CRITICAL - DO NOT MODIFY
   // ========================================================================
@@ -898,6 +1079,28 @@ export default function HotTopicsPage() {
   useEffect(() => {
     fetchHotData();
     loadSubscriptions();
+
+    // 启动话题订阅自动监控
+    startSubscriptionMonitoring();
+
+    // 测试通知系统（仅在开发环境）
+    if (process.env.NODE_ENV === 'development') {
+      setTimeout(() => {
+        // 导入通知服务并发送测试通知
+        import('@/services/notificationService').then(({ notifySystem }) => {
+          notifySystem(
+            '系统启动完成',
+            '话题订阅自动监控已启动，每5分钟检查一次订阅更新',
+            'success'
+          );
+        });
+      }, 2000); // 2秒后发送测试通知
+    }
+
+    // 清理函数
+    return () => {
+      stopSubscriptionMonitoring();
+    };
   }, []);
 
   // ========================================================================
@@ -1212,169 +1415,34 @@ export default function HotTopicsPage() {
 
           {/* 话题订阅标签页 */}
           <TabsContent value="subscriptions">
-            {/* 订阅统计 */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-foreground">{subscriptionStats.total}</div>
-                  <div className="text-sm text-muted-foreground">总数</div>
-                </div>
-              </div>
 
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-foreground">{subscriptionStats.active}</div>
-                  <div className="text-sm text-muted-foreground">活跃</div>
-                </div>
-              </div>
 
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-foreground">{subscriptionStats.notificationEnabled}</div>
-                  <div className="text-sm text-muted-foreground">通知</div>
-                </div>
-              </div>
+            {/* 订阅瀑布流 */}
+            <SubscriptionMasonry
+              subscriptions={subscriptions}
+              monitorResults={monitorResults}
+              isMonitoring={isMonitoring}
+              onEdit={handleEditSubscription}
+              onDelete={handleDeleteSubscription}
+              onMonitor={handleMonitorTopic}
+              onTrends={(subscription) => {
+                setSelectedSubscription(subscription);
+                loadHeatTrends(subscription.keyword);
+              }}
+              onToggle={handleToggleSubscription}
+              onMarkAsViewed={handleMarkAsViewed}
+            />
 
-              <div className="bg-card p-4 rounded-lg border border-border">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-foreground">
-                    {Object.values(monitorResults).flat().length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">结果</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 订阅列表 */}
-            {subscriptions.length === 0 ? (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <BellOff className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">暂无话题订阅</h3>
-                  <p className="text-base text-muted-foreground mb-4">
-                    创建话题订阅，实时监控感兴趣的内容
-                  </p>
-                  <Button onClick={() => setIsAddDialogOpen(true)} className="font-medium">
-                    <Plus className="w-4 h-4 mr-2" />
-                    添加第一个订阅
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {subscriptions.map((subscription) => (
-                  <div key={subscription.id} className="bg-muted/15 rounded-md border border-muted/30 hover:bg-muted/25 transition-colors">
-                    <div className="p-2.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 bg-muted/40 rounded flex items-center justify-center">
-                            <Target className="w-2.5 h-2.5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <h3 className="text-base font-medium text-foreground">{subscription.name}</h3>
-                            <p className="text-sm text-muted-foreground">关键词: {subscription.keyword}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-0.5">
-                          <Switch
-                            checked={subscription.isActive}
-                            onCheckedChange={(checked) => handleToggleSubscription(subscription.id, checked)}
-                            className="scale-[0.65]"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleMonitorTopic(subscription)}
-                            disabled={isMonitoring}
-                            className="h-8 px-3 text-sm font-medium text-muted-foreground hover:text-foreground"
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            {isMonitoring ? '检查中' : '检查'}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedSubscription(subscription);
-                              loadHeatTrends(subscription.keyword);
-                            }}
-                            className="h-8 px-3 text-sm font-medium text-muted-foreground hover:text-foreground"
-                          >
-                            <BarChart className="w-4 h-4 mr-1" />
-                            趋势
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteSubscription(subscription.id)}
-                            className="h-8 px-3 text-sm font-medium text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* 详情信息 */}
-                      <div className="mt-4 pt-4 border-t border-muted/30">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">状态:</span>
-                            <span className={`px-2 py-1 rounded text-sm font-medium ${
-                              subscription.isActive
-                                ? "bg-green-100 text-green-700"
-                                : "bg-muted text-muted-foreground"
-                            }`}>
-                              {subscription.isActive ? "活跃" : "暂停"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">通知:</span>
-                            <span className={`px-2 py-1 rounded text-sm font-medium ${
-                              subscription.notificationEnabled
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-muted text-muted-foreground"
-                            }`}>
-                              {subscription.notificationEnabled ? "开启" : "关闭"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">间隔:</span>
-                            <span className="font-medium text-foreground">{subscription.checkInterval}分钟</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">阈值:</span>
-                            <span className="font-medium text-foreground">{subscription.minHeatThreshold}-{subscription.maxHeatThreshold}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 监控结果 */}
-                      {monitorResults[subscription.id] && monitorResults[subscription.id].length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-muted/30">
-                          <h4 className="text-sm font-medium text-muted-foreground mb-3">监控结果</h4>
-                          <div className="space-y-2">
-                            {monitorResults[subscription.id].slice(0, 2).map((result, index) => (
-                              <div key={index} className="flex items-center justify-between p-3 bg-muted/10 rounded border border-muted/20">
-                                <span className="text-sm text-foreground truncate">{result.title}</span>
-                                <span className="text-sm text-muted-foreground bg-muted/30 px-2 py-1 rounded">
-                                  {result.platform}
-                                </span>
-                              </div>
-                            ))}
-                            {monitorResults[subscription.id].length > 2 && (
-                              <p className="text-sm text-muted-foreground pl-3">
-                                还有 {monitorResults[subscription.id].length - 2} 个结果...
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+            {/* 添加订阅按钮 - 当有订阅时显示 */}
+            {subscriptions.length > 0 && (
+              <div className="text-center mt-8">
+                <Button onClick={() => setIsAddDialogOpen(true)} className="font-medium">
+                  <Plus className="w-4 h-4 mr-2" />
+                  添加新订阅
+                </Button>
               </div>
             )}
+
           </TabsContent>
 
           {/* 灵感夹标签页 */}
@@ -1526,51 +1594,168 @@ export default function HotTopicsPage() {
                   id="keyword"
                   placeholder="输入要监控的关键词"
                   value={newSubscription.keyword}
-                  onChange={(e) => setNewSubscription(prev => ({ ...prev, keyword: e.target.value }))}
+                  onChange={(e) => {
+                    const keyword = e.target.value;
+                    setNewSubscription(prev => ({ ...prev, keyword }));
+
+                    // 触发关键词分析
+                    if (keyword.trim() && !descriptionEdited) {
+                      setIsAnalyzing(true);
+                      debouncedAnalyze(keyword);
+                    }
+                  }}
                 />
               </div>
-              
+
               <div className="grid gap-2">
-                <Label htmlFor="name" className="text-sm font-medium text-foreground">订阅名称</Label>
-                <Input
-                  id="name"
-                  placeholder="为订阅起个名字"
-                  value={newSubscription.name}
-                  onChange={(e) => setNewSubscription(prev => ({ ...prev, name: e.target.value }))}
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="description" className="text-sm font-medium text-foreground">描述</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description" className="text-sm font-medium text-foreground">描述 *</Label>
+                  {isAnalyzing && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      智能分析中...
+                    </div>
+                  )}
+                </div>
                 <Input
                   id="description"
-                  placeholder="订阅的详细描述"
+                  placeholder="系统将根据关键词自动生成描述，您也可以手动修改"
                   value={newSubscription.description}
-                  onChange={(e) => setNewSubscription(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) => {
+                    setNewSubscription(prev => ({ ...prev, description: e.target.value }));
+                    setDescriptionEdited(true);
+                  }}
                 />
+                <p className="text-xs text-muted-foreground">
+                  💡 系统会根据关键词自动生成描述，您可以随时修改
+                </p>
               </div>
-              
-              <div className="grid gap-2">
-                <Label className="text-sm font-medium text-foreground">监控平台</Label>
-                <div className="flex flex-wrap gap-2">
-                  {supportedPlatforms.map((platform) => (
-                    <Button
-                      key={platform}
-                      variant={newSubscription.platforms.includes(platform) ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        const platforms = newSubscription.platforms.includes(platform)
-                          ? newSubscription.platforms.filter(p => p !== platform)
-                          : [...newSubscription.platforms, platform];
-                        setNewSubscription(prev => ({ ...prev, platforms }));
-                      }}
-                    >
-                      {getPlatformIcon(platform)}
-                      {getPlatformDisplayName(platform)}
-                    </Button>
-                  ))}
+
+              {/* 关键词分析结果 */}
+              {keywordAnalysis && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">AI</span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">智能关键词分析</h4>
+                  </div>
+
+                  <div className="space-y-3">
+                    {/* 详细剖析 */}
+                    {keywordAnalysis.analysis && (
+                      <div>
+                        <h5 className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">📊 深度剖析</h5>
+                        <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                          {keywordAnalysis.analysis}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* 相关关键词 */}
+                    {keywordAnalysis.relatedKeywords && keywordAnalysis.relatedKeywords.length > 0 && (
+                      <div>
+                        <h5 className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-2">🔗 相关关键词</h5>
+                        <div className="flex flex-wrap gap-1">
+                          {keywordAnalysis.relatedKeywords.map((related: string, index: number) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800"
+                              onClick={() => {
+                                setNewSubscription(prev => ({ ...prev, keyword: related }));
+                                setDescriptionEdited(false);
+                                setIsAnalyzing(true);
+                                debouncedAnalyze(related);
+                              }}
+                            >
+                              {related}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 监控建议 */}
+                    {keywordAnalysis.monitoringTips && keywordAnalysis.monitoringTips.length > 0 && (
+                      <div>
+                        <h5 className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-2">💡 监控建议</h5>
+                        <ul className="space-y-1">
+                          {keywordAnalysis.monitoringTips.map((tip: string, index: number) => (
+                            <li key={index} className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-1">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>{tip}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 分类和标签 */}
+                    <div className="flex items-center justify-between pt-2 border-t border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-blue-600 dark:text-blue-400">分类:</span>
+                        <Badge variant="outline" className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
+                          {keywordAnalysis.category}
+                        </Badge>
+                      </div>
+                      {keywordAnalysis.tags && keywordAnalysis.tags.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          {keywordAnalysis.tags.map((tag: string, index: number) => (
+                            <Badge key={index} variant="outline" className="text-xs border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-muted/20 p-3 rounded-lg border border-muted/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <Info className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-medium text-foreground">搜索范围</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  系统将自动搜索全网所有可用平台（微博、知乎、抖音、B站等），并在结果中标注信息来源
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="timeRange" className="text-sm font-medium text-foreground">时间范围</Label>
+                  <Select
+                    value={newSubscription.timeRange}
+                    onValueChange={(value) => setNewSubscription(prev => ({ ...prev, timeRange: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1h">1小时</SelectItem>
+                      <SelectItem value="6h">6小时</SelectItem>
+                      <SelectItem value="24h">24小时</SelectItem>
+                      <SelectItem value="7d">7天</SelectItem>
+                      <SelectItem value="30d">30天</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="minHeatThreshold" className="text-sm font-medium text-foreground">最低热度</Label>
+                  <Input
+                    id="minHeatThreshold"
+                    type="number"
+                    placeholder="1000"
+                    value={newSubscription.minHeatThreshold}
+                    onChange={(e) => setNewSubscription(prev => ({ ...prev, minHeatThreshold: parseInt(e.target.value) || 0 }))}
+                  />
                 </div>
               </div>
+              
+
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
@@ -1592,32 +1777,7 @@ export default function HotTopicsPage() {
                   </Select>
                 </div>
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="minHeatThreshold" className="text-sm font-medium text-foreground">最低热度</Label>
-                  <div className="flex gap-2">
-                    <div className="flex gap-1">
-                      {[500, 1000, 3000, 5000, 10000].map((threshold) => (
-                        <Button
-                          key={threshold}
-                          variant={newSubscription.minHeatThreshold === threshold ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setNewSubscription(prev => ({ ...prev, minHeatThreshold: threshold }))}
-                          className="text-xs"
-                        >
-                          {threshold >= 1000 ? `${threshold / 1000}k` : threshold}
-                        </Button>
-                      ))}
-                    </div>
-                    <Input
-                      id="minHeatThreshold"
-                      type="number"
-                      placeholder="自定义"
-                      value={newSubscription.minHeatThreshold}
-                      onChange={(e) => setNewSubscription(prev => ({ ...prev, minHeatThreshold: parseInt(e.target.value) || 0 }))}
-                      className="w-24"
-                    />
-                  </div>
-                </div>
+
               </div>
               
               <div className="flex items-center space-x-2">
@@ -1645,6 +1805,142 @@ export default function HotTopicsPage() {
               </Button>
               <Button onClick={handleAddSubscription} className="font-medium">
                 添加订阅
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* 编辑订阅对话框 */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-semibold text-foreground">编辑话题订阅</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                修改订阅设置和监控条件
+              </DialogDescription>
+            </DialogHeader>
+
+            {editingSubscription && (
+              <div className="grid gap-4 py-4">
+
+
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-subscription-keyword" className="text-sm font-medium text-foreground">关键词</Label>
+                  <Input
+                    id="edit-subscription-keyword"
+                    placeholder="输入要监控的关键词"
+                    value={editingSubscription.keyword}
+                    onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, keyword: e.target.value } : null)}
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-subscription-description" className="text-sm font-medium text-foreground">描述 *</Label>
+                  <Input
+                    id="edit-subscription-description"
+                    placeholder="描述这个订阅的用途和目标"
+                    value={editingSubscription.description || ''}
+                    onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, description: e.target.value } : null)}
+                  />
+                </div>
+
+                <div className="bg-muted/20 p-3 rounded-lg border border-muted/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Info className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm font-medium text-foreground">搜索范围</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    系统将自动搜索全网所有可用平台，并在结果中标注信息来源
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-timeRange" className="text-sm font-medium text-foreground">时间范围</Label>
+                    <Select
+                      value={editingSubscription.timeRange || '24h'}
+                      onValueChange={(value) => setEditingSubscription(prev => prev ? { ...prev, timeRange: value } : null)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1h">1小时</SelectItem>
+                        <SelectItem value="6h">6小时</SelectItem>
+                        <SelectItem value="24h">24小时</SelectItem>
+                        <SelectItem value="7d">7天</SelectItem>
+                        <SelectItem value="30d">30天</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-minHeatThreshold" className="text-sm font-medium text-foreground">最低热度</Label>
+                    <Input
+                      id="edit-minHeatThreshold"
+                      type="number"
+                      placeholder="1000"
+                      value={editingSubscription.minHeatThreshold || ''}
+                      onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, minHeatThreshold: parseInt(e.target.value) || undefined } : null)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-checkInterval" className="text-sm font-medium text-foreground">检查间隔（分钟）</Label>
+                  <div className="flex gap-2">
+                    <div className="flex gap-1">
+                      {[15, 30, 60, 120, 240].map((interval) => (
+                        <Button
+                          key={interval}
+                          variant={editingSubscription.checkInterval === interval ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setEditingSubscription(prev => prev ? { ...prev, checkInterval: interval } : null)}
+                          className="text-xs"
+                        >
+                          {interval >= 60 ? `${interval / 60}h` : `${interval}m`}
+                        </Button>
+                      ))}
+                    </div>
+                    <Input
+                      id="edit-checkInterval"
+                      type="number"
+                      placeholder="自定义"
+                      value={editingSubscription.checkInterval}
+                      onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, checkInterval: parseInt(e.target.value) || 30 } : null)}
+                      className="w-20"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-maxHeatThreshold" className="text-sm font-medium text-foreground">热度警报</Label>
+                  <Input
+                    id="edit-maxHeatThreshold"
+                    type="number"
+                    placeholder="50000"
+                    value={editingSubscription.maxHeatThreshold || ''}
+                    onChange={(e) => setEditingSubscription(prev => prev ? { ...prev, maxHeatThreshold: parseInt(e.target.value) || undefined } : null)}
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="edit-notificationEnabled"
+                    checked={editingSubscription.notificationEnabled}
+                    onCheckedChange={(checked) => setEditingSubscription(prev => prev ? { ...prev, notificationEnabled: checked } : null)}
+                  />
+                  <Label htmlFor="edit-notificationEnabled" className="text-sm font-medium text-foreground">启用通知</Label>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="font-medium">
+                取消
+              </Button>
+              <Button onClick={handleSaveEdit} className="font-medium">
+                保存修改
               </Button>
             </DialogFooter>
           </DialogContent>
