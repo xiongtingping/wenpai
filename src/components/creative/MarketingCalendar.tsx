@@ -1003,8 +1003,11 @@ function MarketingCalendar() {
                   const isToday = dateStr === todayStr;
                   const isSelected = selectedDate === dateStr;
                   const dayTasks = tasks.filter(task => task.date === dateStr);
+                  const pendingTasks = dayTasks.filter(task => task.status === 'pending');
+                  const completedTasks = dayTasks.filter(task => task.status === 'completed');
+                  const highPriorityTasks = pendingTasks.filter(task => task.priority === 'high');
                   const isWeekend = dayIndex >= 5; // 周六、周日
-                  const taskCountStyle = getTaskCountStyle(dayTasks.length);
+                  const taskCountStyle = getTaskCountStyle(pendingTasks.length);
                   const isDragOver = dragOverDate === dateStr;
 
                   return (
@@ -1035,44 +1038,108 @@ function MarketingCalendar() {
                         }`}>
                           {dayInfo.date.getDate()}
                         </span>
-                        {dayTasks.length > 0 && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className={`
-                                  text-xs h-4 w-4 rounded-full flex items-center justify-center font-medium cursor-help
-                                  ${taskCountStyle || 'bg-gray-100 text-gray-800'}
-                                  hover:scale-110 transition-transform
-                                `}>
-                                  {dayTasks.length > 9 ? '9+' : dayTasks.length}
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-xs">
-                                <div className="space-y-1">
-                                  <div className="font-medium text-xs mb-2">
-                                    {dateStr} 的任务 ({dayTasks.length}个)
+                        <div className="flex items-center gap-1">
+                          {/* 高优先级任务红色标注 */}
+                          {highPriorityTasks.length > 0 && (
+                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" title={`${highPriorityTasks.length}个高优先级任务`} />
+                          )}
+
+                          {/* 未完成任务数量 */}
+                          {pendingTasks.length > 0 && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className={`
+                                    text-xs h-4 w-4 rounded-full flex items-center justify-center font-medium cursor-help
+                                    ${taskCountStyle || 'bg-gray-100 text-gray-800'}
+                                    hover:scale-110 transition-transform
+                                  `}>
+                                    {pendingTasks.length > 9 ? '9+' : pendingTasks.length}
                                   </div>
-                                  {dayTasks.slice(0, 5).map((task, idx) => (
-                                    <div key={idx} className="text-xs flex items-center gap-2">
-                                      <div className={`w-2 h-2 rounded-full ${
-                                        task.priority === 'high' ? 'bg-red-500' :
-                                        task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-                                      }`} />
-                                      <span className={task.status === 'completed' ? 'line-through opacity-60' : ''}>
-                                        {task.title}
-                                      </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <div className="space-y-1">
+                                    <div className="font-medium text-xs mb-2">
+                                      {dateStr} 的任务
                                     </div>
-                                  ))}
-                                  {dayTasks.length > 5 && (
-                                    <div className="text-xs text-muted-foreground">
-                                      还有 {dayTasks.length - 5} 个任务...
+
+                                    {/* 未完成任务 */}
+                                    {pendingTasks.length > 0 && (
+                                      <div className="mb-2">
+                                        <div className="text-xs font-medium text-orange-600 mb-1">
+                                          待完成 ({pendingTasks.length}个)
+                                        </div>
+                                        {pendingTasks.slice(0, 3).map((task, idx) => (
+                                          <div key={idx} className="text-xs flex items-center gap-2 ml-2">
+                                            <div className={`w-2 h-2 rounded-full ${
+                                              task.priority === 'high' ? 'bg-red-500' :
+                                              task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                                            }`} />
+                                            <span>{task.title}</span>
+                                          </div>
+                                        ))}
+                                        {pendingTasks.length > 3 && (
+                                          <div className="text-xs text-muted-foreground ml-4">
+                                            还有 {pendingTasks.length - 3} 个待完成...
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {/* 已完成任务 */}
+                                    {completedTasks.length > 0 && (
+                                      <div>
+                                        <div className="text-xs font-medium text-green-600 mb-1">
+                                          已完成 ({completedTasks.length}个)
+                                        </div>
+                                        {completedTasks.slice(0, 2).map((task, idx) => (
+                                          <div key={idx} className="text-xs flex items-center gap-2 ml-2">
+                                            <div className="w-2 h-2 rounded-full bg-green-500" />
+                                            <span className="line-through opacity-60">{task.title}</span>
+                                          </div>
+                                        ))}
+                                        {completedTasks.length > 2 && (
+                                          <div className="text-xs text-muted-foreground ml-4">
+                                            还有 {completedTasks.length - 2} 个已完成...
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+
+                          {/* 仅有已完成任务时显示历史标记 */}
+                          {pendingTasks.length === 0 && completedTasks.length > 0 && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="w-2 h-2 bg-green-500 rounded-full opacity-60" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <div className="space-y-1">
+                                    <div className="font-medium text-xs mb-2 text-green-600">
+                                      {dateStr} 已完成任务 ({completedTasks.length}个)
                                     </div>
-                                  )}
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
+                                    {completedTasks.slice(0, 5).map((task, idx) => (
+                                      <div key={idx} className="text-xs flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                                        <span className="line-through opacity-60">{task.title}</span>
+                                      </div>
+                                    ))}
+                                    {completedTasks.length > 5 && (
+                                      <div className="text-xs text-muted-foreground">
+                                        还有 {completedTasks.length - 5} 个已完成...
+                                      </div>
+                                    )}
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                       </div>
 
                       {/* 农历日期 - 紧凑显示 */}
