@@ -894,9 +894,9 @@ function MarketingCalendar() {
           </div>
 
           {/* 月历视图 */}
-          <div className="border rounded-lg overflow-hidden flex-1">
+          <div className="border rounded-lg overflow-hidden flex-1 flex flex-col">
             {/* 星期标题 - 更紧凑布局 */}
-            <div className="grid grid-cols-7 bg-muted">
+            <div className="grid grid-cols-7 bg-muted flex-shrink-0">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
                 <div key={index} className={`p-1.5 text-center text-xs font-medium ${
                   index >= 5 ? 'text-red-600' : ''
@@ -906,10 +906,11 @@ function MarketingCalendar() {
               ))}
             </div>
 
-            {/* 日期网格 */}
-            {calendarData.map((week, weekIndex) => (
-              <div key={weekIndex} className="grid grid-cols-7 border-t">
-                {week.map((dayInfo, dayIndex) => {
+            {/* 日期网格 - 使用flex-1填满剩余空间 */}
+            <div className="flex-1 flex flex-col">
+              {calendarData.map((week, weekIndex) => (
+                <div key={weekIndex} className="grid grid-cols-7 border-t flex-1">
+                  {week.map((dayInfo, dayIndex) => {
                   const isCurrentMonth = dayInfo.date.getMonth() === currentDate.getMonth();
 
                   // 统一使用本地时间格式化日期，避免时区问题
@@ -936,7 +937,7 @@ function MarketingCalendar() {
                     <div
                       key={dayIndex}
                       className={`
-                        min-h-[55px] p-1 border-r border-b cursor-pointer transition-all relative
+                        h-full min-h-[70px] p-1 border-r border-b cursor-pointer transition-all relative flex flex-col
                         ${!isCurrentMonth ? 'opacity-40 bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
                         ${isToday ? 'bg-primary/10 border-primary' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary border-2' : ''}
@@ -1046,8 +1047,9 @@ function MarketingCalendar() {
                     </div>
                   );
                 })}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
