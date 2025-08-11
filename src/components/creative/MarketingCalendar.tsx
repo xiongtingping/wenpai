@@ -49,6 +49,60 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 /**
+ * 获取指定日期的节日信息
+ */
+const getFestivalsForDate = (date: Date): string[] => {
+  const festivals: string[] = [];
+  const solarMonth = date.getMonth() + 1;
+  const solarDay = date.getDate();
+
+  try {
+    const lunar = Lunar.fromDate(date);
+    const lunarMonth = lunar.getMonth();
+    const lunarDay = lunar.getDay();
+
+    // 农历节日
+    if (lunarMonth === 1 && lunarDay === 1) festivals.push('春节');
+    if (lunarMonth === 1 && lunarDay === 15) festivals.push('元宵节');
+    if (lunarMonth === 5 && lunarDay === 5) festivals.push('端午节');
+    if (lunarMonth === 8 && lunarDay === 15) festivals.push('中秋节');
+    if (lunarMonth === 9 && lunarDay === 9) festivals.push('重阳节');
+  } catch (error) {
+    // 农历转换失败时忽略
+  }
+
+  // 阳历节日
+  if (solarMonth === 1 && solarDay === 1) festivals.push('元旦');
+  if (solarMonth === 2 && solarDay === 14) festivals.push('情人节');
+  if (solarMonth === 3 && solarDay === 8) festivals.push('妇女节');
+  if (solarMonth === 5 && solarDay === 1) festivals.push('劳动节');
+  if (solarMonth === 6 && solarDay === 1) festivals.push('儿童节');
+  if (solarMonth === 10 && solarDay === 1) festivals.push('国庆节');
+  if (solarMonth === 12 && solarDay === 25) festivals.push('圣诞节');
+
+  return festivals;
+};
+
+/**
+ * 判断是否为法定节假日
+ */
+const isHolidayDate = (date: Date): boolean => {
+  const festivals = getFestivalsForDate(date);
+  const holidayFestivals = ['元旦', '春节', '劳动节', '国庆节'];
+  return festivals.some(festival => holidayFestivals.includes(festival));
+};
+
+/**
+ * 判断是否为调休工作日
+ */
+const isWorkdayDate = (date: Date): boolean => {
+  // 这里可以根据实际的调休安排来判断
+  // 简化处理：周末一般不是工作日
+  const dayOfWeek = date.getDay();
+  return dayOfWeek !== 0 && dayOfWeek !== 6;
+};
+
+/**
  * Todo任务接口
  */
 interface TodoTask {
@@ -494,60 +548,6 @@ function MarketingCalendar() {
 
     return weeks;
   }, [currentDate]);
-
-  /**
-   * 获取指定日期的节日信息
-   */
-  const getFestivalsForDate = (date: Date): string[] => {
-    const festivals: string[] = [];
-    const solarMonth = date.getMonth() + 1;
-    const solarDay = date.getDate();
-
-    try {
-      const lunar = Lunar.fromDate(date);
-      const lunarMonth = lunar.getMonth();
-      const lunarDay = lunar.getDay();
-
-      // 农历节日
-      if (lunarMonth === 1 && lunarDay === 1) festivals.push('春节');
-      if (lunarMonth === 1 && lunarDay === 15) festivals.push('元宵节');
-      if (lunarMonth === 5 && lunarDay === 5) festivals.push('端午节');
-      if (lunarMonth === 8 && lunarDay === 15) festivals.push('中秋节');
-      if (lunarMonth === 9 && lunarDay === 9) festivals.push('重阳节');
-    } catch (error) {
-      // 农历转换失败时忽略
-    }
-
-    // 阳历节日
-    if (solarMonth === 1 && solarDay === 1) festivals.push('元旦');
-    if (solarMonth === 2 && solarDay === 14) festivals.push('情人节');
-    if (solarMonth === 3 && solarDay === 8) festivals.push('妇女节');
-    if (solarMonth === 5 && solarDay === 1) festivals.push('劳动节');
-    if (solarMonth === 6 && solarDay === 1) festivals.push('儿童节');
-    if (solarMonth === 10 && solarDay === 1) festivals.push('国庆节');
-    if (solarMonth === 12 && solarDay === 25) festivals.push('圣诞节');
-
-    return festivals;
-  };
-
-  /**
-   * 判断是否为法定节假日
-   */
-  const isHolidayDate = (date: Date): boolean => {
-    const festivals = getFestivalsForDate(date);
-    const holidayFestivals = ['元旦', '春节', '劳动节', '国庆节'];
-    return festivals.some(festival => holidayFestivals.includes(festival));
-  };
-
-  /**
-   * 判断是否为调休工作日
-   */
-  const isWorkdayDate = (date: Date): boolean => {
-    // 这里可以根据实际的调休安排来判断
-    // 简化处理：周末一般不是工作日
-    const dayOfWeek = date.getDay();
-    return dayOfWeek !== 0 && dayOfWeek !== 6;
-  };
 
   /**
    * 筛选和排序后的任务列表
