@@ -146,27 +146,26 @@ function DimensionCard({
 
   return (
     <Card className={`relative ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'bg-accent' : ''}`}>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1 p-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {dimension.icon}
-            <CardTitle className="text-sm">{dimension.name}</CardTitle>
-            {isRequired && <Badge variant="destructive" className="text-xs">必选</Badge>}
+            <CardTitle className="text-xs font-medium">{dimension.name}</CardTitle>
+            {isRequired && <Badge variant="destructive" className="text-xs px-1 py-0">必选</Badge>}
           </div>
           {dimension.isPinnable && (
             <Button
               size="sm"
               variant={isPinned ? "default" : "ghost"}
               onClick={onPin}
-              className="h-6 w-6 p-0"
+              className="h-5 w-5 p-0"
             >
-              <Pin className={`w-3 h-3 ${isPinned ? 'text-primary-foreground' : ''}`} />
+              <Pin className={`w-2.5 h-2.5 ${isPinned ? 'text-primary-foreground' : ''}`} />
             </Button>
           )}
         </div>
-        <CardDescription className="text-xs">{dimension.description}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 pt-0">
         {selectedItem && (
           <div className="mb-2 p-2 bg-accent rounded flex items-center justify-between">
             <span className="text-sm font-medium text-primary">{selectedItem}</span>
@@ -181,17 +180,18 @@ function DimensionCard({
           </div>
         )}
         
-        <div className="space-y-1 max-h-32 overflow-y-auto">
-          {cubeData.map((item, index) => (
+        <div className="grid grid-cols-2 gap-1">
+          {/* 显示默认项和自定义添加的项 */}
+          {[...dimension.defaultItems, ...cubeData].map((item, index) => (
             <Button
-              key={index}
+              key={`${item}-${index}`}
               size="sm"
               variant={selectedItem === item ? "default" : "outline"}
-              className="w-full justify-start text-xs h-7"
+              className="text-xs h-6 px-1.5 justify-start"
               onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
               disabled={!!selectedItem && selectedItem !== item}
             >
-              {item}
+              <span className="truncate">{item}</span>
             </Button>
           ))}
         </div>
@@ -200,26 +200,26 @@ function DimensionCard({
           <Button
             size="sm"
             variant="ghost"
-            className="w-full mt-2 text-xs"
+            className="w-full mt-1.5 text-xs h-6"
             onClick={() => setShowAddInput(true)}
           >
-            <Plus className="w-3 h-3 mr-1" />
+            <Plus className="w-2.5 h-2.5 mr-1" />
             添加自定义
           </Button>
         ) : (
-          <div className="mt-2 flex gap-1">
+          <div className="mt-1.5 flex gap-1">
             <Input
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
               placeholder="输入自定义项"
-              className="text-xs h-8"
+              className="text-xs h-6"
               onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
             />
-            <Button size="sm" onClick={handleAddItem}>
-              <Plus className="w-3 h-3" />
+            <Button size="sm" onClick={handleAddItem} className="h-6 w-6 p-0">
+              <Plus className="w-2.5 h-2.5" />
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowAddInput(false)}>
-              <X className="w-3 h-3" />
+            <Button size="sm" variant="ghost" onClick={() => setShowAddInput(false)} className="h-6 w-6 p-0">
+              <X className="w-2.5 h-2.5" />
             </Button>
           </div>
         )}
@@ -1382,9 +1382,9 @@ ${generateStandardCallToAction()}
             选择不同维度的元素，AI将为你生成可直接使用的创意内容
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* 九宫格网格 */}
-          <div className="grid grid-cols-3 gap-4">
+        <CardContent className="space-y-4">
+          {/* 九宫格网格 - 紧凑布局 */}
+          <div className="grid grid-cols-3 gap-3">
             {dimensions.map((dimension) => (
               <DimensionCard
                 key={dimension.id}
@@ -1448,20 +1448,11 @@ ${generateStandardCallToAction()}
 
           {/* 控制按钮 */}
           <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-t">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={randomizeSelection}
-                disabled={isGenerating}
-              >
-                <Shuffle className="w-4 h-4 mr-2" />
-                随机选择
-              </Button>
-              
-              {/* 维度数量选择和控制随机生成 */}
+            <div className="flex items-center gap-4">
+              {/* 随机选择控制 */}
               <div className="flex items-center gap-2">
-                <UILabel className="text-sm font-medium">维度数量</UILabel>
+                <span className="text-sm font-medium text-muted-foreground">随机选择：</span>
+                <UILabel className="text-sm font-medium">选择维度</UILabel>
                 <Select
                   value={selectedDimensionCount.toString()}
                   onValueChange={(value) => setSelectedDimensionCount(parseInt(value))}
@@ -1489,7 +1480,7 @@ ${generateStandardCallToAction()}
                   className="border-primary text-primary hover:bg-accent"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  控制随机
+                  随机选择
                 </Button>
               </div>
               
