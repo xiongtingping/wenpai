@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative py-20 px-4 sm:px-6 lg:px-8 particle-background" style={{ minHeight: 'auto' }}>
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8 particle-background dark:bg-gradient-to-br dark:from-background dark:via-surface-1 dark:to-surface-2" style={{ minHeight: 'auto' }}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
@@ -137,7 +137,7 @@ const HeroSection: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* 快速生成 */}
               <div className="group relative">
-                <div className="bg-card p-6 rounded-xl border border-border transition-smooth shadow-e0 hover:shadow-e1">
+                <div className="bg-card dark:enhanced-card p-6 rounded-xl border border-border transition-smooth shadow-e0 hover:shadow-e1 dark:hover:bg-surface-3">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-smooth shadow-e0">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@ const HeroSection: React.FC = () => {
               
               {/* 品牌一致 */}
               <div className="group relative">
-                <div className="bg-card p-6 rounded-2xl border border-border transition-all duration-300 hover:shadow-lg">
+                <div className="bg-card dark:enhanced-card p-6 rounded-2xl border border-border transition-all duration-300 hover:shadow-lg dark:hover:bg-surface-3">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +177,7 @@ const HeroSection: React.FC = () => {
               
               {/* 成本节省 */}
               <div className="group relative">
-                <div className="bg-card p-6 rounded-2xl border border-border transition-all duration-300 hover:shadow-lg">
+                <div className="bg-card dark:enhanced-card p-6 rounded-2xl border border-border transition-all duration-300 hover:shadow-lg dark:hover:bg-surface-3">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">

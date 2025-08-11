@@ -124,7 +124,7 @@ export function Header() {
   };
   
   return (
-    <header className="bg-background/90 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-e0">
+    <header className="bg-background/90 dark:bg-surface-1/95 backdrop-blur-md sticky top-0 z-50 border-b border-border dark:border-border-strong shadow-e0 dark:shadow-lg">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - 清晰的熊猫Logo */}
         <Link to="/" className="flex items-center space-x-3 group">

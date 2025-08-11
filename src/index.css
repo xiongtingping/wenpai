@@ -248,19 +248,20 @@
 }
 
 [data-theme="dark"] {
-  --background: 222.2 47.4% 10%;   /* dark slate-900 */
-  --card: 215 28% 17%;             /* dark slate-800 */
-  --accent: 215 25% 28%;           /* slate-700 */
-  --muted: 215 28% 17%;            /* dark slate-800 */
-  --foreground: 210 40% 98%;       /* slate-50 */
-  --muted-foreground: 215 20.2% 65.1%; /* slate-400 */
-  --primary: 217.2 91.2% 59.8%;    /* hsl(var(--primary)) */
-  --primary-foreground: 0 0% 100%; /* hsl(var(--background)) */
-  --destructive: 0 84.2% 60.2%;    /* hsl(var(--destructive)) */
-  --secondary: 215 20% 35%;        /* slate-600 */
+  /* 🌙 优化的深色模式核心颜色系统 */
+  --background: 222.2 47.4% 8%;    /* 更深的主背景 */
+  --card: 215 28% 15%;             /* 卡片背景，明显区分 */
+  --accent: 215 25% 22%;           /* 强调色，更明显 */
+  --muted: 215 28% 12%;            /* 静音区域，比主背景稍亮 */
+  --foreground: 210 40% 98%;       /* 主文字颜色 */
+  --muted-foreground: 215 20.2% 65.1%; /* 次要文字 */
+  --primary: 217.2 91.2% 59.8%;    /* 主色调 */
+  --primary-foreground: 0 0% 100%; /* 主色调文字 */
+  --destructive: 0 84.2% 60.2%;    /* 危险色 */
+  --secondary: 215 20% 30%;        /* 次要色，更亮 */
   --secondary-foreground: 210 40% 98%;
-  --border: 215 25% 28%;           /* slate-700 */
-  --border-strong: 215 20% 35%;    /* slate-600 */
+  --border: 215 25% 20%;           /* 边框色，更明显 */
+  --border-strong: 215 20% 25%;    /* 强边框色 */
   /* keep compatibility tokens */
   --card-foreground: 210 40% 98%;
   --popover: 215 28% 17%;
@@ -268,6 +269,15 @@
   --input: 215 25% 28%;
   --ring: 217.2 91.2% 59.8%;
   --radius: 0.5rem;
+
+  /* 🎨 新增层次化背景令牌 */
+  --background-elevated: 215 28% 18%;  /* 悬浮元素背景 */
+  --background-overlay: 215 28% 25%;   /* 覆盖层背景 */
+  --surface-1: 215 28% 12%;            /* 表面层级1 */
+  --surface-2: 215 28% 15%;            /* 表面层级2 */
+  --surface-3: 215 28% 18%;            /* 表面层级3 */
+  --surface-4: 215 28% 22%;            /* 表面层级4 */
+
   --section: 217.2 32.6% 15%;
   --section-foreground: 210 40% 98%;
   --chart-1: 220 70% 50%;
@@ -276,18 +286,19 @@
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
 
-  /* 深色主题渐变系统 - 使用主题色令牌 */
-  --gradient-primary: hsl(var(--primary));
-  --gradient-secondary: hsl(var(--secondary));
-  --gradient-accent: hsl(var(--accent));
-  --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(var(--success)) 100%);
-  --gradient-warning: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--warning)) 100%);
-  --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--destructive)) 100%);
+  /* 🌟 优化的深色主题渐变系统 */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.8) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.8) 100%);
+  --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 36% / 0.8) 100%);
+  --gradient-warning: linear-gradient(135deg, hsl(45 93% 47%) 0%, hsl(45 93% 47% / 0.8) 100%);
+  --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--destructive) / 0.8) 100%);
 
-  /* 深色主题背景渐变 - 使用真正的渐变 */
-  --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--accent)) 100%);
-  --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%);
-  --bg-gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--muted)) 100%);
+  /* 🎨 增强的深色主题背景渐变 */
+  --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--surface-1)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-accent: linear-gradient(135deg, hsl(var(--surface-2)) 0%, hsl(var(--accent)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-elevated: linear-gradient(135deg, hsl(var(--background-elevated)) 0%, hsl(var(--surface-4)) 100%);
 }
 
 [data-theme="hsl(var(--success))"] {
@@ -1388,14 +1399,19 @@
     hsl(var(--background)) 100%);
 }
 
-/* 深色模式下的背景渐变 */
+/* 🌙 优化的深色模式背景渐变系统 */
 [data-theme="dark"] .particle-background {
-  background: linear-gradient(135deg,
-    hsl(222.2 47.4% 8%) 0%,
-    hsl(222.2 47.4% 10%) 25%,
-    hsl(215 28% 12%) 50%,
-    hsl(222.2 47.4% 10%) 75%,
-    hsl(222.2 47.4% 8%) 100%);
+  background:
+    /* 主背景渐变 */
+    linear-gradient(135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--surface-1)) 25%,
+      hsl(var(--surface-2)) 50%,
+      hsl(var(--surface-1)) 75%,
+      hsl(var(--background)) 100%),
+    /* 装饰性径向渐变 */
+    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.05) 0%, transparent 50%);
 }
 
 .particle-background::before {
@@ -1413,13 +1429,17 @@
   z-index: 1;
 }
 
-/* 深色模式下的增强背景效果 */
+/* 🌟 深色模式增强粒子效果 */
 [data-theme="dark"] .particle-background::before {
   background-image:
-    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.15) 0%, transparent 60%),
-    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.12) 0%, transparent 60%),
-    radial-gradient(circle at 40% 80%, hsl(var(--accent) / 0.12) 0%, transparent 60%),
-    radial-gradient(circle at 60% 20%, hsl(var(--primary) / 0.08) 0%, transparent 70%);
+    /* 主要光点 */
+    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.2) 0%, hsl(var(--primary) / 0.1) 30%, transparent 60%),
+    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.18) 0%, hsl(var(--accent) / 0.08) 30%, transparent 60%),
+    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.05) 30%, transparent 60%),
+    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.12) 0%, hsl(var(--accent) / 0.04) 30%, transparent 70%),
+    /* 辅助光点 */
+    radial-gradient(circle at 10% 70%, hsl(var(--primary) / 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 30%, hsl(var(--accent) / 0.08) 0%, transparent 40%);
   animation: particleFloat 20s ease-in-out infinite;
 }
 
@@ -1458,6 +1478,32 @@
   50% {
     opacity: 0.8;
   }
+}
+
+/* 🎨 深色模式专用装饰类 */
+[data-theme="dark"] .dark-surface-1 { background-color: hsl(var(--surface-1)); }
+[data-theme="dark"] .dark-surface-2 { background-color: hsl(var(--surface-2)); }
+[data-theme="dark"] .dark-surface-3 { background-color: hsl(var(--surface-3)); }
+[data-theme="dark"] .dark-surface-4 { background-color: hsl(var(--surface-4)); }
+[data-theme="dark"] .dark-elevated { background-color: hsl(var(--background-elevated)); }
+[data-theme="dark"] .dark-overlay { background-color: hsl(var(--background-overlay)); }
+
+/* 深色模式增强卡片效果 */
+[data-theme="dark"] .enhanced-card {
+  background: hsl(var(--surface-2));
+  border: 1px solid hsl(var(--border));
+  box-shadow:
+    0 4px 6px -1px hsl(var(--background) / 0.3),
+    0 2px 4px -1px hsl(var(--background) / 0.2),
+    inset 0 1px 0 hsl(var(--surface-3) / 0.5);
+}
+
+[data-theme="dark"] .enhanced-card:hover {
+  background: hsl(var(--surface-3));
+  box-shadow:
+    0 10px 15px -3px hsl(var(--background) / 0.4),
+    0 4px 6px -2px hsl(var(--background) / 0.3),
+    inset 0 1px 0 hsl(var(--surface-4) / 0.5);
 }
 
 /* 几何光线效果 */
