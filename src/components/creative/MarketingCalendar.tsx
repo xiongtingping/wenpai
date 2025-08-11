@@ -829,8 +829,8 @@ function MarketingCalendar() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* 左侧 - 紧凑型日历视图 */}
-      <Card className="h-fit">
-        <CardHeader className="pb-3">
+      <Card className="h-full flex flex-col">
+        <CardHeader className="pb-2 flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calendar className="w-4 h-4 flex-shrink-0" />
@@ -846,19 +846,20 @@ function MarketingCalendar() {
             点击日期查看任务，双击快速添加
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4">
-          {/* 月份导航 - 紧凑布局 */}
-          <div className="flex items-center justify-between mb-4">
+        <CardContent className="p-3 flex-1 flex flex-col">
+          {/* 月份导航 - 更紧凑布局 */}
+          <div className="flex items-center justify-between mb-3">
             <Button
               variant="outline"
               size="sm"
               onClick={() => changeMonth('prev')}
+              className="h-8 w-8 p-0"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
 
             <div className="text-center flex-1">
-              <div className="text-lg font-semibold">
+              <div className="text-base font-semibold">
                 {currentDate.toLocaleDateString('zh-CN', {
                   year: 'numeric',
                   month: 'long'
@@ -885,6 +886,7 @@ function MarketingCalendar() {
                 variant="outline"
                 size="sm"
                 onClick={() => changeMonth('next')}
+                className="h-8 w-8 p-0"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
@@ -892,11 +894,11 @@ function MarketingCalendar() {
           </div>
 
           {/* 月历视图 */}
-          <div className="border rounded-lg overflow-hidden">
-            {/* 星期标题 - 紧凑布局 */}
+          <div className="border rounded-lg overflow-hidden flex-1">
+            {/* 星期标题 - 更紧凑布局 */}
             <div className="grid grid-cols-7 bg-muted">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
-                <div key={index} className={`p-2 text-center text-xs font-medium ${
+                <div key={index} className={`p-1.5 text-center text-xs font-medium ${
                   index >= 5 ? 'text-red-600' : ''
                 }`}>
                   {day}
@@ -934,7 +936,7 @@ function MarketingCalendar() {
                     <div
                       key={dayIndex}
                       className={`
-                        min-h-[60px] p-1.5 border-r border-b cursor-pointer transition-all relative
+                        min-h-[55px] p-1 border-r border-b cursor-pointer transition-all relative
                         ${!isCurrentMonth ? 'opacity-40 bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
                         ${isToday ? 'bg-primary/10 border-primary' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary border-2' : ''}
@@ -1051,8 +1053,8 @@ function MarketingCalendar() {
       </Card>
 
       {/* 右侧 - Todo任务列表 */}
-      <Card className="h-fit lg:h-full lg:overflow-hidden lg:flex lg:flex-col">
-        <CardHeader className="pb-3 lg:flex-shrink-0">
+      <Card className="h-full flex flex-col">
+        <CardHeader className="pb-2 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -1118,9 +1120,40 @@ function MarketingCalendar() {
             </div>
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 lg:flex-1 lg:overflow-hidden lg:flex lg:flex-col">
-          {/* 筛选和排序控件 - 紧凑布局 */}
-          <div className="flex flex-wrap items-center gap-2 mb-4 p-3 bg-muted/50 rounded-lg lg:flex-shrink-0">
+
+        {/* 任务统计 - 移到任务列表上方 */}
+        {tasks.length > 0 && (
+          <div className="mx-4 mb-3 p-3 bg-muted/30 rounded-lg flex-shrink-0">
+            <div className="grid grid-cols-4 gap-3 text-center">
+              <div>
+                <div className="text-lg font-bold text-primary">{tasks.length}</div>
+                <div className="text-xs text-muted-foreground">总任务</div>
+              </div>
+              <div>
+                <div className="text-lg font-bold text-green-600">
+                  {tasks.filter(t => t.status === 'completed').length}
+                </div>
+                <div className="text-xs text-muted-foreground">已完成</div>
+              </div>
+              <div>
+                <div className="text-lg font-bold text-orange-600">
+                  {tasks.filter(t => t.status === 'pending').length}
+                </div>
+                <div className="text-xs text-muted-foreground">待完成</div>
+              </div>
+              <div>
+                <div className="text-lg font-bold text-red-600">
+                  {tasks.filter(t => t.priority === 'high').length}
+                </div>
+                <div className="text-xs text-muted-foreground">高优先级</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <CardContent className="p-3 flex-1 overflow-hidden flex flex-col">
+          {/* 筛选和排序控件 - 更紧凑布局 */}
+          <div className="flex flex-wrap items-center gap-2 mb-3 p-2 bg-muted/30 rounded-lg flex-shrink-0">
             <div className="flex items-center gap-1">
               <Filter className="w-3 h-3" />
               <span className="text-xs font-medium">筛选:</span>
@@ -1188,7 +1221,7 @@ function MarketingCalendar() {
           </div>
 
           {/* 任务列表 - 支持滚动 */}
-          <div className="lg:flex-1 lg:overflow-y-auto lg:pr-2">
+          <div className="flex-1 overflow-y-auto pr-1">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -1234,36 +1267,6 @@ function MarketingCalendar() {
               </SortableContext>
             </DndContext>
           </div>
-
-          {/* 任务统计 */}
-          {tasks.length > 0 && (
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-primary">{tasks.length}</div>
-                  <div className="text-sm text-muted-foreground">总任务</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">
-                    {tasks.filter(t => t.status === 'completed').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">已完成</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-orange-600">
-                    {tasks.filter(t => t.status === 'pending').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">待完成</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-red-600">
-                    {tasks.filter(t => t.priority === 'high' && t.status === 'pending').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">高优先级</div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* 编辑任务对话框 */}
           {editingTask && (
