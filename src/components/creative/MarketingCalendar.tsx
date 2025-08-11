@@ -33,6 +33,7 @@ import {
   SortAsc,
   SortDesc,
   Star,
+  Edit,
   TrendingUp,
   CalendarDays,
   Search,
@@ -428,7 +429,7 @@ const SortableTodoItem: React.FC<{
             onClick={() => onEdit(task)}
             className="h-7 w-7 p-0"
           >
-            <Star className="w-3 h-3" />
+            <Edit className="w-3 h-3" />
           </Button>
           <Button
             variant="ghost"
