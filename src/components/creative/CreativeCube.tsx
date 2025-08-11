@@ -1596,9 +1596,79 @@ ${generateStandardCallToAction()}
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed p-4 bg-card rounded-lg border">
-                  {currentContent}
-                </div>
+                {(() => {
+                  // 解析生成内容，分离标题、正文、互动引导
+                  const parseGeneratedContent = (content: string) => {
+                    // 移除无意义的标记
+                    let cleanContent = content
+                      .replace(/\*\*标题\*\*/g, '')
+                      .replace(/\*\*正文\*\*/g, '')
+                      .replace(/\*\*互动引导\*\*/g, '')
+                      .replace(/\*\*内容\*\*/g, '')
+                      .replace(/\*\*文案\*\*/g, '')
+                      .trim();
+
+                    // 尝试分离不同部分
+                    const sections = cleanContent.split('\n\n').filter(section => section.trim());
+
+                    if (sections.length >= 2) {
+                      // 如果有多个段落，第一个作为标题，其余作为正文
+                      const title = sections[0].trim();
+                      const mainContent = sections.slice(1).join('\n\n').trim();
+
+                      return {
+                        hasStructure: true,
+                        title,
+                        mainContent,
+                        interaction: '' // 互动引导通常在最后，这里暂时为空
+                      };
+                    } else {
+                      // 如果只有一个段落，全部作为正文
+                      return {
+                        hasStructure: false,
+                        title: '',
+                        mainContent: cleanContent,
+                        interaction: ''
+                      };
+                    }
+                  };
+
+                  const parsed = parseGeneratedContent(currentContent);
+
+                  return (
+                    <div className="space-y-4">
+                      {/* 标题部分 */}
+                      {parsed.hasStructure && parsed.title && (
+                        <div className="p-3 bg-primary/5 rounded-lg border-l-4 border-primary">
+                          <div className="text-xs text-muted-foreground mb-1 font-medium">📝 创意标题</div>
+                          <div className="text-base font-semibold text-primary leading-relaxed">
+                            {parsed.title}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 主要内容 */}
+                      <div className="p-4 bg-card rounded-lg border">
+                        <div className="text-xs text-muted-foreground mb-2 font-medium">
+                          {parsed.hasStructure ? '📄 主要内容' : '🎨 创意内容'}
+                        </div>
+                        <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                          {parsed.mainContent}
+                        </div>
+                      </div>
+
+                      {/* 互动引导部分 */}
+                      {parsed.interaction && (
+                        <div className="p-3 bg-accent/30 rounded-lg border">
+                          <div className="text-xs text-muted-foreground mb-1 font-medium">💬 互动引导</div>
+                          <div className="text-sm text-accent-foreground leading-relaxed">
+                            {parsed.interaction}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           )}
