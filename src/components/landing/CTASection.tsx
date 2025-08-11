@@ -52,8 +52,8 @@ export function CTASection() {
         <div className="flex justify-center">
           <Button
             size="lg"
-            variant="gradientAccent"
-            className="relative px-10 py-5 rounded-xl font-bold cursor-pointer overflow-hidden group"
+            variant="gradient"
+            className="relative px-10 py-5 rounded-xl font-bold cursor-pointer overflow-hidden group shadow-lg hover:shadow-xl transition-all duration-300"
             onClick={handleButtonClick}
           >
             <span className="relative z-10 flex items-center gap-3">
@@ -65,8 +65,10 @@ export function CTASection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </span>
-            {/* 动态背景效果 */}
-            <div className="absolute inset-0 bg-gradient-to-r from-hsl(var(--background))/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* 动态背景效果 - 深色模式优化 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* 深色模式下的额外发光效果 */}
+            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 dark:shadow-[0_0_30px_hsl(var(--primary)/0.5)]"></div>
           </Button>
         </div>
       </div>

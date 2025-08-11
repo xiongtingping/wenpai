@@ -367,9 +367,9 @@
   --chart-5: 340 75% 55%;
 
   /* 🌟 优化的深色主题渐变系统 */
-  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%);
+  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
   --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.8) 100%);
-  --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.8) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%);
   --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 36% / 0.8) 100%);
   --gradient-warning: linear-gradient(135deg, hsl(45 93% 47%) 0%, hsl(45 93% 47% / 0.8) 100%);
   --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--destructive) / 0.8) 100%);
@@ -1755,6 +1755,28 @@
 
 .hover-glow:hover {
   box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+}
+
+/* 🌙 深色模式CTA按钮增强 */
+[data-theme="dark"] .particle-background .btn-gradient,
+[data-theme="dark"] .particle-background button[class*="gradient"] {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%) !important;
+  box-shadow:
+    0 8px 32px hsl(var(--primary) / 0.3),
+    0 4px 16px hsl(var(--primary) / 0.2),
+    inset 0 1px 0 hsl(var(--primary) / 0.4) !important;
+  border: 1px solid hsl(var(--primary) / 0.3) !important;
+}
+
+[data-theme="dark"] .particle-background .btn-gradient:hover,
+[data-theme="dark"] .particle-background button[class*="gradient"]:hover {
+  background: linear-gradient(135deg, hsl(var(--primary) / 1.1) 0%, hsl(var(--primary)) 100%) !important;
+  box-shadow:
+    0 12px 48px hsl(var(--primary) / 0.4),
+    0 8px 24px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 hsl(var(--primary) / 0.5),
+    0 0 0 1px hsl(var(--primary) / 0.4) !important;
+  transform: translateY(-2px) !important;
 }
 
 /* 🎭 按钮点击反馈 */
