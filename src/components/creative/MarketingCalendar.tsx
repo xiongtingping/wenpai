@@ -820,12 +820,12 @@ function MarketingCalendar() {
           <div className="flex items-center justify-between mb-2">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              <span>营销日历</span>
+              <span className="leading-5">营销日历</span>
             </CardTitle>
             {selectedDate && (
-              <Badge variant="secondary" className="text-xs">
-                已选择: {selectedDate}
-              </Badge>
+              <div className="text-lg font-semibold text-primary">
+                {selectedDate}
+              </div>
             )}
           </div>
           <CardDescription>
@@ -895,8 +895,21 @@ function MarketingCalendar() {
               <div key={weekIndex} className="grid grid-cols-7 border-t">
                 {week.map((dayInfo, dayIndex) => {
                   const isCurrentMonth = dayInfo.date.getMonth() === currentDate.getMonth();
-                  const isToday = dayInfo.date.toDateString() === new Date().toDateString();
-                  const dateStr = dayInfo.date.toISOString().split('T')[0];
+
+                  // 统一使用本地时间格式化日期，避免时区问题
+                  const year = dayInfo.date.getFullYear();
+                  const month = String(dayInfo.date.getMonth() + 1).padStart(2, '0');
+                  const day = String(dayInfo.date.getDate()).padStart(2, '0');
+                  const dateStr = `${year}-${month}-${day}`;
+
+                  // 获取今天的日期字符串
+                  const today = new Date();
+                  const todayYear = today.getFullYear();
+                  const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+                  const todayDay = String(today.getDate()).padStart(2, '0');
+                  const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
+
+                  const isToday = dateStr === todayStr;
                   const isSelected = selectedDate === dateStr;
                   const dayTasks = tasks.filter(task => task.date === dateStr);
                   const isWeekend = dayIndex >= 5; // 周六、周日
