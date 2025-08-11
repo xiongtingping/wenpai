@@ -182,17 +182,17 @@ export function PricingSection() {
             const isTrial = plan.tier === 'trial';
 
             return (
-              <Card 
+              <Card
                 key={plan.id}
-                className={`border-2 p-8 flex flex-col relative ${
-                  isRecommended 
-                    ? 'border-primary shadow-2xl bg-accent'
-                    : 'border-border'
-                }`}
+                className={`border-2 p-8 flex flex-col relative transition-all duration-300 hover:shadow-lg ${
+                  isRecommended
+                    ? 'border-primary shadow-2xl bg-accent/50 dark:bg-accent/20 ring-1 ring-primary/20'
+                    : 'border-border hover:border-border-strong dark:bg-card/50'
+                } backdrop-blur-sm`}
               >
                 {isRecommended && (
-                  <span className="absolute top-0 -translate-y-1/2 bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-full">
-                    <Star className="w-3 h-3 mr-1 inline" />
+                  <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-primary/20">
+                    <Star className="w-3 h-3 mr-1 inline fill-current" />
                     推荐
                   </span>
                 )}
@@ -213,16 +213,18 @@ export function PricingSection() {
                 <div className="mt-6 pricing-container">
                   {isTrial ? (
                     <div className="text-center">
-                      <p className="text-5xl font-extrabold text-foreground pricing-price">¥0</p>
+                      <div className="text-5xl font-extrabold text-foreground pricing-price">
+                        <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥0</span>
+                      </div>
                       <p className="text-muted-foreground">永久免费</p>
                     </div>
                   ) : (
                     <div className="text-center">
                       {isAuthenticated && inPromo ? (
                         <div className="flex items-center justify-center gap-2">
-                          <p className={`text-5xl font-extrabold pricing-price text-foreground`}>
-                            <span className="pricing-price-symbol">¥</span>{pricing.discountPrice}
-                          </p>
+                          <div className="text-5xl font-extrabold pricing-price text-foreground">
+                            <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.discountPrice}</span>
+                          </div>
                           <div className="flex flex-col items-start">
                             <span className="text-xs text-destructive font-semibold">限时特惠</span>
                             <span className="text-xs text-muted-foreground line-through">¥{pricing.originalPrice}</span>
@@ -230,9 +232,9 @@ export function PricingSection() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2">
-                          <p className={`text-5xl font-extrabold pricing-price text-foreground`}>
-                            <span className="pricing-price-symbol">¥</span>{pricing.originalPrice}
-                          </p>
+                          <div className="text-5xl font-extrabold pricing-price text-foreground">
+                            <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.originalPrice}</span>
+                          </div>
                         </div>
                       )}
                       <p className="text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</p>
@@ -247,11 +249,16 @@ export function PricingSection() {
                   {renderFeatures(plan.features, plan)}
                 </ul>
                 
-                <Button 
-                  variant={isTrial ? "outline" : "default"}
-                  className={`mt-8 w-full ${
+                <Button
+                  variant={isRecommended ? "gradient" : "default"}
+                  size="lg"
+                  className={`mt-8 w-full font-semibold transition-all duration-300 ${
                     isRecommended
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                      ? 'shadow-lg hover:shadow-xl hover:-translate-y-1'
+                      : 'shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                  } ${
+                    isTrial
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-0'
                       : ''
                   }`}
                   onClick={() => isTrial ? handlePlanClick(plan.id) : handlePlanClick(plan.id)}
