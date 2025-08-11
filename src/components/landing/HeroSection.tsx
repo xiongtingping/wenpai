@@ -55,7 +55,7 @@ const HeroSection: React.FC = () => {
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
           <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
               <div className="flex items-center justify-center gap-4">
                 {/* 小熊猫图标 - 使用清晰的SVG文件 */}
                 <img
@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
                   alt="文派Logo"
                   className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
                 />
-                <span className="text-primary">
+                <span className="text-foreground">
                   文派 AI 智能创作平台
                 </span>
               </div>

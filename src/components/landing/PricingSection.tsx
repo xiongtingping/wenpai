@@ -164,8 +164,8 @@ export function PricingSection() {
               variant={billing === "yearly" ? "default" : "outline"}
               onClick={() => setBilling("yearly")}
               className={`px-6 py-3 font-semibold transition-all duration-300 ${
-                billing === "yearly" 
-                  ? "bg-primary/10 border-primary text-primary shadow-lg scale-105"
+                billing === "yearly"
+                  ? "bg-accent text-foreground border-border shadow-lg scale-105"
                   : "bg-accent text-foreground border-border hover:bg-accent/80"
               }`}
             >
