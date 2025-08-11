@@ -53,6 +53,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuthStore } from '@/store/authStore';
 import { callCreativeGeneration } from '@/api/aiService';
 import { Label as UILabel } from '@/components/ui/label';
+import {
+  getCreativeCubeDimensions,
+  getRequiredDimensionIds,
+  getRecommendedDimensionIds,
+  getOptionalDimensionIds,
+  selectDimensionCombination,
+  buildCreativeCubePrompt,
+  type CreativeCubeDimension,
+  type CreativeCubeSelection,
+  type CreativeCubeConfig
+} from '@/prompts/PromptSystem';
 
 /**
  * 九宫格维度定义
@@ -225,81 +236,47 @@ export function CreativeCube() {
   const { decrementUsage } = useAuthStore();
   const usageRemaining = useAuthStore((state) => state.getUsageRemaining());
   
-  // 九宫格维度定义
-  const dimensions: CubeDimension[] = [
-    {
-      id: 'target_audience',
-      name: '目标客群',
-      description: '选择目标用户群体（必选）',
-      icon: <Users className="w-4 h-4" />,
-      defaultItems: ['宝妈', '大学生', '银发族', '职场人', '中产女性', 'Z世代', '宠物主', '健身人群', 'K12家长', '二次元', '科技控', '新手创业者'],
-      isPinnable: true // 可固定
-    },
-    {
-      id: 'use_case',
-      name: '使用场景',
-      description: '选择内容应用的具体场景（必选）',
-      icon: <MapPin className="w-4 h-4" />,
-      defaultItems: ['通勤', '健身', '夜宵', '家庭聚会', '旅游途中', '碎片时间', '出差', '露营', '独处时刻', '早晚高峰', '带娃时', '睡前'],
-      isPinnable: true // 可固定
-    },
-    {
-      id: 'pain_point',
-      name: '用户痛点',
-      description: '选择用户面临的核心痛点（必选）',
-      icon: <AlertCircle className="w-4 h-4" />,
-      defaultItems: ['时间不够', '预算不足', '操作复杂', '选择困难', '效果不稳', '信息过载', '服务差', '信任缺失', '缺乏动力', '内容同质化'],
-      isPinnable: true // 可固定
-    },
-    {
-      id: 'industry',
-      name: '行业',
-      description: '选择内容所属的行业领域（必选）',
-      icon: <Building2 className="w-4 h-4" />,
-      defaultItems: ['母婴', '美妆', '旅游', '健康', '教育', '职场', '电商', '本地生活', '宠物', '数码', '食品饮料', '健身', '金融理财'],
-      isPinnable: true // 可固定
-    },
-    {
-      id: 'core_value',
-      name: '核心价值',
-      description: '选择解决方案的核心价值（推荐）',
-      icon: <Star className="w-4 h-4" />,
-      defaultItems: ['提升效率', '改善体验', '节约成本', '增强信任', '拓宽视野', '激发灵感', '个性表达', '提高品质', '促进成长'],
-      isPinnable: true // 可固定
-    },
-    {
-      id: 'tone_style',
-      name: '表达风格',
-      description: '选择内容的表达风格（推荐）',
-      icon: <Palette className="w-4 h-4" />,
-      defaultItems: ['轻松幽默', '极简干练', '专业可信', '情感共鸣', '反差反转', '热梗混剪', '小剧场', '第一人称', '旁白式', '访谈感'],
-      isPinnable: true // 可固定
-    },
-    {
-      id: 'content_format',
-      name: '内容形式',
-      description: '选择内容的表现形式（推荐）',
-      icon: <FileText className="w-4 h-4" />,
-      defaultItems: ['图文', '短视频', '直播', 'H5', '长图', '故事接龙', '清单类', '榜单类', '分镜脚本'],
-      isPinnable: true // 可固定
-    },
-    {
-      id: 'emotional_need',
-      name: '情感诉求',
-      description: '选择要激发的情感共鸣（可选）',
-      icon: <Heart className="w-4 h-4" />,
-      defaultItems: ['安全感', '归属感', '成就感', '愉悦感', '陪伴感', '放松感', '被理解', '被尊重', '掌控感', '仪式感'],
-      isPinnable: false // 不可固定
-    },
-    {
-      id: 'platform_or_trend',
-      name: '平台/趋势',
-      description: '选择要结合的平台或趋势（可选）',
-      icon: <TrendingUp className="w-4 h-4" />,
-      defaultItems: ['小红书', '抖音', '知乎', '公众号', '搭子经济', '反向旅游', '高质量独居', '无糖生活', 'AI助理', '低欲望生活'],
-      isPinnable: false // 不可固定
-    }
-  ];
+  // 使用统一的维度定义系统
+  const dimensions: CubeDimension[] = getCreativeCubeDimensions().map(dim => ({
+    id: dim.id,
+    name: dim.name,
+    description: dim.description,
+    icon: getDimensionIcon(dim.id),
+    defaultItems: getDimensionDefaultItems(dim.id),
+    isPinnable: dim.isRequired || dim.isRecommended // 必选和推荐维度可固定
+  }));
+
+  // 获取维度图标
+  function getDimensionIcon(dimensionId: string) {
+    const iconMap: Record<string, React.ReactNode> = {
+      'target_audience': <Users className="w-4 h-4" />,
+      'use_case': <MapPin className="w-4 h-4" />,
+      'pain_point': <AlertCircle className="w-4 h-4" />,
+      'industry': <Building2 className="w-4 h-4" />,
+      'core_value': <Star className="w-4 h-4" />,
+      'tone_style': <Palette className="w-4 h-4" />,
+      'content_format': <FileText className="w-4 h-4" />,
+      'emotional_need': <Heart className="w-4 h-4" />,
+      'platform_or_trend': <TrendingUp className="w-4 h-4" />
+    };
+    return iconMap[dimensionId] || <Star className="w-4 h-4" />;
+  }
+
+  // 获取维度默认选项
+  function getDimensionDefaultItems(dimensionId: string): string[] {
+    const itemsMap: Record<string, string[]> = {
+      'target_audience': ['宝妈', '大学生', '银发族', '职场人', '中产女性', 'Z世代', '宠物主', '健身人群', 'K12家长', '二次元', '科技控', '新手创业者'],
+      'use_case': ['通勤', '健身', '夜宵', '家庭聚会', '旅游途中', '碎片时间', '出差', '露营', '独处时刻', '早晚高峰', '带娃时', '睡前'],
+      'pain_point': ['时间不够', '预算不足', '操作复杂', '选择困难', '效果不稳', '信息过载', '服务差', '信任缺失', '缺乏动力', '内容同质化'],
+      'industry': ['母婴', '美妆', '旅游', '健康', '教育', '职场', '电商', '本地生活', '宠物', '数码', '食品饮料', '健身', '金融理财'],
+      'core_value': ['提升效率', '改善体验', '节约成本', '增强信任', '拓宽视野', '激发灵感', '个性表达', '提高品质', '促进成长'],
+      'tone_style': ['轻松幽默', '极简干练', '专业可信', '情感共鸣', '反差反转', '热梗混剪', '小剧场', '第一人称', '旁白式', '访谈感'],
+      'content_format': ['图文', '短视频', '直播', 'H5', '长图', '故事接龙', '清单类', '榜单类', '分镜脚本'],
+      'emotional_need': ['安全感', '归属感', '成就感', '愉悦感', '陪伴感', '放松感', '被理解', '被尊重', '掌控感', '仪式感'],
+      'platform_or_trend': ['小红书', '抖音', '知乎', '公众号', '搭子经济', '反向旅游', '高质量独居', '无糖生活', 'AI助理', '低欲望生活']
+    };
+    return itemsMap[dimensionId] || [];
+  }
 
   // 九宫格状态
   const [cubeData, setCubeData] = useState<Record<string, string[]>>({});
@@ -309,12 +286,14 @@ export function CreativeCube() {
   const [currentContent, setCurrentContent] = useState<string>('');
   const [currentContentType, setCurrentContentType] = useState<'text' | 'video'>('text');
   const [generatedIdeas, setGeneratedIdeas] = useState<CreativeResult[]>([]); // 历史创意记录
-  const [randomDimensionCount, setRandomDimensionCount] = useState<number>(3); // 随机维度数量
+  const [selectedDimensionCount, setSelectedDimensionCount] = useState<number>(6); // 选择的维度总数量 (4-9)
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportData, setExportData] = useState<any[]>([]);
 
-  // 必选维度检查
-  const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
+  // 使用统一的维度定义系统
+  const requiredDimensions = getRequiredDimensionIds();
+  const recommendedDimensions = getRecommendedDimensionIds();
+  const optionalDimensions = getOptionalDimensionIds();
   
   // 验证生成条件
   const isValidGeneration = useMemo(() => {
@@ -338,15 +317,15 @@ export function CreativeCube() {
   const getDimensionStatus = (dimensionId: string) => {
     const isRequired = requiredDimensions.includes(dimensionId);
     const isSelected = !!selectedItems[dimensionId];
-    const isRecommended = ['core_value', 'tone_style', 'content_format'].includes(dimensionId);
-    const isOptional = ['emotional_need', 'platform_or_trend'].includes(dimensionId);
-    
+    const isRecommended = recommendedDimensions.includes(dimensionId);
+    const isOptional = optionalDimensions.includes(dimensionId);
+
     return {
       isRequired,
       isSelected,
       isRecommended,
       isOptional,
-      status: isRequired ? (isSelected ? 'required-selected' : 'required-missing') : 
+      status: isRequired ? (isSelected ? 'required-selected' : 'required-missing') :
               isRecommended ? (isSelected ? 'recommended-selected' : 'recommended') :
               isOptional ? (isSelected ? 'optional-selected' : 'optional') : 'optional'
     };
@@ -480,74 +459,48 @@ export function CreativeCube() {
   };
 
   /**
-   * 智能随机生成
-   * 必选维度（目标客群、使用场景、用户痛点、行业）必须选择
-   * 其他维度可选择性随机选择
+   * 控制随机生成
+   * 根据用户选择的维度数量，智能选择维度组合
    */
-  const smartRandomGenerate = (randomDimensionCount?: number) => {
-    const newSelection = { ...selectedItems };
-    
-    // 确保4个必选维度必须有值
-    const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
-    requiredDimensions.forEach(dimId => {
-      // 如果维度已固定，跳过随机生成
-      if (pinnedDimensions.has(dimId)) {
+  const controlledRandomGenerate = () => {
+    // 使用统一的维度选择算法
+    const selectedDimensionIds = selectDimensionCombination(
+      selectedDimensionCount,
+      Array.from(pinnedDimensions)
+    );
+
+    const newSelection: Record<string, string> = {};
+
+    // 为选中的维度随机选择值
+    selectedDimensionIds.forEach(dimId => {
+      // 如果维度已固定，保持原值
+      if (pinnedDimensions.has(dimId) && selectedItems[dimId]) {
+        newSelection[dimId] = selectedItems[dimId];
         return;
       }
-      
+
       const dimension = dimensions.find(d => d.id === dimId);
       if (dimension && dimension.defaultItems.length > 0) {
-        const randomIndex = Math.floor(Math.random() * dimension.defaultItems.length);
-        newSelection[dimId] = dimension.defaultItems[randomIndex];
+        const items = cubeData[dimId] || dimension.defaultItems;
+        const randomIndex = Math.floor(Math.random() * items.length);
+        newSelection[dimId] = items[randomIndex];
       }
     });
-    
-    // 其他维度（推荐和可选）可选择性随机选择
-    const otherDimensions = dimensions.filter(d => !requiredDimensions.includes(d.id));
-    const availableOtherDimensions = otherDimensions.filter(d => !pinnedDimensions.has(d.id));
-    
-    // 如果指定了随机维度数量，则随机选择指定数量的其他维度
-    if (randomDimensionCount !== undefined && randomDimensionCount >= 0) {
-      // 先清空所有非必选和非固定的维度
-      otherDimensions.forEach(dimension => {
-        if (!pinnedDimensions.has(dimension.id)) {
-          delete newSelection[dimension.id];
-        }
-      });
-      
-      // 随机选择指定数量的其他维度
-      const shuffledOtherDimensions = [...availableOtherDimensions].sort(() => Math.random() - 0.5);
-      const selectedOtherDimensions = shuffledOtherDimensions.slice(0, randomDimensionCount);
-      
-      selectedOtherDimensions.forEach(dimension => {
-        const items = cubeData[dimension.id] || dimension.defaultItems;
-        if (items.length > 0) {
-          const randomIndex = Math.floor(Math.random() * items.length);
-          newSelection[dimension.id] = items[randomIndex];
-        }
-      });
-    } else {
-      // 如果没有指定数量，则为所有其他维度随机选择（原有逻辑）
-      availableOtherDimensions.forEach(dimension => {
-        const items = cubeData[dimension.id] || dimension.defaultItems;
-        if (items.length > 0) {
-          const randomIndex = Math.floor(Math.random() * items.length);
-          newSelection[dimension.id] = items[randomIndex];
-        }
-      });
-    }
-    
+
     setSelectedItems(newSelection);
-    
+
     const selectedCount = Object.keys(newSelection).length;
     const fixedCount = pinnedDimensions.size;
-    
+    const requiredCount = requiredDimensions.filter(dim => selectedDimensionIds.includes(dim)).length;
+    const recommendedCount = recommendedDimensions.filter(dim => selectedDimensionIds.includes(dim)).length;
+    const optionalCount = optionalDimensions.filter(dim => selectedDimensionIds.includes(dim)).length;
+
     toast({
-      title: "智能随机生成完成",
-      description: `已选择${selectedCount}个维度（${fixedCount}个固定，${selectedCount - fixedCount}个随机）`,
+      title: "控制随机生成完成",
+      description: `已选择${selectedCount}个维度（必选${requiredCount}个，推荐${recommendedCount}个，可选${optionalCount}个，固定${fixedCount}个）`,
     });
-    
-    // 使用 setTimeout 确保状态更新后再生成，避免检查失效
+
+    // 使用 setTimeout 确保状态更新后再生成
     setTimeout(() => {
       generateIdea(newSelection);
     }, 100);
@@ -580,53 +533,21 @@ export function CreativeCube() {
   };
 
   /**
-   * 构建AI Prompt
+   * 构建AI Prompt - 使用统一提示词系统
    */
   const buildPrompt = () => {
-    const {
-      target_audience = '目标客群',
-      use_case = '使用场景',
-      pain_point = '用户痛点',
-      emotional_need = '情感诉求',
-      core_value = '核心价值',
-      industry = '行业',
-      content_format = '内容形式',
-      tone_style = '表达风格',
-      platform_or_trend = '平台/趋势'
-    } = selectedItems;
+    // 获取当前选择的维度ID列表
+    const selectedDimensionIds = Object.keys(selectedItems).filter(key => selectedItems[key]);
 
-    // 获取固定维度信息
-    const pinnedInfo = Array.from(pinnedDimensions).map(dimId => {
-      const dimension = dimensions.find(d => d.id === dimId);
-      return dimension?.name || dimId;
-    });
+    // 构建配置对象
+    const config: CreativeCubeConfig = {
+      selectedItems: selectedItems as CreativeCubeSelection,
+      pinnedDimensions: Array.from(pinnedDimensions),
+      selectedDimensionIds
+    };
 
-    const pinnedText = pinnedInfo.length > 0 
-      ? `\n\n⚠️ 重要约束：以下维度已被用户固定，必须严格遵循，不得偏离：\n${pinnedInfo.map(name => `- ${name}`).join('\n')}\n`
-      : '';
-
-    return `请根据以下多维度配置生成一段用于【朋友圈】或【小红书】的图文内容，风格为【${tone_style}】，内容形式为【${content_format}】。必须严格使用以下所有维度信息，并避免使用"提升效率""提供安全感"等模板式话术，要求生活化、真实感强、带网络热梗、情境代入强。${pinnedText}
-
-维度：
-- 目标客群：${target_audience}
-- 使用场景：${use_case}
-- 用户痛点：${pain_point}
-- 行业：${industry}
-- 核心价值：${core_value}
-- 表达风格：${tone_style}
-- 内容形式：${content_format}
-- 情感诉求：${emotional_need}
-- 平台/趋势：${platform_or_trend}
-
-输出要求：
-1. 标题：突出情境与人设冲突
-2. 正文：必须展现真实生活情境 + 人物吐槽 + 转折解决方案
-3. 互动引导：鼓励用户留言、点赞、共鸣
-4. 避免"核心概念/策略分析"等空话模板
-5. 内容输出控制在 150-200 字之间，符合社交平台阅读节奏
-6. 多使用emoji表情，提升阅读情绪节奏
-
-请直接输出创意内容，而非策略说明。`;
+    // 使用统一的提示词构建函数
+    return buildCreativeCubePrompt(config);
   };
 
   /**
@@ -1474,7 +1395,7 @@ ${generateStandardCallToAction()}
                 isPinned={pinnedDimensions.has(dimension.id)}
                 cubeData={cubeData[dimension.id] || []}
                 onAddCustomItem={(item) => addCustomItem(dimension.id, item)}
-                isRequired={['target_audience', 'use_case', 'pain_point', 'industry'].includes(dimension.id)}
+                isRequired={requiredDimensions.includes(dimension.id)}
               />
             ))}
           </div>
@@ -1492,35 +1413,37 @@ ${generateStandardCallToAction()}
                 随机选择
               </Button>
               
-              {/* 智能随机生成 */}
+              {/* 控制随机生成 */}
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => smartRandomGenerate(randomDimensionCount)}
+                  onClick={controlledRandomGenerate}
                   disabled={isGenerating}
                   className="border-primary text-primary hover:bg-accent"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  智能随机
+                  控制随机
                 </Button>
-                <Select 
-                  value={randomDimensionCount.toString()} 
-                  onValueChange={(value) => setRandomDimensionCount(parseInt(value))}
+                <Select
+                  value={selectedDimensionCount.toString()}
+                  onValueChange={(value) => setSelectedDimensionCount(parseInt(value))}
                 >
                   <SelectTrigger className="w-20 h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">0个</SelectItem>
-                    <SelectItem value="1">1个</SelectItem>
-                    <SelectItem value="2">2个</SelectItem>
-                    <SelectItem value="3">3个</SelectItem>
                     <SelectItem value="4">4个</SelectItem>
                     <SelectItem value="5">5个</SelectItem>
+                    <SelectItem value="6">6个</SelectItem>
+                    <SelectItem value="7">7个</SelectItem>
+                    <SelectItem value="8">8个</SelectItem>
+                    <SelectItem value="9">9个</SelectItem>
                   </SelectContent>
                 </Select>
-                <span className="text-xs text-muted-foreground">可选维度</span>
+                <span className="text-xs text-muted-foreground">
+                  {requiredDimensions.length}必选+{selectedDimensionCount - requiredDimensions.length}随机
+                </span>
               </div>
               
               <Button

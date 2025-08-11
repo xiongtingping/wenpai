@@ -1901,6 +1901,230 @@ console.warn(`
 📞 如有问题，请联系开发负责人
 `);
 
+// ==================== 九宫格创意魔方提示词系统 ====================
+
+/**
+ * 九宫格创意魔方维度定义
+ */
+export interface CreativeCubeDimension {
+  id: string;
+  name: string;
+  description: string;
+  isRequired: boolean;
+  isRecommended?: boolean;
+}
+
+/**
+ * 九宫格创意魔方选择项
+ */
+export interface CreativeCubeSelection {
+  target_audience?: string;
+  use_case?: string;
+  pain_point?: string;
+  industry?: string;
+  core_value?: string;
+  tone_style?: string;
+  content_format?: string;
+  emotional_need?: string;
+  platform_or_trend?: string;
+}
+
+/**
+ * 九宫格创意魔方配置
+ */
+export interface CreativeCubeConfig {
+  selectedItems: CreativeCubeSelection;
+  pinnedDimensions: string[];
+  selectedDimensionIds: string[];
+}
+
+/**
+ * 获取九宫格创意魔方的维度定义
+ */
+export function getCreativeCubeDimensions(): CreativeCubeDimension[] {
+  return [
+    // 必选维度 (4个)
+    {
+      id: 'target_audience',
+      name: '目标客群',
+      description: '选择目标用户群体（必选）',
+      isRequired: true
+    },
+    {
+      id: 'use_case',
+      name: '使用场景',
+      description: '定义具体使用情境（必选）',
+      isRequired: true
+    },
+    {
+      id: 'pain_point',
+      name: '用户痛点',
+      description: '识别核心问题（必选）',
+      isRequired: true
+    },
+    {
+      id: 'industry',
+      name: '行业',
+      description: '所属行业领域（必选）',
+      isRequired: true
+    },
+    // 推荐维度 (3个)
+    {
+      id: 'core_value',
+      name: '核心价值',
+      description: '产品/服务核心价值',
+      isRequired: false,
+      isRecommended: true
+    },
+    {
+      id: 'tone_style',
+      name: '表达风格',
+      description: '内容表达调性',
+      isRequired: false,
+      isRecommended: true
+    },
+    {
+      id: 'content_format',
+      name: '内容形式',
+      description: '输出内容格式',
+      isRequired: false,
+      isRecommended: true
+    },
+    // 可选维度 (2个)
+    {
+      id: 'emotional_need',
+      name: '情感诉求',
+      description: '用户情感需求',
+      isRequired: false,
+      isRecommended: false
+    },
+    {
+      id: 'platform_or_trend',
+      name: '平台/趋势',
+      description: '平台特性或热点趋势',
+      isRequired: false,
+      isRecommended: false
+    }
+  ];
+}
+
+/**
+ * 获取必选维度ID列表
+ */
+export function getRequiredDimensionIds(): string[] {
+  return getCreativeCubeDimensions()
+    .filter(dim => dim.isRequired)
+    .map(dim => dim.id);
+}
+
+/**
+ * 获取推荐维度ID列表
+ */
+export function getRecommendedDimensionIds(): string[] {
+  return getCreativeCubeDimensions()
+    .filter(dim => dim.isRecommended)
+    .map(dim => dim.id);
+}
+
+/**
+ * 获取可选维度ID列表
+ */
+export function getOptionalDimensionIds(): string[] {
+  return getCreativeCubeDimensions()
+    .filter(dim => !dim.isRequired && !dim.isRecommended)
+    .map(dim => dim.id);
+}
+
+/**
+ * 智能选择维度组合
+ * @param totalCount 总维度数量 (4-9)
+ * @param pinnedDimensions 固定的维度ID列表
+ * @returns 选择的维度ID列表
+ */
+export function selectDimensionCombination(
+  totalCount: number,
+  pinnedDimensions: string[] = []
+): string[] {
+  const requiredDims = getRequiredDimensionIds();
+  const recommendedDims = getRecommendedDimensionIds();
+  const optionalDims = getOptionalDimensionIds();
+
+  // 确保总数在有效范围内
+  const validTotalCount = Math.max(4, Math.min(9, totalCount));
+
+  // 开始构建选择列表
+  const selectedDims = new Set<string>();
+
+  // 1. 添加所有必选维度
+  requiredDims.forEach(dim => selectedDims.add(dim));
+
+  // 2. 添加固定的维度
+  pinnedDimensions.forEach(dim => selectedDims.add(dim));
+
+  // 3. 如果还需要更多维度，从推荐和可选中随机选择
+  const remainingCount = validTotalCount - selectedDims.size;
+  if (remainingCount > 0) {
+    // 合并推荐和可选维度，优先推荐维度
+    const availableDims = [
+      ...recommendedDims.filter(dim => !selectedDims.has(dim)),
+      ...optionalDims.filter(dim => !selectedDims.has(dim))
+    ];
+
+    // 随机打乱并选择需要的数量
+    const shuffled = availableDims.sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, remainingCount);
+    selected.forEach(dim => selectedDims.add(dim));
+  }
+
+  return Array.from(selectedDims);
+}
+
+/**
+ * 构建九宫格创意魔方的AI提示词
+ */
+export function buildCreativeCubePrompt(config: CreativeCubeConfig): string {
+  const { selectedItems, pinnedDimensions, selectedDimensionIds } = config;
+  const dimensions = getCreativeCubeDimensions();
+
+  // 获取固定维度信息
+  const pinnedInfo = pinnedDimensions.map(dimId => {
+    const dimension = dimensions.find(d => d.id === dimId);
+    return dimension?.name || dimId;
+  });
+
+  const pinnedText = pinnedInfo.length > 0
+    ? `\n\n⚠️ 重要约束：以下维度已被用户固定，必须严格遵循，不得偏离：\n${pinnedInfo.map(name => `- ${name}`).join('\n')}\n`
+    : '';
+
+  // 构建维度信息
+  const dimensionTexts: string[] = [];
+  selectedDimensionIds.forEach(dimId => {
+    const dimension = dimensions.find(d => d.id === dimId);
+    const value = selectedItems[dimId as keyof CreativeCubeSelection];
+    if (dimension && value) {
+      dimensionTexts.push(`- ${dimension.name}：${value}`);
+    }
+  });
+
+  const tone_style = selectedItems.tone_style || '标准';
+  const content_format = selectedItems.content_format || '图文';
+
+  return `请根据以下多维度配置生成一段用于【朋友圈】或【小红书】的图文内容，风格为【${tone_style}】，内容形式为【${content_format}】。必须严格使用以下所有维度信息，并避免使用"提升效率""提供安全感"等模板式话术，要求生活化、真实感强、带网络热梗、情境代入强。${pinnedText}
+
+维度：
+${dimensionTexts.join('\n')}
+
+输出要求：
+1. 标题：突出情境与人设冲突
+2. 正文：必须展现真实生活情境 + 人物吐槽 + 转折解决方案
+3. 互动引导：鼓励用户留言、点赞、共鸣
+4. 避免"核心概念/策略分析"等空话模板
+5. 内容输出控制在 150-200 字之间，符合社交平台阅读节奏
+6. 多使用emoji表情，提升阅读情绪节奏
+
+请直接输出创意内容，而非策略说明。`;
+}
+
 // 自动进行完整性验证
 if (typeof window !== 'undefined') {
   // 浏览器环境下延迟验证
