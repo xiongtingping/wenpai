@@ -1484,19 +1484,15 @@
 /* 🌙 优化的深色模式背景渐变系统 */
 [data-theme="dark"] .particle-background {
   background:
-    /* 主背景渐变 - 增强层次感 */
+    /* 简化的主背景渐变 - 统一和谐 */
     linear-gradient(135deg,
       hsl(var(--background)) 0%,
-      hsl(var(--surface-1)) 20%,
-      hsl(var(--surface-2)) 40%,
-      hsl(var(--surface-3)) 60%,
-      hsl(var(--surface-2)) 80%,
+      hsl(var(--surface-1)) 30%,
+      hsl(var(--surface-2)) 70%,
       hsl(var(--background)) 100%),
-    /* 装饰性径向渐变 - 增强科技感 */
-    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0.02) 40%, transparent 70%),
-    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.08) 0%, hsl(var(--accent) / 0.02) 40%, transparent 70%),
-    /* 新增中心光晕 */
-    radial-gradient(ellipse at center, hsl(var(--surface-3)) 0%, transparent 60%);
+    /* 微妙的装饰性径向渐变 - 减少视觉干扰 */
+    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.04) 0%, transparent 60%);
 }
 
 /* ☀️ 浅色模式粒子效果 */
@@ -1568,21 +1564,16 @@
   z-index: 1;
 }
 
-/* 🌟 深色模式增强粒子效果 */
+/* 🌟 深色模式简化粒子效果 */
 [data-theme="dark"] .particle-background::before {
   background-image:
-    /* 主要光点 - 增强亮度 */
-    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.25) 0%, hsl(var(--primary) / 0.12) 30%, transparent 60%),
-    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.22) 0%, hsl(var(--accent) / 0.1) 30%, transparent 60%),
-    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.18) 0%, hsl(var(--primary) / 0.06) 30%, transparent 60%),
-    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 30%, transparent 70%),
-    /* 辅助光点 - 增强层次 */
-    radial-gradient(circle at 10% 70%, hsl(var(--primary) / 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 90% 30%, hsl(var(--accent) / 0.12) 0%, transparent 40%),
-    /* 新增微妙光晕 */
-    radial-gradient(circle at 30% 50%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 70% 60%, hsl(var(--accent) / 0.08) 0%, transparent 50%);
-  animation: particleFloat 20s ease-in-out infinite;
+    /* 主要光点 - 减少亮度，增强和谐感 */
+    radial-gradient(circle at 25% 25%, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.04) 40%, transparent 70%),
+    radial-gradient(circle at 75% 75%, hsl(var(--accent) / 0.12) 0%, hsl(var(--accent) / 0.04) 40%, transparent 70%),
+    /* 微妙的辅助光点 */
+    radial-gradient(circle at 50% 20%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, hsl(var(--accent) / 0.08) 0%, transparent 50%);
+  animation: particleFloat 25s ease-in-out infinite;
 }
 
 /* 深色模式背景动画 */
@@ -1597,7 +1588,7 @@
   }
 }
 
-/* 深色模式下的额外装饰层 - 增强科技感 */
+/* 深色模式下的简化装饰层 - 微妙科技感 */
 [data-theme="dark"] .particle-background::after {
   content: '';
   position: absolute;
@@ -1606,34 +1597,21 @@
   right: 0;
   bottom: 0;
   background:
-    /* 交叉光束效果 */
-    linear-gradient(45deg, transparent 30%, hsl(var(--primary) / 0.06) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, hsl(var(--accent) / 0.06) 50%, transparent 70%),
-    /* 网格光效 */
-    linear-gradient(0deg, transparent 48%, hsl(var(--primary) / 0.02) 50%, transparent 52%),
-    linear-gradient(90deg, transparent 48%, hsl(var(--accent) / 0.02) 50%, transparent 52%);
-  background-size: 200px 200px, 200px 200px, 100px 100px, 100px 100px;
+    /* 微妙的交叉光束效果 */
+    linear-gradient(45deg, transparent 40%, hsl(var(--primary) / 0.03) 50%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, hsl(var(--accent) / 0.03) 50%, transparent 60%);
+  background-size: 300px 300px, 300px 300px;
   pointer-events: none;
   z-index: 2;
-  animation: shimmer 15s ease-in-out infinite, gridMove 30s linear infinite;
+  animation: shimmer 20s ease-in-out infinite;
 }
 
 @keyframes shimmer {
   0%, 100% {
-    opacity: 0.5;
+    opacity: 0.3;
   }
   50% {
-    opacity: 0.8;
-  }
-}
-
-/* 网格移动动画 - 增强深度感 */
-@keyframes gridMove {
-  0% {
-    background-position: 0 0, 0 0, 0 0, 0 0;
-  }
-  100% {
-    background-position: 200px 200px, -200px -200px, 100px 100px, -100px -100px;
+    opacity: 0.6;
   }
 }
 
