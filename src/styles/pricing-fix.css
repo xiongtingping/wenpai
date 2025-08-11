@@ -204,4 +204,151 @@
 .text-xl {
   font-variant-numeric: normal !important;
   font-feature-settings: normal !important;
-} 
+}
+
+/* ===== 深色模式表格专用修复 ===== */
+[data-theme="dark"] table {
+  border-color: hsl(var(--border-strong)) !important;
+  background-color: hsl(var(--card)) !important;
+}
+
+[data-theme="dark"] table thead {
+  background-color: hsl(var(--accent)) !important;
+  border-color: hsl(var(--border-strong)) !important;
+}
+
+[data-theme="dark"] table th {
+  background-color: hsl(var(--accent)) !important;
+  border-color: hsl(var(--border-strong)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+[data-theme="dark"] table td {
+  border-color: hsl(var(--border-strong)) !important;
+  background-color: hsl(var(--card)) !important;
+}
+
+[data-theme="dark"] table td.bg-accent {
+  background-color: hsl(var(--muted)) !important;
+}
+
+[data-theme="dark"] table tr:hover {
+  background-color: hsl(var(--accent) / 0.5) !important;
+}
+
+[data-theme="dark"] table tr:hover td {
+  background-color: hsl(var(--accent) / 0.5) !important;
+}
+
+[data-theme="dark"] table tr:hover td.bg-accent {
+  background-color: hsl(var(--muted) / 0.8) !important;
+}
+
+/* 深色模式下表格内容颜色修复 */
+[data-theme="dark"] .pricing-table-number,
+[data-theme="dark"] .pricing-table-text,
+[data-theme="dark"] .pricing-table-cell {
+  color: hsl(var(--foreground)) !important;
+}
+
+[data-theme="dark"] .text-muted-foreground {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+[data-theme="dark"] .text-destructive {
+  color: hsl(var(--destructive)) !important;
+}
+
+/* 深色模式下表格边框增强 */
+[data-theme="dark"] .border-border {
+  border-color: hsl(var(--border-strong)) !important;
+}
+
+/* ===== 深色模式功能对比表格专用修复 ===== */
+/* 针对PricingSection中的功能对比表格 */
+[data-theme="dark"] .overflow-x-auto table {
+  border: 2px solid hsl(215 15% 45%) !important;
+  background-color: hsl(215 28% 15%) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table thead {
+  background-color: hsl(215 20% 28%) !important;
+  border-bottom: 2px solid hsl(215 15% 45%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table th {
+  background-color: hsl(215 20% 28%) !important;
+  border: 1px solid hsl(215 15% 45%) !important;
+  color: hsl(210 40% 98%) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table th.bg-accent {
+  background-color: hsl(215 20% 32%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table td {
+  border: 1px solid hsl(215 15% 45%) !important;
+  background-color: hsl(215 28% 18%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table td.bg-accent {
+  background-color: hsl(215 20% 25%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table tr:hover {
+  background-color: hsl(215 20% 30%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table tr:hover td {
+  background-color: hsl(215 20% 30%) !important;
+  border-color: hsl(215 15% 50%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table tr:hover td.bg-accent {
+  background-color: hsl(215 20% 35%) !important;
+}
+
+/* 深色模式下表格内容样式增强 */
+[data-theme="dark"] .overflow-x-auto table .inline-block {
+  background-color: hsl(215 20% 35%) !important;
+  color: hsl(210 40% 98%) !important;
+  border: 1px solid hsl(215 15% 50%) !important;
+}
+
+/* 深色模式下表格圆角和阴影 */
+[data-theme="dark"] .overflow-x-auto table.rounded-lg {
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
+}
+
+/* 深色模式下表格文字对比度增强 */
+[data-theme="dark"] .overflow-x-auto table td,
+[data-theme="dark"] .overflow-x-auto table th {
+  color: hsl(210 40% 98%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table .text-muted-foreground {
+  color: hsl(215 20% 75%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table .text-foreground {
+  color: hsl(210 40% 98%) !important;
+}
+
+[data-theme="dark"] .overflow-x-auto table .text-destructive {
+  color: hsl(0 84% 70%) !important;
+}
+
+/* 深色模式下表格特殊元素增强 */
+[data-theme="dark"] .overflow-x-auto table .pricing-table-number,
+[data-theme="dark"] .overflow-x-auto table .pricing-table-text,
+[data-theme="dark"] .overflow-x-auto table .pricing-table-cell {
+  color: hsl(210 40% 98%) !important;
+}
+
+/* 深色模式下表格边框全局增强 */
+[data-theme="dark"] .overflow-x-auto table * {
+  border-color: hsl(215 15% 45%) !important;
+}

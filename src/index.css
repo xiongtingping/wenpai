@@ -1,4 +1,5 @@
 @import './styles/number-display-fix.css';
+@import './styles/pricing-fix.css';
 @import './styles/typography-system.css';
 @import './automation/automation-modal.css';
 
@@ -1483,16 +1484,19 @@
 /* 🌙 优化的深色模式背景渐变系统 */
 [data-theme="dark"] .particle-background {
   background:
-    /* 主背景渐变 */
+    /* 主背景渐变 - 增强层次感 */
     linear-gradient(135deg,
       hsl(var(--background)) 0%,
-      hsl(var(--surface-1)) 25%,
-      hsl(var(--surface-2)) 50%,
-      hsl(var(--surface-1)) 75%,
+      hsl(var(--surface-1)) 20%,
+      hsl(var(--surface-2)) 40%,
+      hsl(var(--surface-3)) 60%,
+      hsl(var(--surface-2)) 80%,
       hsl(var(--background)) 100%),
-    /* 装饰性径向渐变 */
-    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.05) 0%, transparent 50%);
+    /* 装饰性径向渐变 - 增强科技感 */
+    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0.02) 40%, transparent 70%),
+    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.08) 0%, hsl(var(--accent) / 0.02) 40%, transparent 70%),
+    /* 新增中心光晕 */
+    radial-gradient(ellipse at center, hsl(var(--surface-3)) 0%, transparent 60%);
 }
 
 /* ☀️ 浅色模式粒子效果 */
@@ -1567,14 +1571,17 @@
 /* 🌟 深色模式增强粒子效果 */
 [data-theme="dark"] .particle-background::before {
   background-image:
-    /* 主要光点 */
-    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.2) 0%, hsl(var(--primary) / 0.1) 30%, transparent 60%),
-    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.18) 0%, hsl(var(--accent) / 0.08) 30%, transparent 60%),
-    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.05) 30%, transparent 60%),
-    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.12) 0%, hsl(var(--accent) / 0.04) 30%, transparent 70%),
-    /* 辅助光点 */
-    radial-gradient(circle at 10% 70%, hsl(var(--primary) / 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 30%, hsl(var(--accent) / 0.08) 0%, transparent 40%);
+    /* 主要光点 - 增强亮度 */
+    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.25) 0%, hsl(var(--primary) / 0.12) 30%, transparent 60%),
+    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.22) 0%, hsl(var(--accent) / 0.1) 30%, transparent 60%),
+    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.18) 0%, hsl(var(--primary) / 0.06) 30%, transparent 60%),
+    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.15) 0%, hsl(var(--accent) / 0.05) 30%, transparent 70%),
+    /* 辅助光点 - 增强层次 */
+    radial-gradient(circle at 10% 70%, hsl(var(--primary) / 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 30%, hsl(var(--accent) / 0.12) 0%, transparent 40%),
+    /* 新增微妙光晕 */
+    radial-gradient(circle at 30% 50%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, hsl(var(--accent) / 0.08) 0%, transparent 50%);
   animation: particleFloat 20s ease-in-out infinite;
 }
 
@@ -1590,7 +1597,7 @@
   }
 }
 
-/* 深色模式下的额外装饰层 */
+/* 深色模式下的额外装饰层 - 增强科技感 */
 [data-theme="dark"] .particle-background::after {
   content: '';
   position: absolute;
@@ -1599,11 +1606,16 @@
   right: 0;
   bottom: 0;
   background:
-    linear-gradient(45deg, transparent 30%, hsl(var(--primary) / 0.03) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, hsl(var(--accent) / 0.03) 50%, transparent 70%);
+    /* 交叉光束效果 */
+    linear-gradient(45deg, transparent 30%, hsl(var(--primary) / 0.06) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, hsl(var(--accent) / 0.06) 50%, transparent 70%),
+    /* 网格光效 */
+    linear-gradient(0deg, transparent 48%, hsl(var(--primary) / 0.02) 50%, transparent 52%),
+    linear-gradient(90deg, transparent 48%, hsl(var(--accent) / 0.02) 50%, transparent 52%);
+  background-size: 200px 200px, 200px 200px, 100px 100px, 100px 100px;
   pointer-events: none;
   z-index: 2;
-  animation: shimmer 15s ease-in-out infinite;
+  animation: shimmer 15s ease-in-out infinite, gridMove 30s linear infinite;
 }
 
 @keyframes shimmer {
@@ -1612,6 +1624,16 @@
   }
   50% {
     opacity: 0.8;
+  }
+}
+
+/* 网格移动动画 - 增强深度感 */
+@keyframes gridMove {
+  0% {
+    background-position: 0 0, 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 200px 200px, -200px -200px, 100px 100px, -100px -100px;
   }
 }
 
@@ -1688,18 +1710,30 @@
 
 /* 🌙 深色模式增强卡片效果 */
 [data-theme="dark"] .enhanced-card {
+  background: hsl(var(--surface-2));
+  border: 1px solid hsl(var(--border));
   box-shadow:
-    0 4px 6px -1px hsl(var(--background) / 0.3),
-    0 2px 4px -1px hsl(var(--background) / 0.2),
-    inset 0 1px 0 hsl(var(--surface-3) / 0.5);
+    /* 主要阴影 - 更明显的深度 */
+    0 8px 16px -4px hsl(0 0% 0% / 0.4),
+    0 4px 8px -2px hsl(0 0% 0% / 0.3),
+    /* 内部高光 - 增强立体感 */
+    inset 0 1px 0 hsl(var(--surface-3) / 0.8),
+    /* 边缘光晕 - 增强科技感 */
+    0 0 0 1px hsl(var(--primary) / 0.1);
 }
 
 [data-theme="dark"] .enhanced-card:hover {
   background: hsl(var(--surface-3));
+  transform: translateY(-2px);
   box-shadow:
-    0 10px 15px -3px hsl(var(--background) / 0.4),
-    0 4px 6px -2px hsl(var(--background) / 0.3),
-    inset 0 1px 0 hsl(var(--surface-4) / 0.5);
+    /* 悬浮阴影 - 更强烈的深度感 */
+    0 16px 32px -8px hsl(0 0% 0% / 0.5),
+    0 8px 16px -4px hsl(0 0% 0% / 0.4),
+    /* 内部高光 */
+    inset 0 1px 0 hsl(var(--surface-4) / 0.9),
+    /* 发光边缘 - 增强交互反馈 */
+    0 0 0 1px hsl(var(--primary) / 0.2),
+    0 0 20px -4px hsl(var(--primary) / 0.15);
 }
 
 /* 🎭 通用交互反馈类 - 适用于所有主题 */

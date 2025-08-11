@@ -50,7 +50,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative py-20 px-4 sm:px-6 lg:px-8 particle-background dark:bg-gradient-to-br dark:from-background dark:via-surface-1 dark:to-surface-2" style={{ minHeight: 'auto' }}>
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8" style={{ minHeight: 'auto' }}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
@@ -81,7 +81,7 @@ const HeroSection: React.FC = () => {
               </div>
 
               {/* 第二行：四个要点 - 修复对齐问题 */}
-              <div className="text-lg sm:text-xl text-secondary font-medium">
+              <div className="text-lg sm:text-xl text-muted-foreground font-medium">
                 <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-12">
                   <div className="flex items-center gap-2">
                     <span className="text-accent text-2xl leading-none">·</span>
@@ -149,7 +149,7 @@ const HeroSection: React.FC = () => {
                       <p className="text-sm text-muted-foreground font-medium">AI秒级响应</p>
                     </div>
                   </div>
-                  <p className="text-secondary leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     智能分析需求，<span className="font-semibold text-primary">3秒内</span>生成高质量内容，大幅提升创作效率
                   </p>
                 </div>
@@ -185,11 +185,11 @@ const HeroSection: React.FC = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-primary">💰 成本节省</h3>
-                      <p className="text-sm text-secondary font-medium">降本增效</p>
+                      <h3 className="text-lg font-bold text-foreground">💰 成本节省</h3>
+                      <p className="text-sm text-muted-foreground font-medium">降本增效</p>
                     </div>
                   </div>
-                  <p className="text-secondary leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     自动化内容创作流程，<span className="font-semibold text-primary">节省80%</span>人工成本，提升ROI
                   </p>
                 </div>

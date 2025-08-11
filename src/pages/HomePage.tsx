@@ -15,7 +15,7 @@ function HomePage() {
   useScrollAnimation()
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" style={{ minHeight: '100vh', height: 'auto' }}>
+    <div className="min-h-screen flex flex-col particle-background" style={{ minHeight: '100vh', height: 'auto' }}>
       {/* 页面访问记录 */}
       <PageTracker
         title="文派 - AI驱动的创意内容平台"
@@ -29,43 +29,43 @@ function HomePage() {
 
       <Header />
 
-      <main className="flex-1 w-full bg-background">
-        {/* Hero Section - 统一背景 */}
-        <div className="bg-background">
+      <main className="flex-1 w-full relative z-10">
+        {/* Hero Section */}
+        <div>
           <HeroSection />
         </div>
 
-        {/* Trust Section - 统一背景 */}
-        <div className="bg-background py-16">
+        {/* Trust Section */}
+        <div className="py-16">
           <TrustSection />
         </div>
 
-        {/* How It Works - 统一背景 */}
-        <div className="bg-background py-20">
+        {/* How It Works */}
+        <div className="py-20">
           <HowItWorks />
         </div>
 
-        {/* Features Section - 统一背景 */}
-        <div className="bg-background py-20">
+        {/* Features Section */}
+        <div className="py-20">
           <FeaturesSection />
         </div>
 
-        {/* Testimonials Section - 统一背景 */}
-        <div className="bg-background py-20">
+        {/* Testimonials Section */}
+        <div className="py-20">
           <TestimonialsSection />
         </div>
 
-        {/* Pricing Section - 统一背景 */}
-        <div className="bg-background py-20">
+        {/* Pricing Section */}
+        <div className="py-20">
           <PricingSection />
         </div>
 
-        {/* CTA Section - 统一背景 */}
-        <div className="bg-background py-20">
+        {/* CTA Section */}
+        <div className="py-20">
           <CTASection />
         </div>
       </main>
-      
+
       <Footer />
     </div>
   )

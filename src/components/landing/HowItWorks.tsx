@@ -34,7 +34,7 @@ export function HowItWorks() {
   ]
 
   return (
-    <section className="py-16 bg-background" id="how-it-works-section">
+    <section className="py-16" id="how-it-works-section">
       <div className="container mx-auto px-6">
         {/* 1️⃣ 标题区优化 */}
         <div className="text-center max-w-4xl mx-auto">

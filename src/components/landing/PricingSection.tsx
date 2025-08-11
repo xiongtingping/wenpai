@@ -112,7 +112,7 @@ export function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-12 bg-background relative overflow-hidden">
+    <section id="pricing" className="py-12 relative overflow-hidden">
       
       <div className="container mx-auto px-4 md:px-12 relative z-10">
         {/* 🎯 标题区域优化 */}
