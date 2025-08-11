@@ -195,22 +195,22 @@ function DimensionCard({
         )}
       </CardHeader>
       {/* 内容区域 - 选项按钮 */}
-      <CardContent className="p-4 bg-white">
+      <CardContent className="p-3 bg-white">
         {selectedItem && (
-          <div className="mb-3 p-2.5 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-between">
-            <span className="text-sm font-medium text-primary">{selectedItem}</span>
+          <div className="mb-2 p-2 bg-primary/10 border border-primary/20 rounded-md flex items-center justify-between">
+            <span className="text-xs font-medium text-primary truncate">{selectedItem}</span>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => onDeselect(selectedItem)}
-              className="h-5 w-5 p-0 hover:bg-primary/20"
+              className="h-4 w-4 p-0 hover:bg-primary/20 flex-shrink-0 ml-1"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3 h-3" />
             </Button>
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-3 gap-1 text-center">
           {/* 显示默认项（过滤隐藏项） */}
           {dimension.defaultItems
             .filter(item => !hiddenItems.includes(item))
@@ -221,7 +221,7 @@ function DimensionCard({
                   <Button
                     size="sm"
                     variant={selectedItem === item ? "default" : "outline"}
-                    className={`text-xs h-7 px-2 justify-start w-full transition-all ${
+                    className={`text-xs h-6 px-1.5 justify-center w-full transition-all ${
                       isPinned
                         ? 'border-amber-400 bg-amber-50 hover:bg-amber-100 shadow-sm'
                         : 'hover:shadow-sm'
@@ -229,16 +229,16 @@ function DimensionCard({
                     onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
                     disabled={!!selectedItem && selectedItem !== item}
                   >
-                    <span className="truncate">{isPinned ? '📌 ' : ''}{item}</span>
+                    <span className="truncate text-center">{isPinned ? '📌 ' : ''}{item}</span>
                   </Button>
 
                   {/* 管理按钮 - 默认项显示钉住和删除按钮 */}
-                  <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     {onPinItem && onUnpinItem && (
                       <Button
                         size="sm"
                         variant="ghost"
-                        className={`h-4 w-4 p-0 rounded-full ${
+                        className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                           isPinned
                             ? 'bg-amber-200 hover:bg-amber-300 text-amber-700'
                             : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
@@ -255,7 +255,7 @@ function DimensionCard({
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-4 w-4 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600"
+                        className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600 text-xs"
                         onClick={(e) => {
                           e.stopPropagation();
                           onRemoveItem(item);
@@ -277,7 +277,7 @@ function DimensionCard({
                 <Button
                   size="sm"
                   variant={selectedItem === item ? "default" : "outline"}
-                  className={`text-xs h-7 px-2 justify-start w-full transition-all ${
+                  className={`text-xs h-6 px-1.5 justify-center w-full transition-all ${
                     isPinned
                       ? 'border-amber-400 bg-amber-50 hover:bg-amber-100 shadow-sm'
                       : 'bg-blue-50 border-blue-200 hover:bg-blue-100 hover:shadow-sm'
@@ -285,16 +285,16 @@ function DimensionCard({
                   onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
                   disabled={!!selectedItem && selectedItem !== item}
                 >
-                  <span className="truncate">{isPinned ? '📌 ' : ''}🔧 {item}</span>
+                  <span className="truncate text-center">{isPinned ? '📌 ' : ''}🔧 {item}</span>
                 </Button>
 
                 {/* 管理按钮 */}
-                <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   {onPinItem && onUnpinItem && (
                     <Button
                       size="sm"
                       variant="ghost"
-                      className={`h-4 w-4 p-0 rounded-full ${
+                      className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                         isPinned
                           ? 'bg-amber-200 hover:bg-amber-300 text-amber-700'
                           : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
@@ -311,7 +311,7 @@ function DimensionCard({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-4 w-4 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600"
+                      className="h-3.5 w-3.5 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600 text-xs"
                       onClick={(e) => {
                         e.stopPropagation();
                         onRemoveItem(item);
@@ -330,26 +330,26 @@ function DimensionCard({
           <Button
             size="sm"
             variant="ghost"
-            className="w-full mt-2 text-xs h-7 border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50"
+            className="w-full mt-1.5 text-xs h-6 border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50"
             onClick={() => setShowAddInput(true)}
           >
-            <Plus className="w-3 h-3 mr-1.5" />
+            <Plus className="w-3 h-3 mr-1" />
             添加自定义选项
           </Button>
         ) : (
-          <div className="mt-2 flex gap-1.5">
+          <div className="mt-1.5 flex gap-1">
             <Input
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
               placeholder="输入自定义选项..."
-              className="text-xs h-7 flex-1"
+              className="text-xs h-6 flex-1"
               onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
               autoFocus
             />
             <Button
               size="sm"
               onClick={handleAddItem}
-              className="h-7 w-7 p-0"
+              className="h-6 w-6 p-0"
               disabled={!newItem.trim()}
             >
               <Plus className="w-3 h-3" />
@@ -361,7 +361,7 @@ function DimensionCard({
                 setShowAddInput(false);
                 setNewItem('');
               }}
-              className="h-7 w-7 p-0"
+              className="h-6 w-6 p-0"
             >
               <X className="w-3 h-3" />
             </Button>
