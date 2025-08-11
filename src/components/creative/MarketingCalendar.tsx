@@ -204,23 +204,40 @@ const TaskForm: React.FC<{
     isRecurring: task?.isRecurring || false
   });
 
+  const [titleError, setTitleError] = useState('');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim()) return;
-    
+
+    // 验证标题
+    if (!formData.title.trim()) {
+      setTitleError('任务标题不能为空');
+      return;
+    }
+
+    setTitleError('');
     onSubmit(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-2">任务标题</label>
+        <label className="block text-sm font-medium mb-2">
+          任务标题 <span className="text-red-500">*</span>
+        </label>
         <Input
           value={formData.title}
-          onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+          onChange={(e) => {
+            setFormData(prev => ({ ...prev, title: e.target.value }));
+            if (titleError) setTitleError('');
+          }}
           placeholder="输入任务标题..."
+          className={titleError ? 'border-red-500' : ''}
           required
         />
+        {titleError && (
+          <p className="text-red-500 text-xs mt-1">{titleError}</p>
+        )}
       </div>
 
       <div>
@@ -473,6 +490,10 @@ function MarketingCalendar() {
   // 搜索状态
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 触摸滑动状态
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
   // 拖拽状态
   const [draggedTask, setDraggedTask] = useState<TodoTask | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
@@ -642,8 +663,27 @@ function MarketingCalendar() {
 
     // 应用排序
     const sorted = [...filtered].sort((a, b) => {
-      let comparison = 0;
+      // 1. 已完成任务自动沉底
+      if (a.status !== b.status) {
+        if (a.status === 'completed') return 1;
+        if (b.status === 'completed') return -1;
+      }
 
+      // 2. 当天的高优先级任务优先展示
+      const today = new Date().toISOString().split('T')[0];
+      const aIsToday = a.date === today;
+      const bIsToday = b.date === today;
+      const aIsHighPriority = a.priority === 'high';
+      const bIsHighPriority = b.priority === 'high';
+
+      // 当天高优先级 > 当天其他优先级 > 其他日期高优先级 > 其他日期其他优先级
+      if (aIsToday && aIsHighPriority && (!bIsToday || !bIsHighPriority)) return -1;
+      if (bIsToday && bIsHighPriority && (!aIsToday || !aIsHighPriority)) return 1;
+      if (aIsToday && !bIsToday) return -1;
+      if (bIsToday && !aIsToday) return 1;
+
+      // 3. 应用用户选择的排序方式
+      let comparison = 0;
       switch (sortBy) {
         case 'priority':
           const priorityOrder = { high: 3, medium: 2, low: 1 };
@@ -771,6 +811,34 @@ function MarketingCalendar() {
   };
 
   /**
+   * 触摸滑动处理
+   */
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      changeMonth('next');
+    } else if (isRightSwipe) {
+      changeMonth('prev');
+    }
+  };
+
+  /**
    * 快速添加任务到指定日期 - 修复时区问题
    * ✅ FIXED: 使用本地时间格式化，确保日期一致性
    */
@@ -895,7 +963,12 @@ function MarketingCalendar() {
           </div>
 
           {/* 月历视图 */}
-          <div className="border rounded-lg overflow-hidden h-[470px] flex flex-col">
+          <div
+            className="border rounded-lg overflow-hidden h-[470px] flex flex-col"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             {/* 星期标题 - 更紧凑布局 */}
             <div className="grid grid-cols-7 bg-muted flex-shrink-0">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
