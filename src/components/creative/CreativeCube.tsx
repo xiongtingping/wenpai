@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Label } from '@/components/ui/label';
 import { 
   Sparkles,
   RefreshCw,
@@ -49,11 +50,12 @@ import { useToast } from '@/hooks/use-toast';
 import MarketingCalendar from './MarketingCalendar';
 import { MomentsTextGenerator } from './MomentsTextGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuthStore } from '@/store/authStore';
 import { callCreativeGeneration } from '@/api/aiService';
 import { Label as UILabel } from '@/components/ui/label';
+import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import {
   getCreativeCubeDimensions,
   getRequiredDimensionIds,
@@ -118,23 +120,39 @@ interface DimensionCardProps {
   isPinned: boolean;
   cubeData: string[];
   onAddCustomItem: (item: string) => void;
+  onRemoveItem?: (item: string) => void;
+  onPinItem?: (item: string) => void;
+  onUnpinItem?: (item: string) => void;
+  pinnedItems?: string[];
+  hiddenItems?: string[];
   isRequired: boolean;
+  onRestoreDefaults?: (dimensionId: string) => void;
+  customDimensionsManager?: any;
 }
 
-function DimensionCard({ 
-  dimension, 
-  selectedItems, 
-  onSelect, 
-  onDeselect, 
-  onPin, 
-  isPinned, 
-  cubeData, 
-  onAddCustomItem, 
-  isRequired 
+function DimensionCard({
+  dimension,
+  selectedItems,
+  onSelect,
+  onDeselect,
+  onPin,
+  isPinned,
+  cubeData,
+  onAddCustomItem,
+  onRemoveItem,
+  onPinItem,
+  onUnpinItem,
+  pinnedItems = [],
+  hiddenItems = [],
+  isRequired,
+  onRestoreDefaults,
+  customDimensionsManager
 }: DimensionCardProps) {
   const [newItem, setNewItem] = useState('');
   const [showAddInput, setShowAddInput] = useState(false);
   const selectedItem = Array.isArray(selectedItems) ? selectedItems[0] : selectedItems;
+
+
 
   const handleAddItem = () => {
     if (newItem.trim()) {
@@ -144,92 +162,208 @@ function DimensionCard({
     }
   };
 
+  // 检查是否有被隐藏的默认项
+  const hasHiddenDefaultItems = dimension.defaultItems.some(item =>
+    hiddenItems.includes(item)
+  );
+
   return (
-    <Card className={`relative ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'bg-accent' : ''}`}>
-      <CardHeader className="pb-1 p-3">
+    <Card className={`relative overflow-hidden ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'ring-2 ring-primary/20' : ''}`}>
+      {/* 头部区域 - 维度标题和描述 */}
+      <CardHeader className="pb-2 p-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {dimension.icon}
-            <CardTitle className="text-xs font-medium">{dimension.name}</CardTitle>
-            {isRequired && <Badge variant="destructive" className="text-xs px-1 py-0">必选</Badge>}
+            <CardTitle className="text-sm font-bold text-slate-800">{dimension.name}</CardTitle>
+            {isRequired && <Badge variant="destructive" className="text-xs px-1.5 py-0.5">必选</Badge>}
           </div>
-          {dimension.isPinnable && (
+          {/* 一键还原按钮 - 替换钉图标 */}
+          {hasHiddenDefaultItems && (
             <Button
               size="sm"
-              variant={isPinned ? "default" : "ghost"}
-              onClick={onPin}
-              className="h-5 w-5 p-0"
+              variant="outline"
+              onClick={() => onRestoreDefaults?.(dimension.id)}
+              className="h-6 px-2 text-xs hover:bg-blue-50 hover:border-blue-300 transition-colors"
             >
-              <Pin className={`w-2.5 h-2.5 ${isPinned ? 'text-primary-foreground' : ''}`} />
+              <RotateCcw className="w-3 h-3 mr-1" />
+              还原
             </Button>
           )}
         </div>
+        {dimension.description && (
+          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{dimension.description}</p>
+        )}
       </CardHeader>
-      <CardContent className="p-3 pt-0">
+      {/* 内容区域 - 选项按钮 */}
+      <CardContent className="p-4 bg-white">
         {selectedItem && (
-          <div className="mb-2 p-2 bg-accent rounded flex items-center justify-between">
+          <div className="mb-3 p-2.5 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-between">
             <span className="text-sm font-medium text-primary">{selectedItem}</span>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => onDeselect(selectedItem)}
-              className="h-4 w-4 p-0"
+              className="h-5 w-5 p-0 hover:bg-primary/20"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3.5 h-3.5" />
             </Button>
           </div>
         )}
-        
-        <div className="grid grid-cols-2 gap-1">
-          {/* 显示默认项和自定义添加的项，去重处理 */}
-          {(() => {
-            // 合并默认项和自定义项，并去重
-            const allItems = [...dimension.defaultItems];
-            cubeData.forEach(item => {
-              if (!allItems.includes(item)) {
-                allItems.push(item);
-              }
-            });
 
-            return allItems.map((item, index) => (
-              <Button
-                key={`${item}-${index}`}
-                size="sm"
-                variant={selectedItem === item ? "default" : "outline"}
-                className="text-xs h-6 px-1.5 justify-start"
-                onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
-                disabled={!!selectedItem && selectedItem !== item}
-              >
-                <span className="truncate">{item}</span>
-              </Button>
-            ));
-          })()}
+        <div className="grid grid-cols-3 gap-1.5">
+          {/* 显示默认项（过滤隐藏项） */}
+          {dimension.defaultItems
+            .filter(item => !hiddenItems.includes(item))
+            .map((item, index) => {
+              const isPinned = pinnedItems.includes(item);
+              return (
+                <div key={`default-${item}-${index}`} className="relative group">
+                  <Button
+                    size="sm"
+                    variant={selectedItem === item ? "default" : "outline"}
+                    className={`text-xs h-7 px-2 justify-start w-full transition-all ${
+                      isPinned
+                        ? 'border-amber-400 bg-amber-50 hover:bg-amber-100 shadow-sm'
+                        : 'hover:shadow-sm'
+                    }`}
+                    onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
+                    disabled={!!selectedItem && selectedItem !== item}
+                  >
+                    <span className="truncate">{isPinned ? '📌 ' : ''}{item}</span>
+                  </Button>
+
+                  {/* 管理按钮 - 默认项显示钉住和删除按钮 */}
+                  <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {onPinItem && onUnpinItem && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={`h-4 w-4 p-0 rounded-full ${
+                          isPinned
+                            ? 'bg-amber-200 hover:bg-amber-300 text-amber-700'
+                            : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          isPinned ? onUnpinItem(item) : onPinItem(item);
+                        }}
+                      >
+                        📌
+                      </Button>
+                    )}
+                    {onRemoveItem && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-4 w-4 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveItem(item);
+                        }}
+                      >
+                        ❌
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+          {/* 显示自定义项 */}
+          {cubeData.map((item, index) => {
+            const isPinned = pinnedItems.includes(item);
+            return (
+              <div key={`custom-${dimension.id}-${index}-${item}`} className="relative group">
+                <Button
+                  size="sm"
+                  variant={selectedItem === item ? "default" : "outline"}
+                  className={`text-xs h-7 px-2 justify-start w-full transition-all ${
+                    isPinned
+                      ? 'border-amber-400 bg-amber-50 hover:bg-amber-100 shadow-sm'
+                      : 'bg-blue-50 border-blue-200 hover:bg-blue-100 hover:shadow-sm'
+                  }`}
+                  onClick={() => selectedItem === item ? onDeselect(item) : onSelect(item)}
+                  disabled={!!selectedItem && selectedItem !== item}
+                >
+                  <span className="truncate">{isPinned ? '📌 ' : ''}🔧 {item}</span>
+                </Button>
+
+                {/* 管理按钮 */}
+                <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {onPinItem && onUnpinItem && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={`h-4 w-4 p-0 rounded-full ${
+                        isPinned
+                          ? 'bg-amber-200 hover:bg-amber-300 text-amber-700'
+                          : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        isPinned ? onUnpinItem(item) : onPinItem(item);
+                      }}
+                    >
+                      📌
+                    </Button>
+                  )}
+                  {onRemoveItem && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-4 w-4 p-0 rounded-full bg-red-100 hover:bg-red-200 text-red-600"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRemoveItem(item);
+                      }}
+                    >
+                      ❌
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
-        
+
         {!showAddInput ? (
           <Button
             size="sm"
             variant="ghost"
-            className="w-full mt-1.5 text-xs h-6"
+            className="w-full mt-2 text-xs h-7 border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50"
             onClick={() => setShowAddInput(true)}
           >
-            <Plus className="w-2.5 h-2.5 mr-1" />
-            添加自定义
+            <Plus className="w-3 h-3 mr-1.5" />
+            添加自定义选项
           </Button>
         ) : (
-          <div className="mt-1.5 flex gap-1">
+          <div className="mt-2 flex gap-1.5">
             <Input
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
-              placeholder="输入自定义项"
-              className="text-xs h-6"
+              placeholder="输入自定义选项..."
+              className="text-xs h-7 flex-1"
               onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
+              autoFocus
             />
-            <Button size="sm" onClick={handleAddItem} className="h-6 w-6 p-0">
-              <Plus className="w-2.5 h-2.5" />
+            <Button
+              size="sm"
+              onClick={handleAddItem}
+              className="h-7 w-7 p-0"
+              disabled={!newItem.trim()}
+            >
+              <Plus className="w-3 h-3" />
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowAddInput(false)} className="h-6 w-6 p-0">
-              <X className="w-2.5 h-2.5" />
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setShowAddInput(false);
+                setNewItem('');
+              }}
+              className="h-7 w-7 p-0"
+            >
+              <X className="w-3 h-3" />
             </Button>
           </div>
         )}
@@ -273,18 +407,135 @@ export function CreativeCube() {
     return iconMap[dimensionId] || <Star className="w-4 h-4" />;
   }
 
-  // 获取维度默认选项
+  // 获取维度默认选项 - 完善版
   function getDimensionDefaultItems(dimensionId: string): string[] {
     const itemsMap: Record<string, string[]> = {
-      'target_audience': ['宝妈', '大学生', '银发族', '职场人', '中产女性', 'Z世代', '宠物主', '健身人群', 'K12家长', '二次元', '科技控', '新手创业者'],
-      'use_case': ['通勤', '健身', '夜宵', '家庭聚会', '旅游途中', '碎片时间', '出差', '露营', '独处时刻', '早晚高峰', '带娃时', '睡前'],
-      'pain_point': ['时间不够', '预算不足', '操作复杂', '选择困难', '效果不稳', '信息过载', '服务差', '信任缺失', '缺乏动力', '内容同质化'],
-      'industry': ['母婴', '美妆', '旅游', '健康', '教育', '职场', '电商', '本地生活', '宠物', '数码', '食品饮料', '健身', '金融理财'],
-      'core_value': ['提升效率', '改善体验', '节约成本', '增强信任', '拓宽视野', '激发灵感', '个性表达', '提高品质', '促进成长'],
-      'tone_style': ['轻松幽默', '极简干练', '专业可信', '情感共鸣', '反差反转', '热梗混剪', '小剧场', '第一人称', '旁白式', '访谈感'],
-      'content_format': ['图文', '短视频', '直播', 'H5', '长图', '故事接龙', '清单类', '榜单类', '分镜脚本'],
-      'emotional_need': ['安全感', '归属感', '成就感', '愉悦感', '陪伴感', '放松感', '被理解', '被尊重', '掌控感', '仪式感'],
-      'platform_or_trend': ['小红书', '抖音', '知乎', '公众号', '搭子经济', '反向旅游', '高质量独居', '无糖生活', 'AI助理', '低欲望生活']
+      'target_audience': [
+        // 年龄分层
+        'Z世代', '千禧一代', '银发族', '中年群体', '青少年',
+        // 身份角色
+        '宝妈', '奶爸', 'K12家长', '职场人', '大学生', '新手创业者', '自由职业者', '退休人群',
+        // 兴趣标签
+        '宠物主', '健身人群', '二次元', '科技控', '美食爱好者', '旅行达人', '读书人', '音乐发烧友',
+        // 消费特征
+        '中产女性', '精致妈妈', '品质生活者', '性价比追求者', '尝鲜族', '理性消费者',
+        // 生活状态
+        '单身贵族', '新婚夫妇', '空巢老人', '北漂族', '斜杠青年', '居家办公者'
+      ],
+      'use_case': [
+        // 时间场景
+        '通勤路上', '午休时间', '睡前时光', '周末休闲', '节假日', '碎片时间', '深夜时刻',
+        // 地点场景
+        '居家生活', '办公室', '健身房', '咖啡厅', '旅途中', '户外活动', '商场购物', '餐厅用餐',
+        // 活动场景
+        '工作学习', '娱乐放松', '社交聚会', '家庭聚餐', '约会时光', '独处思考', '运动健身', '护肤保养',
+        // 特殊场景
+        '出差商旅', '带娃时光', '照顾老人', '宠物陪伴', '备考冲刺', '创业初期', '搬家装修', '换季整理'
+      ],
+      'pain_point': [
+        // 时间相关
+        '时间不够用', '效率太低', '拖延症严重', '时间管理混乱', '工作生活失衡',
+        // 金钱相关
+        '预算有限', '性价比不高', '隐形消费多', '理财困难', '收入不稳定',
+        // 选择相关
+        '选择困难症', '信息过载', '不知道买什么', '品牌太多眼花缭乱', '担心踩雷',
+        // 技能相关
+        '操作太复杂', '学习成本高', '不会使用', '缺乏专业知识', '跟不上潮流',
+        // 情感相关
+        '缺乏动力', '焦虑压力大', '孤独感强', '缺乏认同', '自信心不足', '社交恐惧',
+        // 服务相关
+        '服务态度差', '售后无保障', '响应速度慢', '专业度不够', '信任度低'
+      ],
+      'industry': [
+        // 生活服务
+        '母婴育儿', '美妆护肤', '服装时尚', '食品饮料', '家居生活', '宠物用品',
+        // 健康医疗
+        '健康养生', '医疗保健', '心理健康', '运动健身', '营养保健', '医美整形',
+        // 教育培训
+        '在线教育', '职业培训', '语言学习', '兴趣培养', '亲子教育', '老年教育',
+        // 科技数码
+        '智能硬件', '软件应用', '游戏娱乐', '人工智能', '新能源', '区块链',
+        // 金融服务
+        '银行理财', '保险服务', '投资理财', '消费金融', '支付服务', '财税服务',
+        // 出行旅游
+        '旅游度假', '交通出行', '酒店住宿', '租车服务', '户外运动', '文化娱乐',
+        // 商业服务
+        '电商零售', '本地生活', '企业服务', '营销推广', '设计创意', '法律咨询'
+      ],
+      'core_value': [
+        // 效率提升
+        '提升效率', '节省时间', '简化流程', '自动化处理', '一站式解决',
+        // 体验改善
+        '改善体验', '提高舒适度', '增强便利性', '优化使用感受', '个性化定制',
+        // 成本控制
+        '节约成本', '性价比高', '减少浪费', '长期省钱', '投资回报高',
+        // 品质保障
+        '提高品质', '专业可靠', '安全保障', '品牌信誉', '质量承诺',
+        // 情感价值
+        '情感陪伴', '心理安慰', '社交连接', '身份认同', '成就感满足',
+        // 成长发展
+        '促进成长', '技能提升', '知识增长', '视野拓展', '能力培养',
+        // 创新突破
+        '创新突破', '差异化优势', '独特价值', '前沿技术', '颠覆传统'
+      ],
+      'tone_style': [
+        // 情感调性
+        '轻松幽默', '温暖治愈', '激励正能量', '情感共鸣', '怀旧情怀', '浪漫温馨',
+        // 专业调性
+        '专业权威', '科学严谨', '数据说话', '理性分析', '客观中立', '学术风格',
+        // 表达方式
+        '极简干练', '详细解析', '故事叙述', '对话互动', '第一人称', '旁白解说',
+        // 创意风格
+        '反差反转', '悬疑烧脑', '热梗混剪', '小剧场', '角色扮演', '情景再现',
+        // 互动风格
+        '访谈对话', '问答形式', '挑战测试', '教学指导', '分享心得', '经验总结',
+        // 平台特色
+        '小红书风', '抖音节奏', '知乎深度', '微博热点', 'B站二创', '朋友圈风格'
+      ],
+      'content_format': [
+        // 图文类
+        '单图文案', '多图轮播', '长图海报', '信息图表', '漫画条漫', '手绘插画',
+        // 视频类
+        '短视频', '中视频', '直播', 'Vlog', '教程视频', '产品展示', '用户测评',
+        // 互动类
+        'H5互动', '小程序', '问卷调研', '投票活动', '打卡挑战', '话题讨论',
+        // 内容形式
+        '清单合集', '榜单排行', '对比评测', '案例分析', '经验分享', '新闻资讯',
+        // 创意形式
+        '故事接龙', '角色扮演', '情景剧', '分镜脚本', '音频播客', '图文直播',
+        // 工具类
+        '模板工具', '计算器', '测试题', '指南手册', '资源合集', '工具推荐'
+      ],
+      'emotional_need': [
+        // 基础需求
+        '安全感', '归属感', '被理解', '被认可', '被关爱', '被尊重',
+        // 成就需求
+        '成就感', '掌控感', '优越感', '自豪感', '满足感', '胜利感',
+        // 社交需求
+        '陪伴感', '连接感', '分享欲', '表达欲', '展示欲', '互动感',
+        // 情感体验
+        '愉悦感', '兴奋感', '惊喜感', '新鲜感', '怀念感', '温暖感',
+        // 心理状态
+        '放松感', '平静感', '专注感', '自信感', '希望感', '治愈感',
+        // 生活态度
+        '仪式感', '品质感', '精致感', '自由感', '独立感', '个性感'
+      ],
+      'platform_or_trend': [
+        // 主流平台
+        '小红书', '抖音', '快手', '微博', '知乎', '公众号', 'B站', '视频号',
+        // 新兴平台
+        '小宇宙', '即刻', '豆瓣', '什么值得买', '得到', '喜马拉雅', '网易云音乐',
+        // 热门趋势
+        '搭子经济', 'City Walk', '反向旅游', '高质量独居', '精神内耗', '情绪价值',
+        // 生活方式
+        '无糖生活', '极简主义', '可持续生活', '慢生活', '数字断舍离', '正念生活',
+        // 科技趋势
+        'AI助理', '元宇宙', 'Web3', '数字藏品', '虚拟偶像', '智能家居',
+        // 消费趋势
+        '国潮复兴', '新中式', '悦己消费', '理性消费', '绿色消费', '体验消费',
+        // 社会现象
+        '低欲望生活', '躺平文化', '内卷焦虑', '社交恐惧', '独居经济', '银发经济'
+      ]
     };
     return itemsMap[dimensionId] || [];
   }
@@ -293,18 +544,112 @@ export function CreativeCube() {
   const [cubeData, setCubeData] = useState<Record<string, string[]>>({});
   const [selectedItems, setSelectedItems] = useState<Record<string, string>>({});
   const [pinnedDimensions, setPinnedDimensions] = useState<Set<string>>(new Set()); // 固定维度
+  const [pinnedItems, setPinnedItems] = useState<Record<string, string[]>>({}); // 钉住的选项
+  const [hiddenItems, setHiddenItems] = useState<Record<string, string[]>>({}); // 隐藏的默认选项
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('');
   const [currentContentType, setCurrentContentType] = useState<'text' | 'video'>('text');
+
+
+  // 用户数据隔离 - 历史记录持久化
+  const historyDataManager = useUserDataIsolation({
+    modulePrefix: 'creative_cube_history',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  // 用户数据隔离 - 自定义维度持久化
+  const customDimensionsManager = useUserDataIsolation({
+    modulePrefix: 'creative_cube_custom_dimensions',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  // 用户数据隔离 - 钉住选项持久化
+  const pinnedItemsManager = useUserDataIsolation({
+    modulePrefix: 'creative_cube_pinned_items',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
   const [generatedIdeas, setGeneratedIdeas] = useState<CreativeResult[]>([]); // 历史创意记录
   const [selectedDimensionCount, setSelectedDimensionCount] = useState<number>(6); // 选择的维度总数量 (4-9)
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportData, setExportData] = useState<any[]>([]);
 
+  // 内联编辑状态
+  const [editingState, setEditingState] = useState<{
+    isEditing: boolean;
+    type: 'title' | 'content' | null;
+    value: string;
+  }>({
+    isEditing: false,
+    type: null,
+    value: ''
+  });
+
   // 使用统一的维度定义系统
   const requiredDimensions = getRequiredDimensionIds();
   const recommendedDimensions = getRecommendedDimensionIds();
   const optionalDimensions = getOptionalDimensionIds();
+
+  // 加载用户历史记录
+  useEffect(() => {
+    const loadHistory = () => {
+      const result = historyDataManager.loadData<CreativeResult[]>();
+      if (result.success && result.data) {
+        setGeneratedIdeas(result.data);
+        console.log(`📚 已加载${result.data.length}条创意历史记录`);
+      }
+    };
+
+    loadHistory();
+  }, [historyDataManager.user?.id]); // 当用户ID变化时重新加载
+
+  // 加载用户自定义维度和隐藏项
+  useEffect(() => {
+    const loadCustomData = () => {
+      const result = customDimensionsManager.loadData<Record<string, any>>();
+      if (result.success && result.data) {
+        // 加载自定义选项
+        const customItems = result.data.customItems || result.data; // 兼容旧数据格式
+        if (customItems && typeof customItems === 'object') {
+          setCubeData(prev => {
+            const merged = { ...prev };
+            Object.keys(customItems).forEach(dimensionId => {
+              if (customItems[dimensionId] && Array.isArray(customItems[dimensionId]) && customItems[dimensionId].length > 0) {
+                merged[dimensionId] = [...(merged[dimensionId] || []), ...customItems[dimensionId]];
+              }
+            });
+            return merged;
+          });
+          console.log(`🔧 已加载用户自定义维度选项:`, customItems);
+        }
+
+        // 加载隐藏项
+        const hiddenItems = result.data.hiddenItems || {};
+        if (hiddenItems && typeof hiddenItems === 'object') {
+          setHiddenItems(hiddenItems);
+          console.log(`🙈 已加载用户隐藏的选项:`, hiddenItems);
+        }
+      }
+    };
+
+    loadCustomData();
+  }, [customDimensionsManager.user?.id]); // 当用户ID变化时重新加载
+
+  // 加载用户钉住的选项
+  useEffect(() => {
+    const loadPinnedItems = () => {
+      const result = pinnedItemsManager.loadData<Record<string, string[]>>();
+      if (result.success && result.data) {
+        setPinnedItems(result.data);
+        console.log(`📌 已加载用户钉住的选项:`, result.data);
+      }
+    };
+
+    loadPinnedItems();
+  }, [pinnedItemsManager.user?.id]); // 当用户ID变化时重新加载
   
   // 验证生成条件
   const isValidGeneration = useMemo(() => {
@@ -343,7 +688,7 @@ export function CreativeCube() {
   };
 
   /**
-   * 初始化九宫格数据
+   * 初始化九宫格数据 - 只在组件首次加载时运行
    */
   useEffect(() => {
     const initialData: Record<string, string[]> = {};
@@ -351,18 +696,22 @@ export function CreativeCube() {
       initialData[dim.id] = []; // 只初始化空数组，不包含默认项
     });
     setCubeData(initialData);
-  }, [dimensions]);
+  }, []); // 移除dimensions依赖，只在组件首次加载时运行
 
   /**
    * 添加新项目到九宫格
    */
   const addItemToCube = (dimensionId: string, newItem: string) => {
     if (!newItem.trim()) return;
-    
-    setCubeData(prev => ({
-      ...prev,
-      [dimensionId]: [...(prev[dimensionId] || []), newItem.trim()]
-    }));
+
+    setCubeData(prev => {
+      const currentItems = prev[dimensionId] || [];
+      const newData = {
+        ...prev,
+        [dimensionId]: [...currentItems, newItem.trim()]
+      };
+      return newData;
+    });
   };
 
   /**
@@ -404,10 +753,36 @@ export function CreativeCube() {
   };
 
   /**
-   * 添加自定义项目
+   * 添加自定义项目并持久化
    */
   const addCustomItem = (dimensionId: string, item: string) => {
+    if (!item.trim()) return;
+
+    // 更新本地状态
     addItemToCube(dimensionId, item);
+
+    // 持久化到用户专属存储
+    const result = customDimensionsManager.loadData<Record<string, any>>();
+    const currentData = result.data || {};
+    const customItems = currentData.customItems || {};
+
+    const updatedCustomItems = {
+      ...customItems,
+      [dimensionId]: [...(customItems[dimensionId] || []), item.trim()]
+    };
+
+    const updatedData = {
+      ...currentData,
+      customItems: updatedCustomItems
+    };
+
+    customDimensionsManager.saveData(updatedData);
+    console.log(`💾 已保存自定义维度选项: ${dimensionId} -> ${item}`);
+
+    toast({
+      title: "自定义选项已保存",
+      description: `"${item}" 已添加到 ${dimensions.find(d => d.id === dimensionId)?.name || dimensionId} 维度`,
+    });
   };
 
   /**
@@ -432,7 +807,7 @@ export function CreativeCube() {
     setSelectedItems(prev => ({ ...prev, ...newSelection }));
     
     toast({
-      title: "随机选择完成",
+      title: "🎲 随机选择完成",
       description: `已为${Object.keys(newSelection).length}个维度生成随机选择`,
     });
   };
@@ -445,6 +820,218 @@ export function CreativeCube() {
     toast({
       title: "已清空选择",
       description: "所有维度选择已清空",
+    });
+  };
+
+  /**
+   * 删除维度选项（包括默认项和自定义项）
+   */
+  const removeItem = (dimensionId: string, item: string) => {
+    const dimension = dimensions.find(d => d.id === dimensionId);
+    const isDefaultItem = dimension?.defaultItems.includes(item);
+
+    if (isDefaultItem) {
+      // 删除默认项：将其添加到隐藏列表
+      const result = customDimensionsManager.loadData<Record<string, any>>();
+      const currentData = result.data || {};
+
+      const hiddenItems = currentData.hiddenItems || {};
+      const updatedHiddenItems = {
+        ...hiddenItems,
+        [dimensionId]: [...(hiddenItems[dimensionId] || []), item]
+      };
+
+      const updatedData = {
+        ...currentData,
+        hiddenItems: updatedHiddenItems
+      };
+
+      customDimensionsManager.saveData(updatedData);
+
+      // 更新本地显示状态
+      setHiddenItems(prev => ({
+        ...prev,
+        [dimensionId]: [...(prev[dimensionId] || []), item]
+      }));
+
+      console.log(`🗑️ 已隐藏默认选项: ${dimensionId} -> ${item}`);
+
+      toast({
+        title: "选项已删除",
+        description: `"${item}" 已从 ${dimension?.name || dimensionId} 维度中移除`,
+      });
+    } else {
+      // 删除自定义项：从自定义列表中移除
+      setCubeData(prev => {
+        const currentItems = prev[dimensionId] || [];
+        const newData = {
+          ...prev,
+          [dimensionId]: currentItems.filter(i => i !== item)
+        };
+        return newData;
+      });
+
+      // 更新持久化存储
+      const result = customDimensionsManager.loadData<Record<string, any>>();
+      const currentData = result.data || {};
+      const customItems = currentData.customItems || {};
+
+      const updatedCustomItems = {
+        ...customItems,
+        [dimensionId]: (customItems[dimensionId] || []).filter(i => i !== item)
+      };
+
+      // 如果维度下没有自定义选项了，删除该维度
+      if (updatedCustomItems[dimensionId] && updatedCustomItems[dimensionId].length === 0) {
+        delete updatedCustomItems[dimensionId];
+      }
+
+      const updatedData = {
+        ...currentData,
+        customItems: updatedCustomItems
+      };
+
+      customDimensionsManager.saveData(updatedData);
+      console.log(`🗑️ 已删除自定义选项: ${dimensionId} -> ${item}`);
+
+      toast({
+        title: "自定义选项已删除",
+        description: `"${item}" 已从 ${dimension?.name || dimensionId} 维度中移除`,
+      });
+    }
+  };
+
+  /**
+   * 清空所有自定义维度选项
+   */
+  const clearAllCustomItems = (showToast = true) => {
+    // 重置本地状态为默认项
+    const initialData: Record<string, string[]> = {};
+    dimensions.forEach(dim => {
+      initialData[dim.id] = [];
+    });
+    setCubeData(initialData);
+
+    // 清空持久化存储
+    customDimensionsManager.removeData();
+
+    if (showToast) {
+      toast({
+        title: "已清空所有自定义选项",
+        description: "所有自定义维度选项已清空，恢复为默认选项",
+      });
+    }
+  };
+
+  /**
+   * 恢复所有隐藏的默认选项
+   */
+  const restoreAllHiddenItems = (showToast = true) => {
+    setHiddenItems({});
+
+    // 更新持久化存储
+    const result = customDimensionsManager.loadData<Record<string, any>>();
+    const currentData = result.data || {};
+    const updatedData = {
+      ...currentData,
+      hiddenItems: {}
+    };
+
+    customDimensionsManager.saveData(updatedData);
+
+    if (showToast) {
+      toast({
+        title: "已恢复所有删除的选项",
+        description: "所有被删除的默认选项已恢复显示",
+      });
+    }
+  };
+
+  /**
+   * 恢复单个维度的默认选项
+   */
+  const restoreDimensionDefaults = (dimensionId: string) => {
+    const dimension = dimensions.find(d => d.id === dimensionId);
+    if (!dimension) return;
+
+    // 从隐藏项中移除该维度的所有默认项
+    const updatedHiddenItems = { ...hiddenItems };
+
+    // 如果该维度有隐藏项，则清空该维度的隐藏项
+    if (updatedHiddenItems[dimensionId]) {
+      delete updatedHiddenItems[dimensionId];
+    }
+
+    setHiddenItems(updatedHiddenItems);
+
+    // 更新持久化存储
+    const result = customDimensionsManager.loadData<Record<string, any>>();
+    const currentData = result.data || {};
+    const updatedData = {
+      ...currentData,
+      hiddenItems: updatedHiddenItems
+    };
+
+    customDimensionsManager.saveData(updatedData);
+
+    toast({
+      title: "已恢复默认选项",
+      description: `"${dimension.name}" 的默认选项已恢复显示`,
+    });
+  };
+
+  /**
+   * 钉住选项
+   */
+  const pinItem = (dimensionId: string, item: string) => {
+    setPinnedItems(prev => {
+      const currentPinned = prev[dimensionId] || [];
+      if (currentPinned.includes(item)) return prev;
+
+      const updated = {
+        ...prev,
+        [dimensionId]: [...currentPinned, item]
+      };
+
+      // 持久化存储
+      pinnedItemsManager.saveData(updated);
+      console.log(`📌 已钉住选项: ${dimensionId} -> ${item}`);
+
+      return updated;
+    });
+
+    toast({
+      title: "选项已钉住",
+      description: `"${item}" 已标记为必用选项`,
+    });
+  };
+
+  /**
+   * 取消钉住选项
+   */
+  const unpinItem = (dimensionId: string, item: string) => {
+    setPinnedItems(prev => {
+      const currentPinned = prev[dimensionId] || [];
+      const updated = {
+        ...prev,
+        [dimensionId]: currentPinned.filter(i => i !== item)
+      };
+
+      // 如果维度下没有钉住的选项了，删除该维度
+      if (updated[dimensionId].length === 0) {
+        delete updated[dimensionId];
+      }
+
+      // 持久化存储
+      pinnedItemsManager.saveData(updated);
+      console.log(`📌 已取消钉住选项: ${dimensionId} -> ${item}`);
+
+      return updated;
+    });
+
+    toast({
+      title: "取消钉住",
+      description: `"${item}" 已取消必用标记`,
     });
   };
 
@@ -474,11 +1061,41 @@ export function CreativeCube() {
    * 根据用户选择的维度数量，智能选择维度组合
    */
   const controlledRandomGenerate = () => {
-    // 使用统一的维度选择算法
-    const selectedDimensionIds = selectDimensionCombination(
-      selectedDimensionCount,
-      Array.from(pinnedDimensions)
+    // 确保必选维度总是被包含
+    const coreRequiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
+
+    console.log('🎲 开始随机选择，当前选择的维度数量:', selectedDimensionCount);
+    console.log('🎲 当前固定的维度:', Array.from(pinnedDimensions));
+    console.log('🎲 可用的dimensions数组:', dimensions.map(d => ({ id: d.id, name: d.name, itemCount: d.defaultItems.length })));
+
+    // 直接构建维度选择，确保包含所有必选维度
+    let selectedDimensionIds: string[] = [...coreRequiredDimensions];
+    console.log('🎲 首先添加必选维度:', selectedDimensionIds);
+
+    // 添加已固定的维度（如果不在必选维度中）
+    pinnedDimensions.forEach(pinnedDim => {
+      if (!selectedDimensionIds.includes(pinnedDim)) {
+        selectedDimensionIds.push(pinnedDim);
+        console.log('🎲 添加固定维度:', pinnedDim);
+      }
+    });
+
+    // 获取所有可用的维度ID
+    const allDimensionIds = dimensions.map(d => d.id);
+    console.log('🎲 所有可用维度:', allDimensionIds);
+
+    // 添加其他维度直到达到目标数量
+    const remainingDimensions = allDimensionIds.filter(dimId =>
+      !selectedDimensionIds.includes(dimId)
     );
+    console.log('🎲 剩余可选维度:', remainingDimensions);
+
+    // 随机选择剩余维度
+    const shuffledRemaining = [...remainingDimensions].sort(() => Math.random() - 0.5);
+    const neededCount = Math.max(0, selectedDimensionCount - selectedDimensionIds.length);
+    selectedDimensionIds.push(...shuffledRemaining.slice(0, neededCount));
+
+    console.log('🎲 最终选择的维度:', selectedDimensionIds);
 
     const newSelection: Record<string, string> = {};
 
@@ -487,32 +1104,50 @@ export function CreativeCube() {
       // 如果维度已固定，保持原值
       if (pinnedDimensions.has(dimId) && selectedItems[dimId]) {
         newSelection[dimId] = selectedItems[dimId];
+        console.log('🎲 保持固定维度值:', dimId, '=', selectedItems[dimId]);
         return;
       }
 
       const dimension = dimensions.find(d => d.id === dimId);
+      console.log('🎲 查找维度:', dimId, '找到:', dimension ? `${dimension.name} (${dimension.defaultItems.length}项)` : '未找到');
+
       if (dimension && dimension.defaultItems.length > 0) {
-        const items = cubeData[dimId] || dimension.defaultItems;
+        const cubeItems = cubeData[dimId] || [];
+        const items = cubeItems.length > 0 ? cubeItems : dimension.defaultItems;
+        console.log('🎲 可选项:', dimId, '自定义项:', cubeItems.length, '默认项:', dimension.defaultItems.length, '使用:', items.length);
+        console.log('🎲 具体选项:', items);
+
         const randomIndex = Math.floor(Math.random() * items.length);
-        newSelection[dimId] = items[randomIndex];
+        const selectedValue = items[randomIndex];
+        newSelection[dimId] = selectedValue;
+        console.log('🎲 随机选择维度值:', dimId, '=', selectedValue, '(索引:', randomIndex, ')');
+      } else {
+        console.log('🎲 警告：维度没有可选项:', dimId, '维度对象:', dimension);
       }
+    });
+
+    console.log('🎲 最终选择结果:', newSelection);
+    console.log('🎲 检查必选维度是否都有值:');
+    coreRequiredDimensions.forEach(dim => {
+      console.log(`  ${dim}:`, newSelection[dim] || '❌ 缺失');
     });
 
     setSelectedItems(newSelection);
 
     const selectedCount = Object.keys(newSelection).length;
     const fixedCount = pinnedDimensions.size;
-    const requiredCount = requiredDimensions.filter(dim => selectedDimensionIds.includes(dim)).length;
+    const requiredCount = coreRequiredDimensions.filter(dim => selectedDimensionIds.includes(dim)).length;
     const recommendedCount = recommendedDimensions.filter(dim => selectedDimensionIds.includes(dim)).length;
-    const optionalCount = optionalDimensions.filter(dim => selectedDimensionIds.includes(dim)).length;
+    const optionalCount = selectedDimensionIds.length - requiredCount - recommendedCount;
 
     toast({
-      title: "控制随机生成完成",
+      title: "🎲 随机选择完成",
       description: `已选择${selectedCount}个维度（必选${requiredCount}个，推荐${recommendedCount}个，可选${optionalCount}个，固定${fixedCount}个）`,
     });
 
     // 使用 setTimeout 确保状态更新后再生成
     setTimeout(() => {
+      console.log('🎲 准备生成内容，传入的选择:', newSelection);
       generateIdea(newSelection);
     }, 100);
   };
@@ -1175,10 +1810,10 @@ ${generateStandardCallToAction()}
     const useItems = customSelectedItems || selectedItems;
     const { target_audience, use_case, pain_point, content_format, tone_style, core_value, emotional_need, industry, platform_or_trend } = useItems;
     
-    // 检查必选维度 - 修复检查逻辑
+    // 检查必选维度 - 使用统一的核心必选维度定义
     const requiredCheck = (() => {
-      const requiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
-      const missingDimensions = requiredDimensions.filter(dim => {
+      const coreRequiredDimensions = ['target_audience', 'use_case', 'pain_point', 'industry'];
+      const missingDimensions = coreRequiredDimensions.filter(dim => {
         const value = useItems[dim];
         return !value || value.trim() === '';
       });
@@ -1234,7 +1869,14 @@ ${generateStandardCallToAction()}
           timestamp: new Date().toISOString(),
           tags: getIndustryTags()
         };
-        setGeneratedIdeas(prev => [newResult, ...prev.slice(0, 9)]); // 保留最近10条
+
+        // 更新本地状态
+        const updatedIdeas = [newResult, ...generatedIdeas.slice(0, 19)]; // 保留最近20条
+        setGeneratedIdeas(updatedIdeas);
+
+        // 持久化到用户专属存储
+        historyDataManager.saveData(updatedIdeas);
+        console.log(`💾 已保存创意记录到用户存储: ${historyDataManager.getStorageKey()}`);
         
         toast({
           title: "生成成功",
@@ -1364,13 +2006,38 @@ ${generateStandardCallToAction()}
   };
 
   /**
-   * 保存创意
+   * 保存创意到用户历史记录
    */
   const saveIdea = () => {
-    // 这里可以集成到文案管理系统
+    if (!currentContent) {
+      toast({
+        title: "无内容可保存",
+        description: "请先生成创意内容",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 创建新的历史记录项
+    const newResult: CreativeResult = {
+      id: `manual_${Date.now()}`,
+      combination: selectedItems,
+      generatedContent: currentContent,
+      contentType: currentContentType,
+      timestamp: new Date().toISOString(),
+      tags: getIndustryTags()
+    };
+
+    // 更新本地状态
+    const updatedIdeas = [newResult, ...generatedIdeas.slice(0, 19)]; // 保留最近20条
+    setGeneratedIdeas(updatedIdeas);
+
+    // 持久化到用户专属存储
+    historyDataManager.saveData(updatedIdeas);
+
     toast({
-      title: "已保存到文案库",
-      description: "创意已保存到文案管理系统",
+      title: "已保存到创意库",
+      description: `创意已保存到您的专属历史记录 (${historyDataManager.isLoggedIn ? '用户' : '访客'}模式)`,
     });
   };
 
@@ -1379,20 +2046,17 @@ ${generateStandardCallToAction()}
       {/* 九宫格创意魔方 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5" />
-              <span>九宫格创意魔方</span>
-            </div>
-            <Badge variant="outline" className="text-xs">
-              AI创意
-            </Badge>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            <span>九宫格创意魔方</span>
           </CardTitle>
           <CardDescription>
             选择不同维度的元素，AI将为你生成可直接使用的创意内容
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+
+
           {/* 九宫格网格 - 紧凑布局 */}
           <div className="grid grid-cols-3 gap-3">
             {dimensions.map((dimension) => (
@@ -1406,7 +2070,14 @@ ${generateStandardCallToAction()}
                 isPinned={pinnedDimensions.has(dimension.id)}
                 cubeData={cubeData[dimension.id] || []}
                 onAddCustomItem={(item) => addCustomItem(dimension.id, item)}
+                onRemoveItem={(item) => removeItem(dimension.id, item)}
+                onPinItem={(item) => pinItem(dimension.id, item)}
+                onUnpinItem={(item) => unpinItem(dimension.id, item)}
+                pinnedItems={pinnedItems[dimension.id] || []}
+                hiddenItems={hiddenItems[dimension.id] || []}
                 isRequired={requiredDimensions.includes(dimension.id)}
+                onRestoreDefaults={restoreDimensionDefaults}
+                customDimensionsManager={customDimensionsManager}
               />
             ))}
           </div>
@@ -1461,8 +2132,7 @@ ${generateStandardCallToAction()}
             <div className="flex items-center gap-4">
               {/* 随机选择控制 */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">随机选择：</span>
-                <UILabel className="text-sm font-medium">选择维度</UILabel>
+                <UILabel className="text-sm font-medium">控制维度数量为</UILabel>
                 <Select
                   value={selectedDimensionCount.toString()}
                   onValueChange={(value) => setSelectedDimensionCount(parseInt(value))}
@@ -1489,8 +2159,7 @@ ${generateStandardCallToAction()}
                   disabled={isGenerating}
                   className="border-primary text-primary hover:bg-accent"
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  随机选择
+                  🎲 试试随机选择
                 </Button>
               </div>
               
@@ -1506,10 +2175,6 @@ ${generateStandardCallToAction()}
             </div>
             
             <div className="flex items-center gap-2">
-              <Badge variant={pinnedDimensions.size > 0 ? "default" : "outline"} className="text-xs">
-                <Pin className="w-3 h-3 mr-1" />
-                {pinnedDimensions.size} 个固定维度
-              </Badge>
               <Button
                 onClick={handleGenerateContent}
                 disabled={!isValidGeneration || isGenerating}
@@ -1568,15 +2233,82 @@ ${generateStandardCallToAction()}
               </CardHeader>
               <CardContent>
                 {(() => {
-                  // 解析生成内容，分离标题、正文、互动引导
+                  // 解析生成内容，分离标题、正文、互动引导 - 增强清理版
                   const parseGeneratedContent = (content: string) => {
-                    // 移除无意义的标记
+                    // 第一步：移除格式化标记和前缀
                     let cleanContent = content
+                      // 移除标题相关标记
                       .replace(/\*\*标题\*\*/g, '')
+                      .replace(/\*\*标题：\*\*/g, '')
+                      .replace(/【标题】/g, '')
+                      .replace(/标题：/g, '')
+                      // 移除正文相关标记
                       .replace(/\*\*正文\*\*/g, '')
+                      .replace(/\*\*正文：\*\*/g, '')
+                      .replace(/【正文】/g, '')
+                      .replace(/正文：/g, '')
+                      // 移除互动引导相关标记
                       .replace(/\*\*互动引导\*\*/g, '')
+                      .replace(/\*\*互动引导：\*\*/g, '')
+                      .replace(/【互动引导】/g, '')
+                      .replace(/互动引导：/g, '')
+                      // 移除其他格式化标记
                       .replace(/\*\*内容\*\*/g, '')
                       .replace(/\*\*文案\*\*/g, '')
+                      .replace(/\*\*梗点\*\*/g, '')
+                      .replace(/\*\*梗点：\*\*/g, '')
+                      .replace(/【梗点】/g, '')
+                      .replace(/梗点：/g, '');
+
+                    // 第二步：移除emoji节奏说明
+                    cleanContent = cleanContent
+                      .replace(/✨emoji节奏：[^\n]*/g, '')
+                      .replace(/emoji节奏：[^\n]*/g, '')
+                      .replace(/✨[^：]*节奏：[^\n]*/g, '');
+
+                    // 第三步：移除配图建议
+                    cleanContent = cleanContent
+                      .replace(/（配图建议：[^）]*）/g, '')
+                      .replace(/\(配图建议：[^)]*\)/g, '')
+                      .replace(/【配图建议：[^】]*】/g, '')
+                      .replace(/配图建议：[^\n]*/g, '');
+
+                    // 第四步：移除字数统计和策略说明
+                    cleanContent = cleanContent
+                      .replace(/（全文\d+字[^）]*）/g, '')
+                      .replace(/\(全文\d+字[^)]*\)/g, '')
+                      .replace(/【全文\d+字[^】]*】/g, '')
+                      .replace(/全文\d+字[^\n]*/g, '')
+                      .replace(/（字数：\d+[^）]*）/g, '')
+                      .replace(/\(字数：\d+[^)]*\)/g, '')
+                      .replace(/字数：\d+[^\n]*/g, '');
+
+                    // 第五步：移除策略说明和创作思路
+                    cleanContent = cleanContent
+                      .replace(/（策略说明：[^）]*）/g, '')
+                      .replace(/\(策略说明：[^)]*\)/g, '')
+                      .replace(/【策略说明：[^】]*】/g, '')
+                      .replace(/策略说明：[^\n]*/g, '')
+                      .replace(/（创作思路：[^）]*）/g, '')
+                      .replace(/\(创作思路：[^)]*\)/g, '')
+                      .replace(/【创作思路：[^】]*】/g, '')
+                      .replace(/创作思路：[^\n]*/g, '');
+
+                    // 第六步：移除其他无效内容
+                    cleanContent = cleanContent
+                      .replace(/（注：[^）]*）/g, '')
+                      .replace(/\(注：[^)]*\)/g, '')
+                      .replace(/【注：[^】]*】/g, '')
+                      .replace(/注：[^\n]*/g, '')
+                      .replace(/（备注：[^）]*）/g, '')
+                      .replace(/\(备注：[^)]*\)/g, '')
+                      .replace(/【备注：[^】]*】/g, '')
+                      .replace(/备注：[^\n]*/g, '');
+
+                    // 第七步：清理多余的空行和空格
+                    cleanContent = cleanContent
+                      .replace(/\n\s*\n\s*\n/g, '\n\n') // 多个空行合并为两个
+                      .replace(/^\s+|\s+$/g, '') // 去除首尾空格
                       .trim();
 
                     // 尝试分离不同部分
@@ -1611,20 +2343,168 @@ ${generateStandardCallToAction()}
                       {/* 标题部分 */}
                       {parsed.hasStructure && parsed.title && (
                         <div className="p-3 bg-primary/5 rounded-lg border-l-4 border-primary">
-                          <div className="text-xs text-muted-foreground mb-1 font-medium">📝 创意标题</div>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="text-xs text-muted-foreground font-medium">📝 创意标题</div>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                onClick={() => {
+                                  setEditingState({
+                                    isEditing: true,
+                                    type: 'title',
+                                    value: parsed.title
+                                  });
+                                }}
+                              >
+                                编辑
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(parsed.title);
+                                  toast({ title: "标题已复制", description: "创意标题已复制到剪贴板" });
+                                }}
+                              >
+                                复制
+                              </Button>
+                            </div>
+                          </div>
                           <div className="text-base font-semibold text-primary leading-relaxed">
-                            {parsed.title}
+                            {editingState.isEditing && editingState.type === 'title' ? (
+                              <div className="flex gap-2 items-center">
+                                <Input
+                                  value={editingState.value}
+                                  onChange={(e) => setEditingState(prev => ({ ...prev, value: e.target.value }))}
+                                  className="flex-1"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      const updatedContent = currentContent.replace(parsed.title, editingState.value);
+                                      setCurrentContent(updatedContent);
+                                      setEditingState({ isEditing: false, type: null, value: '' });
+                                    } else if (e.key === 'Escape') {
+                                      setEditingState({ isEditing: false, type: null, value: '' });
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  size="sm"
+                                  className="h-8 px-3"
+                                  onClick={() => {
+                                    const updatedContent = currentContent.replace(parsed.title, editingState.value);
+                                    setCurrentContent(updatedContent);
+                                    setEditingState({ isEditing: false, type: null, value: '' });
+                                  }}
+                                >
+                                  保存
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 px-3"
+                                  onClick={() => {
+                                    setEditingState({ isEditing: false, type: null, value: '' });
+                                  }}
+                                >
+                                  取消
+                                </Button>
+                              </div>
+                            ) : (
+                              parsed.title
+                            )}
                           </div>
                         </div>
                       )}
 
                       {/* 主要内容 */}
                       <div className="p-4 bg-card rounded-lg border">
-                        <div className="text-xs text-muted-foreground mb-2 font-medium">
-                          {parsed.hasStructure ? '📄 主要内容' : '🎨 创意内容'}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-xs text-muted-foreground font-medium">
+                            {parsed.hasStructure ? '📄 主要内容' : '🎨 创意内容'}
+                          </div>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs"
+                              onClick={() => {
+                                setEditingState({
+                                  isEditing: true,
+                                  type: 'content',
+                                  value: parsed.mainContent
+                                });
+                              }}
+                            >
+                              编辑
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs"
+                              onClick={() => {
+                                navigator.clipboard.writeText(parsed.mainContent);
+                                toast({ title: "内容已复制", description: "创意内容已复制到剪贴板" });
+                              }}
+                            >
+                              复制
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100"
+                              onClick={() => {
+                                // 复制内容并跳转到AI内容适配器
+                                const contentToTransfer = parsed.mainContent;
+
+                                // 使用React Router的navigate方式跳转，并传递预填充内容
+                                window.location.href = '/new-adapt';
+
+                                // 同时将内容存储到sessionStorage作为备用
+                                sessionStorage.setItem('ai_adapter_content', contentToTransfer);
+                                sessionStorage.setItem('ai_adapter_source', '创意魔方');
+
+                                toast({
+                                  title: "正在跳转至AI内容适配器",
+                                  description: "内容已准备好，即将自动填入适配器"
+                                });
+                              }}
+                            >
+                              一键复制至AI内容适配器
+                            </Button>
+                          </div>
                         </div>
                         <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                          {parsed.mainContent}
+                          {editingState.isEditing && editingState.type === 'content' ? (
+                            <Textarea
+                              value={editingState.value}
+                              onChange={(e) => setEditingState(prev => ({ ...prev, value: e.target.value }))}
+                              className="w-full min-h-[200px] resize-none border-2 border-primary/20 focus:border-primary/50 rounded-lg p-3"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                  setEditingState({ isEditing: false, type: null, value: '' });
+                                } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                                  // Ctrl+Enter 或 Cmd+Enter 保存
+                                  const updatedContent = currentContent.replace(parsed.mainContent, editingState.value);
+                                  setCurrentContent(updatedContent);
+                                  setEditingState({ isEditing: false, type: null, value: '' });
+                                }
+                              }}
+                              onBlur={() => {
+                                // 失去焦点时自动保存
+                                const updatedContent = currentContent.replace(parsed.mainContent, editingState.value);
+                                setCurrentContent(updatedContent);
+                                setEditingState({ isEditing: false, type: null, value: '' });
+                              }}
+                              placeholder="编辑内容... (Ctrl+Enter保存，Escape取消，失去焦点自动保存)"
+                            />
+                          ) : (
+                            parsed.mainContent
+                          )}
                         </div>
                       </div>
 
@@ -1690,6 +2570,8 @@ ${generateStandardCallToAction()}
           )}
         </CardContent>
       </Card>
+
+
     </div>
   );
-} 
+}
