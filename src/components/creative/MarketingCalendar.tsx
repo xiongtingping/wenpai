@@ -367,36 +367,36 @@ const SortableTodoItem: React.FC<{
     <div
       ref={setNodeRef}
       style={style}
-      className={`p-4 border rounded-lg bg-white hover:shadow-md transition-all ${
+      className={`p-3 border rounded-lg bg-white hover:shadow-md transition-all ${
         task.status === 'completed' ? 'opacity-60' : ''
       }`}
       draggable
       onDragStart={handleDragStart}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2">
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing mt-1"
+          className="cursor-grab active:cursor-grabbing mt-0.5"
         >
-          <GripVertical className="w-4 h-4 text-gray-400" />
+          <GripVertical className="w-3 h-3 text-gray-400" />
         </div>
-        
+
         <button
           onClick={() => onToggleStatus(task.id)}
-          className="mt-1"
+          className="mt-0.5"
         >
           {task.status === 'completed' ? (
-            <CheckCircle className="w-5 h-5 text-green-600" />
+            <CheckCircle className="w-4 h-4 text-green-600" />
           ) : (
-            <Circle className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+            <Circle className="w-4 h-4 text-gray-400 hover:text-gray-600" />
           )}
         </button>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
             {getTypeIcon(task.type)}
-            <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-500' : ''}`}>
+            <h4 className={`text-sm font-medium leading-tight ${task.status === 'completed' ? 'line-through text-gray-500' : ''}`}>
               {task.title}
             </h4>
             <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
@@ -408,25 +408,25 @@ const SortableTodoItem: React.FC<{
               </Badge>
             )}
           </div>
-          
+
           {task.description && (
-            <p className={`text-sm text-gray-600 mb-2 ${task.status === 'completed' ? 'line-through' : ''}`}>
-              {task.description}
+            <p className={`text-xs text-gray-600 mb-1.5 leading-relaxed ${task.status === 'completed' ? 'line-through' : ''}`}>
+              {task.description.length > 80 ? `${task.description.substring(0, 80)}...` : task.description}
             </p>
           )}
-          
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
             <Clock className="w-3 h-3" />
             <span>{task.date}</span>
           </div>
         </div>
 
-        <div className="flex gap-1">
+        <div className="flex gap-0.5">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onEdit(task)}
-            className="h-8 w-8 p-0"
+            className="h-7 w-7 p-0"
           >
             <Star className="w-3 h-3" />
           </Button>
@@ -434,7 +434,7 @@ const SortableTodoItem: React.FC<{
             variant="ghost"
             size="sm"
             onClick={() => onDelete(task.id)}
-            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+            className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
           >
             ×
           </Button>
@@ -1125,26 +1125,38 @@ function MarketingCalendar() {
 
         {/* 任务统计 - 移到任务列表上方 */}
         {tasks.length > 0 && (
-          <div className="mx-4 mb-3 p-3 bg-muted/30 rounded-lg flex-shrink-0">
-            <div className="grid grid-cols-4 gap-3 text-center">
-              <div>
-                <div className="text-lg font-bold text-primary">{tasks.length}</div>
+          <div className="mx-4 mb-2 p-2 bg-muted/30 rounded-lg flex-shrink-0">
+            <div className="grid grid-cols-4 gap-2 text-center">
+              <div
+                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                onClick={() => setFilters(prev => ({ ...prev, status: 'all', type: 'all', priority: 'all' }))}
+              >
+                <div className="text-base font-bold text-primary">{tasks.length}</div>
                 <div className="text-xs text-muted-foreground">总任务</div>
               </div>
-              <div>
-                <div className="text-lg font-bold text-green-600">
+              <div
+                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                onClick={() => setFilters(prev => ({ ...prev, status: 'completed' }))}
+              >
+                <div className="text-base font-bold text-green-600">
                   {tasks.filter(t => t.status === 'completed').length}
                 </div>
                 <div className="text-xs text-muted-foreground">已完成</div>
               </div>
-              <div>
-                <div className="text-lg font-bold text-orange-600">
+              <div
+                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                onClick={() => setFilters(prev => ({ ...prev, status: 'pending' }))}
+              >
+                <div className="text-base font-bold text-orange-600">
                   {tasks.filter(t => t.status === 'pending').length}
                 </div>
                 <div className="text-xs text-muted-foreground">待完成</div>
               </div>
-              <div>
-                <div className="text-lg font-bold text-red-600">
+              <div
+                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                onClick={() => setFilters(prev => ({ ...prev, priority: 'high' }))}
+              >
+                <div className="text-base font-bold text-red-600">
                   {tasks.filter(t => t.priority === 'high').length}
                 </div>
                 <div className="text-xs text-muted-foreground">高优先级</div>
@@ -1155,14 +1167,14 @@ function MarketingCalendar() {
 
         <CardContent className="p-3 h-[480px] overflow-hidden flex flex-col">
           {/* 筛选和排序控件 - 更紧凑布局 */}
-          <div className="flex flex-wrap items-center gap-2 mb-3 p-2 bg-muted/30 rounded-lg flex-shrink-0 h-[80px]">
+          <div className="flex flex-wrap items-center gap-1.5 mb-2 p-2 bg-muted/30 rounded-lg flex-shrink-0 h-[70px]">
             <div className="flex items-center gap-1">
               <Filter className="w-3 h-3" />
               <span className="text-xs font-medium">筛选:</span>
             </div>
 
             <Select value={filters.status} onValueChange={(value: any) => setFilters(prev => ({ ...prev, status: value }))}>
-              <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectTrigger className="w-28 h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1173,7 +1185,7 @@ function MarketingCalendar() {
             </Select>
 
             <Select value={filters.type} onValueChange={(value: any) => setFilters(prev => ({ ...prev, type: value }))}>
-              <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectTrigger className="w-28 h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1186,7 +1198,7 @@ function MarketingCalendar() {
             </Select>
 
             <Select value={filters.priority} onValueChange={(value: any) => setFilters(prev => ({ ...prev, priority: value }))}>
-              <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectTrigger className="w-32 h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1200,7 +1212,7 @@ function MarketingCalendar() {
             <div className="flex items-center gap-1 ml-auto">
               <span className="text-xs font-medium">排序:</span>
               <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                <SelectTrigger className="w-20 h-7 text-xs">
+                <SelectTrigger className="w-24 h-7 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1223,7 +1235,7 @@ function MarketingCalendar() {
           </div>
 
           {/* 任务列表 - 支持滚动 */}
-          <div className="h-[350px] overflow-y-auto pr-1">
+          <div className="h-[370px] overflow-y-auto pr-1">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -1233,7 +1245,7 @@ function MarketingCalendar() {
                 items={filteredAndSortedTasks.map(task => task.id)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {filteredAndSortedTasks.length > 0 ? (
                     filteredAndSortedTasks.map((task) => (
                       <SortableTodoItem
