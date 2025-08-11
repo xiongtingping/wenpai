@@ -130,13 +130,36 @@
                 box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* 🌙 主题切换时的增强过渡效果 */
+  /* 🎨 主题切换时的增强过渡效果 */
   html.theme-transitioning * {
-    transition: background-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    transition: background-color 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                color 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                border-color 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+
+  /* 🎨 主题切换器下拉菜单动画 */
+  .theme-dropdown-enter {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+
+  .theme-dropdown-enter-active {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .theme-dropdown-exit {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  .theme-dropdown-exit-active {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* 确保主题样式优先级 */
@@ -183,21 +206,38 @@
   /* 这个规则会导致 Authing Guard 弹窗不可见，已移除 */
 }
 
+/* 🎨 统一的多主题设计语言系统
+ *
+ * 设计原则：
+ * 1. 层次化表面系统：每个主题都有4个表面层级，创造视觉深度
+ * 2. 一致的颜色语义：所有主题使用相同的颜色令牌结构
+ * 3. 专业的视觉体验：每个主题都有独特的个性和专业感
+ * 4. 无障碍设计：确保足够的对比度和可读性
+ * 5. 平滑过渡：主题间切换具有流畅的动画效果
+ *
+ * 主题特色：
+ * ☀️ light - 清新明亮，白天办公首选
+ * 🌙 dark - 护眼深色，夜间工作舒适
+ * 🌾 beige - 温暖米色，长时间使用友好
+ * 🏆 gold - 奢华金色，商务专业风格
+ */
+
 /* 主题配置 - 使用data-theme属性选择器 */
 [data-theme="light"] {
-  --background: 0 0% 100%; /* hsl(var(--background)) */
-  --card: 0 0% 100%;       /* hsl(var(--background)) */
-  --accent: 210 40% 96%;   /* ~hsl(var(--muted)) */
-  --muted: 210 40% 98%;    /* ~hsl(var(--muted)) */
-  --foreground: 222.2 47.4% 11.2%; /* ~blacklisted */
-  --muted-foreground: 215.4 16.3% 46.9%; /* hsl(var(--muted-foreground)) */
-  --primary: 221.2 83.2% 53.3%; /* hsl(var(--primary)) */
-  --primary-foreground: 0 0% 100%; /* hsl(var(--background)) */
-  --destructive: 0 72% 51%; /* ~hsl(var(--destructive)) */
-  --secondary: 214.3 31.8% 91.4%; /* hsl(var(--border)) */
-  --secondary-foreground: 222.2 47.4% 11.2%; /* ~blacklisted */
-  --border: 214.3 31.8% 91.4%; /* hsl(var(--border)) */
-  --border-strong: 213 27% 84%; /* hsl(var(--border)) */
+  /* ☀️ 优化的浅色模式核心颜色系统 */
+  --background: 0 0% 100%;          /* 纯白主背景 */
+  --card: 0 0% 98%;                 /* 卡片背景，微妙区分 */
+  --accent: 210 40% 94%;            /* 强调色，更明显的对比 */
+  --muted: 210 40% 96%;             /* 静音区域 */
+  --foreground: 222.2 47.4% 11.2%;  /* 主文字颜色 */
+  --muted-foreground: 215.4 16.3% 46.9%; /* 次要文字 */
+  --primary: 221.2 83.2% 53.3%;     /* 主色调 */
+  --primary-foreground: 0 0% 100%;  /* 主色调文字 */
+  --destructive: 0 72% 51%;         /* 危险色 */
+  --secondary: 214.3 31.8% 91.4%;   /* 次要色 */
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --border: 214.3 31.8% 91.4%;     /* 边框色 */
+  --border-strong: 213 27% 84%;     /* 强边框色 */
   /* keep compatibility tokens */
   --card-foreground: 222.2 47.4% 11.2%;
   --popover: 0 0% 100%;
@@ -205,6 +245,15 @@
   --input: 214.3 31.8% 91.4%;
   --ring: 221.2 83.2% 53.3%;
   --radius: 0.5rem;
+
+  /* ☀️ 新增浅色模式层次化表面令牌 */
+  --surface-1: 0 0% 99%;               /* 表面层级1 - 微妙提升 */
+  --surface-2: 0 0% 98%;               /* 表面层级2 - 卡片背景 */
+  --surface-3: 210 20% 97%;            /* 表面层级3 - 悬浮元素 */
+  --surface-4: 210 25% 95%;            /* 表面层级4 - 高层级元素 */
+  --background-elevated: 0 0% 97%;     /* 悬浮元素背景 */
+  --background-overlay: 0 0% 95%;      /* 覆盖层背景 */
+
   --section: 210 40% 98%;
   --section-foreground: 222.2 47.4% 11.2%;
   --chart-1: 12 76% 61%;
@@ -212,39 +261,69 @@
   --chart-3: 197 37% 24%;
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
+
+  /* ☀️ 浅色模式渐变系统 */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.9) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.9) 100%);
+  --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 36% / 0.9) 100%);
+  --gradient-warning: linear-gradient(135deg, hsl(45 93% 47%) 0%, hsl(45 93% 47% / 0.9) 100%);
+  --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--destructive) / 0.9) 100%);
+
+  /* ☀️ 浅色模式背景渐变 */
+  --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--surface-1)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-accent: linear-gradient(135deg, hsl(var(--surface-2)) 0%, hsl(var(--accent)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-elevated: linear-gradient(135deg, hsl(var(--background-elevated)) 0%, hsl(var(--surface-4)) 100%);
 }
 
-/* 护眼米色主题 - 新增 */
+/* 🌾 优化的护眼米色主题 */
 [data-theme="beige"] {
-  --background: 45 25% 97%;
-  --foreground: 45 15% 15%;
-  --card: 45 25% 97%;
-  --card-foreground: 45 15% 15%;
-  --popover: 45 25% 97%;
-  --popover-foreground: 45 15% 15%;
-  --primary: 45 70% 55%;
-  --primary-foreground: 45 25% 97%;
-  --secondary: 45 20% 92%;
+  /* 核心颜色系统 */
+  --background: 45 25% 97%;         /* 米色主背景 */
+  --card: 45 25% 95%;               /* 卡片背景，微妙区分 */
+  --accent: 45 20% 90%;             /* 强调色 */
+  --muted: 45 20% 92%;              /* 静音区域 */
+  --foreground: 45 15% 15%;         /* 主文字颜色 */
+  --muted-foreground: 45 10% 35%;   /* 次要文字 */
+  --primary: 45 70% 55%;            /* 主色调 */
+  --primary-foreground: 45 25% 97%; /* 主色调文字 */
+  --destructive: 0 84.2% 60.2%;     /* 危险色 */
+  --secondary: 45 20% 88%;          /* 次要色 */
   --secondary-foreground: 45 15% 15%;
-  --muted: 45 20% 92%;
-  --muted-foreground: 45 10% 35%;
-  --accent: 45 20% 92%;
-  --accent-foreground: 45 15% 15%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 45 25% 97%;
-  --border: 45 15% 88%;
+  --border: 45 15% 85%;             /* 边框色 */
+  --border-strong: 45 15% 75%;      /* 强边框色 */
+
+  /* 🌾 米色主题层次化表面令牌 */
+  --surface-1: 45 25% 96%;          /* 表面层级1 */
+  --surface-2: 45 25% 95%;          /* 表面层级2 */
+  --surface-3: 45 20% 93%;          /* 表面层级3 */
+  --surface-4: 45 20% 90%;          /* 表面层级4 */
+  --background-elevated: 45 25% 94%; /* 悬浮元素背景 */
+  --background-overlay: 45 20% 92%;  /* 覆盖层背景 */
+
+  /* 兼容性令牌 */
+  --card-foreground: 45 15% 15%;
+  --popover: 45 25% 95%;
+  --popover-foreground: 45 15% 15%;
   --input: 45 15% 88%;
   --ring: 45 70% 55%;
   --radius: 0.5rem;
-  /* New tokens */
   --section: 45 20% 96%;
   --section-foreground: 45 15% 15%;
-  --border-strong: 45 15% 75%;
   --chart-1: 45 70% 55%;
   --chart-2: 35 60% 50%;
   --chart-3: 25 65% 45%;
   --chart-4: 15 70% 40%;
   --chart-5: 5 75% 35%;
+
+  /* 🌾 米色主题渐变系统 */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.9) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.9) 100%);
+  --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--surface-1)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-elevated: linear-gradient(135deg, hsl(var(--background-elevated)) 0%, hsl(var(--surface-4)) 100%);
 }
 
 [data-theme="dark"] {
@@ -301,96 +380,57 @@
   --bg-gradient-elevated: linear-gradient(135deg, hsl(var(--background-elevated)) 0%, hsl(var(--surface-4)) 100%);
 }
 
-[data-theme="hsl(var(--success))"] {
-  --background: 120 20% 98%;
-  --foreground: 120 10% 10%;
-  --card: 120 20% 98%;
-  --card-foreground: 120 10% 10%;
-  --popover: 120 20% 98%;
-  --popover-foreground: 120 10% 10%;
-  --primary: 142 76% 36%;
-  --primary-foreground: 120 20% 98%;
-  --secondary: 120 30% 90%;
-  --secondary-foreground: 120 10% 10%;
-  --muted: 120 30% 90%;
-  --muted-foreground: 120 15% 30%;
-  --accent: 120 30% 90%;
-  --accent-foreground: 120 10% 10%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 120 20% 98%;
-  --border: 120 20% 85%;
-  --input: 120 20% 85%;
-  --ring: 142 76% 36%;
-  --radius: 0.5rem;
-  /* New tokens */
-  --section: 120 30% 96%;
-  --section-foreground: 120 10% 10%;
-  --border-strong: 120 20% 70%;
-  --chart-1: 142 76% 36%;
-  --chart-2: 120 60% 45%;
-  --chart-3: 100 80% 55%;
-  --chart-4: 80 65% 60%;
-  --chart-5: 60 75% 55%;
-}
+/* 🚫 已删除无效的主题定义 [data-theme="hsl(var(--success))"] */
 
-[data-theme="hsl(var(--primary))"] {
-  --background: 0 0% 100%;        /* 纯白背景，护眼舒适 */
-  --foreground: 210 10% 10%;
-  --card: 0 0% 100%;              /* 卡片也使用纯白 */
-  --card-foreground: 210 10% 10%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 210 10% 10%;
-  --primary: 221 83% 53%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 210 30% 95%;       /* 稍微调暗次要背景 */
-  --secondary-foreground: 210 10% 10%;
-  --muted: 210 30% 95%;           /* 稍微调暗静音背景 */
-  --muted-foreground: 210 15% 30%;
-  --accent: 210 30% 95%;          /* 稍微调暗强调背景 */
-  --accent-foreground: 210 10% 10%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 210 20% 85%;
-  --input: 210 20% 85%;
-  --ring: 221 83% 53%;
-  --radius: 0.5rem;
-  /* New tokens */
-  --section: 210 30% 97%;         /* 稍微调暗区域背景 */
-  --section-foreground: 210 10% 10%;
-  --border-strong: 210 20% 70%;
-  --chart-1: 221 83% 53%;
-  --chart-2: 200 60% 45%;
-  --chart-3: 180 80% 55%;
-  --chart-4: 160 65% 60%;
-  --chart-5: 140 75% 55%;
-}
+/* 🚫 已删除无效的主题定义 [data-theme="hsl(var(--primary))"] */
 
+/* 🏆 优化的金色主题 */
 [data-theme="gold"] {
-  --background: 45 20% 98%;
-  --foreground: 45 10% 10%;
-  --card: 45 20% 98%;
-  --card-foreground: 45 10% 10%;
-  --popover: 45 20% 98%;
-  --popover-foreground: 45 10% 10%;
-  --primary: 45 93% 47%;
-  --primary-foreground: 45 20% 98%;
-  --secondary: 45 30% 90%;
+  /* 核心颜色系统 */
+  --background: 45 20% 98%;         /* 金色主背景 */
+  --card: 45 20% 96%;               /* 卡片背景，微妙区分 */
+  --accent: 45 30% 88%;             /* 强调色 */
+  --muted: 45 30% 90%;              /* 静音区域 */
+  --foreground: 45 10% 10%;         /* 主文字颜色 */
+  --muted-foreground: 45 15% 30%;   /* 次要文字 */
+  --primary: 45 93% 47%;            /* 金色主色调 */
+  --primary-foreground: 45 20% 98%; /* 主色调文字 */
+  --destructive: 0 84% 60%;         /* 危险色 */
+  --secondary: 45 30% 88%;          /* 次要色 */
   --secondary-foreground: 45 10% 10%;
-  --muted: 45 30% 90%;
-  --muted-foreground: 45 15% 30%;
-  --accent: 45 30% 90%;
-  --accent-foreground: 45 10% 10%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 45 20% 98%;
-  --border: 45 20% 85%;
+  --border: 45 20% 82%;             /* 边框色 */
+  --border-strong: 45 20% 75%;      /* 强边框色 */
+
+  /* 🏆 金色主题层次化表面令牌 */
+  --surface-1: 45 20% 97%;          /* 表面层级1 */
+  --surface-2: 45 20% 96%;          /* 表面层级2 */
+  --surface-3: 45 25% 94%;          /* 表面层级3 */
+  --surface-4: 45 30% 90%;          /* 表面层级4 */
+  --background-elevated: 45 20% 95%; /* 悬浮元素背景 */
+  --background-overlay: 45 25% 92%;  /* 覆盖层背景 */
+
+  /* 兼容性令牌 */
+  --card-foreground: 45 10% 10%;
+  --popover: 45 20% 96%;
+  --popover-foreground: 45 10% 10%;
   --input: 45 20% 85%;
   --ring: 45 93% 47%;
   --radius: 0.5rem;
+  --section: 45 25% 95%;
+  --section-foreground: 45 10% 10%;
   --chart-1: 45 93% 47%;
   --chart-2: 35 60% 45%;
   --chart-3: 25 80% 55%;
   --chart-4: 15 65% 60%;
   --chart-5: 5 75% 55%;
+
+  /* 🏆 金色主题渐变系统 */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.9) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.9) 100%);
+  --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--surface-1)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
+  --bg-gradient-elevated: linear-gradient(135deg, hsl(var(--background-elevated)) 0%, hsl(var(--surface-4)) 100%);
 }
 
 /* 核心动画 - 使用transform和opacity优化性能 */
@@ -1399,6 +1439,47 @@
     hsl(var(--background)) 100%);
 }
 
+/* ☀️ 浅色模式背景渐变系统 */
+[data-theme="light"] .particle-background {
+  background:
+    /* 主背景渐变 */
+    linear-gradient(135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--surface-1)) 25%,
+      hsl(var(--surface-2)) 50%,
+      hsl(var(--surface-1)) 75%,
+      hsl(var(--background)) 100%),
+    /* 装饰性径向渐变 */
+    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.03) 0%, transparent 50%);
+}
+
+/* 🌾 米色模式背景渐变系统 */
+[data-theme="beige"] .particle-background {
+  background:
+    linear-gradient(135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--surface-1)) 25%,
+      hsl(var(--surface-2)) 50%,
+      hsl(var(--surface-1)) 75%,
+      hsl(var(--background)) 100%),
+    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.04) 0%, transparent 50%);
+}
+
+/* 🏆 金色模式背景渐变系统 */
+[data-theme="gold"] .particle-background {
+  background:
+    linear-gradient(135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--surface-1)) 25%,
+      hsl(var(--surface-2)) 50%,
+      hsl(var(--surface-1)) 75%,
+      hsl(var(--background)) 100%),
+    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.04) 0%, transparent 50%);
+}
+
 /* 🌙 优化的深色模式背景渐变系统 */
 [data-theme="dark"] .particle-background {
   background:
@@ -1412,6 +1493,60 @@
     /* 装饰性径向渐变 */
     radial-gradient(ellipse at top left, hsl(var(--primary) / 0.05) 0%, transparent 50%),
     radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.05) 0%, transparent 50%);
+}
+
+/* ☀️ 浅色模式粒子效果 */
+[data-theme="light"] .particle-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.06) 0%, hsl(var(--primary) / 0.02) 30%, transparent 60%),
+    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.05) 0%, hsl(var(--accent) / 0.02) 30%, transparent 60%),
+    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.04) 0%, hsl(var(--primary) / 0.01) 30%, transparent 60%),
+    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  animation: particleFloat 25s ease-in-out infinite;
+}
+
+/* 🌾 米色模式粒子效果 */
+[data-theme="beige"] .particle-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0.03) 30%, transparent 60%),
+    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.06) 0%, hsl(var(--accent) / 0.02) 30%, transparent 60%),
+    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.05) 0%, hsl(var(--primary) / 0.02) 30%, transparent 60%),
+    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  animation: particleFloat 22s ease-in-out infinite;
+}
+
+/* 🏆 金色模式粒子效果 */
+[data-theme="gold"] .particle-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.1) 0%, hsl(var(--primary) / 0.04) 30%, transparent 60%),
+    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.08) 0%, hsl(var(--accent) / 0.03) 30%, transparent 60%),
+    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.06) 0%, hsl(var(--primary) / 0.02) 30%, transparent 60%),
+    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  animation: particleFloat 18s ease-in-out infinite;
 }
 
 .particle-background::before {
@@ -1480,6 +1615,14 @@
   }
 }
 
+/* 🎨 通用表面装饰类 - 适用于所有主题 */
+.surface-1 { background-color: hsl(var(--surface-1)); }
+.surface-2 { background-color: hsl(var(--surface-2)); }
+.surface-3 { background-color: hsl(var(--surface-3)); }
+.surface-4 { background-color: hsl(var(--surface-4)); }
+.bg-elevated { background-color: hsl(var(--background-elevated)); }
+.bg-overlay { background-color: hsl(var(--background-overlay)); }
+
 /* 🎨 深色模式专用装饰类 */
 [data-theme="dark"] .dark-surface-1 { background-color: hsl(var(--surface-1)); }
 [data-theme="dark"] .dark-surface-2 { background-color: hsl(var(--surface-2)); }
@@ -1488,10 +1631,63 @@
 [data-theme="dark"] .dark-elevated { background-color: hsl(var(--background-elevated)); }
 [data-theme="dark"] .dark-overlay { background-color: hsl(var(--background-overlay)); }
 
-/* 深色模式增强卡片效果 */
-[data-theme="dark"] .enhanced-card {
+/* 🎨 通用增强卡片效果 - 适用于所有主题 */
+.enhanced-card {
   background: hsl(var(--surface-2));
   border: 1px solid hsl(var(--border));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ☀️ 浅色模式增强卡片效果 */
+[data-theme="light"] .enhanced-card {
+  box-shadow:
+    0 2px 4px -1px hsl(var(--foreground) / 0.1),
+    0 1px 2px -1px hsl(var(--foreground) / 0.06),
+    inset 0 1px 0 hsl(var(--surface-3) / 0.8);
+}
+
+[data-theme="light"] .enhanced-card:hover {
+  background: hsl(var(--surface-3));
+  box-shadow:
+    0 8px 12px -2px hsl(var(--foreground) / 0.15),
+    0 4px 6px -1px hsl(var(--foreground) / 0.1),
+    inset 0 1px 0 hsl(var(--surface-4) / 0.8);
+}
+
+/* 🌾 米色模式增强卡片效果 */
+[data-theme="beige"] .enhanced-card {
+  box-shadow:
+    0 2px 4px -1px hsl(var(--foreground) / 0.12),
+    0 1px 2px -1px hsl(var(--foreground) / 0.08),
+    inset 0 1px 0 hsl(var(--surface-3) / 0.7);
+}
+
+[data-theme="beige"] .enhanced-card:hover {
+  background: hsl(var(--surface-3));
+  box-shadow:
+    0 8px 12px -2px hsl(var(--foreground) / 0.18),
+    0 4px 6px -1px hsl(var(--foreground) / 0.12),
+    inset 0 1px 0 hsl(var(--surface-4) / 0.7);
+}
+
+/* 🏆 金色模式增强卡片效果 */
+[data-theme="gold"] .enhanced-card {
+  box-shadow:
+    0 2px 4px -1px hsl(var(--primary) / 0.15),
+    0 1px 2px -1px hsl(var(--primary) / 0.1),
+    inset 0 1px 0 hsl(var(--surface-3) / 0.6);
+}
+
+[data-theme="gold"] .enhanced-card:hover {
+  background: hsl(var(--surface-3));
+  box-shadow:
+    0 8px 12px -2px hsl(var(--primary) / 0.2),
+    0 4px 6px -1px hsl(var(--primary) / 0.15),
+    inset 0 1px 0 hsl(var(--surface-4) / 0.6);
+}
+
+/* 🌙 深色模式增强卡片效果 */
+[data-theme="dark"] .enhanced-card {
   box-shadow:
     0 4px 6px -1px hsl(var(--background) / 0.3),
     0 2px 4px -1px hsl(var(--background) / 0.2),
