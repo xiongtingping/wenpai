@@ -42,7 +42,8 @@ import {
   RotateCcw,
   ArrowRight,
   BookOpen,
-  MoreHorizontal
+  MoreHorizontal,
+  CheckCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MarketingCalendar from './MarketingCalendar';
@@ -1400,6 +1401,51 @@ ${generateStandardCallToAction()}
             ))}
           </div>
 
+          {/* 当前选择的维度显示 */}
+          {Object.keys(selectedItems).length > 0 && (
+            <div className="py-4 border-t bg-muted/30 rounded-lg">
+              <div className="px-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">当前已选择的维度</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {Object.keys(selectedItems).length}个维度
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {Object.entries(selectedItems).map(([dimensionId, value]) => {
+                    const dimension = dimensions.find(d => d.id === dimensionId);
+                    const status = getDimensionStatus(dimensionId);
+
+                    if (!dimension || !value) return null;
+
+                    return (
+                      <div
+                        key={dimensionId}
+                        className={`flex items-center gap-2 p-2 rounded-md border text-xs ${
+                          status.isRequired
+                            ? 'bg-red-50 border-red-200 text-red-800'
+                            : status.isRecommended
+                            ? 'bg-blue-50 border-blue-200 text-blue-800'
+                            : 'bg-gray-50 border-gray-200 text-gray-800'
+                        }`}
+                      >
+                        {dimension.icon}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{dimension.name}</div>
+                          <div className="text-xs opacity-75 truncate">{value}</div>
+                        </div>
+                        {pinnedDimensions.has(dimensionId) && (
+                          <Pin className="w-3 h-3 text-primary flex-shrink-0" />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 控制按钮 */}
           <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-t">
             <div className="flex items-center gap-2">
@@ -1413,18 +1459,9 @@ ${generateStandardCallToAction()}
                 随机选择
               </Button>
               
-              {/* 控制随机生成 */}
+              {/* 维度数量选择和控制随机生成 */}
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={controlledRandomGenerate}
-                  disabled={isGenerating}
-                  className="border-primary text-primary hover:bg-accent"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  控制随机
-                </Button>
+                <UILabel className="text-sm font-medium">维度数量</UILabel>
                 <Select
                   value={selectedDimensionCount.toString()}
                   onValueChange={(value) => setSelectedDimensionCount(parseInt(value))}
@@ -1444,6 +1481,16 @@ ${generateStandardCallToAction()}
                 <span className="text-xs text-muted-foreground">
                   {requiredDimensions.length}必选+{selectedDimensionCount - requiredDimensions.length}随机
                 </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={controlledRandomGenerate}
+                  disabled={isGenerating}
+                  className="border-primary text-primary hover:bg-accent"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  控制随机
+                </Button>
               </div>
               
               <Button
