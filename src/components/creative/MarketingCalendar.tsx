@@ -368,10 +368,10 @@ const SortableTodoItem: React.FC<{
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'high': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -395,7 +395,7 @@ const SortableTodoItem: React.FC<{
     <div
       ref={setNodeRef}
       style={style}
-      className={`p-3 border rounded-lg bg-white hover:shadow-md transition-all ${
+      className={`p-3 border rounded-lg bg-card hover:shadow-md transition-all ${
         task.status === 'completed' ? 'opacity-60' : ''
       }`}
       draggable
@@ -914,9 +914,9 @@ function MarketingCalendar() {
    */
   const getTaskCountStyle = (count: number) => {
     if (count === 0) return null;
-    if (count <= 2) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (count <= 4) return 'bg-orange-100 text-orange-800 border-orange-200';
-    return 'bg-red-100 text-red-800 border-red-200';
+    if (count <= 2) return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700';
+    if (count <= 4) return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700';
+    return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
   };
 
   /**
@@ -1110,7 +1110,7 @@ function MarketingCalendar() {
                                 <TooltipTrigger asChild>
                                   <div className={`
                                     text-xs h-4 w-4 rounded-full flex items-center justify-center font-medium cursor-help
-                                    ${taskCountStyle || 'bg-gray-100 text-gray-800'}
+                                    ${taskCountStyle || 'bg-muted text-muted-foreground'}
                                     hover:scale-110 transition-transform
                                   `}>
                                     {pendingTasks.length > 9 ? '9+' : pendingTasks.length}
@@ -1223,8 +1223,8 @@ function MarketingCalendar() {
                               key={index}
                               className={`text-xs px-1 py-0.5 rounded text-center truncate ${
                                 ['元旦', '春节', '劳动节', '国庆节'].includes(festival)
-                                  ? 'bg-red-100 text-red-700'
-                                  : 'bg-blue-100 text-blue-700'
+                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                  : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                               }`}
                             >
                               {festival}

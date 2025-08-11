@@ -196,7 +196,7 @@ function DimensionCard({
         )}
       </CardHeader>
       {/* 内容区域 - 选项按钮 */}
-      <CardContent className="p-3 bg-white">
+      <CardContent className="p-3 bg-card">
         {selectedItem && (
           <div className="mb-2 p-2 bg-primary/10 border border-primary/20 rounded-md flex items-center justify-between">
             <span className="text-xs font-medium text-primary truncate">{selectedItem}</span>
@@ -241,8 +241,8 @@ function DimensionCard({
                         variant="ghost"
                         className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                           isPinned
-                            ? 'bg-amber-200 hover:bg-amber-300 text-amber-700'
-                            : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
+                            ? 'bg-amber-200 hover:bg-amber-300 text-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-300'
+                            : 'bg-blue-100 hover:bg-blue-200 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -297,8 +297,8 @@ function DimensionCard({
                       variant="ghost"
                       className={`h-3.5 w-3.5 p-0 rounded-full text-xs ${
                         isPinned
-                          ? 'bg-amber-200 hover:bg-amber-300 text-amber-700'
-                          : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
+                          ? 'bg-amber-200 hover:bg-amber-300 text-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-300'
+                          : 'bg-blue-100 hover:bg-blue-200 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -2140,7 +2140,7 @@ ${generateStandardCallToAction()}
                             ? 'bg-red-50 border-red-200 text-red-800'
                             : status.isRecommended
                             ? 'bg-blue-50 border-blue-200 text-blue-800'
-                            : 'bg-gray-50 border-gray-200 text-gray-800'
+                            : 'bg-muted border-border text-muted-foreground'
                         }`}
                       >
                         {dimension.icon}

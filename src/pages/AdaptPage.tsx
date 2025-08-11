@@ -1224,6 +1224,26 @@ export default function AdaptPage() {
       window.history.replaceState({}, document.title);
     }
   }, [location.state, toast]);
+
+  // 处理从sessionStorage传递的预填充内容（用于创意魔方等页面的跳转）
+  useEffect(() => {
+    const sessionContent = sessionStorage.getItem('ai_adapter_content');
+    const sessionSource = sessionStorage.getItem('ai_adapter_source');
+
+    if (sessionContent && !originalContent) {
+      setOriginalContent(sessionContent);
+
+      // 显示来源提示
+      toast({
+        title: "内容已导入",
+        description: `已从${sessionSource || '创意魔方'}导入内容到编辑器`,
+      });
+
+      // 清除sessionStorage以避免重复导入
+      sessionStorage.removeItem('ai_adapter_content');
+      sessionStorage.removeItem('ai_adapter_source');
+    }
+  }, [originalContent, toast]);
   
   // ✅ FIXED: 2025-08-04 修复无限循环问题
   // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环

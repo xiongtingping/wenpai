@@ -2109,8 +2109,8 @@ export default function HotTopicsPage() {
                                 <td className="py-3 px-3 text-foreground">{trend.peakHour}</td>
                                 <td className="py-3 px-3">
                                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${
-                                    trend.sentiment === 'positive' ? 'bg-green-100 text-green-700' :
-                                    trend.sentiment === 'negative' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                                    trend.sentiment === 'positive' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                                    trend.sentiment === 'negative' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-muted text-muted-foreground'
                                   }`}>
                                     {trend.sentiment === 'positive' ? '😊' : trend.sentiment === 'negative' ? '😟' : '😐'}
                                     {trend.sentiment === 'positive' ? '正面' : trend.sentiment === 'negative' ? '负面' : '中性'}

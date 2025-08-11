@@ -2080,49 +2080,157 @@ export function selectDimensionCombination(
 }
 
 /**
- * 构建九宫格创意魔方的AI提示词
+ * 构建九宫格创意魔方的AI提示词 - 重构版
  */
 export function buildCreativeCubePrompt(config: CreativeCubeConfig): string {
   const { selectedItems, pinnedDimensions, selectedDimensionIds } = config;
   const dimensions = getCreativeCubeDimensions();
 
-  // 获取固定维度信息
-  const pinnedInfo = pinnedDimensions.map(dimId => {
-    const dimension = dimensions.find(d => d.id === dimId);
-    return dimension?.name || dimId;
-  });
+  // 分析选择的维度
+  const requiredDimensions = getRequiredDimensionIds();
+  const selectedRequired = selectedDimensionIds.filter(id => requiredDimensions.includes(id));
+  const selectedOptional = selectedDimensionIds.filter(id => !requiredDimensions.includes(id));
 
-  const pinnedText = pinnedInfo.length > 0
-    ? `\n\n⚠️ 重要约束：以下维度已被用户固定，必须严格遵循，不得偏离：\n${pinnedInfo.map(name => `- ${name}`).join('\n')}\n`
-    : '';
+  // 构建核心维度信息（必选维度）
+  const coreContext = buildCoreContext(selectedItems, selectedRequired, dimensions);
 
-  // 构建维度信息
-  const dimensionTexts: string[] = [];
-  selectedDimensionIds.forEach(dimId => {
+  // 构建增强维度信息（可选维度）
+  const enhancementContext = buildEnhancementContext(selectedItems, selectedOptional, dimensions);
+
+  // 构建固定维度约束
+  const pinnedConstraints = buildPinnedConstraints(pinnedDimensions, dimensions);
+
+  // 确定内容类型和风格
+  const contentType = selectedItems.content_format || '图文';
+  const toneStyle = selectedItems.tone_style || '专业可信';
+  const platform = selectedItems.platform_or_trend || '小红书';
+
+  // 构建系统提示词
+  const systemPrompt = buildCreativeCubeSystemPrompt(contentType, toneStyle, platform);
+
+  // 构建用户提示词
+  const userPrompt = `${systemPrompt}
+
+## 🎯 核心创意维度（必须严格遵循）
+${coreContext}
+
+${enhancementContext ? `## ✨ 增强创意维度（用于丰富内容）
+${enhancementContext}` : ''}
+
+${pinnedConstraints ? `## ⚠️ 固定维度约束
+${pinnedConstraints}` : ''}
+
+## 📋 生成要求
+1. **维度关联性**：生成的内容必须与所有选择的维度强相关，每个维度都要在内容中得到体现
+2. **避免模板化**：禁止使用"提升效率""提供安全感"等通用模板话术
+3. **真实感强**：内容要贴近真实生活场景，有具体的情境描述
+4. **个性化表达**：根据目标受众的特点调整语言风格和表达方式
+5. **互动性强**：结尾要有明确的互动引导，鼓励用户参与讨论
+
+## 🚫 禁止输出
+- 不要包含任何格式化标记（如**标题**、【正文】等）
+- 不要包含emoji节奏说明（如✨emoji节奏：...）
+- 不要包含配图建议（如（配图建议：...））
+- 不要包含字数统计（如（全文X字，...））
+- 不要包含策略说明或创作思路
+
+## 📝 输出要求
+请直接输出一段完整的、可直接使用的创意内容，确保内容自然流畅、逻辑清晰、与所选维度高度匹配。`;
+
+  return userPrompt;
+}
+
+/**
+ * 构建核心维度上下文
+ */
+function buildCoreContext(selectedItems: CreativeCubeSelection, requiredIds: string[], dimensions: CreativeCubeDimension[]): string {
+  const contexts: string[] = [];
+
+  requiredIds.forEach(dimId => {
     const dimension = dimensions.find(d => d.id === dimId);
     const value = selectedItems[dimId as keyof CreativeCubeSelection];
     if (dimension && value) {
-      dimensionTexts.push(`- ${dimension.name}：${value}`);
+      contexts.push(`- **${dimension.name}**：${value} ${getDimensionDescription(dimId, value)}`);
     }
   });
 
-  const tone_style = selectedItems.tone_style || '标准';
-  const content_format = selectedItems.content_format || '图文';
+  return contexts.join('\n');
+}
 
-  return `请根据以下多维度配置生成一段用于【朋友圈】或【小红书】的图文内容，风格为【${tone_style}】，内容形式为【${content_format}】。必须严格使用以下所有维度信息，并避免使用"提升效率""提供安全感"等模板式话术，要求生活化、真实感强、带网络热梗、情境代入强。${pinnedText}
+/**
+ * 构建增强维度上下文
+ */
+function buildEnhancementContext(selectedItems: CreativeCubeSelection, optionalIds: string[], dimensions: CreativeCubeDimension[]): string {
+  const contexts: string[] = [];
 
-维度：
-${dimensionTexts.join('\n')}
+  optionalIds.forEach(dimId => {
+    const dimension = dimensions.find(d => d.id === dimId);
+    const value = selectedItems[dimId as keyof CreativeCubeSelection];
+    if (dimension && value) {
+      contexts.push(`- **${dimension.name}**：${value} ${getDimensionDescription(dimId, value)}`);
+    }
+  });
 
-输出要求：
-1. 标题：突出情境与人设冲突
-2. 正文：必须展现真实生活情境 + 人物吐槽 + 转折解决方案
-3. 互动引导：鼓励用户留言、点赞、共鸣
-4. 避免"核心概念/策略分析"等空话模板
-5. 内容输出控制在 150-200 字之间，符合社交平台阅读节奏
-6. 多使用emoji表情，提升阅读情绪节奏
+  return contexts.length > 0 ? contexts.join('\n') : '';
+}
 
-请直接输出创意内容，而非策略说明。`;
+/**
+ * 构建固定维度约束
+ */
+function buildPinnedConstraints(pinnedDimensions: string[], dimensions: CreativeCubeDimension[]): string {
+  if (pinnedDimensions.length === 0) return '';
+
+  const constraints = pinnedDimensions.map(dimId => {
+    const dimension = dimensions.find(d => d.id === dimId);
+    return dimension ? `- ${dimension.name}：此维度已固定，必须严格遵循，不得偏离` : '';
+  }).filter(Boolean);
+
+  return constraints.join('\n');
+}
+
+/**
+ * 获取维度描述信息
+ */
+function getDimensionDescription(dimensionId: string, value: string): string {
+  const descriptions: Record<string, Record<string, string>> = {
+    'target_audience': {
+      '宝妈': '（关注育儿、家庭、实用性）',
+      'Z世代': '（追求个性、潮流、社交认同）',
+      '职场人': '（注重效率、专业、时间管理）',
+      '银发族': '（重视健康、安全、简单易用）'
+    },
+    'use_case': {
+      '通勤': '（时间碎片化、移动场景、效率需求）',
+      '健身': '（运动场景、健康意识、坚持动力）',
+      '居家生活': '（舒适环境、家庭氛围、生活品质）'
+    },
+    'pain_point': {
+      '时间不够用': '（效率焦虑、时间管理困难）',
+      '选择困难症': '（信息过载、决策困难）',
+      '预算有限': '（性价比考量、经济压力）'
+    },
+    'tone_style': {
+      '轻松幽默': '（轻松愉快、有趣互动、降低门槛）',
+      '专业可信': '（权威可靠、数据支撑、专业建议）',
+      '情感共鸣': '（情感连接、感同身受、温暖治愈）'
+    }
+  };
+
+  return descriptions[dimensionId]?.[value] || '';
+}
+
+/**
+ * 构建创意魔方系统提示词
+ */
+function buildCreativeCubeSystemPrompt(contentType: string, toneStyle: string, platform: string): string {
+  return `你是一个专业的创意内容生成专家，擅长根据多维度信息生成高质量的${platform}平台${contentType}内容。
+
+## 🎨 创作原则
+1. **维度驱动**：严格根据用户选择的维度信息创作，确保每个维度都在内容中得到体现
+2. **风格一致**：保持${toneStyle}的表达风格，符合目标受众的阅读习惯
+3. **平台适配**：内容要符合${platform}平台的特点和用户行为习惯
+4. **真实可信**：避免空洞的营销话术，要有具体的场景和细节
+5. **互动导向**：内容要能引发用户的共鸣和互动欲望`;
 }
 
 // 自动进行完整性验证

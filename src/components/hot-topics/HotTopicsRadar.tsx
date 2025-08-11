@@ -783,7 +783,7 @@ export default function HotTopicsRadar({
                                     <span className="text-muted-foreground">状态:</span>
                                     <span className={`px-2 py-1 rounded text-sm font-medium ${
                                       subscription.isActive
-                                        ? "bg-green-100 text-green-700"
+                                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
                                         : "bg-muted text-muted-foreground"
                                     }`}>
                                       {subscription.isActive ? "活跃" : "暂停"}
@@ -793,7 +793,7 @@ export default function HotTopicsRadar({
                                     <span className="text-muted-foreground">通知:</span>
                                     <span className={`px-2 py-1 rounded text-sm font-medium ${
                                       subscription.notificationEnabled
-                                        ? "bg-blue-100 text-blue-700"
+                                        ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
                                         : "bg-muted text-muted-foreground"
                                     }`}>
                                       {subscription.notificationEnabled ? "开启" : "关闭"}
