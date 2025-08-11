@@ -73,8 +73,8 @@ const HeroSection: React.FC = () => {
             <div className="max-w-4xl mx-auto text-center">
               {/* 第一行：核心价值主张 */}
               <div className="mb-6">
-                <p className="text-xl sm:text-2xl text-primary font-bold leading-relaxed">
-                  <strong className="text-primary">
+                <p className="text-xl sm:text-2xl text-foreground font-bold leading-relaxed">
+                  <strong className="text-foreground">
                     让 AI 为您的品牌创作独特内容
                   </strong>
                 </p>
@@ -150,7 +150,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    智能分析需求，<span className="font-semibold text-primary">3秒内</span>生成高质量内容，大幅提升创作效率
+                    智能分析需求，<span className="font-semibold text-foreground">3秒内</span>生成高质量内容，大幅提升创作效率
                   </p>
                 </div>
               </div>
@@ -170,7 +170,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    智能学习品牌风格，确保<span className="font-semibold text-primary">内容调性统一</span>，提升品牌识别度
+                    智能学习品牌风格，确保<span className="font-semibold text-foreground">内容调性统一</span>，提升品牌识别度
                   </p>
                 </div>
               </div>
@@ -190,7 +190,7 @@ const HeroSection: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    自动化内容创作流程，<span className="font-semibold text-primary">节省80%</span>人工成本，提升ROI
+                    自动化内容创作流程，<span className="font-semibold text-foreground">节省80%</span>人工成本，提升ROI
                   </p>
                 </div>
               </div>
