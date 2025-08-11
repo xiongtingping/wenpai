@@ -1,5 +1,5 @@
 ---
-type: "manual"
+type: "always_apply"
 ---
 
 ### 🧪 Test 文件与测试规范（适用于所有测试相关任务）
