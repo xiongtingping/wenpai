@@ -473,7 +473,33 @@ function MarketingCalendar() {
   const [lunarInfo, setLunarInfo] = useState<any>(null);
 
   // Todo任务状态
-  const [tasks, setTasks] = useState<TodoTask[]>([]);
+  const [tasks, setTasks] = useState<TodoTask[]>(() => {
+    // 从localStorage加载任务数据
+    try {
+      const savedTasks = localStorage.getItem('marketing-calendar-tasks');
+      if (savedTasks) {
+        const parsedTasks = JSON.parse(savedTasks);
+        // 验证数据结构并修复缺失字段
+        return parsedTasks.map((task: any, index: number) => ({
+          id: task.id || Date.now().toString() + index,
+          title: task.title || '未命名任务',
+          description: task.description || '',
+          date: task.date || new Date().toISOString().split('T')[0],
+          priority: task.priority || 'medium',
+          status: task.status || 'pending',
+          type: task.type || 'other',
+          isRecurring: task.isRecurring || false,
+          createdAt: task.createdAt || new Date().toISOString(),
+          order: task.order || index + 1
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to load tasks from localStorage:', error);
+      // 清除损坏的数据
+      localStorage.removeItem('marketing-calendar-tasks');
+    }
+    return [];
+  });
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [editingTask, setEditingTask] = useState<TodoTask | null>(null);
   const [quickAddDate, setQuickAddDate] = useState<string | null>(null);
@@ -506,48 +532,64 @@ function MarketingCalendar() {
     })
   );
 
-  // 初始化示例任务数据
+  /**
+   * 保存任务到localStorage
+   */
   useEffect(() => {
-    const sampleTasks: TodoTask[] = [
-      {
-        id: '1',
-        title: '春节营销活动策划',
-        description: '制定春节期间的营销活动方案，包括优惠政策和推广策略',
-        date: '2025-01-25',
-        priority: 'high',
-        status: 'pending',
-        type: 'marketing',
-        isRecurring: false,
-        createdAt: new Date().toISOString(),
-        order: 1
-      },
-      {
-        id: '2',
-        title: '情人节内容创作',
-        description: '准备情人节主题的文案和视觉素材',
-        date: '2025-02-10',
-        priority: 'medium',
-        status: 'pending',
-        type: 'content',
-        isRecurring: false,
-        createdAt: new Date().toISOString(),
-        order: 2
-      },
-      {
-        id: '3',
-        title: '元宵节活动执行',
-        description: '执行元宵节线上活动，监控数据反馈',
-        date: '2025-02-12',
-        priority: 'high',
-        status: 'completed',
-        type: 'event',
-        isRecurring: false,
-        createdAt: new Date().toISOString(),
-        order: 3
-      }
-    ];
-    setTasks(sampleTasks);
-  }, []);
+    try {
+      localStorage.setItem('marketing-calendar-tasks', JSON.stringify(tasks));
+    } catch (error) {
+      console.error('Failed to save tasks to localStorage:', error);
+    }
+  }, [tasks]);
+
+  /**
+   * 初始化示例数据（仅在没有保存数据时）
+   */
+  useEffect(() => {
+    // 只有在没有保存的任务时才初始化示例数据
+    if (tasks.length === 0) {
+      const sampleTasks: TodoTask[] = [
+        {
+          id: '1',
+          title: '春节营销活动策划',
+          description: '制定春节期间的营销活动方案，包括优惠政策和推广策略',
+          date: '2025-01-25',
+          priority: 'high',
+          status: 'pending',
+          type: 'marketing',
+          isRecurring: false,
+          createdAt: new Date().toISOString(),
+          order: 1
+        },
+        {
+          id: '2',
+          title: '情人节内容创作',
+          description: '准备情人节主题的文案和视觉素材',
+          date: '2025-02-10',
+          priority: 'medium',
+          status: 'pending',
+          type: 'content',
+          isRecurring: false,
+          createdAt: new Date().toISOString(),
+          order: 2
+        },
+        {
+          id: '3',
+          title: '元宵节活动执行',
+          description: '执行元宵节线上活动，监控数据反馈',
+          date: '2025-02-12',
+          priority: 'high',
+          status: 'completed',
+          type: 'event',
+          isRecurring: false,
+          createdAt: new Date().toISOString(),
+          order: 3
+        }
+      ];
+      setTasks(sampleTasks);
+    }
+  }, []); // 只在组件挂载时执行一次
 
   /**
    * 获取农历信息
@@ -871,6 +913,72 @@ function MarketingCalendar() {
     ));
     setDraggedTask(null);
     setDragOverDate(null);
+  };
+
+  /**
+   * 数据管理功能
+   */
+  const exportTasks = () => {
+    try {
+      const dataStr = JSON.stringify(tasks, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `marketing-calendar-tasks-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export tasks:', error);
+      alert('导出失败，请重试');
+    }
+  };
+
+  const importTasks = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedTasks = JSON.parse(e.target?.result as string);
+        if (Array.isArray(importedTasks)) {
+          // 验证并修复导入的数据
+          const validatedTasks = importedTasks.map((task: any, index: number) => ({
+            id: task.id || Date.now().toString() + index,
+            title: task.title || '未命名任务',
+            description: task.description || '',
+            date: task.date || new Date().toISOString().split('T')[0],
+            priority: task.priority || 'medium',
+            status: task.status || 'pending',
+            type: task.type || 'other',
+            isRecurring: task.isRecurring || false,
+            createdAt: task.createdAt || new Date().toISOString(),
+            order: task.order || index + 1
+          }));
+          setTasks(validatedTasks);
+          alert(`成功导入 ${validatedTasks.length} 个任务`);
+        } else {
+          alert('导入文件格式错误');
+        }
+      } catch (error) {
+        console.error('Failed to import tasks:', error);
+        alert('导入失败，请检查文件格式');
+      }
+    };
+    reader.readAsText(file);
+    // 清除input值，允许重复导入同一文件
+    event.target.value = '';
+  };
+
+  const clearAllTasks = () => {
+    if (window.confirm('确定要清除所有任务数据吗？此操作不可恢复。')) {
+      setTasks([]);
+      localStorage.removeItem('marketing-calendar-tasks');
+      alert('所有任务数据已清除');
+    }
   };
 
   /**
@@ -1208,13 +1316,54 @@ function MarketingCalendar() {
                 </Badge>
               )}
             </CardTitle>
-            <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="h-8">
-                  <Plus className="w-4 h-4 mr-1" />
-                  添加任务
+            <div className="flex items-center gap-2">
+              {/* 数据管理按钮 */}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportTasks}
+                  className="h-8 px-2"
+                  title="导出任务数据"
+                >
+                  <span className="text-xs">导出</span>
                 </Button>
-              </DialogTrigger>
+
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={importTasks}
+                  className="hidden"
+                  id="import-tasks"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('import-tasks')?.click()}
+                  className="h-8 px-2"
+                  title="导入任务数据"
+                >
+                  <span className="text-xs">导入</span>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearAllTasks}
+                  className="h-8 px-2 text-red-600 hover:text-red-700"
+                  title="清除所有数据"
+                >
+                  <span className="text-xs">清除</span>
+                </Button>
+              </div>
+
+              <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="h-8">
+                    <Plus className="w-4 h-4 mr-1" />
+                    添加任务
+                  </Button>
+                </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>添加新任务</DialogTitle>
@@ -1233,6 +1382,7 @@ function MarketingCalendar() {
                 />
               </DialogContent>
             </Dialog>
+            </div>
           </div>
 
           <CardDescription className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
