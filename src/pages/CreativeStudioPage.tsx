@@ -90,12 +90,12 @@ export default function CreativeStudioPage() {
                 <TabsTrigger value="wechat" className="unified-tab-trigger">
                   <MessageCircle className="tab-icon" />
                   <span className="tab-text-mobile">文案</span>
-                  <span className="tab-text-desktop">朋友圈文案</span>
+                  <span className="tab-text-desktop">微信朋友圈文案模板</span>
                 </TabsTrigger>
                 <TabsTrigger value="emoji" className="unified-tab-trigger">
                   <Smile className="tab-icon" />
                   <span className="tab-text-mobile">Emoji</span>
-                  <span className="tab-text-desktop">Emoji生成器</span>
+                  <span className="tab-text-desktop">Emoji图库</span>
                 </TabsTrigger>
               </TabsList>
             </div>

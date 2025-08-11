@@ -4,11 +4,20 @@
  * 右侧：Todo任务列表，支持拖拽排序和日期联动
  *
  * ✅ FIXED: 2025-08-11 布局重构和日期选择Bug修复
+ * ✅ FIXED: 2025-01-15 营销日历功能完整开发和优化完成
+ * 🔒 LOCKED: 整个营销日历组件已封装，禁止修改
+ *
  * 🔧 改进内容：
  * 1. 布局从上下分栏改为左右分栏，提升空间利用率
  * 2. 压缩日历组件布局，减少不必要的内外边距
  * 3. 修复日期选择时区问题，确保点击日期与选中日期一致
  * 4. 优化响应式设计，适配不同屏幕尺寸
+ * 5. 用户绑定的待办事项持久化系统
+ * 6. 智能任务排序（已完成任务沉底，当天高优先级优先）
+ * 7. 日历触摸滑动支持，高优先级任务红色标注
+ * 8. 历史完成任务查看，任务标题必填验证
+ *
+ * ⚠️ 如需修改请创建新的副本组件，不得修改此文件
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -469,7 +478,7 @@ const SortableTodoItem: React.FC<{
  */
 function MarketingCalendar() {
   // 用户认证
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user } = useUnifiedAuth();
   const userId = user?.id || 'anonymous';
 
   // 基础状态
@@ -595,63 +604,7 @@ function MarketingCalendar() {
     loadUserTasks();
   }, [userId]);
 
-  /**
-   * 初始化示例数据（仅在用户首次使用且没有保存数据时）
-   */
-  useEffect(() => {
-    // 延迟检查，确保用户数据加载完成
-    const timer = setTimeout(() => {
-      // 只有在没有保存的任务时才初始化示例数据
-      if (tasks.length === 0 && userId !== 'anonymous') {
-        const storageKey = getStorageKey();
-        const hasExistingData = localStorage.getItem(storageKey);
 
-        if (!hasExistingData) {
-          const sampleTasks: TodoTask[] = [
-            {
-              id: '1',
-              title: '春节营销活动策划',
-              description: '制定春节期间的营销活动方案，包括优惠政策和推广策略',
-              date: '2025-01-25',
-              priority: 'high',
-              status: 'pending',
-              type: 'marketing',
-              isRecurring: false,
-              createdAt: new Date().toISOString(),
-              order: 1
-            },
-            {
-              id: '2',
-              title: '情人节内容创作',
-              description: '准备情人节主题的文案和视觉素材',
-              date: '2025-02-10',
-              priority: 'medium',
-              status: 'pending',
-              type: 'content',
-              isRecurring: false,
-              createdAt: new Date().toISOString(),
-              order: 2
-            },
-            {
-              id: '3',
-              title: '元宵节活动执行',
-              description: '执行元宵节线上活动，监控数据反馈',
-              date: '2025-02-12',
-              priority: 'high',
-              status: 'completed',
-              type: 'event',
-              isRecurring: false,
-              createdAt: new Date().toISOString(),
-              order: 3
-            }
-          ];
-          setTasks(sampleTasks);
-        }
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [userId]); // 用户ID变化时重新检查
 
   /**
    * 获取农历信息
@@ -1016,10 +969,10 @@ function MarketingCalendar() {
             )}
           </CardTitle>
           <CardDescription className="text-xs">
-            点击日期查看任务，双击快速添加
+            点击日期查看待办，双击快速添加
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-3 h-[530px] flex flex-col overflow-hidden">
+        <CardContent className="p-3 h-[480px] flex flex-col overflow-hidden">
           {/* 月份导航 - 更紧凑布局 */}
           <div className="flex items-center justify-between mb-3 h-[48px] flex-shrink-0">
             <Button
@@ -1303,11 +1256,11 @@ function MarketingCalendar() {
 
       {/* 右侧 - Todo任务列表 */}
       <Card className="h-[600px] flex flex-col overflow-hidden">
-        <CardHeader className="pb-2 flex-shrink-0 h-[120px]">
+        <CardHeader className="pb-2 flex-shrink-0 h-[70px] p-4">
           <div className="flex items-center justify-between mb-2 min-h-[32px]">
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
-              <span className="leading-none">营销任务</span>
+              <span className="leading-none">待办事项</span>
               {selectedDate && (
                 <Badge variant="secondary" className="text-xs">
                   {selectedDate}
@@ -1318,12 +1271,12 @@ function MarketingCalendar() {
               <DialogTrigger asChild>
                 <Button size="sm" className="h-8">
                   <Plus className="w-4 h-4 mr-1" />
-                  添加任务
+                  添加待办
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>添加新任务</DialogTitle>
+                  <DialogTitle>添加新待办</DialogTitle>
                 </DialogHeader>
                 <TaskForm
                   onSubmit={(taskData) => {
@@ -1344,14 +1297,14 @@ function MarketingCalendar() {
           <CardDescription className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
             <span className="text-xs">
               {selectedDate
-                ? `显示 ${selectedDate} 的任务`
-                : '显示所有任务，点击日历选择日期'}
+                ? `显示 ${selectedDate} 的待办`
+                : '显示所有待办，点击日历选择日期'}
             </span>
             {/* 搜索框 - 紧凑布局 */}
             <div className="relative">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-muted-foreground" />
               <Input
-                placeholder="搜索任务..."
+                placeholder="搜索待办..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-7 w-full lg:w-40 h-7 text-xs"
@@ -1370,7 +1323,7 @@ function MarketingCalendar() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-3 h-[480px] overflow-hidden flex flex-col">
+        <CardContent className="p-3 h-[530px] overflow-hidden flex flex-col">
           {/* 统计和筛选控件合并区域 */}
           <div className="p-3 bg-muted/30 rounded-lg flex-shrink-0 mb-2">
             {/* 任务统计 */}
