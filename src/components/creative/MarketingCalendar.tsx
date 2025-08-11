@@ -1123,119 +1123,120 @@ function MarketingCalendar() {
           </CardDescription>
         </CardHeader>
 
-        {/* 任务统计 - 移到任务列表上方 */}
-        {tasks.length > 0 && (
-          <div className="mx-4 mb-1 p-2 bg-muted/30 rounded-lg flex-shrink-0">
-            <div className="grid grid-cols-4 gap-2 text-center">
-              <div
-                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
-                onClick={() => setFilters(prev => ({ ...prev, status: 'all', type: 'all', priority: 'all' }))}
-              >
-                <div className="text-base font-bold text-primary">{tasks.length}</div>
-                <div className="text-xs text-muted-foreground">总任务</div>
-              </div>
-              <div
-                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
-                onClick={() => setFilters(prev => ({ ...prev, status: 'completed' }))}
-              >
-                <div className="text-base font-bold text-green-600">
-                  {tasks.filter(t => t.status === 'completed').length}
-                </div>
-                <div className="text-xs text-muted-foreground">已完成</div>
-              </div>
-              <div
-                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
-                onClick={() => setFilters(prev => ({ ...prev, status: 'pending' }))}
-              >
-                <div className="text-base font-bold text-orange-600">
-                  {tasks.filter(t => t.status === 'pending').length}
-                </div>
-                <div className="text-xs text-muted-foreground">待完成</div>
-              </div>
-              <div
-                className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
-                onClick={() => setFilters(prev => ({ ...prev, priority: 'high' }))}
-              >
-                <div className="text-base font-bold text-red-600">
-                  {tasks.filter(t => t.priority === 'high').length}
-                </div>
-                <div className="text-xs text-muted-foreground">高优先级</div>
-              </div>
-            </div>
-          </div>
-        )}
-
         <CardContent className="p-3 h-[480px] overflow-hidden flex flex-col">
-          {/* 筛选和排序控件 - 更紧凑布局 */}
-          <div className="flex flex-wrap items-center gap-1.5 mb-1.5 p-2 bg-muted/30 rounded-lg flex-shrink-0 h-[70px]">
-            <div className="flex items-center gap-1">
-              <Filter className="w-3 h-3" />
-              <span className="text-xs font-medium">筛选:</span>
-            </div>
+          {/* 统计和筛选控件合并区域 */}
+          <div className="p-3 bg-muted/30 rounded-lg flex-shrink-0 mb-2">
+            {/* 任务统计 */}
+            {tasks.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 text-center mb-3">
+                <div
+                  className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                  onClick={() => setFilters(prev => ({ ...prev, status: 'all', type: 'all', priority: 'all' }))}
+                >
+                  <div className="text-base font-bold text-primary">{tasks.length}</div>
+                  <div className="text-xs text-muted-foreground">总任务</div>
+                </div>
+                <div
+                  className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                  onClick={() => setFilters(prev => ({ ...prev, status: 'completed' }))}
+                >
+                  <div className="text-base font-bold text-green-600">
+                    {tasks.filter(t => t.status === 'completed').length}
+                  </div>
+                  <div className="text-xs text-muted-foreground">已完成</div>
+                </div>
+                <div
+                  className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                  onClick={() => setFilters(prev => ({ ...prev, status: 'pending' }))}
+                >
+                  <div className="text-base font-bold text-orange-600">
+                    {tasks.filter(t => t.status === 'pending').length}
+                  </div>
+                  <div className="text-xs text-muted-foreground">待完成</div>
+                </div>
+                <div
+                  className="cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors"
+                  onClick={() => setFilters(prev => ({ ...prev, priority: 'high' }))}
+                >
+                  <div className="text-base font-bold text-red-600">
+                    {tasks.filter(t => t.priority === 'high').length}
+                  </div>
+                  <div className="text-xs text-muted-foreground">高优先级</div>
+                </div>
+              </div>
+            )}
 
-            <Select value={filters.status} onValueChange={(value: any) => setFilters(prev => ({ ...prev, status: value }))}>
-              <SelectTrigger className="w-28 h-7 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部状态</SelectItem>
-                <SelectItem value="pending">待完成</SelectItem>
-                <SelectItem value="completed">已完成</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* 筛选和排序控件 */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex items-center gap-1">
+                <Filter className="w-3 h-3" />
+                <span className="text-xs font-medium">筛选:</span>
+              </div>
 
-            <Select value={filters.type} onValueChange={(value: any) => setFilters(prev => ({ ...prev, type: value }))}>
-              <SelectTrigger className="w-28 h-7 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部类型</SelectItem>
-                <SelectItem value="marketing">营销</SelectItem>
-                <SelectItem value="content">内容</SelectItem>
-                <SelectItem value="event">活动</SelectItem>
-                <SelectItem value="other">其他</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.priority} onValueChange={(value: any) => setFilters(prev => ({ ...prev, priority: value }))}>
-              <SelectTrigger className="w-32 h-7 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部优先级</SelectItem>
-                <SelectItem value="high">高优先级</SelectItem>
-                <SelectItem value="medium">中优先级</SelectItem>
-                <SelectItem value="low">低优先级</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="flex items-center gap-1 ml-auto">
-              <span className="text-xs font-medium">排序:</span>
-              <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                <SelectTrigger className="w-24 h-7 text-xs">
+              <Select value={filters.status} onValueChange={(value: any) => setFilters(prev => ({ ...prev, status: value }))}>
+                <SelectTrigger className="w-28 h-7 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="priority">优先级</SelectItem>
-                  <SelectItem value="date">日期</SelectItem>
-                  <SelectItem value="created">创建时间</SelectItem>
-                  <SelectItem value="title">标题</SelectItem>
+                  <SelectItem value="all">全部状态</SelectItem>
+                  <SelectItem value="pending">待完成</SelectItem>
+                  <SelectItem value="completed">已完成</SelectItem>
                 </SelectContent>
               </Select>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-                className="h-7 w-7 p-0"
-              >
-                {sortDirection === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />}
-              </Button>
+              <Select value={filters.type} onValueChange={(value: any) => setFilters(prev => ({ ...prev, type: value }))}>
+                <SelectTrigger className="w-28 h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部类型</SelectItem>
+                  <SelectItem value="marketing">营销</SelectItem>
+                  <SelectItem value="content">内容</SelectItem>
+                  <SelectItem value="event">活动</SelectItem>
+                  <SelectItem value="other">其他</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.priority} onValueChange={(value: any) => setFilters(prev => ({ ...prev, priority: value }))}>
+                <SelectTrigger className="w-32 h-7 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部优先级</SelectItem>
+                  <SelectItem value="high">高优先级</SelectItem>
+                  <SelectItem value="medium">中优先级</SelectItem>
+                  <SelectItem value="low">低优先级</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex items-center gap-1 ml-auto">
+                <span className="text-xs font-medium">排序:</span>
+                <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+                  <SelectTrigger className="w-24 h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="priority">优先级</SelectItem>
+                    <SelectItem value="date">日期</SelectItem>
+                    <SelectItem value="created">创建时间</SelectItem>
+                    <SelectItem value="title">标题</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                  className="h-7 w-7 p-0"
+                >
+                  {sortDirection === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />}
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* 任务列表 - 支持滚动 */}
-          <div className="h-[375px] overflow-y-auto pr-1">
+          <div className="h-[350px] overflow-y-auto pr-1">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
