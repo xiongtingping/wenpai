@@ -1166,15 +1166,15 @@ function MarketingCalendar() {
               </div>
             )}
 
-            {/* 筛选和排序控件 - 单行布局 */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              <div className="flex items-center gap-1">
+            {/* 筛选和排序控件 - 强制单行布局 */}
+            <div className="flex items-center gap-1 overflow-x-auto">
+              <div className="flex items-center gap-1 flex-shrink-0">
                 <Filter className="w-3 h-3" />
                 <span className="text-xs font-medium">筛选:</span>
               </div>
 
               <Select value={filters.status} onValueChange={(value: any) => setFilters(prev => ({ ...prev, status: value }))}>
-                <SelectTrigger className="w-28 h-7 text-xs">
+                <SelectTrigger className="w-24 h-7 text-xs flex-shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1185,7 +1185,7 @@ function MarketingCalendar() {
               </Select>
 
               <Select value={filters.type} onValueChange={(value: any) => setFilters(prev => ({ ...prev, type: value }))}>
-                <SelectTrigger className="w-28 h-7 text-xs">
+                <SelectTrigger className="w-24 h-7 text-xs flex-shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1198,7 +1198,7 @@ function MarketingCalendar() {
               </Select>
 
               <Select value={filters.priority} onValueChange={(value: any) => setFilters(prev => ({ ...prev, priority: value }))}>
-                <SelectTrigger className="w-32 h-7 text-xs">
+                <SelectTrigger className="w-28 h-7 text-xs flex-shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1209,29 +1209,28 @@ function MarketingCalendar() {
                 </SelectContent>
               </Select>
 
-              <div className="flex items-center gap-1 ml-2">
-                <span className="text-xs font-medium">排序:</span>
-                <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                  <SelectTrigger className="w-24 h-7 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="priority">优先级</SelectItem>
-                    <SelectItem value="date">日期</SelectItem>
-                    <SelectItem value="created">创建时间</SelectItem>
-                    <SelectItem value="title">标题</SelectItem>
-                  </SelectContent>
-                </Select>
+              <span className="text-xs font-medium flex-shrink-0 ml-2">排序:</span>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-                  className="h-7 w-7 p-0"
-                >
-                  {sortDirection === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />}
-                </Button>
-              </div>
+              <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+                <SelectTrigger className="w-20 h-7 text-xs flex-shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="priority">优先级</SelectItem>
+                  <SelectItem value="date">日期</SelectItem>
+                  <SelectItem value="created">创建时间</SelectItem>
+                  <SelectItem value="title">标题</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className="h-7 w-7 p-0 flex-shrink-0"
+              >
+                {sortDirection === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />}
+              </Button>
             </div>
           </div>
 
