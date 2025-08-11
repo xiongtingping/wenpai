@@ -116,28 +116,32 @@ const quickTools = [
     description: '智能生成生动表情符号，让内容更有趣更有感染力',
     icon: Smile,
     path: '/emoji-generator',
-    color: 'bg-secondary text-secondary-foreground',
+    color: 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white',
+    theme: 'warm',
   },
   {
     title: '🚀 一键转发',
     description: '多平台内容智能分发，最大化传播效果和影响力',
     icon: Upload,
     path: '/share-manager',
-    color: 'bg-accent text-accent-foreground',
+    color: 'bg-gradient-to-br from-blue-400 to-cyan-500 text-white',
+    theme: 'cool',
   },
   {
     title: '💬 朋友圈模板',
     description: '精美模板快速生成，让您的朋友圈内容脱颖而出',
     icon: MessageCircle,
     path: '/wechat-templates',
-    color: 'bg-primary text-primary-foreground',
+    color: 'bg-gradient-to-br from-green-400 to-emerald-500 text-white',
+    theme: 'nature',
   },
   {
     title: '📊 历史记录',
     description: '智能追踪创作轨迹，优化内容策略和创作方向',
     icon: Clock,
     path: '/history',
-    color: 'bg-muted',
+    color: 'bg-gradient-to-br from-purple-400 to-indigo-500 text-white',
+    theme: 'elegant',
   },
 ];
 
@@ -301,7 +305,7 @@ export const FeaturesSection: React.FC = () => {
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <CardContent className="p-6">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${tool.color} mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
+                  <div className={`quick-tool-icon quick-tool-${tool.theme} inline-flex items-center justify-center w-12 h-12 rounded-lg ${tool.color} mb-4 shadow-md group-hover:shadow-lg transition-all duration-300`}>
                     <tool.icon className="w-6 h-6" />
                   </div>
                   <h4 className="font-semibold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">
