@@ -829,28 +829,22 @@ function MarketingCalendar() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* 左侧 - 紧凑型日历视图 */}
-      <Card className="h-full flex flex-col">
-        <CardHeader className="pb-2 flex-shrink-0 h-[80px]">
-          <div className="flex items-center justify-between h-[32px]">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Calendar className="w-4 h-4 flex-shrink-0" />
-              <span className="leading-none">营销日历</span>
-            </CardTitle>
-            <div className="w-[100px] text-right h-[32px] flex items-center justify-end">
-              {selectedDate ? (
-                <div className="text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
-                  {selectedDate}
-                </div>
-              ) : (
-                <div className="h-[32px]"></div>
-              )}
-            </div>
-          </div>
-          <CardDescription className="text-xs mt-1 h-[20px] flex items-center">
+      <Card className="h-[600px] flex flex-col overflow-hidden">
+        <CardHeader className="pb-2 flex-shrink-0 h-[70px] p-4">
+          <CardTitle className="flex items-center gap-2 text-lg mb-2">
+            <Calendar className="w-4 h-4 flex-shrink-0" />
+            <span className="leading-none">营销日历</span>
+            {selectedDate && (
+              <Badge variant="secondary" className="text-xs ml-2">
+                {selectedDate}
+              </Badge>
+            )}
+          </CardTitle>
+          <CardDescription className="text-xs">
             点击日期查看任务，双击快速添加
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-3 flex-1 flex flex-col">
+        <CardContent className="p-3 h-[530px] flex flex-col overflow-hidden">
           {/* 月份导航 - 更紧凑布局 */}
           <div className="flex items-center justify-between mb-3 h-[48px] flex-shrink-0">
             <Button
@@ -900,7 +894,7 @@ function MarketingCalendar() {
           </div>
 
           {/* 月历视图 */}
-          <div className="border rounded-lg overflow-hidden flex-1 flex flex-col">
+          <div className="border rounded-lg overflow-hidden h-[470px] flex flex-col">
             {/* 星期标题 - 更紧凑布局 */}
             <div className="grid grid-cols-7 bg-muted flex-shrink-0">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
@@ -912,10 +906,10 @@ function MarketingCalendar() {
               ))}
             </div>
 
-            {/* 日期网格 - 使用flex-1填满剩余空间 */}
-            <div className="flex-1 flex flex-col">
+            {/* 日期网格 - 固定高度 */}
+            <div className="h-[420px] flex flex-col">
               {calendarData.map((week, weekIndex) => (
-                <div key={weekIndex} className="grid grid-cols-7 border-t flex-1">
+                <div key={weekIndex} className="grid grid-cols-7 border-t h-[70px]">
                   {week.map((dayInfo, dayIndex) => {
                   const isCurrentMonth = dayInfo.date.getMonth() === currentDate.getMonth();
 
