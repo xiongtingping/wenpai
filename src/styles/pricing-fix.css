@@ -293,8 +293,12 @@
   background-color: hsl(215 28% 18%) !important;
 }
 
-[data-theme="dark"] .overflow-x-auto table td.bg-accent {
-  background-color: hsl(215 20% 25%) !important;
+/* 深色模式下统一所有表格单元格背景色 */
+[data-theme="dark"] .overflow-x-auto table td.bg-accent,
+[data-theme="dark"] .overflow-x-auto table td:nth-child(2),
+[data-theme="dark"] .overflow-x-auto table td:nth-child(3),
+[data-theme="dark"] .overflow-x-auto table td:nth-child(4) {
+  background-color: hsl(215 28% 18%) !important;
 }
 
 [data-theme="dark"] .overflow-x-auto table tr:hover {
@@ -306,8 +310,12 @@
   border-color: hsl(215 15% 50%) !important;
 }
 
-[data-theme="dark"] .overflow-x-auto table tr:hover td.bg-accent {
-  background-color: hsl(215 20% 35%) !important;
+/* 深色模式下统一悬停效果 */
+[data-theme="dark"] .overflow-x-auto table tr:hover td.bg-accent,
+[data-theme="dark"] .overflow-x-auto table tr:hover td:nth-child(2),
+[data-theme="dark"] .overflow-x-auto table tr:hover td:nth-child(3),
+[data-theme="dark"] .overflow-x-auto table tr:hover td:nth-child(4) {
+  background-color: hsl(215 20% 30%) !important;
 }
 
 /* 深色模式下表格内容样式增强 */

@@ -285,8 +285,8 @@ export function PricingSection() {
                   <tr>
                     <th className="border border-border px-6 py-3 text-left font-semibold text-foreground">功能</th>
                     <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">体验版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground bg-accent w-32">专业版</th>
-                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground bg-accent w-32">高级版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">专业版</th>
+                    <th className="border border-border px-4 py-3 text-center font-semibold text-foreground w-32">高级版</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -295,10 +295,10 @@ export function PricingSection() {
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">10次/月</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">30次/月</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="inline-block bg-accent text-foreground text-xs px-2 py-1 rounded-full">不限量</span>
                     </td>
                   </tr>
@@ -307,10 +307,10 @@ export function PricingSection() {
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
@@ -319,10 +319,10 @@ export function PricingSection() {
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-destructive font-medium">❌</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
@@ -331,10 +331,10 @@ export function PricingSection() {
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
@@ -343,10 +343,10 @@ export function PricingSection() {
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-destructive font-medium">❌</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-destructive font-medium">❌</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium">✅</span>
                     </td>
                   </tr>
@@ -355,10 +355,10 @@ export function PricingSection() {
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-muted-foreground pricing-table-text">基础模型</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground font-medium pricing-table-text">高级模型</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <div className="text-foreground font-medium text-xs leading-tight pricing-table-cell">
                         <div className="pricing-table-text">高级及</div>
                         <div className="pricing-table-text">最新模型</div>
@@ -370,10 +370,10 @@ export function PricingSection() {
                     <td className="border border-border px-4 py-3 text-center">
                       <span className="text-muted-foreground pricing-table-number">100,000</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground pricing-table-number">200,000</span>
                     </td>
-                    <td className="border border-border px-4 py-3 text-center bg-accent">
+                    <td className="border border-border px-4 py-3 text-center">
                       <span className="text-foreground pricing-table-number">500,000</span>
                     </td>
                   </tr>
