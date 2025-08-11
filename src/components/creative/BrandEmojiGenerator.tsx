@@ -427,7 +427,6 @@ export default function BrandEmojiGenerator({
           
           <TabsContent value="standard" className="space-y-8 mt-6">
             {/* 优化的标准生成功能 */}
-            <div className="space-y-8">
               {/* 生成设置卡片 */}
               <Card className="border-0 shadow-md bg-gradient-to-br from-card to-card/80">
                 <CardHeader className="pb-4">
@@ -692,6 +691,7 @@ export default function BrandEmojiGenerator({
                   ))}
                 </div>
               </ScrollArea>
+              </div>
 
               {/* 使用提示卡片 */}
               <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
@@ -732,7 +732,6 @@ export default function BrandEmojiGenerator({
                   </div>
                 </CardContent>
               </Card>
-            </div>
           </TabsContent>
 
           <TabsContent value="personalized" className="space-y-8 mt-6">
@@ -757,9 +756,10 @@ export default function BrandEmojiGenerator({
               </div>
             </div>
           </TabsContent>
-          </div>
-        </Tabs>
+          </Tabs>
+        </div>
       </CardContent>
+    </Card>
     </div>
   );
 } 

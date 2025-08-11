@@ -465,7 +465,7 @@ async function callAIViaBackend(params: any): Promise<AIResponse> {
     console.log('🏢 通过后端API调用AI服务（通过队列管理）');
 
     // 🚀 使用队列管理系统调用后端API
-    const queueId = `backend-${taskType || 'general'}-${Date.now()}`;
+    const queueId = `backend-${params.taskType || 'general'}-${Date.now()}`;
     const apiCall = async () => {
       return await request.post('/.netlify/functions/api/ai/chat', {
         prompt,
