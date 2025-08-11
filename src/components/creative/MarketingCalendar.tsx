@@ -830,27 +830,29 @@ function MarketingCalendar() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* 左侧 - 紧凑型日历视图 */}
       <Card className="h-full flex flex-col">
-        <CardHeader className="pb-2 flex-shrink-0 min-h-[80px]">
-          <div className="flex items-center justify-between min-h-[32px]">
+        <CardHeader className="pb-2 flex-shrink-0 h-[80px]">
+          <div className="flex items-center justify-between h-[32px]">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calendar className="w-4 h-4 flex-shrink-0" />
               <span className="leading-none">营销日历</span>
             </CardTitle>
-            <div className="min-w-[100px] text-right">
-              {selectedDate && (
+            <div className="w-[100px] text-right h-[32px] flex items-center justify-end">
+              {selectedDate ? (
                 <div className="text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
                   {selectedDate}
                 </div>
+              ) : (
+                <div className="h-[32px]"></div>
               )}
             </div>
           </div>
-          <CardDescription className="text-xs mt-1">
+          <CardDescription className="text-xs mt-1 h-[20px] flex items-center">
             点击日期查看任务，双击快速添加
           </CardDescription>
         </CardHeader>
         <CardContent className="p-3 flex-1 flex flex-col">
           {/* 月份导航 - 更紧凑布局 */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 h-[48px] flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -860,18 +862,20 @@ function MarketingCalendar() {
               <ChevronLeft className="w-4 h-4" />
             </Button>
 
-            <div className="text-center flex-1">
+            <div className="text-center flex-1 h-[48px] flex flex-col justify-center">
               <div className="text-base font-semibold">
                 {currentDate.toLocaleDateString('zh-CN', {
                   year: 'numeric',
                   month: 'long'
                 })}
               </div>
-              {lunarInfo && (
-                <div className="text-xs text-muted-foreground">
-                  {lunarInfo.getYearInGanZhi()}年 {lunarInfo.getYearShengXiao()}年
-                </div>
-              )}
+              <div className="text-xs text-muted-foreground h-[16px] flex items-center justify-center">
+                {lunarInfo ? (
+                  `${lunarInfo.getYearInGanZhi()}年 ${lunarInfo.getYearShengXiao()}年`
+                ) : (
+                  <span>&nbsp;</span>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-1">
