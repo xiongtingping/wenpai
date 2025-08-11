@@ -1946,6 +1946,118 @@
   background: linear-gradient(135deg, #8b5cf6 0%, #4f46e5 100%) !important;
 }
 
+/* 首页各区域图标统一样式 */
+.homepage-icon {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.homepage-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  opacity: 0.9;
+  z-index: -1;
+}
+
+/* 三步搞定区域图标样式 */
+.how-it-works-icon {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .how-it-works-icon {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* 主要功能区域图标样式 */
+.main-feature-icon {
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.15),
+    0 3px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .main-feature-icon {
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.35),
+    0 3px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* 平台优势区域图标样式 */
+.advantage-icon {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .advantage-icon {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* 悬停效果增强 */
+.homepage-icon:hover {
+  transform: translateY(-1px) scale(1.05);
+}
+
+.how-it-works-icon:hover {
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.2),
+    0 6px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="dark"] .how-it-works-icon:hover {
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.5),
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.main-feature-icon:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="dark"] .main-feature-icon:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.advantage-icon:hover {
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.2),
+    0 3px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="dark"] .advantage-icon:hover {
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.35),
+    0 3px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 /* 🎭 按钮点击反馈 */
 .click-feedback {
   transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);

@@ -19,11 +19,11 @@ export function HowItWorks() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // 简洁色彩配置
+  // 统一渐变色彩配置
   const stepColors = [
-    "bg-primary text-primary-foreground",
-    "bg-secondary text-secondary-foreground",
-    "bg-accent text-accent-foreground"
+    "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+    "bg-gradient-to-br from-emerald-500 to-teal-600 text-white",
+    "bg-gradient-to-br from-purple-500 to-pink-600 text-white"
   ]
   const stepIcons = [FileText, Settings, Sparkles]
   const stepTitles = ["输入原始内容", "选择目标平台", "一键获取所有版本"]
@@ -63,9 +63,9 @@ export function HowItWorks() {
                 <div className="flex flex-col items-center text-center">
                   {/* 渐变圆形背景图标 */}
                   <div
-                    className={`flex items-center justify-center w-20 h-20 rounded-full ${stepColors[i]} shadow-lg mb-6 transition-transform duration-300 group-hover:scale-110`}
+                    className={`homepage-icon how-it-works-icon flex items-center justify-center w-20 h-20 rounded-full ${stepColors[i]} shadow-lg mb-6 transition-all duration-300 group-hover:scale-110`}
                   >
-                    <Icon className="w-10 h-10 text-primary-foreground" />
+                    <Icon className="w-10 h-10" />
                   </div>
                   
                   {/* 主标题 */}

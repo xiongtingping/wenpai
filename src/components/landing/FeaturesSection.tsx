@@ -45,12 +45,12 @@ const mainFeatures = [
     description: '智能分析内容，一键适配多平台格式，让您的创意在不同平台绽放光彩',
     icon: Zap,
     path: '/adapt',
-    color: 'bg-primary text-primary-foreground',
+    color: 'bg-gradient-to-br from-yellow-500 to-orange-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '🔥 热门',
-    badgeColor: 'bg-primary text-primary-foreground',
+    badgeColor: 'bg-gradient-to-r from-red-500 to-orange-500 text-white',
     features: ['智能内容分析', '多平台格式适配', '一键生成优化建议', '实时预览效果']
   },
   {
@@ -58,12 +58,12 @@ const mainFeatures = [
     description: 'AI驱动的创意生成工具，激发无限灵感，创造独特而富有吸引力的内容',
     icon: Sparkles,
     path: '/creative-studio',
-    color: 'bg-secondary text-secondary-foreground',
+    color: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '⭐ 推荐',
-    badgeColor: 'bg-secondary text-secondary-foreground',
+    badgeColor: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white',
     features: ['AI创意生成', '多种创意模板', '灵感库管理', '创意协作']
   },
   {
@@ -71,12 +71,12 @@ const mainFeatures = [
     description: '实时监控热点话题，精准把握趋势脉搏，抢占内容传播先机',
     icon: TrendingUp,
     path: '/hot-topics',
-    color: 'bg-accent text-accent-foreground',
+    color: 'bg-gradient-to-br from-green-500 to-emerald-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '🔥 实时监控',
-    badgeColor: 'bg-accent text-accent-foreground',
+    badgeColor: 'bg-gradient-to-r from-green-500 to-teal-500 text-white',
     features: ['实时热点监控', '趋势分析报告', '竞品内容追踪', '话题预测']
   },
   {
@@ -84,12 +84,12 @@ const mainFeatures = [
     description: '个人内容管理中心，智能收藏整理，随时调用，让创作素材触手可及',
     icon: FolderOpen,
     path: '/library',
-    color: 'bg-accent text-accent-foreground',
+    color: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '💡 实用',
-    badgeColor: 'bg-accent text-accent-foreground',
+    badgeColor: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white',
     features: ['内容收藏管理', '智能分类标签', '快速搜索检索', '云端同步']
   },
   {
@@ -97,12 +97,12 @@ const mainFeatures = [
     description: '专业品牌资产管理系统，统一管理品牌元素，提升品牌一致性和识别度',
     icon: Users,
     path: '/brand-library',
-    color: 'bg-primary text-primary-foreground',
+    color: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white',
     bgColor: 'bg-accent',
     borderColor: 'border-primary',
     hoverColor: 'hover:bg-accent/80',
     badge: '👑 高级版',
-    badgeColor: 'bg-secondary text-secondary-foreground',
+    badgeColor: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
   },
 ];
@@ -153,28 +153,28 @@ const advantages = [
     title: '🤖 AI驱动',
     description: '先进的AI技术，智能分析内容，提供精准建议和优化方案',
     icon: Target,
-    color: 'text-foreground',
+    color: 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white',
     bgColor: 'bg-accent',
   },
   {
     title: '🌐 多平台适配',
     description: '一键适配微信、微博、抖音等主流平台，覆盖全媒体矩阵',
     icon: Globe,
-    color: 'text-foreground',
+    color: 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white',
     bgColor: 'bg-accent',
   },
   {
     title: '🎨 专业工具',
     description: '丰富的专业工具套件，满足不同内容创作场景和需求',
     icon: Palette,
-    color: 'text-foreground',
+    color: 'bg-gradient-to-br from-pink-500 to-rose-600 text-white',
     bgColor: 'bg-accent',
   },
   {
     title: '🔒 安全可靠',
     description: '企业级安全保障，数据加密存储，保护您的创作成果',
     icon: Shield,
-    color: 'text-foreground',
+    color: 'bg-gradient-to-br from-emerald-500 to-green-600 text-white',
     bgColor: 'bg-accent',
   },
 ];
@@ -240,7 +240,7 @@ export const FeaturesSection: React.FC = () => {
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgColor} opacity-50 group-hover:opacity-75 transition-opacity duration-300`}></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`p-3 rounded-lg ${feature.color} shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
+                      <div className={`homepage-icon main-feature-icon p-3 rounded-lg ${feature.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
                         <feature.icon className="w-6 h-6" />
                       </div>
                       <Badge className={`${feature.badgeColor} border-0 shadow-sm`}>
@@ -349,8 +349,8 @@ export const FeaturesSection: React.FC = () => {
               >
                 <CardContent className="p-0">
                   {/* 图标区域 */}
-                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full ${advantage.bgColor} mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <advantage.icon className={`w-5 h-5 ${advantage.color}`} />
+                  <div className={`homepage-icon advantage-icon inline-flex items-center justify-center w-12 h-12 rounded-full ${advantage.color} mb-4 group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-xl`}>
+                    <advantage.icon className="w-6 h-6" />
                   </div>
                   
                   {/* 标题 */}
