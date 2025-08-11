@@ -145,13 +145,16 @@ export function PricingSection() {
           
           <div className="mt-8 flex justify-center items-center space-x-4">
             <Button
-              variant={billing === "monthly" ? "default" : "outline"}
               onClick={() => setBilling("monthly")}
-              className={`px-6 py-3 font-semibold transition-all duration-300 ${
-                billing === "monthly" 
-                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
-                  : "text-muted-foreground hover:text-foreground border-border"
-              }`}
+              style={{
+                background: billing === "monthly" ? "#2563eb" : "#e5e7eb",
+                color: billing === "monthly" ? "white !important" : "#374151 !important",
+                border: billing === "monthly" ? "none" : "1px solid #d1d5db",
+                padding: "12px 24px",
+                fontWeight: "600",
+                transition: "all 0.3s ease",
+                borderRadius: "6px"
+              }}
             >
               按月支付
             </Button>
@@ -161,15 +164,31 @@ export function PricingSection() {
               className="mx-4"
             />
             <Button
-              variant={billing === "yearly" ? "default" : "outline"}
               onClick={() => setBilling("yearly")}
-              className={`px-6 py-3 font-semibold transition-all duration-300 ${
-                billing === "yearly"
-                  ? "bg-accent text-foreground border-border shadow-lg scale-105"
-                  : "bg-accent text-foreground border-border hover:bg-accent/80"
-              }`}
+              style={{
+                background: billing === "yearly"
+                  ? "linear-gradient(to right, #f97316, #ef4444, #ec4899)"
+                  : "linear-gradient(to right, #fbbf24, #f97316, #ef4444)",
+                color: "white !important",
+                border: billing === "yearly" ? "none" : "2px solid #f59e0b",
+                boxShadow: billing === "yearly"
+                  ? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+                  : "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                transform: billing === "yearly" ? "scale(1.1)" : "scale(1.08)",
+                padding: "12px 24px",
+                fontWeight: "600",
+                transition: "all 0.3s ease",
+                position: "relative",
+                overflow: "hidden",
+                borderRadius: "6px"
+              }}
             >
-              按年订阅 <span className="text-xs ml-1">(省80-202元)</span>
+              <span className="relative z-10 drop-shadow-sm">
+                按年订阅 <span className="text-xs ml-1 font-extrabold bg-white/20 px-1.5 py-0.5 rounded-full">(省80-202元)</span>
+              </span>
+              {billing === "yearly" && (
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 animate-pulse"></div>
+              )}
             </Button>
           </div>
 
@@ -184,11 +203,7 @@ export function PricingSection() {
             return (
               <Card
                 key={plan.id}
-                className={`border-2 p-8 flex flex-col relative transition-all duration-300 hover:shadow-lg ${
-                  isRecommended
-                    ? 'border-primary shadow-2xl bg-accent/50 dark:bg-accent/20 ring-1 ring-primary/20'
-                    : 'border-border hover:border-border-strong dark:bg-card/50'
-                } backdrop-blur-sm`}
+                className="border-2 border-border p-8 flex flex-col relative transition-all duration-300 hover:shadow-lg hover:border-border-strong dark:bg-card/50 backdrop-blur-sm"
               >
                 {isRecommended && (
                   <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-primary/20">

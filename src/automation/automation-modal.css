@@ -104,16 +104,16 @@
 }
 
 /* 其他主题适配 */
-[data-theme="blue"] .automation-modal-hashtag-box,
-[data-theme="blue"] .automation-modal-tips-box {
-  @apply bg-blue-50;
+[data-theme="rainbow"] .automation-modal-hashtag-box,
+[data-theme="rainbow"] .automation-modal-tips-box {
+  @apply bg-gradient-to-r from-red-50 via-yellow-50 via-green-50 via-blue-50 to-purple-50;
 }
 
-[data-theme="blue"] .automation-modal-hashtag-title,
-[data-theme="blue"] .automation-modal-hashtag-content,
-[data-theme="blue"] .automation-modal-tips-title,
-[data-theme="blue"] .automation-modal-tips-list {
-  @apply text-blue-700;
+[data-theme="rainbow"] .automation-modal-hashtag-title,
+[data-theme="rainbow"] .automation-modal-hashtag-content,
+[data-theme="rainbow"] .automation-modal-tips-title,
+[data-theme="rainbow"] .automation-modal-tips-list {
+  @apply text-purple-700;
 }
 
 [data-theme="green"] .automation-modal-hashtag-box,

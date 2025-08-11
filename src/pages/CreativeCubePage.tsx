@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Wand2, Palette, Lightbulb, Zap, Star, Briefcase, Coffee, Target } from 'lucide-react';
+import { PermissionOverlay, usePermissionOverlay } from '@/components/auth/PermissionOverlay';
 
 /**
  * 创意魔方页面
@@ -16,6 +17,9 @@ const CreativeCubePage: React.FC = () => {
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('creative');
+
+  // 权限检查
+  const { shouldShowOverlay } = usePermissionOverlay('creative:basic');
 
   const contentStyles = [
     { id: 'creative', name: '创意文案', icon: Sparkles, description: '富有创意的营销文案' },
@@ -78,7 +82,14 @@ const CreativeCubePage: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <PermissionOverlay
+        show={shouldShowOverlay}
+        featureName="创意魔方"
+        requiredPermission="creative:basic"
+        requiredTier="pro"
+        description="创意魔方是专业版功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* 输入区域 */}
         <Card variant="enhanced">
           <CardHeader>
@@ -211,6 +222,7 @@ const CreativeCubePage: React.FC = () => {
           </Card>
         </div>
       </div>
+      </PermissionOverlay>
     </div>
   );
 };

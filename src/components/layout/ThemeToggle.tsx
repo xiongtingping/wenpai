@@ -1,23 +1,78 @@
 import React, { useEffect, useState } from 'react';
-import { Sun, Moon, Palette } from 'lucide-react';
+import { Sun, Moon, Palette, Lock, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { usePermission } from '@/hooks/usePermission';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useNavigate } from 'react-router-dom';
+import { ThemeUpgradeDialog } from '@/components/ui/ThemeUpgradeDialog';
 
 const THEME_KEY = 'wenpai-theme';
 
-type Theme = 'light' | 'dark' | 'hsl(var(--primary))' | 'beige' | 'hsl(var(--success))';
+type Theme = 'light' | 'dark' | 'rainbow' | 'beige' | 'green';
 
-const themes: { value: Theme; label: string; icon: React.ReactNode }[] = [
-  { value: 'light', label: '浅色', icon: <Sun className="h-4 w-4 text-foreground" /> },
-  { value: 'dark', label: '深色', icon: <Moon className="h-4 w-4 text-foreground" /> },
-  { value: 'hsl(var(--primary))', label: '蓝色', icon: <div className="w-4 h-4 rounded-full bg-primary" /> },
-  { value: 'beige', label: '护眼米色', icon: <div className="w-4 h-4 rounded-full bg-accent border border-border" /> },
-  { value: 'hsl(var(--success))', label: '绿色', icon: <div className="w-4 h-4 rounded-full bg-green-500" /> },
+interface ThemeConfig {
+  value: Theme;
+  label: string;
+  icon: React.ReactNode;
+  permissionLevel: 'basic' | 'advanced' | 'premium';
+  requiredPermission: string;
+  description: string;
+  badge?: string;
+}
+
+const themes: ThemeConfig[] = [
+  {
+    value: 'light',
+    label: '浅色',
+    icon: <Sun className="h-4 w-4 text-foreground" />,
+    permissionLevel: 'basic',
+    requiredPermission: 'theme:basic',
+    description: '经典浅色主题，适合白天使用'
+  },
+  {
+    value: 'dark',
+    label: '深色',
+    icon: <Moon className="h-4 w-4 text-foreground" />,
+    permissionLevel: 'advanced',
+    requiredPermission: 'theme:advanced',
+    description: '护眼深色主题，适合夜间使用',
+    badge: '专业版'
+  },
+  {
+    value: 'rainbow',
+    label: '彩虹色',
+    icon: <div className="w-4 h-4 rounded-full bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400" />,
+    permissionLevel: 'premium',
+    requiredPermission: 'theme:premium',
+    description: '彩虹渐变主题，活力多彩风格',
+    badge: '高级版'
+  },
+  {
+    value: 'beige',
+    label: '护眼米色',
+    icon: <div className="w-4 h-4 rounded-full bg-amber-200 border border-amber-300" />,
+    permissionLevel: 'premium',
+    requiredPermission: 'theme:premium',
+    description: '温暖米色主题，长时间使用更舒适',
+    badge: '高级版'
+  },
+  {
+    value: 'green',
+    label: '绿色',
+    icon: <div className="w-4 h-4 rounded-full bg-green-500" />,
+    permissionLevel: 'premium',
+    requiredPermission: 'theme:premium',
+    description: '护眼绿色主题，自然清新风格',
+    badge: '高级版'
+  },
 ];
 
 function getInitialTheme(): Theme {
@@ -32,6 +87,15 @@ function getInitialTheme(): Theme {
 
 export const ThemeToggle: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<ThemeConfig | null>(null);
+  const { user, isAuthenticated } = useUnifiedAuth();
+  const navigate = useNavigate();
+
+  // 获取权限检查结果
+  const basicPermission = usePermission('theme:basic');
+  const advancedPermission = usePermission('theme:advanced');
+  const premiumPermission = usePermission('theme:premium');
 
   useEffect(() => {
     const html = document.documentElement;
@@ -47,39 +111,140 @@ export const ThemeToggle: React.FC = () => {
 
   const currentTheme = themes.find(t => t.value === theme) || themes[0];
 
+  // 检查主题是否有权限
+  const hasThemePermission = (themeConfig: ThemeConfig): boolean => {
+    switch (themeConfig.permissionLevel) {
+      case 'basic':
+        return basicPermission.pass;
+      case 'advanced':
+        return advancedPermission.pass;
+      case 'premium':
+        return premiumPermission.pass;
+      default:
+        return false;
+    }
+  };
+
+  // 处理主题切换
+  const handleThemeChange = (themeConfig: ThemeConfig) => {
+    if (hasThemePermission(themeConfig)) {
+      setTheme(themeConfig.value);
+    } else {
+      // 权限不足，显示升级对话框
+      setSelectedTheme(themeConfig);
+      setUpgradeDialogOpen(true);
+    }
+  };
+
+  // 获取当前用户等级
+  const getCurrentTier = (): 'trial' | 'pro' | 'premium' => {
+    if (premiumPermission.pass) return 'premium';
+    if (advancedPermission.pass) return 'pro';
+    return 'trial';
+  };
+
+  // 获取所需等级
+  const getRequiredTier = (themeConfig: ThemeConfig): 'pro' | 'premium' => {
+    return themeConfig.permissionLevel === 'premium' ? 'premium' : 'pro';
+  };
+
+  // 获取用户当前权限级别描述
+  const getUserPermissionLevel = (): string => {
+    if (premiumPermission.pass) return '高级版用户';
+    if (advancedPermission.pass) return '专业版用户';
+    if (basicPermission.pass) return '体验版用户';
+    return '未登录用户';
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label="切换主题"
-          className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm"
-          title="切换主题"
-        >
-          <div className="text-foreground">
-            {currentTheme.icon}
-          </div>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-32">
-        {themes.map((themeOption) => (
-          <DropdownMenuItem
-            key={themeOption.value}
-            onClick={() => setTheme(themeOption.value)}
-            className={`flex items-center gap-2 ${
-              theme === themeOption.value ? 'bg-accent' : ''
-            }`}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="切换主题"
+            className="h-9 w-9 p-0 rounded-full hover:bg-accent border border-border/50 bg-card/50 backdrop-blur-sm"
+            title={`切换主题 - ${getUserPermissionLevel()}`}
           >
-            {themeOption.icon}
-            <span>{themeOption.label}</span>
-            {theme === themeOption.value && (
-              <span className="ml-auto text-xs">✓</span>
-            )}
+            <div className="text-foreground">
+              {currentTheme.icon}
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-64">
+          <div className="px-3 py-2 text-sm font-medium text-foreground">
+            主题切换
+          </div>
+          <div className="px-3 py-1 text-xs text-muted-foreground">
+            {getUserPermissionLevel()}
+          </div>
+          <DropdownMenuSeparator />
+
+          {themes.map((themeOption) => {
+            const hasPermission = hasThemePermission(themeOption);
+            const isCurrentTheme = theme === themeOption.value;
+
+            return (
+              <DropdownMenuItem
+                key={themeOption.value}
+                onClick={() => handleThemeChange(themeOption)}
+                className={`flex items-center gap-3 px-3 py-2 ${
+                  isCurrentTheme ? 'bg-accent' : ''
+                } ${!hasPermission ? 'opacity-60' : ''}`}
+                disabled={!hasPermission}
+              >
+                <div className="flex items-center gap-2 flex-1">
+                  {themeOption.icon}
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{themeOption.label}</span>
+                      {themeOption.badge && (
+                        <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                          {themeOption.badge}
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {themeOption.description}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  {!hasPermission && (
+                    <Lock className="h-3 w-3 text-muted-foreground" />
+                  )}
+                  {isCurrentTheme && (
+                    <span className="text-xs text-primary">✓</span>
+                  )}
+                </div>
+              </DropdownMenuItem>
+            );
+          })}
+
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => navigate('/payment')}
+            className="flex items-center gap-2 px-3 py-2 text-sm"
+          >
+            <Crown className="h-4 w-4 text-primary" />
+            <span>解锁更多主题</span>
           </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* 升级引导对话框 */}
+      {selectedTheme && (
+        <ThemeUpgradeDialog
+          open={upgradeDialogOpen}
+          onOpenChange={setUpgradeDialogOpen}
+          themeName={selectedTheme.label}
+          requiredTier={getRequiredTier(selectedTheme)}
+          currentTier={getCurrentTier()}
+        />
+      )}
+    </>
   );
 };
 

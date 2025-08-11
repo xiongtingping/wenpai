@@ -41,7 +41,7 @@ export function HowItWorks() {
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
             三步搞定，就这么简单
           </h2>
-          <p className="text-lg text-muted-foreground mb-4">
+          <p className="text-lg text-foreground mb-4">
             告别繁琐的内容适配流程，把时间用在创意上。
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-foreground mt-4">
@@ -85,11 +85,11 @@ export function HowItWorks() {
 
         {/* 3️⃣ 最下方蓝色提示条优化 */}
         <div className="mt-16 max-w-4xl mx-auto">
-          <div className="rounded-lg bg-accent text-center px-6 py-4 border border-border">
+          <div className="rounded-lg bg-card text-center px-6 py-4 border border-border shadow-sm">
             <h3 className="text-lg font-semibold text-foreground mb-2">
               提高效率，节省时间
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground">
               传统多平台内容适配每篇需要
               <span className="line-through mx-1">60-90分钟</span>
               <span className="text-foreground font-semibold mx-1">现在只需15分钟</span>

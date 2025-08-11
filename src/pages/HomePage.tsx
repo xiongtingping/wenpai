@@ -15,7 +15,7 @@ function HomePage() {
   useScrollAnimation()
 
   return (
-    <div className="min-h-screen flex flex-col particle-background" style={{ minHeight: '100vh', height: 'auto' }}>
+    <div className="min-h-screen flex flex-col bg-background" style={{ minHeight: '100vh', height: 'auto' }}>
       {/* 页面访问记录 */}
       <PageTracker
         title="文派 - AI驱动的创意内容平台"

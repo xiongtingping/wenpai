@@ -43,6 +43,10 @@ const HelpDocumentation = () => {
     {
       title: "一键转发",
       content: "支持一键将内容转发到多个平台，自动适配各平台格式要求。"
+    },
+    {
+      title: "主题切换",
+      content: "提供多种主题选择：体验版用户可使用浅色主题，专业版用户可使用浅色/深色主题，高级版用户可使用全部主题（浅色/深色/蓝色/米色/绿色）。"
     }
   ]
   
@@ -71,7 +75,7 @@ const HelpDocumentation = () => {
             <p><span className="font-medium">X(推特)</span>：精简直接，多用标签，国际化表达</p>
           </div>
         </div>
-        <div className="pt-2 border-t">
+        <div className="pt-2">
           <p className="text-xs text-muted-foreground">更多详细使用说明将持续更新</p>
         </div>
       </ScrollArea>
@@ -124,7 +128,7 @@ export function Header() {
   };
   
   return (
-    <header className="bg-background/90 dark:bg-surface-1/95 backdrop-blur-md sticky top-0 z-50 border-b border-border dark:border-border-strong shadow-e0 dark:shadow-lg">
+    <header className="bg-background/95 backdrop-blur-md sticky top-0 z-50 shadow-e0">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - 清晰的熊猫Logo */}
         <Link to="/" className="flex items-center space-x-3 group">
@@ -322,7 +326,7 @@ export function Header() {
                   <ThemeToggle />
                 </div>
 
-                <hr className="my-4" />
+                {/* 移除分割线 */}
                 
                 {isAuthenticated ? (
                   <UserAvatar 

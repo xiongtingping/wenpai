@@ -158,8 +158,17 @@ export default function ProfilePage() {
     }
   };
 
-  // 模拟用户数据 - 可以修改accountType来测试不同版本
-  const userStats = generateUserStatsByAccountType('体验版'); // 可改为：'专业版' 或 '高级版'
+  // 根据用户的实际订阅状态生成统计数据
+  const getUserAccountType = () => {
+    if (!user) return '体验版';
+
+    // 根据用户的订阅状态判断账户类型
+    if (user.subscriptionTier === 'premium') return '高级版';
+    if (user.subscriptionTier === 'pro') return '专业版';
+    return '体验版';
+  };
+
+  const userStats = generateUserStatsByAccountType(getUserAccountType());
 
   // 计算陪伴天数
   const companionDays = calculateCompanionDays(userStats.registrationDate);

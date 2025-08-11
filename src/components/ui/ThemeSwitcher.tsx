@@ -35,6 +35,8 @@ export const ThemeSwitcher: React.FC = () => {
         return <span className="text-sm">🌾</span>;
       case 'gold':
         return <span className="text-sm">🏆</span>;
+      case 'rainbow':
+        return <span className="text-sm">🌈</span>;
       default:
         return <Palette className="h-4 w-4" />;
     }

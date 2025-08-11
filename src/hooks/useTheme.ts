@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
  * 🎨 统一的多主题设计语言
  * 主题类型定义
  */
-export type Theme = 'light' | 'dark' | 'beige' | 'gold';
+export type Theme = 'light' | 'dark' | 'beige' | 'gold' | 'rainbow';
 
 /**
  * 🎨 主题配置 - 统一的设计语言
@@ -29,6 +29,11 @@ export const THEMES: Record<Theme, { name: string; description: string; icon: st
     name: '专业金色',
     description: '奢华金色，商务专业风格',
     icon: '🏆'
+  },
+  rainbow: {
+    name: '彩虹色',
+    description: '活力彩虹，多彩渐变风格',
+    icon: '🌈'
   }
 };
 

@@ -33,6 +33,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { DevPermissionSwitcher } from '@/components/dev/DevPermissionSwitcher';
 
 /**
  * 顶部导航栏组件
@@ -44,6 +45,45 @@ export const TopNavigation: React.FC = () => {
   const vipPermission = usePermission('vip:required');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [permissionLoading, setPermissionLoading] = useState(false);
+
+  /**
+   * 检查是否应该显示升级按钮
+   * 只有高级版用户（且在有效期内）不显示，其他用户都显示
+   */
+  const shouldShowUpgradeButton = () => {
+    // 未登录用户显示
+    if (!user || typeof user !== 'object') return true;
+
+    const userObj = user as Record<string, unknown>;
+
+    // 检查是否是高级版用户
+    const isPremiumUser = userObj.tier === 'premium' ||
+                         userObj.plan === 'premium' ||
+                         userObj.subscriptionTier === 'premium' ||
+                         userObj.userPlan === 'premium';
+
+    // 如果是高级版用户，检查是否在有效期内
+    if (isPremiumUser) {
+      const subscriptionEndDate = userObj.subscriptionEndDate || userObj.endDate || userObj.expireDate;
+
+      if (subscriptionEndDate) {
+        const endDate = new Date(subscriptionEndDate as string);
+        const now = new Date();
+
+        // 如果在有效期内，不显示升级按钮
+        if (endDate > now) {
+          return false;
+        }
+      }
+    }
+
+    // 其他情况都显示升级按钮：
+    // - 未登录用户
+    // - 体验版用户 (trial)
+    // - 专业版用户 (pro)
+    // - 高级版用户但已过期
+    return true;
+  };
 
   // 功能导航菜单项
   const navItems = [
@@ -189,8 +229,8 @@ export const TopNavigation: React.FC = () => {
 
             {/* 用户头像和登录状态 */}
             <div className="flex items-center gap-2">
-              {/* 立即解锁高级功能按钮 */}
-              {isAuthenticated && (
+              {/* 立即解锁高级功能按钮 - 只对非高级版用户显示 */}
+              {isAuthenticated && shouldShowUpgradeButton() && (
                 <Button
                   onClick={() => navigate('/payment')}
                   className="btn-upgrade-gradient text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg hidden sm:flex"
@@ -199,6 +239,9 @@ export const TopNavigation: React.FC = () => {
                   立即解锁高级功能
                 </Button>
               )}
+
+              {/* 开发环境权限切换工具 */}
+              <DevPermissionSwitcher />
 
               {/* 主题切换 */}
               <ThemeToggle />

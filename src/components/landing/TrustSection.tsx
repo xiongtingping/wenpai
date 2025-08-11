@@ -88,7 +88,7 @@ export function TrustSection() {
         </div>
         
         <div className="mt-12 text-center">
-          <span className="inline-flex items-center text-sm text-muted-foreground bg-accent px-4 py-2 rounded-full">
+          <span className="inline-flex items-center text-sm text-foreground bg-card px-4 py-2 rounded-full border border-border shadow-sm">
             <span className="text-foreground mr-2">🔍</span>
             支持14+主流平台，AI智能适配平台特性与用户习惯
           </span>

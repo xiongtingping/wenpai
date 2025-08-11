@@ -72,6 +72,7 @@ interface UnifiedAuthContextType {
   handleAuthingLogin: (userInfo: any) => void;
   refreshToken: () => Promise<void>;
   updateUser: (updates: Partial<UserInfo>) => void;
+  setUser: (user: UserInfo | null) => void; // 开发环境权限切换用
   loginWithPassword: (username: string, password: string) => Promise<void>;
   loginWithEmailCode: (email: string, code: string) => Promise<void>;
   loginWithPhoneCode: (phone: string, code: string) => Promise<void>;
@@ -822,6 +823,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     handleAuthingLogin,
     refreshToken,
     updateUser,
+    setUser, // 开发环境权限切换用
     loginWithPassword,
     loginWithEmailCode,
     loginWithPhoneCode,

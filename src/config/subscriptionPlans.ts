@@ -32,7 +32,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '全网雷达',
       '我的资料库',
       'Token额度：10万/月',
-      '基础模型'
+      '基础模型',
+      '浅色主题'
     ]
   },
   {
@@ -65,7 +66,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '全网雷达',
       '我的资料库',
       'Token额度：20万/月',
-      '高级模型'
+      '高级模型',
+      '浅色/深色主题'
     ]
   },
   {
@@ -98,7 +100,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '我的资料库',
       '品牌库',
       'Token额度：50万/月',
-      '高级及最新模型'
+      '高级及最新模型',
+      '全部主题（浅色/深色/蓝色/米色/绿色）'
     ]
   }
 ];

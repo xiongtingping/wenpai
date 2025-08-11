@@ -98,6 +98,48 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     message: '创意魔方功能正在内测中'
   },
 
+  // 主题切换权限
+  'theme:basic': {
+    key: 'theme:basic',
+    description: '基础主题切换权限',
+    check: (user) => true, // 所有用户都有基础主题权限（浅色主题）
+    message: '基础主题权限'
+  },
+
+  'theme:advanced': {
+    key: 'theme:advanced',
+    description: '高级主题切换权限',
+    check: (user) => !!user && (user.isVip || user.vipLevel === 'pro' || user.vipLevel === 'premium' || user.permissions?.includes('theme:advanced')),
+    redirect: '/payment',
+    message: '高级主题需要专业版或更高版本'
+  },
+
+  'theme:premium': {
+    key: 'theme:premium',
+    description: '专业主题切换权限',
+    check: (user) => !!user && (user.vipLevel === 'premium' || user.permissions?.includes('theme:premium')),
+    redirect: '/payment',
+    message: '专业主题需要高级版'
+  },
+
+  // 创意魔方权限
+  'creative:basic': {
+    key: 'creative:basic',
+    description: '创意魔方基础权限',
+    check: (user) => !!user && (user.isVip || user.vipLevel === 'pro' || user.vipLevel === 'premium' || user.permissions?.includes('creative:basic')),
+    redirect: '/payment',
+    message: '创意魔方需要专业版或更高版本'
+  },
+
+  // 品牌库权限
+  'brand:library': {
+    key: 'brand:library',
+    description: '品牌库访问权限',
+    check: (user) => !!user && (user.vipLevel === 'premium' || user.permissions?.includes('brand:library')),
+    redirect: '/payment',
+    message: '品牌库需要高级版'
+  },
+
   // 后端配置权限
   'cms:edit': {
     key: 'cms:edit',

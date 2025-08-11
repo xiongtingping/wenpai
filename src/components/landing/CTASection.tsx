@@ -36,8 +36,8 @@ export function CTASection() {
   };
 
   return (
-    <section className="py-16 relative overflow-hidden particle-background">
-      <div className="container mx-auto px-6 text-center relative z-10">
+    <section className="py-16 bg-background">
+      <div className="container mx-auto px-6 text-center">
         {/* 1️⃣ 主标题 */}
         <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-2 drop-shadow-sm">
           准备好开始您的创作之旅了吗？
@@ -65,10 +65,6 @@ export function CTASection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </span>
-            {/* 动态背景效果 - 深色模式优化 */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            {/* 深色模式下的额外发光效果 */}
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 dark:shadow-[0_0_30px_hsl(var(--primary)/0.5)]"></div>
           </Button>
         </div>
       </div>

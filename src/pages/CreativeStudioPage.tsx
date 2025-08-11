@@ -48,6 +48,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
+import { PermissionOverlay, usePermissionOverlay } from '@/components/auth/PermissionOverlay';
 
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
@@ -62,6 +63,9 @@ export default function CreativeStudioPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('calendar');
+
+  // 权限检查
+  const { shouldShowOverlay } = usePermissionOverlay('creative:basic');
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,7 +111,15 @@ export default function CreativeStudioPage() {
 
             {/* 九宫格创意魔方法 */}
             <TabsContent value="cube" className="mt-6">
-              <CreativeCube />
+              <PermissionOverlay
+                show={shouldShowOverlay}
+                featureName="创意魔方"
+                requiredPermission="creative:basic"
+                requiredTier="pro"
+                description="创意魔方是专业版功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
+              >
+                <CreativeCube />
+              </PermissionOverlay>
             </TabsContent>
 
             {/* 朋友圈文案 */}

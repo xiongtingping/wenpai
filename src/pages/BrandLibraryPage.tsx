@@ -3288,7 +3288,6 @@ export default function BrandLibraryPageFixed() {
           </DialogContent>
         </Dialog>
       )}
-
     </div>
   );
 }
@@ -3719,7 +3718,6 @@ function DimensionForm({
           </div>
         </div>
       )}
-
     </div>
   );
 }

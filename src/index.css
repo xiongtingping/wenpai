@@ -329,11 +329,11 @@
 
 [data-theme="dark"] {
   /* 🌙 优化的深色模式核心颜色系统 */
-  --background: 222.2 47.4% 8%;    /* 更深的主背景 */
+  --background: 222.2 47.4% 11%;    /* 深色背景 */
   --card: 215 28% 15%;             /* 卡片背景，明显区分 */
   --accent: 215 25% 22%;           /* 强调色，更明显 */
-  --muted: 215 28% 12%;            /* 静音区域，比主背景稍亮 */
-  --foreground: 210 40% 98%;       /* 主文字颜色 */
+  --muted: 215 28% 12%;            /* 静音区域，比主背景稍暗 */
+  --foreground: 210 40% 98%;       /* 主文字颜色 - 浅色文字 */
   --muted-foreground: 215 20.2% 65.1%; /* 次要文字 */
   --primary: 217.2 91.2% 59.8%;    /* 主色调 */
   --primary-foreground: 0 0% 100%; /* 主色调文字 */
@@ -384,6 +384,99 @@
 /* 🚫 已删除无效的主题定义 [data-theme="hsl(var(--success))"] */
 
 /* 🚫 已删除无效的主题定义 [data-theme="hsl(var(--primary))"] */
+
+/* 🌈 彩虹色主题 */
+[data-theme="rainbow"] {
+  /* 核心颜色系统 */
+  --background: 0 0% 99%;           /* 纯白主背景，突出彩虹色 */
+  --card: 0 0% 97%;                 /* 卡片背景，微妙区分 */
+  --accent: 280 100% 95%;           /* 淡紫色强调 */
+  --muted: 0 0% 95%;                /* 静音区域 */
+  --foreground: 0 0% 10%;           /* 深色主文字 */
+  --muted-foreground: 0 0% 40%;     /* 次要文字 */
+  --primary: 280 100% 70%;          /* 紫色主色调 */
+  --primary-foreground: 0 0% 100%;  /* 主色调文字 */
+  --destructive: 0 84% 60%;         /* 危险色 */
+  --secondary: 280 30% 90%;         /* 次要色 */
+  --secondary-foreground: 0 0% 10%;
+  --border: 280 20% 88%;            /* 边框色 */
+  --border-strong: 280 30% 75%;     /* 强边框色 */
+
+  /* 兼容性令牌 */
+  --card-foreground: 0 0% 10%;
+  --popover: 0 0% 97%;
+  --popover-foreground: 0 0% 10%;
+  --input: 280 20% 88%;
+  --ring: 280 100% 70%;
+  --radius: 0.5rem;
+  --section: 280 30% 95%;
+  --section-foreground: 0 0% 10%;
+  --chart-1: 0 100% 60%;            /* 红色 */
+  --chart-2: 60 100% 50%;           /* 黄色 */
+  --chart-3: 120 100% 40%;          /* 绿色 */
+  --chart-4: 240 100% 60%;          /* 蓝色 */
+  --chart-5: 300 100% 70%;          /* 紫色 */
+}
+
+/* 🌈 彩虹主题特殊效果 */
+[data-theme="rainbow"] .btn-upgrade-gradient {
+  background: linear-gradient(135deg,
+    #ff6b6b 0%,
+    #feca57 25%,
+    #48dbfb 50%,
+    #ff9ff3 75%,
+    #54a0ff 100%);
+  background-size: 200% 200%;
+  animation: rainbow-gradient 3s ease infinite;
+}
+
+[data-theme="rainbow"] .particle-background::before {
+  background: linear-gradient(45deg,
+    rgba(255, 107, 107, 0.1) 0%,
+    rgba(254, 202, 87, 0.1) 25%,
+    rgba(72, 219, 251, 0.1) 50%,
+    rgba(255, 159, 243, 0.1) 75%,
+    rgba(84, 160, 255, 0.1) 100%);
+}
+
+@keyframes rainbow-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 💚 护眼绿色主题 */
+[data-theme="green"] {
+  /* 核心颜色系统 */
+  --background: 120 25% 97%;        /* 绿色主背景 */
+  --card: 120 25% 95%;              /* 卡片背景，微妙区分 */
+  --accent: 120 20% 90%;            /* 强调色 */
+  --muted: 120 20% 92%;             /* 静音区域 */
+  --foreground: 120 15% 15%;        /* 主文字颜色 */
+  --muted-foreground: 120 10% 35%;  /* 次要文字 */
+  --primary: 120 60% 45%;           /* 绿色主色调 */
+  --primary-foreground: 120 25% 97%; /* 主色调文字 */
+  --destructive: 0 84% 60%;         /* 危险色 */
+  --secondary: 120 20% 88%;         /* 次要色 */
+  --secondary-foreground: 120 15% 15%;
+  --border: 120 15% 85%;            /* 边框色 */
+  --border-strong: 120 15% 75%;     /* 强边框色 */
+
+  /* 兼容性令牌 */
+  --card-foreground: 120 15% 15%;
+  --popover: 120 25% 95%;
+  --popover-foreground: 120 15% 15%;
+  --input: 120 15% 88%;
+  --ring: 120 60% 45%;
+  --radius: 0.5rem;
+  --section: 120 20% 94%;
+  --section-foreground: 120 15% 15%;
+  --chart-1: 120 60% 45%;
+  --chart-2: 110 55% 40%;
+  --chart-3: 100 50% 35%;
+  --chart-4: 90 45% 30%;
+  --chart-5: 80 40% 25%;
+}
 
 /* 🏆 优化的金色主题 */
 [data-theme="gold"] {
@@ -1431,189 +1524,36 @@
 
 /* 🎨 背景装饰系统 - Modern Flat + Soft Neumorphism */
 
-/* 粒子背景图案 */
+/* 简化背景 - 移除粒子效果 */
 .particle-background {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg,
-    hsl(var(--background)) 0%,
-    hsl(var(--background)) 100%);
+  background: hsl(var(--background));
 }
 
-/* ☀️ 浅色模式背景渐变系统 */
+/* ☀️ 浅色模式背景 - 简化 */
 [data-theme="light"] .particle-background {
-  background:
-    /* 主背景渐变 */
-    linear-gradient(135deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--surface-1)) 25%,
-      hsl(var(--surface-2)) 50%,
-      hsl(var(--surface-1)) 75%,
-      hsl(var(--background)) 100%),
-    /* 装饰性径向渐变 */
-    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.03) 0%, transparent 50%);
+  background: hsl(var(--background));
 }
 
-/* 🌾 米色模式背景渐变系统 */
+/* 🌾 米色模式背景 - 简化 */
 [data-theme="beige"] .particle-background {
-  background:
-    linear-gradient(135deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--surface-1)) 25%,
-      hsl(var(--surface-2)) 50%,
-      hsl(var(--surface-1)) 75%,
-      hsl(var(--background)) 100%),
-    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.04) 0%, transparent 50%);
+  background: hsl(var(--background));
 }
 
-/* 🏆 金色模式背景渐变系统 */
+/* 🏆 金色模式背景 - 简化 */
 [data-theme="gold"] .particle-background {
-  background:
-    linear-gradient(135deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--surface-1)) 25%,
-      hsl(var(--surface-2)) 50%,
-      hsl(var(--surface-1)) 75%,
-      hsl(var(--background)) 100%),
-    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.04) 0%, transparent 50%);
+  background: hsl(var(--background));
 }
 
-/* 🌙 优化的深色模式背景渐变系统 */
+/* 🌙 深色模式背景 - 简化 */
 [data-theme="dark"] .particle-background {
-  background:
-    /* 简化的主背景渐变 - 统一和谐 */
-    linear-gradient(135deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--surface-1)) 30%,
-      hsl(var(--surface-2)) 70%,
-      hsl(var(--background)) 100%),
-    /* 微妙的装饰性径向渐变 - 减少视觉干扰 */
-    radial-gradient(ellipse at top left, hsl(var(--primary) / 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse at bottom right, hsl(var(--accent) / 0.04) 0%, transparent 60%);
+  background: hsl(var(--background));
 }
 
-/* ☀️ 浅色模式粒子效果 */
-[data-theme="light"] .particle-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.06) 0%, hsl(var(--primary) / 0.02) 30%, transparent 60%),
-    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.05) 0%, hsl(var(--accent) / 0.02) 30%, transparent 60%),
-    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.04) 0%, hsl(var(--primary) / 0.01) 30%, transparent 60%),
-    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.03) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 1;
-  animation: particleFloat 25s ease-in-out infinite;
-}
+/* 移除所有粒子效果 - 简化背景 */
 
-/* 🌾 米色模式粒子效果 */
-[data-theme="beige"] .particle-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0.03) 30%, transparent 60%),
-    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.06) 0%, hsl(var(--accent) / 0.02) 30%, transparent 60%),
-    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.05) 0%, hsl(var(--primary) / 0.02) 30%, transparent 60%),
-    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 1;
-  animation: particleFloat 22s ease-in-out infinite;
-}
+/* 移除所有 ::before 伪元素 */
 
-/* 🏆 金色模式粒子效果 */
-[data-theme="gold"] .particle-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.1) 0%, hsl(var(--primary) / 0.04) 30%, transparent 60%),
-    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.08) 0%, hsl(var(--accent) / 0.03) 30%, transparent 60%),
-    radial-gradient(circle at 40% 80%, hsl(var(--primary) / 0.06) 0%, hsl(var(--primary) / 0.02) 30%, transparent 60%),
-    radial-gradient(circle at 60% 20%, hsl(var(--accent) / 0.05) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 1;
-  animation: particleFloat 18s ease-in-out infinite;
-}
-
-.particle-background::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, hsl(var(--accent) / 0.08) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* 🌟 深色模式简化粒子效果 */
-[data-theme="dark"] .particle-background::before {
-  background-image:
-    /* 主要光点 - 减少亮度，增强和谐感 */
-    radial-gradient(circle at 25% 25%, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.04) 40%, transparent 70%),
-    radial-gradient(circle at 75% 75%, hsl(var(--accent) / 0.12) 0%, hsl(var(--accent) / 0.04) 40%, transparent 70%),
-    /* 微妙的辅助光点 */
-    radial-gradient(circle at 50% 20%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 20% 80%, hsl(var(--accent) / 0.08) 0%, transparent 50%);
-  animation: particleFloat 25s ease-in-out infinite;
-}
-
-/* 深色模式背景动画 */
-@keyframes particleFloat {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: translateY(-10px) scale(1.02);
-    opacity: 0.8;
-  }
-}
-
-/* 深色模式下的简化装饰层 - 微妙科技感 */
-[data-theme="dark"] .particle-background::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    /* 微妙的交叉光束效果 */
-    linear-gradient(45deg, transparent 40%, hsl(var(--primary) / 0.03) 50%, transparent 60%),
-    linear-gradient(-45deg, transparent 40%, hsl(var(--accent) / 0.03) 50%, transparent 60%);
-  background-size: 300px 300px, 300px 300px;
-  pointer-events: none;
-  z-index: 2;
-  animation: shimmer 20s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
+/* 移除所有动画和 ::after 伪元素 */
 
 /* 🎨 通用表面装饰类 - 适用于所有主题 */
 .surface-1 { background-color: hsl(var(--surface-1)); }
@@ -1631,9 +1571,9 @@
 [data-theme="dark"] .dark-elevated { background-color: hsl(var(--background-elevated)); }
 [data-theme="dark"] .dark-overlay { background-color: hsl(var(--background-overlay)); }
 
-/* 🎨 通用增强卡片效果 - 适用于所有主题 */
+/* 🎨 通用增强卡片效果 - 移除背景 */
 .enhanced-card {
-  background: hsl(var(--surface-2));
+  background: transparent;
   border: 1px solid hsl(var(--border));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

@@ -9,12 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
-import { 
+import {
   Zap,
   Sparkles,
   TrendingUp,
   FolderOpen,
   Users,
+  Download,
   Target,
   Lightbulb,
   Palette,
@@ -99,11 +100,24 @@ const mainFeatures = [
     path: '/brand-library',
     color: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white',
     bgColor: 'bg-accent',
-    borderColor: 'border-primary',
+    borderColor: 'border-border',
     hoverColor: 'hover:bg-accent/80',
     badge: '👑 高级版',
     badgeColor: 'bg-gradient-to-r from-rose-500 to-pink-500 text-white',
     features: ['品牌资产管理', '视觉规范统一', '团队协作', '版本控制']
+  },
+  {
+    title: '🎬 内容提取器',
+    description: '智能提取网页、文档内容，支持多种格式转换，快速获取创作素材',
+    icon: Download,
+    path: '/content-extractor',
+    color: 'bg-gradient-to-br from-teal-500 to-cyan-600 text-white',
+    bgColor: 'bg-accent',
+    borderColor: 'border-border',
+    hoverColor: 'hover:bg-accent/80',
+    badge: '🔧 工具',
+    badgeColor: 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white',
+    features: ['网页内容提取', '文档格式转换', 'AI智能总结', '批量处理']
   },
 ];
 
@@ -188,8 +202,7 @@ export const FeaturesSection: React.FC = () => {
 
   return (
     <section className="py-16 relative overflow-hidden">
-      {/* 背景装饰 - 顶部淡渐变色块 */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-accent/30 to-transparent"></div>
+      {/* 移除背景装饰层 */}
       
       <div className="container mx-auto px-4 relative z-10">
         {/* 1️⃣ Banner 标题区域优化 */}
@@ -198,7 +211,7 @@ export const FeaturesSection: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <Badge 
               variant="outline" 
-              className="text-sm px-3 py-1 rounded-full bg-accent text-foreground border-border hover:bg-accent/80 transition-colors duration-300 animate-fadeInDown"
+              className="text-sm px-3 py-1 rounded-full bg-card text-foreground border-border shadow-sm hover:bg-card/80 transition-colors duration-300 animate-fadeInDown"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               🚀 核心功能

@@ -232,19 +232,38 @@ export default function PaymentPage() {
       {/* 订阅周期选择 */}
       <div className="mb-8 flex justify-center gap-4">
         <Button
-          variant={selectedPeriod === 'monthly' ? 'default' : 'outline'}
+          variant="ghost"
           onClick={() => handlePeriodSelect('monthly')}
           className="min-w-[120px]"
+          style={{
+            background: selectedPeriod === 'monthly' ? "#2563eb" : "#e5e7eb",
+            color: selectedPeriod === 'monthly' ? "white" : "#374151",
+            border: selectedPeriod === 'monthly' ? "none" : "1px solid #d1d5db"
+          }}
         >
           按月订阅
         </Button>
         <Button
-          variant={selectedPeriod === 'yearly' ? 'default' : 'outline'}
+          variant="ghost"
           onClick={() => handlePeriodSelect('yearly')}
-          className="min-w-[120px]"
+          className="min-w-[120px] relative overflow-hidden"
+          style={{
+            background: selectedPeriod === 'yearly'
+              ? "linear-gradient(to right, #f97316, #ef4444, #ec4899)"
+              : "linear-gradient(to right, #fbbf24, #f97316, #ef4444)",
+            color: "white",
+            border: selectedPeriod === 'yearly' ? "none" : "2px solid #f59e0b",
+            boxShadow: selectedPeriod === 'yearly'
+              ? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+              : "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+            transform: selectedPeriod === 'yearly' ? "scale(1.1)" : "scale(1.05)",
+            fontWeight: "bold"
+          }}
         >
-          按年订阅
-          <Badge variant="secondary" className="ml-2">年付更省</Badge>
+          <span className="relative z-10">
+            按年订阅
+            <Badge variant="secondary" className="ml-2 bg-white/20 text-white border-white/30">省80-202元</Badge>
+          </span>
         </Button>
       </div>
 
