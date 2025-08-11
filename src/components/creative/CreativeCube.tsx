@@ -171,7 +171,7 @@ function DimensionCard({
   return (
     <Card className={`relative overflow-hidden ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'ring-2 ring-primary/20' : ''}`}>
       {/* 头部区域 - 维度标题和描述 */}
-      <CardHeader className="pb-2 p-4 creative-cube-card-header bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+      <CardHeader className="pb-2 p-4 creative-cube-card-header bg-gradient-to-r from-muted/50 to-muted border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {dimension.icon}
@@ -331,7 +331,7 @@ function DimensionCard({
             <Button
               size="sm"
               variant="ghost"
-              className="text-xs h-6 border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50 w-full"
+              className="text-xs h-6 border border-dashed border-border hover:border-border/80 hover:bg-muted/50 w-full"
               onClick={() => setShowAddInput(true)}
             >
               <Plus className="w-4 h-4" />

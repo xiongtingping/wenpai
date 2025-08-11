@@ -407,7 +407,7 @@ const SortableTodoItem: React.FC<{
           {...listeners}
           className="cursor-grab active:cursor-grabbing mt-0.5"
         >
-          <GripVertical className="w-3 h-3 text-gray-400" />
+          <GripVertical className="w-3 h-3 text-gray-400 dark:text-gray-500" />
         </div>
 
         <button
@@ -417,14 +417,14 @@ const SortableTodoItem: React.FC<{
           {task.status === 'completed' ? (
             <CheckCircle className="w-4 h-4 text-green-600" />
           ) : (
-            <Circle className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+            <Circle className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400" />
           )}
         </button>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
             {getTypeIcon(task.type)}
-            <h4 className={`text-sm font-medium leading-tight ${task.status === 'completed' ? 'line-through text-gray-500' : ''}`}>
+            <h4 className={`text-sm font-medium leading-tight ${task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>
               {task.title}
             </h4>
             <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
@@ -438,12 +438,12 @@ const SortableTodoItem: React.FC<{
           </div>
 
           {task.description && (
-            <p className={`text-xs text-gray-600 mb-1.5 leading-relaxed ${task.status === 'completed' ? 'line-through' : ''}`}>
+            <p className={`text-xs text-gray-600 dark:text-gray-400 mb-1.5 leading-relaxed ${task.status === 'completed' ? 'line-through' : ''}`}>
               {task.description.length > 80 ? `${task.description.substring(0, 80)}...` : task.description}
             </p>
           )}
 
-          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
             <Clock className="w-3 h-3" />
             <span>{task.date}</span>
           </div>
@@ -1077,10 +1077,10 @@ function MarketingCalendar() {
                         ${!isCurrentMonth ? 'opacity-40 bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
                         ${isToday ? 'bg-primary/10 border-primary' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary border-2' : ''}
-                        ${dayInfo.isHoliday ? 'bg-red-50' : ''}
-                        ${isWeekend && isCurrentMonth ? 'bg-blue-50/50' : ''}
-                        ${dayInfo.isWorkday && isWeekend ? 'bg-orange-50' : ''}
-                        ${isDragOver ? 'bg-green-100 border-green-400 border-2' : ''}
+                        ${dayInfo.isHoliday ? 'bg-red-50 dark:bg-red-900/20' : ''}
+                        ${isWeekend && isCurrentMonth ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}
+                        ${dayInfo.isWorkday && isWeekend ? 'bg-orange-50 dark:bg-orange-900/20' : ''}
+                        ${isDragOver ? 'bg-green-100 border-green-400 border-2 dark:bg-green-900/30 dark:border-green-600' : ''}
                       `}
                       onClick={() => selectDate(dayInfo.date)}
                       onDoubleClick={() => quickAddTask(dayInfo.date)}
@@ -1092,8 +1092,8 @@ function MarketingCalendar() {
                       <div className="flex items-center justify-between mb-0.5">
                         <span className={`text-xs font-medium ${
                           isToday ? 'text-primary font-bold' : ''
-                        } ${isWeekend && isCurrentMonth ? 'text-red-600' : ''} ${
-                          !isCurrentMonth ? 'text-gray-400' : ''
+                        } ${isWeekend && isCurrentMonth ? 'text-red-600 dark:text-red-400' : ''} ${
+                          !isCurrentMonth ? 'text-gray-400 dark:text-gray-500' : ''
                         }`}>
                           {dayInfo.date.getDate()}
                         </span>
@@ -1240,7 +1240,7 @@ function MarketingCalendar() {
 
                       {/* 调休标识 - 紧凑显示 */}
                       {dayInfo.holidayType === 'workday' && (dayInfo.date.getDay() === 0 || dayInfo.date.getDay() === 6) && (
-                        <div className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded text-center mt-0.5">
+                        <div className="text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 px-1 py-0.5 rounded text-center mt-0.5">
                           补班
                         </div>
                       )}

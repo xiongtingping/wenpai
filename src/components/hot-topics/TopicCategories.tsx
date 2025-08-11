@@ -207,7 +207,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
     { id: 'technology', label: '科技', icon: '💻', theme: 'from-blue-500/20 to-cyan-500/20 border-blue-200' },
     { id: 'sports', label: '体育', icon: '⚽', theme: 'from-green-500/20 to-emerald-500/20 border-green-200' },
     { id: 'gaming', label: '游戏', icon: '🎮', theme: 'from-purple-500/20 to-violet-500/20 border-purple-200' },
-    { id: 'automotive', label: '汽车', icon: '🚗', theme: 'from-slate-500/20 to-gray-500/20 border-slate-200' },
+    { id: 'automotive', label: '汽车', icon: '🚗', theme: 'from-muted to-muted/80 border-border' },
     { id: 'economy', label: '财经', icon: '💰', theme: 'from-yellow-500/20 to-orange-500/20 border-yellow-200' },
     { id: 'society', label: '社会', icon: '👥', theme: 'from-indigo-500/20 to-blue-500/20 border-indigo-200' },
     { id: 'education', label: '教育', icon: '📚', theme: 'from-teal-500/20 to-cyan-500/20 border-teal-200' },
@@ -218,7 +218,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
     { id: 'science', label: '科学', icon: '🔬', theme: 'from-emerald-500/20 to-teal-500/20 border-emerald-200' },
     { id: 'culture', label: '文化', icon: '🎨', theme: 'from-violet-500/20 to-purple-500/20 border-violet-200' },
     { id: 'international', label: '国际', icon: '🌍', theme: 'from-cyan-500/20 to-blue-500/20 border-cyan-200' },
-    { id: 'realestate', label: '房产', icon: '🏢', theme: 'from-stone-500/20 to-gray-500/20 border-stone-200' },
+    { id: 'realestate', label: '房产', icon: '🏢', theme: 'from-muted to-muted/80 border-border' },
     { id: 'weather', label: '天气', icon: '🌤️', theme: 'from-sky-400/20 to-blue-400/20 border-sky-200' },
     { id: 'environment', label: '环保', icon: '🌱', theme: 'from-green-400/20 to-emerald-400/20 border-green-200' },
     { id: 'agriculture', label: '农业', icon: '🌾', theme: 'from-yellow-400/20 to-amber-400/20 border-yellow-200' },
@@ -633,7 +633,7 @@ const TopicCategories: React.FC<TopicCategoriesProps> = ({
 
                       {/* 展开/收起按钮 - 固定在底部 */}
                       {categoryTopics.length > 5 && (
-                        <div className="text-center pt-2 border-t border-gray-200/50 mt-2">
+                        <div className="text-center pt-2 border-t border-border/50 mt-2">
                           <Button
                             variant="ghost"
                             size="sm"
