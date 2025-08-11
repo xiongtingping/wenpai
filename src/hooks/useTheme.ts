@@ -12,8 +12,8 @@ export const THEMES: Record<Theme, string> = {
   beige: '护眼米色',
   light: '明亮',
   dark: '暗黑',
-  hsl(var(--success)): '护眼绿',
-  hsl(var(--primary)): '科技蓝',
+  green: '护眼绿',
+  blue: '科技蓝',
   gold: '专业黑金',
 };
 

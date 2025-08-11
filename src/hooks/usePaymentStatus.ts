@@ -32,7 +32,7 @@ interface UsePaymentStatusOptions {
   onStatusChange?: (status: PaymentStatus) => void;
   onPaymentSuccess?: (paymentData: any) => void;
   onPaymentFailed?: (error: string) => void;
-  onPaymentExpihsl(var(--destructive))?: () => void;
+  onPaymentExpired?: () => void;
 }
 
 interface UsePaymentStatusReturn {
@@ -59,7 +59,7 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
     onStatusChange,
     onPaymentSuccess,
     onPaymentFailed,
-    onPaymentExpihsl(var(--destructive)),
+    onPaymentExpired,
   } = options;
 
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>({
@@ -180,8 +180,8 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
           description: message,
           variant: "destructive",
         });
-      } else if (newStatus === 'expired' && onPaymentExpihsl(var(--destructive))) {
-        onPaymentExpihsl(var(--destructive))();
+      } else if (newStatus === 'expired' && onPaymentExpired) {
+        onPaymentExpired();
         toast({
           title: "支付已过期",
           description: "请重新发起支付",
@@ -211,7 +211,7 @@ export function usePaymentStatus(options: UsePaymentStatusOptions = {}): UsePaym
     } finally {
       setIsRefreshing(false);
     }
-  }, [checkoutId, isPaused, enableNotifications, enableSound, onStatusChange, onPaymentSuccess, onPaymentFailed, onPaymentExpihsl(var(--destructive)), maxRetries, retryCount, toast]);
+  }, [checkoutId, isPaused, enableNotifications, enableSound, onStatusChange, onPaymentSuccess, onPaymentFailed, onPaymentExpired, maxRetries, retryCount, toast]);
 
   // 智能轮询
   useEffect(() => {

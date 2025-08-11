@@ -74,13 +74,13 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
 
   const platform = platformConfig[platformId as keyof typeof platformConfig];
   const colorClasses = {
-    hsl(var(--destructive)): 'bg-destructive/10 border-border text-destructive',
-    hsl(var(--warning)): 'bg-accent border-border text-foreground',
-    hsl(var(--warning)): 'bg-accent border-border text-foreground',
-    hsl(var(--primary)): 'bg-primary/10 border-border text-primary',
-    hsl(var(--success)): 'bg-accent border-border text-foreground',
-    hsl(var(--accent)): 'bg-primary/10 border-primary text-primary',
-    hsl(var(--accent)): 'bg-primary/10 border-primary text-primary'
+    red: 'bg-destructive/10 border-border text-destructive',
+    orange: 'bg-accent border-border text-foreground',
+    yellow: 'bg-accent border-border text-foreground',
+    blue: 'bg-primary/10 border-border text-primary',
+    green: 'bg-accent border-border text-foreground',
+    purple: 'bg-primary/10 border-primary text-primary',
+    gray: 'bg-primary/10 border-primary text-primary'
   };
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export const PlatformStatusIndicator: React.FC<PlatformStatusIndicatorProps> = (
   const getBgClasses = () => {
     if (status === 'success') return 'bg-accent border-border';
     if (status === 'error') return 'bg-destructive/10 border-border';
-    return colorClasses[platform?.color as keyof typeof colorClasses] || colorClasses.hsl(var(--primary));
+    return colorClasses[platform?.color as keyof typeof colorClasses] || colorClasses.blue;
   };
 
   return (

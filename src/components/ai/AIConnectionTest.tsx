@@ -58,7 +58,7 @@ export function AIConnectionTest() {
    */
   const checkInitialConfig = () => {
     const updatedServices = services.map(service => {
-      let configuhsl(var(--destructive)) = false;
+      let configured = false;
       
       switch (service.name) {
         case 'OpenAI':

@@ -524,7 +524,7 @@ export default function EnhancedPaymentPage() {
                 apiKey={import.meta.env.VITE_CREEM_API_KEY || ''}
                 onPaymentSuccess={handlePaymentSuccess}
                 onPaymentFailed={handlePaymentFailed}
-                onPaymentExpihsl(var(--destructive))={() => {
+                onPaymentExpired={() => {
                   if (currentCheckout) {
                     paymentStatusService.savePaymentStatus(currentCheckout.id, {
                       status: 'expired',
