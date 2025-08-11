@@ -252,47 +252,44 @@ export default function PersonalizedEmojiGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-accent p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* 头部标题 */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">
-            个性化品牌 Emoji 生成器
-          </h1>
-          <p className="text-muted-foreground">
-            基于您的品牌特色，AI智能生成专属Emoji表情
-          </p>
-        </div>
+    <div className="w-full">
+      <div className="max-w-5xl mx-auto space-y-8">
 
         {/* 步骤指示器 */}
-        <Card>
-          <CardContent className="p-6">
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-card to-card/90">
+          <CardContent className="p-8">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
-                <div key={step.id} className="flex items-center">
-                  <div className="flex flex-col items-center">
+                <div key={step.id} className="flex items-center flex-1">
+                  <div className="flex flex-col items-center space-y-3">
                     <div className={`
-                      w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
-                      ${index <= currentStepIndex 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted text-muted-foreground'
+                      w-14 h-14 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 shadow-md
+                      ${index <= currentStepIndex
+                        ? 'bg-primary text-primary-foreground border-primary shadow-primary/20'
+                        : 'bg-muted/50 text-muted-foreground border-muted-foreground/20'
                       }
                     `}>
                       {index < currentStepIndex ? (
-                        <CheckCircle className="w-5 h-5" />
+                        <CheckCircle className="w-7 h-7" />
                       ) : (
-                        index + 1
+                        <span className="text-lg">{index + 1}</span>
                       )}
                     </div>
-                    <div className="text-xs mt-2 text-center max-w-20">
-                      <div className="font-medium">{step.title}</div>
-                      <div className="text-muted-foreground">{step.description}</div>
+                    <div className="text-center space-y-1">
+                      <div className={`text-sm font-semibold ${
+                        index <= currentStepIndex ? 'text-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {step.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground max-w-24 leading-tight">
+                        {step.description}
+                      </div>
                     </div>
                   </div>
                   {index < steps.length - 1 && (
                     <div className={`
-                      w-16 h-0.5 mx-4
-                      ${index < currentStepIndex ? 'bg-primary' : 'bg-muted'}
+                      flex-1 h-1 mx-6 rounded-full transition-all duration-300
+                      ${index < currentStepIndex ? 'bg-primary shadow-sm' : 'bg-muted-foreground/20'}
                     `} />
                   )}
                 </div>
@@ -300,54 +297,74 @@ export default function PersonalizedEmojiGenerator() {
             </div>
             
             {/* 进度条 */}
-            <div className="mt-6">
-              <Progress 
-                value={(currentStepIndex / (steps.length - 1)) * 100} 
-                className="w-full" 
-              />
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>步骤 {currentStepIndex + 1} / {steps.length}</span>
-                <span>{Math.round((currentStepIndex / (steps.length - 1)) * 100)}% 完成</span>
+            <div className="mt-8 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-foreground">
+                  步骤 {currentStepIndex + 1} / {steps.length}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {Math.round((currentStepIndex / (steps.length - 1)) * 100)}% 完成
+                </span>
               </div>
+              <Progress
+                value={(currentStepIndex / (steps.length - 1)) * 100}
+                className="w-full h-2"
+              />
             </div>
           </CardContent>
         </Card>
 
         {/* 主要内容区域 */}
-        <div className="min-h-[600px]">
-          {renderCurrentStep()}
-        </div>
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-card to-card/80">
+          <CardContent className="p-8">
+            <div className="min-h-[500px] flex flex-col">
+              {renderCurrentStep()}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* 底部操作栏 */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm text-muted-foreground">
-                  已生成 {generatedImages.length} 个个性化Emoji
+        <Card className="border-0 shadow-md bg-gradient-to-r from-muted/30 to-muted/10">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-primary/10">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-foreground">
+                    已生成 {generatedImages.length} 个个性化Emoji
+                  </div>
                   {generationMode === 'batch' && batchPrompts.length > 0 && (
-                    <span className="ml-2 text-primary">
-                      (批量模式: {batchPrompts.length}个情绪)
-                    </span>
+                    <div className="text-xs text-primary">
+                      批量模式: {batchPrompts.length} 个情绪表情
+                    </div>
                   )}
-                </span>
+                </div>
               </div>
-              
-              <div className="flex gap-2">
+
+              <div className="flex gap-3">
                 {currentStep !== 'upload' && (
-                  <Button onClick={handleRestart} variant="outline" size="sm">
+                  <Button
+                    onClick={handleRestart}
+                    variant="outline"
+                    size="sm"
+                    className="px-4 py-2 font-medium hover:bg-primary/5 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     重新开始
                   </Button>
                 )}
-                
+
                 {generatedImages.length > 0 && (
-                  <Button 
-                    onClick={() => setCurrentStep('gallery')} 
-                    variant="outline" 
+                  <Button
+                    onClick={() => setCurrentStep('gallery')}
+                    variant="default"
                     size="sm"
+                    className="px-4 py-2 font-medium shadow-md hover:shadow-lg transition-all"
                   >
                     查看作品集
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 )}
               </div>

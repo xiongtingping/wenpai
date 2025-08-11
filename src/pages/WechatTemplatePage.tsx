@@ -670,7 +670,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
   };
 
   return (
-    <Card className={`${template.isFavorite ? 'ring-2 ring-primary' : ''} hover:shadow-lg transition-all duration-200`}>
+    <Card className={`wechat-template-card ${template.isFavorite ? 'ring-2 ring-primary' : ''} hover:shadow-lg transition-all duration-200`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">

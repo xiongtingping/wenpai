@@ -336,7 +336,7 @@ const EmojiPage: React.FC = () => {
 
           {/* Emoji图库 */}
           <TabsContent value="gallery" className="space-y-6">
-            <Card>
+            <Card className="emoji-gallery-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 creative-module-title">
                   <Grid3X3 className="w-5 h-5" />
@@ -392,7 +392,7 @@ const EmojiPage: React.FC = () => {
 
           {/* AI推荐 */}
           <TabsContent value="ai-recommend" className="space-y-6">
-            <Card>
+            <Card className="emoji-gallery-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 creative-module-title">
                   <Sparkles className="w-5 h-5" />
@@ -434,7 +434,7 @@ const EmojiPage: React.FC = () => {
 
                 {/* 推荐结果 */}
                 {recommendedEmojis.length > 0 && (
-                  <Card className="border border-border section-bg">
+                  <Card className="generation-result-card border border-border section-bg">
                     <CardHeader>
                       <CardTitle className="creative-module-subtitle flex items-center gap-2">
                         <Star className="w-5 h-5 text-primary" />

@@ -1029,10 +1029,10 @@ function MarketingCalendar() {
             onTouchEnd={onTouchEnd}
           >
             {/* 星期标题 - 更紧凑布局 */}
-            <div className="grid grid-cols-7 bg-muted flex-shrink-0">
+            <div className="grid grid-cols-7 bg-muted flex-shrink-0 marketing-calendar-header">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
                 <div key={index} className={`p-1.5 text-center creative-module-label ${
-                  index >= 5 ? 'text-red-600' : ''
+                  index >= 5 ? 'marketing-calendar-weekend text-red-600' : ''
                 }`}>
                   {day}
                 </div>

@@ -391,136 +391,237 @@ export default function BrandEmojiGenerator({
   const totalImages = results.reduce((sum, result) => sum + (result.urls?.length || 0), 0);
 
   return (
-    <Card className={`w-full max-w-6xl mx-auto ${className}`}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-xl">
-          <Sparkles className="w-6 h-6" />
-          品牌 Emoji 生成器
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div className={`w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+      <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+        <CardHeader className="pb-6">
+          <div className="text-center space-y-3">
+            <CardTitle className="flex items-center justify-center gap-3 text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+              品牌 Emoji 生成器
+            </CardTitle>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+              基于您的品牌特色和角色描述，AI智能生成专属的品牌表情符号
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-8 px-6 sm:px-8">
         {/* 功能选择标签页 */}
-        <Tabs defaultValue="standard" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="standard" className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              标准生成
-            </TabsTrigger>
-            <TabsTrigger value="personalized" className="flex items-center gap-2">
-              <Palette className="w-4 h-4" />
-              个性化生成
-            </TabsTrigger>
-          </TabsList>
+        <div className="bg-muted/30 rounded-xl p-1">
+          <Tabs defaultValue="standard" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-transparent gap-1 p-1">
+              <TabsTrigger
+                value="standard"
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200 hover:bg-background/50"
+              >
+                <Zap className="w-4 h-4" />
+                <span className="font-medium">标准生成</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="personalized"
+                className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200 hover:bg-background/50"
+              >
+                <Palette className="w-4 h-4" />
+                <span className="font-medium">个性化生成</span>
+              </TabsTrigger>
+            </TabsList>
           
-          <TabsContent value="standard" className="space-y-6">
-            {/* 原有的标准生成功能 */}
-            <div className="space-y-6">
-              {/* 生成设置 */}
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-accent">
-                <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground">
-                    品牌：<Badge variant="outline">{brand}</Badge>
+          <TabsContent value="standard" className="space-y-8 mt-6">
+            {/* 优化的标准生成功能 */}
+            <div className="space-y-8">
+              {/* 生成设置卡片 */}
+              <Card className="border-0 shadow-md bg-gradient-to-br from-card to-card/80">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2 text-foreground">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Settings className="w-5 h-5 text-primary" />
+                    </div>
+                    生成配置
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* 基础信息展示 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">品牌名称</Label>
+                      <Badge variant="secondary" className="w-full justify-center py-2 text-sm font-medium">
+                        {brand || '未设置'}
+                      </Badge>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">角色描述</Label>
+                      <Badge variant="secondary" className="w-full justify-center py-2 text-sm font-medium">
+                        {character || '未设置'}
+                      </Badge>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">待生成表情</Label>
+                      <Badge variant="outline" className="w-full justify-center py-2 text-sm font-medium border-primary/30 text-primary">
+                        {selectedPrompts.length} 个
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    角色：<Badge variant="outline">{character}</Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    待生成：<Badge variant="outline">{selectedPrompts.length}</Badge> 个表情
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  {/* Emoji数量选择器 */}
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="emoji-count" className="text-sm font-medium">
-                      <Settings className="w-4 h-4 mr-1" />
-                      每个表情生成数量：
-                    </Label>
-                    <Select value={emojiCount.toString()} onValueChange={(value) => setEmojiCount(parseInt(value))}>
-                      <SelectTrigger className="w-20">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1个</SelectItem>
-                        <SelectItem value="2">2个</SelectItem>
-                        <SelectItem value="3">3个</SelectItem>
-                        <SelectItem value="4">4个</SelectItem>
-                        <SelectItem value="5">5个</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="text-sm text-muted-foreground">
-                    预计生成：<Badge variant="outline">{selectedPrompts.length * emojiCount}</Badge> 个图片
-                  </div>
-                </div>
-              </div>
-              
-              {/* 生成控制 */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground">
-                    总图片数：<Badge variant="outline">{totalImages}</Badge> 个
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={handleGenerate}
-                    disabled={isGenerating}
-                    size="lg"
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    {isGenerating ? '生成中...' : '开始生成'}
-                  </Button>
-                  
-                  {totalImages > 0 && (
-                    <Button
-                      onClick={handleBatchDownload}
-                      variant="outline"
-                      size="lg"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      批量下载 ({totalImages})
-                    </Button>
-                  )}
-                </div>
-              </div>
 
-              {/* 进度条 */}
-              {isGenerating && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>生成进度</span>
-                    <span>{Math.round(progress)}% ({currentIndex + 1}/{selectedPrompts.length})</span>
+                  {/* 参考图片状态 */}
+                  {uploadedImage && (
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                      <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                        <CheckCircle className="w-5 h-5" />
+                        <span className="font-medium">已上传参考图片，将基于图片风格生成</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 生成数量配置 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-muted/30 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Settings className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-foreground">每个表情生成数量</Label>
+                        <p className="text-xs text-muted-foreground">选择每种表情生成的图片数量</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Select value={emojiCount.toString()} onValueChange={(value) => setEmojiCount(parseInt(value))}>
+                        <SelectTrigger className="w-24 h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1个</SelectItem>
+                          <SelectItem value="2">2个</SelectItem>
+                          <SelectItem value="3">3个</SelectItem>
+                          <SelectItem value="4">4个</SelectItem>
+                          <SelectItem value="5">5个</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-foreground">
+                          预计生成 {selectedPrompts.length * emojiCount} 个图片
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {selectedPrompts.length} 种表情 × {emojiCount} 个/种
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <Progress value={progress} className="w-full" />
-                </div>
+                </CardContent>
+              </Card>
+              
+              {/* 生成控制区域 */}
+              <Card className="border-0 shadow-md bg-gradient-to-r from-primary/5 to-primary/10">
+                <CardContent className="p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="text-sm font-semibold text-foreground">
+                        准备生成 {selectedPrompts.length} 种表情
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        总计 {selectedPrompts.length * emojiCount} 个图片文件
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={handleGenerate}
+                        disabled={isGenerating || selectedPrompts.length === 0}
+                        size="lg"
+                        className="px-6 py-3 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+                      >
+                        <Zap className="w-5 h-5 mr-2" />
+                        {isGenerating ? '生成中...' : '开始生成'}
+                      </Button>
+
+                      {totalImages > 0 && (
+                        <Button
+                          onClick={handleBatchDownload}
+                          variant="outline"
+                          size="lg"
+                          className="px-6 py-3 font-semibold border-2 hover:bg-primary/5 transition-all duration-200"
+                        >
+                          <Download className="w-5 h-5 mr-2" />
+                          批量下载 ({totalImages})
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 进度条 */}
+                  {isGenerating && (
+                    <div className="mt-6 space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-foreground">生成进度</span>
+                        <span className="text-muted-foreground">
+                          {Math.round(progress)}% ({currentIndex + 1}/{selectedPrompts.length})
+                        </span>
+                      </div>
+                      <Progress value={progress} className="w-full h-2" />
+                      <div className="text-xs text-muted-foreground text-center">
+                        正在生成第 {currentIndex + 1} 个表情...
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 统计信息卡片 */}
+              {results.length > 0 && (
+                <Card className="border-0 shadow-sm bg-muted/20">
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground">{successCount}</div>
+                          <div className="text-xs text-muted-foreground">成功</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-red-100 dark:bg-red-900/30">
+                          <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground">{errorCount}</div>
+                          <div className="text-xs text-muted-foreground">失败</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30">
+                          <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground">{results.filter(r => r.status === 'pending').length}</div>
+                          <div className="text-xs text-muted-foreground">等待</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-primary/10">
+                          <Image className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground">{totalImages}</div>
+                          <div className="text-xs text-muted-foreground">图片</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
 
-              {/* 统计信息 */}
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4 text-foreground" />
-                  <span>成功：{successCount}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <XCircle className="w-4 h-4 text-destructive" />
-                  <span>失败：{errorCount}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span>等待：{results.filter(r => r.status === 'pending').length}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Image className="w-4 h-4 text-primary" />
-                  <span>图片：{totalImages}</span>
-                </div>
-              </div>
-
               {/* 生成结果网格 */}
-              <ScrollArea className="h-96">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-foreground">生成结果</h3>
+                  {results.length > 0 && (
+                    <Badge variant="outline" className="text-xs">
+                      {results.length} 种表情
+                    </Badge>
+                  )}
+                </div>
+                <ScrollArea className="h-[500px] rounded-xl border border-border/50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
                   {results.map((result, index) => (
                     <div
                       key={result.emotion}
@@ -592,38 +693,73 @@ export default function BrandEmojiGenerator({
                 </div>
               </ScrollArea>
 
-              {/* 提示信息 */}
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>💡 提示：</p>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>AI生成需要一定时间，请耐心等待</li>
-                  <li>每个表情可以生成1-5个不同的emoji变体</li>
-                  <li>生成失败的emoji可以单独重新生成</li>
-                  <li>生成的图片支持单独下载和批量下载</li>
-                  <li>建议在网络稳定的环境下进行生成</li>
-                  <li>生成的emoji图片为PNG格式，支持透明背景</li>
-                </ul>
-              </div>
+              {/* 使用提示卡片 */}
+              <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-foreground">使用提示</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
+                        <div className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                          <span>AI生成需要一定时间，请耐心等待</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                          <span>每个表情可以生成1-5个不同的变体</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                          <span>生成失败的emoji可以单独重新生成</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                          <span>支持单独下载和批量下载功能</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                          <span>建议在网络稳定的环境下进行生成</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                          <span>生成PNG格式图片，支持透明背景</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
-          
-          <TabsContent value="personalized" className="space-y-6">
+
+          <TabsContent value="personalized" className="space-y-8 mt-6">
             {/* 个性化生成功能 */}
-            <div className="space-y-4">
-              <div className="text-center space-y-2">
-                <h3 className="text-lg font-semibold text-primary">
-                  个性化品牌 Emoji 生成器
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  上传品牌图片或输入描述，AI智能生成专属Emoji表情
-                </p>
+            <div className="space-y-6">
+              <div className="text-center space-y-4">
+                <div className="inline-flex items-center justify-center p-3 rounded-full bg-gradient-to-r from-primary/10 to-primary/5">
+                  <Palette className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">
+                    个性化品牌 Emoji 生成器
+                  </h3>
+                  <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
+                    上传品牌图片或输入详细描述，AI将基于您的品牌特色智能生成专属的Emoji表情符号
+                  </p>
+                </div>
               </div>
-              
-              <PersonalizedEmojiGenerator />
+
+              <div className="max-w-4xl mx-auto">
+                <PersonalizedEmojiGenerator />
+              </div>
             </div>
           </TabsContent>
+          </div>
         </Tabs>
       </CardContent>
-    </Card>
+    </div>
   );
 } 

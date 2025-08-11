@@ -171,11 +171,11 @@ function DimensionCard({
   return (
     <Card className={`relative overflow-hidden ${isRequired ? 'border-primary' : ''} ${selectedItem ? 'ring-2 ring-primary/20' : ''}`}>
       {/* 头部区域 - 维度标题和描述 */}
-      <CardHeader className="pb-2 p-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+      <CardHeader className="pb-2 p-4 creative-cube-card-header bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {dimension.icon}
-            <CardTitle className="creative-module-button text-slate-800">{dimension.name}</CardTitle>
+            <CardTitle className="creative-module-button">{dimension.name}</CardTitle>
             {isRequired && <Badge variant="destructive" className="creative-module-label px-1.5 py-0.5">必选</Badge>}
           </div>
           {/* 一键还原按钮 - 替换钉图标 */}
@@ -184,7 +184,7 @@ function DimensionCard({
               size="sm"
               variant="outline"
               onClick={() => onRestoreDefaults?.(dimension.id)}
-              className="h-6 px-2 text-xs hover:bg-blue-50 hover:border-blue-300 transition-colors"
+              className="h-6 px-2 text-xs hover:bg-primary/10 hover:border-primary/30 transition-colors"
             >
               <RotateCcw className="w-3 h-3 mr-1" />
               还原
@@ -192,7 +192,7 @@ function DimensionCard({
           )}
         </div>
         {dimension.description && (
-          <p className="creative-module-small text-slate-600 mt-1">{dimension.description}</p>
+          <p className="creative-module-small mt-1">{dimension.description}</p>
         )}
       </CardHeader>
       {/* 内容区域 - 选项按钮 */}
