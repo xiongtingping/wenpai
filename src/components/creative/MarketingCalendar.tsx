@@ -1,7 +1,14 @@
 /**
- * 营销日历组件 - 上下分栏布局
- * 上半部分：标准月历格式，显示农历、节气、节日等信息
- * 下半部分：Todo任务列表，支持拖拽排序和日期联动
+ * 营销日历组件 - 左右分栏布局
+ * 左侧：紧凑型月历格式，显示农历、节气、节日等信息
+ * 右侧：Todo任务列表，支持拖拽排序和日期联动
+ *
+ * ✅ FIXED: 2025-08-11 布局重构和日期选择Bug修复
+ * 🔧 改进内容：
+ * 1. 布局从上下分栏改为左右分栏，提升空间利用率
+ * 2. 压缩日历组件布局，减少不必要的内外边距
+ * 3. 修复日期选择时区问题，确保点击日期与选中日期一致
+ * 4. 优化响应式设计，适配不同屏幕尺寸
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -465,9 +472,6 @@ function MarketingCalendar() {
   // 搜索状态
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 任务预览状态
-  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
-
   // 拖拽状态
   const [draggedTask, setDraggedTask] = useState<TodoTask | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
@@ -739,10 +743,15 @@ function MarketingCalendar() {
   };
 
   /**
-   * 选择日期
+   * 选择日期 - 修复时区问题
+   * ✅ FIXED: 使用本地时间格式化，避免时区导致的日期偏移
    */
   const selectDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // 使用本地时间格式化日期，避免时区问题
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
     setSelectedDate(selectedDate === dateStr ? null : dateStr);
   };
 
@@ -761,10 +770,15 @@ function MarketingCalendar() {
   };
 
   /**
-   * 快速添加任务到指定日期
+   * 快速添加任务到指定日期 - 修复时区问题
+   * ✅ FIXED: 使用本地时间格式化，确保日期一致性
    */
   const quickAddTask = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // 使用本地时间格式化日期，避免时区问题
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
     setQuickAddDate(dateStr);
     setIsAddingTask(true);
   };
@@ -813,28 +827,28 @@ function MarketingCalendar() {
 
 
   return (
-    <div className="space-y-6">
-      {/* 上半部分 - 日历视图 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between mb-2">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              <span className="leading-5">营销日历</span>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+      {/* 左侧 - 紧凑型日历视图 */}
+      <Card className="h-fit">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Calendar className="w-4 h-4" />
+              <span>营销日历</span>
             </CardTitle>
             {selectedDate && (
-              <div className="text-lg font-semibold text-primary">
+              <div className="text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
                 {selectedDate}
               </div>
             )}
           </div>
-          <CardDescription>
-            点击日期查看对应任务，显示农历、节气、节日等信息。双击日期快速添加任务。
+          <CardDescription className="text-xs mt-1">
+            点击日期查看任务，双击快速添加
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          {/* 月份导航 */}
-          <div className="flex items-center justify-between mb-6">
+        <CardContent className="p-4">
+          {/* 月份导航 - 紧凑布局 */}
+          <div className="flex items-center justify-between mb-4">
             <Button
               variant="outline"
               size="sm"
@@ -844,28 +858,28 @@ function MarketingCalendar() {
             </Button>
 
             <div className="text-center flex-1">
-              <div className="text-xl font-semibold">
+              <div className="text-lg font-semibold">
                 {currentDate.toLocaleDateString('zh-CN', {
                   year: 'numeric',
                   month: 'long'
                 })}
               </div>
               {lunarInfo && (
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs text-muted-foreground">
                   {lunarInfo.getYearInGanZhi()}年 {lunarInfo.getYearShengXiao()}年
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={goToToday}
-                className="text-xs"
+                className="text-xs px-2 py-1 h-7"
               >
-                <CalendarDays className="w-4 h-4 mr-1" />
-                回到今天
+                <CalendarDays className="w-3 h-3 mr-1" />
+                今天
               </Button>
               <Button
                 variant="outline"
@@ -879,10 +893,10 @@ function MarketingCalendar() {
 
           {/* 月历视图 */}
           <div className="border rounded-lg overflow-hidden">
-            {/* 星期标题 */}
+            {/* 星期标题 - 紧凑布局 */}
             <div className="grid grid-cols-7 bg-muted">
               {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
-                <div key={index} className={`p-3 text-center text-sm font-medium ${
+                <div key={index} className={`p-2 text-center text-xs font-medium ${
                   index >= 5 ? 'text-red-600' : ''
                 }`}>
                   {day}
@@ -920,7 +934,7 @@ function MarketingCalendar() {
                     <div
                       key={dayIndex}
                       className={`
-                        min-h-[80px] p-2 border-r border-b cursor-pointer transition-all relative
+                        min-h-[60px] p-1.5 border-r border-b cursor-pointer transition-all relative
                         ${!isCurrentMonth ? 'opacity-40 bg-muted/30 text-muted-foreground' : 'hover:bg-accent'}
                         ${isToday ? 'bg-primary/10 border-primary' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary border-2' : ''}
@@ -935,9 +949,9 @@ function MarketingCalendar() {
                       onDragLeave={handleDateDragLeave}
                       onDrop={(e) => handleDateDrop(e, dateStr)}
                     >
-                      {/* 日期数字 */}
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={`text-sm font-medium ${
+                      {/* 日期数字 - 紧凑布局 */}
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className={`text-xs font-medium ${
                           isToday ? 'text-primary font-bold' : ''
                         } ${isWeekend && isCurrentMonth ? 'text-red-600' : ''} ${
                           !isCurrentMonth ? 'text-gray-400' : ''
@@ -949,7 +963,7 @@ function MarketingCalendar() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className={`
-                                  text-xs h-5 w-5 rounded-full flex items-center justify-center font-medium cursor-help
+                                  text-xs h-4 w-4 rounded-full flex items-center justify-center font-medium cursor-help
                                   ${taskCountStyle || 'bg-gray-100 text-gray-800'}
                                   hover:scale-110 transition-transform
                                 `}>
@@ -984,27 +998,27 @@ function MarketingCalendar() {
                         )}
                       </div>
 
-                      {/* 农历日期 */}
+                      {/* 农历日期 - 紧凑显示 */}
                       {dayInfo.lunarDate && (
-                        <div className="text-xs text-muted-foreground mb-1">
+                        <div className="text-xs text-muted-foreground mb-0.5 truncate">
                           {dayInfo.lunarDate}
                         </div>
                       )}
 
-                      {/* 节气 */}
+                      {/* 节气 - 紧凑显示 */}
                       {dayInfo.solarTerm && (
-                        <div className="text-xs text-green-600 font-medium mb-1">
+                        <div className="text-xs text-green-600 font-medium mb-0.5 truncate">
                           {dayInfo.solarTerm}
                         </div>
                       )}
 
-                      {/* 节日 */}
+                      {/* 节日 - 紧凑显示 */}
                       {dayInfo.festivals.length > 0 && (
-                        <div className="space-y-1">
-                          {dayInfo.festivals.slice(0, 2).map((festival, index) => (
+                        <div className="space-y-0.5">
+                          {dayInfo.festivals.slice(0, 1).map((festival, index) => (
                             <div
                               key={index}
-                              className={`text-xs px-1 py-0.5 rounded text-center ${
+                              className={`text-xs px-1 py-0.5 rounded text-center truncate ${
                                 ['元旦', '春节', '劳动节', '国庆节'].includes(festival)
                                   ? 'bg-red-100 text-red-700'
                                   : 'bg-blue-100 text-blue-700'
@@ -1013,17 +1027,17 @@ function MarketingCalendar() {
                               {festival}
                             </div>
                           ))}
-                          {dayInfo.festivals.length > 2 && (
+                          {dayInfo.festivals.length > 1 && (
                             <div className="text-xs text-muted-foreground text-center">
-                              +{dayInfo.festivals.length - 2}
+                              +{dayInfo.festivals.length - 1}
                             </div>
                           )}
                         </div>
                       )}
 
-                      {/* 调休标识 */}
+                      {/* 调休标识 - 紧凑显示 */}
                       {dayInfo.holidayType === 'workday' && (dayInfo.date.getDay() === 0 || dayInfo.date.getDay() === 6) && (
-                        <div className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded text-center mt-1">
+                        <div className="text-xs bg-orange-100 text-orange-700 px-1 py-0.5 rounded text-center mt-0.5">
                           补班
                         </div>
                       )}
@@ -1036,12 +1050,12 @@ function MarketingCalendar() {
         </CardContent>
       </Card>
 
-      {/* 下半部分 - Todo任务列表 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+      {/* 右侧 - Todo任务列表 */}
+      <Card className="h-fit lg:h-full lg:overflow-hidden lg:flex lg:flex-col">
+        <CardHeader className="pb-3 lg:flex-shrink-0">
+          <CardTitle className="flex items-center justify-between text-lg">
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />
+              <CheckCircle className="w-4 h-4" />
               <span>营销任务</span>
               {selectedDate && (
                 <Badge variant="secondary" className="text-xs">
@@ -1096,27 +1110,27 @@ function MarketingCalendar() {
               </DialogContent>
             </Dialog>
           )}
-          <CardDescription className="flex items-center justify-between">
-            <span>
+          <CardDescription className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+            <span className="text-xs">
               {selectedDate
-                ? `显示 ${selectedDate} 的任务，支持拖拽排序`
-                : '显示所有任务，点击日历选择特定日期，双击日期快速添加任务'}
+                ? `显示 ${selectedDate} 的任务`
+                : '显示所有任务，点击日历选择日期'}
             </span>
-            {/* 搜索框 */}
+            {/* 搜索框 - 紧凑布局 */}
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-muted-foreground" />
               <Input
                 placeholder="搜索任务..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 w-48 h-8 text-xs"
+                className="pl-7 w-full lg:w-40 h-7 text-xs"
               />
               {searchQuery && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-5 w-5 p-0"
                 >
                   <X className="w-3 h-3" />
                 </Button>
@@ -1124,16 +1138,16 @@ function MarketingCalendar() {
             </div>
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          {/* 筛选和排序控件 */}
-          <div className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-muted/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4" />
-              <span className="text-sm font-medium">筛选:</span>
+        <CardContent className="p-4 lg:flex-1 lg:overflow-hidden lg:flex lg:flex-col">
+          {/* 筛选和排序控件 - 紧凑布局 */}
+          <div className="flex flex-wrap items-center gap-2 mb-4 p-3 bg-muted/50 rounded-lg lg:flex-shrink-0">
+            <div className="flex items-center gap-1">
+              <Filter className="w-3 h-3" />
+              <span className="text-xs font-medium">筛选:</span>
             </div>
 
             <Select value={filters.status} onValueChange={(value: any) => setFilters(prev => ({ ...prev, status: value }))}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-24 h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1144,7 +1158,7 @@ function MarketingCalendar() {
             </Select>
 
             <Select value={filters.type} onValueChange={(value: any) => setFilters(prev => ({ ...prev, type: value }))}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-24 h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1157,7 +1171,7 @@ function MarketingCalendar() {
             </Select>
 
             <Select value={filters.priority} onValueChange={(value: any) => setFilters(prev => ({ ...prev, priority: value }))}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-24 h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1168,10 +1182,10 @@ function MarketingCalendar() {
               </SelectContent>
             </Select>
 
-            <div className="flex items-center gap-2 ml-auto">
-              <span className="text-sm font-medium">排序:</span>
+            <div className="flex items-center gap-1 ml-auto">
+              <span className="text-xs font-medium">排序:</span>
               <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-20 h-7 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1186,57 +1200,60 @@ function MarketingCalendar() {
                 variant="outline"
                 size="sm"
                 onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className="h-7 w-7 p-0"
               >
-                {sortDirection === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+                {sortDirection === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />}
               </Button>
             </div>
           </div>
 
-          {/* 任务列表 */}
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={filteredAndSortedTasks.map(task => task.id)}
-              strategy={verticalListSortingStrategy}
+          {/* 任务列表 - 支持滚动 */}
+          <div className="lg:flex-1 lg:overflow-y-auto lg:pr-2">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <div className="space-y-3">
-                {filteredAndSortedTasks.length > 0 ? (
-                  filteredAndSortedTasks.map((task) => (
-                    <SortableTodoItem
-                      key={task.id}
-                      task={task}
-                      onToggleStatus={toggleTaskStatus}
-                      onEdit={setEditingTask}
-                      onDelete={deleteTask}
-                      onDragStart={setDraggedTask}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Circle className="w-12 h-12 mx-auto mb-4" />
-                    <p className="text-lg font-medium mb-2">
-                      {selectedDate ? '该日期暂无任务' : '暂无任务'}
-                    </p>
-                    <p className="text-sm mb-4">
-                      {selectedDate
-                        ? '点击上方"添加任务"按钮为该日期创建新任务'
-                        : '点击上方"添加任务"按钮创建第一个任务'}
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsAddingTask(true)}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      添加任务
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </SortableContext>
-          </DndContext>
+              <SortableContext
+                items={filteredAndSortedTasks.map(task => task.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {filteredAndSortedTasks.length > 0 ? (
+                    filteredAndSortedTasks.map((task) => (
+                      <SortableTodoItem
+                        key={task.id}
+                        task={task}
+                        onToggleStatus={toggleTaskStatus}
+                        onEdit={setEditingTask}
+                        onDelete={deleteTask}
+                        onDragStart={setDraggedTask}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Circle className="w-12 h-12 mx-auto mb-4" />
+                      <p className="text-lg font-medium mb-2">
+                        {selectedDate ? '该日期暂无任务' : '暂无任务'}
+                      </p>
+                      <p className="text-sm mb-4">
+                        {selectedDate
+                          ? '点击上方"添加任务"按钮为该日期创建新任务'
+                          : '点击上方"添加任务"按钮创建第一个任务'}
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsAddingTask(true)}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        添加任务
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
 
           {/* 任务统计 */}
           {tasks.length > 0 && (
