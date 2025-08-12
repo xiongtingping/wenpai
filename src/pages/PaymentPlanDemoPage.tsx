@@ -28,7 +28,7 @@ export default function PaymentPlanDemoPage() {
         'AI内容适配器（10次/月）',
         '全网雷达',
         '我的资料库',
-        '基础模型'
+        '基础AI模型'
       ]
     },
     {
@@ -47,7 +47,7 @@ export default function PaymentPlanDemoPage() {
         '创意魔方',
         '全网雷达',
         '我的资料库',
-        '高级模型'
+        '高级AI模型'
       ],
       recommended: true
     },

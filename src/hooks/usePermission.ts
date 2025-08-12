@@ -68,18 +68,133 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
   'feature:creative-studio': {
     key: 'feature:creative-studio',
     description: '创意魔方功能',
-    check: (user) => !!user && (user.isVip || user.vipLevel || user.permissions?.includes('feature:creative-studio')),
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('feature:creative-studio') || user.permissions?.includes('tier:pro')) return true;
+      // 检查旧的VIP标识
+      if (user.isVip) return true;
+      return false;
+    },
     redirect: '/payment',
-    message: '创意魔方功能需要VIP权限'
+    message: '创意魔方功能需要专业版权限'
   },
 
   'feature:brand-library': {
     key: 'feature:brand-library',
     description: '品牌库功能',
-    check: (user) => !!user && (user.isVip || user.vipLevel || user.permissions?.includes('feature:brand-library')),
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('feature:brand-library') || user.permissions?.includes('tier:premium')) return true;
+      return false;
+    },
     redirect: '/payment',
-    message: '品牌库功能需要VIP权限'
+    message: '品牌库功能需要高级版权限'
   },
+
+  'feature:unlimited-usage': {
+    key: 'feature:unlimited-usage',
+    description: '无限使用功能',
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('feature:unlimited-usage') || user.permissions?.includes('tier:premium')) return true;
+      return false;
+    },
+    redirect: '/payment',
+    message: '无限使用功能需要高级版权限'
+  },
+
+  'feature:advanced-models': {
+    key: 'feature:advanced-models',
+    description: '高级AI模型功能',
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('feature:advanced-models') || user.permissions?.includes('tier:pro')) return true;
+      // 检查旧的VIP标识
+      if (user.isVip) return true;
+      return false;
+    },
+    redirect: '/payment',
+    message: '高级AI模型功能需要专业版权限'
+  },
+
+  'feature:emoji-generator': {
+    key: 'feature:emoji-generator',
+    description: 'Emoji生成器功能',
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('feature:emoji-generator') || user.permissions?.includes('tier:pro')) return true;
+      // 检查旧的VIP标识
+      if (user.isVip) return true;
+      return false;
+    },
+    redirect: '/payment',
+    message: 'Emoji生成器功能需要专业版权限'
+  },
+
+  'feature:marketing-calendar': {
+    key: 'feature:marketing-calendar',
+    description: '营销日历功能',
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('feature:marketing-calendar') || user.permissions?.includes('tier:pro')) return true;
+      // 检查旧的VIP标识
+      if (user.isVip) return true;
+      return false;
+    },
+    redirect: '/payment',
+    message: '营销日历功能需要专业版权限'
+  },
+
+  'feature:wechat-templates': {
+    key: 'feature:wechat-templates',
+    description: '微信朋友圈文案模板功能',
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('feature:wechat-templates') || user.permissions?.includes('tier:pro')) return true;
+      // 检查旧的VIP标识
+      if (user.isVip) return true;
+      return false;
+    },
+    redirect: '/payment',
+    message: '微信朋友圈文案模板功能需要专业版权限'
+  },
+
+
 
   'feature:content-extractor': {
     key: 'feature:content-extractor',
@@ -98,6 +213,50 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
     message: '创意魔方功能正在内测中'
   },
 
+  // 订阅等级权限
+  'tier:trial': {
+    key: 'tier:trial',
+    description: '体验版权限',
+    check: (user) => true, // 所有用户都有体验版权限
+    message: '体验版权限'
+  },
+
+  'tier:pro': {
+    key: 'tier:pro',
+    description: '专业版权限',
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('tier:pro') || user.permissions?.includes('tier:premium')) return true;
+      // 检查旧的VIP标识
+      if (user.isVip) return true;
+      return false;
+    },
+    redirect: '/payment',
+    message: '需要专业版或更高版本'
+  },
+
+  'tier:premium': {
+    key: 'tier:premium',
+    description: '高级版权限',
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('tier:premium')) return true;
+      return false;
+    },
+    redirect: '/payment',
+    message: '需要高级版'
+  },
+
   // 主题切换权限
   'theme:basic': {
     key: 'theme:basic',
@@ -109,7 +268,18 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
   'theme:advanced': {
     key: 'theme:advanced',
     description: '高级主题切换权限',
-    check: (user) => !!user && (user.isVip || user.vipLevel === 'pro' || user.vipLevel === 'premium' || user.permissions?.includes('theme:advanced')),
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'pro' || user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'pro' || user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('theme:advanced') || user.permissions?.includes('tier:pro')) return true;
+      // 检查旧的VIP标识
+      if (user.isVip) return true;
+      return false;
+    },
     redirect: '/payment',
     message: '高级主题需要专业版或更高版本'
   },
@@ -117,7 +287,16 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
   'theme:premium': {
     key: 'theme:premium',
     description: '专业主题切换权限',
-    check: (user) => !!user && (user.vipLevel === 'premium' || user.permissions?.includes('theme:premium')),
+    check: (user) => {
+      if (!user) return false;
+      // 检查订阅等级
+      if (user.subscription?.tier === 'premium') return true;
+      // 检查VIP等级
+      if (user.vipLevel === 'premium') return true;
+      // 检查权限
+      if (user.permissions?.includes('theme:premium') || user.permissions?.includes('tier:premium')) return true;
+      return false;
+    },
     redirect: '/payment',
     message: '专业主题需要高级版'
   },

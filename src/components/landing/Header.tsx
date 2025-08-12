@@ -172,10 +172,19 @@ export function Header() {
             }}>
               AI内容适配器
             </Button>
+            <Button variant="ghost" className="text-muted-foreground hover:text-primary transition" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/hot-topics');
+              } else {
+                login('/hot-topics');
+              }
+            }}>
+              全网雷达
+            </Button>
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               console.log('Header 创意魔方按钮被点击');
               console.log('当前认证状态:', isAuthenticated);
-              
+
               if (isAuthenticated) {
                 console.log('用户已登录，跳转到创意魔方页面');
                 navigate('/creative-studio');
@@ -185,15 +194,6 @@ export function Header() {
               }
             }}>
               创意魔方
-            </Button>
-            <Button variant="ghost" className="text-muted-foreground hover:text-primary transition" onClick={() => {
-              if (isAuthenticated) {
-                navigate('/hot-topics');
-              } else {
-                login('/hot-topics');
-              }
-            }}>
-              全网雷达
             </Button>
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               if (isAuthenticated) {
@@ -275,21 +275,21 @@ export function Header() {
                 </Button>
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {
-                    navigate('/creative-studio');
-                  } else {
-                    login('/creative-studio');
-                  }
-                }}>
-                  创意魔方
-                </Button>
-                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                  if (isAuthenticated) {
                     navigate('/hot-topics');
                   } else {
                     login('/hot-topics');
                   }
                 }}>
                   全网雷达
+                </Button>
+                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                  if (isAuthenticated) {
+                    navigate('/creative-studio');
+                  } else {
+                    login('/creative-studio');
+                  }
+                }}>
+                  创意魔方
                 </Button>
                 <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
                   if (isAuthenticated) {

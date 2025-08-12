@@ -111,12 +111,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-primary font-base;
+    @apply text-primary font-base;
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
     height: auto;
     overflow-x: hidden;
     /* 字体由typography-system.css统一管理 */
+    /* 背景由各页面自定义，不设置全局背景 */
   }
 
   html {

@@ -25,11 +25,17 @@
 - [🛠️ 技术栈](#️-技术栈)
 - [📦 快速开始](#-快速开始)
 - [🏗️ 项目结构](#️-项目结构)
+- [🏗️ 架构设计与重构](#️-架构设计与重构)
 - [🔧 配置说明](#-配置说明)
 - [🚀 部署指南](#-部署指南)
 - [📚 API 文档](#-api-文档)
-- [🧪 测试](#-测试)
+- [🧪 测试与验证](#-测试与验证)
+- [👨‍💻 开发者指南](#-开发者指南)
+- [🤖 Augment代码助手与规则系统](#-augment代码助手与规则系统)
 - [🤝 贡献指南](#-贡献指南)
+- [🚨 故障排除](#-故障排除)
+- [🌟 项目亮点](#-项目亮点)
+- [🎯 发展路线图](#-发展路线图)
 - [📄 许可证](#-许可证)
 
 ---
@@ -55,6 +61,8 @@
 | **😊 AI Emoji生成器** | 智能生成个性化Emoji图片和推荐 | 风格定制、批量下载 |
 | **🔖 智能收藏管理** | 网络资源分类整理，支持标签和状态管理 | 智能分类、搜索过滤 |
 | **📱 朋友圈文案模板** | 专业设计的社交媒体文案模板库 | 字数优化、风格多样 |
+| **🧠 智能标题生成器** | 基于AI的多平台标题优化生成 | 语义分析、平台适配 |
+| **🎯 自动化内容流** | 批量内容处理和自动化发布 | 工作流引擎、安全合规 |
 
 ### 🔥 实时数据服务
 
@@ -76,12 +84,16 @@
 | **Vite** | 7.0.5 | 构建工具和开发服务器 |
 | **Tailwind CSS** | 3.0 | 原子化CSS框架 |
 | **shadcn/ui** | Latest | 现代化UI组件库 |
+| **Radix UI** | Latest | 无障碍UI基础组件 |
+| **Lucide React** | 0.503.0 | 现代图标库 |
 
 ### 状态管理与路由
 
 - **Zustand** - 轻量级状态管理
 - **React Router v6** - 客户端路由
 - **React Hook Form** - 表单状态管理
+- **TanStack Table** - 高性能数据表格
+- **Embla Carousel** - 轮播组件
 
 ### 认证与安全
 
@@ -96,13 +108,18 @@
 - **DeepSeek Chat** - 中文优化的AI模型
 - **Google Gemini Pro** - 多模态AI能力
 - **统一AI服务** - 环境感知的智能路由
+- **智能提示词系统** - 模块化提示词管理
+- **AI服务提供商适配** - 统一的AI调用接口
 
-### 后端服务
+### 后端服务与集成
 
 - **Netlify Functions** - 无服务器API
 - **热点数据API** - 实时热点话题聚合
 - **Creem支付** - 订阅和支付处理
 - **MongoDB** - 数据存储（可选）
+- **文件处理服务** - PDF、Word、Excel等格式支持
+- **图像生成服务** - AI驱动的图像创作
+- **自动化引擎** - 批量处理和工作流管理
 
 ---
 
@@ -157,11 +174,27 @@ wenpai/
 │   ├── favicon.ico               # 网站图标
 │   └── pdf.worker.min.js         # PDF处理工具
 ├── 📁 src/
+│   ├── 📁 ai/                    # 新一代AI服务架构
+│   │   ├── 📁 providers/         # AI服务提供商
+│   │   │   ├── openai.ts         # OpenAI GPT-4o集成
+│   │   │   └── deepseek.ts       # DeepSeek Chat集成
+│   │   ├── 📁 prompts/           # 智能提示词系统
+│   │   │   ├── brand.ts          # 品牌分析提示词
+│   │   │   ├── titleGeneration.ts # 标题生成提示词
+│   │   │   └── titleGenerationSystemPrompt.ts # 系统级提示词
+│   │   ├── 📁 utils/             # AI工具函数
+│   │   └── types.ts              # AI相关类型定义
 │   ├── 📁 api/                   # API 服务层
 │   │   ├── aiService.ts          # 统一AI服务核心
 │   │   ├── unifiedAIService.ts   # 环境感知AI路由
 │   │   ├── request.ts            # HTTP请求封装
 │   │   ├── hotTopicsService.ts   # 热点话题API
+│   │   ├── contentAdapter.ts     # 内容适配服务
+│   │   ├── imageGenerationService.ts # 图像生成服务
+│   │   ├── platformApiService.ts # 平台API服务
+│   │   ├── 📁 providers/         # API提供商适配器
+│   │   │   ├── openai.ts         # OpenAI API适配
+│   │   │   └── deepseek.ts       # DeepSeek API适配
 │   │   └── index.ts              # API统一导出
 │   ├── 📁 components/            # React 组件
 │   │   ├── 📁 ui/               # 基础UI组件 (shadcn/ui)
@@ -169,53 +202,162 @@ wenpai/
 │   │   ├── 📁 creative/         # 创意工具组件
 │   │   ├── 📁 landing/          # 落地页组件
 │   │   ├── 📁 layout/           # 布局组件
-│   │   └── 📁 monitoring/       # 性能监控组件
+│   │   ├── 📁 ai/               # AI功能组件
+│   │   ├── 📁 analytics/        # 数据分析组件
+│   │   ├── 📁 extractor/        # 内容提取组件
+│   │   ├── 📁 hot-topics/       # 热点话题组件
+│   │   ├── 📁 payment/          # 支付相关组件
+│   │   ├── 📁 platform/         # 平台集成组件
+│   │   ├── 📁 profile/          # 用户资料组件
+│   │   ├── 📁 shared/           # 共享组件
+│   │   ├── 📁 dialogs/          # 对话框组件
+│   │   ├── 📁 error/            # 错误处理组件
+│   │   └── 📁 dev/              # 开发调试组件
+│   ├── 📁 automation/           # 自动化系统
+│   │   ├── AutomationEngine.ts  # 自动化引擎
+│   │   ├── SecurityCompliance.ts # 安全合规
+│   │   ├── batchForward.ts      # 批量转发
+│   │   └── 📁 adapters/         # 自动化适配器
 │   ├── 📁 contexts/             # React Context
-│   │   ├── UnifiedAuthContext.tsx # 统一认证上下文
-│   │   └── UserDataIsolationProvider.tsx # 用户数据隔离
+│   │   └── UnifiedAuthContext.tsx # 统一认证上下文
 │   ├── 📁 features/             # 功能模块
-│   │   ├── 📁 titleGeneration/  # 标题生成系统
-│   │   ├── 📁 brandLibrary/     # 品牌资料库
-│   │   └── 📁 contentExtraction/ # 内容提取
+│   │   └── 📁 titleGeneration/  # 标题生成系统
 │   ├── 📁 pages/                # 页面组件
 │   │   ├── HomePage.tsx         # 首页
-│   │   ├── AdaptPage.tsx        # 内容适配页
-│   │   ├── BrandLibraryPage.tsx # 品牌资料库
-│   │   ├── HotTopicsPage.tsx    # 热点话题页
+│   │   ├── AdaptPage.tsx        # 内容适配页 (5399行)
+│   │   ├── BrandLibraryPage.tsx # 品牌资料库 (3723行)
+│   │   ├── HotTopicsPage.tsx    # 热点话题页 (2168行)
 │   │   ├── ContentExtractorPage.tsx # 内容提取器
 │   │   ├── CreativeCubePage.tsx # 九宫格创意魔方
 │   │   ├── EmojiPage.tsx        # Emoji生成器
-│   │   └── ...                  # 其他页面
+│   │   ├── BookmarkPage.tsx     # 智能收藏管理
+│   │   ├── WechatTemplatePage.tsx # 朋友圈文案模板
+│   │   ├── PaymentPage.tsx      # 支付页面
+│   │   ├── ProfilePage.tsx      # 用户资料页
+│   │   ├── SettingsPage.tsx     # 设置页面
+│   │   └── ...                  # 其他页面 (90+个页面)
 │   ├── 📁 prompts/              # AI提示词系统
-│   │   └── PromptSystem.ts      # 提示词管理
+│   │   └── PromptSystem.ts      # 统一提示词管理 (2245行)
 │   ├── 📁 services/             # 业务服务
 │   │   ├── tokenUsageService.ts # Token使用统计
-│   │   └── systemMonitorService.ts # 系统监控
+│   │   ├── systemMonitorService.ts # 系统监控
+│   │   ├── brandCorpusService.ts # 品牌语料库服务 (1257行)
+│   │   ├── authService.ts       # 认证服务
+│   │   ├── paymentService.ts    # 支付服务
+│   │   ├── emojiService.ts      # Emoji服务
+│   │   ├── fileFormatSupportService.ts # 文件格式支持
+│   │   ├── webContentExtractor.ts # 网页内容提取
+│   │   └── unifiedUsageService.ts # 统一使用统计
 │   ├── 📁 stores/               # Zustand 状态管理
 │   │   ├── authStore.ts         # 认证状态
 │   │   ├── contentSyncStore.ts  # 内容同步状态
-│   │   └── favoritesStore.ts    # 收藏系统状态
+│   │   ├── favoritesStore.ts    # 收藏系统状态
+│   │   └── tokenUsageStore.ts   # Token使用状态
 │   ├── 📁 utils/                # 工具函数
 │   │   ├── safeStringUtils.ts   # 安全字符串处理
 │   │   ├── authingGuardSafeWrapper.ts # 认证安全包装
-│   │   └── webExtractor.ts      # 网页内容提取
+│   │   ├── userDataIsolation.ts # 用户数据隔离
+│   │   ├── undefinedPreventionSystem.ts # undefined防护系统
+│   │   ├── apiRequestQueue.ts   # API请求队列
+│   │   ├── hashtagGenerator.ts  # 标签生成器
+│   │   └── titleGenerationUtils.ts # 标题生成工具
 │   ├── 📁 config/               # 配置文件
 │   │   ├── authing.ts           # Authing认证配置
 │   │   ├── platformLimits.ts    # 平台限制配置
 │   │   ├── aiModels.ts          # AI模型配置
-│   │   └── subscriptionPlans.ts # 订阅计划配置
-│   └── 📁 types/                # TypeScript 类型定义
+│   │   ├── subscriptionPlans.ts # 订阅计划配置
+│   │   ├── contentForms.ts      # 内容形式配置
+│   │   └── fileFormatConfig.ts  # 文件格式配置
+│   ├── 📁 types/                # TypeScript 类型定义
+│   │   ├── auth.ts              # 认证相关类型
+│   │   ├── brand.ts             # 品牌相关类型
+│   │   ├── subscription.ts      # 订阅相关类型
+│   │   └── authing.d.ts         # Authing类型声明
+│   ├── 📁 guards/               # 路由守卫
+│   ├── 📁 hooks/                # 自定义Hook
+│   ├── 📁 lib/                  # 核心库函数
+│   ├── 📁 constants/            # 常量定义
+│   └── 📁 styles/               # 样式文件
 ├── 📁 netlify/                  # Netlify Functions
 │   └── 📁 functions/            # 服务端API函数
 │       └── api.cjs              # 统一API代理
-├── 📁 .augment/                 # 代码助手规则
-│   └── 📁 rules/                # 开发规则配置
+├── 📁 .augment/                 # Augment代码助手配置
+│   └── 📁 rules/                # 开发规则与用户指南
+│       ├── authing.md           # 认证系统保护规则
+│       ├── 统一请求封装.md        # API调用规范
+│       ├── 多轮测试.md           # 自动化验证要求
+│       ├── 聚焦解决问题.md       # 问题解决原则
+│       ├── 自动加载.md           # 规则自动加载
+│       ├── 硬编码.md             # 配置管理规范
+│       └── ...                  # 其他开发规则
 └── 📄 配置文件
     ├── package.json             # 项目依赖
     ├── vite.config.ts           # Vite配置
     ├── tailwind.config.js       # Tailwind配置
     └── tsconfig.json            # TypeScript配置
 ```
+
+---
+
+## 🏗️ 架构设计与重构
+
+### 📊 代码质量现状
+
+项目当前包含一些大型组件文件，正在进行模块化重构：
+
+| 文件名 | 当前行数 | 状态 | 重构计划 |
+|--------|----------|------|----------|
+| **AdaptPage.tsx** | 5,399行 | 🔄 计划重构 | 拆分为6个模块 |
+| **BrandLibraryPage.tsx** | 3,723行 | ✅ 已修复JSX错误 | 拆分为5个模块 |
+| **HotTopicsPage.tsx** | 2,168行 | 🔄 监控中 | 逐步优化 |
+| **CreativeCube.tsx** | 2,622行 | 🔄 监控中 | 组件拆分 |
+| **PromptSystem.ts** | 2,245行 | ✅ 功能完整 | 模块化提示词 |
+
+### 🎯 重构原则
+
+#### 安全第一
+- ✅ **原文件备份**: 保留原始文件作为回退方案
+- ✅ **渐进式重构**: 逐步替换，确保功能完整性
+- ✅ **向后兼容**: 新接口兼容旧调用方式
+- ✅ **回归保护**: 每次变更都有测试覆盖
+
+#### 架构分层
+- 🎨 **UI层**: 纯展示组件，无业务逻辑
+- 🧠 **逻辑层**: 状态管理、业务逻辑Hook
+- 🔌 **服务层**: API调用、数据处理
+
+#### 模块化设计
+```typescript
+// 示例：AdaptPage重构后的结构
+📁 src/pages/AdaptPage/
+├── 📄 index.tsx                    (兼容入口)
+├── 📄 AdaptPageNew.tsx             (新实现)
+├── 📁 hooks/                       (逻辑层)
+│   ├── useContentGeneration.ts     (内容生成)
+│   └── usePlatformSettings.ts      (平台设置)
+├── 📁 components/                  (UI层)
+│   ├── PlatformSelector.tsx        (平台选择)
+│   ├── ContentInput.tsx            (内容输入)
+│   └── ResultsDisplay.tsx          (结果展示)
+├── 📁 services/                    (服务层)
+│   └── contentGenerationService.ts (API服务)
+└── 📁 types/                       (类型定义)
+    └── index.ts                    (统一类型)
+```
+
+### 🛡️ 质量保证
+
+#### CI/CD质量门槛
+- **构建检查**: TypeScript类型检查、ESLint规范
+- **测试覆盖**: 单元测试覆盖率80%+
+- **性能监控**: Bundle大小、加载时间监控
+- **安全扫描**: 依赖漏洞检查、代码安全审计
+
+#### 开发规范
+- **代码审查**: 每个PR必须经过代码审查
+- **测试先行**: 新功能必须包含测试用例
+- **文档同步**: 代码变更同步更新文档
+- **版本管理**: 语义化版本控制
 
 ---
 
@@ -298,6 +440,56 @@ VITE_SECURITY_LEVEL=high
 - **知乎热榜**: 深度讨论话题
 - **B站热门**: 视频内容趋势
 - **抖音热点**: 短视频流行趋势
+
+#### 5. Augment代码助手配置
+
+项目集成了智能代码助手系统，自动加载开发规则：
+
+##### 规则文件结构
+```
+📁 .augment/rules/
+├── 📄 自动加载.md           # 规则自动加载机制
+├── 📄 统一请求封装.md       # API调用规范
+├── 📄 多轮测试.md           # 自动化验证要求
+├── 📄 authing.md            # 认证系统保护
+├── 📄 聚焦解决问题.md       # 问题解决原则
+├── 📄 硬编码.md             # 配置管理规范
+├── 📄 删除功能组件.md       # 功能保护规则
+├── 📄 弹窗.md               # UI组件规范
+└── 📄 ...                   # 其他开发规则
+```
+
+##### 规则自动加载
+```typescript
+// 系统启动时自动执行
+async function loadAugmentRules() {
+  const rulesPath = '.augment/rules/';
+  const rules = await loadRulesFromDirectory(rulesPath);
+
+  // 验证规则完整性
+  validateRules(rules);
+
+  // 应用到开发环境
+  applyRulesToEnvironment(rules);
+
+  console.log(`✅ 已加载 ${rules.length} 条开发规则`);
+}
+```
+
+##### 用户自定义规则
+开发者可以添加项目特定的规则：
+
+```markdown
+<!-- .augment/rules/custom-api-rule.md -->
+---
+type: "always_apply"
+---
+{
+  "name": "API响应时间监控",
+  "severity": "warning",
+  "description": "所有API调用必须包含响应时间监控，超过3秒需要优化提示"
+}
+```
 
 ---
 
@@ -493,22 +685,35 @@ const result = await request.post('/api/endpoint', {
 npm run build
 npm run type-check
 
+# 代码质量检查
+npm run lint
+npm run lint:fix
+
 # 开发服务器
 npm run dev
 
 # 生产预览
 npm run preview
+
+# 部署到Netlify
+npm run deploy:netlify
+
+# 清理缓存
+npm run clean
 ```
 
 ### 核心功能测试
 
 | 功能模块 | 测试页面 | 验证内容 |
 |---------|----------|----------|
-| **AI服务** | `/test-ai` | AI模型调用、响应解析 |
+| **AI服务** | `/ai-test` | AI模型调用、响应解析 |
 | **认证系统** | `/auth-test` | 登录流程、权限验证 |
 | **热点数据** | `/hot-topics` | 数据获取、实时更新 |
 | **品牌库** | `/brand-library` | 数据管理、智能分析 |
 | **内容提取** | `/extractor` | 多源提取、AI总结 |
+| **支付系统** | `/payment-test` | 支付流程、订阅管理 |
+| **Emoji生成** | `/emoji-test` | 图像生成、风格定制 |
+| **自动化流程** | `/automation-test` | 批量处理、工作流 |
 
 ### 自动化验证流程
 
@@ -539,6 +744,262 @@ npm run build:analyze
 - ✅ **统一错误处理**: 异常捕获和用户友好提示
 - ✅ **性能监控**: 实时性能指标和优化建议
 - ✅ **安全防护**: XSS防护、CSRF保护、数据加密
+
+---
+
+## 👨‍💻 开发者指南
+
+### 🚀 快速上手
+
+#### 开发环境设置
+```bash
+# 1. 克隆项目
+git clone https://github.com/xiongtingping/wenpai.git
+cd wenpai
+
+# 2. 安装依赖
+npm install
+
+# 3. 配置环境变量
+cp env.example .env.local
+# 编辑 .env.local，添加必要的API密钥
+
+# 4. 启动开发服务器
+npm run dev
+```
+
+#### 开发工具推荐
+- **IDE**: VS Code + TypeScript插件
+- **调试**: React Developer Tools
+- **API测试**: 内置调试页面 `/ai-test`
+- **性能分析**: `npm run build:analyze`
+
+### 🏗️ 架构理解
+
+#### 核心概念
+1. **统一AI服务**: 所有AI调用通过 `aiService.ts` 统一管理
+2. **环境感知路由**: 开发/生产环境自动选择最优调用方式
+3. **用户数据隔离**: 企业级数据安全和隐私保护
+4. **模块化组件**: 大型组件正在重构为小模块
+
+#### 关键文件说明
+```typescript
+// 核心AI服务
+src/api/aiService.ts          // 统一AI调用接口
+src/api/unifiedAIService.ts   // 环境感知路由
+src/prompts/PromptSystem.ts   // 提示词管理系统
+
+// 认证系统
+src/contexts/UnifiedAuthContext.tsx  // 统一认证上下文
+src/config/authing.ts               // Authing配置
+
+// 状态管理
+src/stores/authStore.ts         // 认证状态
+src/stores/contentSyncStore.ts  // 内容同步
+src/stores/favoritesStore.ts    // 收藏系统
+```
+
+### 🤖 Augment代码助手与规则系统
+
+#### 📋 规则系统概述
+
+项目集成了 **Augment代码助手**，通过智能规则系统确保代码质量和开发规范。所有规则存储在 `.augment/rules/` 目录中，自动加载并应用于开发过程。
+
+#### 🔧 核心规则类别
+
+| 规则类型 | 文件 | 严重级别 | 描述 |
+|---------|------|----------|------|
+| **自动加载** | `自动加载.md` | Critical | 每次任务前必须加载规则与用户指南 |
+| **统一封装** | `统一请求封装.md` | Error | 所有API调用必须通过统一封装 |
+| **多轮测试** | `多轮测试.md` | Critical | 任务执行必须包含自动化验证流程 |
+| **认证保护** | `authing.md` | Error | 禁止破坏Authing登录与认证系统 |
+| **聚焦解决** | `聚焦解决问题.md` | Warning | 专注解决当前问题，避免过度重构 |
+| **配置管理** | `硬编码.md` | Error | 禁止硬编码配置项，必须使用环境变量 |
+
+#### 🛡️ 关键规则详解
+
+##### 1. 自动加载规则 (Critical)
+```json
+{
+  "name": "每次任务开始前必须加载规则与用户指南",
+  "severity": "critical",
+  "description": "Augment在执行任何任务前，必须先自动加载并应用当前项目的Rules与User Guidelines。如果规则未加载成功，必须中止任务并提醒用户配置。"
+}
+```
+
+##### 2. 统一请求封装 (Error)
+```typescript
+// ✅ 正确：使用统一封装
+import { request } from '@/api/request';
+import { callAI } from '@/api/aiService';
+import { useUnifiedAuth } from '@/hooks/useAuth';
+
+// ❌ 错误：私自调用
+// 禁止使用 fetch、axios.create() 或私自封装
+```
+
+##### 3. 多轮测试验证 (Critical)
+```bash
+# 必须执行的验证流程
+npm run build      # 构建检查
+npm run type-check # 类型检查
+npm run test       # 单元测试
+npm run dev        # 启动验证
+# 至少3轮自动验证才能完成任务
+```
+
+##### 4. 聚焦解决问题 (Warning)
+- ✅ 专注于解决当前用户提出的具体问题
+- ❌ 不要在无关区域进行重构或优化
+- ✅ 保留现有可用代码，仅在必要处修改
+- ❌ 避免因重构而大面积替换原有逻辑
+
+#### 🔄 规则自动应用
+
+##### 开发流程中的自动检查
+```bash
+# 1. 任务开始前
+✅ 自动加载 .augment/rules/ 中的所有规则
+✅ 验证规则完整性和有效性
+✅ 应用用户自定义指南
+
+# 2. 代码修改时
+✅ 实时检查是否违反规则
+✅ 自动提示规范要求
+✅ 阻止不符合规范的操作
+
+# 3. 任务完成前
+✅ 执行多轮自动验证
+✅ 确保所有规则得到遵守
+✅ 生成合规性报告
+```
+
+##### 规则违反处理
+```typescript
+// 示例：违反统一封装规则时的处理
+if (detectDirectAPICall()) {
+  throw new RuleViolationError({
+    rule: "统一请求封装",
+    severity: "error",
+    message: "检测到直接API调用，请使用 request.ts 统一封装",
+    suggestion: "import { request } from '@/api/request';"
+  });
+}
+```
+
+#### 📝 用户自定义规则
+
+##### 添加新规则
+```markdown
+<!-- .augment/rules/custom-rule.md -->
+---
+type: "always_apply"
+---
+{
+  "name": "自定义规则名称",
+  "severity": "warning|error|critical",
+  "description": "规则描述和要求"
+}
+```
+
+##### 规则优先级
+1. **Critical**: 阻断性规则，违反时中止任务
+2. **Error**: 错误级规则，必须修复才能继续
+3. **Warning**: 警告级规则，提示但不阻断
+
+#### 🔍 规则监控与报告
+
+##### 实时监控
+- 📊 规则遵守率统计
+- 🚨 违规行为实时告警
+- 📈 代码质量趋势分析
+- 🎯 团队规范执行情况
+
+##### 合规性报告
+```bash
+# 生成规则遵守报告
+npm run rules:check
+
+# 输出示例
+✅ 统一请求封装: 100% 遵守
+✅ 认证系统保护: 100% 遵守
+⚠️  聚焦解决问题: 85% 遵守 (3个警告)
+❌ 硬编码检查: 发现2个违规项
+```
+
+### 🔧 开发规范
+
+#### 代码规范
+```typescript
+// 组件命名：PascalCase
+export function ContentGenerator() {}
+
+// Hook命名：use开头
+export function useContentGeneration() {}
+
+// 服务命名：Service结尾
+export class ContentGenerationService {}
+
+// 类型命名：Interface/Type
+interface ContentGenerationParams {}
+type AIModel = 'gpt-4o' | 'deepseek-chat';
+```
+
+#### 文件组织
+```
+📁 新功能开发建议结构：
+├── 📄 index.tsx              (主组件)
+├── 📁 components/            (子组件)
+├── 📁 hooks/                 (业务逻辑)
+├── 📁 services/              (API服务)
+├── 📁 types/                 (类型定义)
+├── 📁 utils/                 (工具函数)
+└── 📁 __tests__/             (测试文件)
+```
+
+#### API调用规范
+```typescript
+// ✅ 正确：使用统一AI服务
+import { callAI } from '@/api/aiService';
+
+const result = await callAI({
+  prompt: "生成内容",
+  taskType: AITaskType.CONTENT_GENERATION,
+  model: "gpt-4o"
+});
+
+// ❌ 错误：直接调用AI API
+// 禁止直接使用 fetch 或 axios 调用AI服务
+```
+
+### 🧪 测试指南
+
+#### 测试类型
+1. **单元测试**: Hook和工具函数
+2. **组件测试**: UI组件渲染和交互
+3. **集成测试**: 完整功能流程
+4. **E2E测试**: 用户关键路径
+
+#### 测试示例
+```typescript
+// Hook测试
+import { renderHook } from '@testing-library/react';
+import { useContentGeneration } from '../hooks/useContentGeneration';
+
+test('should generate content', async () => {
+  const { result } = renderHook(() => useContentGeneration());
+  // 测试逻辑
+});
+
+// 组件测试
+import { render, screen } from '@testing-library/react';
+import { ContentGenerator } from '../ContentGenerator';
+
+test('should render content generator', () => {
+  render(<ContentGenerator />);
+  expect(screen.getByText('生成内容')).toBeInTheDocument();
+});
+```
 
 ---
 
@@ -694,6 +1155,52 @@ netlify logs
 npm run build && npm run preview
 ```
 
+#### 5. Augment代码助手问题
+
+**Q: 规则加载失败**
+```bash
+# 检查规则文件格式
+find .augment/rules -name "*.md" -exec echo "检查文件: {}" \;
+
+# 验证规则JSON格式
+node -e "
+const fs = require('fs');
+const files = fs.readdirSync('.augment/rules');
+files.forEach(file => {
+  if (file.endsWith('.md')) {
+    const content = fs.readFileSync(\`.augment/rules/\${file}\`, 'utf8');
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        JSON.parse(jsonMatch[0]);
+        console.log(\`✅ \${file}: JSON格式正确\`);
+      } catch (e) {
+        console.log(\`❌ \${file}: JSON格式错误 - \${e.message}\`);
+      }
+    }
+  }
+});
+"
+```
+
+**Q: 规则违反警告**
+```bash
+# 查看规则遵守情况
+npm run rules:check
+
+# 修复常见违规问题
+npm run rules:fix
+
+# 生成规则报告
+npm run rules:report
+```
+
+**解决方案:**
+- 确保所有规则文件使用正确的Markdown + JSON格式
+- 检查规则的severity级别设置
+- 验证规则描述的完整性和准确性
+- 定期更新规则以适应项目发展
+
 ### 系统监控
 
 #### 性能监控
@@ -747,6 +1254,12 @@ npm run build:analyze
 - **⚡ 智能缓存机制**: 多层缓存策略，提升响应速度
 - **🔍 实时性能监控**: 内置性能监控和自动优化建议
 - **🎯 模块化架构**: 高度模块化设计，易于扩展和维护
+- **🧠 智能提示词系统**: 模块化提示词管理，支持动态组合
+- **🔒 用户数据隔离**: 企业级数据安全和隐私保护
+- **🚀 自动化工作流**: 批量处理和智能化内容生产流水线
+- **🤖 智能代码助手**: Augment集成，自动加载规则和用户指南
+- **📋 规则驱动开发**: 17+条开发规则，确保代码质量和规范性
+- **🔄 多轮自动验证**: 构建、测试、部署全流程自动化验证
 
 ### 用户体验
 
@@ -763,6 +1276,9 @@ npm run build:analyze
 - **📊 数据分析**: 详细的使用统计和效果分析
 - **🔄 自动备份**: 重要数据自动备份和恢复
 - **🛠️ 可扩展架构**: 支持插件化扩展和自定义开发
+- **💰 灵活计费**: 基于Token使用的精确计费系统
+- **🔧 开发友好**: 完整的开发工具和调试界面
+- **📈 性能优化**: 自动化性能监控和优化建议
 
 ## 📞 支持与联系
 
@@ -780,8 +1296,11 @@ npm run build:analyze
 
 - **GitHub仓库**: [xiongtingping/wenpai](https://github.com/xiongtingping/wenpai)
 - **主要维护者**: [@xiongtingping](https://github.com/xiongtingping)
-- **当前版本**: v2.0.0
-- **最后更新**: 2025年1月
+- **当前版本**: v2.1.0
+- **最后更新**: 2025年8月
+- **代码行数**: 90,000+ 行
+- **组件数量**: 200+ 个
+- **页面数量**: 90+ 个
 
 ---
 
@@ -811,10 +1330,12 @@ copies or substantial portions of the Software.
 
 ### 近期计划 (Q1 2025)
 
+- [x] **大型组件重构**: AdaptPage和BrandLibraryPage模块化重构
 - [ ] **AI模型扩展**: 集成Claude、文心一言等更多AI模型
 - [ ] **协作功能增强**: 实时协作编辑和评论系统
 - [ ] **移动端优化**: PWA支持和移动端专用功能
 - [ ] **API开放平台**: 提供开放API供第三方集成
+- [ ] **测试覆盖提升**: 完善单元测试和E2E测试
 
 ### 中期目标 (Q2-Q3 2025)
 

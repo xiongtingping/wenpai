@@ -25,26 +25,29 @@ body.authing-guard-open {
   pointer-events: auto !important;
 }
 
-/* 背景遮罩 */
+/* 背景遮罩 - 增强磨砂效果 */
 .authing-guard-overlay {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  background-color: hsl(var(--foreground) / 0.5) !important;
-  backdrop-filter: blur(4px) !important;
+  background-color: hsl(var(--foreground) / 0.6) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
 }
 
-/* 弹窗主体 */
+/* 弹窗主体 - 增强磨砂效果 */
 .authing-guard-modal {
   position: relative !important;
   width: 90vw !important;
   max-width: 400px !important;
   max-height: 90vh !important;
-  background: hsl(var(--background)) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.25) !important;
+  background: hsl(var(--background) / 0.95) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px hsl(var(--foreground) / 0.35), 0 0 0 1px hsl(var(--border) / 0.2) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   overflow: hidden !important;
   z-index: 100000 !important;
   animation: authing-modal-fade-in 0.3s ease-out !important;

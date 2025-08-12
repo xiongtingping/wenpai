@@ -63,6 +63,7 @@ import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltTex
 import { avatarService } from '@/services/avatarService';
 import AuthService from '@/services/authService';
 import { isDevelopment } from '@/utils/env-validator';
+import { subscriptionDataService } from '@/services/subscriptionDataService';
 
 /**
  * 个人中心页面组件
@@ -114,61 +115,9 @@ export default function ProfilePage() {
   };
 
   /**
-   * 根据账户类型生成对应的统计数据
+   * 使用统一的订阅数据服务生成用户统计数据
    */
-  const generateUserStatsByAccountType = (accountType: string) => {
-    const baseStats = {
-      userId: 'temp_1752390537259_3180',
-      accountType,
-      usedCount: 3,
-      registrationDate: '2025/7/12',
-      timeSaved: 45,
-      contentGenerated: 3
-    };
-
-    switch (accountType) {
-      case '体验版':
-        return {
-          ...baseStats,
-          availableUses: 10,
-          tokenLimit: 100000,
-          usedTokens: 25000
-        };
-      case '专业版':
-        return {
-          ...baseStats,
-          availableUses: 100,
-          tokenLimit: 500000,
-          usedTokens: 125000
-        };
-      case '高级版':
-        return {
-          ...baseStats,
-          availableUses: -1, // 无限制
-          tokenLimit: -1,    // 无限制
-          usedTokens: 250000
-        };
-      default:
-        return {
-          ...baseStats,
-          availableUses: 10,
-          tokenLimit: 100000,
-          usedTokens: 25000
-        };
-    }
-  };
-
-  // 根据用户的实际订阅状态生成统计数据
-  const getUserAccountType = () => {
-    if (!user) return '体验版';
-
-    // 根据用户的订阅状态判断账户类型
-    if (user.subscriptionTier === 'premium') return '高级版';
-    if (user.subscriptionTier === 'pro') return '专业版';
-    return '体验版';
-  };
-
-  const userStats = generateUserStatsByAccountType(getUserAccountType());
+  const userStats = subscriptionDataService.generateUserStats(user);
 
   // 计算陪伴天数
   const companionDays = calculateCompanionDays(userStats.registrationDate);

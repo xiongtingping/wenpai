@@ -89,8 +89,8 @@ export const TopNavigation: React.FC = () => {
   const navItems = [
     { path: '/', label: '首页', icon: Home, requiresAuth: false },
     { path: '/adapt', label: 'AI内容适配器', icon: FileText, requiresAuth: true },
-    { path: '/creative-studio', label: '创意魔方', icon: Sparkles, requiresAuth: true },
     { path: '/hot-topics', label: '全网雷达', icon: TrendingUp, requiresAuth: true },
+    { path: '/creative-studio', label: '创意魔方', icon: Sparkles, requiresAuth: true },
     { path: '/library', label: '我的资料库', icon: FolderOpen, requiresAuth: true },
     { path: '/brand-library', label: '品牌库', icon: Users, requiresAuth: true },
   ];

@@ -56,6 +56,8 @@ export interface SubscriptionPlan {
   limits: FeatureLimits;
   /** 是否推荐 */
   recommended?: boolean;
+  /** 是否为高级版（用于显示特殊标签） */
+  premiumLabel?: boolean;
   /** 特色标签 */
   features: string[];
 }

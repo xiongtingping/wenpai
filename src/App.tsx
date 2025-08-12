@@ -43,6 +43,8 @@ import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
+import SettingsPermissionDemo from '@/pages/SettingsPermissionDemo';
+import SubscriptionDataTestPage from '@/pages/SubscriptionDataTestPage';
 import TokenTestPage from '@/pages/TokenTestPage';
 import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
 import { TestLoginPage } from '@/pages/TestLoginPage';
@@ -69,6 +71,11 @@ import FileFormatTestPage from '@/pages/FileFormatTestPage';
 import HistoryPage from '@/pages/HistoryPage';
 import RouteTestPage from '@/pages/RouteTestPage';
 import ButtonStyleTestPage from '@/pages/ButtonStyleTestPage';
+import PermissionUpgradeTestPage from '@/pages/PermissionUpgradeTestPage';
+import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
+import BlurEffectTestPage from '@/pages/BlurEffectTestPage';
+import DiscountTestPage from '@/pages/DiscountTestPage';
+import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 
 /**
  * 条件性导航组件
@@ -145,7 +152,7 @@ function AppContent() {
         {/* 开发环境性能统计 */}
         {import.meta.env.DEV && <PerformanceStats visible={false} />}
 
-        <div className="min-h-screen bg-background">
+        <div className={`min-h-screen ${location.pathname === '/payment' ? '' : 'bg-background'}`}>
           <Routes>
           {/* 公开页面 */}
           <Route path="/" element={<HomePage />} />
@@ -154,7 +161,11 @@ function AppContent() {
           <Route path="/callback" element={<CallbackPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/emoji-generator" element={<EmojiPage />} />
+          <Route path="/emoji-generator" element={
+            <PermissionGuard required="feature:emoji-generator">
+              <EmojiPage />
+            </PermissionGuard>
+          } />
           
           {/* 支付相关页面 */}
           <Route path="/payment" element={<PaymentPage />} />
@@ -275,6 +286,8 @@ function AppContent() {
           {/* 测试页面 */}
           <Route path="/ai-config-test" element={<AIConfigTestPage />} />
           <Route path="/permission-test" element={<PermissionTestPage />} />
+          <Route path="/settings-permission-demo" element={<SettingsPermissionDemo />} />
+          <Route path="/subscription-data-test" element={<SubscriptionDataTestPage />} />
           <Route path="/token-test" element={<TokenTestPage />} />
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
@@ -295,6 +308,11 @@ function AppContent() {
           <Route path="/web-extractor-test" element={<WebExtractorTestPage />} />
           <Route path="/file-format-test" element={<FileFormatTestPage />} />
           <Route path="/button-style-test" element={<ButtonStyleTestPage />} />
+          <Route path="/permission-upgrade-test" element={<PermissionUpgradeTestPage />} />
+          <Route path="/upgrade-comparison" element={<UpgradeComparisonPage />} />
+          <Route path="/blur-effect-test" element={<BlurEffectTestPage />} />
+          <Route path="/discount-test" element={<DiscountTestPage />} />
+          <Route path="/feature-showcase" element={<FeatureShowcasePage />} />
 
           {/* 历史记录页面 */}
           <Route path="/history" element={

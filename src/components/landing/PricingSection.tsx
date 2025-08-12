@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext"
-import { Crown, Sparkles, Check, X, Star } from "lucide-react"
+import { Crown, Sparkles, Check, X, Star, TrendingUp } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
 import { 
@@ -91,7 +91,19 @@ export function PricingSection() {
     return features
       .filter(f => !/免费|专业版/.test(f)) // 只去掉"免费"、"专业版"等文案，保留次数信息
       .map((feature, index) => {
-        const text = feature
+        // 解析功能标记
+        let originalFeature = feature;
+        let badgeType = null;
+
+        if (feature.includes('|new')) {
+          originalFeature = feature.replace('|new', '');
+          badgeType = 'new';
+        } else if (feature.includes('|up')) {
+          originalFeature = feature.replace('|up', '');
+          badgeType = 'up';
+        }
+
+        const text = originalFeature
           .replace(/创意工作室/g, '创意魔方') // 替换
           .replace(/九宫格创意魔方/g, '九宫格创意魔方法') // 替换
           .replace(/专业功能/g, '更多功能') // 替换
@@ -99,12 +111,23 @@ export function PricingSection() {
           .replace(/热点话题/g, m => m.replace('免费', '')) // 去除热点话题下免费
           .replace(/\s+/g, ' ') // 清理多余空格
           .trim();
-        
+
         return (
           <li key={index} className="flex items-start space-x-3">
             <Check className={`w-5 h-5 mt-0.5 text-foreground`} />
             <div className="flex items-center gap-2 flex-1">
               <span className="font-medium">{text}</span>
+              {badgeType === 'new' && (
+                <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">
+                  NEW
+                </span>
+              )}
+              {badgeType === 'up' && (
+                <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3" />
+                  UP
+                </span>
+              )}
             </div>
           </li>
         );
@@ -184,7 +207,7 @@ export function PricingSection() {
               }}
             >
               <span className="relative z-10 drop-shadow-sm">
-                按年订阅 <span className="text-xs ml-1 font-extrabold bg-white/20 px-1.5 py-0.5 rounded-full">(省80-202元)</span>
+                按年订阅 <span className="text-xs ml-1 font-extrabold text-yellow-200">(立省17%)</span>
               </span>
               {billing === "yearly" && (
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 animate-pulse"></div>
@@ -198,6 +221,7 @@ export function PricingSection() {
           {SUBSCRIPTION_PLANS.map((plan) => {
             const pricing = billing === 'monthly' ? plan.monthly : plan.yearly;
             const isRecommended = plan.recommended;
+            const isPremium = plan.premiumLabel;
             const isTrial = plan.tier === 'trial';
 
             return (
@@ -209,6 +233,12 @@ export function PricingSection() {
                   <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-primary/20">
                     <Star className="w-3 h-3 mr-1 inline fill-current" />
                     推荐
+                  </span>
+                )}
+                {isPremium && (
+                  <span className="absolute top-0 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-purple/20">
+                    <Crown className="w-3 h-3 mr-1 inline fill-current" />
+                    {billing === 'yearly' ? '更省' : '全部功能'}
                   </span>
                 )}
                 
@@ -228,31 +258,34 @@ export function PricingSection() {
                 <div className="mt-6 pricing-container">
                   {isTrial ? (
                     <div className="text-center">
-                      <div className="text-5xl font-extrabold text-foreground pricing-price">
-                        <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥0</span>
+                      <div className="flex items-baseline justify-center gap-2">
+                        <div className="text-5xl font-extrabold text-foreground pricing-price">
+                          <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥0</span>
+                        </div>
+                        <span className="text-lg text-muted-foreground">永久免费</span>
                       </div>
-                      <p className="text-muted-foreground">永久免费</p>
                     </div>
                   ) : (
                     <div className="text-center">
                       {isAuthenticated && inPromo ? (
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.discountPrice}</span>
                           </div>
-                          <div className="flex flex-col items-start">
+                          <span className="text-lg text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
+                          <div className="flex flex-col items-start ml-2">
                             <span className="text-xs text-destructive font-semibold">限时特惠</span>
                             <span className="text-xs text-muted-foreground line-through">¥{pricing.originalPrice}</span>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-baseline justify-center gap-2">
                           <div className="text-5xl font-extrabold pricing-price text-foreground">
                             <span style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>¥{pricing.originalPrice}</span>
                           </div>
+                          <span className="text-lg text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</span>
                         </div>
                       )}
-                      <p className="text-muted-foreground">/{billing === "monthly" ? "月" : "年"}</p>
                       {isAuthenticated && inPromo && (
                         <p className="text-xs text-destructive mt-1">省¥{pricing.savedAmount}</p>
                       )}

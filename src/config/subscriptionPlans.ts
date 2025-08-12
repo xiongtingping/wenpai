@@ -25,14 +25,14 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       adaptUsageLimit: 10,
       tokenLimit: 100000,
       availableModels: ['GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['我的资料库', '基础模型', '全网雷达']
+      availableFeatures: ['全网雷达', '我的资料库', '基础AI模型']
     },
     features: [
       'AI内容适配器（10次/月）',
       '全网雷达',
       '我的资料库',
       'Token额度：10万/月',
-      '基础模型',
+      '基础AI模型',
       '浅色主题'
     ]
   },
@@ -57,17 +57,17 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       adaptUsageLimit: 30,
       tokenLimit: 200000,
       availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['创意魔方', '我的资料库', '高级模型', '全网雷达']
+      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '高级AI模型']
     },
     recommended: true,
     features: [
-      'AI内容适配器（30次/月）',
-      '创意魔方',
+      'AI内容适配器（30次/月）|up',
       '全网雷达',
+      '创意魔方|new',
       '我的资料库',
-      'Token额度：20万/月',
-      '高级模型',
-      '浅色/深色主题'
+      'Token额度：20万/月|up',
+      '高级AI模型|up',
+      '浅色/深色主题|up'
     ]
   },
   {
@@ -75,6 +75,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: '高级版',
     tier: 'premium',
     description: '适合专业团队和企业用户',
+    premiumLabel: true, // 标识为高级版，用于显示特殊标签
     monthly: {
       originalPrice: 99,
       discountPrice: 79,
@@ -91,17 +92,17 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       adaptUsageLimit: -1, // 不限量
       tokenLimit: 500000,
       availableModels: ['GPT-4o', 'GPT-4o mini', 'DeepSeek v3'],
-      availableFeatures: ['创意魔方', '我的资料库', '品牌库', '高级模型及最新模型', '全网雷达']
+      availableFeatures: ['全网雷达', '创意魔方', '我的资料库', '品牌库', '高级及最新AI模型']
     },
     features: [
-      'AI内容适配器（不限次数）',
-      '创意魔方',
+      'AI内容适配器（不限次数）|up',
       '全网雷达',
+      '创意魔方',
       '我的资料库',
-      '品牌库',
-      'Token额度：50万/月',
-      '高级及最新模型',
-      '全部主题（浅色/深色/蓝色/米色/绿色）'
+      '品牌库|new',
+      'Token额度：50万/月|up',
+      '高级及最新AI模型|up',
+      '全部主题|up'
     ]
   }
 ];

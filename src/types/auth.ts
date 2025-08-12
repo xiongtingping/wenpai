@@ -10,6 +10,7 @@ export interface UserInfo {
   phone: string;
   avatar: string;
   loginTime: string;
+  registrationDate?: string; // 注册时间，用于计算限时优惠
   roles: string[];
   permissions: string[];
   subscription?: {
