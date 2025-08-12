@@ -84,6 +84,20 @@ export default function PaymentPage() {
   // 倒计时效果（包含毫秒）
   const [timeLeftMs, setTimeLeftMs] = useState(0);
 
+  // 从localStorage读取预选的计划
+  useEffect(() => {
+    const savedPlanTier = localStorage.getItem('selectedPlan');
+    if (savedPlanTier) {
+      const plan = SUBSCRIPTION_PLANS.find(p => p.tier === savedPlanTier);
+      if (plan) {
+        setSelectedPlan(plan);
+        console.log('自动选择计划:', plan.name);
+      }
+      // 清除localStorage中的选择，避免重复使用
+      localStorage.removeItem('selectedPlan');
+    }
+  }, []);
+
   useEffect(() => {
     if (!currentUser?.id) return;
 
@@ -380,7 +394,7 @@ export default function PaymentPage() {
                 }}
               >
                 <span className="relative z-10 drop-shadow-sm">
-                  按年订阅 <span className="text-xs ml-1 font-extrabold text-yellow-200">(立省40%)</span>
+                  按年订阅 <span className="text-xs ml-1 font-extrabold text-yellow-200">(立省17%)</span>
                 </span>
                 {selectedPeriod === 'yearly' && (
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 animate-pulse"></div>

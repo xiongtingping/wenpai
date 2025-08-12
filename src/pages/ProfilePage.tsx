@@ -63,7 +63,7 @@ import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltTex
 import { avatarService } from '@/services/avatarService';
 import AuthService from '@/services/authService';
 import { isDevelopment } from '@/utils/env-validator';
-import { subscriptionDataService } from '@/services/subscriptionDataService';
+import { getUserTier } from '@/utils/subscriptionUtils';
 
 /**
  * 个人中心页面组件
@@ -89,6 +89,7 @@ export default function ProfilePage() {
     email: false
   });
   const [avatarKey, setAvatarKey] = useState(0); // 用于强制刷新头像
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // 登出状态
 
   // ✅ FIXED: 个人资料表单状态 - 使用安全的用户信息获取函数
   const [profileForm, setProfileForm] = useState({
@@ -115,12 +116,18 @@ export default function ProfilePage() {
   };
 
   /**
-   * 使用统一的订阅数据服务生成用户统计数据
+   * 使用真实的Authing用户数据
    */
-  const userStats = subscriptionDataService.generateUserStats(user);
+  const userTier = getUserTier(user);
+  const accountType = userTier === 'trial' ? '体验版' : userTier === 'pro' ? '专业版' : '高级版';
+
+  // 使用真实的用户注册时间
+  const registrationDate = user?.createdAt ?
+    new Date(user.createdAt).toLocaleDateString('zh-CN') :
+    new Date().toLocaleDateString('zh-CN');
 
   // 计算陪伴天数
-  const companionDays = calculateCompanionDays(userStats.registrationDate);
+  const companionDays = calculateCompanionDays(registrationDate);
 
 
 
@@ -242,27 +249,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-
-  /**
-   * 处理登出
-   */
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast({
-        title: "登出成功",
-        description: "您已成功登出账户",
-      });
-    } catch (error) {
-      toast({
-        title: "登出失败",
-        description: "请稍后重试",
-        variant: "destructive",
-      });
-    }
-  };
-
-
 
   /**
    * 处理表单变化
@@ -575,11 +561,36 @@ export default function ProfilePage() {
   };
 
   /**
+   * 处理登出
+   */
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      toast({
+        title: "登出成功",
+        description: "您已成功登出",
+      });
+      // 登出后跳转到首页
+      window.location.href = '/';
+    } catch (error) {
+      console.error('登出失败:', error);
+      toast({
+        title: "登出失败",
+        description: "登出时发生错误，请重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  /**
    * 复制邀请链接
    */
   const handleCopyInviteLink = () => {
-    // 优先使用认证系统的用户ID，确保邀请链接的一致性
-    const safeUserId = user?.id || userStats.userId || 'unknown';
+    // 使用认证系统的用户ID
+    const safeUserId = user?.id || 'unknown';
     const inviteLink = `${window.location.origin}?ref=${safeUserId}`;
     navigator.clipboard.writeText(inviteLink);
     toast({
@@ -592,8 +603,8 @@ export default function ProfilePage() {
    * 复制推荐码
    */
   const handleCopyReferralCode = () => {
-    // 优先使用认证系统的用户ID作为推荐码
-    const safeUserId = user?.id || userStats.userId || 'unknown';
+    // 使用认证系统的用户ID作为推荐码
+    const safeUserId = user?.id || 'unknown';
     navigator.clipboard.writeText(safeUserId);
     toast({
       title: "推荐码已复制",
@@ -605,8 +616,8 @@ export default function ProfilePage() {
    * 立即邀请好友
    */
   const handleInviteFriends = async () => {
-    // 优先使用认证系统的用户ID，确保邀请链接的一致性
-    const safeUserId = user?.id || userStats.userId || 'unknown';
+    // 使用认证系统的用户ID
+    const safeUserId = user?.id || 'unknown';
     const inviteLink = `${window.location.origin}?ref=${safeUserId}`;
 
     try {
@@ -679,6 +690,16 @@ export default function ProfilePage() {
                     <div className="text-sm font-normal text-muted-foreground">管理您的个人信息</div>
                   </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>{isLoggingOut ? '登出中...' : '登出'}</span>
+                </Button>
               </div>
             </CardHeader>
 
@@ -745,14 +766,14 @@ export default function ProfilePage() {
                         <div className="flex flex-wrap gap-1 justify-center mb-3">
                           <Badge
                             variant={
-                              userStats.accountType === '体验版' ? 'secondary' :
-                              userStats.accountType === '专业版' ? 'default' :
+                              accountType === '体验版' ? 'secondary' :
+                              accountType === '专业版' ? 'default' :
                               'premium'
                             }
                             className="text-xs"
                           >
                             <Crown className="w-3 h-3 mr-1" />
-                            {userStats.accountType}
+                            {accountType}
                           </Badge>
                         </div>
 
@@ -777,7 +798,7 @@ export default function ProfilePage() {
                         <div className="w-2 h-2 bg-muted-foreground/40 rounded-full"></div>
                         用户ID
                       </div>
-                      <div className="font-mono text-sm font-semibold text-foreground break-all tabular-nums">{user?.id || userStats.userId}</div>
+                      <div className="font-mono text-sm font-semibold text-foreground break-all tabular-nums">{user?.id || 'unknown'}</div>
                     </div>
                     <div className="rounded-lg p-3 border border-border shadow-e0 bg-card">
                       <div className="text-muted-foreground text-xs mb-1 flex items-center gap-2">
@@ -988,16 +1009,9 @@ export default function ProfilePage() {
           {/* 左侧：使用统计 */}
           <div className="profile-grid-item">
             <TokenUsageSection
-              userTier={userStats.accountType === '体验版' ? 'trial' :
-                       userStats.accountType === '专业版' ? 'pro' : 'premium'}
+              userTier={userTier}
               showDetails={true}
               className="w-full h-full"
-              externalUserStats={{
-                availableUses: userStats.availableUses,
-                usedCount: userStats.usedCount,
-                tokenLimit: userStats.tokenLimit,
-                usedTokens: userStats.usedTokens
-              }}
             />
           </div>
 
@@ -1075,7 +1089,7 @@ export default function ProfilePage() {
 
                       <div className="flex gap-3">
                         <Input
-                          value={`${window.location.origin}?ref=${user?.id || userStats.userId || 'unknown'}`}
+                          value={`${window.location.origin}?ref=${user?.id || 'unknown'}`}
                           readOnly
                           className="text-sm h-11 border border-border rounded-lg bg-accent font-mono flex-1"
                         />

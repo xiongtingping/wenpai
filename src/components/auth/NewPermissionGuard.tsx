@@ -9,6 +9,7 @@ import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
 import { PermissionUpgradeCard } from './PermissionUpgradeCard';
 import { Button } from '@/components/ui/button';
 import { Lock, Crown } from 'lucide-react';
+import { PermissionText, UpgradeText } from '@/components/ui/ThemeAwareText';
 
 interface NewPermissionGuardProps {
   /** 子组件 */
@@ -23,8 +24,6 @@ interface NewPermissionGuardProps {
   className?: string;
   /** 显示模式：inline(内联显示) | dialog(对话框) | overlay(遮罩) */
   mode?: 'inline' | 'dialog' | 'overlay';
-  /** 是否允许预览 */
-  allowPreview?: boolean;
   /** 遮罩透明度 */
   overlayOpacity?: number;
   /** 回退组件 */
@@ -38,13 +37,11 @@ export const NewPermissionGuard: React.FC<NewPermissionGuardProps> = ({
   description,
   className = '',
   mode = 'dialog',
-  allowPreview = false,
   overlayOpacity = 0.3,
   fallback
 }) => {
   const { user } = useUnifiedAuth();
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false);
 
   // 获取用户当前等级
   const getCurrentTier = (): 'trial' | 'pro' | 'premium' => {
@@ -92,75 +89,50 @@ export const NewPermissionGuard: React.FC<NewPermissionGuardProps> = ({
     return (
       <div className={`relative ${className}`}>
         {/* 原始内容 */}
-        <div 
-          className={`relative ${allowPreview && previewMode ? '' : 'pointer-events-none select-none'}`}
-          style={{ 
-            opacity: allowPreview && previewMode ? 1 : 1 - overlayOpacity + 0.3,
-            filter: allowPreview && previewMode ? 'none' : 'blur(0.5px)'
+        <div
+          className="relative pointer-events-none select-none"
+          style={{
+            opacity: 1 - overlayOpacity + 0.3,
+            filter: 'blur(0.5px)'
           }}
         >
           {children}
         </div>
 
         {/* 权限遮罩 */}
-        {(!allowPreview || !previewMode) && (
-          <div 
-            className="absolute inset-0 z-50 flex items-center justify-center p-4"
-            style={{ 
-              backgroundColor: `rgba(255, 255, 255, ${overlayOpacity})`,
-              backdropFilter: 'blur(2px)'
-            }}
-          >
+        <div
+          className="absolute inset-0 z-50 flex items-center justify-center p-4"
+          style={{
+            backgroundColor: `rgba(255, 255, 255, ${overlayOpacity})`,
+            backdropFilter: 'blur(2px)'
+          }}
+        >
             <div className="text-center bg-card rounded-lg shadow-lg border p-6 max-w-sm">
               <Lock className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">解锁 {featureName}</h3>
+              <UpgradeText as="h3" type="title" size="lg" className="mb-2">解锁 {featureName}</UpgradeText>
               {description && (
-                <p className="text-sm text-muted-foreground mb-4">
+                <PermissionText type="description" size="sm" className="mb-4">
                   {description}
-                </p>
+                </PermissionText>
               )}
               
               <div className="space-y-3">
-                <Button 
+                <Button
                   onClick={handleUpgradeClick}
                   className="w-full"
                   size="lg"
                 >
                   <Crown className="h-4 w-4 mr-2" />
-                  查看升级方案
+                  升级解锁功能
                 </Button>
-                
-                {allowPreview && (
-                  <Button 
-                    variant="outline"
-                    onClick={() => setPreviewMode(true)}
-                    className="w-full"
-                    size="sm"
-                  >
-                    预览功能界面
-                  </Button>
-                )}
+
+                <PermissionText type="hint" size="xs">
+                  立即升级，解锁更多高级功能
+                </PermissionText>
               </div>
             </div>
           </div>
-        )}
-
-        {/* 预览模式提示 */}
-        {allowPreview && previewMode && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-200">
-            <div className="text-center p-6 bg-card rounded-lg shadow-lg border max-w-sm">
-              <Lock className="h-8 w-8 text-primary mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">预览模式</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                您正在预览 {featureName} 功能界面
-              </p>
-              <Button size="sm" className="w-full" onClick={handleUpgradeClick}>
-                <Crown className="h-4 w-4 mr-2" />
-                升级解锁完整功能
-              </Button>
-            </div>
-          </div>
-        )}
+        )
 
         {/* 升级对话框 */}
         <PermissionUpgradeDialog
@@ -180,10 +152,10 @@ export const NewPermissionGuard: React.FC<NewPermissionGuardProps> = ({
       {fallback || (
         <div className="text-center py-8">
           <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">需要升级解锁</h3>
-          <p className="text-muted-foreground mb-4">
+          <UpgradeText as="h3" type="title" size="lg" className="mb-2">需要升级解锁</UpgradeText>
+          <PermissionText type="description" size="sm" className="mb-4">
             {featureName} 需要 {requiredTier === 'pro' ? '专业版' : '高级版'} 权限
-          </p>
+          </PermissionText>
           <Button onClick={handleUpgradeClick}>
             <Crown className="h-4 w-4 mr-2" />
             查看升级方案

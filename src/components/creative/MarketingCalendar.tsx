@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import {
   Calendar,
   ChevronLeft,
@@ -1269,10 +1270,15 @@ function MarketingCalendar() {
             </CardTitle>
             <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
               <DialogTrigger asChild>
-                <Button size="sm" className="h-8">
+                <PermissionLockedButton
+                  requiredTier="pro"
+                  featureName="添加待办任务"
+                  size="sm"
+                  className="h-8"
+                >
                   <Plus className="w-4 h-4 mr-1" />
                   添加待办
-                </Button>
+                </PermissionLockedButton>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -1468,13 +1474,15 @@ function MarketingCalendar() {
                           ? '点击上方"添加任务"按钮为该日期创建新任务'
                           : '点击上方"添加任务"按钮创建第一个任务'}
                       </p>
-                      <Button
+                      <PermissionLockedButton
+                        requiredTier="pro"
+                        featureName="添加待办任务"
                         variant="outline"
                         onClick={() => setIsAddingTask(true)}
                       >
                         <Plus className="w-4 h-4 mr-2" />
                         添加任务
-                      </Button>
+                      </PermissionLockedButton>
                     </div>
                   )}
                 </div>

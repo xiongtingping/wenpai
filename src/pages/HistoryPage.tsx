@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Clock, Copy, Trash2 } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
+import { useUserDataIsolation } from '@/utils/userDataIsolation';
 
 /**
  * 历史记录项接口
@@ -31,29 +32,23 @@ export default function HistoryPage() {
   const { toast } = useToast();
   const { user, isAuthenticated } = useUnifiedAuth();
 
-  // 加载历史记录
+  // ✅ FIXED: 用户数据隔离 - 历史记录存储
+  const historyDataManager = useUserDataIsolation({
+    modulePrefix: 'user_history',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  // ✅ FIXED: 加载历史记录 - 使用用户数据隔离
   useEffect(() => {
-    if (isAuthenticated && user) {
-      const username = getUserDisplayName(user, 'anonymous');
-      const historyKey = `history_${username}`;
-      const storedHistory = localStorage.getItem(historyKey);
-      
-      if (storedHistory) {
-        try {
-          const parsedHistory = JSON.parse(storedHistory);
-          setHistory(parsedHistory);
-        } catch (error) {
-          console.error('解析历史记录失败:', error);
-          setHistory([]);
-        }
-      } else {
-        setHistory([]);
-      }
+    const result = historyDataManager.loadData<HistoryItem[]>();
+    if (result.success && result.data) {
+      setHistory(result.data);
     } else {
       setHistory([]);
     }
     setLoading(false);
-  }, [isAuthenticated, user]);
+  }, [user?.id, historyDataManager]);
 
   /**
    * 复制内容到剪贴板
@@ -67,40 +62,30 @@ export default function HistoryPage() {
   };
 
   /**
-   * 删除历史记录项
+   * ✅ FIXED: 删除历史记录项 - 使用用户数据隔离
    */
   const deleteHistoryItem = (index: number) => {
-    if (user) {
-      const username = getUserDisplayName(user, 'anonymous');
-      const historyKey = `history_${username}`;
-      
-      const newHistory = history.filter((_, i) => i !== index);
-      setHistory(newHistory);
-      localStorage.setItem(historyKey, JSON.stringify(newHistory));
-      
-      toast({
-        title: "删除成功",
-        description: "历史记录已删除",
-      });
-    }
+    const newHistory = history.filter((_, i) => i !== index);
+    setHistory(newHistory);
+    historyDataManager.saveData(newHistory);
+
+    toast({
+      title: "删除成功",
+      description: "历史记录已删除",
+    });
   };
 
   /**
-   * 清空所有历史记录
+   * ✅ FIXED: 清空所有历史记录 - 使用用户数据隔离
    */
   const clearAllHistory = () => {
-    if (user) {
-      const username = getUserDisplayName(user, 'anonymous');
-      const historyKey = `history_${username}`;
-      
-      setHistory([]);
-      localStorage.removeItem(historyKey);
-      
-      toast({
-        title: "清空成功",
-        description: "所有历史记录已清空",
-      });
-    }
+    setHistory([]);
+    historyDataManager.removeData();
+
+    toast({
+      title: "清空成功",
+      description: "所有历史记录已清空",
+    });
   };
 
   /**

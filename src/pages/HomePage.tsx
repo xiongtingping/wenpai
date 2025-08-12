@@ -36,32 +36,32 @@ function HomePage() {
         </div>
 
         {/* Trust Section */}
-        <div className="py-16">
+        <div className="py-8">
           <TrustSection />
         </div>
 
         {/* How It Works */}
-        <div className="py-20">
+        <div className="py-12">
           <HowItWorks />
         </div>
 
         {/* Features Section */}
-        <div className="py-20">
+        <div className="py-12">
           <FeaturesSection />
         </div>
 
         {/* Testimonials Section */}
-        <div className="py-20">
+        <div className="py-12">
           <TestimonialsSection />
         </div>
 
         {/* Pricing Section */}
-        <div className="py-20">
+        <div className="py-12">
           <PricingSection />
         </div>
 
         {/* CTA Section */}
-        <div className="py-20">
+        <div className="py-12">
           <CTASection />
         </div>
       </main>

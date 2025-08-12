@@ -34,6 +34,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 
 /**
  * 提取结果接口
@@ -473,7 +474,9 @@ export function ContentExtractor() {
             </div>
 
             <div className="flex items-end">
-              <Button 
+              <PermissionLockedButton
+                requiredTier="premium"
+                featureName="内容提取与AI总结"
                 onClick={() => {
                   if (extractMethod === 'url') {
                     extractFromUrl();
@@ -497,7 +500,7 @@ export function ContentExtractor() {
                     开始提取
                   </>
                 )}
-              </Button>
+              </PermissionLockedButton>
             </div>
           </div>
 

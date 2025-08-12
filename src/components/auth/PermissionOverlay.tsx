@@ -72,7 +72,10 @@ export const PermissionOverlay: React.FC<PermissionOverlayProps> = ({
   const currentTier = tierInfo[requiredTier];
 
   const handleUpgrade = () => {
-    setUpgradeDialogOpen(true);
+    // 保存选中的计划到localStorage
+    localStorage.setItem("selectedPlan", requiredTier);
+    // 直接跳转到支付页面
+    navigate('/payment');
   };
 
   return (

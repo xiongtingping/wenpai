@@ -368,7 +368,7 @@ export function getEmojisByMood(mood: string): EmojiItem[] {
     'angry': ['angry', 'rage', 'furious', 'mad'],
     'love': ['love', 'heart', 'kiss', 'romance'],
     'surprise': ['surprise', 'shock', 'wow', 'astonished'],
-    'fear': ['fear', 'scahsl(var(--destructive))', 'terrified', 'frightened']
+    'fear': ['fear', 'scared', 'terrified', 'frightened']
   };
   
   const keywords = moodKeywords[mood.toLowerCase()] || [];

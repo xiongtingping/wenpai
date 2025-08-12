@@ -313,17 +313,17 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
   const subModules = getSubModules();
 
   return (
-    <div className="border-b bg-card/90 backdrop-blur-sm shadow-e1">
+    <div className="border-b shadow-e1 theme-breadcrumb-bg backdrop-blur-sm">
       <div className="container mx-auto px-4 py-6">
         {/* 面包屑导航 */}
         {breadcrumbs.length > 0 && (
           <div className="mb-4">
             <Breadcrumb>
-              <BreadcrumbList className="flex-wrap text-foreground">
+              <BreadcrumbList className="flex-wrap theme-breadcrumb-text">
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     href="/"
-                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105"
+                    className="flex items-center gap-1 theme-breadcrumb-text hover:theme-breadcrumb-link transition-all duration-200 hover:scale-105"
                   >
                     <Home className="w-4 h-4" />
                     <span className="hidden sm:inline">首页</span>
@@ -332,15 +332,15 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                 {breadcrumbs.map((item, index) => (
                   <React.Fragment key={item.path}>
                     <BreadcrumbSeparator>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <ChevronRight className="w-4 h-4 theme-breadcrumb-text" />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
                       {index === breadcrumbs.length - 1 ? (
-                        <BreadcrumbPage className="flex items-center gap-2 text-foreground">
+                        <BreadcrumbPage className="flex items-center gap-2 theme-breadcrumb-link">
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>
                           {item.badge && (
-                            <Badge variant="outline" className="text-xs bg-accent text-foreground border-border">
+                            <Badge variant="outline" className="text-xs bg-accent border-border theme-breadcrumb-text">
                               {item.badge}
                             </Badge>
                           )}
@@ -348,7 +348,7 @@ export const PageNavigation: React.FC<PageNavigationProps> = ({
                       ) : (
                         <BreadcrumbLink
                           href={item.path}
-                          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105"
+                          className="flex items-center gap-2 theme-breadcrumb-text hover:theme-breadcrumb-link transition-all duration-200 hover:scale-105"
                         >
                           <item.icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{item.title}</span>

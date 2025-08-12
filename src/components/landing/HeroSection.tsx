@@ -7,6 +7,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
+import { ThemeAwareLogo } from '@/components/ui/ThemeAwareLogo';
 
 /**
  * Hero区域组件
@@ -50,21 +51,22 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative py-20 px-4 sm:px-6 lg:px-8" style={{ minHeight: 'auto' }}>
+    <section className="relative py-16 px-4 sm:px-6 lg:px-8" style={{ minHeight: 'auto' }}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* 主标题 - 移除大logo后的优化布局 */}
           <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
               <div className="flex items-center justify-center gap-4">
-                {/* 小熊猫图标 - 使用清晰的SVG文件 */}
-                <img
-                  src="/logo-panda.svg"
-                  alt="文派Logo"
-                  className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
+                {/* 主题感知的熊猫图标 */}
+                <ThemeAwareLogo
+                  size="xl"
+                  className="w-12 h-12 sm:w-16 sm:h-16"
+                  showHoverEffect={false}
+                  showBackground={true}
                 />
-                <span className="text-foreground">
-                  文派 AI 智能创作平台
+                <span className="rainbow-logo-text">
+                  文派 新媒体内容AI适配平台
                 </span>
               </div>
             </h1>
@@ -73,30 +75,30 @@ const HeroSection: React.FC = () => {
             <div className="max-w-4xl mx-auto text-center">
               {/* 第一行：核心价值主张 */}
               <div className="mb-6">
-                <p className="text-xl sm:text-2xl text-foreground font-bold leading-relaxed">
-                  <strong className="text-foreground">
+                <p className="text-xl sm:text-2xl font-bold leading-relaxed theme-hero-subtitle">
+                  <strong className="theme-hero-subtitle">
                     让 AI 为您的品牌创作独特内容
                   </strong>
                 </p>
               </div>
 
               {/* 第二行：四个要点 - 修复对齐问题 */}
-              <div className="text-lg sm:text-xl text-muted-foreground font-medium">
+              <div className="text-lg sm:text-xl theme-hero-points-text font-medium">
                 <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 sm:gap-x-8 lg:gap-x-12">
                   <div className="flex items-center gap-2">
-                    <span className="text-accent text-2xl leading-none">·</span>
+                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">智能分析</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-accent text-2xl leading-none">·</span>
+                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">多平台适配</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-accent text-2xl leading-none">·</span>
+                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">一键生成</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-accent text-2xl leading-none">·</span>
+                    <span className="theme-hero-points-dot text-2xl leading-none">·</span>
                     <span className="whitespace-nowrap">提升营销效果</span>
                   </div>
                 </div>
@@ -109,9 +111,8 @@ const HeroSection: React.FC = () => {
             <div className="relative group inline-block">
               <Button
                 onClick={handleButtonClick}
-                variant="gradient"
                 size="lg"
-                className="relative inline-flex items-center justify-center px-14 py-6 text-xl font-bold rounded-xl overflow-hidden group/button min-h-[4rem] bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
+                className="relative inline-flex items-center justify-center px-14 py-6 text-xl font-bold rounded-xl overflow-hidden group/button min-h-[4rem] theme-hero-button text-white shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
               >
                 <span className="relative z-10 hero-button-content gap-3">
                   <svg className="w-7 h-7 group-hover/button:rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,9 +124,9 @@ const HeroSection: React.FC = () => {
                   </svg>
                 </span>
                 {/* 动态背景效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-hsl(var(--background))/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></div>
                 {/* 闪烁效果 */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-hsl(var(--background))/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover/button:translate-x-full transition-transform duration-700"></div>
               </Button>
 
 

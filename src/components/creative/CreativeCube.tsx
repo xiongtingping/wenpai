@@ -48,6 +48,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import MarketingCalendar from './MarketingCalendar';
 import { MomentsTextGenerator } from './MomentsTextGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -2184,7 +2185,9 @@ ${generateStandardCallToAction()}
                 <span className="text-xs text-muted-foreground">
                   {requiredDimensions.length}必选+{selectedDimensionCount - requiredDimensions.length}随机
                 </span>
-                <Button
+                <PermissionLockedButton
+                  requiredTier="pro"
+                  featureName="随机一键生成"
                   variant="outline"
                   size="sm"
                   onClick={controlledRandomGenerate}
@@ -2192,7 +2195,7 @@ ${generateStandardCallToAction()}
                   className="border-primary text-primary hover:bg-accent"
                 >
                   🎲 随机一键生成
-                </Button>
+                </PermissionLockedButton>
               </div>
               
               <Button
@@ -2207,7 +2210,9 @@ ${generateStandardCallToAction()}
             </div>
             
             <div className="flex items-center gap-2">
-              <Button
+              <PermissionLockedButton
+                requiredTier="pro"
+                featureName="生成创意内容"
                 onClick={handleGenerateContent}
                 disabled={!isValidGeneration || isGenerating}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
@@ -2223,7 +2228,7 @@ ${generateStandardCallToAction()}
                     生成创意内容
                   </>
                 )}
-              </Button>
+              </PermissionLockedButton>
             </div>
           </div>
 

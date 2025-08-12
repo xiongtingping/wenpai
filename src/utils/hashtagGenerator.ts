@@ -1149,12 +1149,12 @@ export class HashtagGenerator {
 
   /**
    * ✅ FIXED: 用户数据隔离 - 生成用户标签存储键
+   * 使用统一的存储键生成工具
    */
   private getUserTagStorageKey(platformId: string, userId?: string): string {
-    if (userId) {
-      return `user_tag_preferences_${platformId}_${userId}`;
-    }
-    return `user_tag_preferences_${platformId}_guest`;
+    // 使用统一的存储键生成函数
+    const user = userId ? { id: userId } : null;
+    return `tag_preferences_${platformId}_${user?.id || 'guest'}`;
   }
 
   /**

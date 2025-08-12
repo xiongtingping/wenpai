@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserAvatar } from "@/components/auth/UserAvatar"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { LogoWithText } from "@/components/ui/ThemeAwareLogo"
 
 const HelpDocumentation = () => {
   const topics = [
@@ -128,21 +129,17 @@ export function Header() {
   };
   
   return (
-    <header className="bg-background/95 backdrop-blur-md sticky top-0 z-50 shadow-e0">
+    <header className="theme-header-bg sticky top-0 z-50 shadow-e0 backdrop-blur-md">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo - 清晰的熊猫Logo */}
-        <Link to="/" className="flex items-center space-x-3 group">
-          <div className="relative">
-            {/* 熊猫Logo - 使用清晰的SVG文件 */}
-            <div className="w-10 h-10 group-hover:scale-105 transition-all duration-300">
-              <img
-                src="/logo-panda.svg"
-                alt="文派Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
-          </div>
-          <span className="font-bold text-xl text-foreground">文派</span>
+        {/* Logo - 主题感知的熊猫Logo */}
+        <Link to="/" className="group">
+          <LogoWithText
+            size="lg"
+            textSize="xl"
+            textClassName="rainbow-logo-text"
+            showHoverEffect={true}
+            showBackground={true}
+          />
         </Link>
         
         {/* Desktop Menu */}

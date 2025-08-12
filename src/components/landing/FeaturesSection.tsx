@@ -201,7 +201,7 @@ export const FeaturesSection: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 relative overflow-hidden">
+    <section className="py-10 relative overflow-hidden">
       {/* 移除背景装饰层 */}
       
       <div className="container mx-auto px-4 relative z-10">

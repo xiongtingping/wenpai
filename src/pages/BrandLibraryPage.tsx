@@ -13,6 +13,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { useUserDataIsolation } from '@/utils/userDataIsolation';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
+import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import {
   Database, Upload, FileText, File, FileImage,
   AlertCircle, Info, Search, Check, Clock, Trash2,
@@ -90,6 +94,23 @@ const SYSTEM_CATEGORIES = [
 ];
 
 export default function BrandLibraryPageFixed() {
+  // 用户认证和数据隔离
+  const { user } = useUnifiedAuth();
+  const { toast } = useToast();
+
+  // ✅ FIXED: 用户数据隔离 - 品牌资产存储
+  const brandAssetsManager = useUserDataIsolation({
+    modulePrefix: 'brand_assets',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  const brandDimensionsManager = useUserDataIsolation({
+    modulePrefix: 'brand_dimensions',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
   // 基础状态 - 默认显示智能资料管理（上传品牌资料）
   const [activeTab, setActiveTab] = useState<string>('assets');
   const [isUploading, setIsUploading] = useState(false);
@@ -110,7 +131,6 @@ export default function BrandLibraryPageFixed() {
 
   // 文件上传相关
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   // 语料库相关状态
@@ -479,71 +499,56 @@ export default function BrandLibraryPageFixed() {
     }
   }, []);
 
-  // ✅ FIXED: 2025-08-06 状态持久化功能
+  // ✅ FIXED: 用户数据隔离 - 品牌资产存储
   const saveAssetsToStorage = (assets: BrandAsset[]) => {
     try {
-      localStorage.setItem('brandAssets', JSON.stringify(assets));
-      localStorage.setItem('brandAssetsTimestamp', Date.now().toString());
+      brandAssetsManager.saveData(assets);
+      console.log('💾 品牌资产已保存到用户隔离存储');
     } catch (error) {
-      console.error('保存资产到localStorage失败:', error);
+      console.error('保存资产到用户存储失败:', error);
     }
   };
 
-  // ✅ FIXED: 2025-08-06 品牌维度数据持久化功能
+  // ✅ FIXED: 用户数据隔离 - 品牌维度存储
   const saveDimensionsToStorage = (dimensions: BrandDimension[]) => {
     try {
       // 保存时移除icon字段，避免JSX序列化问题
       const dimensionsToSave = dimensions.map(({ icon, ...rest }) => rest);
-      localStorage.setItem('brandDimensions', JSON.stringify(dimensionsToSave));
-      localStorage.setItem('brandDimensionsTimestamp', Date.now().toString());
-      console.log('💾 品牌维度数据已保存到localStorage');
+      brandDimensionsManager.saveData(dimensionsToSave);
+      console.log('💾 品牌维度数据已保存到用户隔离存储');
     } catch (error) {
-      console.error('保存品牌维度到localStorage失败:', error);
+      console.error('保存品牌维度到用户存储失败:', error);
     }
   };
 
+  // ✅ FIXED: 用户数据隔离 - 品牌资产加载
   const loadAssetsFromStorage = (): BrandAsset[] => {
     try {
-      const saved = localStorage.getItem('brandAssets');
-      const timestamp = localStorage.getItem('brandAssetsTimestamp');
-
-      if (saved && timestamp) {
-        const savedTime = parseInt(timestamp);
-        const now = Date.now();
-        // 24小时内的数据有效
-        if (now - savedTime < 24 * 60 * 60 * 1000) {
-          return JSON.parse(saved);
-        }
+      const result = brandAssetsManager.loadData<BrandAsset[]>();
+      if (result.success && result.data) {
+        console.log('📂 从用户隔离存储恢复品牌资产数据');
+        return result.data;
       }
     } catch (error) {
-      console.error('从localStorage加载资产失败:', error);
+      console.error('从用户存储加载资产失败:', error);
     }
     return [];
   };
 
-  // ✅ FIXED: 2025-08-06 从localStorage加载品牌维度数据
+  // ✅ FIXED: 用户数据隔离 - 品牌维度加载
   const loadDimensionsFromStorage = (): BrandDimension[] => {
     try {
-      const saved = localStorage.getItem('brandDimensions');
-      const timestamp = localStorage.getItem('brandDimensionsTimestamp');
-
-      if (saved && timestamp) {
-        const savedTime = parseInt(timestamp);
-        const now = Date.now();
-        // 7天内的数据有效（品牌维度数据保存时间更长）
-        if (now - savedTime < 7 * 24 * 60 * 60 * 1000) {
-          console.log('📂 从localStorage恢复品牌维度数据');
-          const savedDimensions = JSON.parse(saved);
-
-          // 重新添加icon字段
-          return savedDimensions.map((dim: any) => ({
-            ...dim,
-            icon: getIconForDimension(dim.id)
-          }));
-        }
+      const result = brandDimensionsManager.loadData<any[]>();
+      if (result.success && result.data) {
+        console.log('📂 从用户隔离存储恢复品牌维度数据');
+        // 重新添加icon字段
+        return result.data.map((dim: any) => ({
+          ...dim,
+          icon: getIconForDimension(dim.id)
+        }));
       }
     } catch (error) {
-      console.error('从localStorage加载品牌维度失败:', error);
+      console.error('从用户存储加载品牌维度失败:', error);
     }
     return [];
   };
@@ -2027,7 +2032,15 @@ export default function BrandLibraryPageFixed() {
         title="多维品牌语料库"
         description="AI智能分析品牌资料，自动构建完整的品牌语料库，支持多维度自定义完善"
         showAdaptButton={false}
-        showUpgradeButton={true}
+        showUpgradeButton={false}
+        actions={
+          <RoleBasedUpgradePrompt
+            requiredTier="premium"
+            featureName="多维品牌语料库"
+            description="该功能区为高级版专属，包含AI智能分析、品牌资料管理、PDF智能对话等专业功能"
+            mode="compact"
+          />
+        }
       />
 
       <div className="container mx-auto px-4 py-8">
@@ -2039,7 +2052,6 @@ export default function BrandLibraryPageFixed() {
             所有维度都支持手动编辑。
           </AlertDescription>
         </Alert>
-
 
         {/* 隐藏的文件输入 */}
         <input
@@ -2115,9 +2127,8 @@ export default function BrandLibraryPageFixed() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* 文件上传区域 */}
-                <div 
-                  className="border-2 border-dashed border-border rounded-lg p-8 text-center bg-accent/50 hover:bg-accent transition-colors cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
+                <div
+                  className="border-2 border-dashed border-border rounded-lg p-8 text-center bg-accent/50 hover:bg-accent transition-colors"
                 >
                   <div className="flex flex-col items-center gap-4">
                     <div className="p-4 bg-accent rounded-full flex items-center justify-center">
@@ -2131,10 +2142,16 @@ export default function BrandLibraryPageFixed() {
                         支持 PDF、Word、Excel、PowerPoint、图片等多种格式
                       </p>
                     </div>
-                    <Button variant="outline" className="bg-card">
+                    <PermissionLockedButton
+                      requiredTier="premium"
+                      featureName="品牌资料上传"
+                      variant="outline"
+                      className="bg-card"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
                       <FileUp className="h-4 w-4 mr-2" />
                       选择文件
-                    </Button>
+                    </PermissionLockedButton>
 
                     {/* 支持的文件格式 - 使用新的格式展示组件 */}
                     <div className="mt-4 pt-4 border-t border-border">
@@ -2166,7 +2183,9 @@ export default function BrandLibraryPageFixed() {
                         className="flex-1"
                         disabled={isExtractingWeb}
                       />
-                      <Button
+                      <PermissionLockedButton
+                        requiredTier="premium"
+                        featureName="网页内容提取"
                         onClick={handleWebExtraction}
                         disabled={isExtractingWeb || !webUrl.trim()}
                       >
@@ -2176,7 +2195,7 @@ export default function BrandLibraryPageFixed() {
                           <Download className="h-4 w-4 mr-2" />
                         )}
                         {isExtractingWeb ? '提取中...' : '提取内容'}
-                      </Button>
+                      </PermissionLockedButton>
                     </div>
 
                     {/* 提取进度显示 */}
@@ -2291,7 +2310,9 @@ export default function BrandLibraryPageFixed() {
                   {/* 右侧：操作按钮组 */}
                   <div className="flex gap-2 items-center">
                     {/* PDF智能对话按钮 */}
-                    <Button
+                    <PermissionLockedButton
+                      requiredTier="premium"
+                      featureName="PDF智能对话"
                       variant="outline"
                       size="sm"
                       disabled={!brandAssets.some(asset => asset.type === 'pdf')}
@@ -2300,7 +2321,7 @@ export default function BrandLibraryPageFixed() {
                     >
                       <MessageSquare className="h-4 w-4 mr-2" />
                       PDF对话
-                    </Button>
+                    </PermissionLockedButton>
 
                     {/* 视图切换按钮 */}
                     <div className="flex border rounded-lg overflow-hidden">
@@ -2426,9 +2447,11 @@ export default function BrandLibraryPageFixed() {
                           )}
 
                           <div className="flex flex-wrap gap-2">
-                            {/* AI分析按钮 */}
-                            {/* ✅ FIXED: 2025-08-06 改进状态按钮和重试机制 */}
-                            <Button
+                            {/* AI分析按钮 - 使用权限保护 */}
+                            {/* ✅ FIXED: 2025-08-06 改进状态按钮和重试机制 + 权限保护 */}
+                            <PermissionLockedButton
+                              requiredTier="premium"
+                              featureName="AI智能分析"
                               variant={asset.status === 'analyzed' ? 'default' : asset.status === 'error' ? 'destructive' : 'outline'}
                               size="sm"
                               className={
@@ -2479,7 +2502,7 @@ export default function BrandLibraryPageFixed() {
                                   分析
                                 </>
                               )}
-                            </Button>
+                            </PermissionLockedButton>
 
                             {/* 对话按钮 */}
                             <Button
@@ -2574,7 +2597,9 @@ export default function BrandLibraryPageFixed() {
                         <div className="flex items-center gap-2 ml-4">
                           {/* AI分析状态按钮 */}
                           <div className="flex items-center gap-1">
-                            <Button
+                            <PermissionLockedButton
+                              requiredTier="premium"
+                              featureName="AI智能分析"
                               variant={asset.status === 'analyzed' ? 'default' : asset.status === 'error' ? 'destructive' : 'outline'}
                               size="sm"
                               className={
@@ -2621,11 +2646,13 @@ export default function BrandLibraryPageFixed() {
                                    asset.status === 'error' ? '重试分析' : '分析'}
                                 </>
                               )}
-                            </Button>
+                            </PermissionLockedButton>
 
-                            {/* 重新分析按钮 */}
+                            {/* 重新分析按钮 - 使用权限保护 */}
                             {asset.status === 'analyzed' && (
-                              <Button
+                              <PermissionLockedIconButton
+                                requiredTier="premium"
+                                featureName="重新分析"
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
@@ -2643,10 +2670,9 @@ export default function BrandLibraryPageFixed() {
                                     setBrandAssets(finalAssets);
                                   }, 3000);
                                 }}
-                                title="重新分析"
                               >
                                 <RotateCcw className="h-3 w-3" />
-                              </Button>
+                              </PermissionLockedIconButton>
                             )}
                           </div>
 
@@ -3562,7 +3588,9 @@ function DimensionForm({
       {/* 添加新信息 */}
       <div className="border-t pt-3">
         {!showAddForm ? (
-          <Button
+          <PermissionLockedButton
+            requiredTier="premium"
+            featureName="添加品牌信息"
             variant="outline"
             size="sm"
             onClick={() => setShowAddForm(true)}
@@ -3570,7 +3598,7 @@ function DimensionForm({
           >
             <Plus className="h-4 w-4 mr-2" />
             添加新信息
-          </Button>
+          </PermissionLockedButton>
         ) : (
           <div className="space-y-3">
             <Textarea

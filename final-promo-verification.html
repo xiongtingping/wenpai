@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页限时优惠验证</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background 0.2s;
+        }
+        
+        .button:hover {
+            background: #0056b3;
+        }
+        
+        .button.success {
+            background: #28a745;
+        }
+        
+        .button.danger {
+            background: #dc3545;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🔥 首页限时优惠功能验证</h1>
+        
+        <div class="section">
+            <div class="section-title">📋 验证步骤</div>
+            <p>本页面将验证首页限时优惠功能是否正确照搬了支付中心的设计，并适配了不同主题颜色。</p>
+            
+            <button class="button" onclick="runFullVerification()">🚀 开始完整验证</button>
+            <button class="button success" onclick="simulateLogin()">👤 模拟登录</button>
+            <button class="button" onclick="triggerPromo()">🎯 触发优惠</button>
+            <button class="button" onclick="openHomepage()">🏠 打开首页</button>
+            <button class="button danger" onclick="resetAll()">🔄 重置状态</button>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">📊 验证状态</div>
+            <div id="status-container">
+                <div class="status info">等待开始验证...</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">📝 验证日志</div>
+            <div id="log-container" class="log">点击"开始完整验证"查看详细日志...</div>
+        </div>
+    </div>
+
+    <script>
+        const TEST_USER_ID = 'homepage_promo_test_user';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContainer = document.getElementById('log-container');
+            logContainer.textContent += `[${timestamp}] ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            console.log(message);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusContainer = document.getElementById('status-container');
+            statusContainer.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function simulateLogin() {
+            log('🔄 开始模拟用户登录...');
+            
+            const mockUser = {
+                id: TEST_USER_ID,
+                username: 'homepage_test_user',
+                email: 'test@homepage.com',
+                registrationDate: new Date().toISOString()
+            };
+            
+            localStorage.setItem('auth_user', JSON.stringify(mockUser));
+            localStorage.setItem('auth_token', 'mock_homepage_token');
+            localStorage.setItem('is_authenticated', 'true');
+            
+            log('✅ 模拟登录成功');
+            log(`   用户ID: ${mockUser.id}`);
+            updateStatus('✅ 用户登录成功', 'success');
+        }
+        
+        function triggerPromo() {
+            log('🔄 开始触发限时优惠...');
+            
+            const accessTimeKey = `payment_center_access_time_${TEST_USER_ID}`;
+            const now = Date.now();
+            localStorage.setItem(accessTimeKey, now.toString());
+            
+            const remainingTime = 30 * 60 * 1000; // 30分钟
+            const formattedTime = formatTime(remainingTime);
+            
+            log('✅ 限时优惠已触发');
+            log(`   开始时间: ${new Date(now).toLocaleString()}`);
+            log(`   剩余时间: ${formattedTime}`);
+            updateStatus(`✅ 限时优惠已触发，剩余时间: ${formattedTime}`, 'success');
+        }
+        
+        function formatTime(ms) {
+            const hours = Math.floor(ms / 3600000);
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            const centiseconds = Math.floor((ms % 1000) / 10);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
+        }
+        
+        function openHomepage() {
+            log('🔄 打开首页...');
+            window.open('http://localhost:5175/#pricing', '_blank');
+            log('✅ 首页已在新标签页中打开');
+            updateStatus('✅ 首页已打开，请检查限时优惠显示', 'info');
+        }
+        
+        function resetAll() {
+            log('🔄 重置所有状态...');
+            
+            // 清除所有相关的localStorage
+            const keysToRemove = [
+                'auth_user',
+                'auth_token', 
+                'is_authenticated',
+                `payment_center_access_time_${TEST_USER_ID}`
+            ];
+            
+            keysToRemove.forEach(key => {
+                localStorage.removeItem(key);
+                log(`   已清除: ${key}`);
+            });
+            
+            log('✅ 所有状态已重置');
+            updateStatus('✅ 所有状态已重置', 'success');
+        }
+        
+        function checkLocalStorage() {
+            log('🔄 检查localStorage状态...');
+            
+            const authUser = localStorage.getItem('auth_user');
+            const authToken = localStorage.getItem('auth_token');
+            const isAuthenticated = localStorage.getItem('is_authenticated');
+            const accessTime = localStorage.getItem(`payment_center_access_time_${TEST_USER_ID}`);
+            
+            log(`📊 localStorage状态:`);
+            log(`   auth_user: ${authUser ? '✅ 已设置' : '❌ 未设置'}`);
+            log(`   auth_token: ${authToken ? '✅ 已设置' : '❌ 未设置'}`);
+            log(`   is_authenticated: ${isAuthenticated ? '✅ 已设置' : '❌ 未设置'}`);
+            log(`   access_time: ${accessTime ? '✅ 已设置' : '❌ 未设置'}`);
+            
+            if (accessTime) {
+                const accessDate = new Date(parseInt(accessTime));
+                const now = Date.now();
+                const timeDiff = now - parseInt(accessTime);
+                const remainingTime = Math.max(0, (30 * 60 * 1000) - timeDiff);
+                const isInPromo = remainingTime > 0;
+                
+                log(`   访问时间: ${accessDate.toLocaleString()}`);
+                log(`   是否在优惠期: ${isInPromo ? '✅ 是' : '❌ 否'}`);
+                log(`   剩余时间: ${formatTime(remainingTime)}`);
+            }
+        }
+        
+        function runFullVerification() {
+            log('🚀 开始完整验证流程...');
+            updateStatus('🔄 正在进行完整验证...', 'info');
+            
+            // 1. 重置状态
+            resetAll();
+            
+            setTimeout(() => {
+                // 2. 模拟登录
+                simulateLogin();
+                
+                setTimeout(() => {
+                    // 3. 触发优惠
+                    triggerPromo();
+                    
+                    setTimeout(() => {
+                        // 4. 检查状态
+                        checkLocalStorage();
+                        
+                        setTimeout(() => {
+                            // 5. 打开首页
+                            openHomepage();
+                            
+                            log('✅ 完整验证流程已完成');
+                            log('📋 请在新打开的首页标签页中检查:');
+                            log('   1. 是否显示限时优惠横幅');
+                            log('   2. 是否有Zap图标和"限时优惠进行中"文字');
+                            log('   3. 是否显示毫秒级倒计时 (HH:MM:SS.CC)');
+                            log('   4. 是否显示"优惠即将结束，立即享受特价！"');
+                            log('   5. 切换不同主题时背景颜色是否正确适配');
+                            
+                            updateStatus('✅ 验证完成！请检查首页显示效果', 'success');
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        // 页面加载时显示当前状态
+        window.addEventListener('load', () => {
+            log('📋 首页限时优惠验证工具已加载');
+            checkLocalStorage();
+        });
+    </script>
+</body>
+</html>

@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { generateStorageKey } from '@/utils/userDataIsolation';
 
 /**
  * 🎨 统一的多主题设计语言
@@ -37,32 +39,51 @@ export const THEMES: Record<Theme, { name: string; description: string; icon: st
   }
 };
 
-const THEME_KEY = 'wenpai_theme';
-
 /**
- * 主题切换hook
+ * 主题切换hook - 支持用户ID隔离
  * @returns 当前主题、切换方法、主题列表
  */
 export function useTheme() {
+  const { user } = useUnifiedAuth();
+
+  // 生成用户专属的主题存储键
+  const getThemeStorageKey = useCallback(() => {
+    return generateStorageKey('wenpai_theme', user);
+  }, [user?.id]);
+
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem(THEME_KEY) as Theme | null;
+    const themeKey = generateStorageKey('wenpai_theme', user);
+    const saved = localStorage.getItem(themeKey) as Theme | null;
     return saved || 'beige'; // 默认使用护眼米色主题
   });
 
-  // 🎨 切换主题 - 增强的过渡效果
+  // 🎨 切换主题 - 增强的过渡效果，支持用户ID隔离
   const switchTheme = useCallback((next: Theme) => {
     // 添加过渡类，创建平滑的主题切换效果
     document.documentElement.classList.add('theme-transitioning');
 
     setTheme(next);
-    localStorage.setItem(THEME_KEY, next);
+    const themeKey = getThemeStorageKey();
+    localStorage.setItem(themeKey, next);
     document.documentElement.setAttribute('data-theme', next);
 
     // 过渡完成后移除过渡类（与CSS中的过渡时间匹配）
     setTimeout(() => {
       document.documentElement.classList.remove('theme-transitioning');
     }, 500);
-  }, []);
+  }, [getThemeStorageKey]);
+
+  // 监听用户变化，重新加载主题设置
+  useEffect(() => {
+    const themeKey = getThemeStorageKey();
+    const saved = localStorage.getItem(themeKey) as Theme | null;
+    const newTheme = saved || 'beige';
+
+    if (newTheme !== theme) {
+      setTheme(newTheme);
+      document.documentElement.setAttribute('data-theme', newTheme);
+    }
+  }, [user?.id, getThemeStorageKey, theme]);
 
   // 切换亮暗主题
   const toggleTheme = useCallback(() => {

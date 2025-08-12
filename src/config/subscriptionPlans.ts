@@ -112,8 +112,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
  * @param tier 计划类型
  * @returns 订阅计划
  */
-export function getSubscriptionPlan(tier: string): SubscriptionPlan | undefined {
-  return SUBSCRIPTION_PLANS.find(plan => plan.tier === tier);
+export function getSubscriptionPlan(tier: string): SubscriptionPlan {
+  return SUBSCRIPTION_PLANS.find(plan => plan.tier === tier) || SUBSCRIPTION_PLANS[0];
 }
 
 /**

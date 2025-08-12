@@ -160,17 +160,29 @@ export class MemoryCache<K, V> {
 }
 
 /**
- * 本地存储缓存
+ * 本地存储缓存 - 支持用户ID隔离
  */
 export class LocalStorageCache {
   private prefix: string;
-  
-  constructor(prefix = 'app_cache_') {
+  private userId?: string;
+
+  constructor(prefix = 'app_cache_', userId?: string) {
     this.prefix = prefix;
+    this.userId = userId;
+  }
+
+  /**
+   * 生成用户隔离的存储键
+   */
+  private getStorageKey(key: string): string {
+    if (this.userId) {
+      return `${this.prefix}${key}_${this.userId}`;
+    }
+    return `${this.prefix}${key}_guest`;
   }
   
   /**
-   * 设置缓存
+   * 设置缓存 - 支持用户隔离
    * @param key 键
    * @param value 值
    * @param ttl 生存时间（毫秒）
@@ -181,29 +193,31 @@ export class LocalStorageCache {
       timestamp: Date.now(),
       ttl
     };
-    
+
     try {
-      localStorage.setItem(this.prefix + key, JSON.stringify(item));
+      const storageKey = this.getStorageKey(key);
+      localStorage.setItem(storageKey, JSON.stringify(item));
     } catch (error) {
       console.warn('LocalStorage cache set failed:', error);
     }
   }
   
   /**
-   * 获取缓存
+   * 获取缓存 - 支持用户隔离
    * @param key 键
    */
   get<T>(key: string): T | undefined {
     try {
-      const itemStr = localStorage.getItem(this.prefix + key);
+      const storageKey = this.getStorageKey(key);
+      const itemStr = localStorage.getItem(storageKey);
       if (!itemStr) return undefined;
-      
+
       const item = JSON.parse(itemStr);
       if (Date.now() - item.timestamp > item.ttl) {
         this.delete(key);
         return undefined;
       }
-      
+
       return item.value;
     } catch (error) {
       console.warn('LocalStorage cache get failed:', error);
@@ -212,12 +226,13 @@ export class LocalStorageCache {
   }
   
   /**
-   * 删除缓存
+   * 删除缓存 - 支持用户隔离
    * @param key 键
    */
   delete(key: string): void {
     try {
-      localStorage.removeItem(this.prefix + key);
+      const storageKey = this.getStorageKey(key);
+      localStorage.removeItem(storageKey);
     } catch (error) {
       console.warn('LocalStorage cache delete failed:', error);
     }

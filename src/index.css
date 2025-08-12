@@ -30,6 +30,7 @@
     --accent-foreground: 45 15% 15%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 45 25% 97%;
+    --warning: 45 93% 47%;            /* 警告色 - 金黄色 */
     --border: 45 15% 88%;
     --input: 45 15% 88%;
     --ring: 45 70% 55%;
@@ -43,6 +44,14 @@
     --chart-3: 25 65% 45%;
     --chart-4: 15 70% 40%;
     --chart-5: 5 75% 35%;
+
+    /* 权限系统主题适配 */
+    --permission-locked: 45 10% 60%;
+    --permission-locked-foreground: 45 25% 97%;
+    --permission-premium: 270 70% 60%;
+    --permission-premium-foreground: 45 25% 97%;
+    --permission-pro: 210 70% 55%;
+    --permission-pro-foreground: 45 25% 97%;
 
     /* 🎨 Modern Flat + Soft Neumorphism Design Tokens */
 
@@ -64,6 +73,12 @@
     --btn-gradient-upgrade-hover: linear-gradient(135deg, #e55a2b 0%, #de7f0f 50%, #e57a32 100%);
     --btn-gradient-invite: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8b5fbf 100%);
     --btn-gradient-invite-hover: linear-gradient(135deg, #5a6fd8 0%, #6a4190 50%, #7d54ad 100%);
+
+    /* 🔥 限时优惠专用渐变系统 - 适配不同主题 */
+    --promo-gradient: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(var(--destructive)) 50%, hsl(var(--primary)) 100%);
+    --promo-gradient-hover: linear-gradient(135deg, hsl(var(--warning) / 0.9) 0%, hsl(var(--destructive) / 0.9) 50%, hsl(var(--primary) / 0.9) 100%);
+    --promo-bg: linear-gradient(135deg, hsl(var(--warning) / 0.1) 0%, hsl(var(--destructive) / 0.1) 50%, hsl(var(--accent) / 0.2) 100%);
+    --promo-border: hsl(var(--warning) / 0.3);
 
     /* 按钮阴影增强 */
     --btn-shadow-upgrade: 0 8px 32px rgba(255, 107, 53, 0.3), 0 4px 16px rgba(255, 107, 53, 0.2);
@@ -236,6 +251,7 @@
   --primary: 221.2 83.2% 53.3%;     /* 主色调 */
   --primary-foreground: 0 0% 100%;  /* 主色调文字 */
   --destructive: 0 72% 51%;         /* 危险色 */
+  --warning: 45 93% 47%;            /* 警告色 - 金黄色 */
   --secondary: 214.3 31.8% 91.4%;   /* 次要色 */
   --secondary-foreground: 222.2 47.4% 11.2%;
   --border: 214.3 31.8% 91.4%;     /* 边框色 */
@@ -277,6 +293,30 @@
   --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--surface-1)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
   --bg-gradient-accent: linear-gradient(135deg, hsl(var(--surface-2)) 0%, hsl(var(--accent)) 50%, hsl(var(--surface-3)) 100%);
   --bg-gradient-elevated: linear-gradient(135deg, hsl(var(--background-elevated)) 0%, hsl(var(--surface-4)) 100%);
+
+  /* ☀️ 浅色模式Head区和导航配色 */
+  --header-bg: 0 0% 100%;           /* Header背景 */
+  --header-text: 222.2 47.4% 11.2%; /* Header文字 */
+  --breadcrumb-bg: 210 40% 98%;     /* 面包屑背景 */
+  --breadcrumb-text: 215.4 16.3% 46.9%; /* 面包屑文字 */
+  --breadcrumb-link: 221.2 83.2% 53.3%; /* 面包屑链接 */
+  --hero-title: 222.2 47.4% 11.2%; /* 首页标题 */
+  --hero-subtitle: 215.4 16.3% 46.9%; /* 首页副标题 */
+
+  /* ☀️ 浅色模式Hero按钮配色 */
+  --hero-button-from: 221.2 83.2% 53.3%; /* 蓝色按钮渐变起始色 */
+  --hero-button-via: 217.2 91.2% 59.8%;  /* 蓝紫色按钮渐变中间色 */
+  --hero-button-to: 262.1 83.3% 57.8%;   /* 紫色按钮渐变结束色 */
+
+  /* ☀️ 浅色模式Hero要点配色 */
+  --hero-points-text: 215.4 16.3% 46.9%; /* 要点文字颜色 */
+  --hero-points-dot: 221.2 83.2% 53.3%;  /* 要点圆点颜色 */
+
+  /* ☀️ 浅色模式平台卡片配色 */
+  --platform-card-bg: 0 0% 98%;          /* 平台卡片背景 - 微妙的灰白色 */
+  --platform-icon-1: 221.2 83.2% 53.3%;  /* 蓝色平台图标 */
+  --platform-icon-2: 142 76% 36%;        /* 绿色平台图标 */
+  --platform-icon-3: 262.1 83.3% 57.8%;  /* 紫色平台图标 */
 }
 
 /* 🌾 优化的护眼米色主题 */
@@ -291,6 +331,7 @@
   --primary: 45 70% 55%;            /* 主色调 */
   --primary-foreground: 45 25% 97%; /* 主色调文字 */
   --destructive: 0 84.2% 60.2%;     /* 危险色 */
+  --warning: 35 85% 52%;            /* 警告色 - 橙金色 */
   --secondary: 45 20% 88%;          /* 次要色 */
   --secondary-foreground: 45 15% 15%;
   --border: 45 15% 85%;             /* 边框色 */
@@ -319,6 +360,30 @@
   --chart-4: 15 70% 40%;
   --chart-5: 5 75% 35%;
 
+  /* 🎨 Head区和导航配色 */
+  --header-bg: 45 25% 98%;          /* Header背景 */
+  --header-text: 45 15% 15%;        /* Header文字 */
+  --breadcrumb-bg: 45 20% 96%;      /* 面包屑背景 */
+  --breadcrumb-text: 45 15% 20%;    /* 面包屑文字 */
+  --breadcrumb-link: 45 70% 55%;    /* 面包屑链接 */
+  --hero-title: 45 15% 10%;         /* 首页标题 */
+  --hero-subtitle: 45 15% 25%;      /* 首页副标题 */
+
+  /* 🎨 Hero按钮配色 - 更深的颜色确保可见性 */
+  --hero-button-from: 225 85% 35%;  /* 深蓝色按钮渐变起始色 */
+  --hero-button-via: 250 85% 38%;   /* 深紫色按钮渐变中间色 */
+  --hero-button-to: 310 80% 40%;    /* 深粉紫色按钮渐变结束色 */
+
+  /* 🎨 Hero要点配色 */
+  --hero-points-text: 45 15% 30%;   /* 要点文字颜色 */
+  --hero-points-dot: 45 70% 55%;    /* 要点圆点颜色 */
+
+  /* 🎨 平台卡片配色 */
+  --platform-card-bg: 45 25% 96%;   /* 平台卡片背景 */
+  --platform-icon-1: 45 70% 55%;    /* 平台图标色1 */
+  --platform-icon-2: 35 60% 50%;    /* 平台图标色2 */
+  --platform-icon-3: 25 65% 45%;    /* 平台图标色3 */
+
   /* 🌾 米色主题渐变系统 */
   --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
   --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.9) 100%);
@@ -330,19 +395,28 @@
 
 [data-theme="dark"] {
   /* 🌙 优化的深色模式核心颜色系统 */
-  --background: 222.2 47.4% 11%;    /* 深色背景 */
-  --card: 215 28% 15%;             /* 卡片背景，明显区分 */
-  --accent: 215 25% 22%;           /* 强调色，更明显 */
-  --muted: 215 28% 12%;            /* 静音区域，比主背景稍暗 */
-  --foreground: 210 40% 98%;       /* 主文字颜色 - 浅色文字 */
-  --muted-foreground: 215 20.2% 65.1%; /* 次要文字 */
-  --primary: 217.2 91.2% 59.8%;    /* 主色调 */
-  --primary-foreground: 0 0% 100%; /* 主色调文字 */
-  --destructive: 0 84.2% 60.2%;    /* 危险色 */
-  --secondary: 215 20% 30%;        /* 次要色，更亮 */
+  --background: 222.2 47.4% 8%;     /* 更深的背景，增强对比 */
+  --card: 215 28% 18%;              /* 卡片背景，更明显区分 */
+  --accent: 215 35% 28%;            /* 强调色，更明显 */
+  --muted: 215 28% 10%;             /* 静音区域，比主背景更暗 */
+
+  /* 权限系统深色主题适配 */
+  --permission-locked: 215 15% 50%;
+  --permission-locked-foreground: 215 28% 18%;
+  --permission-premium: 270 60% 70%;
+  --permission-premium-foreground: 215 28% 18%;
+  --permission-pro: 210 60% 65%;
+  --permission-pro-foreground: 215 28% 18%;
+  --foreground: 210 40% 98%;        /* 主文字颜色 - 浅色文字 */
+  --muted-foreground: 215 25% 70%;  /* 次要文字，更明显 */
+  --primary: 217.2 91.2% 65%;       /* 主色调，更亮 */
+  --primary-foreground: 0 0% 100%;  /* 主色调文字 */
+  --destructive: 0 84.2% 65%;       /* 危险色，更明显 */
+  --warning: 45 93% 60%;            /* 警告色 - 明亮金黄色 */
+  --secondary: 215 25% 35%;         /* 次要色，更亮更明显 */
   --secondary-foreground: 210 40% 98%;
-  --border: 215 25% 20%;           /* 边框色，更明显 */
-  --border-strong: 215 20% 25%;    /* 强边框色 */
+  --border: 215 30% 25%;            /* 边框色，更明显 */
+  --border-strong: 215 25% 30%;     /* 强边框色，更明显 */
   /* keep compatibility tokens */
   --card-foreground: 210 40% 98%;
   --popover: 215 28% 17%;
@@ -351,13 +425,13 @@
   --ring: 217.2 91.2% 59.8%;
   --radius: 0.5rem;
 
-  /* 🎨 新增层次化背景令牌 */
-  --background-elevated: 215 28% 18%;  /* 悬浮元素背景 */
-  --background-overlay: 215 28% 25%;   /* 覆盖层背景 */
-  --surface-1: 215 28% 12%;            /* 表面层级1 */
-  --surface-2: 215 28% 15%;            /* 表面层级2 */
-  --surface-3: 215 28% 18%;            /* 表面层级3 */
-  --surface-4: 215 28% 22%;            /* 表面层级4 */
+  /* 🎨 新增层次化背景令牌 - 修复输入框主题感知 */
+  --background-elevated: 215 30% 22%;  /* 悬浮元素背景，更明显 */
+  --background-overlay: 215 30% 30%;   /* 覆盖层背景，更明显 */
+  --surface-1: 215 28% 18%;            /* 表面层级1 - 提高对比度用于输入框 */
+  --surface-2: 215 30% 22%;            /* 表面层级2，更明显 */
+  --surface-3: 215 32% 26%;            /* 表面层级3，更明显 */
+  --surface-4: 215 35% 30%;            /* 表面层级4，更明显 */
 
   --section: 217.2 32.6% 15%;
   --section-foreground: 210 40% 98%;
@@ -366,6 +440,30 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+
+  /* 🎨 深色主题Head区和导航配色 */
+  --header-bg: 215 28% 12%;         /* Header背景 */
+  --header-text: 210 40% 98%;       /* Header文字 */
+  --breadcrumb-bg: 215 28% 15%;     /* 面包屑背景 */
+  --breadcrumb-text: 215 25% 75%;   /* 面包屑文字 */
+  --breadcrumb-link: 217.2 91.2% 65%; /* 面包屑链接 */
+  --hero-title: 210 40% 98%;        /* 首页标题 */
+  --hero-subtitle: 215 25% 80%;     /* 首页副标题 */
+
+  /* 🎨 深色主题Hero按钮配色 */
+  --hero-button-from: 217.2 91.2% 59.8%; /* 蓝色按钮渐变起始色 */
+  --hero-button-via: 260 91% 65%;        /* 紫色按钮渐变中间色 */
+  --hero-button-to: 280 85% 70%;         /* 紫红色按钮渐变结束色 */
+
+  /* 🎨 深色主题Hero要点配色 */
+  --hero-points-text: 215 25% 75%;       /* 要点文字颜色 */
+  --hero-points-dot: 217.2 91.2% 65%;    /* 要点圆点颜色 */
+
+  /* 🎨 深色主题平台卡片配色 */
+  --platform-card-bg: 215 28% 18%;       /* 平台卡片背景 */
+  --platform-icon-1: 217.2 91.2% 65%;    /* 平台图标色1 */
+  --platform-icon-2: 260 91% 65%;        /* 平台图标色2 */
+  --platform-icon-3: 280 85% 70%;        /* 平台图标色3 */
 
   /* 🌟 优化的深色主题渐变系统 */
   --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
@@ -386,22 +484,23 @@
 
 /* 🚫 已删除无效的主题定义 [data-theme="hsl(var(--primary))"] */
 
-/* 🌈 彩虹色主题 */
+/* 🌈 彩虹色主题 - 真正的多彩效果 */
 [data-theme="rainbow"] {
   /* 核心颜色系统 */
   --background: 0 0% 99%;           /* 纯白主背景，突出彩虹色 */
-  --card: 0 0% 97%;                 /* 卡片背景，微妙区分 */
-  --accent: 280 100% 95%;           /* 淡紫色强调 */
-  --muted: 0 0% 95%;                /* 静音区域 */
-  --foreground: 0 0% 10%;           /* 深色主文字 */
-  --muted-foreground: 0 0% 40%;     /* 次要文字 */
-  --primary: 280 100% 70%;          /* 紫色主色调 */
+  --card: 220 100% 97%;             /* 淡蓝色卡片背景 */
+  --accent: 60 100% 85%;            /* 黄色强调 */
+  --muted: 300 50% 95%;             /* 淡紫色静音区域 */
+  --foreground: 0 0% 8%;            /* 深色主文字 */
+  --muted-foreground: 240 30% 40%;  /* 深蓝灰色次要文字 */
+  --primary: 200 100% 50%;          /* 天蓝色主色调 */
   --primary-foreground: 0 0% 100%;  /* 主色调文字 */
-  --destructive: 0 84% 60%;         /* 危险色 */
-  --secondary: 280 30% 90%;         /* 次要色 */
-  --secondary-foreground: 0 0% 10%;
-  --border: 280 20% 88%;            /* 边框色 */
-  --border-strong: 280 30% 75%;     /* 强边框色 */
+  --destructive: 0 84% 55%;         /* 红色危险色 */
+  --warning: 60 100% 50%;           /* 警告色 - 明亮黄色 */
+  --secondary: 120 60% 70%;         /* 绿色次要色 */
+  --secondary-foreground: 0 0% 8%;
+  --border: 180 50% 80%;            /* 青色边框 */
+  --border-strong: 300 60% 60%;     /* 紫色强边框 */
 
   /* 兼容性令牌 */
   --card-foreground: 0 0% 10%;
@@ -417,6 +516,38 @@
   --chart-3: 120 100% 40%;          /* 绿色 */
   --chart-4: 240 100% 60%;          /* 蓝色 */
   --chart-5: 300 100% 70%;          /* 紫色 */
+
+  /* 🎨 彩虹主题Head区和导航配色 */
+  --header-bg: 240 100% 97%;        /* 淡蓝色Header背景 */
+  --header-text: 300 80% 30%;       /* 深紫色Header文字 */
+  --breadcrumb-bg: 60 100% 95%;     /* 淡黄色面包屑背景 */
+  --breadcrumb-text: 180 60% 30%;   /* 深青色面包屑文字 */
+  --breadcrumb-link: 0 100% 50%;    /* 红色面包屑链接 */
+  --hero-title: 260 80% 25%;        /* 深紫蓝色首页标题 */
+  --hero-subtitle: 320 60% 35%;     /* 深紫红色首页副标题 */
+
+  /* 🎨 彩虹主题Hero按钮配色 */
+  --hero-button-from: 0 100% 60%;   /* 红色按钮渐变起始色 */
+  --hero-button-via: 60 100% 50%;   /* 黄色按钮渐变中间色 */
+  --hero-button-to: 120 100% 40%;   /* 绿色按钮渐变结束色 */
+
+  /* 🎨 彩虹主题Hero要点配色 */
+  --hero-points-text: 240 60% 35%;  /* 要点文字颜色 */
+  --hero-points-dot: 300 100% 50%;  /* 要点圆点颜色 */
+
+  /* 🎨 彩虹主题平台卡片配色 */
+  --platform-card-bg: 220 100% 97%; /* 平台卡片背景 */
+  --platform-icon-1: 0 100% 60%;    /* 红色平台图标 */
+  --platform-icon-2: 120 100% 40%;  /* 绿色平台图标 */
+  --platform-icon-3: 240 100% 60%;  /* 蓝色平台图标 */
+
+  /* 🌈 彩虹主题层次化表面令牌 - 修复输入框主题感知 */
+  --surface-1: 0 0% 97%;             /* 表面层级1 - 输入框背景 */
+  --surface-2: 220 100% 95%;         /* 表面层级2 - 卡片背景 */
+  --surface-3: 60 100% 92%;          /* 表面层级3 - 悬浮元素 */
+  --surface-4: 300 50% 90%;          /* 表面层级4 - 高层级元素 */
+  --background-elevated: 180 50% 95%; /* 悬浮元素背景 */
+  --background-overlay: 280 30% 92%;  /* 覆盖层背景 */
 }
 
 /* 🌈 彩虹主题特殊效果 */
@@ -450,18 +581,19 @@
 [data-theme="green"] {
   /* 核心颜色系统 */
   --background: 120 25% 97%;        /* 绿色主背景 */
-  --card: 120 25% 95%;              /* 卡片背景，微妙区分 */
-  --accent: 120 20% 90%;            /* 强调色 */
-  --muted: 120 20% 92%;             /* 静音区域 */
-  --foreground: 120 15% 15%;        /* 主文字颜色 */
-  --muted-foreground: 120 10% 35%;  /* 次要文字 */
-  --primary: 120 60% 45%;           /* 绿色主色调 */
+  --card: 120 30% 92%;              /* 卡片背景，更明显区分 */
+  --accent: 120 30% 85%;            /* 强调色，更明显 */
+  --muted: 120 25% 90%;             /* 静音区域，更明显 */
+  --foreground: 120 20% 12%;        /* 主文字颜色，更深 */
+  --muted-foreground: 120 15% 30%;  /* 次要文字，更明显 */
+  --primary: 120 65% 40%;           /* 绿色主色调，更深 */
   --primary-foreground: 120 25% 97%; /* 主色调文字 */
-  --destructive: 0 84% 60%;         /* 危险色 */
-  --secondary: 120 20% 88%;         /* 次要色 */
-  --secondary-foreground: 120 15% 15%;
-  --border: 120 15% 85%;            /* 边框色 */
-  --border-strong: 120 15% 75%;     /* 强边框色 */
+  --destructive: 0 84% 55%;         /* 危险色，更深 */
+  --warning: 45 85% 50%;            /* 警告色 - 金橙色 */
+  --secondary: 120 30% 82%;         /* 次要色，更明显 */
+  --secondary-foreground: 120 20% 12%;
+  --border: 120 25% 78%;            /* 边框色，更明显 */
+  --border-strong: 120 30% 68%;     /* 强边框色，更明显 */
 
   /* 兼容性令牌 */
   --card-foreground: 120 15% 15%;
@@ -477,6 +609,38 @@
   --chart-3: 100 50% 35%;
   --chart-4: 90 45% 30%;
   --chart-5: 80 40% 25%;
+
+  /* 🎨 绿色主题Head区和导航配色 */
+  --header-bg: 120 25% 95%;         /* Header背景 */
+  --header-text: 120 20% 12%;       /* Header文字 */
+  --breadcrumb-bg: 120 30% 92%;     /* 面包屑背景 */
+  --breadcrumb-text: 120 15% 25%;   /* 面包屑文字 */
+  --breadcrumb-link: 120 65% 40%;   /* 面包屑链接 */
+  --hero-title: 120 25% 8%;         /* 首页标题 */
+  --hero-subtitle: 120 15% 20%;     /* 首页副标题 */
+
+  /* 🎨 绿色主题Hero按钮配色 */
+  --hero-button-from: 120 65% 40%;  /* 绿色按钮渐变起始色 */
+  --hero-button-via: 140 60% 45%;   /* 青绿色按钮渐变中间色 */
+  --hero-button-to: 160 55% 50%;    /* 青色按钮渐变结束色 */
+
+  /* 🎨 绿色主题Hero要点配色 */
+  --hero-points-text: 120 20% 25%;  /* 要点文字颜色 */
+  --hero-points-dot: 120 65% 40%;   /* 要点圆点颜色 */
+
+  /* 🎨 绿色主题平台卡片配色 */
+  --platform-card-bg: 120 30% 92%;  /* 平台卡片背景 */
+  --platform-icon-1: 120 65% 40%;   /* 绿色平台图标 */
+  --platform-icon-2: 140 60% 45%;   /* 青绿色平台图标 */
+  --platform-icon-3: 160 55% 50%;   /* 青色平台图标 */
+
+  /* 💚 绿色主题层次化表面令牌 - 修复输入框主题感知 */
+  --surface-1: 120 25% 94%;          /* 表面层级1 - 输入框背景 */
+  --surface-2: 120 25% 92%;          /* 表面层级2 - 卡片背景 */
+  --surface-3: 120 30% 88%;          /* 表面层级3 - 悬浮元素 */
+  --surface-4: 120 30% 85%;          /* 表面层级4 - 高层级元素 */
+  --background-elevated: 120 25% 90%; /* 悬浮元素背景 */
+  --background-overlay: 120 30% 87%;  /* 覆盖层背景 */
 }
 
 /* 🏆 优化的金色主题 */
@@ -491,6 +655,7 @@
   --primary: 45 93% 47%;            /* 金色主色调 */
   --primary-foreground: 45 20% 98%; /* 主色调文字 */
   --destructive: 0 84% 60%;         /* 危险色 */
+  --warning: 35 90% 55%;            /* 警告色 - 深金橙色 */
   --secondary: 45 30% 88%;          /* 次要色 */
   --secondary-foreground: 45 10% 10%;
   --border: 45 20% 82%;             /* 边框色 */
@@ -519,6 +684,30 @@
   --chart-4: 15 65% 60%;
   --chart-5: 5 75% 55%;
 
+  /* 🎨 金色主题Head区和导航配色 */
+  --header-bg: 45 20% 96%;          /* Header背景 */
+  --header-text: 45 10% 10%;        /* Header文字 */
+  --breadcrumb-bg: 45 20% 94%;      /* 面包屑背景 */
+  --breadcrumb-text: 45 15% 25%;    /* 面包屑文字 */
+  --breadcrumb-link: 45 93% 47%;    /* 面包屑链接 */
+  --hero-title: 45 15% 5%;          /* 首页标题 */
+  --hero-subtitle: 45 10% 20%;      /* 首页副标题 */
+
+  /* 🎨 金色主题Hero按钮配色 */
+  --hero-button-from: 45 93% 47%;   /* 金色按钮渐变起始色 */
+  --hero-button-via: 35 85% 52%;    /* 橙金色按钮渐变中间色 */
+  --hero-button-to: 25 80% 57%;     /* 橙色按钮渐变结束色 */
+
+  /* 🎨 金色主题Hero要点配色 */
+  --hero-points-text: 45 15% 25%;   /* 要点文字颜色 */
+  --hero-points-dot: 45 93% 47%;    /* 要点圆点颜色 */
+
+  /* 🎨 金色主题平台卡片配色 */
+  --platform-card-bg: 45 20% 94%;   /* 平台卡片背景 */
+  --platform-icon-1: 45 93% 47%;    /* 金色平台图标 */
+  --platform-icon-2: 35 85% 52%;    /* 橙金色平台图标 */
+  --platform-icon-3: 25 80% 57%;    /* 橙色平台图标 */
+
   /* 🏆 金色主题渐变系统 */
   --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
   --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.9) 100%);
@@ -526,6 +715,150 @@
   --bg-gradient-primary: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
   --bg-gradient-secondary: linear-gradient(135deg, hsl(var(--surface-1)) 0%, hsl(var(--surface-2)) 50%, hsl(var(--surface-3)) 100%);
   --bg-gradient-elevated: linear-gradient(135deg, hsl(var(--background-elevated)) 0%, hsl(var(--surface-4)) 100%);
+}
+
+/* 🎨 主题配色工具类 */
+.theme-header-bg {
+  background-color: hsl(var(--header-bg));
+}
+
+.theme-header-text {
+  color: hsl(var(--header-text)) !important;
+}
+
+.theme-breadcrumb-bg {
+  background-color: hsl(var(--breadcrumb-bg));
+}
+
+.theme-breadcrumb-text {
+  color: hsl(var(--breadcrumb-text));
+}
+
+.theme-breadcrumb-link {
+  color: hsl(var(--breadcrumb-link));
+}
+
+.theme-hero-title {
+  color: hsl(var(--hero-title));
+}
+
+.theme-hero-subtitle {
+  color: hsl(var(--hero-subtitle));
+}
+
+/* 🎨 Hero按钮主题样式 - 使用主题变量，带回退色 */
+.theme-hero-button {
+  /* 回退色确保可见性 */
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%) !important;
+  /* 主题变量覆盖 */
+  background: linear-gradient(135deg,
+    hsl(var(--hero-button-from, 225 73% 45%)) 0%,
+    hsl(var(--hero-button-via, 250 75% 48%)) 50%,
+    hsl(var(--hero-button-to, 310 70% 50%)) 100%) !important;
+  color: white !important;
+  /* 确保文字完全居中 */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.theme-hero-button:hover {
+  /* 回退色确保可见性 */
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%) !important;
+  /* 主题变量覆盖 */
+  background: linear-gradient(135deg,
+    hsl(var(--hero-button-from, 225 73% 45%) / 0.9) 0%,
+    hsl(var(--hero-button-via, 250 75% 48%) / 0.9) 50%,
+    hsl(var(--hero-button-to, 310 70% 50%) / 0.9) 100%) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+/* 按钮内容容器样式 */
+.hero-button-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.75rem !important;
+  line-height: 1 !important;
+}
+
+.theme-hero-points-text {
+  color: hsl(var(--hero-points-text));
+}
+
+.theme-hero-points-dot {
+  color: hsl(var(--hero-points-dot));
+}
+
+.theme-platform-card-bg {
+  background-color: hsl(var(--platform-card-bg));
+}
+
+.theme-platform-icon-1 {
+  color: hsl(var(--platform-icon-1));
+}
+
+.theme-platform-icon-2 {
+  color: hsl(var(--platform-icon-2));
+}
+
+.theme-platform-icon-3 {
+  color: hsl(var(--platform-icon-3));
+}
+
+/* 🌈 彩虹色Logo文字 - 简化版，无动画 */
+.rainbow-logo-text {
+  /* 降级方案：如果不支持渐变文字，显示深蓝色 */
+  color: #2d3748 !important;
+  background: linear-gradient(
+    90deg,
+    #e53e3e 0%,   /* 深红色 */
+    #dd6b20 14%,  /* 深橙色 */
+    #d69e2e 28%,  /* 深黄色 */
+    #38a169 42%,  /* 深绿色 */
+    #3182ce 56%,  /* 深蓝色 */
+    #805ad5 70%,  /* 深紫色 */
+    #d53f8c 84%,  /* 深粉色 */
+    #e53e3e 100%  /* 回到深红色 */
+  ) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+
+  /* 确保文字清晰可见 */
+  font-weight: bold !important;
+}
+
+/* 确保在不支持background-clip的浏览器中可见 */
+@supports not (-webkit-background-clip: text) {
+  .rainbow-logo-text {
+    color: #2d3748 !important;
+    background: none !important;
+  }
+}
+
+/* 彩虹色文字 - 静态版本，无动画 */
+
+/* 深色主题下的彩虹Logo增强 */
+[data-theme="dark"] .rainbow-logo-text {
+  filter: brightness(1.4) saturate(1.1);
+}
+
+/* 浅色主题下确保彩虹色足够深 */
+[data-theme="default"] .rainbow-logo-text,
+[data-theme="rainbow"] .rainbow-logo-text,
+[data-theme="green"] .rainbow-logo-text,
+[data-theme="gold"] .rainbow-logo-text {
+  filter: brightness(0.85) saturate(1.2) contrast(1.1);
+}
+
+/* 悬停效果 */
+.theme-breadcrumb-text:hover {
+  color: hsl(var(--breadcrumb-link)) !important;
+}
+
+.hover\:theme-breadcrumb-link:hover {
+  color: hsl(var(--breadcrumb-link)) !important;
 }
 
 /* 核心动画 - 使用transform和opacity优化性能 */
@@ -1391,6 +1724,44 @@
   animation: shimmer 1.5s infinite;
 }
 
+/* 🔥 限时优惠专用样式 - 适配所有主题 */
+.promo-banner {
+  background: var(--promo-gradient) !important;
+  color: white !important;
+  border: 2px solid var(--promo-border) !important;
+  box-shadow: 0 8px 32px hsl(var(--warning) / 0.3), 0 4px 16px hsl(var(--destructive) / 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.promo-banner:hover {
+  background: var(--promo-gradient-hover) !important;
+  box-shadow: 0 12px 40px hsl(var(--warning) / 0.4), 0 6px 20px hsl(var(--destructive) / 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 确保promo-banner内的文字始终为白色 */
+.promo-banner * {
+  color: white !important;
+}
+
+.promo-countdown {
+  background: var(--promo-bg);
+  border: 2px solid var(--promo-border);
+  color: hsl(var(--foreground));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px hsl(var(--warning) / 0.2);
+}
+
+.promo-countdown-time {
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 /* 工具提示样式 */
 .tooltip {
   position: relative;
@@ -2058,6 +2429,43 @@
 
 [data-theme="dark"] .hover-glow:hover {
   box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+}
+
+/* 🔒 权限系统样式 */
+.permission-locked-button {
+  color: hsl(var(--permission-locked));
+  border-color: hsl(var(--permission-locked) / 0.3);
+  background-color: hsl(var(--permission-locked) / 0.05);
+}
+
+.permission-locked-button:hover {
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.5);
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.permission-premium-badge {
+  background-color: hsl(var(--permission-premium));
+  color: hsl(var(--permission-premium-foreground));
+}
+
+.permission-pro-badge {
+  background-color: hsl(var(--permission-pro));
+  color: hsl(var(--permission-pro-foreground));
+}
+
+.permission-upgrade-prompt {
+  border-color: hsl(var(--border) / 0.6);
+  background-color: hsl(var(--card) / 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.permission-upgrade-prompt .text-muted-foreground {
+  color: hsl(var(--muted-foreground));
+}
+
+.permission-upgrade-prompt .text-foreground {
+  color: hsl(var(--foreground));
 }
 
 /* 几何光线效果 */

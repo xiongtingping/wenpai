@@ -48,8 +48,11 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
-import { PermissionOverlay, usePermissionOverlay } from '@/components/auth/PermissionOverlay';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
+import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
+
 import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
+import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
@@ -65,8 +68,7 @@ export default function CreativeStudioPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('calendar');
 
-  // 权限检查
-  const { shouldShowOverlay } = usePermissionOverlay('creative:basic');
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,6 +77,15 @@ export default function CreativeStudioPage() {
           title="创意魔方"
           description="激发创意灵感，快速生成高质量内容"
           showAdaptButton={false}
+          showUpgradeButton={false}
+          actions={
+            <RoleBasedUpgradePrompt
+              requiredTier="pro"
+              featureName="创意魔方"
+              description="该功能区为专业版专属，包含九宫格创意魔方、营销日历、文案模板等创意工具"
+              mode="compact"
+            />
+          }
         />
 
         <div className="container mx-auto px-4 py-8">
@@ -111,7 +122,6 @@ export default function CreativeStudioPage() {
                 requiredPermission="feature:marketing-calendar"
                 featureName="营销日历"
                 description="智能营销日历和任务管理，帮助您规划营销活动"
-                allowPreview={true}
               >
                 <MarketingCalendar />
               </UnifiedPermissionGuard>
@@ -119,15 +129,13 @@ export default function CreativeStudioPage() {
 
             {/* 九宫格创意魔方法 */}
             <TabsContent value="cube" className="mt-6">
-              <PermissionOverlay
-                show={shouldShowOverlay}
-                featureName="创意魔方"
-                requiredPermission="creative:basic"
-                requiredTier="pro"
-                description="创意魔方是专业版功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
+              <UnifiedPermissionGuard
+                requiredPermission="feature:creative-cube"
+                featureName="九宫格创意魔方"
+                description="专业版功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
               >
                 <CreativeCube />
-              </PermissionOverlay>
+              </UnifiedPermissionGuard>
             </TabsContent>
 
             {/* 朋友圈文案 */}
@@ -136,7 +144,6 @@ export default function CreativeStudioPage() {
                 requiredPermission="feature:wechat-templates"
                 featureName="微信朋友圈文案模板"
                 description="专业设计的社交媒体文案模板库，快速生成高质量文案"
-                allowPreview={true}
               >
                 <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                   <WechatTemplatePage />

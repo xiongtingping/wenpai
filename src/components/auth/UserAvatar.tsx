@@ -3,19 +3,11 @@
  * 使用统一认证系统显示用户信息和操作
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogIn, LogOut, User, Settings, Crown } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDisplayName, getUserAvatarFallback, getUserAvatar } from '@/utils/userDisplayUtils';
 
@@ -39,9 +31,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   showUsername = true,
   size = 'md'
 }) => {
-  const { user, isAuthenticated, login, logout } = useUnifiedAuth();
+  const { user, isAuthenticated, login } = useUnifiedAuth();
   const navigate = useNavigate();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // 头像大小配置
   const sizeClasses = {
@@ -53,18 +44,6 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // ✅ FIXED: 使用安全的用户信息获取函数
   // 📌 修复问题：防止 "undefinedundefined" 字符串拼接
   // 🔓 UNLOCKED: 已封装稳定，请勿改动
-
-  // 处理登出
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    try {
-      await logout();
-    } catch (error) {
-      console.error('登出失败:', error);
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
 
   // 处理跳转到个人资料
   const handleProfileClick = () => {
@@ -93,66 +72,17 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // 已登录状态
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {showUsername && (
-        <span className="text-sm text-foreground hidden sm:block">
-          {getUserDisplayName(user, '用户')}
-        </span>
-      )}
-      
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-auto p-0">
-            <Avatar className={sizeClasses[size]}>
-              <AvatarImage
-                src={getUserAvatar(user)}
-                alt={getUserDisplayName(user, '用户头像')}
-              />
-              <AvatarFallback className="bg-accent text-primary">
-                {getUserAvatarFallback(user)}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {getUserDisplayName(user, '用户')}
-              </p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {user?.email || '未设置邮箱'}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuItem onClick={handleProfileClick}>
-            <User className="mr-2 h-4 w-4" />
-            <span>个人资料</span>
-          </DropdownMenuItem>
-          
-          {/* VIP 标识 */}
-          {user?.roles?.includes('vip') && (
-            <DropdownMenuItem disabled>
-              <Crown className="mr-2 h-4 w-4 text-foreground" />
-              <span className="text-foreground">VIP 用户</span>
-            </DropdownMenuItem>
-          )}
-          
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuItem 
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="text-destructive focus:text-destructive"
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>{isLoggingOut ? '登出中...' : '登出'}</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button variant="ghost" className="relative h-auto p-0" onClick={handleProfileClick}>
+        <Avatar className={sizeClasses[size]}>
+          <AvatarImage
+            src={getUserAvatar(user)}
+            alt={getUserDisplayName(user, '用户头像')}
+          />
+          <AvatarFallback className="bg-accent text-primary">
+            {getUserAvatarFallback(user)}
+          </AvatarFallback>
+        </Avatar>
+      </Button>
     </div>
   );
 };

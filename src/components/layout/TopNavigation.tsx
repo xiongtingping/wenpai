@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { DevPermissionSwitcher } from '@/components/dev/DevPermissionSwitcher';
+import { LogoWithText } from '@/components/ui/ThemeAwareLogo';
 
 /**
  * 顶部导航栏组件
@@ -142,31 +143,26 @@ export const TopNavigation: React.FC = () => {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/90 shadow-sm border-border">
+    <header className="sticky top-0 z-50 w-full border-b shadow-sm theme-header-bg backdrop-blur-sm border-border">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* 左侧Logo和导航 */}
           <div className="flex items-center space-x-6">
-            {/* Logo - 熊猫Logo */}
-            <Link to="/" className="flex items-center space-x-3 group">
-              <div className="relative">
-                {/* 熊猫Logo - 使用清晰的SVG文件 */}
-                <div className="w-9 h-9 group-hover:scale-105 transition-all duration-300">
-                  <img
-                    src="/logo-panda.svg"
-                    alt="文派Logo"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+            {/* Logo - 主题感知的熊猫Logo */}
+            <Link to="/" className="group">
+              <div className="flex items-center space-x-3">
+                <LogoWithText
+                  size="md"
+                  textSize="lg"
+                  showHoverEffect={true}
+                  showBackground={true}
+                />
+                {isDevelopment() && (
+                  <Badge variant="premium" className="text-xs animate-pulse">
+                    DEV
+                  </Badge>
+                )}
               </div>
-              <span className="text-xl font-bold text-primary transition-all duration-200">
-                文派
-              </span>
-              {isDevelopment() && (
-                <Badge variant="premium" className="text-xs animate-pulse">
-                  DEV
-                </Badge>
-              )}
             </Link>
 
             {/* 桌面端功能导航菜单 */}

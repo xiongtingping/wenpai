@@ -106,6 +106,8 @@ import { MentionTextarea } from '@/components/ui/mention-textarea';
 import { useContentSyncStore } from '@/stores/contentSyncStore';
 import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -495,13 +497,15 @@ type ShareHistoryItem = {
   time: string;
 };
 
-// 添加缺失的函数
+// ✅ FIXED: 用户数据隔离 - 模型选择存储
 function getModel(): string {
-  return localStorage.getItem('selectedModel') || 'gpt-4o-mini';
+  // 注意：这里无法直接获取user，需要在组件内部处理
+  return localStorage.getItem('selectedModel_guest') || 'gpt-4o-mini';
 }
 
-function setModel(modelId: string): void {
-  localStorage.setItem('selectedModel', modelId);
+function setModel(modelId: string, userId?: string): void {
+  const storageKey = `selectedModel_${userId || 'guest'}`;
+  localStorage.setItem(storageKey, modelId);
 }
 
 // 平台样式配置
@@ -608,6 +612,7 @@ export default function AdaptPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useUnifiedAuth();
   const [originalContent, setOriginalContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
@@ -1225,10 +1230,11 @@ export default function AdaptPage() {
     }
   }, [location.state, toast]);
 
-  // 处理从sessionStorage传递的预填充内容（用于创意魔方等页面的跳转）
+  // ✅ FIXED: 用户数据隔离 - 处理从sessionStorage传递的预填充内容
   useEffect(() => {
-    const sessionContent = sessionStorage.getItem('ai_adapter_content');
-    const sessionSource = sessionStorage.getItem('ai_adapter_source');
+    const userId = user?.id || 'guest';
+    const sessionContent = sessionStorage.getItem(`ai_adapter_content_${userId}`);
+    const sessionSource = sessionStorage.getItem(`ai_adapter_source_${userId}`);
 
     if (sessionContent && !originalContent) {
       setOriginalContent(sessionContent);
@@ -1240,10 +1246,10 @@ export default function AdaptPage() {
       });
 
       // 清除sessionStorage以避免重复导入
-      sessionStorage.removeItem('ai_adapter_content');
-      sessionStorage.removeItem('ai_adapter_source');
+      sessionStorage.removeItem(`ai_adapter_content_${userId}`);
+      sessionStorage.removeItem(`ai_adapter_source_${userId}`);
     }
-  }, [originalContent, toast]);
+  }, [originalContent, toast, user?.id]);
   
   // ✅ FIXED: 2025-08-04 修复无限循环问题
   // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
@@ -1297,12 +1303,31 @@ export default function AdaptPage() {
     setShowSettings(initialShowSettings);
   }, [platforms]);
 
-  // Save settings to localStorage
+  // ✅ FIXED: 用户数据隔离 - 平台设置存储
+  const platformSettingsManager = useUserDataIsolation({
+    modulePrefix: 'adapt_platform_settings',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  const globalSettingsManager = useUserDataIsolation({
+    modulePrefix: 'adapt_global_settings',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  const selectedPlatformsManager = useUserDataIsolation({
+    modulePrefix: 'adapt_selected_platforms',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  // Save settings to localStorage with user isolation
   const saveSettings = () => {
     try {
-      localStorage.setItem('platformSettings', JSON.stringify(platformSettings));
-      localStorage.setItem('globalSettings', JSON.stringify(globalSettings));
-      localStorage.setItem('selectedPlatforms', JSON.stringify(selectedPlatforms));
+      platformSettingsManager.saveData(platformSettings);
+      globalSettingsManager.saveData(globalSettings);
+      selectedPlatformsManager.saveData(selectedPlatforms);
       toast({
         title: "设置已保存",
         description: "您的平台设置已成功保存",
@@ -1316,12 +1341,12 @@ export default function AdaptPage() {
     }
   };
 
-  // Auto-save settings when they change
+  // Auto-save settings when they change with user isolation
   useEffect(() => {
     if (Object.keys(platformSettings).length > 0) {
-      localStorage.setItem('platformSettings', JSON.stringify(platformSettings));
+      platformSettingsManager.saveData(platformSettings);
     }
-  }, [platformSettings]);
+  }, [platformSettings, platformSettingsManager]);
 
   useEffect(() => {
     if (Object.keys(globalSettings).length > 0) {
@@ -1335,17 +1360,16 @@ export default function AdaptPage() {
     }
   }, [selectedPlatforms]);
 
-  // Initialize platform settings
+  // Initialize platform settings with user isolation
   useEffect(() => {
-    // Try to load saved settings from localStorage
-    const savedSettings = localStorage.getItem('platformSettings');
-    const savedGlobalSettings = localStorage.getItem('globalSettings');
-    const savedSelectedPlatforms = localStorage.getItem('selectedPlatforms');
-    
-    if (savedSettings) {
+    // Try to load saved settings from user-isolated storage
+    const platformResult = platformSettingsManager.loadData();
+    const globalResult = globalSettingsManager.loadData();
+    const selectedResult = selectedPlatformsManager.loadData();
+
+    if (platformResult.success && platformResult.data) {
       try {
-        const parsedSettings = JSON.parse(savedSettings);
-        setPlatformSettings(parsedSettings);
+        setPlatformSettings(platformResult.data);
       } catch {
         console.error("Failed to parse saved platform settings");
         initializeDefaultSettings();
@@ -1353,21 +1377,19 @@ export default function AdaptPage() {
     } else {
       initializeDefaultSettings();
     }
-    
-    if (savedGlobalSettings) {
+
+    if (globalResult.success && globalResult.data) {
       try {
-        const parsedGlobalSettings = JSON.parse(savedGlobalSettings);
-        setGlobalSettings(parsedGlobalSettings);
+        setGlobalSettings(globalResult.data);
       } catch {
         console.error("Failed to parse saved global settings");
       }
     }
 
-    if (savedSelectedPlatforms) {
+    if (selectedResult.success && selectedResult.data) {
       try {
-        const parsedSelectedPlatforms = JSON.parse(savedSelectedPlatforms);
         // 去重处理，确保没有重复的平台ID
-        const uniquePlatforms = Array.from(new Set(parsedSelectedPlatforms)) as string[];
+        const uniquePlatforms = Array.from(new Set(selectedResult.data)) as string[];
         setSelectedPlatforms(uniquePlatforms);
       } catch {
         console.error("Failed to parse saved selected platforms");
@@ -1599,6 +1621,13 @@ export default function AdaptPage() {
   // ✅ FIXED: 用户数据隔离 - 生成内容后保存到历史记录
   const historyDataManager = useUserDataIsolation({
     modulePrefix: 'adapt_history',
+    fallbackToGuest: true,
+    enableLogging: true
+  });
+
+  // ✅ FIXED: 用户数据隔离 - 收藏功能
+  const favoritesDataManager = useUserDataIsolation({
+    modulePrefix: 'adapt_favorites',
     fallbackToGuest: true,
     enableLogging: true
   });
@@ -2516,13 +2545,14 @@ export default function AdaptPage() {
         favoritesStore.removeFavorite(fav.id);
       });
 
-      // 保持旧系统兼容性
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      // 保持旧系统兼容性 - 使用用户隔离存储
+      const favoritesResult = favoritesDataManager.loadData();
+      const favorites = favoritesResult.data || [];
       const updatedFavorites = favorites.filter((fav: any) => {
         const key = fav.versionId ? `${fav.platformId}-${fav.versionId}` : fav.platformId;
         return key !== favoriteKey;
       });
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      favoritesDataManager.saveData(updatedFavorites);
 
       setPersistentFavorites(prev => {
         const newSet = new Set(prev);
@@ -2556,8 +2586,9 @@ export default function AdaptPage() {
 
       const favoriteId = favoritesStore.addFavorite(favoriteItem);
 
-      // 保持旧系统兼容性
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      // 保持旧系统兼容性 - 使用用户隔离存储
+      const favoritesResult = favoritesDataManager.loadData();
+      const favorites = favoritesResult.data || [];
       const legacyFavoriteItem = {
         id: favoriteId,
         platformId,
@@ -2568,7 +2599,7 @@ export default function AdaptPage() {
       };
 
       favorites.push(legacyFavoriteItem);
-      localStorage.setItem('favorites', JSON.stringify(favorites));
+      favoritesDataManager.saveData(favorites);
 
       setPersistentFavorites(prev => new Set(prev).add(favoriteKey));
 

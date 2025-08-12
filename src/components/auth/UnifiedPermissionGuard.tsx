@@ -6,12 +6,11 @@
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { Lock, Crown, Zap, Star, ArrowRight, Eye, EyeOff, Sparkles, Check, Clock, AlertTriangle } from 'lucide-react';
+import { Lock, Crown, Zap, Star, ArrowRight, Sparkles, Check, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PermissionText, UpgradeText } from '@/components/ui/ThemeAwareText';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { getSubscriptionPlan, SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
@@ -49,8 +48,6 @@ interface UnifiedPermissionGuardProps {
   description?: string;
   /** 是否显示透明遮罩（允许查看但不能使用） */
   showOverlay?: boolean;
-  /** 是否允许预览模式 */
-  allowPreview?: boolean;
   /** 遮罩透明度 */
   overlayOpacity?: number;
   /** 自定义样式类名 */
@@ -271,7 +268,6 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
   featureName,
   description,
   showOverlay = true,
-  allowPreview = false,
   overlayOpacity = 0.3,
   className = '',
   fallback,
@@ -280,7 +276,6 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
 }) => {
   const { user, isAuthenticated } = useUnifiedAuth();
   const navigate = useNavigate();
-  const [previewMode, setPreviewMode] = React.useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [discountCountdown, setDiscountCountdown] = useState(0);
 
@@ -353,89 +348,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
     return <>{fallback || <div className="text-center text-muted-foreground">需要 {requiredTierInfo.name} 权限</div>}</>;
   }
 
-  // 预览模式渲染
-  if (allowPreview) {
-    return (
-      <div className={`relative ${className}`}>
-        {/* 预览控制栏 */}
-        <div className="mb-4 p-3 bg-muted/50 rounded-lg border border-border">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{featureName || permissionConfig.name}</span>
-                <Badge variant="outline" className="text-xs">
-                  需要 {requiredTierInfo.name}
-                </Badge>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">预览模式</span>
-                      <Switch
-                        checked={previewMode}
-                        onCheckedChange={setPreviewMode}
-                      />
-                      {previewMode ? (
-                        <Eye className="h-4 w-4 text-primary" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>开启预览模式可以查看功能界面，但无法进行操作</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-          
-          {description && (
-            <p className="text-xs text-muted-foreground mt-2">{description}</p>
-          )}
-        </div>
-
-        {/* 功能内容 */}
-        {previewMode ? (
-          // 预览模式：显示内容但禁用交互
-          <div className="relative">
-            <div 
-              className="pointer-events-none select-none"
-              style={{ 
-                opacity: 0.6,
-                filter: 'grayscale(20%)'
-              }}
-            >
-              {children}
-            </div>
-            
-            {/* 预览遮罩提示 */}
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-200">
-              <div className="text-center p-6 bg-card rounded-lg shadow-lg border max-w-sm">
-                <Lock className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h3 className="font-semibold mb-2">预览模式</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  您正在预览 {featureName || permissionConfig.name} 功能界面
-                </p>
-                <Button size="sm" className="w-full" onClick={() => handleUpgrade()}>
-                  <Crown className="h-4 w-4 mr-2" />
-                  升级解锁完整功能
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          // 非预览模式：显示升级提示
-          renderUpgradePrompt()
-        )}
-      </div>
-    );
-  }
+  // 直接渲染升级提示，移除预览模式
 
   // 渲染升级提示 - 直接显示定价方案对比
   function renderUpgradePrompt() {
@@ -492,13 +405,13 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Lock className="h-6 w-6 text-primary" />
-                <h2 className="text-xl font-bold text-foreground">
+                <UpgradeText as="h2" type="title" size="xl">
                   解锁 {featureName || permissionConfig.name}
-                </h2>
+                </UpgradeText>
               </div>
-              <p className="text-sm text-muted-foreground mb-3">
+              <PermissionText type="description" size="sm" className="mb-3">
                 {description || permissionConfig.description}
-              </p>
+              </PermissionText>
               <Badge className={`text-xs px-2 py-1 ${requiredTierInfo.color}`}>
                 需要 {requiredTierInfo.name} 或更高版本
               </Badge>
@@ -551,9 +464,9 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
                           ) : (
                             <Sparkles className="h-5 w-5 text-foreground" />
                           )}
-                          <h3 className="text-lg font-semibold">{plan.name}</h3>
+                          <UpgradeText as="h3" type="title" size="lg">{plan.name}</UpgradeText>
                         </div>
-                        <p className="text-xs text-muted-foreground">{plan.description}</p>
+                        <PermissionText type="description" size="xs">{plan.description}</PermissionText>
                       </div>
 
                       {/* 价格 */}
@@ -571,7 +484,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
                             <div className="text-2xl font-bold text-red-600">
                               ¥{pricing.discountPrice}
                             </div>
-                            <div className="text-xs text-muted-foreground">每月</div>
+                            <div className="text-xs text-muted-foreground dark:text-muted-foreground">每月</div>
                             <div className="text-xs text-red-500 mt-1">
                               限时优惠价，立省¥{pricing.savedAmount}
                             </div>
@@ -581,7 +494,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
                             <div className="text-2xl font-bold text-foreground">
                               {plan.tier === 'trial' ? '免费' : `¥${pricing.originalPrice}`}
                             </div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-muted-foreground dark:text-muted-foreground">
                               {plan.tier === 'trial' ? '永久免费' : '每月'}
                             </div>
                           </div>
@@ -609,7 +522,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
                             );
                           })}
                         {plan.features.length > 5 && (
-                          <li className="text-xs text-muted-foreground text-center pt-1">
+                          <li className="text-xs text-muted-foreground dark:text-muted-foreground text-center pt-1">
                             +{plan.features.length - 5} 更多功能...
                           </li>
                         )}

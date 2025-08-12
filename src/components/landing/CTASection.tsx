@@ -36,7 +36,7 @@ export function CTASection() {
   };
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-10 bg-background">
       <div className="container mx-auto px-6 text-center">
         {/* 1️⃣ 主标题 */}
         <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-2 drop-shadow-sm">

@@ -103,7 +103,7 @@ const FeatureShowcasePage: React.FC = () => {
         {/* 限时优惠横幅 */}
         {user?.registrationDate && isInDiscountPeriod(new Date(user.registrationDate)) && discountCountdown > 0 && (
           <div className="mb-8">
-            <Card className="bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 shadow-2xl">
+            <Card className="promo-banner border-0 shadow-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -120,11 +120,11 @@ const FeatureShowcasePage: React.FC = () => {
                       <Clock className="h-5 w-5" />
                       <span className="text-sm">剩余时间</span>
                     </div>
-                    <CountdownTimer 
+                    <CountdownTimer
                       initialSeconds={discountCountdown}
                       variant="compact"
                       showIcon={false}
-                      className="text-white font-mono text-2xl font-bold bg-black/20 px-4 py-2 rounded-lg"
+                      className="promo-countdown-time text-2xl font-bold px-4 py-2 rounded-lg"
                     />
                   </div>
                 </div>

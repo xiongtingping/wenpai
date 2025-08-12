@@ -13,8 +13,7 @@ import { usePermission } from '@/hooks/usePermission';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ThemeUpgradeDialog } from '@/components/ui/ThemeUpgradeDialog';
-
-const THEME_KEY = 'wenpai-theme';
+import { generateStorageKey } from '@/utils/userDataIsolation';
 
 type Theme = 'light' | 'dark' | 'rainbow' | 'beige' | 'green';
 
@@ -75,8 +74,9 @@ const themes: ThemeConfig[] = [
   },
 ];
 
-function getInitialTheme(): Theme {
-  const stored = localStorage.getItem(THEME_KEY) as Theme;
+function getInitialTheme(user?: any): Theme {
+  const themeKey = generateStorageKey('wenpai-theme', user);
+  const stored = localStorage.getItem(themeKey) as Theme;
   if (stored && themes.some(t => t.value === stored)) return stored;
   // fallback: prefers-color-scheme
   if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -86,16 +86,24 @@ function getInitialTheme(): Theme {
 }
 
 export const ThemeToggle: React.FC = () => {
-  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+  const { user, isAuthenticated } = useUnifiedAuth();
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme(user));
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeConfig | null>(null);
-  const { user, isAuthenticated } = useUnifiedAuth();
   const navigate = useNavigate();
 
   // 获取权限检查结果
   const basicPermission = usePermission('theme:basic');
   const advancedPermission = usePermission('theme:advanced');
   const premiumPermission = usePermission('theme:premium');
+
+  // 监听用户变化，重新加载主题
+  useEffect(() => {
+    const newTheme = getInitialTheme(user);
+    if (newTheme !== theme) {
+      setTheme(newTheme);
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -106,8 +114,9 @@ export const ThemeToggle: React.FC = () => {
     } else {
       html.classList.remove('dark');
     }
-    localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
+    const themeKey = generateStorageKey('wenpai-theme', user);
+    localStorage.setItem(themeKey, theme);
+  }, [theme, user]);
 
   const currentTheme = themes.find(t => t.value === theme) || themes[0];
 

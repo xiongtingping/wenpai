@@ -39,7 +39,6 @@ import TitleGeneratorTestPage from '@/pages/TitleGeneratorTestPage';
 import NewTitleGeneratorTestPage from '@/pages/NewTitleGeneratorTestPage';
 import BookmarkPage from '@/pages/BookmarkPage';
 import BrandLibraryPage from '@/pages/BrandLibraryPage';
-import ContentExtractorPage from '@/pages/ContentExtractorPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AIConfigTestPage from '@/pages/AIConfigTestPage';
 import PermissionTestPage from '@/pages/PermissionTestPage';
@@ -76,6 +75,7 @@ import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
 import BlurEffectTestPage from '@/pages/BlurEffectTestPage';
 import DiscountTestPage from '@/pages/DiscountTestPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
+import PermissionSystemDemoPage from '@/pages/PermissionSystemDemoPage';
 
 /**
  * 条件性导航组件
@@ -174,6 +174,8 @@ function AppContent() {
           <Route path="/creem-payment-test" element={<CreemPaymentTestPage />} />
           <Route path="/checkout-test" element={<CheckoutTestPage />} />
           <Route path="/payment-status" element={<PaymentStatusPage />} />
+
+
           
           {/* 需要认证的页面 */}
           <Route path="/adapt" element={
@@ -196,12 +198,7 @@ function AppContent() {
             </PermissionGuard>
           } />
           
-          <Route path="/content-extractor" element={
-            <PermissionGuard required="feature:content-extractor">
-              <ContentExtractorPage />
-            </PermissionGuard>
-          } />
-          
+
           <Route path="/hot-topics" element={
             <PermissionGuard required="auth:required">
               <HotTopicsPage />
@@ -259,15 +256,12 @@ function AppContent() {
             </PermissionGuard>
           } />
 
-          <Route path="/content-extractor" element={
-            <PermissionGuard required="auth:required">
-              <ContentExtractorPage />
-            </PermissionGuard>
-          } />
-
           <Route path="/pdf-chat" element={
             <PermissionGuard required="auth:required">
-              <ContentExtractorPage />
+              <div className="container mx-auto px-4 py-8">
+                <h1 className="text-2xl font-bold mb-4">PDF对话功能</h1>
+                <p className="text-muted-foreground">PDF对话功能已集成到品牌库中，请前往品牌库使用。</p>
+              </div>
             </PermissionGuard>
           } />
           
@@ -313,6 +307,7 @@ function AppContent() {
           <Route path="/blur-effect-test" element={<BlurEffectTestPage />} />
           <Route path="/discount-test" element={<DiscountTestPage />} />
           <Route path="/feature-showcase" element={<FeatureShowcasePage />} />
+          <Route path="/permission-system-demo" element={<PermissionSystemDemoPage />} />
 
           {/* 历史记录页面 */}
           <Route path="/history" element={

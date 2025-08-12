@@ -6,37 +6,59 @@ import { Badge } from "@/components/ui/badge"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext"
-import { Crown, Sparkles, Check, X, Star, TrendingUp } from "lucide-react"
+import { Crown, Sparkles, Check, X, Star, TrendingUp, Zap } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
-import { 
-  isInPromoPeriod, 
-  calculateRemainingTime, 
-  formatTimeLeft 
+import {
+  isInPromoPeriod,
+  calculateRemainingTime,
+  formatTimeLeft,
+  getPaymentCenterAccessTime
 } from "@/utils/paymentTimer";
 
 export function PricingSection() {
   const [billing, setBilling] = useState<SubscriptionPeriod>("monthly")
   const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeftMs, setTimeLeftMs] = useState(0); // 添加毫秒级倒计时
   const { toast } = useToast()
   const { user: currentUser, isAuthenticated } = useUnifiedAuth();
-  
+
   // 使用统一认证状态
   const inPromo = isInPromoPeriod(currentUser?.id);
   const formattedTime = formatTimeLeft(timeLeft);
   const navigate = useNavigate()
 
-  // 限时优惠倒计时逻辑（30分钟）
+  // 限时优惠倒计时逻辑（包含毫秒，与支付中心保持一致）
   useEffect(() => {
-    if (!isAuthenticated) return;
-    const updateCountdown = () => {
-      const remaining = calculateRemainingTime(currentUser?.id);
-      setTimeLeft(remaining);
+    if (!currentUser?.id) return;
+
+    const updateTimer = () => {
+      const remainingMs = calculateRemainingTime(currentUser.id);
+      setTimeLeftMs(remainingMs);
+      setTimeLeft(Math.floor(remainingMs / 1000)); // 保持秒数用于其他逻辑
     };
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 100); // 100ms更新一次以显示毫秒
+
     return () => clearInterval(interval);
-  }, [isAuthenticated, currentUser?.id]);
+  }, [currentUser?.id]);
+
+  // 页面访问时记录时间（用于限时优惠）
+  useEffect(() => {
+    if (currentUser?.id) {
+      // 获取或创建支付中心访问时间
+      const accessTime = getPaymentCenterAccessTime(currentUser.id);
+      console.log('首页访问支付中心时间:', accessTime?.toLocaleString());
+
+      // 立即更新倒计时
+      const remainingMs = calculateRemainingTime(currentUser.id);
+      const remainingSeconds = Math.floor(remainingMs / 1000);
+      setTimeLeft(remainingSeconds);
+
+      console.log('首页剩余优惠时间:', remainingSeconds, '秒');
+    }
+  }, [currentUser?.id]);
 
   // 格式化倒计时
   // const inPromo = isInPromoPeriod(currentUser?.id); // This line is removed as per the edit hint
@@ -151,17 +173,27 @@ export function PricingSection() {
           </p>
           
 
-          {/* 登录用户显示倒计时 */}
-          {isAuthenticated && inPromo && (
-            <div className="mt-6 p-4 bg-accent border-2 border-border rounded-lg shadow-lg">
-              <div className="flex flex-col items-center gap-2">
-                <div className="text-lg md:text-xl font-bold text-foreground">新用户限时优惠</div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold text-foreground">限时优惠倒计时：</span>
-                  <span className="text-2xl font-bold bg-accent px-4 py-2 rounded-lg border-2 border-border">
-                    {formattedTime}
-                  </span>
+          {/* 限时优惠倒计时 - 完全照搬支付中心设计 */}
+          {currentUser?.id && isInPromoPeriod(currentUser.id) && timeLeft > 0 && (
+            <div className="text-center mt-6 mb-8">
+              <div className="promo-banner text-white px-8 py-6 rounded-2xl shadow-xl max-w-lg mx-auto">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <Zap className="h-4 w-4 animate-pulse" />
+                  <span className="text-sm font-medium">限时优惠进行中</span>
                 </div>
+
+                {/* 突出显示的倒计时（包含毫秒） */}
+                <div className="text-4xl md:text-5xl font-mono font-black tracking-wider mb-3">
+                  <span className="inline-block min-w-[2ch]">{Math.floor(timeLeftMs / 3600000).toString().padStart(2, '0')}</span>
+                  <span className="text-2xl md:text-3xl mx-1 opacity-80">:</span>
+                  <span className="inline-block min-w-[2ch]">{Math.floor((timeLeftMs % 3600000) / 60000).toString().padStart(2, '0')}</span>
+                  <span className="text-2xl md:text-3xl mx-1 opacity-80">:</span>
+                  <span className="inline-block min-w-[2ch]">{Math.floor((timeLeftMs % 60000) / 1000).toString().padStart(2, '0')}</span>
+                  <span className="text-2xl md:text-3xl mx-1 opacity-80">.</span>
+                  <span className="inline-block min-w-[3ch] text-3xl md:text-4xl">{Math.floor((timeLeftMs % 1000) / 10).toString().padStart(2, '0')}</span>
+                </div>
+
+                <div className="text-xs opacity-90">优惠即将结束，立即享受特价！</div>
               </div>
             </div>
           )}

@@ -4,7 +4,8 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { generateStorageKey } from '@/utils/userDataIsolation';
 
 // 收藏项目类型
 export type FavoriteItemType = 
@@ -99,13 +100,18 @@ const generateId = (): string => {
   return `fav_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// 创建收藏系统store
-export const useFavoritesStore = create<FavoritesState & FavoritesActions>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
-      
-      addFavorite: (item) => {
+/**
+ * 创建支持用户隔离的收藏系统store
+ */
+export const createUserFavoritesStore = (user?: any) => {
+  const storageKey = generateStorageKey('favorites-storage', user);
+
+  return create<FavoritesState & FavoritesActions>()(
+    persist(
+      (set, get) => ({
+        ...initialState,
+
+        addFavorite: (item) => {
         const id = generateId();
         const now = Date.now();
         const favoriteItem: FavoriteItem = {
@@ -263,18 +269,23 @@ export const useFavoritesStore = create<FavoritesState & FavoritesActions>()(
           recentCount
         };
       }
-    }),
-    {
-      name: 'favorites-storage',
-      // 持久化所有状态
-      partialize: (state) => ({
-        favorites: state.favorites,
-        totalCount: state.totalCount,
-        lastUpdated: state.lastUpdated
-      })
-    }
-  )
-);
+
+      }),
+      {
+        name: storageKey,
+        // 持久化所有状态
+        partialize: (state) => ({
+          favorites: state.favorites,
+          totalCount: state.totalCount,
+          lastUpdated: state.lastUpdated
+        })
+      }
+    )
+  );
+};
+
+// 默认收藏系统store（向后兼容）
+export const useFavoritesStore = createUserFavoritesStore();
 
 // 收藏系统工具函数
 export const favoritesUtils = {
