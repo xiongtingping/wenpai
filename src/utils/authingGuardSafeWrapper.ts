@@ -216,22 +216,47 @@ function fixUndefinedInGuardDOM(container: Element) {
  * 确保配置中没有可能导致undefined拼接的选项
  */
 export function createSafeGuardConfig(originalConfig: any) {
-  // 🔧 FIXED: 2025-08-13 仅使用 Authing Guard 官方支持的配置项
-  // 移除可能导致 "Please check your config" 错误的自定义配置
+  // 🔧 FIXED: 2025-08-13 根据 Authing Guard 5.3.9 版本的 GuardOptions 接口修复配置
+  // 严格按照 TypeScript 类型定义创建配置对象
   const safeConfig = {
+    // 必需参数
     appId: originalConfig.appId,
+
+    // 可选参数 - 按照 GuardOptions 接口定义
     host: originalConfig.host,
     redirectUri: originalConfig.redirectUri,
-    mode: originalConfig.mode || 'modal',
-    lang: originalConfig.lang || 'zh-CN'
+    mode: (originalConfig.mode || 'modal') as 'modal' | 'normal',
+    defaultScene: 'login' as 'login' | 'register',
+    lang: (originalConfig.lang || 'zh-CN') as 'zh-CN' | 'en-US',
+    isSSO: true,
+
+    // 🎯 关键修复：使用 config 嵌套结构来配置登录方式
+    // 这是 Guard 5.3.9 版本的正确配置方式
+    config: {
+      // 登录方式配置
+      loginMethodList: ['password', 'phone-code', 'email-code'],
+      // 注册方式配置
+      registerMethodList: ['phone', 'email'],
+      // 界面配置
+      title: '文派',
+      logo: 'https://cdn.authing.co/authing-console/logo.png',
+      // 弹窗配置
+      autoRegister: false,
+      skipComplateFileds: false,
+      closeable: true,
+      clickCloseableMask: true
+    }
   };
 
-  console.log('🛡️ 安全Guard配置已创建 (最小配置):', {
+  console.log('🛡️ 安全Guard配置已创建 (5.3.9兼容):', {
     appId: safeConfig.appId,
     host: safeConfig.host,
     mode: safeConfig.mode,
     lang: safeConfig.lang,
-    redirectUri: safeConfig.redirectUri
+    redirectUri: safeConfig.redirectUri,
+    defaultScene: safeConfig.defaultScene,
+    isSSO: safeConfig.isSSO,
+    hasConfig: !!safeConfig.config
   });
 
   return safeConfig;
