@@ -77,24 +77,6 @@ class UnifiedUsageService {
   private readonly API_ENDPOINT = '/api';
   private readonly STORAGE_KEY = 'unified_usage_stats';
   private readonly SYNC_INTERVAL = 5 * 60 * 1000; // 5分钟同步一次
-
-  /**
-   * 获取认证token
-   */
-  private getAuthToken(): string | null {
-    try {
-      // 从localStorage获取用户信息
-      const userStr = localStorage.getItem('authing_user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        return user.accessToken || user.token || null;
-      }
-      return null;
-    } catch (error) {
-      console.error('获取认证token失败:', error);
-      return null;
-    }
-  }
   
   private syncTimer: NodeJS.Timeout | null = null;
 
@@ -194,19 +176,8 @@ class UnifiedUsageService {
    */
   async getUserUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
     try {
-      // 🔧 FIXED: 添加认证token到请求头
-      const token = this.getAuthToken();
-      const headers: any = {};
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-        headers['x-user-id'] = userId;
-      }
-
       // 调用正确的后端API获取真实数据
-      const response = await request.get(`${this.API_ENDPOINT}/user/usage/${userId}`, {
-        headers
-      });
+      const response = await request.get(`${this.API_ENDPOINT}/user/usage/${userId}`);
       const usageData = response.data;
 
       // 计算总使用次数

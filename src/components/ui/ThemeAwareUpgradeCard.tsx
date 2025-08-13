@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Crown, Zap, ArrowRight, Sparkles, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 
 interface ThemeAwareUpgradeCardProps {
@@ -47,13 +48,17 @@ export const ThemeAwareUpgradeCard: React.FC<ThemeAwareUpgradeCardProps> = ({
     toast({
       title: `升级到${plan.name}`,
       description: `解锁${featureName}的全部功能，立即体验专业级内容创作`,
-      action: {
-        label: "立即升级",
-        onClick: () => {
-          localStorage.setItem("selectedPlan", requiredTier);
-          navigate('/payment');
-        }
-      }
+      action: (
+        <ToastAction
+          altText="立即升级"
+          onClick={() => {
+            localStorage.setItem("selectedPlan", requiredTier);
+            navigate('/payment');
+          }}
+        >
+          立即升级
+        </ToastAction>
+      )
     });
   };
 

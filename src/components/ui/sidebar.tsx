@@ -18,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 // ✅ FIXED: 2025-08-04 使用SafeTooltip替代原始Tooltip，防止setRef无限循环
 import { SafeTooltip } from "@/components/ui/SafeTooltip"
+import { TooltipProvider, TooltipContent } from "@/components/ui/tooltip"
 // 🚨 REMOVED: TooltipProvider导入，因为SafeTooltip不需要Provider
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"

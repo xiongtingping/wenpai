@@ -66,7 +66,7 @@ interface DevPermissionSwitcherProps {
 }
 
 export const DevPermissionSwitcher: React.FC<DevPermissionSwitcherProps> = ({ className }) => {
-  const { user, setUser } = useUnifiedAuth();
+  const { user } = useUnifiedAuth();
   const [currentProfile, setCurrentProfile] = useState<keyof typeof DEV_USER_PROFILES>('trial');
 
   // 仅在开发环境显示

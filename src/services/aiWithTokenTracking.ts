@@ -5,7 +5,7 @@
 
 import { callAI as originalCallAI, AITaskType } from '@/api/aiService';
 import { tokenUsageService } from '@/services/tokenUsageService';
-// ❌ REMOVED: useUnifiedAuth不应在服务文件中使用，改为从localStorage获取用户信息
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';

@@ -95,7 +95,7 @@ const EmojiAvatarSystem: React.FC<EmojiAvatarSystemProps> = ({
         maxHeight={maxHeight}
         compact={compact}
         allowMultiSelect={false}
-        allowDownload={showDownload}
+
         allowCopy={showCopy}
         allowRandom={true}
         source="system"

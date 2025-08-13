@@ -99,24 +99,6 @@ class EnhancedPermissionService {
   private readonly API_ENDPOINT = '/api/enhanced-permissions';
   private readonly STORAGE_KEY = 'enhanced_permissions_cache';
   private readonly GRACE_PERIOD_DAYS = 7; // 7天宽限期
-
-  /**
-   * 获取认证token
-   */
-  private getAuthToken(): string | null {
-    try {
-      // 从localStorage获取用户信息
-      const userStr = localStorage.getItem('authing_user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        return user.accessToken || user.token || null;
-      }
-      return null;
-    } catch (error) {
-      console.error('获取认证token失败:', error);
-      return null;
-    }
-  }
   
   /**
    * 功能权限配置映射
@@ -285,18 +267,7 @@ class EnhancedPermissionService {
    */
   async checkSubscriptionExpiry(userId: string): Promise<SubscriptionExpiryCheck> {
     try {
-      // 🔧 FIXED: 添加认证token到请求头
-      const token = this.getAuthToken();
-      const headers: any = {};
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-        headers['x-user-id'] = userId;
-      }
-
-      const response = await request.get(`${this.API_ENDPOINT}/subscription-expiry/${userId}`, {
-        headers
-      });
+      const response = await request.get(`${this.API_ENDPOINT}/subscription-expiry/${userId}`);
 
       // 确保返回的数据有必要的属性
       const data = response.data;
@@ -420,18 +391,7 @@ class EnhancedPermissionService {
     limits: { daily?: number; monthly?: number; concurrent?: number }
   ): Promise<{ allowed: boolean; reason?: string }> {
     try {
-      // 🔧 FIXED: 添加认证token到请求头
-      const token = this.getAuthToken();
-      const headers: any = {};
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-        headers['x-user-id'] = userId;
-      }
-
-      const response = await request.get(`${this.API_ENDPOINT}/usage-limits/${userId}/${featureId}`, {
-        headers
-      });
+      const response = await request.get(`${this.API_ENDPOINT}/usage-limits/${userId}/${featureId}`);
       const usage = response.data;
       
       if (limits.daily && limits.daily !== -1 && usage.dailyUsage >= limits.daily) {

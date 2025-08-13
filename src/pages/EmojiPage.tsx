@@ -357,7 +357,7 @@ const EmojiPage: React.FC = () => {
                   maxHeight="600px"
                   compact={false}
                   allowMultiSelect={false}
-                  allowDownload={true}
+
                   allowCopy={true}
                   allowRandom={true}
                   source="all"

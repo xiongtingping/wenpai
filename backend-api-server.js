@@ -666,55 +666,6 @@ async function handlePaymentSuccess(order) {
   console.log('支付成功处理完成:', { userId, planId });
 }
 
-// ==================== 增强权限管理API ====================
-
-/**
- * 检查订阅到期状态
- */
-app.get('/api/enhanced-permissions/subscription-expiry/:userId', authenticateToken, async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    // 模拟订阅到期检查逻辑
-    const subscriptionData = {
-      isExpired: false,
-      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30天后到期
-      inGracePeriod: false,
-      tier: 'pro'
-    };
-
-    console.log('检查订阅到期状态成功:', userId);
-    res.json(subscriptionData);
-  } catch (error) {
-    console.error('检查订阅到期状态失败:', error);
-    res.status(500).json({ error: '检查订阅到期状态失败' });
-  }
-});
-
-/**
- * 检查使用限制
- */
-app.get('/api/enhanced-permissions/usage-limits/:userId/:featureId', authenticateToken, async (req, res) => {
-  try {
-    const { userId, featureId } = req.params;
-
-    // 模拟使用限制数据
-    const usageLimits = {
-      dailyUsage: 5,
-      monthlyUsage: 50,
-      dailyLimit: 100,
-      monthlyLimit: 1000,
-      canUse: true
-    };
-
-    console.log('检查使用限制成功:', { userId, featureId });
-    res.json(usageLimits);
-  } catch (error) {
-    console.error('检查使用限制失败:', error);
-    res.status(500).json({ error: '检查使用限制失败' });
-  }
-});
-
 // ==================== 启动服务器 ====================
 
 app.listen(PORT, () => {
@@ -728,7 +679,6 @@ app.listen(PORT, () => {
   console.log('- 用户行为记录 (记录、查询)');
   console.log('- 订阅管理 (查询、升级)');
   console.log('- 支付处理 (订单创建、验证)');
-  console.log('- 增强权限管理 (订阅到期、使用限制)');
 });
 
 export default app; 

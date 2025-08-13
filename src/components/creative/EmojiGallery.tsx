@@ -8,6 +8,7 @@ import React from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { Lock } from 'lucide-react';
 
 interface EmojiGalleryProps {
@@ -49,13 +50,17 @@ export default function EmojiGallery({ emojis, onDelete, onRegenerate }: EmojiGa
       toast({
         title: "需要专业版",
         description: "Emoji复制功能需要专业版权限，确定后跳转至支付中心选择专业版",
-        action: {
-          label: "确定",
-          onClick: () => {
-            localStorage.setItem("selectedPlan", "pro");
-            window.location.href = '/payment';
-          }
-        }
+        action: (
+          <ToastAction
+            altText="确定"
+            onClick={() => {
+              localStorage.setItem("selectedPlan", "pro");
+              window.location.href = '/payment';
+            }}
+          >
+            确定
+          </ToastAction>
+        )
       });
       return;
     }

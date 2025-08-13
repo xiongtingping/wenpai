@@ -1,29 +1,22 @@
 /**
  * ✅ FIXED: 2025-08-06 品牌语料库功能测试工具
  * 用于验证修复后的功能是否正常工作
- * 🔧 UPDATED: 2025-08-13 支持用户数据隔离
  */
-
-import { generateStorageKey } from '@/utils/userDataIsolation';
 
 /**
- * 测试localStorage状态持久化 - 支持用户数据隔离
+ * 测试localStorage状态持久化
  */
-export function testLocalStoragePersistence(user?: any) {
+export function testLocalStoragePersistence() {
   console.log('🧪 测试localStorage状态持久化...');
-
+  
   try {
-    // 🔧 FIXED: 使用用户隔离的存储键
-    const analysisRunningKey = generateStorageKey('backgroundAnalysisRunning', user);
-    const analysisTimestampKey = generateStorageKey('backgroundAnalysisTimestamp', user);
-
     // 测试分析状态保存和加载
     const testState = true;
-    localStorage.setItem(analysisRunningKey, JSON.stringify(testState));
-    localStorage.setItem(analysisTimestampKey, Date.now().toString());
-
-    const savedState = localStorage.getItem(analysisRunningKey);
-    const timestamp = localStorage.getItem(analysisTimestampKey);
+    localStorage.setItem('backgroundAnalysisRunning', JSON.stringify(testState));
+    localStorage.setItem('backgroundAnalysisTimestamp', Date.now().toString());
+    
+    const savedState = localStorage.getItem('backgroundAnalysisRunning');
+    const timestamp = localStorage.getItem('backgroundAnalysisTimestamp');
     
     if (savedState && timestamp) {
       console.log('✅ localStorage状态保存/加载正常');

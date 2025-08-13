@@ -393,7 +393,7 @@ export function CreativeCube() {
     description: dim.description,
     icon: getDimensionIcon(dim.id),
     defaultItems: getDimensionDefaultItems(dim.id),
-    isPinnable: dim.isRequired || dim.isRecommended // 必选和推荐维度可固定
+    isPinnable: Boolean(dim.isRequired || dim.isRecommended) // 必选和推荐维度可固定
   }));
 
   // 获取维度图标
@@ -883,7 +883,7 @@ export function CreativeCube() {
 
       const updatedCustomItems = {
         ...customItems,
-        [dimensionId]: (customItems[dimensionId] || []).filter(i => i !== item)
+        [dimensionId]: (customItems[dimensionId] || []).filter((i: string) => i !== item)
       };
 
       // 如果维度下没有自定义选项了，删除该维度
@@ -1930,7 +1930,7 @@ ${generateStandardCallToAction()}
     }
 
     // 使用相同的参数重新调用生成函数
-    await generateContent();
+    await regenerateContent();
   };
 
   // 旧的AI调用函数已移除，现在使用统一的callCreativeGeneration接口
@@ -2491,10 +2491,9 @@ ${generateStandardCallToAction()}
                                 // 使用React Router的navigate方式跳转，并传递预填充内容
                                 window.location.href = '/new-adapt';
 
-                                // 🔧 FIXED: 使用用户隔离的sessionStorage键
-                                const userId = historyDataManager.user?.id || 'guest';
-                                sessionStorage.setItem(`ai_adapter_content_${userId}`, contentToTransfer);
-                                sessionStorage.setItem(`ai_adapter_source_${userId}`, '创意魔方');
+                                // 同时将内容存储到sessionStorage作为备用
+                                sessionStorage.setItem('ai_adapter_content', contentToTransfer);
+                                sessionStorage.setItem('ai_adapter_source', '创意魔方');
 
                                 toast({
                                   title: "正在跳转至AI内容适配器",

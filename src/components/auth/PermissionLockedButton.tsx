@@ -11,6 +11,7 @@ import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { getUserTier } from "@/utils/subscriptionUtils";
 import { getSubscriptionPlan } from "@/config/subscriptionPlans";
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from '@/components/ui/toast';
 
 export interface PermissionLockedButtonProps {
   children: React.ReactNode;
@@ -58,15 +59,19 @@ export const PermissionLockedButton: React.FC<PermissionLockedButtonProps> = ({
     toast({
       title: `需要${plan.name}`,
       description: `${featureName || '此功能'}需要${plan.name}，确定后跳转至支付中心选择${plan.name}`,
-      action: {
-        label: "确定",
-        onClick: () => {
-          // 保存选中的计划到localStorage
-          localStorage.setItem("selectedPlan", requiredTier);
-          // 跳转到支付页面
-          navigate('/payment');
-        }
-      }
+      action: (
+        <ToastAction
+          altText="确定"
+          onClick={() => {
+            // 保存选中的计划到localStorage
+            localStorage.setItem("selectedPlan", requiredTier);
+            // 跳转到支付页面
+            navigate('/payment');
+          }}
+        >
+          确定
+        </ToastAction>
+      )
     });
   };
 
@@ -171,15 +176,19 @@ export const PermissionLockedIconButton: React.FC<PermissionLockedButtonProps> =
     toast({
       title: `需要${plan.name}`,
       description: `${featureName || '此功能'}需要${plan.name}，确定后跳转至支付中心选择${plan.name}`,
-      action: {
-        label: "确定",
-        onClick: () => {
-          // 保存选中的计划到localStorage
-          localStorage.setItem("selectedPlan", requiredTier);
-          // 跳转到支付页面
-          navigate('/payment');
-        }
-      }
+      action: (
+        <ToastAction
+          altText="确定"
+          onClick={() => {
+            // 保存选中的计划到localStorage
+            localStorage.setItem("selectedPlan", requiredTier);
+            // 跳转到支付页面
+            navigate('/payment');
+          }}
+        >
+          确定
+        </ToastAction>
+      )
     });
   };
 

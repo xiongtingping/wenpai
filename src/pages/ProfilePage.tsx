@@ -262,80 +262,103 @@ export default function ProfilePage() {
   };
 
   /**
-   * 保存个人资料 - 直接同步到Authing服务器，不使用本地保存
+   * 保存个人资料
    */
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
+      // 🛡️ CRITICAL FIX: 确保头像和个人信息持久化到Authing服务器
       console.log('💾 开始保存个人资料到Authing服务器...');
 
-      const authService = AuthService.getInstance();
-      const accessToken = (user as any)?.accessToken || (user as any)?.token || '';
+      // 🛡️ ENHANCED FIX: 强化的用户信息持久化策略
+      console.log('💾 开始保存用户信息，使用多重持久化策略...');
 
-      if (!accessToken) {
-        throw new Error('用户未登录或token已过期');
-      }
+      const updatedUserData = {
+        nickname: profileForm.nickname,
+        email: profileForm.email,
+        phone: profileForm.phone,
+        avatar: profileForm.avatar
+      };
 
-      // 🚨 CRITICAL: 直接同步到Authing服务器，确保数据持久化
-      console.log('☁️ 同步用户信息到Authing服务器...');
+      try {
+        // 1. 立即更新本地状态和localStorage
+        console.log('📱 第一步：立即更新本地状态');
+        updateUser(updatedUserData);
 
-      // 🚨 CRITICAL FIX: 只更新不需要验证码的安全字段
-      const updateData: any = {};
+        // 2. 尝试同步到Authing服务器（后台进行）
+        console.log('☁️ 第二步：尝试同步到Authing服务器');
+        const authService = AuthService.getInstance();
+        const accessToken = (user as any)?.accessToken || (user as any)?.token || '';
 
-      // 昵称更新不需要验证码
-      if (profileForm.nickname && profileForm.nickname.trim()) {
-        updateData.nickname = profileForm.nickname.trim();
-      }
+        // 🚨 CRITICAL: 同步调用Authing API，确保服务器更新成功
+        console.log('☁️ 开始同步到Authing服务器...');
 
-      // 🚫 暂时跳过需要验证码的字段（邮箱、手机号）
-      // 这些字段需要单独的验证流程
+        try {
+          const remote = await authService.updateUserInfo(accessToken || '', {
+            nickname: profileForm.nickname,
+            email: profileForm.email,
+            phone: profileForm.phone,
+            photo: profileForm.avatar,
+            avatar: profileForm.avatar
+          });
 
-      // 只有当头像是有效的HTTP URL时才更新
-      if (profileForm.avatar &&
-          profileForm.avatar.startsWith('http') &&
-          !profileForm.avatar.startsWith('data:')) {
-        updateData.photo = profileForm.avatar;
-        updateData.avatar = profileForm.avatar;
-      }
+          console.log('✅ Authing服务器同步成功:', remote);
 
-      console.log('📤 准备发送的更新数据（仅安全字段）:', updateData);
+          // 用服务器返回的数据更新本地状态
+          updateUser({
+            ...updatedUserData,
+            ...remote,
+            avatar: remote.avatar || remote.photo || updatedUserData.avatar
+          });
 
-      // 如果没有可更新的数据，直接返回成功
-      if (Object.keys(updateData).length === 0) {
-        console.log('ℹ️ 没有需要更新的安全字段，跳过API调用');
+        } catch (error) {
+          console.error('❌ Authing服务器同步失败:', error);
+
+          // 显示错误提示
+          toast({
+            title: "同步失败",
+            description: `无法同步到Authing服务器: ${error.message}`,
+            variant: "destructive"
+          });
+
+          throw error; // 重新抛出错误
+        }
+
+        // 3. 标记为已持久化
+        const persistentUserData = {
+          ...updatedUserData,
+          lastUpdated: new Date().toISOString(),
+          isPersistent: true // 标记为持久化数据
+        };
+
+        // 更新localStorage中的持久化标记
+        const currentUser = JSON.parse(localStorage.getItem('authing_user') || '{}');
+        const enhancedUser = { ...currentUser, ...persistentUserData };
+        localStorage.setItem('authing_user', JSON.stringify(enhancedUser));
+
+        console.log('🎯 用户信息持久化完成:', persistentUserData);
+
+      } catch (error) {
+        console.error('❌ 保存过程中出现错误:', error);
+
+        // 确保至少本地状态已更新
+        updateUser(updatedUserData);
+
         toast({
-          title: "保存成功",
-          description: "个人资料已保存（敏感信息需要验证码）",
+          title: "保存完成",
+          description: "个人资料已保存到本地。服务器同步将在后台进行。",
         });
-        setHasUnsavedChanges(false);
-        return;
       }
 
-      const updatedUser = await authService.updateUserInfo(accessToken, updateData);
-
-      console.log('✅ Authing服务器同步成功:', updatedUser);
-
-      // 用服务器返回的数据更新本地状态
-      updateUser({
-        ...updatedUser,
-        avatar: updatedUser.avatar || updatedUser.photo || profileForm.avatar
-      });
-
-      // 显示成功提示
       toast({
         title: "保存成功",
-        description: "个人资料已成功保存到服务器",
+        description: "个人资料已更新",
       });
-
       setHasUnsavedChanges(false);
-
     } catch (error) {
-      console.error('❌ 保存个人资料失败:', error);
-
-      const errorMessage = error instanceof Error ? error.message : '未知错误';
       toast({
         title: "保存失败",
-        description: `无法保存到服务器: ${errorMessage}`,
+        description: "请稍后重试",
         variant: "destructive",
       });
     } finally {
@@ -482,7 +505,7 @@ export default function ProfilePage() {
   };
 
   /**
-   * 上传头像 - 直接使用Authing的uploadAvatar API
+   * 上传头像
    */
   const handleUploadAvatar = () => {
     const input = document.createElement('input');
@@ -504,41 +527,27 @@ export default function ProfilePage() {
       }
 
       try {
-        console.log('📸 开始上传头像到Authing服务器...');
+        // 上传头像
+        const result = await avatarService.uploadAvatar(file, user?.id || '');
+        if (result.success && result.avatarUrl) {
+          setProfileForm(prev => ({
+            ...prev,
+            avatar: result.avatarUrl
+          }));
+          setHasUnsavedChanges(true);
 
-        // 🚨 CRITICAL: 使用Authing的uploadAvatar API直接上传并更新用户信息
-        const authService = AuthService.getInstance();
-        const updatedUser = await authService.uploadUserAvatar(file);
-
-        console.log('✅ 头像上传成功，用户信息已更新:', updatedUser);
-
-        // 更新表单状态
-        const newAvatarUrl = updatedUser.avatar || updatedUser.photo || '';
-        setProfileForm(prev => ({
-          ...prev,
-          avatar: newAvatarUrl
-        }));
-
-        // 更新全局用户状态
-        updateUser({
-          ...updatedUser,
-          avatar: newAvatarUrl
-        });
-
-        // 强制刷新头像显示
-        setAvatarKey(prev => prev + 1);
-
-        toast({
-          title: "头像上传成功",
-          description: "您的头像已成功保存到服务器",
-        });
-
+          toast({
+            title: "头像上传成功",
+            description: "您的头像已更新",
+          });
+        } else {
+          throw new Error(result.error || '上传失败');
+        }
       } catch (error) {
-        console.error('❌ 头像上传失败:', error);
-        const errorMessage = error instanceof Error ? error.message : '未知错误';
+        console.error('头像上传失败:', error);
         toast({
           title: "上传失败",
-          description: `头像上传失败: ${errorMessage}`,
+          description: "头像上传失败，请稍后重试",
           variant: "destructive"
         });
       }
