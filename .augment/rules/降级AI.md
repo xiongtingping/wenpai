@@ -1,7 +1,7 @@
 ---
-type: "always_apply"
+type: "agent_requested"
+description: "Example description"
 ---
-
 {
   "name": "禁止使用本地模拟或降级替代 AI 功能",
   "severity": "error",
