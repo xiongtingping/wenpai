@@ -436,18 +436,15 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
     // 获取全网热点数据
     const hotTopicsData: DailyHotItem[] = await fetchHotTopics();
 
-    if (!hotTopicsResponse || !hotTopicsResponse.data) {
+    if (!hotTopicsData || hotTopicsData.length === 0) {
       console.warn('热点数据为空');
       return results;
     }
 
-    console.log(`📊 获取到热点数据，平台数量: ${Object.keys(hotTopicsResponse.data).length}`);
+    console.log(`📊 获取到热点数据，话题数量: ${hotTopicsData.length}`);
 
     // 搜索包含关键词的热点话题
-    const allHotTopics: DailyHotItem[] = [];
-    Object.values(hotTopicsResponse.data).forEach(platformTopics => {
-      allHotTopics.push(...platformTopics);
-    });
+    const allHotTopics: DailyHotItem[] = hotTopicsData;
 
     // 过滤包含关键词的话题（支持中文和英文）
     const keywordLower = keyword.toLowerCase().trim();
@@ -632,7 +629,7 @@ async function generateRealTrendData(keyword: string, days: number): Promise<Top
       : 1000;
 
     const currentMentions = matchedTopics.length;
-    const platforms = [...new Set(matchedTopics.map(t => t.platform).filter(Boolean))];
+    const platforms = [...new Set(matchedTopics.map(t => t.platform).filter(Boolean))] as string[];
 
     console.log(`📊 关键词 "${keyword}" 当前热度: ${currentHeat}, 提及次数: ${currentMentions}`);
 

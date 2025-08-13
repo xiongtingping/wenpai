@@ -66,24 +66,27 @@ export function TestimonialsSection() {
     }
   ]
 
-  return (
-    <section id="testimonials" className="py-10 opacity-0 animate-fadeIn">
-      <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">看看内容专家们怎么说</h2>
-        </div>
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <TestimonialCard
-              key={index}
-              content={testimonial.content}
-              name={testimonial.name}
-              position={testimonial.position}
-              index={index}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  )
+  // ✅ FIXED: 暂时隐藏专家推荐部分
+  return null;
+
+  // return (
+  //   <section id="testimonials" className="py-10 opacity-0 animate-fadeIn">
+  //     <div className="container mx-auto px-6">
+  //       <div className="text-center max-w-3xl mx-auto">
+  //         <h2 className="text-3xl md:text-4xl font-bold text-foreground">看看内容专家们怎么说</h2>
+  //       </div>
+  //       <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+  //         {testimonials.map((testimonial, index) => (
+  //           <TestimonialCard
+  //             key={index}
+  //             content={testimonial.content}
+  //             name={testimonial.name}
+  //             position={testimonial.position}
+  //             index={index}
+  //           />
+  //         ))}
+  //       </div>
+  //     </div>
+  //   </section>
+  // )
 }
