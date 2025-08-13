@@ -6,6 +6,16 @@ import './index.css';
 // 🔓 UNLOCKED: AI 禁止修改此CSS导入
 import '@authing/guard/dist/esm/guard.min.css';
 
+// 🚨 生产环境 undefinedundefined 修复器
+// 专门解决生产环境中出现的字符串拼接问题
+import './utils/productionUndefinedFixer';
+// 🚨 Authing Guard 专用修复器
+// 专门解决 Authing Guard 在生产环境中的问题
+import './utils/authingProductionFixer';
+// 🔍 生产环境配置检查器
+// 检查可能导致 undefinedundefined 的配置问题
+import './utils/productionEnvChecker';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

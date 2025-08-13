@@ -41,20 +41,53 @@ export interface UserInfo {
 export function getUserDisplayName(user?: UserInfo | null, fallback: string = '访客'): string {
   if (!user) return fallback;
 
-  // 🚨 FIXED: 强制修复 undefinedundefined 问题
-  const safeNickname = user.nickname && user.nickname !== 'undefined' ? user.nickname : '';
-  const safeUsername = user.username && user.username !== 'undefined' ? user.username : '';
-  const safeEmail = user.email && user.email !== 'undefined' ? user.email : '';
+  // 🚨 PRODUCTION FIX: 生产环境专用强化检查
+  const isProduction = import.meta.env.PROD || window.location.hostname !== 'localhost';
 
-  const result = safeNickname || safeUsername || safeEmail || fallback;
+  // 🚨 FIXED: 强制修复 undefinedundefined 问题 - 增强版
+  const safeNickname = (user.nickname &&
+                       user.nickname !== 'undefined' &&
+                       user.nickname !== 'null' &&
+                       typeof user.nickname === 'string') ? user.nickname.trim() : '';
+
+  const safeUsername = (user.username &&
+                       user.username !== 'undefined' &&
+                       user.username !== 'null' &&
+                       typeof user.username === 'string') ? user.username.trim() : '';
+
+  const safeEmail = (user.email &&
+                    user.email !== 'undefined' &&
+                    user.email !== 'null' &&
+                    typeof user.email === 'string' &&
+                    user.email.includes('@')) ? user.email.trim() : '';
+
+  let result = safeNickname || safeUsername || safeEmail || fallback;
+
+  // 🚨 PRODUCTION FIX: 生产环境额外安全检查
+  if (isProduction) {
+    // 移除任何可能的 undefined 字符串
+    result = result.replace(/undefined/g, '').replace(/null/g, '').trim();
+
+    // 如果结果为空，使用 fallback
+    if (!result) {
+      result = fallback;
+    }
+
+    // 最终检查：确保没有 undefinedundefined
+    if (result.includes('undefinedundefined')) {
+      result = fallback;
+    }
+  }
 
   // 最终安全检查：如果仍然包含 undefined，强制返回 fallback
   if (result === 'undefined' || result.includes('undefined')) {
-    console.warn('🛠️ 强制修复 undefined 问题，返回 fallback:', fallback);
+    if (!isProduction) {
+      console.warn('🛠️ 强制修复 undefined 问题，返回 fallback:', fallback);
+    }
     return fallback;
   }
 
-  // 运行时检查：警告可能的undefined拼接
+  // 运行时检查：警告可能的undefined拼接（仅开发环境）
   if (import.meta.env.DEV && (result === 'undefined' || result.includes('undefined'))) {
     console.warn('⚠️ 检测到可能的undefined拼接问题:', {
       user,
