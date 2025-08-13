@@ -116,11 +116,10 @@ const getAuthingClient = async () => {
         }
       }
 
-      // 动态导入 Authing SDK
+      // 🔧 FIXED: 2025-08-13 修复生产环境构建问题
+      // 改为正确的动态导入方式，兼容 Vite 构建
       const AuthingModule = await import('@authing/web');
-
-      // v5 版本的正确导入方式
-      const Authing = (AuthingModule as any).Authing || (AuthingModule as any).default?.Authing || (AuthingModule as any).default;
+      const Authing = (AuthingModule as any).Authing || (AuthingModule as any).default;
 
       if (!Authing) {
         console.error('❌ 无法找到 Authing 构造函数');

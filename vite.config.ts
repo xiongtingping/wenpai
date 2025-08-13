@@ -87,7 +87,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          authing: ['@authing/web', '@authing/guard']
         }
       }
     }
