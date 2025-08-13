@@ -1,7 +1,7 @@
 ---
-type: "always_apply"
+type: "agent_requested"
+description: "Example description"
 ---
-
 {
   "name": "新功能/重要改动必须自动提交 Git",
   "severity": "critical",

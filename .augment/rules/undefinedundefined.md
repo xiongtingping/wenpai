@@ -1,7 +1,7 @@
 ---
-type: "always_apply"
+type: "agent_requested"
+description: "Example description"
 ---
-
 {
   "name": "禁止拼接出现 'undefinedundefined'",
   "severity": "error",
