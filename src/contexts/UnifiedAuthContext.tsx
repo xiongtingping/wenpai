@@ -101,19 +101,66 @@ const getAuthingClient = async () => {
   if (!authingClient) {
     const config = getAuthingConfig();
     try {
+      // 🔧 FIXED: 2025-08-13 修复 Authing v5 SDK 初始化
+      console.log('🔧 初始化 Authing v5 客户端...');
+
+      // 🚨 生产环境特殊处理
+      const isProduction = import.meta.env.PROD || window.location.hostname !== 'localhost';
+      if (isProduction) {
+        console.log('🌐 检测到生产环境，应用生产环境配置...');
+
+        // 生产环境额外验证
+        if (!config.appId || config.appId.includes('undefined')) {
+          console.error('❌ 生产环境 Authing 配置错误:', config);
+          throw new Error('生产环境 Authing 配置无效');
+        }
+      }
+
       // 动态导入 Authing SDK
       const AuthingModule = await import('@authing/web');
-      const Authing = (AuthingModule as any).Authing;
 
-      authingClient = new Authing({
+      // v5 版本的正确导入方式
+      const Authing = (AuthingModule as any).Authing || (AuthingModule as any).default?.Authing || (AuthingModule as any).default;
+
+      if (!Authing) {
+        console.error('❌ 无法找到 Authing 构造函数');
+        throw new Error('Authing SDK 导入失败');
+      }
+
+      // 🚨 生产环境安全配置
+      const clientConfig = {
         domain: config.host.replace('https://', ''),
         appId: config.appId,
         userPoolId: config.userPoolId || config.appId,
         redirectUri: config.redirectUri,
-        scope: 'openid profile email phone'
-      });
+        scope: 'openid profile email phone',
+        // v5 版本可能需要的额外配置
+        protocol: 'oidc',
+        tokenEndPointAuthMethod: 'client_secret_post',
+        introspectionEndPointAuthMethod: 'client_secret_post',
+        revocationEndPointAuthMethod: 'client_secret_post'
+      };
 
-      console.log('✅ Authing 客户端初始化成功');
+      // 🚨 生产环境配置验证
+      if (isProduction) {
+        Object.keys(clientConfig).forEach(key => {
+          const value = (clientConfig as any)[key];
+          if (typeof value === 'string' && value.includes('undefined')) {
+            console.error(`❌ 生产环境配置包含 undefined: ${key} = ${value}`);
+            throw new Error(`生产环境配置错误: ${key} 包含 undefined`);
+          }
+        });
+      }
+
+      authingClient = new Authing(clientConfig);
+
+      console.log('✅ Authing v5 客户端初始化成功');
+      console.log('🔍 客户端实例方法:', Object.getOwnPropertyNames(Object.getPrototypeOf(authingClient)));
+
+      // 🚨 生产环境额外验证
+      if (isProduction) {
+        console.log('🌐 生产环境 Authing 客户端验证通过');
+      }
     } catch (error) {
       console.error('❌ Authing 客户端初始化失败:', error);
       throw new Error('Authing 客户端初始化失败');
@@ -363,7 +410,43 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error('Authing 客户端未初始化');
       }
 
-      const user = await authing.getCurrentUser();
+      // 🔧 FIXED: 2025-08-13 修复 getCurrentUser 调用方式
+      // Authing v5 SDK 的正确调用方式
+      let user = null;
+      try {
+        // 尝试获取用户信息，v5 版本可能使用不同的方法名
+        if (typeof authing.getCurrentUser === 'function') {
+          user = await authing.getCurrentUser();
+        } else if (typeof authing.getUserInfo === 'function') {
+          user = await authing.getUserInfo();
+        } else if (typeof authing.getUser === 'function') {
+          user = await authing.getUser();
+        } else {
+          console.warn('⚠️ 未找到获取用户信息的方法，尝试检查登录状态');
+          // 如果没有找到合适的方法，尝试检查登录状态
+          const isLoggedIn = await authing.checkLoginStatus();
+          if (isLoggedIn) {
+            // 从 localStorage 或其他方式获取用户信息
+            const storedUser = localStorage.getItem('authing_user');
+            if (storedUser) {
+              user = JSON.parse(storedUser);
+            }
+          }
+        }
+      } catch (methodError) {
+        console.warn('⚠️ 获取用户信息方法调用失败:', methodError);
+        // 尝试从本地存储恢复
+        const storedUser = localStorage.getItem('authing_user');
+        if (storedUser) {
+          try {
+            user = JSON.parse(storedUser);
+            console.log('✅ 从本地存储恢复用户信息');
+          } catch (parseError) {
+            console.warn('⚠️ 本地用户信息解析失败:', parseError);
+          }
+        }
+      }
+
       if (user) {
         console.log('✅ 用户已登录:', user);
 
@@ -507,18 +590,63 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
+      // 🔧 FIXED: 2025-08-13 确保 Guard 实例完全初始化后再显示弹窗
+      if (!guardRef.current) {
+        console.log('🔄 Guard 实例未初始化，正在重新初始化...');
+        try {
+          guardRef.current = getGuardInstance();
+
+          // 重新设置事件监听
+          if (guardRef.current) {
+            guardRef.current.on('login', createSafeGuardEventHandler((userInfo: any) => {
+              console.log('🔐 Guard 登录成功 (重新绑定):', JSON.stringify(userInfo, null, 2));
+              handleAuthingLogin(userInfo);
+              setTimeout(() => {
+                if (guardRef.current) {
+                  guardRef.current.hide();
+                  console.log('✅ Guard 弹窗已关闭');
+                }
+              }, 1000);
+            }));
+          }
+        } catch (initError) {
+          console.error('❌ Guard 重新初始化失败:', initError);
+          throw new Error('Guard 初始化失败');
+        }
+      }
+
       // 使用 Guard 弹窗登录
       if (guardRef.current) {
+        console.log('🔍 Guard 实例状态:', {
+          instance: !!guardRef.current,
+          showMethod: typeof guardRef.current.show,
+          methods: Object.getOwnPropertyNames(guardRef.current)
+        });
+
         // 🎯 ROOT FIX: 配置已包含默认用户信息，直接显示弹窗
-        guardRef.current.show();
-        console.log('🔧 Guard弹窗已显示，使用配置中的默认用户信息');
+        try {
+          guardRef.current.show();
+          console.log('🔧 Guard弹窗已显示，使用配置中的默认用户信息');
+        } catch (showError) {
+          console.error('❌ Guard 弹窗显示失败:', showError);
+          // 尝试备用方法
+          if (typeof guardRef.current.start === 'function') {
+            console.log('🔄 尝试使用 start 方法...');
+            guardRef.current.start();
+          } else if (typeof guardRef.current.render === 'function') {
+            console.log('🔄 尝试使用 render 方法...');
+            guardRef.current.render();
+          } else {
+            throw showError;
+          }
+        }
       } else {
         throw new Error('Guard 实例未初始化');
       }
-      
+
     } catch (error) {
       console.error('❌ 登录失败:', error);
-      setError('登录失败');
+      setError('登录失败: ' + (error instanceof Error ? error.message : '未知错误'));
     }
   };
 

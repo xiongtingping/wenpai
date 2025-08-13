@@ -78,6 +78,8 @@ import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import PermissionSystemDemoPage from '@/pages/PermissionSystemDemoPage';
 import AuthingDebugPage from '@/pages/AuthingDebugPage';
 import UserPersistenceTestPage from '@/pages/UserPersistenceTestPage';
+import AuthingGuardTestPage from '@/pages/AuthingGuardTestPage';
+import ProductionAuthTestPage from '@/pages/ProductionAuthTestPage';
 
 /**
  * 条件性导航组件
@@ -312,6 +314,9 @@ function AppContent() {
           <Route path="/permission-system-demo" element={<PermissionSystemDemoPage />} />
           <Route path="/authing-debug" element={<AuthingDebugPage />} />
           <Route path="/user-persistence-test" element={<UserPersistenceTestPage />} />
+          <Route path="/authing-guard-test" element={<AuthingGuardTestPage />} />
+          <Route path="/production-auth-test" element={<ProductionAuthTestPage />} />
+          <Route path="/production-auth-test" element={<ProductionAuthTestPage />} />
 
           {/* 历史记录页面 */}
           <Route path="/history" element={

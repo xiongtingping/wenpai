@@ -6,6 +6,11 @@ import './index.css';
 // 🔓 UNLOCKED: AI 禁止修改此CSS导入
 import '@authing/guard/dist/esm/guard.min.css';
 
+// 🔧 FIXED: 2025-08-13 导入自定义 Authing Guard 样式
+// 确保弹窗正确显示和样式覆盖
+import './styles/authing-guard.css';
+import './styles/authing-accessibility-fix.css';
+
 // 🚨 生产环境 undefinedundefined 修复器
 // 专门解决生产环境中出现的字符串拼接问题
 import './utils/productionUndefinedFixer';
@@ -15,6 +20,9 @@ import './utils/authingProductionFixer';
 // 🔍 生产环境配置检查器
 // 检查可能导致 undefinedundefined 的配置问题
 import './utils/productionEnvChecker';
+// 🚨 紧急生产环境修复器
+// 基于实际生产环境日志的针对性修复
+import './utils/emergencyProductionFixer';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

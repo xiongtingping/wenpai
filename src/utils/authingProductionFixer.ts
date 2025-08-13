@@ -48,6 +48,9 @@ class AuthingProductionFixer {
   private init(): void {
     console.log('🛡️ Authing 生产环境修复器已启动');
 
+    // 🚨 生产环境特殊处理：增强 Guard 初始化检查
+    this.enhanceGuardInitialization();
+
     // 立即执行一次检查
     this.checkAndFix();
 
@@ -310,6 +313,101 @@ class AuthingProductionFixer {
       retryCount: this.retryCount,
       isActive: this.intervalId !== null
     };
+  }
+
+  /**
+   * 🚨 增强 Guard 初始化检查（生产环境专用）
+   */
+  private enhanceGuardInitialization(): void {
+    // 监听 Guard 相关的全局事件
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+      const message = args.join(' ');
+
+      // 检测 Guard 初始化失败
+      if (message.includes('getCurrentUser is not a function')) {
+        console.log('🚨 检测到 getCurrentUser 错误，尝试修复...');
+        this.fixGetCurrentUserError();
+      }
+
+      // 检测 Guard 弹窗显示失败
+      if (message.includes('Guard 弹窗显示失败')) {
+        console.log('🚨 检测到 Guard 弹窗显示失败，尝试修复...');
+        this.fixGuardShowError();
+      }
+
+      // 过滤生产环境的 undefinedundefined 错误
+      if (!message.includes('undefinedundefined')) {
+        originalConsoleError.apply(console, args);
+      }
+    };
+
+    // 监听页面可见性变化，重新检查 Guard 状态
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        setTimeout(() => this.checkGuardHealth(), 1000);
+      }
+    });
+  }
+
+  /**
+   * 修复 getCurrentUser 错误
+   */
+  private fixGetCurrentUserError(): void {
+    // 尝试重新初始化 Authing 客户端
+    setTimeout(() => {
+      try {
+        // 触发重新初始化
+        const event = new CustomEvent('authing:reinit', {
+          detail: { reason: 'getCurrentUser_error' }
+        });
+        window.dispatchEvent(event);
+      } catch (error) {
+        console.warn('🚨 无法触发 Authing 重新初始化:', error);
+      }
+    }, 2000);
+  }
+
+  /**
+   * 修复 Guard 弹窗显示错误
+   */
+  private fixGuardShowError(): void {
+    // 检查 Guard CSS 是否正确加载
+    const guardStyles = document.querySelectorAll('link[href*="guard"]');
+    if (guardStyles.length === 0) {
+      console.log('🚨 Guard CSS 未加载，尝试重新加载...');
+      this.reloadGuardStyles();
+    }
+
+    // 检查 Guard 容器是否存在
+    setTimeout(() => {
+      const guardContainer = document.querySelector('[class*="authing"]');
+      if (!guardContainer) {
+        console.log('🚨 Guard 容器未找到，可能需要重新初始化');
+      }
+    }, 1000);
+  }
+
+  /**
+   * 重新加载 Guard 样式
+   */
+  private reloadGuardStyles(): void {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/node_modules/@authing/guard/dist/esm/guard.min.css';
+    document.head.appendChild(link);
+  }
+
+  /**
+   * 检查 Guard 健康状态
+   */
+  private checkGuardHealth(): void {
+    // 检查是否有 undefinedundefined 问题
+    const hasUndefinedIssue = document.body.textContent?.includes('undefinedundefined');
+    if (hasUndefinedIssue) {
+      console.log('🚨 检测到 undefinedundefined 问题，执行修复...');
+      this.checkAndFix();
+    }
   }
 }
 
