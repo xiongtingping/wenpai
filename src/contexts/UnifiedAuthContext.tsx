@@ -238,30 +238,14 @@ function getGuardInstance() {
     // 🔧 修复方式：对象参数格式 + 完整accessibility配置
     // 🛡️ FIXED: 2025-01-28 使用安全配置防止undefined拼接
     // 📌 核心修复逻辑，请勿修改此Guard初始化代码
+    // 🔧 FIXED: 2025-08-13 使用 Authing Guard 官方支持的最小配置
     const baseConfig = {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
       mode: 'modal',
-      // 🎯 ROOT FIX: v5.3.9最小化配置，避免类型错误
-      autoFocus: false,
-      escCloseable: true,
-      clickCloseable: true,
-      maskCloseable: true,
-
-      // 🛡️ CRITICAL FIX: 明确指定用户信息字段，防止undefined拼接
-      // 这是解决undefinedundefined问题的根本方案
-      userInfoFields: ['nickname', 'username', 'email', 'phone'],
-
-      // 🛡️ 用户信息显示配置
-      displayUserInfo: true,
-
-      // 🛡️ 确保用户信息正确处理
-      userInfoMapping: {
-        displayName: 'nickname',
-        fallbackName: 'username',
-        fallbackEmail: 'email'
-      }
+      // 🎯 仅使用 Authing Guard 官方支持的配置项
+      lang: 'zh-CN'
     };
 
     // 🔒 LOCKED: 使用安全配置包装器防止undefined拼接
@@ -925,6 +909,25 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   // 初始化时检查认证状态
   useEffect(() => {
     checkAuth();
+
+    // 🔧 FIXED: 2025-08-13 监听 Guard 重新初始化事件
+    const handleReinitRequest = (event: CustomEvent) => {
+      console.log('🔄 收到 Guard 重新初始化请求:', event.detail);
+
+      // 清除当前实例
+      guardRef.current = null;
+
+      // 重新初始化
+      setTimeout(() => {
+        checkAuth();
+      }, 500);
+    };
+
+    window.addEventListener('authing-reinit-required', handleReinitRequest as EventListener);
+
+    return () => {
+      window.removeEventListener('authing-reinit-required', handleReinitRequest as EventListener);
+    };
   }, []);
 
   const contextValue: UnifiedAuthContextType = {

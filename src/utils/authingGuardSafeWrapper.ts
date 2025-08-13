@@ -216,123 +216,23 @@ function fixUndefinedInGuardDOM(container: Element) {
  * 确保配置中没有可能导致undefined拼接的选项
  */
 export function createSafeGuardConfig(originalConfig: any) {
+  // 🔧 FIXED: 2025-08-13 仅使用 Authing Guard 官方支持的配置项
+  // 移除可能导致 "Please check your config" 错误的自定义配置
   const safeConfig = {
-    ...originalConfig,
-    
-    // 确保用户信息显示相关的配置是安全的
-    lang: originalConfig.lang || 'zh-CN',
+    appId: originalConfig.appId,
+    host: originalConfig.host,
+    redirectUri: originalConfig.redirectUri,
     mode: originalConfig.mode || 'modal',
-    
-    // 🛡️ 精确CSS来隐藏undefined内容
-    customCSS: `
-      ${originalConfig.customCSS || ''}
-
-      /* 隐藏包含undefined的属性元素 */
-      .authing-guard [title="undefined"],
-      .authing-guard [alt="undefined"],
-      .authing-guard [placeholder="undefined"] {
-        display: none !important;
-      }
-
-      /* 🚨 特别处理 g2-error-message-text 类 */
-      .authing-guard .g2-error-message-text {
-        font-size: 0 !important;
-        line-height: 0 !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-      }
-
-      /* 隐藏可能的错误文本容器 */
-      .authing-guard .g2-error-message,
-      .authing-guard .error-message,
-      .authing-guard .ant-form-item-explain {
-        display: none !important;
-      }
-
-      /* 修复可能的undefined伪元素内容 */
-      .authing-guard *:before,
-      .authing-guard *:after {
-        content: none !important;
-      }
-
-      /* 隐藏 authing-ant-modal-root 中的错误文本 */
-      .authing-ant-modal-root .g2-error-message-text,
-      .authing-ant-modal-root .error-message {
-        display: none !important;
-      }
-
-      /* 标记已修复的元素 */
-      .undefined-fixed {
-        position: relative;
-      }
-    `,
-
-    // 🛡️ 精确的undefined修复，只处理真正的问题
-    onLoad: function() {
-      console.log('🛡️ Guard加载完成，启用精确的undefined修复');
-
-      // 延迟执行，确保DOM完全渲染
-      setTimeout(() => {
-        // 只修复真正包含undefinedundefined的文本，不做盲目替换
-        const fixRealUndefinedIssues = () => {
-          const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT,
-            null,
-            false
-          );
-
-          let node;
-          while (node = walker.nextNode()) {
-            if (node.textContent && node.textContent.includes('undefinedundefined')) {
-              console.warn('🛡️ 发现真实的undefinedundefined问题:', node.textContent);
-
-              // 检查父元素是否是Authing相关
-              const parentElement = node.parentElement;
-              if (parentElement && (
-                parentElement.closest('.authing-guard') ||
-                parentElement.closest('[class*="authing"]') ||
-                parentElement.closest('[id*="authing"]')
-              )) {
-                console.log('🛡️ 修复Authing Guard中的undefinedundefined');
-                // 只有在确认是Authing Guard中的问题时才修复
-                node.textContent = node.textContent.replace(/undefinedundefined/g, '');
-              }
-            }
-          }
-        };
-
-        // 立即执行一次
-        fixRealUndefinedIssues();
-
-        // 设置观察器监控新的DOM变化
-        const observer = new MutationObserver(() => {
-          fixRealUndefinedIssues();
-        });
-
-        observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-          characterData: true
-        });
-
-      }, 100);
-
-      // 调用原始onLoad
-      if (originalConfig.onLoad) {
-        originalConfig.onLoad();
-      }
-    },
-    
-    // 🛡️ 事件处理配置 - 已在onLoad中集成undefined修复
-    events: {
-      ...originalConfig.events,
-
-      // 在所有事件中添加安全处理
-      onLogin: createSafeGuardEventHandler(originalConfig.events?.onLogin || (() => {})),
-      onRegister: createSafeGuardEventHandler(originalConfig.events?.onRegister || (() => {})),
-    }
+    lang: originalConfig.lang || 'zh-CN'
   };
+
+  console.log('🛡️ 安全Guard配置已创建 (最小配置):', {
+    appId: safeConfig.appId,
+    host: safeConfig.host,
+    mode: safeConfig.mode,
+    lang: safeConfig.lang,
+    redirectUri: safeConfig.redirectUri
+  });
 
   return safeConfig;
 }

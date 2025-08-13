@@ -29,17 +29,27 @@ class AuthingProductionFixer {
       enableGuardFix: true,
       enableUserInfoFix: true,
       enableModalFix: true,
-      checkInterval: 2000, // 每2秒检查一次
-      maxRetries: 50,
+      checkInterval: 500, // 🚨 ENHANCED: 每0.5秒检查一次，更及时发现问题
+      maxRetries: 200, // 🚨 ENHANCED: 增加重试次数
       ...config
     };
 
-    this.isProduction = import.meta.env.PROD || 
-                       window.location.hostname !== 'localhost';
+    // 🚨 ENHANCED: 增强生产环境检测逻辑
+    this.isProduction = import.meta.env.PROD ||
+                       window.location.hostname !== 'localhost' ||
+                       window.location.hostname.includes('.netlify.app') ||
+                       window.location.hostname.includes('.vercel.app') ||
+                       window.location.hostname.includes('.app');
 
-    if (this.isProduction) {
-      this.init();
-    }
+    console.log('🔍 Authing修复器环境检测:', {
+      'import.meta.env.PROD': import.meta.env.PROD,
+      'hostname': window.location.hostname,
+      'isProduction': this.isProduction
+    });
+
+    // 🚨 FORCE ENABLE: 无论什么环境都启动Authing修复器
+    this.init();
+    console.log('🛡️ Authing修复器已强制启动（所有环境）');
   }
 
   /**
@@ -62,6 +72,9 @@ class AuthingProductionFixer {
 
     // 拦截 Authing Guard 的用户信息处理
     this.interceptUserInfoProcessing();
+
+    // 🚨 NEW: 启动弹窗监控和自动关闭
+    this.startModalMonitoring();
   }
 
   /**
@@ -99,17 +112,47 @@ class AuthingProductionFixer {
    * 修复 Authing Guard 模态框
    */
   private fixAuthingModal(): void {
-    // 查找 Authing Guard 模态框
+    // 🚨 ENHANCED: 增强弹窗检测和修复
     const authingModals = document.querySelectorAll([
       '.authing-guard-modal',
       '.authing-ant-modal',
+      '.ant-modal',
+      '.modal',
       '[class*="authing"]',
-      '[class*="guard"]'
+      '[class*="guard"]',
+      '[class*="modal"]',
+      '[role="dialog"]',
+      '[aria-modal="true"]'
     ].join(','));
 
+    let fixedModalCount = 0;
     authingModals.forEach(modal => {
-      this.fixElementContent(modal as HTMLElement);
+      const modalElement = modal as HTMLElement;
+
+      // 检查是否包含 undefinedundefined
+      if (modalElement.textContent?.includes('undefinedundefined')) {
+        console.log('🚨 发现包含 undefinedundefined 的弹窗:', modalElement);
+        this.fixElementContent(modalElement);
+        fixedModalCount++;
+      }
+
+      // 🚨 CRITICAL: 检查是否是遮挡性弹窗
+      const style = window.getComputedStyle(modalElement);
+      if (style.position === 'fixed' || style.position === 'absolute') {
+        const zIndex = parseInt(style.zIndex) || 0;
+        if (zIndex > 1000) {
+          console.log('🚨 检测到高层级弹窗，检查内容:', {
+            element: modalElement,
+            zIndex: zIndex,
+            textContent: modalElement.textContent?.substring(0, 100)
+          });
+        }
+      }
     });
+
+    if (fixedModalCount > 0) {
+      console.log(`🛠️ 修复了 ${fixedModalCount} 个 Authing 弹窗`);
+    }
   }
 
   /**
@@ -407,6 +450,184 @@ class AuthingProductionFixer {
     if (hasUndefinedIssue) {
       console.log('🚨 检测到 undefinedundefined 问题，执行修复...');
       this.checkAndFix();
+    }
+  }
+
+  /**
+   * 🚨 NEW: 启动弹窗监控和自动关闭
+   */
+  private startModalMonitoring(): void {
+    // 监控所有可能的弹窗元素
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as Element;
+
+            // 检查是否是弹窗元素
+            if (this.isModalElement(element)) {
+              console.log('🚨 检测到新弹窗:', element);
+
+              // 延迟检查弹窗内容
+              setTimeout(() => {
+                this.handleModalElement(element as HTMLElement);
+              }, 100);
+            }
+          }
+        });
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    console.log('🛡️ 弹窗监控已启动');
+  }
+
+  /**
+   * 判断是否是弹窗元素
+   */
+  private isModalElement(element: Element): boolean {
+    const className = element.className || '';
+    const role = element.getAttribute('role') || '';
+    const ariaModal = element.getAttribute('aria-modal') || '';
+
+    return className.includes('modal') ||
+           className.includes('dialog') ||
+           className.includes('popup') ||
+           className.includes('overlay') ||
+           role === 'dialog' ||
+           ariaModal === 'true' ||
+           this.isAuthingElement(element);
+  }
+
+  /**
+   * 处理弹窗元素
+   */
+  private handleModalElement(element: HTMLElement): void {
+    const textContent = element.textContent || '';
+
+    // 检查是否包含 undefinedundefined
+    if (textContent.includes('undefinedundefined')) {
+      console.log('🚨 发现包含 undefinedundefined 的弹窗，立即修复');
+      this.fixElementContent(element);
+    }
+
+    // 🔧 FIXED: 2025-08-13 检查是否是 "Please check your config" 错误弹窗
+    if (textContent.includes('Please check your config')) {
+      console.log('🚨 检测到 Authing 配置错误弹窗，尝试修复');
+      this.handleConfigErrorModal(element);
+      return;
+    }
+
+    // 🚨 CRITICAL: 检查是否是遮挡性的空弹窗或错误弹窗
+    const style = window.getComputedStyle(element);
+    if (style.position === 'fixed' || style.position === 'absolute') {
+      const zIndex = parseInt(style.zIndex) || 0;
+
+      if (zIndex > 1000) {
+        console.log('🚨 检测到高层级弹窗:', {
+          zIndex,
+          textContent: textContent.substring(0, 100),
+          className: element.className
+        });
+
+        // 🔧 FIXED: 2025-08-13 更精确的错误弹窗检测，避免误关闭正常的 Authing 弹窗
+        const isAuthingModal = element.className.includes('authing') ||
+                              element.id.includes('authing') ||
+                              element.querySelector('[class*="authing"]') !== null;
+
+        // 只有在非 Authing 弹窗且确实是错误内容时才关闭
+        if (!isAuthingModal && (
+            (textContent.trim().length < 10 && !textContent.includes('登录') && !textContent.includes('注册')) ||
+            textContent.includes('undefined') ||
+            textContent.includes('error') ||
+            textContent.includes('failed')
+        )) {
+          console.log('🚨 检测到可能的错误弹窗，尝试关闭');
+          this.tryCloseModal(element);
+        } else if (isAuthingModal) {
+          console.log('🔍 检测到 Authing 弹窗，保持显示:', {
+            textLength: textContent.trim().length,
+            hasLoginText: textContent.includes('登录'),
+            hasRegisterText: textContent.includes('注册')
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * 尝试关闭弹窗
+   */
+  private tryCloseModal(element: HTMLElement): void {
+    // 查找关闭按钮
+    const closeButtons = element.querySelectorAll([
+      '.close',
+      '.modal-close',
+      '.ant-modal-close',
+      '[aria-label="Close"]',
+      '[aria-label="关闭"]',
+      'button[type="button"]'
+    ].join(','));
+
+    if (closeButtons.length > 0) {
+      console.log('🚨 找到关闭按钮，尝试点击');
+      (closeButtons[0] as HTMLElement).click();
+      return;
+    }
+
+    // 如果没有关闭按钮，尝试按 ESC 键
+    const escEvent = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      code: 'Escape',
+      keyCode: 27,
+      bubbles: true
+    });
+    element.dispatchEvent(escEvent);
+
+    console.log('🚨 已发送 ESC 键事件尝试关闭弹窗');
+  }
+
+  /**
+   * 🔧 FIXED: 2025-08-13 处理 Authing 配置错误弹窗
+   */
+  private handleConfigErrorModal(element: HTMLElement): void {
+    console.log('🔧 处理 Authing 配置错误弹窗');
+
+    // 1. 立即关闭错误弹窗
+    this.tryCloseModal(element);
+
+    // 2. 尝试重新初始化 Guard 实例
+    setTimeout(() => {
+      console.log('🔄 尝试重新初始化 Authing Guard...');
+      this.reinitializeGuard();
+    }, 1000);
+  }
+
+  /**
+   * 重新初始化 Guard 实例
+   */
+  private reinitializeGuard(): void {
+    try {
+      // 清除现有的 Guard 实例
+      const guardContainers = document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root');
+      guardContainers.forEach(container => {
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
+      });
+
+      // 触发重新初始化事件
+      window.dispatchEvent(new CustomEvent('authing-reinit-required', {
+        detail: { reason: 'config-error' }
+      }));
+
+      console.log('✅ Guard 重新初始化请求已发送');
+    } catch (error) {
+      console.error('❌ Guard 重新初始化失败:', error);
     }
   }
 }

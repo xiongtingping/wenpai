@@ -33,14 +33,24 @@ class ProductionUndefinedFixer {
       ...config
     };
 
-    // 检测是否为生产环境
-    this.isProduction = import.meta.env.PROD || 
+    // 🚨 ENHANCED: 增强生产环境检测逻辑
+    this.isProduction = import.meta.env.PROD ||
                        window.location.hostname !== 'localhost' ||
+                       window.location.hostname.includes('.netlify.app') ||
+                       window.location.hostname.includes('.vercel.app') ||
+                       window.location.hostname.includes('.app') ||
                        !import.meta.env.DEV;
 
-    if (this.isProduction) {
-      this.init();
-    }
+    console.log('🔍 环境检测:', {
+      'import.meta.env.PROD': import.meta.env.PROD,
+      'hostname': window.location.hostname,
+      'isProduction': this.isProduction,
+      'import.meta.env.DEV': import.meta.env.DEV
+    });
+
+    // 🚨 FORCE ENABLE: 无论什么环境都启动修复器
+    this.init();
+    console.log('🛡️ 修复器已强制启动（所有环境）');
   }
 
   /**
@@ -290,9 +300,15 @@ declare global {
   }
 }
 
-// 自动启动（仅在生产环境）
-if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
-  window.productionUndefinedFixer = new ProductionUndefinedFixer();
-}
+// 🚨 FORCE ENABLE: 强制启用修复器（包括开发环境）
+// 用于测试生产环境 Authing 登录行为
+window.productionUndefinedFixer = new ProductionUndefinedFixer({
+  enableGlobalFix: true,
+  enableDOMObserver: true,
+  enableConsoleFilter: false, // 开发环境保留控制台输出
+  fixInterval: 500, // 更频繁的检查
+  maxFixAttempts: 200
+});
+console.log('🚨 FORCE ENABLED: 生产环境修复器已强制启用（包括开发环境）');
 
 export default ProductionUndefinedFixer;

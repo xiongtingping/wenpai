@@ -1,7 +1,7 @@
 ---
-type: "always_apply"
+type: "agent_requested"
+description: "security_prevent_authing_modification_error"
 ---
-
 {
   "name": "禁止破坏 Authing 登录与认证系统",
   "severity": "error",
