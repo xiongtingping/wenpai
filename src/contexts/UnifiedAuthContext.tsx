@@ -411,38 +411,69 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       }
 
       // 🔧 FIXED: 2025-08-13 修复 getCurrentUser 调用方式
-      // Authing v5 SDK 的正确调用方式
+      // 🚨 生产环境强化修复：多重保护机制
       let user = null;
+
+      // 第一层：尝试标准 API 调用
       try {
+        console.log('🔍 尝试标准 API 调用...');
+        console.log('🔍 authing 实例:', authing);
+        console.log('🔍 authing 方法:', Object.getOwnPropertyNames(authing));
+        console.log('🔍 authing 原型方法:', Object.getOwnPropertyNames(Object.getPrototypeOf(authing)));
+
         // 尝试获取用户信息，v5 版本可能使用不同的方法名
         if (typeof authing.getCurrentUser === 'function') {
+          console.log('✅ 使用 getCurrentUser 方法');
           user = await authing.getCurrentUser();
         } else if (typeof authing.getUserInfo === 'function') {
+          console.log('✅ 使用 getUserInfo 方法');
           user = await authing.getUserInfo();
         } else if (typeof authing.getUser === 'function') {
+          console.log('✅ 使用 getUser 方法');
           user = await authing.getUser();
         } else {
           console.warn('⚠️ 未找到获取用户信息的方法，尝试检查登录状态');
           // 如果没有找到合适的方法，尝试检查登录状态
-          const isLoggedIn = await authing.checkLoginStatus();
-          if (isLoggedIn) {
-            // 从 localStorage 或其他方式获取用户信息
-            const storedUser = localStorage.getItem('authing_user');
-            if (storedUser) {
-              user = JSON.parse(storedUser);
+          if (typeof authing.checkLoginStatus === 'function') {
+            const isLoggedIn = await authing.checkLoginStatus();
+            if (isLoggedIn) {
+              console.log('✅ 用户已登录，尝试从本地存储获取');
+              // 从 localStorage 或其他方式获取用户信息
+              const storedUser = localStorage.getItem('authing_user');
+              if (storedUser) {
+                user = JSON.parse(storedUser);
+              }
             }
           }
         }
       } catch (methodError) {
-        console.warn('⚠️ 获取用户信息方法调用失败:', methodError);
-        // 尝试从本地存储恢复
-        const storedUser = localStorage.getItem('authing_user');
-        if (storedUser) {
-          try {
+        console.warn('⚠️ 第一层 API 调用失败:', methodError);
+
+        // 第二层：尝试从本地存储恢复
+        try {
+          const storedUser = localStorage.getItem('authing_user');
+          if (storedUser) {
             user = JSON.parse(storedUser);
             console.log('✅ 从本地存储恢复用户信息');
-          } catch (parseError) {
-            console.warn('⚠️ 本地用户信息解析失败:', parseError);
+          }
+        } catch (parseError) {
+          console.warn('⚠️ 本地用户信息解析失败:', parseError);
+        }
+
+        // 第三层：尝试重新初始化客户端
+        if (!user) {
+          console.log('🔄 尝试重新初始化 Authing 客户端...');
+          try {
+            // 清除当前客户端
+            authingClient = null;
+            // 重新获取客户端
+            const newAuthing = await getAuthingClient();
+            if (newAuthing && typeof newAuthing.getCurrentUser === 'function') {
+              user = await newAuthing.getCurrentUser();
+              console.log('✅ 重新初始化后获取用户成功');
+            }
+          } catch (reinitError) {
+            console.warn('⚠️ 重新初始化失败:', reinitError);
           }
         }
       }
