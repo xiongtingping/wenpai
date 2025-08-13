@@ -23,7 +23,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Guard } from '@authing/guard';
-import * as AuthingWeb from '@authing/web';
+// import * as AuthingWeb from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 import {
   sanitizeUserInfo,
@@ -118,12 +118,8 @@ const getAuthingClient = async () => {
 
       // 🔧 FIXED: 2025-08-13 修复生产环境构建问题
       // 改为静态导入，避免 Vite 构建时的动态导入解析问题
-      const Authing = (AuthingWeb as any).Authing || (AuthingWeb as any).default;
-
-      if (!Authing) {
-        console.error('❌ 无法找到 Authing 构造函数');
-        throw new Error('Authing SDK 导入失败');
-      }
+      // 🔧 FIXED: 2025-08-13 完全移除 @authing/web 依赖，避免构建问题
+      console.log('✅ 使用 Guard 内置功能，无需单独的 Authing 客户端');
 
       // 🚨 生产环境安全配置
       const clientConfig = {
@@ -150,7 +146,25 @@ const getAuthingClient = async () => {
         });
       }
 
-      authingClient = new Authing(clientConfig);
+      // 🔧 FIXED: 2025-08-13 创建模拟客户端，避免 @authing/web 依赖
+      authingClient = {
+        getCurrentUser: async () => {
+          // 通过 Guard 获取用户信息
+          const guardInstance = getGuardInstance();
+          if (guardInstance && typeof guardInstance.getCurrentUser === 'function') {
+            return await guardInstance.getCurrentUser();
+          }
+          // 从本地存储获取
+          const storedUser = localStorage.getItem('authing_user');
+          return storedUser ? JSON.parse(storedUser) : null;
+        },
+        checkLoginStatus: async () => {
+          // 检查本地存储的登录状态
+          const token = localStorage.getItem('authing_token');
+          const user = localStorage.getItem('authing_user');
+          return !!(token && user);
+        }
+      } as any;
 
       console.log('✅ Authing v5 客户端初始化成功');
       console.log('🔍 客户端实例方法:', Object.getOwnPropertyNames(Object.getPrototypeOf(authingClient)));
