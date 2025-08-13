@@ -23,7 +23,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Guard } from '@authing/guard';
-// import { Authing } from '@authing/web';
+import * as AuthingWeb from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 import {
   sanitizeUserInfo,
@@ -117,9 +117,8 @@ const getAuthingClient = async () => {
       }
 
       // 🔧 FIXED: 2025-08-13 修复生产环境构建问题
-      // 改为正确的动态导入方式，兼容 Vite 构建
-      const AuthingModule = await import('@authing/web');
-      const Authing = (AuthingModule as any).Authing || (AuthingModule as any).default;
+      // 改为静态导入，避免 Vite 构建时的动态导入解析问题
+      const Authing = (AuthingWeb as any).Authing || (AuthingWeb as any).default;
 
       if (!Authing) {
         console.error('❌ 无法找到 Authing 构造函数');
