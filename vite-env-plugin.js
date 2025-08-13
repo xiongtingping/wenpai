@@ -13,14 +13,18 @@ export default function envPlugin() {
       envVars = loadEnv(mode, process.cwd(), '');
     },
     transformIndexHtml(html) {
-      // 注入环境变量到全局对象
+      // 🔒 SECURITY FIX: 仅注入非敏感环境变量到全局对象
+      // API 密钥不再注入客户端，改用服务端代理
       const envScript = `
         <script>
           window.__ENV__ = {
-            VITE_OPENAI_API_KEY: '${envVars.VITE_OPENAI_API_KEY || ''}',
-            VITE_DEEPSEEK_API_KEY: '${envVars.VITE_DEEPSEEK_API_KEY || ''}',
-            VITE_GEMINI_API_KEY: '${envVars.VITE_GEMINI_API_KEY || ''}',
-            VITE_CREEM_API_KEY: '${envVars.VITE_CREEM_API_KEY || ''}',
+            // 🚨 REMOVED: API 密钥不再注入客户端
+            // VITE_OPENAI_API_KEY: '${envVars.VITE_OPENAI_API_KEY || ''}',
+            // VITE_DEEPSEEK_API_KEY: '${envVars.VITE_DEEPSEEK_API_KEY || ''}',
+            // VITE_GEMINI_API_KEY: '${envVars.VITE_GEMINI_API_KEY || ''}',
+            // VITE_CREEM_API_KEY: '${envVars.VITE_CREEM_API_KEY || ''}',
+
+            // ✅ 安全配置：仅注入非敏感配置
             VITE_AUTHING_APP_ID: '${envVars.VITE_AUTHING_APP_ID || ''}',
             VITE_AUTHING_HOST: '${envVars.VITE_AUTHING_HOST || ''}',
             VITE_API_BASE_URL: '${envVars.VITE_API_BASE_URL || ''}',
@@ -29,7 +33,7 @@ export default function envPlugin() {
           };
         </script>
       `;
-      
+
       return html.replace('</head>', `${envScript}</head>`);
     }
   };

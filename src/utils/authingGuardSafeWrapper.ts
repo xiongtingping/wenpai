@@ -218,6 +218,29 @@ function fixUndefinedInGuardDOM(container: Element) {
 export function createSafeGuardConfig(originalConfig: any) {
   // 🔧 FIXED: 2025-08-13 根据 Authing Guard 5.3.9 版本的 GuardOptions 接口修复配置
   // 严格按照 TypeScript 类型定义创建配置对象
+
+  // 🎯 优先使用传入配置的 config，如果没有则使用默认配置
+  const configSection = originalConfig.config || {
+    // 🔑 关键：登录方式配置 - 必须有这些才能显示登录表单
+    loginMethodList: ['password', 'phone-code', 'email-code', 'wechat', 'alipay'],
+    // 注册方式配置
+    registerMethodList: ['phone', 'email'],
+    // 🎯 确保显示用户名密码登录
+    defaultLoginMethod: 'password',
+    // 界面配置
+    title: '文派',
+    logo: 'https://cdn.authing.co/authing-console/logo.png',
+    // 弹窗配置
+    autoRegister: false,
+    skipComplateFileds: false,
+    closeable: true,
+    clickCloseableMask: true,
+    // 🔧 强制显示登录表单
+    hideForgetPasswordBtn: false,
+    hideRegisterBtn: false,
+    hideSocialLogin: false
+  };
+
   const safeConfig = {
     // 必需参数
     appId: originalConfig.appId,
@@ -230,22 +253,8 @@ export function createSafeGuardConfig(originalConfig: any) {
     lang: (originalConfig.lang || 'zh-CN') as 'zh-CN' | 'en-US',
     isSSO: true,
 
-    // 🎯 关键修复：使用 config 嵌套结构来配置登录方式
-    // 这是 Guard 5.3.9 版本的正确配置方式
-    config: {
-      // 登录方式配置
-      loginMethodList: ['password', 'phone-code', 'email-code'],
-      // 注册方式配置
-      registerMethodList: ['phone', 'email'],
-      // 界面配置
-      title: '文派',
-      logo: 'https://cdn.authing.co/authing-console/logo.png',
-      // 弹窗配置
-      autoRegister: false,
-      skipComplateFileds: false,
-      closeable: true,
-      clickCloseableMask: true
-    }
+    // 🎯 关键修复：使用传入的或默认的 config 嵌套结构
+    config: configSection
   };
 
   console.log('🛡️ 安全Guard配置已创建 (5.3.9兼容):', {
@@ -256,7 +265,9 @@ export function createSafeGuardConfig(originalConfig: any) {
     redirectUri: safeConfig.redirectUri,
     defaultScene: safeConfig.defaultScene,
     isSSO: safeConfig.isSSO,
-    hasConfig: !!safeConfig.config
+    hasConfig: !!safeConfig.config,
+    configKeys: Object.keys(safeConfig.config || {}),
+    loginMethods: safeConfig.config?.loginMethodList
   });
 
   return safeConfig;

@@ -238,14 +238,34 @@ function getGuardInstance() {
     // 🔧 修复方式：对象参数格式 + 完整accessibility配置
     // 🛡️ FIXED: 2025-01-28 使用安全配置防止undefined拼接
     // 📌 核心修复逻辑，请勿修改此Guard初始化代码
-    // 🔧 FIXED: 2025-08-13 使用 Authing Guard 官方支持的最小配置
+    // 🔧 FIXED: 2025-08-13 使用完整的 Guard 配置支持真实登录
     const baseConfig = {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
       mode: 'modal',
-      // 🎯 仅使用 Authing Guard 官方支持的配置项
-      lang: 'zh-CN'
+      defaultScene: 'login',
+      lang: 'zh-CN',
+      // 🔑 关键：添加 config 嵌套结构来配置登录方式
+      config: {
+        // 登录方式配置 - 必须有这些才能显示登录表单
+        loginMethodList: ['password', 'phone-code', 'email-code'],
+        registerMethodList: ['phone', 'email'],
+        // 确保显示用户名密码登录
+        defaultLoginMethod: 'password',
+        // 界面配置
+        title: '文派',
+        logo: 'https://cdn.authing.co/authing-console/logo.png',
+        // 弹窗配置
+        autoRegister: false,
+        skipComplateFileds: false,
+        closeable: true,
+        clickCloseableMask: true,
+        // 强制显示登录表单
+        hideForgetPasswordBtn: false,
+        hideRegisterBtn: false,
+        hideSocialLogin: false
+      }
     };
 
     // 🔒 LOCKED: 使用安全配置包装器防止undefined拼接

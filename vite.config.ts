@@ -16,13 +16,17 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // 环境变量注入，兼容 Vite/Node/Netlify/Vercel
+  // 🔒 SECURITY FIX: 移除 API 密钥的客户端注入，防止密钥暴露
+  // 环境变量注入，仅注入非敏感配置
   define: {
     __ENV__: JSON.stringify({
-      VITE_OPENAI_API_KEY: process.env.VITE_OPENAI_API_KEY || '',
-      VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
-      VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
-      VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
+      // 🚨 REMOVED: API 密钥不再注入客户端，改用服务端代理
+      // VITE_OPENAI_API_KEY: process.env.VITE_OPENAI_API_KEY || '',
+      // VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
+      // VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
+      // VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
+
+      // ✅ 安全配置：仅注入非敏感的配置信息
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '',
       VITE_DEBUG_MODE: process.env.VITE_DEBUG_MODE || '',
       VITE_LOG_LEVEL: process.env.VITE_LOG_LEVEL || '',

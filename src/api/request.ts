@@ -47,37 +47,38 @@ interface APIConfig {
 }
 
 /**
- * 从环境变量获取API配置
- * 严禁硬编码任何API地址或密钥
+ * 🔒 SECURITY FIX: 从环境变量获取API配置
+ * 移除客户端 API 密钥，改用服务端代理
  */
 const getAPIConfig = (): APIConfig => {
   // 优先使用全局环境变量，回退到import.meta.env
   const globalEnv = typeof window !== 'undefined' ? (window as any).__ENV__ : {};
-  
+
   const getEnvVar = (key: string, defaultValue?: string): string => {
     return globalEnv[key] || import.meta.env[key] || defaultValue || '';
   };
 
   return {
+    // 🔒 SECURITY: AI API 改用服务端代理，不再使用客户端密钥
     openai: {
-      baseURL: getEnvVar('VITE_OPENAI_BASE_URL', 'https://api.openai.com/v1'),
-      apiKey: getEnvVar('VITE_OPENAI_API_KEY', ''),
+      baseURL: '/api/ai/openai', // 使用服务端代理
+      apiKey: '', // 客户端不再存储密钥
     },
     gemini: {
-      baseURL: getEnvVar('VITE_GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com'),
-      apiKey: getEnvVar('VITE_GEMINI_API_KEY', ''),
+      baseURL: '/api/ai/gemini', // 使用服务端代理
+      apiKey: '', // 客户端不再存储密钥
     },
     deepseek: {
-      baseURL: getEnvVar('VITE_DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1'),
-      apiKey: getEnvVar('VITE_DEEPSEEK_API_KEY', ''),
+      baseURL: '/api/ai/deepseek', // 使用服务端代理
+      apiKey: '', // 客户端不再存储密钥
     },
     // 其他API配置
     hotTopics: {
       baseURL: getEnvVar('VITE_HOT_TOPICS_BASE_URL', 'https://api-hot.imsyy.top'),
     },
     creem: {
-      baseURL: getEnvVar('VITE_CREEM_BASE_URL', 'https://api.creem.com'),
-      apiKey: getEnvVar('VITE_CREEM_API_KEY', ''),
+      baseURL: '/api/payment/creem', // 使用服务端代理
+      apiKey: '', // 客户端不再存储密钥
     },
     authing: {
       baseURL: getEnvVar('VITE_AUTHING_BASE_URL', 'ai-wenpai.authing.cn/688237f7f9e118de849dc274'),
@@ -116,35 +117,35 @@ const createAxiosInstance = (): AxiosInstance => {
     proxy: false, // 禁用代理
   });
 
-  // ✅ FIXED: 2025-08-02 请求拦截器 - 已优化网络连接
+  // 🔒 SECURITY FIX: 请求拦截器 - 移除客户端 API 密钥设置
   instance.interceptors.request.use(
     (config) => {
-      // 根据URL自动添加对应的API密钥
+      // 根据URL设置正确的baseURL，但不再设置API密钥（由服务端处理）
       const url = config.url || '';
 
-      // 只对特定的AI API设置baseURL和认证，其他第三方API保持原样
-      if (url.includes('openai') || url.includes('api.openai.com')) {
-        config.headers.Authorization = `Bearer ${getAPIConfig().openai.apiKey}`;
+      // 🔒 SECURITY: AI API 请求路由到服务端代理，不再设置客户端密钥
+      if (url.includes('openai') || url.includes('/api/ai/openai')) {
         config.baseURL = getAPIConfig().openai.baseURL;
-      } else if (url.includes('gemini') || url.includes('generativelanguage.googleapis.com')) {
-        config.headers['x-goog-api-key'] = getAPIConfig().gemini.apiKey;
+        // 移除客户端密钥设置，由服务端代理处理
+      } else if (url.includes('gemini') || url.includes('/api/ai/gemini')) {
         config.baseURL = getAPIConfig().gemini.baseURL;
-      } else if (url.includes('deepseek') || url.includes('api.deepseek.com')) {
-        config.headers.Authorization = `Bearer ${getAPIConfig().deepseek.apiKey}`;
+        // 移除客户端密钥设置，由服务端代理处理
+      } else if (url.includes('deepseek') || url.includes('/api/ai/deepseek')) {
         config.baseURL = getAPIConfig().deepseek.baseURL;
-      } else if (url.includes('creem') || url.includes('api.creem.com')) {
-        config.headers['x-api-key'] = getAPIConfig().creem.apiKey;
+        // 移除客户端密钥设置，由服务端代理处理
+      } else if (url.includes('creem') || url.includes('/api/payment/creem')) {
         config.baseURL = getAPIConfig().creem.baseURL;
+        // 移除客户端密钥设置，由服务端代理处理
       } else {
         // 对于第三方API（如热点数据API），不设置baseURL，保持完整URL
         config.baseURL = undefined;
       }
 
-      console.log('🔧 API请求:', {
+      console.log('🔧 API请求 (安全模式):', {
         method: config.method?.toUpperCase(),
         url: config.url,
         baseURL: config.baseURL,
-        hasAuth: !!config.headers.Authorization || !!config.headers['x-goog-api-key'] || !!config.headers['x-api-key']
+        isProxied: config.baseURL?.startsWith('/api/') || false
       });
 
       return config;
