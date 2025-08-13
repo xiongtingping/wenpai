@@ -316,7 +316,6 @@ function AppContent() {
           <Route path="/user-persistence-test" element={<UserPersistenceTestPage />} />
           <Route path="/authing-guard-test" element={<AuthingGuardTestPage />} />
           <Route path="/production-auth-test" element={<ProductionAuthTestPage />} />
-          <Route path="/production-auth-test" element={<ProductionAuthTestPage />} />
 
           {/* 历史记录页面 */}
           <Route path="/history" element={
