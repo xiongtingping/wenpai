@@ -74,9 +74,27 @@ export interface SubscriptionExpiryResult {
  * 统一使用量管理服务类
  */
 class UnifiedUsageService {
-  private readonly API_ENDPOINT = '/api/unified-usage';
+  private readonly API_ENDPOINT = '/api';
   private readonly STORAGE_KEY = 'unified_usage_stats';
   private readonly SYNC_INTERVAL = 5 * 60 * 1000; // 5分钟同步一次
+
+  /**
+   * 获取认证token
+   */
+  private getAuthToken(): string | null {
+    try {
+      // 从localStorage获取用户信息
+      const userStr = localStorage.getItem('authing_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.accessToken || user.token || null;
+      }
+      return null;
+    } catch (error) {
+      console.error('获取认证token失败:', error);
+      return null;
+    }
+  }
   
   private syncTimer: NodeJS.Timeout | null = null;
 
@@ -176,15 +194,24 @@ class UnifiedUsageService {
    */
   async getUserUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
     try {
-      // 尝试从后端获取真实数据
-      const response = await request.get(`${this.API_ENDPOINT}/usage-count/${userId}`);
-      return response.data;
-    } catch (error) {
-      console.warn('从后端获取使用次数统计失败，使用模拟数据:', error);
-      
-      // 使用模拟数据
+      // 🔧 FIXED: 添加认证token到请求头
+      const token = this.getAuthToken();
+      const headers: any = {};
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-user-id'] = userId;
+      }
+
+      // 调用正确的后端API获取真实数据
+      const response = await request.get(`${this.API_ENDPOINT}/user/usage/${userId}`, {
+        headers
+      });
+      const usageData = response.data;
+
+      // 计算总使用次数
+      const usedCount = usageData.totalUsed || 0;
       const availableUses = this.getUsageCountLimit(userTier);
-      const usedCount = 3; // 模拟已使用次数
       const remainingUses = availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount);
       const usagePercentage = availableUses === -1 ? 0 : (usedCount / availableUses) * 100;
 
@@ -193,6 +220,18 @@ class UnifiedUsageService {
         availableUses,
         usagePercentage,
         remainingUses,
+        lastUpdated: new Date().toISOString()
+      };
+    } catch (error) {
+      console.warn('从后端获取使用次数统计失败，返回默认值:', error);
+
+      // 如果API调用失败，返回默认值
+      const availableUses = this.getUsageCountLimit(userTier);
+      return {
+        usedCount: 0,
+        availableUses,
+        usagePercentage: 0,
+        remainingUses: availableUses === -1 ? -1 : availableUses,
         lastUpdated: new Date().toISOString()
       };
     }

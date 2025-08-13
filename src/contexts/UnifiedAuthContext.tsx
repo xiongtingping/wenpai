@@ -72,7 +72,6 @@ interface UnifiedAuthContextType {
   handleAuthingLogin: (userInfo: any) => void;
   refreshToken: () => Promise<void>;
   updateUser: (updates: Partial<UserInfo>) => void;
-  setUser: (user: UserInfo | null) => void; // 开发环境权限切换用
   loginWithPassword: (username: string, password: string) => Promise<void>;
   loginWithEmailCode: (email: string, code: string) => Promise<void>;
   loginWithPhoneCode: (phone: string, code: string) => Promise<void>;
@@ -92,23 +91,33 @@ interface UnifiedAuthContextType {
 /**
  * 单例 Authing 客户端
  */
-const authingClient: any = null;
+let authingClient: any = null;
 let guardInstance: any = null;
 
 /**
  * 获取 Authing 客户端实例
  */
-const getAuthingClient = () => {
+const getAuthingClient = async () => {
   if (!authingClient) {
     const config = getAuthingConfig();
-    // 临时注释掉 Authing 客户端初始化，避免导入错误
-    // authingClient = new Authing({
-    //   domain: config.host.replace('https://', ''),
-    //   appId: config.appId,
-    //   userPoolId: config.userPoolId || config.appId,
-    //   redirectUri: config.redirectUri,
-    //   scope: 'openid profile email phone'
-    // });
+    try {
+      // 动态导入 Authing SDK
+      const AuthingModule = await import('@authing/web');
+      const Authing = (AuthingModule as any).Authing;
+
+      authingClient = new Authing({
+        domain: config.host.replace('https://', ''),
+        appId: config.appId,
+        userPoolId: config.userPoolId || config.appId,
+        redirectUri: config.redirectUri,
+        scope: 'openid profile email phone'
+      });
+
+      console.log('✅ Authing 客户端初始化成功');
+    } catch (error) {
+      console.error('❌ Authing 客户端初始化失败:', error);
+      throw new Error('Authing 客户端初始化失败');
+    }
   }
   return authingClient;
 };
@@ -179,7 +188,21 @@ function getGuardInstance() {
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
-      maskCloseable: true
+      maskCloseable: true,
+
+      // 🛡️ CRITICAL FIX: 明确指定用户信息字段，防止undefined拼接
+      // 这是解决undefinedundefined问题的根本方案
+      userInfoFields: ['nickname', 'username', 'email', 'phone'],
+
+      // 🛡️ 用户信息显示配置
+      displayUserInfo: true,
+
+      // 🛡️ 确保用户信息正确处理
+      userInfoMapping: {
+        displayName: 'nickname',
+        fallbackName: 'username',
+        fallbackEmail: 'email'
+      }
     };
 
     // 🔒 LOCKED: 使用安全配置包装器防止undefined拼接
@@ -191,18 +214,7 @@ function getGuardInstance() {
       guardInstance = new Guard(safeConfig as any);
       console.log('✅ Authing Guard实例初始化成功');
     } catch (guardError) {
-      console.error('❌ Guard 初始化失败，尝试网络诊断:', guardError);
-      
-      // 导入网络诊断模块
-      import('../utils/authingNetworkFix').then(async (module) => {
-        const networkStatus = await module.testAuthingConnection();
-        console.log('🔍 Authing 网络诊断结果:', networkStatus);
-        
-        if (!networkStatus.isConnected) {
-          console.error('🌐 Authing 网络连接问题:', networkStatus.suggestions);
-        }
-      });
-      
+      console.error('❌ Guard 初始化失败:', guardError);
       throw guardError;
     }
 
@@ -244,30 +256,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    */
   useEffect(() => {
     try {
-      // ✅ FIXED: 检查强制生产模式
-      const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
-      const isDevelopment = !forceProductionMode && import.meta.env.DEV;
+      console.log('🔐 启用真实Authing认证流程');
+      console.log('🎯 初始化Authing Guard组件');
 
-      if (!isDevelopment) {
-        console.log('🔐 启用真实Authing认证流程');
-        console.log('🎯 初始化Authing Guard组件');
-      } else {
-        console.log('🔓 开发环境模式：禁用Authing Guard组件');
-        console.log('🎯 使用模拟用户数据，跳过真实认证流程');
-
-        // 开发环境不初始化Guard，避免白屏问题
-        setLoading(false);
-        return;
-      }
-
-      // ✅ FIXED: 2025-08-02 应用 Authing 网络优化
+      // ✅ FIXED: 2025-08-02 应用 Authing 网络优化（仅优化，不启动监控）
       import('../utils/authingNetworkFix').then(module => {
         module.applyAuthingNetworkOptimizations();
-        module.startAuthingNetworkMonitoring();
         console.log('🌐 Authing 网络优化已启用');
       });
-      
-      authingRef.current = getAuthingClient();
+
+      // 异步初始化Authing客户端
+      getAuthingClient().then(client => {
+        authingRef.current = client;
+      }).catch(error => {
+        console.error('❌ Authing客户端初始化失败:', error);
+        setError('Authing客户端初始化失败');
+      });
+
       guardRef.current = getGuardInstance();
       
       // 设置 Guard 事件监听
@@ -333,51 +338,27 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       setLoading(true);
       setError(null);
 
-      // ✅ FIXED: 检查强制生产模式
-      const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
-      const isDevelopment = !forceProductionMode && import.meta.env.DEV;
-
-      if (!isDevelopment) {
-        console.log('🔐 检查真实用户认证状态');
-        console.log('🎯 从Authing获取用户信息');
-      } else {
-        console.log('🔓 开发环境自动登录模式 - 强制启用');
-        console.log('🔧 正在创建模拟用户数据...');
-
-        // 创建模拟用户数据（合并本地存储头像等持久化字段）
-        const stored = localStorage.getItem('authing_user');
-        const storedUser = stored ? JSON.parse(stored) : null;
-
-        const mockUser: UserInfo = {
-          id: storedUser?.id || 'dev-user-001',
-          username: storedUser?.username || 'dev-user',
-          email: storedUser?.email || 'dev@example.com',
-          nickname: storedUser?.nickname || '开发用户',
-          phone: storedUser?.phone || '',
-          avatar: storedUser?.avatar || '',
-          loginTime: new Date().toISOString(),
-          roles: storedUser?.roles || ['user', 'vip'],
-          permissions: storedUser?.permissions || ['auth:required', 'vip:required', 'feature:creative-studio', 'feature:brand-library'],
-          isVip: storedUser?.isVip ?? true
-        };
-
-        setUser(mockUser);
-        setIsAuthenticated(true);
-        setLoading(false);
-        console.log('✅ 开发环境自动登录成功:', mockUser);
-        console.log('🎯 权限状态: isAuthenticated = true, user =', mockUser);
-
-        // 强制触发重新渲染
-        setTimeout(() => {
-          console.log('🔄 强制触发重新渲染...');
-          setUser({...mockUser});
-        }, 100);
-
-        return;
+      // 🛡️ FIXED: 首先尝试从localStorage恢复用户信息
+      const storedUser = localStorage.getItem('authing_user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          console.log('✅ 从localStorage恢复用户信息:', userData);
+          setUser(userData);
+          setIsAuthenticated(true);
+          setLoading(false);
+          return; // 成功恢复，直接返回
+        } catch (parseError) {
+          console.warn('⚠️ localStorage用户信息解析失败:', parseError);
+          localStorage.removeItem('authing_user'); // 清除损坏的数据
+        }
       }
 
-      // 生产环境正常检查
-      const authing = getAuthingClient();
+      console.log('🔐 检查真实用户认证状态');
+      console.log('🎯 从Authing获取用户信息');
+
+      // 获取Authing客户端
+      const authing = await getAuthingClient();
       if (!authing) {
         throw new Error('Authing 客户端未初始化');
       }
@@ -385,8 +366,44 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const user = await authing.getCurrentUser();
       if (user) {
         console.log('✅ 用户已登录:', user);
-        setUser(user);
-        setIsAuthenticated(true);
+
+        // 🛡️ CRITICAL FIX: 智能合并本地持久化数据和服务器数据
+        console.log('☁️ 从Authing服务器获取到用户信息:', user);
+
+        // 检查是否有本地持久化的用户数据
+        const storedUser = localStorage.getItem('authing_user');
+        let localUserData = null;
+
+        if (storedUser) {
+          try {
+            localUserData = JSON.parse(storedUser);
+            console.log('📱 发现本地持久化数据:', localUserData);
+          } catch (error) {
+            console.warn('⚠️ 本地数据解析失败:', error);
+          }
+        }
+
+        // 智能合并策略：优先保留本地的自定义头像和个人信息
+        const processedUser = {
+          ...user, // 服务器基础数据
+          loginTime: new Date().toISOString(),
+          // 🎯 关键修复：优先使用本地持久化的头像
+          avatar: (localUserData?.avatar &&
+                  localUserData.avatar !== 'https://files.authing.co/authing-console/default-user-avatar.png' &&
+                  localUserData.isPersistent)
+                  ? localUserData.avatar
+                  : (user.avatar || user.photo || 'https://files.authing.co/authing-console/default-user-avatar.png'),
+          // 🎯 优先使用本地持久化的昵称
+          nickname: (localUserData?.nickname && localUserData.isPersistent)
+                   ? localUserData.nickname
+                   : user.nickname,
+          // 🎯 保留本地的持久化标记
+          isPersistent: localUserData?.isPersistent || false,
+          lastUpdated: localUserData?.lastUpdated || new Date().toISOString()
+        };
+
+        console.log('🎯 智能合并后的用户信息:', processedUser);
+        handleAuthingLogin(processedUser);
       } else {
         console.log('❌ 用户未登录');
         setUser(null);
@@ -438,22 +455,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🔐 处理 Authing 登录:', JSON.stringify(userInfo, null, 2));
       
-      // 统一用户信息格式 - 🛡️ 防止undefined拼接
-      const safeUserInfo = Object.fromEntries(
-        Object.entries(userInfo || {}).filter(([_, value]) => value !== undefined && value !== null)
-      );
+      // 🛡️ 使用系统的安全用户信息处理器，防止undefinedundefined拼接
+      const sanitizedUserInfo = sanitizeUserInfo(userInfo);
 
       const user: UserInfo = {
-        id: userInfo?.id || userInfo?.userId || userInfo?.sub || `user_${Date.now()}`,
-        username: userInfo?.username || userInfo?.nickname || userInfo?.name || '用户',
-        email: userInfo?.email || userInfo?.emailAddress || '',
-        phone: userInfo?.phone || userInfo?.phoneNumber || '',
-        nickname: userInfo?.nickname || userInfo?.username || userInfo?.name || '用户',
-        avatar: userInfo?.avatar || userInfo?.photo || userInfo?.picture || '',
+        ...sanitizedUserInfo,
         loginTime: new Date().toISOString(),
-        roles: userInfo?.roles || userInfo?.role || ['user'],
-        permissions: userInfo?.permissions || userInfo?.permission || ['basic'],
-        ...safeUserInfo  // 只包含非undefined的字段
+        roles: sanitizedUserInfo.roles || ['user'],
+        permissions: sanitizedUserInfo.permissions || ['basic'],
+        // 🛡️ CRITICAL FIX: 保存accessToken用于API调用
+        accessToken: userInfo.accessToken || userInfo.token || userInfo.idToken,
+        token: userInfo.token || userInfo.accessToken || userInfo.idToken
       };
       
       // 存储用户信息
@@ -485,46 +497,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🔐 开始登录流程...');
       setError(null);
-      
-      // ✅ FIXED: 检查强制生产模式
-      const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
-      const isDevelopment = !forceProductionMode && import.meta.env.DEV;
 
-      if (!isDevelopment) {
-        console.log('🔐 启用Authing Guard弹窗');
-        console.log('🎯 等待用户真实登录');
-      } else {
-        console.log('🔓 开发环境：跳过Guard弹窗，直接使用模拟用户');
+      console.log('🔐 启用Authing Guard弹窗');
+      console.log('🎯 等待用户真实登录');
 
-        // 创建模拟用户数据 - 高级版用户测试升级按钮隐藏逻辑
-        const mockUser: UserInfo = {
-          id: 'dev-user-001',
-          username: 'dev-user',
-          email: 'dev@example.com',
-          nickname: '开发用户',
-          avatar: '',
-          loginTime: new Date().toISOString(),
-          roles: ['user', 'vip'],
-          permissions: ['auth:required', 'vip:required', 'feature:creative-studio', 'feature:brand-library'],
-          isVip: true,
-          // ✅ FIXED: 2025-08-04 添加高级版用户标识，测试升级按钮隐藏逻辑
-          plan: 'premium',
-          tier: 'premium',
-          subscriptionEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1年后过期
-        };
-
-        setUser(mockUser);
-        setIsAuthenticated(true);
-        console.log('✅ 开发环境登录成功:', mockUser);
-        return;
-      }
-      
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
         console.log('📝 保存跳转目标:', redirectTo);
       }
-      
+
       // 使用 Guard 弹窗登录
       if (guardRef.current) {
         // 🎯 ROOT FIX: 配置已包含默认用户信息，直接显示弹窗
@@ -630,15 +612,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const loginWithPassword = async (username: string, password: string) => {
     try {
       console.log('🔐 密码登录:', username);
-      if (authingRef.current) {
-        // 模拟密码登录
-        const userInfo = {
-          id: `user_${Date.now()}`,
-          username,
-          email: `${username}@example.com`,
-          nickname: username,
-          loginTime: new Date().toISOString()
-        };
+      const authing = await getAuthingClient();
+      if (authing) {
+        const userInfo = await authing.loginByUsername(username, password);
         handleAuthingLogin(userInfo);
       } else {
         throw new Error('Authing 客户端未初始化');
@@ -656,15 +632,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const loginWithEmailCode = async (email: string, code: string) => {
     try {
       console.log('📧 邮箱验证码登录:', email);
-      if (authingRef.current) {
-        // 模拟邮箱验证码登录
-        const userInfo = {
-          id: `user_${Date.now()}`,
-          email,
-          username: email.split('@')[0],
-          nickname: email.split('@')[0],
-          loginTime: new Date().toISOString()
-        };
+      const authing = await getAuthingClient();
+      if (authing) {
+        const userInfo = await authing.loginByEmailCode(email, code);
         handleAuthingLogin(userInfo);
       } else {
         throw new Error('Authing 客户端未初始化');
@@ -682,15 +652,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const loginWithPhoneCode = async (phone: string, code: string) => {
     try {
       console.log('📱 手机验证码登录:', phone);
-      if (authingRef.current) {
-        // 模拟手机验证码登录
-        const userInfo = {
-          id: `user_${Date.now()}`,
-          phone,
-          username: phone,
-          nickname: phone,
-          loginTime: new Date().toISOString()
-        };
+      const authing = await getAuthingClient();
+      if (authing) {
+        const userInfo = await authing.loginByPhoneCode(phone, code);
         handleAuthingLogin(userInfo);
       } else {
         throw new Error('Authing 客户端未初始化');
@@ -708,10 +672,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const sendVerificationCode = async (email: string, scene: 'login' | 'register' | 'reset' = 'login') => {
     try {
       console.log('📧 发送验证码:', email, scene);
-      if (authingRef.current) {
-        // 模拟发送验证码
-        console.log(`📧 发送${scene}验证码到:`, email);
-        // 这里应该调用真实的发送验证码 API
+      const authing = await getAuthingClient();
+      if (authing) {
+        await authing.sendEmail(email, scene);
         console.log('✅ 验证码发送成功');
       } else {
         throw new Error('Authing 客户端未初始化');
@@ -729,15 +692,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const registerUser = async (userInfo: any) => {
     try {
       console.log('📝 注册用户:', userInfo);
-      if (authingRef.current) {
-        // 模拟用户注册
-        const user = {
-          id: `user_${Date.now()}`,
-          email: userInfo.email,
-          username: userInfo.email.split('@')[0],
-          nickname: userInfo.nickname || userInfo.email.split('@')[0],
-          loginTime: new Date().toISOString()
-        };
+      const authing = await getAuthingClient();
+      if (authing) {
+        const user = await authing.registerByEmail(userInfo.email, userInfo.password, {
+          nickname: userInfo.nickname,
+          username: userInfo.username
+        });
         handleAuthingLogin(user);
       } else {
         throw new Error('Authing 客户端未初始化');
@@ -755,10 +715,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const resetPassword = async (email: string, code: string, newPassword: string) => {
     try {
       console.log('🔑 重置密码:', email);
-      if (authingRef.current) {
-        // 模拟重置密码
-        console.log('🔐 重置密码:', email);
-        // 这里应该调用真实的重置密码 API
+      const authing = await getAuthingClient();
+      if (authing) {
+        await authing.resetPasswordByEmailCode(email, code, newPassword);
         console.log('✅ 密码重置成功');
       } else {
         throw new Error('Authing 客户端未初始化');
@@ -774,15 +733,10 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    * 权限检查
    */
   const hasPermission = (permission: string): boolean => {
-    // 开发环境默认返回 true
-    if (import.meta.env.DEV) {
-      return true;
-    }
-    
     if (!user || !user.permissions) {
       return false;
     }
-    
+
     return user.permissions.includes(permission);
   };
 
@@ -790,15 +744,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    * 角色检查
    */
   const hasRole = (role: string): boolean => {
-    // ✅ FIXED: 检查强制生产模式
-    const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
-    const isDevelopment = !forceProductionMode && import.meta.env.DEV;
-
-    // 开发环境默认返回 true（仅在非强制生产模式下）
-    if (isDevelopment) {
-      return true;
-    }
-
     if (!user || !user.roles) {
       return false;
     }
@@ -823,7 +768,6 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     handleAuthingLogin,
     refreshToken,
     updateUser,
-    setUser, // 开发环境权限切换用
     loginWithPassword,
     loginWithEmailCode,
     loginWithPhoneCode,

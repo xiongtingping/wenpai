@@ -53,26 +53,26 @@ export function applyAuthingNetworkOptimizations(): void {
  * 启动 Authing 网络监控
  */
 export function startAuthingNetworkMonitoring(): void {
-  console.log('🔍 启动 Authing 网络连接监控...');
-  
-  // 定期检查 Authing 连接状态
-  setInterval(async () => {
-    try {
-      const response = await fetch('https://rzcswqd4sq0f.authing.cn/api/v2/applications/68823897631e1ef8ff3720b2/public-config', {
-        method: 'HEAD',
-        mode: 'cors',
-        cache: 'no-cache',
-      });
-      
-      if (!response.ok) {
-        console.warn('⚠️ Authing 网络连接问题:', response.status);
-      }
-    } catch (error) {
-      console.warn('⚠️ Authing 网络连接失败:', error);
-    }
-  }, 30000); // 每30秒检查一次
-  
-  console.log('✅ Authing 网络监控已启动');
+  console.log('🔍 Authing 网络监控已禁用（避免不必要的网络请求）');
+
+  // 注释掉自动网络检查，避免CORS错误和不必要的网络请求
+  // setInterval(async () => {
+  //   try {
+  //     const response = await fetch('https://rzcswqd4sq0f.authing.cn/api/v2/applications/68823897631e1ef8ff3720b2/public-config', {
+  //       method: 'HEAD',
+  //       mode: 'cors',
+  //       cache: 'no-cache',
+  //     });
+  //
+  //     if (!response.ok) {
+  //       console.warn('⚠️ Authing 网络连接问题:', response.status);
+  //     }
+  //   } catch (error) {
+  //     console.warn('⚠️ Authing 网络连接失败:', error);
+  //   }
+  // }, 30000); // 每30秒检查一次
+
+  console.log('✅ Authing 网络监控配置完成');
 }
 
 /**

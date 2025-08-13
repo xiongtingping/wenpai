@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户数据隔离测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .pass { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .summary {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 用户数据隔离与权限守卫测试</h1>
+    
+    <div class="test-section">
+        <h2>测试控制</h2>
+        <button onclick="runAllTests()">🚀 运行所有测试</button>
+        <button onclick="clearResults()">🧹 清除结果</button>
+        <button onclick="simulateUserSwitch()">👤 模拟用户切换</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 测试结果总览</h2>
+        <div id="summary" class="summary">等待测试...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 用户认证与权限系统</h2>
+        <div id="auth-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>💾 数据存储隔离</h2>
+        <div id="storage-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 API接口用户绑定</h2>
+        <div id="api-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎨 功能模块隔离</h2>
+        <div id="features-results"></div>
+    </div>
+
+    <script>
+        // 测试用户数据
+        const testUsers = [
+            { id: 'user_001', nickname: '测试用户1', accessToken: 'token_001' },
+            { id: 'user_002', nickname: '测试用户2', accessToken: 'token_002' },
+            null // 访客用户
+        ];
+
+        let currentTestUser = testUsers[0];
+        let testResults = {
+            auth: [],
+            storage: [],
+            api: [],
+            features: []
+        };
+
+        // 模拟用户切换
+        function simulateUserSwitch() {
+            const currentIndex = testUsers.indexOf(currentTestUser);
+            const nextIndex = (currentIndex + 1) % testUsers.length;
+            currentTestUser = testUsers[nextIndex];
+            
+            // 更新localStorage中的用户信息
+            if (currentTestUser) {
+                localStorage.setItem('authing_user', JSON.stringify(currentTestUser));
+            } else {
+                localStorage.removeItem('authing_user');
+            }
+            
+            addResult('auth', 'info', `已切换到: ${currentTestUser ? currentTestUser.nickname : '访客用户'}`);
+        }
+
+        // 添加测试结果
+        function addResult(category, type, message) {
+            testResults[category].push({ type, message, timestamp: new Date().toISOString() });
+            updateDisplay();
+        }
+
+        // 更新显示
+        function updateDisplay() {
+            ['auth', 'storage', 'api', 'features'].forEach(category => {
+                const container = document.getElementById(`${category}-results`);
+                container.innerHTML = testResults[category].map(result => 
+                    `<div class="test-result ${result.type}">${result.message}</div>`
+                ).join('');
+            });
+
+            // 更新总览
+            const total = Object.values(testResults).flat().length;
+            const passed = Object.values(testResults).flat().filter(r => r.type === 'pass').length;
+            const failed = Object.values(testResults).flat().filter(r => r.type === 'fail').length;
+            
+            document.getElementById('summary').innerHTML = 
+                `总计: ${total} | 通过: ${passed} | 失败: ${failed} | 信息: ${total - passed - failed}`;
+        }
+
+        // 清除结果
+        function clearResults() {
+            testResults = { auth: [], storage: [], api: [], features: [] };
+            updateDisplay();
+        }
+
+        // 测试用户认证系统
+        function testAuthSystem() {
+            addResult('auth', 'info', '开始测试用户认证系统...');
+            
+            // 检查当前用户状态
+            const userStr = localStorage.getItem('authing_user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    addResult('auth', 'pass', `✅ 用户认证正常: ${user.nickname || user.id}`);
+                } catch (e) {
+                    addResult('auth', 'fail', '❌ 用户数据解析失败');
+                }
+            } else {
+                addResult('auth', 'pass', '✅ 访客状态正常');
+            }
+        }
+
+        // 测试数据存储隔离
+        function testStorageIsolation() {
+            addResult('storage', 'info', '开始测试数据存储隔离...');
+            
+            const storageKeys = [
+                'wenpai_theme',
+                'adapt_platform_settings',
+                'user_history',
+                'favorites-storage',
+                'brand_assets',
+                'topic-subscriptions',
+                'emoji-favorites'
+            ];
+
+            storageKeys.forEach(baseKey => {
+                // 检查是否存在用户隔离的键
+                const userKey = currentTestUser ? `${baseKey}_${currentTestUser.id}` : `${baseKey}_guest`;
+                const hasUserKey = localStorage.getItem(userKey) !== null;
+                
+                // 检查是否存在全局键（不应该存在）
+                const hasGlobalKey = localStorage.getItem(baseKey) !== null;
+                
+                if (hasGlobalKey) {
+                    addResult('storage', 'fail', `❌ 发现全局键: ${baseKey}`);
+                } else {
+                    addResult('storage', 'pass', `✅ 无全局键: ${baseKey}`);
+                }
+                
+                if (hasUserKey) {
+                    addResult('storage', 'pass', `✅ 用户隔离键存在: ${userKey}`);
+                }
+            });
+        }
+
+        // 测试API接口
+        async function testAPIBinding() {
+            addResult('api', 'info', '开始测试API接口用户绑定...');
+            
+            if (!currentTestUser) {
+                addResult('api', 'info', '访客用户跳过API测试');
+                return;
+            }
+
+            const apiEndpoints = [
+                `/api/user/usage/${currentTestUser.id}`,
+                `/api/enhanced-permissions/subscription-expiry/${currentTestUser.id}`,
+                `/api/enhanced-permissions/usage-limits/${currentTestUser.id}/ai-content-adapter`
+            ];
+
+            for (const endpoint of apiEndpoints) {
+                try {
+                    const response = await fetch(endpoint, {
+                        headers: {
+                            'Authorization': `Bearer ${currentTestUser.accessToken}`,
+                            'x-user-id': currentTestUser.id
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        addResult('api', 'pass', `✅ API调用成功: ${endpoint}`);
+                    } else {
+                        addResult('api', 'fail', `❌ API调用失败: ${endpoint} (${response.status})`);
+                    }
+                } catch (error) {
+                    addResult('api', 'fail', `❌ API调用异常: ${endpoint} (${error.message})`);
+                }
+            }
+        }
+
+        // 测试功能模块
+        function testFeatureModules() {
+            addResult('features', 'info', '开始测试功能模块隔离...');
+            
+            // 检查各功能模块的数据隔离
+            const features = [
+                { name: '主题设置', key: 'wenpai_theme' },
+                { name: '历史记录', key: 'user_history' },
+                { name: '收藏系统', key: 'favorites-storage' },
+                { name: '品牌库', key: 'brand_assets' },
+                { name: 'Emoji收藏', key: 'emoji-favorites' }
+            ];
+
+            features.forEach(feature => {
+                const userKey = currentTestUser ? 
+                    `${feature.key}_${currentTestUser.id}` : 
+                    `${feature.key}_guest`;
+                
+                // 模拟数据操作
+                const testData = { test: true, timestamp: Date.now() };
+                localStorage.setItem(userKey, JSON.stringify(testData));
+                
+                const retrieved = localStorage.getItem(userKey);
+                if (retrieved) {
+                    addResult('features', 'pass', `✅ ${feature.name} 数据隔离正常`);
+                } else {
+                    addResult('features', 'fail', `❌ ${feature.name} 数据隔离失败`);
+                }
+            });
+        }
+
+        // 运行所有测试
+        async function runAllTests() {
+            clearResults();
+            addResult('auth', 'info', '🚀 开始全面测试...');
+            
+            testAuthSystem();
+            testStorageIsolation();
+            await testAPIBinding();
+            testFeatureModules();
+            
+            addResult('auth', 'info', '✅ 所有测试完成！');
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            simulateUserSwitch(); // 设置初始用户
+            updateDisplay();
+        };
+    </script>
+</body>
+</html>

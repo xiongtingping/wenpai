@@ -3,51 +3,66 @@ import { BrandProfile } from '@/types/brand';
 /**
  * 品牌数据库服务
  * @description 处理品牌档案的数据库存储和检索
+ * 🔧 FIXED: 支持用户数据隔离
  */
 class BrandDatabaseService {
-  private static instance: BrandDatabaseService;
-  private dbName = 'BrandLibraryDB';
+  private static instances: Map<string, BrandDatabaseService> = new Map();
+  private dbName: string;
   private version = 1;
+  private userId: string;
 
-  private constructor() {
+  private constructor(userId: string) {
+    this.userId = userId;
+    // 🔧 FIXED: 使用用户ID创建隔离的数据库
+    this.dbName = `BrandLibraryDB_${userId}`;
     this.initDatabase();
   }
 
   /**
-   * 获取服务实例（单例模式）
+   * 获取服务实例（按用户隔离的单例模式）
    */
-  public static getInstance(): BrandDatabaseService {
-    if (!BrandDatabaseService.instance) {
-      BrandDatabaseService.instance = new BrandDatabaseService();
+  public static getInstance(userId?: string): BrandDatabaseService {
+    const userKey = userId || 'guest';
+
+    if (!BrandDatabaseService.instances.has(userKey)) {
+      BrandDatabaseService.instances.set(userKey, new BrandDatabaseService(userKey));
     }
-    return BrandDatabaseService.instance;
+    return BrandDatabaseService.instances.get(userKey)!;
   }
 
   /**
-   * 初始化数据库
+   * 清除用户实例（用户登出时调用）
+   */
+  public static clearUserInstance(userId: string): void {
+    BrandDatabaseService.instances.delete(userId);
+  }
+
+  /**
+   * 初始化数据库 - 🔧 FIXED: 支持用户隔离
    */
   private async initDatabase(): Promise<void> {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
       request.onerror = () => {
-        console.error('数据库初始化失败');
-        reject(new Error('数据库初始化失败'));
+        console.error(`❌ 用户数据库初始化失败: ${this.dbName}`);
+        reject(new Error(`数据库初始化失败: ${this.dbName}`));
       };
 
       request.onsuccess = () => {
-        console.log('数据库初始化成功');
+        console.log(`✅ 用户数据库初始化成功: ${this.dbName} (用户: ${this.userId})`);
         resolve();
       };
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         // 创建品牌档案表
         if (!db.objectStoreNames.contains('brandProfiles')) {
           const store = db.createObjectStore('brandProfiles', { keyPath: 'id' });
           store.createIndex('name', 'name', { unique: false });
           store.createIndex('createdAt', 'createdAt', { unique: false });
+          store.createIndex('userId', 'userId', { unique: false }); // 🔧 FIXED: 添加用户ID索引
         }
 
         // 创建品牌资料表
@@ -61,7 +76,7 @@ class BrandDatabaseService {
   }
 
   /**
-   * 保存品牌档案
+   * 保存品牌档案 - 🔧 FIXED: 自动添加用户ID
    * @param profile 品牌档案
    */
   public async saveBrandProfile(profile: BrandProfile): Promise<void> {
@@ -75,15 +90,22 @@ class BrandDatabaseService {
         const transaction = db.transaction(['brandProfiles'], 'readwrite');
         const store = transaction.objectStore('brandProfiles');
 
-        const saveRequest = store.put(profile);
+        // 🔧 FIXED: 确保品牌档案包含用户ID
+        const profileWithUserId = {
+          ...profile,
+          userId: this.userId,
+          updatedAt: new Date().toISOString()
+        };
+
+        const saveRequest = store.put(profileWithUserId);
 
         saveRequest.onsuccess = () => {
-          console.log('品牌档案保存成功:', profile.id);
+          console.log(`✅ 品牌档案保存成功: ${profile.id} (用户: ${this.userId})`);
           resolve();
         };
 
         saveRequest.onerror = () => {
-          console.error('品牌档案保存失败');
+          console.error(`❌ 品牌档案保存失败: ${profile.id}`);
           reject(new Error('品牌档案保存失败'));
         };
       };

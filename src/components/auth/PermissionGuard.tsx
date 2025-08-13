@@ -32,16 +32,7 @@ const checkPermissionSafely = (
 ): boolean => {
   if (!required) return true;
 
-  // ✅ FIXED: 检查强制生产模式
-  const forceProductionMode = typeof window !== 'undefined' &&
-    (window as any).__VITE_FORCE_PRODUCTION_MODE__ === 'true';
-  const actualIsDevelopment = !forceProductionMode && isDevelopment;
-
-  // 开发环境权限绕过（仅在非强制生产模式下）
-  if (actualIsDevelopment) {
-    console.log('🔓 开发环境权限绕过:', required);
-    return true;
-  }
+  // 移除开发环境权限绕过，使用真实权限检查
 
   console.log('🔒 权限检查:', required, { isAuthenticated, user: user?.id });
 

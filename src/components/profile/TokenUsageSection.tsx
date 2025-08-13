@@ -274,13 +274,13 @@ export function TokenUsageSection({
                               finalUsageCountStats && finalUsageCountStats.usagePercentage > 60 ? "secondary" : "default"}
                       className="text-sm font-bold btn-gradient-primary text-primary-foreground border-0 shadow-lg rounded-xl px-3 py-1"
                     >
-                      {userTier === 'premium' || (finalUsageCountStats && finalUsageCountStats.availableUses === -1) ? '无限制' :
+                      {(finalUsageCountStats && finalUsageCountStats.availableUses === -1) ? '无限制' :
                        `${finalUsageCountStats?.usedCount || 0}/${finalUsageCountStats?.availableUses || 0}`}
                     </Badge>
                   </div>
 
                   <div className="space-y-4 relative z-10">
-                    {userTier !== 'premium' && finalUsageCountStats && finalUsageCountStats.availableUses !== -1 ? (
+                    {finalUsageCountStats && finalUsageCountStats.availableUses !== -1 ? (
                       <>
                         <Progress
                           value={Math.min(finalUsageCountStats?.usagePercentage || 0, 100)}

@@ -47,11 +47,10 @@ if (import.meta.env.DEV) {
   // 🚨 DISABLED: 验证器可能触发额外的DOM操作，导致渲染冲突
   // import('./utils/undefinedVerifier');
 
-  // ✅ FIXED: 2025-08-02 启用网络优化和代理检测
+  // ✅ FIXED: 2025-08-02 启用网络优化（禁用监控避免CORS错误）
   import('./utils/networkProxyFix').then(module => {
     module.applyNetworkProxyFix();
-    module.startNetworkMonitoring();
-    console.log('🌐 网络代理修复和监控已启用');
+    console.log('🌐 网络代理修复已启用');
   });
 
   // 🚨 DISABLED: 防护系统的字符串拦截功能有问题，会导致错误
@@ -61,6 +60,9 @@ if (import.meta.env.DEV) {
   //   protectionSystem.enable();
   //   console.log('🛡️ 完整防护系统已启用');
   // });
+
+  // 🔍 DEBUG: 临时禁用DOM修复器，观察真实的undefined问题
+  console.log('🔍 DEBUG: DOM修复器已禁用，观察Authing Guard的真实错误');
 
   console.log('🔧 开发环境已启动，安全的undefined修复器已启用');
 }

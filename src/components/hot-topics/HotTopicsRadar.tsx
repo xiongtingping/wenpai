@@ -68,6 +68,7 @@ import {
   Heart
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
 import NotificationBadge from '@/components/hot-topics/NotificationBadge';
 import TopThreePodium from '@/components/hot-topics/TopThreePodium';
@@ -164,7 +165,8 @@ export default function HotTopicsRadar({
   onBookmarkChange
 }: HotTopicsRadarProps) {
   const { toast } = useToast();
-  
+  const { user } = useUnifiedAuth(); // 🔧 FIXED: 添加用户认证支持
+
   // 状态管理
   const [allHotData, setAllHotData] = useState<DailyHotResponse | null>(null);
   const [currentPlatform, setCurrentPlatform] = useState<string>('all');
@@ -295,12 +297,12 @@ export default function HotTopicsRadar({
     }
   };
 
-  // 加载订阅数据
+  // 加载订阅数据 - 🔧 FIXED: 支持用户ID隔离
   const loadSubscriptions = async () => {
     try {
-      const subs = await getTopicSubscriptions();
+      const subs = getTopicSubscriptions(user);
       setSubscriptions(subs);
-      setSubscriptionStats(getSubscriptionStats());
+      setSubscriptionStats(getSubscriptionStats(user));
       onSubscriptionChange?.(subs);
     } catch (error) {
       console.error('加载订阅失败:', error);
@@ -337,7 +339,7 @@ export default function HotTopicsRadar({
         const activeSubscriptions = subscriptions.filter(s => s.isActive && s.notificationEnabled);
         if (activeSubscriptions.length > 0) {
           console.log('🔍 全网雷达自动检查话题订阅...');
-          const results = await checkAllSubscriptions();
+          const results = await checkAllSubscriptions(user);
 
           // 静默更新结果
           setMonitorResults(results);

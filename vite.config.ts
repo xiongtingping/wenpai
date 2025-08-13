@@ -38,6 +38,22 @@ export default defineConfig({
     port: 5173,
     host: true,
     proxy: {
+      // 代理本地后端API请求
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('Backend API proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('Sending Request to Backend:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received Response from Backend:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
       // 代理热点数据API，解决CORS问题
       '/api/hot': {
         target: 'https://api-hot.imsyy.top',

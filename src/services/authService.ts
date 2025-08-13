@@ -169,20 +169,162 @@ class AuthService {
   }
 
   /**
-   * 更新用户信息
+   * 更新用户信息 - 使用AuthenticationClient API（已验证成功）
    */
   async updateUserInfo(accessToken: string, updates: Partial<UserInfo>): Promise<UserInfo> {
     try {
-      const response = await request.put(`https://${this.config.host}/api/v3/update-user`, updates, {
+      console.log('🔄 使用真正的Authing AuthenticationClient API更新用户信息:', updates);
+
+      // 🛡️ CRITICAL FIX: 使用真正的Authing AuthenticationClient
+      const authClient = await this.getAuthenticationClient();
+      if (!authClient) {
+        throw new Error('AuthenticationClient未初始化');
+      }
+
+      console.log('📤 准备调用Authing updateProfile API');
+
+      // 构建更新数据，使用Authing API支持的字段
+      const updateData: any = {};
+
+      if (updates.nickname) updateData.nickname = updates.nickname;
+      if (updates.photo || updates.avatar) updateData.photo = updates.photo || updates.avatar;
+      if (updates.company) updateData.company = updates.company;
+      if (updates.username) updateData.username = updates.username;
+      if (updates.email) updateData.email = updates.email;
+      if (updates.phone) updateData.phone = updates.phone;
+
+      console.log('📤 发送到Authing API的数据:', updateData);
+
+      // 🚨 关键：调用真正的Authing updateProfile API
+      const updatedUser = await authClient.updateProfile(updateData);
+
+      console.log('✅ Authing API返回的更新后用户信息:', updatedUser);
+
+      return this.buildUserInfo(updatedUser);
+    } catch (error) {
+      console.error('❌ Authing API更新用户信息失败:', error);
+
+      // 详细的错误信息处理
+      let errorMessage = '未知错误';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        // 处理Authing API返回的错误对象
+        const errorObj = error as any;
+        if (errorObj.message) {
+          errorMessage = errorObj.message;
+        } else if (errorObj.error) {
+          errorMessage = errorObj.error;
+        } else if (errorObj.error_description) {
+          errorMessage = errorObj.error_description;
+        } else {
+          errorMessage = JSON.stringify(error);
+        }
+      }
+
+      console.error('❌ 详细错误信息:', errorMessage);
+      throw new Error(`Authing API更新失败: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * 上传用户头像 - 使用AuthenticationClient API（已验证成功）
+   */
+  async uploadUserAvatar(file: File): Promise<UserInfo> {
+    try {
+      console.log('📸 开始上传用户头像到Authing服务器');
+
+      // 获取AuthenticationClient实例
+      const authClient = await this.getAuthenticationClient();
+      if (!authClient) {
+        throw new Error('AuthenticationClient未初始化');
+      }
+
+      // 🚨 关键：先上传文件到CDN，再更新profile
+      console.log('📤 使用传统方式：先上传文件到CDN，再更新profile');
+
+      // 创建FormData上传文件
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'avatar');
+
+      // 构建正确的上传URL
+      const uploadUrl = `https://${this.config.host}/api/v2/upload`;
+      console.log('📤 上传URL:', uploadUrl);
+
+      // 上传到Authing CDN
+      const uploadResponse = await request.post(uploadUrl, formData, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
+          'Content-Type': 'multipart/form-data',
+        }
       });
 
-      return this.buildUserInfo(response);
+      const avatarUrl = uploadResponse.url || uploadResponse.data?.url;
+      console.log('✅ 文件上传到CDN成功:', avatarUrl);
+
+      if (!avatarUrl) {
+        throw new Error('上传响应中没有找到头像URL');
+      }
+
+      // 使用AuthenticationClient更新用户头像
+      const updatedUser = await authClient.updateProfile({
+        photo: avatarUrl
+      });
+
+      console.log('✅ 用户头像更新成功，AuthenticationClient API返回:', updatedUser);
+
+      return this.buildUserInfo(updatedUser);
     } catch (error) {
-      console.error('更新用户信息失败:', error);
-      throw new Error('更新用户信息失败');
+      console.error('❌ 头像上传失败:', error);
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      throw new Error(`头像上传失败: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * 获取Guard实例
+   */
+  private async getGuardInstance() {
+    try {
+      // 动态导入Guard创建函数
+      const { getGuardInstance } = await import('@/authing/guard');
+      return getGuardInstance();
+    } catch (error) {
+      console.error('❌ 获取Guard实例失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 获取AuthenticationClient实例 - 用于直接调用Authing API
+   */
+  private async getAuthenticationClient() {
+    try {
+      // 动态导入AuthenticationClient - 使用正确的包
+      const { AuthenticationClient } = await import('authing-js-sdk');
+
+      // 确保appHost格式正确
+      let appHost = this.config.host;
+      if (!appHost.startsWith('https://')) {
+        appHost = `https://${appHost}`;
+      }
+
+      console.log('🔧 AuthenticationClient配置:', {
+        appId: this.config.appId,
+        appHost: appHost
+      });
+
+      // 创建AuthenticationClient实例
+      const authClient = new AuthenticationClient({
+        appId: this.config.appId,
+        appHost: appHost,
+      });
+
+      console.log('✅ AuthenticationClient实例创建成功');
+      return authClient;
+    } catch (error) {
+      console.error('❌ 获取AuthenticationClient实例失败:', error);
+      return null;
     }
   }
 

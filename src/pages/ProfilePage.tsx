@@ -262,47 +262,80 @@ export default function ProfilePage() {
   };
 
   /**
-   * 保存个人资料
+   * 保存个人资料 - 直接同步到Authing服务器，不使用本地保存
    */
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // 正式环境：调用后端（Authing）更新资料
-      if (!isDevelopment()) {
-        const authService = AuthService.getInstance();
-        const accessToken = (user as any)?.accessToken || '';
-        const remote = await authService.updateUserInfo(accessToken, {
-          nickname: profileForm.nickname,
-          email: profileForm.email,
-          phone: profileForm.phone,
-          photo: profileForm.avatar
-        });
-        // 以服务端为准更新前端
-        updateUser({
-          nickname: remote.nickname || profileForm.nickname,
-          email: remote.email || profileForm.email,
-          phone: remote.phone || profileForm.phone,
-          avatar: remote.avatar || remote.photo || profileForm.avatar
-        });
-      } else {
-        // 开发环境：直接更新前端上下文与本地存储
-        updateUser({
-          nickname: profileForm.nickname,
-          email: profileForm.email,
-          phone: profileForm.phone,
-          avatar: profileForm.avatar
-        });
+      console.log('💾 开始保存个人资料到Authing服务器...');
+
+      const authService = AuthService.getInstance();
+      const accessToken = (user as any)?.accessToken || (user as any)?.token || '';
+
+      if (!accessToken) {
+        throw new Error('用户未登录或token已过期');
       }
 
+      // 🚨 CRITICAL: 直接同步到Authing服务器，确保数据持久化
+      console.log('☁️ 同步用户信息到Authing服务器...');
+
+      // 🚨 CRITICAL FIX: 只更新不需要验证码的安全字段
+      const updateData: any = {};
+
+      // 昵称更新不需要验证码
+      if (profileForm.nickname && profileForm.nickname.trim()) {
+        updateData.nickname = profileForm.nickname.trim();
+      }
+
+      // 🚫 暂时跳过需要验证码的字段（邮箱、手机号）
+      // 这些字段需要单独的验证流程
+
+      // 只有当头像是有效的HTTP URL时才更新
+      if (profileForm.avatar &&
+          profileForm.avatar.startsWith('http') &&
+          !profileForm.avatar.startsWith('data:')) {
+        updateData.photo = profileForm.avatar;
+        updateData.avatar = profileForm.avatar;
+      }
+
+      console.log('📤 准备发送的更新数据（仅安全字段）:', updateData);
+
+      // 如果没有可更新的数据，直接返回成功
+      if (Object.keys(updateData).length === 0) {
+        console.log('ℹ️ 没有需要更新的安全字段，跳过API调用');
+        toast({
+          title: "保存成功",
+          description: "个人资料已保存（敏感信息需要验证码）",
+        });
+        setHasUnsavedChanges(false);
+        return;
+      }
+
+      const updatedUser = await authService.updateUserInfo(accessToken, updateData);
+
+      console.log('✅ Authing服务器同步成功:', updatedUser);
+
+      // 用服务器返回的数据更新本地状态
+      updateUser({
+        ...updatedUser,
+        avatar: updatedUser.avatar || updatedUser.photo || profileForm.avatar
+      });
+
+      // 显示成功提示
       toast({
         title: "保存成功",
-        description: "个人资料已更新",
+        description: "个人资料已成功保存到服务器",
       });
+
       setHasUnsavedChanges(false);
+
     } catch (error) {
+      console.error('❌ 保存个人资料失败:', error);
+
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
       toast({
         title: "保存失败",
-        description: "请稍后重试",
+        description: `无法保存到服务器: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -449,7 +482,7 @@ export default function ProfilePage() {
   };
 
   /**
-   * 上传头像
+   * 上传头像 - 直接使用Authing的uploadAvatar API
    */
   const handleUploadAvatar = () => {
     const input = document.createElement('input');
@@ -471,27 +504,41 @@ export default function ProfilePage() {
       }
 
       try {
-        // 上传头像
-        const result = await avatarService.uploadAvatar(file, user?.id || '');
-        if (result.success && result.avatarUrl) {
-          setProfileForm(prev => ({
-            ...prev,
-            avatar: result.avatarUrl
-          }));
-          setHasUnsavedChanges(true);
+        console.log('📸 开始上传头像到Authing服务器...');
 
-          toast({
-            title: "头像上传成功",
-            description: "您的头像已更新",
-          });
-        } else {
-          throw new Error(result.error || '上传失败');
-        }
+        // 🚨 CRITICAL: 使用Authing的uploadAvatar API直接上传并更新用户信息
+        const authService = AuthService.getInstance();
+        const updatedUser = await authService.uploadUserAvatar(file);
+
+        console.log('✅ 头像上传成功，用户信息已更新:', updatedUser);
+
+        // 更新表单状态
+        const newAvatarUrl = updatedUser.avatar || updatedUser.photo || '';
+        setProfileForm(prev => ({
+          ...prev,
+          avatar: newAvatarUrl
+        }));
+
+        // 更新全局用户状态
+        updateUser({
+          ...updatedUser,
+          avatar: newAvatarUrl
+        });
+
+        // 强制刷新头像显示
+        setAvatarKey(prev => prev + 1);
+
+        toast({
+          title: "头像上传成功",
+          description: "您的头像已成功保存到服务器",
+        });
+
       } catch (error) {
-        console.error('头像上传失败:', error);
+        console.error('❌ 头像上传失败:', error);
+        const errorMessage = error instanceof Error ? error.message : '未知错误';
         toast({
           title: "上传失败",
-          description: "头像上传失败，请稍后重试",
+          description: `头像上传失败: ${errorMessage}`,
           variant: "destructive"
         });
       }
@@ -591,7 +638,8 @@ export default function ProfilePage() {
   const handleCopyInviteLink = () => {
     // 使用认证系统的用户ID
     const safeUserId = user?.id || 'unknown';
-    const inviteLink = `${window.location.origin}?ref=${safeUserId}`;
+    // 🛠️ FIXED: 使用标准的邀请链接格式
+    const inviteLink = `${window.location.origin}/register?inviter=${safeUserId}&t=${Date.now()}`;
     navigator.clipboard.writeText(inviteLink);
     toast({
       title: "邀请链接已复制",
@@ -618,7 +666,8 @@ export default function ProfilePage() {
   const handleInviteFriends = async () => {
     // 使用认证系统的用户ID
     const safeUserId = user?.id || 'unknown';
-    const inviteLink = `${window.location.origin}?ref=${safeUserId}`;
+    // 🛠️ FIXED: 使用标准的邀请链接格式
+    const inviteLink = `${window.location.origin}/register?inviter=${safeUserId}&t=${Date.now()}`;
 
     try {
       // 检查是否支持原生分享
@@ -812,7 +861,7 @@ export default function ProfilePage() {
                               </button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>注册时间：{userStats.registrationDate}</p>
+                              <p>注册时间：{registrationDate}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -1089,7 +1138,7 @@ export default function ProfilePage() {
 
                       <div className="flex gap-3">
                         <Input
-                          value={`${window.location.origin}?ref=${user?.id || 'unknown'}`}
+                          value={`${window.location.origin}/register?inviter=${user?.id || 'unknown'}`}
                           readOnly
                           className="text-sm h-11 border border-border rounded-lg bg-accent font-mono flex-1"
                         />

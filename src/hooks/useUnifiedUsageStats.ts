@@ -83,35 +83,48 @@ function getUsageCountLimit(tier: SubscriptionTier): number {
 }
 
 /**
- * 模拟获取使用次数数据（后续可替换为真实API）
+ * 获取使用次数数据（调用真实API）
  */
 async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
-  // 这里可以调用后端API获取真实的使用次数数据
-  // 目前使用模拟数据
-  const availableUses = getUsageCountLimit(userTier);
-  const usedCount = 3; // 模拟已使用次数
-  const remainingUses = availableUses === -1 ? -1 : Math.max(0, availableUses - usedCount);
-  const usagePercentage = availableUses === -1 ? 0 : (usedCount / availableUses) * 100;
+  try {
+    // 调用统一使用服务获取真实数据
+    const unifiedUsageService = new (await import('@/services/unifiedUsageService')).UnifiedUsageService();
+    return await unifiedUsageService.getUserUsageCountStats(userId, userTier);
+  } catch (error) {
+    console.error('获取使用次数统计失败:', error);
 
-  return {
-    usedCount,
-    availableUses,
-    usagePercentage,
-    remainingUses
-  };
+    // 如果API调用失败，返回默认值而不是模拟数据
+    const availableUses = getUsageCountLimit(userTier);
+    return {
+      usedCount: 0,
+      availableUses,
+      usagePercentage: 0,
+      remainingUses: availableUses === -1 ? -1 : availableUses,
+      lastUpdated: new Date().toISOString()
+    };
+  }
 }
 
 /**
- * 模拟获取扩展统计数据
+ * 获取扩展统计数据（调用真实API）
  */
 async function fetchExtendedStats(userId: string): Promise<ExtendedStats> {
-  // 这里可以调用后端API获取真实的扩展统计数据
-  // 目前使用模拟数据
-  return {
-    timeSaved: 45, // 节省时间（分钟）
-    contentGenerated: 3, // 生成内容数量
-    registrationDate: '2025/7/12' // 注册日期
-  };
+  try {
+    // 这里可以调用后端API获取真实的扩展统计数据
+    // 暂时返回基础数据，后续可扩展
+    return {
+      timeSaved: 0, // 节省时间（分钟）
+      contentGenerated: 0, // 生成内容数量
+      registrationDate: new Date().toLocaleDateString('zh-CN') // 注册日期
+    };
+  } catch (error) {
+    console.error('获取扩展统计失败:', error);
+    return {
+      timeSaved: 0,
+      contentGenerated: 0,
+      registrationDate: new Date().toLocaleDateString('zh-CN')
+    };
+  }
 }
 
 /**

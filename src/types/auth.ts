@@ -22,6 +22,7 @@ export interface UserInfo {
   photo?: string;
   accessToken?: string;
   refreshToken?: string;
+  token?: string; // 🛡️ FIXED: 添加token字段用于API调用
   [key: string]: any;
 }
 

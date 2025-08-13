@@ -306,18 +306,18 @@ export async function checkNetworkConnectivity(): Promise<{
  * 启动网络监控
  */
 export function startNetworkMonitoring(): void {
-  console.log('🔍 启动网络连接监控...');
-  
-  // 定期检查网络状态
-  setInterval(async () => {
-    const status = await checkNetworkConnectivity();
-    
-    if (!status.isOnline) {
-      console.warn('⚠️ 网络连接问题:', status.recommendations);
-    }
-  }, 60000); // 每分钟检查一次
-  
-  console.log('✅ 网络监控已启动');
+  console.log('🔍 网络连接监控已禁用（避免CORS错误）');
+
+  // 注释掉自动网络检查，避免httpbin.org的CORS错误
+  // setInterval(async () => {
+  //   const status = await checkNetworkConnectivity();
+  //
+  //   if (!status.isOnline) {
+  //     console.warn('⚠️ 网络连接问题:', status.recommendations);
+  //   }
+  // }, 60000); // 每分钟检查一次
+
+  console.log('✅ 网络监控配置完成');
 }
 
 /**

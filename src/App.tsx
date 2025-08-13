@@ -19,6 +19,9 @@ import { setupGlobalTooltipSafety } from '@/utils/tooltipSafetyWrapper';
 // ✅ ENHANCED: 2025-08-06 阶段二系统逻辑完善 - 导入系统监控服务
 import { systemMonitorService } from '@/services/systemMonitorService';
 
+// 🚀 ENHANCED: 2025-08-13 导入优化的undefined防护系统
+import { startUndefinedProtectionSystem } from '@/utils/undefinedSystemMonitor';
+
 // 页面组件导入
 import HomePage from '@/pages/HomePage';
 import AboutPage from '@/pages/AboutPage';
@@ -53,6 +56,7 @@ import PrivacyPage from '@/pages/PrivacyPage';
 import EmojiPage from '@/pages/EmojiPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import SettingsPage from '@/pages/SettingsPage';
+import StorageSettingsPage from '@/pages/StorageSettingsPage';
 import AuthTestPage from '@/pages/AuthTestPage';
 import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
 import AuthingTestPage from '@/pages/AuthingTestPage';
@@ -76,6 +80,9 @@ import BlurEffectTestPage from '@/pages/BlurEffectTestPage';
 import DiscountTestPage from '@/pages/DiscountTestPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import PermissionSystemDemoPage from '@/pages/PermissionSystemDemoPage';
+import AuthingDebugPage from '@/pages/AuthingDebugPage';
+import UserPersistenceTestPage from '@/pages/UserPersistenceTestPage';
+
 
 /**
  * 条件性导航组件
@@ -110,6 +117,10 @@ function AppContent() {
     // 启动系统监控服务
     systemMonitorService.start();
     console.log('🚀 App: 系统监控服务已启动');
+
+    // 🚀 ENHANCED: 2025-08-13 启动优化的undefined防护系统
+    startUndefinedProtectionSystem();
+    console.log('🚀 App: 完整的undefined防护系统已启动');
 
     // 清理函数：组件卸载时停止监控服务
     return () => {
@@ -276,6 +287,12 @@ function AppContent() {
               <SettingsPage />
             </PermissionGuard>
           } />
+
+          <Route path="/storage-settings" element={
+            <PermissionGuard required="auth:required">
+              <StorageSettingsPage />
+            </PermissionGuard>
+          } />
           
           {/* 测试页面 */}
           <Route path="/ai-config-test" element={<AIConfigTestPage />} />
@@ -308,6 +325,9 @@ function AppContent() {
           <Route path="/discount-test" element={<DiscountTestPage />} />
           <Route path="/feature-showcase" element={<FeatureShowcasePage />} />
           <Route path="/permission-system-demo" element={<PermissionSystemDemoPage />} />
+          <Route path="/authing-debug" element={<AuthingDebugPage />} />
+          <Route path="/user-persistence-test" element={<UserPersistenceTestPage />} />
+
 
           {/* 历史记录页面 */}
           <Route path="/history" element={

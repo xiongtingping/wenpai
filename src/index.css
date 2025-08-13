@@ -2780,3 +2780,16 @@
     transform: scale(1) translateY(0);
   }
 }
+
+/* 🛡️ CRITICAL FIX: 修复Authing Guard中的undefinedundefined显示问题 */
+/* 为修复后的元素添加标识类 */
+.undefined-fixed {
+  /* 标记已修复的元素 */
+}
+
+/* Authing Guard容器样式优化 */
+[class*="authing"], [id*="authing"], .authing-guard {
+  /* 确保文本正常显示 */
+  font-family: inherit;
+  line-height: inherit;
+}

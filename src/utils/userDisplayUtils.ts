@@ -41,26 +41,63 @@ export interface UserInfo {
 export function getUserDisplayName(user?: UserInfo | null, fallback: string = '访客'): string {
   if (!user) return fallback;
 
-  // 🚨 FIXED: 强制修复 undefinedundefined 问题
-  const safeNickname = user.nickname && user.nickname !== 'undefined' ? user.nickname : '';
-  const safeUsername = user.username && user.username !== 'undefined' ? user.username : '';
-  const safeEmail = user.email && user.email !== 'undefined' ? user.email : '';
+  // 🚨 ENHANCED: 2025-08-13 优化undefined检测逻辑
+  const safeNickname = sanitizeStringField(user.nickname);
+  const safeUsername = sanitizeStringField(user.username);
+  const safeEmail = sanitizeStringField(user.email);
 
+  // 优先级处理：nickname > username > email > fallback
   const result = safeNickname || safeUsername || safeEmail || fallback;
 
-  // 最终安全检查：如果仍然包含 undefined，强制返回 fallback
-  if (result === 'undefined' || result.includes('undefined')) {
-    console.warn('🛠️ 强制修复 undefined 问题，返回 fallback:', fallback);
+  // 🛡️ ENHANCED: 多层安全检查
+  const finalResult = validateAndFixResult(result, fallback, 'getUserDisplayName', user);
+
+  return finalResult;
+}
+
+/**
+ * 🔧 ENHANCED: 字符串字段安全化处理
+ * 统一处理所有可能的undefined情况
+ */
+function sanitizeStringField(value: any): string {
+  // 处理各种undefined情况
+  if (value === undefined || value === null) return '';
+  if (typeof value !== 'string') return '';
+  if (value === 'undefined' || value === 'null') return '';
+  if (value.trim() === '') return '';
+
+  // 检查是否包含undefined拼接
+  if (value.includes('undefined')) {
+    console.warn('🛠️ 检测到字段包含undefined，进行清理:', value);
+    return value.replace(/undefined/g, '').trim();
+  }
+
+  return value.trim();
+}
+
+/**
+ * 🔧 ENHANCED: 结果验证和修复
+ * 最终的安全检查和修复逻辑
+ */
+function validateAndFixResult(result: string, fallback: string, functionName: string, user?: any): string {
+  // 基础检查
+  if (!result || result === 'undefined' || result.includes('undefined')) {
+    if (import.meta.env.DEV) {
+      console.warn(`🛠️ ${functionName}: 强制修复undefined问题`, {
+        originalResult: result,
+        fallback,
+        user: user ? { id: user.id, nickname: user.nickname, username: user.username } : null
+      });
+    }
     return fallback;
   }
 
-  // 运行时检查：警告可能的undefined拼接
-  if (import.meta.env.DEV && (result === 'undefined' || result.includes('undefined'))) {
-    console.warn('⚠️ 检测到可能的undefined拼接问题:', {
-      user,
+  // 运行时开发环境检查
+  if (import.meta.env.DEV && result.toLowerCase().includes('undefined')) {
+    console.warn(`⚠️ ${functionName}: 检测到潜在undefined问题:`, {
       result,
-      fallback,
-      stack: new Error().stack
+      user,
+      stack: new Error().stack?.split('\n').slice(0, 3)
     });
   }
 
@@ -80,14 +117,22 @@ export function getUserAvatar(user?: UserInfo | null): string {
     return `https://api.dicebear.com/7.x/initials/svg?seed=Guest`;
   }
 
-  // 优先使用用户设置的头像
-  if (user.avatar) {
-    return user.avatar;
+  // 🚨 ENHANCED: 使用统一的字段安全化处理
+  const safeAvatar = sanitizeStringField(user.avatar);
+  const safePhoto = sanitizeStringField(user.photo);
+  const safePicture = sanitizeStringField(user.picture);
+
+  // 优先级：avatar > photo > picture > 生成默认头像
+  if (safeAvatar) {
+    return validateAndFixResult(safeAvatar, '', 'getUserAvatar', user);
   }
 
-  // 其次使用photo字段
-  if (user.photo) {
-    return user.photo;
+  if (safePhoto) {
+    return validateAndFixResult(safePhoto, '', 'getUserAvatar', user);
+  }
+
+  if (safePicture) {
+    return validateAndFixResult(safePicture, '', 'getUserAvatar', user);
   }
 
   // 最后生成默认随机头像

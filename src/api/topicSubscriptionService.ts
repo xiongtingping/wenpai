@@ -18,6 +18,7 @@ import {
   notifySubscriptionStatus
 } from '@/services/notificationService';
 import { fetchHotTopics, DailyHotItem, DailyHotResponse } from './hotTopicsService';
+import { generateStorageKey } from '@/utils/userDataIsolation';
 
 /**
  * 订阅话题接口
@@ -179,11 +180,13 @@ const DEFAULT_SEARCH_SOURCES: SearchSource[] = [
 ];
 
 /**
- * 获取订阅话题列表
+ * 获取订阅话题列表 - 支持用户ID隔离
  */
-export function getTopicSubscriptions(): TopicSubscription[] {
+export function getTopicSubscriptions(user?: any): TopicSubscription[] {
   try {
-    const stored = localStorage.getItem('topic-subscriptions');
+    // 🔧 FIXED: 使用用户ID隔离存储键
+    const storageKey = generateStorageKey('topic-subscriptions', user);
+    const stored = localStorage.getItem(storageKey);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
     console.error('获取话题订阅失败:', error);
@@ -214,10 +217,10 @@ export function markSubscriptionAsViewed(subscriptionId: string): TopicSubscript
 }
 
 /**
- * 标记订阅有新结果（显示红点）
+ * 标记订阅有新结果（显示红点）- 支持用户ID隔离
  */
-export function markSubscriptionHasNewResults(subscriptionId: string, newResultsCount: number = 1): TopicSubscription | null {
-  const subscriptions = getTopicSubscriptions();
+export function markSubscriptionHasNewResults(subscriptionId: string, newResultsCount: number = 1, user?: any): TopicSubscription | null {
+  const subscriptions = getTopicSubscriptions(user);
   const index = subscriptions.findIndex(s => s.id === subscriptionId);
 
   if (index !== -1) {
@@ -228,7 +231,7 @@ export function markSubscriptionHasNewResults(subscriptionId: string, newResults
       lastCheckAt: new Date().toISOString()
     };
 
-    saveTopicSubscriptions(subscriptions);
+    saveTopicSubscriptions(subscriptions, user);
     return subscriptions[index];
   }
 
@@ -244,87 +247,89 @@ export function getNewResultsCount(): number {
 }
 
 /**
- * 保存订阅话题列表
+ * 保存订阅话题列表 - 支持用户ID隔离
  */
-export function saveTopicSubscriptions(subscriptions: TopicSubscription[]): void {
+export function saveTopicSubscriptions(subscriptions: TopicSubscription[], user?: any): void {
   try {
-    localStorage.setItem('topic-subscriptions', JSON.stringify(subscriptions));
+    // 🔧 FIXED: 使用用户ID隔离存储键
+    const storageKey = generateStorageKey('topic-subscriptions', user);
+    localStorage.setItem(storageKey, JSON.stringify(subscriptions));
   } catch (error) {
     console.error('保存话题订阅失败:', error);
   }
 }
 
 /**
- * 添加新的话题订阅
+ * 添加新的话题订阅 - 支持用户ID隔离
  */
-export function addTopicSubscription(subscription: Omit<TopicSubscription, 'id' | 'createdAt' | 'updatedAt'>): TopicSubscription {
-  const subscriptions = getTopicSubscriptions();
+export function addTopicSubscription(subscription: Omit<TopicSubscription, 'id' | 'createdAt' | 'updatedAt'>, user?: any): TopicSubscription {
+  const subscriptions = getTopicSubscriptions(user);
   const newSubscription: TopicSubscription = {
     ...subscription,
     id: generateId(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
-  
+
   subscriptions.push(newSubscription);
-  saveTopicSubscriptions(subscriptions);
-  
+  saveTopicSubscriptions(subscriptions, user);
+
   // 发送通知
   notifySubscriptionStatus('created', newSubscription.keyword);
-  
+
   return newSubscription;
 }
 
 /**
- * 更新话题订阅
+ * 更新话题订阅 - 支持用户ID隔离
  */
-export function updateTopicSubscription(id: string, updates: Partial<TopicSubscription>): TopicSubscription | null {
-  const subscriptions = getTopicSubscriptions();
+export function updateTopicSubscription(id: string, updates: Partial<TopicSubscription>, user?: any): TopicSubscription | null {
+  const subscriptions = getTopicSubscriptions(user);
   const index = subscriptions.findIndex(s => s.id === id);
-  
+
   if (index === -1) return null;
-  
+
   const oldSubscription = subscriptions[index];
   subscriptions[index] = {
     ...oldSubscription,
     ...updates,
     updatedAt: new Date().toISOString()
   };
-  
-  saveTopicSubscriptions(subscriptions);
-  
+
+  saveTopicSubscriptions(subscriptions, user);
+
   // 发送通知
   notifySubscriptionStatus('updated', subscriptions[index].keyword);
-  
+
   return subscriptions[index];
 }
 
 /**
- * 删除话题订阅
+ * 删除话题订阅 - 支持用户ID隔离
  */
-export function deleteTopicSubscription(id: string): boolean {
-  const subscriptions = getTopicSubscriptions();
+export function deleteTopicSubscription(id: string, user?: any): boolean {
+  const subscriptions = getTopicSubscriptions(user);
   const subscription = subscriptions.find(s => s.id === id);
   const filtered = subscriptions.filter(s => s.id !== id);
-  
+
   if (filtered.length === subscriptions.length) {
     return false; // 没有找到要删除的订阅
   }
-  
-  saveTopicSubscriptions(filtered);
-  
+
+  saveTopicSubscriptions(filtered, user);
+
   // 发送通知
   if (subscription) {
     notifySubscriptionStatus('deleted', subscription.keyword);
   }
-  
+
   return true;
 }
 
 /**
- * 监控话题关键词
+ * 监控话题关键词 - 支持用户ID隔离
  */
-export async function monitorTopic(subscription: TopicSubscription): Promise<TopicMonitorResult[]> {
+export async function monitorTopic(subscription: TopicSubscription, user?: any): Promise<TopicMonitorResult[]> {
   const results: TopicMonitorResult[] = [];
 
   try {
@@ -392,11 +397,11 @@ export async function monitorTopic(subscription: TopicSubscription): Promise<Top
     // 更新最后检查时间
     updateTopicSubscription(subscription.id, {
       lastCheckAt: new Date().toISOString()
-    });
+    }, user);
 
     // 如果有新结果，标记红点
     if (sortedResults.length > 0) {
-      markSubscriptionHasNewResults(subscription.id, sortedResults.length);
+      markSubscriptionHasNewResults(subscription.id, sortedResults.length, user);
       console.log(`🔴 订阅 "${subscription.keyword}" 发现 ${sortedResults.length} 个新结果，已标记红点`);
     }
 
@@ -923,43 +928,43 @@ function generateId(): string {
 }
 
 /**
- * 检查订阅更新
+ * 检查订阅更新 - 支持用户ID隔离
  */
-export async function checkAllSubscriptions(): Promise<Record<string, TopicMonitorResult[]>> {
-  const subscriptions = getTopicSubscriptions().filter(s => s.isActive);
+export async function checkAllSubscriptions(user?: any): Promise<Record<string, TopicMonitorResult[]>> {
+  const subscriptions = getTopicSubscriptions(user).filter(s => s.isActive);
   const results: Record<string, TopicMonitorResult[]> = {};
-  
+
   for (const subscription of subscriptions) {
     const now = new Date();
     const lastCheck = subscription.lastCheckAt ? new Date(subscription.lastCheckAt) : null;
-    
+
     // 检查是否需要更新
     if (!lastCheck || (now.getTime() - lastCheck.getTime()) >= subscription.checkInterval * 60 * 1000) {
-      const monitorResults = await monitorTopic(subscription);
+      const monitorResults = await monitorTopic(subscription, user);
       results[subscription.id] = monitorResults;
     }
   }
-  
+
   return results;
 }
 
 /**
- * 启用/禁用订阅
+ * 启用/禁用订阅 - 支持用户ID隔离
  */
-export function toggleSubscription(id: string, isActive: boolean): boolean {
-  const subscription = updateTopicSubscription(id, { isActive });
+export function toggleSubscription(id: string, isActive: boolean, user?: any): boolean {
+  const subscription = updateTopicSubscription(id, { isActive }, user);
   if (subscription) {
-    notifySubscriptionStatus(isActive ? 'enabled' : 'disabled', subscription.name);
+    notifySubscriptionStatus(isActive ? 'enabled' : 'disabled', subscription.keyword);
     return true;
   }
   return false;
 }
 
 /**
- * 获取订阅统计信息
+ * 获取订阅统计信息 - 支持用户ID隔离
  */
-export function getSubscriptionStats() {
-  const subscriptions = getTopicSubscriptions();
+export function getSubscriptionStats(user?: any) {
+  const subscriptions = getTopicSubscriptions(user);
   const activeCount = subscriptions.filter(s => s.isActive).length;
   const totalCount = subscriptions.length;
   const notificationEnabledCount = subscriptions.filter(s => s.notificationEnabled).length;
