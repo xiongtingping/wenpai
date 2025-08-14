@@ -26,6 +26,7 @@
     "@authing/guard": "5.3.9",
     "@authing/guard-react": "5.3.9",
     "@authing/react18-ui-components": "^4.5.43",
+    "@authing/web": "^5.1.20",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -118,7 +119,6 @@
     "zustand": "^4.0.0"
   },
   "devDependencies": {
-    "@authing/web": "5.1.20",
     "@eslint/js": "^9.22.0",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
