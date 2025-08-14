@@ -148,12 +148,22 @@ function getGuardInstance() {
       // 🔧 添加更多UI配置，防止undefined显示
       title: '文派登录',
       logo: '',
-      // 🔧 强制指定登录方式，避免undefined
-      defaultScenes: 'login',
+      // 🔧 CRITICAL FIX: 修正参数名 defaultScenes -> defaultScene
+      defaultScene: 'login',
       // 🔧 禁用可能导致undefined的功能
       isSSO: false,
       // 🔧 确保正确的响应类型
-      responseType: 'code'
+      responseType: 'code',
+      // 🔧 CRITICAL FIX: 添加更多登录配置，确保完整的登录表单
+      target: '#authing_guard_container',
+      // 🔧 确保显示完整的登录表单
+      hideQRCode: false,
+      hideUP: false,
+      hideSocial: false,
+      hideRegister: false,
+      hidePhone: false,
+      hideUsername: false,
+      hideForgetPassword: false
     });
 
     console.log('✅ Authing Guard实例初始化成功');
@@ -356,7 +366,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       
       // 使用 Guard 弹窗登录
       if (guardRef.current) {
-        guardRef.current.show();
+        // 🔧 CRITICAL FIX: 明确指定显示登录表单
+        guardRef.current.show('login');
 
         // 🔧 ULTIMATE FIX: 超强力undefined修复系统
         setTimeout(() => {
@@ -521,7 +532,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       
       // 使用 Guard 弹窗注册
       if (guardRef.current) {
-        guardRef.current.show();
+        // 🔧 CRITICAL FIX: 明确指定显示注册表单
+        guardRef.current.show('register');
       } else {
         throw new Error('Guard 实例未初始化');
       }
