@@ -477,6 +477,96 @@ class PromptSystemManager {
       lastUpdated: '2025-01-05'
     });
 
+    // 🔧 FIXED: 添加缺少的提示词类型注册
+
+    // 标题评分提示词
+    this.registerPrompt(PromptType.TITLE_SCORING, {
+      type: PromptType.TITLE_SCORING,
+      systemPrompt: '你是专业的标题评分专家，负责对标题进行多维度评分。',
+      userPrompt: '请对以下标题进行评分：{{title}}，原文内容：{{content}}，平台：{{platform}}',
+      parameters: ['title', 'content', 'platform'],
+      description: '标题评分提示词，对标题质量进行量化评估',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
+    // 内容形式生成提示词
+    this.registerPrompt(PromptType.CONTENT_FORM_GENERATION, {
+      type: PromptType.CONTENT_FORM_GENERATION,
+      systemPrompt: '你是内容形式生成专家，擅长将内容转换为不同的表达形式。',
+      userPrompt: '请将以下内容转换为{{formType}}形式：{{content}}，目标平台：{{platform}}',
+      parameters: ['content', 'formType', 'platform'],
+      description: '内容形式生成提示词，转换内容为指定形式',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
+    // 平台适配提示词
+    this.registerPrompt(PromptType.PLATFORM_ADAPTATION, {
+      type: PromptType.PLATFORM_ADAPTATION,
+      systemPrompt: '你是平台适配专家，了解各个社交媒体平台的特点和用户偏好。',
+      userPrompt: '请将以下内容适配到{{platform}}平台：{{content}}，保持核心信息不变',
+      parameters: ['content', 'platform'],
+      description: '平台适配提示词，根据平台特征调整内容',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
+    // 创意魔方提示词
+    this.registerPrompt(PromptType.CREATIVE_CUBE_PROMPT, {
+      type: PromptType.CREATIVE_CUBE_PROMPT,
+      systemPrompt: '你是创意魔方专家，擅长生成九宫格创意内容。',
+      userPrompt: '请为{{topic}}生成九宫格创意内容，目标受众：{{audience}}，使用场景：{{useCase}}',
+      parameters: ['topic', 'audience', 'useCase'],
+      description: '创意魔方提示词，生成九宫格创意内容',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
+    // 品牌调性分析提示词
+    this.registerPrompt(PromptType.BRAND_TONE_ANALYSIS, {
+      type: PromptType.BRAND_TONE_ANALYSIS,
+      systemPrompt: '你是品牌调性分析专家，能够准确识别和分析品牌的语言风格和调性。',
+      userPrompt: '请分析以下品牌内容的调性特征：{{brandContent}}，品牌名称：{{brandName}}',
+      parameters: ['brandContent', 'brandName'],
+      description: '品牌调性分析提示词，识别品牌语言风格',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
+    // 品牌关键词提取提示词
+    this.registerPrompt(PromptType.BRAND_KEYWORD_EXTRACTION, {
+      type: PromptType.BRAND_KEYWORD_EXTRACTION,
+      systemPrompt: '你是品牌关键词提取专家，能够从品牌内容中提取核心关键词。',
+      userPrompt: '请从以下品牌内容中提取关键词：{{brandContent}}，提取类型：{{extractionType}}',
+      parameters: ['brandContent', 'extractionType'],
+      description: '品牌关键词提取提示词，提取品牌核心关键词',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
+    // 文档分析提示词
+    this.registerPrompt(PromptType.DOCUMENT_ANALYSIS, {
+      type: PromptType.DOCUMENT_ANALYSIS,
+      systemPrompt: '你是文档分析专家，能够深入分析文档内容并提供专业见解。',
+      userPrompt: '请分析以下文档内容：{{documentContent}}，分析维度：{{analysisType}}',
+      parameters: ['documentContent', 'analysisType'],
+      description: '文档分析提示词，深度分析文档内容',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
+    // 内容摘要提示词
+    this.registerPrompt(PromptType.CONTENT_SUMMARY, {
+      type: PromptType.CONTENT_SUMMARY,
+      systemPrompt: '你是内容摘要专家，能够准确提取内容要点并生成简洁摘要。',
+      userPrompt: '请为以下内容生成摘要：{{content}}，摘要长度：{{length}}字',
+      parameters: ['content', 'length'],
+      description: '内容摘要提示词，生成内容核心摘要',
+      version: '1.0.0',
+      lastUpdated: '2025-01-14'
+    });
+
     this.initialized = true;
     console.log('🚀 提示词系统初始化完成');
   }
