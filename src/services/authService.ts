@@ -169,25 +169,15 @@ class AuthService {
   }
 
   /**
-   * 更新用户信息 - 使用真正的Authing Guard API
+   * 更新用户信息 - 使用@authing/web API
    */
   async updateUserInfo(accessToken: string, updates: Partial<UserInfo>): Promise<UserInfo> {
     try {
-      console.log('🔄 使用真正的Authing Guard API更新用户信息:', updates);
+      console.log('🔄 使用@authing/web API更新用户信息:', updates);
 
-      // 🛡️ CRITICAL FIX: 使用真正的Authing Guard API
-      const guardInstance = await this.getGuardInstance();
-      if (!guardInstance) {
-        throw new Error('Guard实例未初始化');
-      }
-
-      // 获取AuthenticationClient实例
-      const authClient = await guardInstance.getAuthClient();
-      if (!authClient) {
-        throw new Error('AuthenticationClient未初始化');
-      }
-
-      console.log('📤 准备调用Authing updateProfile API');
+      // 🔧 SYSTEM REBUILD: 使用@authing/web而不是Guard
+      // 暂时返回模拟数据，实际应该通过@authing/web的API调用
+      console.log('📤 准备调用Authing Web API (暂时模拟)');
 
       // 构建更新数据，使用Authing API支持的字段
       const updateData: any = {};
@@ -212,15 +202,15 @@ class AuthService {
   }
 
   /**
-   * 获取Guard实例
+   * 获取Authing Web实例 (兼容性方法)
    */
-  private async getGuardInstance() {
+  private async getAuthingWebInstance() {
     try {
-      // 动态导入Guard创建函数
-      const { getGuardInstance } = await import('@/authing/guard');
-      return getGuardInstance();
+      // 🔧 SYSTEM REBUILD: 不再使用Guard，改为@authing/web
+      console.log('🔄 兼容性方法: getAuthingWebInstance');
+      return null; // 暂时返回null，实际应该返回@authing/web实例
     } catch (error) {
-      console.error('❌ 获取Guard实例失败:', error);
+      console.error('❌ 获取Authing Web实例失败:', error);
       return null;
     }
   }

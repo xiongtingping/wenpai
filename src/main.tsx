@@ -1,6 +1,6 @@
 import './index.css';
-// ✅ FIXED: 2025-07-25 添加Authing Guard样式文件，修复图标显示异常
-import '@authing/guard/dist/esm/guard.min.css';
+// 🔧 SYSTEM REBUILD: 移除Guard CSS，使用@authing/web不需要额外样式
+// import '@authing/guard/dist/esm/guard.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

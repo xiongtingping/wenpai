@@ -13,5 +13,21 @@ description: "Example description"
     "禁止使用静态模板、占位内容、固定延迟模拟接口响应",
     "禁止使用固定响应字符串或数据结构替代真实调用"
   ],
-  "action": "检测到本地模拟或降级调用时，阻止任务执行并提示必须连接真实 API 服务。"
+  "action": "检测到本地模拟或降级调用时，阻止任务执行并提示必须连接真实 API 服务。",
+  "keywords": [
+    "禁止mock",
+    "mock数据",
+    "本地mock",
+    "降级方案",
+    "静态模板",
+    "占位内容",
+    "固定延迟",
+    "固定响应",
+    "硬编码响应",
+    "假接口",
+    "fake API",
+    "stub",
+    "placeholder response",
+    "fake response"
+  ]
 }

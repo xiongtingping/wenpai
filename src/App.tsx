@@ -3,7 +3,9 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { TopNavigation } from '@/components/layout/TopNavigation';
 import { ScrollManager } from '@/components/layout/ScrollManager';
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
+// 🔧 SYSTEM REBUILD: 使用嵌套Provider结构，保持向后兼容
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
+import { AuthingWebProvider } from '@/contexts/AuthingWebContext';
 import { UserDataIsolationProvider } from '@/hooks/useUserDataIsolationInit';
 import PageTracker from '@/components/analytics/PageTracker';
 import { Toaster } from '@/components/ui/toaster';
@@ -340,20 +342,22 @@ function AppContent() {
  */
 export default function App() {
   return (
-    <UnifiedAuthProvider>
-      <UserDataIsolationProvider
-        config={{
-          enableLogging: import.meta.env.DEV,
-          autoCleanupOnLogout: false,
-          services: {
-            payment: true,
-            hashtag: true
-          }
-        }}
-      >
-        <AppContent />
-        <Toaster />
-      </UserDataIsolationProvider>
-    </UnifiedAuthProvider>
+    <AuthingWebProvider>
+      <UnifiedAuthProvider>
+        <UserDataIsolationProvider
+          config={{
+            enableLogging: import.meta.env.DEV,
+            autoCleanupOnLogout: false,
+            services: {
+              payment: true,
+              hashtag: true
+            }
+          }}
+        >
+          <AppContent />
+          <Toaster />
+        </UserDataIsolationProvider>
+      </UnifiedAuthProvider>
+    </AuthingWebProvider>
   );
 }

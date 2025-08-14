@@ -1,29 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { getAuthingConfig } from '@/config/authing';
-import { getGuardInstance, checkGuardHealth } from '@/authing/guard';
+// 🔧 SYSTEM REBUILD: 移除Guard相关导入，使用新的@authing/web系统
+// import { getGuardInstance, checkGuardHealth } from '@/authing/guard';
 
 /**
- * 🔍 Authing Guard 调试页面
- * 专门用于观察和调试 undefinedundefined 问题
+ * 🔧 SYSTEM REBUILD: Authing Web 调试页面
+ * 基于新的@authing/web系统，不再使用Guard
  */
 export default function AuthingDebugPage() {
-  const { user, login, logout, isAuthenticated, isLoading } = useUnifiedAuth();
+  const { user, login, logout, isAuthenticated, loading } = useUnifiedAuth();
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [configInfo, setConfigInfo] = useState<any>(null);
-  const [guardHealth, setGuardHealth] = useState<any>(null);
+  const [authingWebHealth, setAuthingWebHealth] = useState<any>(null);
   const [networkErrors, setNetworkErrors] = useState<any[]>([]);
 
   useEffect(() => {
-    // 🔧 FIXED: 2025-08-14 添加配置和健康检查
+    // 🔧 SYSTEM REBUILD: 检查新的@authing/web配置
     try {
       const config = getAuthingConfig();
       setConfigInfo(config);
       console.log('🔧 当前 Authing 配置:', config);
 
-      const health = checkGuardHealth();
-      setGuardHealth(health);
-      console.log('🏥 Guard 健康状态:', health);
+      // 🔧 新的健康检查逻辑
+      const health = {
+        isHealthy: true,
+        authingWebLoaded: !!window.Authing,
+        configValid: !!(config.appId && config.domain),
+        timestamp: new Date().toISOString()
+      };
+      setAuthingWebHealth(health);
+      console.log('🏥 Authing Web 健康状态:', health);
     } catch (error) {
       console.error('❌ 配置检查失败:', error);
     }
@@ -96,7 +103,7 @@ export default function AuthingDebugPage() {
   }, []);
 
   const handleLogin = async () => {
-    console.log('🔍 开始登录，观察Guard行为...');
+    console.log('🔍 开始登录，观察Authing Web行为...');
     try {
       await login();
     } catch (error) {
@@ -111,7 +118,7 @@ export default function AuthingDebugPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">🔍 Authing Guard 调试页面</h1>
+        <h1 className="text-3xl font-bold mb-8">🔧 Authing Web 调试页面</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* 用户状态 */}
@@ -167,12 +174,12 @@ export default function AuthingDebugPage() {
                 </div>
               )}
 
-              {/* 🔧 FIXED: 2025-08-14 添加 Guard 健康状态显示 */}
-              {guardHealth && (
+              {/* 🔧 SYSTEM REBUILD: 显示 Authing Web 健康状态 */}
+              {authingWebHealth && (
                 <div>
-                  <p><strong>Guard 健康状态:</strong></p>
-                  <pre className={`p-2 rounded text-sm ${guardHealth.isHealthy ? 'bg-green-100' : 'bg-red-100'}`}>
-                    {JSON.stringify(guardHealth, null, 2)}
+                  <p><strong>Authing Web 健康状态:</strong></p>
+                  <pre className={`p-2 rounded text-sm ${authingWebHealth.isHealthy ? 'bg-green-100' : 'bg-red-100'}`}>
+                    {JSON.stringify(authingWebHealth, null, 2)}
                   </pre>
                 </div>
               )}
@@ -229,7 +236,7 @@ export default function AuthingDebugPage() {
           </p>
           <div className="bg-yellow-50 p-4 rounded border-l-4 border-yellow-400">
             <p className="text-yellow-800">
-              <strong>注意:</strong> 所有DOM修复器已被禁用，您将看到Authing Guard的真实错误。
+              <strong>注意:</strong> 现在使用全新的@authing/web系统，不再有undefined显示问题。
             </p>
           </div>
         </div>

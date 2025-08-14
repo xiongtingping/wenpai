@@ -13,5 +13,6 @@ description: "Example description"
     "禁止在业务逻辑中直接依赖浏览器原生弹窗阻塞流程",
     "组件必须支持统一样式和可定制交互逻辑"
   ],
-  "action": "检测到 window.confirm 调用时阻止执行，并提示使用指定的 UI 对话框组件替代。"
+  "action": "检测到 window.confirm 调用时阻止执行，并提示使用指定的 UI 对话框组件替代。",
+  "keywords": ["UI", "window.confirm", "Dialog", "弹窗替代", "交互一致性"]
 }

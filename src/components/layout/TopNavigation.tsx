@@ -9,7 +9,9 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+// 🔧 SYSTEM REBUILD: 切换到新的@authing/web认证系统
+// import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useAuthingWeb } from '@/contexts/AuthingWebContext';
 import { usePermission } from '@/hooks/usePermission';
 import { isDevelopment } from '@/utils/env-validator';
 import { UserAvatar } from '@/components/auth/UserAvatar';
@@ -42,7 +44,7 @@ import { LogoWithText } from '@/components/ui/ThemeAwareLogo';
 export const TopNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, login } = useUnifiedAuth();
+  const { user, isAuthenticated, login } = useAuthingWeb();
   const vipPermission = usePermission('vip:required');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [permissionLoading, setPermissionLoading] = useState(false);
