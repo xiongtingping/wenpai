@@ -10,9 +10,8 @@
  * 🔓 UNLOCKED: 禁止在其他地方直接 new Guard()
  */
 
-// 🔧 FIXED: 2025-08-13 修复 Guard 导入和样式问题
-// 使用正确的 Guard 导入方式，确保样式正确加载
-import { Guard } from '@authing/guard-react';
+// 🔧 使用 Web 版 Guard 类（非 React Provider）
+import { Guard } from '@authing/guard';
 import { getAuthingConfig } from '@/config/authing';
 
 let guardInstance: Guard | null = null;
@@ -57,14 +56,7 @@ export function createGuardInstance(): Guard {
       host: config.host,
       redirectUri: config.redirectUri,
       mode: 'modal',  // 🎯 弹窗模式
-      lang: 'zh-CN',  // 中文界面
-      // 🔧 最小化配置，避免配置冲突导致弹窗空白
-      title: '文派登录',
-      autoRegister: true,
-      // 基础弹窗配置
-      escCloseable: true,
-      maskCloseable: true,
-      clickCloseable: false
+      lang: 'zh-CN'  // 中文界面
     });
 
     // 🧪 实例验证
