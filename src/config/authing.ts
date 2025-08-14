@@ -42,10 +42,24 @@ let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 动态获取回调URI
-  const redirectUri = typeof window !== 'undefined'
-    ? `${window.location.origin}/callback`
-    : getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
+  // 动态获取回调URI - 优先使用环境变量配置
+  let redirectUri;
+  if (typeof window !== 'undefined') {
+    // 检查是否为生产环境
+    const isProduction = window.location.hostname.includes('netlify.app') ||
+                        window.location.hostname === 'wenpai.netlify.app';
+
+    if (isProduction) {
+      // 生产环境使用固定的配置URL
+      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_PROD', 'https://wenpai.netlify.app/callback');
+    } else {
+      // 开发环境使用开发配置
+      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
+    }
+  } else {
+    // 服务端渲染时使用开发配置
+    redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
+  }
 
   cachedConfig = {
     appId: APP_ID,
