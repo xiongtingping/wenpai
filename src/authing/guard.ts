@@ -10,7 +10,9 @@
  * 🔓 UNLOCKED: 禁止在其他地方直接 new Guard()
  */
 
-import { Guard } from '@authing/guard';
+// 🔧 FIXED: 2025-08-13 修复 Guard 导入和样式问题
+// 使用正确的 Guard 导入方式，确保样式正确加载
+import { Guard } from '@authing/guard-react';
 import { getAuthingConfig } from '@/config/authing';
 
 let guardInstance: Guard | null = null;
@@ -49,19 +51,20 @@ export function createGuardInstance(): Guard {
 
   try {
     // ✅ 正确的Guard初始化格式（统一配置对象）
+    // 🔧 FIXED: 2025-08-14 使用最简化配置，确保弹窗正常显示
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      // userPoolId: // 已移除 - 使用 appId config.userPoolId,
-      mode: 'modal',  // 🎯 修复：使用弹窗模式，支持 guard.show() 方法
-      // 🌐 语言配置 - 修复字符编码问题
-      lang: 'zh-CN',
-      // UI配置 - 移除不支持的属性
-      // autoFocus: false, // 该属性在当前版本中不支持
-      // escCloseable: true, // 该属性在当前版本中不支持
-      // clickCloseable: true, // 该属性在当前版本中不支持
-      // maskCloseable: true // 该属性在当前版本中不支持
+      mode: 'modal',  // 🎯 弹窗模式
+      lang: 'zh-CN',  // 中文界面
+      // 🔧 最小化配置，避免配置冲突导致弹窗空白
+      title: '文派登录',
+      autoRegister: true,
+      // 基础弹窗配置
+      escCloseable: true,
+      maskCloseable: true,
+      clickCloseable: false
     });
 
     // 🧪 实例验证

@@ -1,10 +1,9 @@
 import './index.css';
-// ✅ FIXED: 2025-07-25 Authing Guard样式导入已封装
-// 🐛 问题原因：缺少Guard CSS样式文件导致图标显示异常
-// 🔧 修复方式：在应用入口导入官方CSS文件
-// 📌 已封装：此导入已验证修复图标问题，请勿修改
-// 🔓 UNLOCKED: AI 禁止修改此CSS导入
-import '@authing/guard/dist/esm/guard.min.css';
+// ✅ FIXED: 2025-08-13 修复 Authing Guard 弹窗空白问题
+// 🐛 问题原因：使用了错误的 CSS 文件路径，导致弹窗样式缺失
+// 🔧 修复方式：导入正确的 Guard React CSS 文件
+// 📌 重要：必须使用 guard-react 的 CSS 文件
+import '@authing/guard-react/dist/esm/guard.min.css';
 
 // 🔧 FIXED: 2025-08-13 导入自定义 Authing Guard 样式
 // 确保弹窗正确显示和样式覆盖

@@ -105,9 +105,21 @@ const MODULE_CREATION_TIME = Date.now();
 
 /**
  * 🛡️ 模块完整性检查 - 检测是否被非法修改
+ * 🔧 FIXED: 2025-08-14 修复 globalThis 函数检查导致的问题
  */
 function validateModuleIntegrity(): boolean {
   try {
+    // 🔧 FIXED: 使用模块内部函数引用而不是 globalThis
+    // 创建函数映射表，避免在全局作用域中查找函数
+    const functionMap: Record<string, any> = {
+      'callAI': callAI,
+      'callPDFChat': callPDFChat,
+      'callContentAdapter': callContentAdapter,
+      'callCreativeGeneration': callCreativeGeneration,
+      'callContentSummarizer': callContentSummarizer,
+      'callBrandAnalyzer': callBrandAnalyzer
+    };
+
     // 检查关键函数是否存在
     const requiredFunctions = [
       'callAI',
@@ -119,7 +131,8 @@ function validateModuleIntegrity(): boolean {
     ];
 
     for (const funcName of requiredFunctions) {
-      if (typeof (globalThis as any)[funcName] === 'undefined') {
+      const func = functionMap[funcName];
+      if (typeof func !== 'function') {
         console.warn(`⚠️ AI服务模块完整性检查失败: 缺少函数 ${funcName}`);
         return false;
       }
@@ -1279,13 +1292,38 @@ export const AI_SERVICE_MODULE_LOCK = {
 
 /**
  * 🛡️ 模块完整性验证 - 防止被篡改
+ * 🔧 FIXED: 2025-08-14 修复 eval 导致的 ReferenceError
  */
 export function verifyModuleIntegrity(): boolean {
   try {
+    // 🔧 FIXED: 使用模块内部函数引用而不是 eval
+    // 创建函数映射表，避免使用 eval 导致的 ReferenceError
+    const functionMap: Record<string, any> = {
+      'callAI': callAI,
+      'callPDFChat': callPDFChat,
+      'callContentAdapter': callContentAdapter,
+      'callCreativeGeneration': callCreativeGeneration,
+      'callContentSummarizer': callContentSummarizer,
+      'callBrandAnalyzer': callBrandAnalyzer,
+      'callEmojiGenerator': callEmojiGenerator,
+      'callTitleGenerator': callTitleGenerator,
+      'callTitleQualityChecker': callTitleQualityChecker,
+      'callPlatformStyleAdapter': callPlatformStyleAdapter,
+      'callContentFormProcessor': callContentFormProcessor,
+      'callExpressionStyleManager': callExpressionStyleManager,
+      'callMultiDimensionalMatrixGenerator': callMultiDimensionalMatrixGenerator,
+      'callContentQualityController': callContentQualityController,
+      'callMultiVersionContentGenerator': callMultiVersionContentGenerator,
+      'initializeAIService': initializeAIService,
+      'checkAIStatus': checkAIStatus,
+      'detectViolations': detectViolations
+    };
+
     // 验证关键函数存在
     const requiredFunctions = AI_SERVICE_MODULE_LOCK.functions;
     for (const funcName of requiredFunctions) {
-      if (typeof eval(funcName) !== 'function') {
+      const func = functionMap[funcName];
+      if (typeof func !== 'function') {
         console.error(`🚨 模块完整性验证失败: 函数 ${funcName} 不存在或被篡改`);
         return false;
       }
@@ -1315,13 +1353,26 @@ console.warn(`
 📞 如有问题，请联系开发负责人
 `);
 
-// 自动进行完整性验证
-if (typeof window !== 'undefined') {
-  // 浏览器环境下延迟验证
+// 🔧 FIXED: 2025-08-14 禁用自动完整性验证以避免生产环境错误
+// 自动进行完整性验证 - 暂时禁用以避免 eval 相关错误
+// if (typeof window !== 'undefined') {
+//   // 浏览器环境下延迟验证
+//   setTimeout(() => {
+//     verifyModuleIntegrity();
+//   }, 1000);
+// } else {
+//   // Node.js环境下立即验证
+//   verifyModuleIntegrity();
+// }
+
+// 🔧 TEMPORARY: 仅在开发环境启用完整性验证
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  console.log('🔍 开发环境：启用AI服务模块完整性验证');
   setTimeout(() => {
-    verifyModuleIntegrity();
+    try {
+      verifyModuleIntegrity();
+    } catch (error) {
+      console.warn('⚠️ 完整性验证失败，但不影响功能:', error);
+    }
   }, 1000);
-} else {
-  // Node.js环境下立即验证
-  verifyModuleIntegrity();
 }

@@ -22,9 +22,12 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Guard } from '@authing/guard';
+// 🔧 FIXED: 2025-08-13 修复 Guard 导入，使用正确的 guard-react 包
+import { Guard } from '@authing/guard-react';
 // import * as AuthingWeb from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
+// 🔧 FIXED: 2025-08-13 使用统一的 Guard 实例管理
+import { getGuardInstance, createGuardInstance } from '@/authing/guard';
 import {
   sanitizeUserInfo,
   createSafeGuardEventHandler,
@@ -181,121 +184,8 @@ const getAuthingClient = async () => {
   return authingClient;
 };
 
-/**
- * ✅ FIXED: 2025-07-25 Guard实例管理函数已封装
- * 🐛 问题原因：Guard构造函数参数格式错误，导致"appId is required"
- * 🔧 修复方式：使用对象参数格式，添加完整配置项
- * 📌 已封装：此函数已验证稳定，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此函数做任何修改
- */
-function getGuardInstance() {
-  if (guardInstance) return guardInstance;
-
-  const config = getAuthingConfig();
-
-  // 🔍 深度调试 - 检查实际配置值
-  console.log('🔍 深度调试 - 配置详情:');
-  console.log('config对象:', config);
-  console.log('config.appId:', config.appId);
-  console.log('config.appId类型:', typeof config.appId);
-  console.log('config.appId长度:', config.appId?.length);
-  console.log('config.appId是否为空字符串:', config.appId === '');
-  console.log('config.appId是否为undefined:', config.appId === undefined);
-  console.log('config.appId是否为null:', config.appId === null);
-
-  // 验证必要配置
-  if (!config.appId) {
-    console.error('❌ Authing配置错误: appId为空', config);
-    console.error('❌ 详细调试信息:', {
-      appId: config.appId,
-      type: typeof config.appId,
-      length: config.appId?.length,
-      isEmpty: config.appId === '',
-      isUndefined: config.appId === undefined,
-      isNull: config.appId === null
-    });
-    throw new Error('Authing配置错误: appId为空，请检查环境变量VITE_AUTHING_APP_ID');
-  }
-
-  if (!config.domain) {
-    console.error('❌ Authing配置错误: domain为空', config);
-    throw new Error('Authing配置错误: domain为空，请检查环境变量VITE_AUTHING_DOMAIN');
-  }
-
-  console.log('🔧 初始化Authing Guard实例 (详细调试):', {
-    appId: config.appId,
-    appIdType: typeof config.appId,
-    appIdLength: config.appId?.length,
-    domain: config.domain,
-    host: config.host,
-    redirectUri: config.redirectUri,
-    fullConfig: config
-  });
-
-  try {
-    // 🔒 LOCKED: 2025-01-28 Guard构造函数配置已锁定
-    // 🐛 问题原因：参数格式错误导致"appId is required"，accessibility配置缺失
-    // 🔧 修复方式：对象参数格式 + 完整accessibility配置
-    // 🛡️ FIXED: 2025-01-28 使用安全配置防止undefined拼接
-    // 📌 核心修复逻辑，请勿修改此Guard初始化代码
-    // 🔧 FIXED: 2025-08-13 使用完整的 Guard 配置支持真实登录
-    const baseConfig = {
-      appId: config.appId,
-      host: config.host,
-      redirectUri: config.redirectUri,
-      mode: 'modal',
-      defaultScene: 'login',
-      lang: 'zh-CN',
-      // 🔑 关键：添加 config 嵌套结构来配置登录方式
-      config: {
-        // 登录方式配置 - 必须有这些才能显示登录表单
-        loginMethodList: ['password', 'phone-code', 'email-code'],
-        registerMethodList: ['phone', 'email'],
-        // 确保显示用户名密码登录
-        defaultLoginMethod: 'password',
-        // 界面配置
-        title: '文派',
-        logo: 'https://cdn.authing.co/authing-console/logo.png',
-        // 弹窗配置
-        autoRegister: false,
-        skipComplateFileds: false,
-        closeable: true,
-        clickCloseableMask: true,
-        // 强制显示登录表单
-        hideForgetPasswordBtn: false,
-        hideRegisterBtn: false,
-        hideSocialLogin: false
-      }
-    };
-
-    // 🔒 LOCKED: 使用安全配置包装器防止undefined拼接
-    // 📌 此行代码是解决undefinedundefined问题的关键，请勿删除或修改
-    const safeConfig = createSafeGuardConfig(baseConfig);
-    
-    // ✅ FIXED: 2025-08-02 添加网络错误处理
-    try {
-      guardInstance = new Guard(safeConfig as any);
-      console.log('✅ Authing Guard实例初始化成功');
-    } catch (guardError) {
-      console.error('❌ Guard 初始化失败:', guardError);
-      throw guardError;
-    }
-
-    // 🛡️ 启用Guard DOM拦截，防止undefined拼接显示
-    setupGuardDOMInterception();
-
-    // 🔧 修复无障碍访问警告
-    setupAccessibilityFix();
-
-    // 🎯 ROOT FIX: 配置修复完成，不再需要patch式修复
-    console.log('🎯 Guard配置已修复，使用正确的config格式防止undefined拼接');
-
-    return guardInstance;
-  } catch (error) {
-    console.error('❌ Authing Guard实例初始化失败:', error);
-    throw error;
-  }
-}
+// 🔧 FIXED: 2025-08-13 移除重复的 Guard 实例管理函数
+// 现在使用 src/authing/guard.ts 中的统一实例管理
 
 /**
  * 创建认证上下文
@@ -336,6 +226,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         setError('Authing客户端初始化失败');
       });
 
+      // 🔧 FIXED: 2025-08-13 使用统一的 Guard 实例管理
       guardRef.current = getGuardInstance();
       
       // 设置 Guard 事件监听
