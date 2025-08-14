@@ -78,6 +78,7 @@ export function getAuthingConfig() {
     appId: cachedConfig.appId,
     domain: cachedConfig.domain,
     host: cachedConfig.host,
+    appHost: cachedConfig.appHost, // 添加appHost调试输出
     redirectUri: cachedConfig.redirectUri
   });
 

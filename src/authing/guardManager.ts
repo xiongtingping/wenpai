@@ -68,15 +68,19 @@ export async function createAuthingInstance(): Promise<Authing> {
       console.log('🔧 开始初始化Authing实例...');
       
       // 🔧 使用正确的@authing/web构造函数参数
-      const instance = new Authing({
+      // 尝试不同的参数名称组合
+      const authingParams = {
         appId: config.appId,
-        appHost: config.appHost, // 使用纯域名
+        domain: config.appHost, // 尝试使用domain参数
         redirectUri: config.redirectUri,
         mode: 'redirect',
         scope: 'openid profile email phone',
         responseType: 'code',
         lang: 'zh-CN'
-      });
+      };
+
+      console.log('🔧 Authing构造参数:', authingParams);
+      const instance = new Authing(authingParams);
       
       authingInstance = instance;
       console.log('✅ Authing实例创建成功');
