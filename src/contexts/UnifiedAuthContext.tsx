@@ -129,12 +129,16 @@ const getAuthingClient = async () => {
         ? (config as any).domain.replace(/^https?:\/\//, '')
         : config.host.replace(/^https?:\/\//, '');
 
+      // 🔧 FIXED: 2025-08-14 完善 Authing Web SDK 配置，确保认证流程完整
       authingClient = new RealAuthing({
         domain,
         appId: config.appId,
         userPoolId: config.userPoolId || undefined,
         redirectUri: config.redirectUri,
         scope: 'openid profile email phone',
+        responseType: 'code',
+        state: `state_${Date.now()}`,
+        prompt: 'login'
       });
 
       console.log('✅ 使用真实 @authing/web 客户端');
@@ -321,9 +325,19 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 第二层：尝试从本地存储恢复
         try {
           const storedUser = localStorage.getItem('authing_user');
+          const storedToken = localStorage.getItem('authing_access_token');
           if (storedUser) {
             user = JSON.parse(storedUser);
-            console.log('✅ 从本地存储恢复用户信息');
+            // 🔧 FIXED: 2025-08-14 确保恢复的用户信息包含有效的 token
+            if (storedToken && !user.accessToken) {
+              user.accessToken = storedToken;
+              user.token = storedToken;
+            }
+            console.log('✅ 从本地存储恢复用户信息', {
+              hasUser: !!user,
+              hasAccessToken: !!user.accessToken,
+              hasStoredToken: !!storedToken
+            });
           }
         } catch (parseError) {
           console.warn('⚠️ 本地用户信息解析失败:', parseError);
@@ -446,14 +460,50 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         loginTime: new Date().toISOString(),
         roles: sanitizedUserInfo.roles || ['user'],
         permissions: sanitizedUserInfo.permissions || ['basic'],
-        // 🛡️ CRITICAL FIX: 保存accessToken用于API调用
-        accessToken: userInfo.accessToken || userInfo.token || userInfo.idToken,
-        token: userInfo.token || userInfo.accessToken || userInfo.idToken
+        // 🔧 FIXED: 2025-08-14 增强 token 提取逻辑，确保能正确获取 access token
+        accessToken: userInfo.accessToken ||
+                    userInfo.access_token ||
+                    userInfo.token ||
+                    userInfo.idToken ||
+                    userInfo.id_token ||
+                    (userInfo.data && userInfo.data.accessToken) ||
+                    (userInfo.data && userInfo.data.access_token),
+        token: userInfo.token ||
+               userInfo.accessToken ||
+               userInfo.access_token ||
+               userInfo.idToken ||
+               userInfo.id_token ||
+               (userInfo.data && userInfo.data.token) ||
+               (userInfo.data && userInfo.data.accessToken)
       };
+
+      // 🔧 FIXED: 2025-08-14 添加 token 调试信息
+      console.log('🔑 Token 提取结果:', {
+        accessToken: user.accessToken,
+        token: user.token,
+        hasAccessToken: !!user.accessToken,
+        hasToken: !!user.token,
+        originalUserInfo: {
+          accessToken: userInfo.accessToken,
+          access_token: userInfo.access_token,
+          token: userInfo.token,
+          idToken: userInfo.idToken,
+          id_token: userInfo.id_token,
+          hasData: !!userInfo.data
+        }
+      });
 
       // 存储用户信息
       setUser(user);
       localStorage.setItem('authing_user', JSON.stringify(user));
+
+      // 🔧 FIXED: 2025-08-14 单独存储 access token 以便后续使用
+      if (user.accessToken) {
+        localStorage.setItem('authing_access_token', user.accessToken);
+        console.log('✅ Access token 已保存到 localStorage');
+      } else {
+        console.warn('⚠️ 未能获取到 access token');
+      }
 
       // 处理登录成功后的跳转
       const redirectTo = localStorage.getItem('login_redirect_to');

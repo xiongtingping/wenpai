@@ -68,10 +68,34 @@ let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 动态获取回调URI
-  const redirectUri = typeof window !== 'undefined'
-    ? `${window.location.origin}/callback`
-    : getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
+  // 🔧 FIXED: 2025-08-14 修复生产环境回调地址问题
+  // 在生产环境中使用固定的正确回调地址，避免使用 Netlify 预览部署地址
+  let redirectUri: string;
+
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+
+    // 生产环境：使用固定的正确域名
+    if (hostname.includes('netlify.app') || hostname.includes('wenpai.xyz')) {
+      // 如果是 Netlify 预览部署地址，强制使用正确的生产地址
+      if (hostname.includes('--wenpai.netlify.app') || hostname.startsWith('689d7aa79f82560008b08686')) {
+        redirectUri = 'https://wenpai.netlify.app/callback';
+        console.log('🔧 检测到 Netlify 预览部署，强制使用生产回调地址:', redirectUri);
+      } else if (hostname === 'wenpai.netlify.app') {
+        redirectUri = 'https://wenpai.netlify.app/callback';
+      } else if (hostname.includes('wenpai.xyz')) {
+        redirectUri = 'https://www.wenpai.xyz/callback';
+      } else {
+        redirectUri = 'https://wenpai.netlify.app/callback'; // 默认使用主域名
+      }
+    } else {
+      // 开发环境：使用当前地址
+      redirectUri = `${window.location.origin}/callback`;
+    }
+  } else {
+    // 服务端渲染时的默认值
+    redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
+  }
 
   cachedConfig = {
     appId: APP_ID,
@@ -86,7 +110,9 @@ export function getAuthingConfig() {
     appId: cachedConfig.appId,
     domain: cachedConfig.domain,
     host: cachedConfig.host,
-    redirectUri: cachedConfig.redirectUri
+    redirectUri: cachedConfig.redirectUri,
+    currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'server-side',
+    isProduction: typeof window !== 'undefined' && (window.location.hostname.includes('netlify.app') || window.location.hostname.includes('wenpai.xyz'))
   });
 
   return cachedConfig;

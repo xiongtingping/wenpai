@@ -101,9 +101,10 @@ class ProductionUndefinedFixer {
       return;
     }
 
-    // 🛡️ SAFE: Authing 登录弹窗激活时暂停全局修复，避免干扰真实登录
+    // 🔧 FIXED: 2025-08-14 Authing 登录弹窗激活时暂停全局修复，减少日志干扰
     if (this.isGuardActive()) {
-      if (this.fixCount % 20 === 0) {
+      // 大幅减少日志频率，避免干扰用户体验
+      if (this.fixCount % 100 === 0) {
         console.log('🛑 暂停全局 undefined 修复：Authing 登录弹窗激活中');
       }
       this.fixCount++;

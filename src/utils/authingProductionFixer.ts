@@ -92,9 +92,10 @@ class AuthingProductionFixer {
       return;
     }
 
-    // 登录弹窗显示时完全静默，不进行任何 DOM 读写或日志，以避免干扰
+    // 🔧 FIXED: 2025-08-14 登录弹窗显示时完全静默，减少干扰
     if (this.isGuardActive()) {
       this.retryCount++;
+      // 完全静默，不输出任何日志
       return;
     }
 

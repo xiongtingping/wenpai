@@ -39,10 +39,11 @@ class EmergencyProductionFixer {
    * 执行紧急修复
    */
   private performEmergencyFix(): void {
-    // 🛡️ SAFE: Authing 登录弹窗激活时，暂停紧急修复，避免干扰真实登录
+    // 🔧 FIXED: 2025-08-14 Authing 登录弹窗激活时，暂停紧急修复，减少日志干扰
     if (this.isGuardActive()) {
       const now = Date.now();
-      if (now - this.lastPauseLog > 2000) {
+      // 大幅减少日志频率，从2秒改为10秒
+      if (now - this.lastPauseLog > 10000) {
         console.log('🛑 暂停 Authing 修复器：登录弹窗激活中');
         this.lastPauseLog = now;
       }
