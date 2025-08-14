@@ -1,23 +1,12 @@
 /**
- * ✅ FIXED: 2025-07-25 API代理服务 - 统一使用callAI接口
- *
- * 🐛 问题原因：
- * - 直接调用/.netlify/functions/api导致本地开发环境404错误
- * - 没有使用项目中已有的统一AI接口
- * - 重复实现了AI调用逻辑
- *
- * 🔧 修复方案：
- * - 使用统一的callAI接口替代直接fetch调用
- * - 移除对Netlify Functions的依赖
- * - 直接调用各AI服务商API
- *
- * 📌 已封装：此服务已验证可用，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
+ * API代理服务
+ * 提供统一的API调用接口，支持多种AI提供商
  */
 
-import { callAI, generateImage as callAIGenerateImage } from './ai';
-import type { AICallParams, AIResponse } from './ai';
-import { getAPIEndpoints } from '@/config/apiConfig';
+// API端点配置
+const API_ENDPOINTS = {
+  API: '/.netlify/functions/api'
+};
 
 /**
  * 代理响应接口
@@ -46,42 +35,55 @@ export async function callOpenAIProxy(
 ): Promise<ProxyResponse> {
   try {
     console.log('callOpenAIProxy 开始调用...');
-    console.log('使用统一AI接口:', { model, temperature, maxTokens });
+    console.log('API端点:', API_ENDPOINTS.API);
+    console.log('请求参数:', { provider: 'openai', action: 'generate', messages, model });
+    
+    const response = await fetch(API_ENDPOINTS.API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        provider: 'openai',
+        action: 'generate',
+        messages,
+        model,
+        temperature,
+        maxTokens
+      })
+    });
 
-    // ✅ FIXED: 使用统一的callAI接口替代直接fetch调用
-    // 🔓 UNLOCKED: AI 禁止修改此统一接口调用逻辑
+    console.log('API响应状态:', response.status);
+    console.log('API响应头:', Object.fromEntries(response.headers.entries()));
 
-    // 将messages转换为prompt格式
-    const prompt = messages.map((msg: any) => {
-      if (msg.role === 'system') return `系统: ${msg.content}`;
-      if (msg.role === 'user') return `用户: ${msg.content}`;
-      if (msg.role === 'assistant') return `助手: ${msg.content}`;
-      return msg.content;
-    }).join('\n\n');
-
-    const params: AICallParams = {
-      prompt,
-      model: model as any,
-      temperature,
-      maxTokens
-    };
-
-    const result: AIResponse = await callAI(params);
-
-    if (result.success) {
-      console.log('AI调用成功');
-      return {
-        success: true,
-        data: result.content
-      };
-    } else {
-      console.error('AI调用失败:', result.error);
+    // 检查响应类型
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const textBody = await response.text();
+      console.error('非JSON响应:', textBody);
       return {
         success: false,
-        error: result.error || '调用失败'
+        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
       };
     }
 
+    const data = await response.json();
+    console.log('API响应数据:', data);
+
+    if (!response.ok) {
+      console.error('API错误响应:', data);
+      return {
+        success: false,
+        error: data.error || data.message || `API error: ${response.status}`,
+        detail: data.detail
+      };
+    }
+
+    console.log('API调用成功');
+    return {
+      success: true,
+      data
+    };
   } catch (error) {
     console.error('callOpenAIProxy 异常:', error);
     return {
@@ -102,39 +104,44 @@ export async function callDeepSeekProxy(
   model: string = 'deepseek-chat'
 ): Promise<ProxyResponse> {
   try {
-    console.log('callDeepSeekProxy 开始调用...');
-    console.log('使用统一AI接口:', { model });
+    const response = await fetch(API_ENDPOINTS.API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        provider: 'deepseek',
+        action: 'generate',
+        messages,
+        model,
+        temperature: 0.7
+      })
+    });
 
-    // ✅ FIXED: 使用统一的callAI接口替代直接fetch调用
-    // 🔓 UNLOCKED: AI 禁止修改此统一接口调用逻辑
-
-    // 将messages转换为prompt格式
-    const prompt = messages.map((msg: any) => {
-      if (msg.role === 'system') return `系统: ${msg.content}`;
-      if (msg.role === 'user') return `用户: ${msg.content}`;
-      if (msg.role === 'assistant') return `助手: ${msg.content}`;
-      return msg.content;
-    }).join('\n\n');
-
-    const params: AICallParams = {
-      prompt,
-      model: model as any,
-      temperature: 0.7
-    };
-
-    const result: AIResponse = await callAI(params);
-
-    if (result.success) {
-      return {
-        success: true,
-        data: result.content
-      };
-    } else {
+    // 检查响应类型
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const textBody = await response.text();
       return {
         success: false,
-        error: result.error || '调用失败'
+        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
       };
     }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || data.message || `API error: ${response.status}`,
+        detail: data.detail
+      };
+    }
+
+    return {
+      success: true,
+      data
+    };
   } catch (error) {
     return {
       success: false,
@@ -150,8 +157,7 @@ export async function callDeepSeekProxy(
  */
 export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
   try {
-    const API_ENDPOINTS = getAPIEndpoints();
-    const response = await fetch(API_ENDPOINTS.api, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -201,8 +207,7 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
  */
 export async function testApiConnectivity(): Promise<ProxyResponse> {
   try {
-    const API_ENDPOINTS = getAPIEndpoints();
-    const response = await fetch(API_ENDPOINTS.api, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -248,8 +253,7 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
  */
 export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
   try {
-    const API_ENDPOINTS = getAPIEndpoints();
-    const response = await fetch(API_ENDPOINTS.api, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -298,8 +302,7 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
  */
 export async function checkGeminiAvailability(): Promise<ProxyResponse> {
   try {
-    const API_ENDPOINTS = getAPIEndpoints();
-    const response = await fetch(API_ENDPOINTS.api, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -348,8 +351,7 @@ export async function checkGeminiAvailability(): Promise<ProxyResponse> {
  */
 export async function checkDeepSeekAvailability(): Promise<ProxyResponse> {
   try {
-    const API_ENDPOINTS = getAPIEndpoints();
-    const response = await fetch(API_ENDPOINTS.api, {
+    const response = await fetch(API_ENDPOINTS.API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

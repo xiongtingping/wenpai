@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-// @ts-expect-error - vite-env-plugin is not typed
+// @ts-ignore
 import envPlugin from './vite-env-plugin.js'
 
 // https://vitejs.dev/config/
@@ -16,17 +16,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // 🔒 SECURITY FIX: 移除 API 密钥的客户端注入，防止密钥暴露
-  // 环境变量注入，仅注入非敏感配置
+  // 环境变量注入，兼容 Vite/Node/Netlify/Vercel
   define: {
     __ENV__: JSON.stringify({
-      // 🚨 REMOVED: API 密钥不再注入客户端，改用服务端代理
-      // VITE_OPENAI_API_KEY: process.env.VITE_OPENAI_API_KEY || '',
-      // VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
-      // VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
-      // VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
-
-      // ✅ 安全配置：仅注入非敏感的配置信息
+      VITE_OPENAI_API_KEY: process.env.VITE_OPENAI_API_KEY || '',
+      VITE_DEEPSEEK_API_KEY: process.env.VITE_DEEPSEEK_API_KEY || '',
+      VITE_GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY || '',
+      VITE_CREEM_API_KEY: process.env.VITE_CREEM_API_KEY || '',
       VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || '',
       VITE_DEBUG_MODE: process.env.VITE_DEBUG_MODE || '',
       VITE_LOG_LEVEL: process.env.VITE_LOG_LEVEL || '',
@@ -39,44 +35,8 @@ export default defineConfig({
   },
   // 开发服务器配置
   server: {
-    port: 5173,
-    host: true,
-    proxy: {
-      // 🔧 SECURITY: 仅在开发环境启用本地代理
-      // 代理本地后端API请求
-      '/api': {
-        target: process.env.BACKEND_URL || 'http://localhost:3001',
-        changeOrigin: true,
-        configure: (proxy, options) => {
-          proxy.on('error', (err, req, res) => {
-            console.log('Backend API proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('Sending Request to Backend:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('Received Response from Backend:', proxyRes.statusCode, req.url);
-          });
-        },
-      },
-      // 代理热点数据API，解决CORS问题
-      '/api/hot': {
-        target: 'https://api-hot.imsyy.top',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/hot/, ''),
-        configure: (proxy, options) => {
-          proxy.on('error', (err, req, res) => {
-            console.log('proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-          });
-        },
-      }
-    }
+    port: 3000,
+    host: 'localhost'
   },
   // 预览服务器配置
   preview: {
@@ -92,8 +52,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          authing: ['@authing/guard']
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
         }
       }
     }

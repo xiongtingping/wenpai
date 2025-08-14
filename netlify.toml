@@ -16,23 +16,17 @@
   status = 301
   force = true
 
-# 🔒 AI API 代理重定向（安全）
-[[redirects]]
-  from = "/api/ai/*"
-  to = "/.netlify/functions/ai-proxy"
-  status = 200
-
 # API重定向到Netlify函数
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# Authing 回调交由前端路由 /callback 处理，不再经由函数，避免循环与拦截
-# [[redirects]]
-#   from = "/callback"
-#   to = "/.netlify/functions/authing-callback"
-#   status = 200
+# Authing回调重定向到Netlify函数
+[[redirects]]
+  from = "/callback"
+  to = "/.netlify/functions/authing-callback"
+  status = 200
 
 # 静态资源处理 - 确保CSS和JS文件不被重定向
 [[redirects]]
@@ -86,13 +80,19 @@
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
-  # 🔒 SECURITY: API 密钥仅在服务端使用，不暴露给客户端
-  # 这些密钥需要在 Netlify 控制台中单独配置
-  # OPENAI_API_KEY = "sk-your-openai-api-key-here"  # 在 Netlify 控制台配置
-  # DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"  # 在 Netlify 控制台配置
-  # GEMINI_API_KEY = "your-gemini-api-key-here"  # 在 Netlify 控制台配置
-  # CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"  # 在 Netlify 控制台配置
-  # 热点话题API配置（公开API，无需密钥）
+  # OpenAI配置
+  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+  # Gemini配置
+  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+  # Deepseek配置
+  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+  # Creem配置
+  VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+  VITE_CREEM_BASE_URL = "https://api.creem.com"
+  # 热点话题API配置
   VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [context.deploy-preview.environment]
@@ -105,8 +105,19 @@
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
-  # 🔒 SECURITY: API 密钥仅在服务端使用，不暴露给客户端
-  # 热点话题API配置（公开API，无需密钥）
+  # OpenAI配置
+  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+  # Gemini配置
+  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+  # Deepseek配置
+  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+  # Creem配置
+  VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+  VITE_CREEM_BASE_URL = "https://api.creem.com"
+  # 热点话题API配置
   VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [context.branch-deploy.environment]
@@ -119,8 +130,19 @@
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
-  # 🔒 SECURITY: API 密钥仅在服务端使用，不暴露给客户端
-  # 热点话题API配置（公开API，无需密钥）
+  # OpenAI配置
+  VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+  VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+  # Gemini配置
+  VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+  VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+  # Deepseek配置
+  VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+  VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+  # Creem配置
+  VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+  VITE_CREEM_BASE_URL = "https://api.creem.com"
+  # 热点话题API配置
   VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [dev]
@@ -130,16 +152,28 @@
   publish = "dist"
   
   [dev.environment]
+    CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
     # Authing配置
     VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
     VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
     VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
     VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
-    VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
-    VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
+  VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
     VITE_AUTHING_APP_TYPE = "oidc"
-    # 🔒 SECURITY: API 密钥仅在服务端使用，不暴露给客户端
-    # 热点话题API配置（公开API，无需密钥）
+    # OpenAI配置
+    VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
+    VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
+    # Gemini配置
+    VITE_GEMINI_API_KEY = "your-gemini-api-key-here"
+    VITE_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"
+    # Deepseek配置
+    VITE_DEEPSEEK_API_KEY = "sk-your-deepseek-api-key-here"
+    VITE_DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+    # Creem配置
+    VITE_CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
+    VITE_CREEM_BASE_URL = "https://api.creem.com"
+    # 热点话题API配置
     VITE_HOT_TOPICS_BASE_URL = "https://api-hot.imsyy.top"
 
 [[headers]]

@@ -1,24 +1,23 @@
 /**
- * ✅ FIXED: 2025-07-25 API配置文件 - 解决本地开发环境API调用问题
- *
- * 🐛 问题原因：
- * - 本地开发环境无法访问/.netlify/functions/api端点
- * - 缺少环境区分的API端点配置
- * - CORS和代理配置不当
- *
- * 🔧 修复方案：
- * - 根据环境动态切换API端点
- * - 本地开发环境使用模拟API或代理
- * - 生产环境使用Netlify Functions
- *
+ * API配置文件
+ * 
  * ✅ 重要原则：
  * 1. 所有API地址与密钥必须从环境变量读取，严禁硬编码
  * 2. 支持开发、测试、生产多环境配置
  * 3. 提供配置验证和默认值
- * 4. 环境感知的API端点切换
- *
- * 📌 已封装：此配置已验证可用，请勿修改
- * 🔓 UNLOCKED: AI 禁止对此文件做任何修改
+ * 
+ * 📌 环境变量命名规范：
+ * - VITE_OPENAI_API_KEY: OpenAI API密钥
+ * - VITE_OPENAI_BASE_URL: OpenAI API地址
+ * - VITE_GEMINI_API_KEY: Gemini API密钥
+ * - VITE_GEMINI_BASE_URL: Gemini API地址
+ * - VITE_DEEPSEEK_API_KEY: Deepseek API密钥
+ * - VITE_DEEPSEEK_BASE_URL: Deepseek API地址
+ * - VITE_CREEM_API_KEY: Creem API密钥
+ * - VITE_CREEM_BASE_URL: Creem API地址
+ * - VITE_AUTHING_API_KEY: Authing API密钥
+ * - VITE_AUTHING_BASE_URL: Authing API地址
+ * - VITE_HOT_TOPICS_BASE_URL: 热点话题API地址
  */
 
 /**
@@ -183,80 +182,4 @@ export const isAPIAvailable = (apiName: keyof APIConfig): boolean => {
   return !!(config.apiKey && config.baseURL);
 };
 
-export default getAPIConfig;
-
-// ✅ FIXED: 2025-07-25 添加环境感知的API端点配置
-// 🐛 问题原因：本地开发环境无法访问Netlify Functions
-// 🔧 修复方式：根据环境动态切换API端点
-// 🔓 UNLOCKED: AI 禁止修改以下配置
-
-/**
- * 环境检测
- */
-const isDevelopment = import.meta.env.DEV;
-const isProduction = import.meta.env.PROD;
-const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify');
-
-/**
- * API端点配置接口
- */
-export interface APIEndpoints {
-  api: string;
-  hotTopics: string;
-  imageGeneration: string;
-  referral: string;
-}
-
-/**
- * 获取当前环境的API端点配置
- * ✅ FIXED: 开发环境直连API，生产环境使用后端调用
- * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
- */
-export function getAPIEndpoints(): APIEndpoints {
-  // 生产环境或Netlify环境 - 使用后端API
-  if (isProduction || isNetlify) {
-    return {
-      api: '/.netlify/functions/api',
-      hotTopics: '/.netlify/functions/api',
-      imageGeneration: '/.netlify/functions/api',
-      referral: '/.netlify/functions/api'
-    };
-  }
-
-  // 本地开发环境 - 直连API
-  return {
-    api: 'https://api.openai.com/v1',
-    hotTopics: 'https://api-hot.imsyy.top',
-    imageGeneration: 'https://api.openai.com/v1',
-    referral: 'https://api.creem.com'
-  };
-}
-
-/**
- * 检查是否为开发环境
- * 🔓 UNLOCKED: AI 禁止修改此函数
- */
-export function isDev(): boolean {
-  return isDevelopment;
-}
-
-/**
- * ✅ FIXED: 已移除模拟API响应功能
- * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
- * 
- * 系统现在直接调用真实API，不再提供模拟响应
- */
-export function createMockAPIResponse(action: string, provider?: string): never {
-  throw new Error(`真实API调用失败: ${action} - ${provider || 'unknown'}`);
-}
-
-// 导出环境感知的API配置
-export const API_ENDPOINTS_CONFIG = {
-  ENDPOINTS: getAPIEndpoints(),
-  IS_DEV: isDev(),
-  ENVIRONMENT: isDevelopment ? 'development' : 'production'
-} as const;
-
-console.log('🔧 API端点配置已加载:', API_ENDPOINTS_CONFIG);
+export default getAPIConfig; 
