@@ -6,8 +6,7 @@
 
 export interface AuthingConfig {
   appId: string;
-  host: string; // 完整URL，用于兼容性
-  appHost: string; // 纯域名，用于@authing/web
+  host: string;
   redirectUri: string;
   userPoolId?: string;
   domain: string;
@@ -38,37 +37,19 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 const APP_ID = '68823897631e1ef8ff3720b2';
 const DOMAIN = 'rzcswqd4sq0f.authing.cn';
 const HOST = 'https://rzcswqd4sq0f.authing.cn';
-// 🔧 修复：appHost应该是域名，不包含https://
-const APP_HOST = 'rzcswqd4sq0f.authing.cn';
 
 let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 动态获取回调URI - 优先使用环境变量配置
-  let redirectUri;
-  if (typeof window !== 'undefined') {
-    // 检查是否为生产环境 - 修复：使用正确的生产域名
-    const isProduction = window.location.hostname.includes('wenpai.xyz') ||
-                        window.location.hostname === 'www.wenpai.xyz' ||
-                        window.location.hostname.includes('netlify.app');
-
-    if (isProduction) {
-      // 生产环境使用固定的配置URL - 修复：使用正确的生产回调地址
-      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_PROD', 'https://www.wenpai.xyz/callback');
-    } else {
-      // 开发环境使用开发配置
-      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
-    }
-  } else {
-    // 服务端渲染时使用开发配置
-    redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
-  }
+  // 动态获取回调URI
+  const redirectUri = typeof window !== 'undefined'
+    ? `${window.location.origin}/callback`
+    : getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
 
   cachedConfig = {
     appId: APP_ID,
-    host: HOST, // 保持完整URL用于兼容性
-    appHost: APP_HOST, // 新增：纯域名用于@authing/web
+    host: HOST,
     domain: DOMAIN,
     redirectUri: redirectUri,
     userPoolId: getEnvVar('VITE_AUTHING_USER_POOL_ID', ''),
@@ -79,7 +60,6 @@ export function getAuthingConfig() {
     appId: cachedConfig.appId,
     domain: cachedConfig.domain,
     host: cachedConfig.host,
-    appHost: cachedConfig.appHost, // 添加appHost调试输出
     redirectUri: cachedConfig.redirectUri
   });
 
