@@ -1,7 +1,7 @@
 /**
  * 🚨 Authing Guard 生产环境专用修复器
  * 专门解决 Authing Guard 在生产环境中的 undefinedundefined 问题
- * 
+ *
  * 问题分析：
  * 1. Authing Guard 在生产环境可能因为网络延迟导致用户信息不完整
  * 2. 生产环境的构建优化可能影响 Guard 内部的字符串处理
@@ -23,6 +23,8 @@ class AuthingProductionFixer {
   private retryCount = 0;
   private intervalId: number | null = null;
   private isProduction: boolean;
+
+  private lastMinimalClean = 0;
 
   constructor(config: Partial<AuthingFixConfig> = {}) {
     this.config = {
@@ -92,9 +94,12 @@ class AuthingProductionFixer {
 
     // 登录弹窗显示时暂停修复，防止干扰用户输入与 SDK 行为
     if (this.isGuardActive()) {
+      // 限频打印暂停日志
       if (this.retryCount % 10 === 1) {
         console.log('🛑 暂停 Authing 修复器：登录弹窗激活中');
       }
+      // 在不触碰结构的前提下，仅清理弹窗中的"undefinedundefined"纯文本
+      this.minimalCleanUndefinedInGuardModal();
       this.retryCount++;
       return;
     }
@@ -193,7 +198,7 @@ class AuthingProductionFixer {
   private fixGuardContent(): void {
     // 查找所有可能的 Guard 相关元素
     const guardElements = document.querySelectorAll('*');
-    
+
     guardElements.forEach(element => {
       // 检查元素的文本内容
       if (element.textContent?.includes('undefinedundefined')) {
@@ -297,7 +302,7 @@ class AuthingProductionFixer {
         mutation.addedNodes.forEach(node => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as Element;
-            
+
             // 检查是否是 Authing 相关元素
             if (this.isAuthingElement(element)) {
               setTimeout(() => {
@@ -319,11 +324,8 @@ class AuthingProductionFixer {
    * 判断是否是 Authing 相关元素
    */
   private isAuthingElement(element: Element): boolean {
-    // 🔧 FIXED: 安全处理 className，可能是 DOMTokenList 或字符串
-    const className = typeof element.className === 'string'
-      ? element.className
-      : element.className?.toString() || '';
-    const id = element.id || '';
+    const className = this.getClassNameSafe(element);
+    const id = (element as HTMLElement).id || '';
 
     return className.includes('authing') ||
            className.includes('guard') ||
@@ -344,6 +346,58 @@ class AuthingProductionFixer {
   private isElementVisible(el: HTMLElement): boolean {
     const style = window.getComputedStyle(el);
     return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+  }
+
+  /**
+   * 登录弹窗期间的“极小范围清理”：
+   * 仅在可见的 Authing 弹窗正文容器中，移除纯文本里的 "undefinedundefined"。
+   * - 不修改结构；不触碰 input/textarea/contenteditable；不改按钮/可交互控件文案
+   * - 选择器基于用户提供路径，附加兼容回退
+   * - 1000ms 限频
+   */
+  private minimalCleanUndefinedInGuardModal(): void {
+    const now = Date.now();
+    if (now - this.lastMinimalClean < 1000) return;
+    this.lastMinimalClean = now;
+
+    const selectors = [
+      '#authing-guard-container-v4 > div > div > div.authing-ant-modal-wrap > div > div.authing-ant-modal-content > div.authing-ant-modal-body > div > div',
+      '#authing-guard-container-v4 .authing-ant-modal-body > div > div',
+      '.authing-ant-modal-body > div > div'
+    ];
+
+    const containers: HTMLElement[] = [];
+    selectors.forEach(sel => {
+      const el = document.querySelector(sel) as HTMLElement | null;
+      if (el && this.isElementVisible(el)) containers.push(el);
+    });
+    if (!containers.length) return;
+
+    containers.forEach(container => {
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+      let n: Node | null;
+      while ((n = walker.nextNode())) {
+        const parent = (n.parentElement || (n.parentNode as HTMLElement | null));
+        if (!parent) continue;
+        const tag = parent.tagName?.toLowerCase();
+        const isForm = tag === 'input' || tag === 'textarea' || parent.isContentEditable;
+        if (isForm) continue;
+
+        const txt = n.textContent || '';
+        if (txt.includes('undefinedundefined')) {
+          n.textContent = txt.replace(/undefinedundefined/g, '').trim();
+        }
+      }
+    });
+  }
+
+  // 安全获取元素的 className（兼容 HTMLElement 与 SVGElement）
+  private getClassNameSafe(element: Element): string {
+    const anyEl: any = element as any;
+    const cn = anyEl && anyEl.className;
+    if (typeof cn === 'string') return cn;
+    if (cn && typeof cn.baseVal === 'string') return cn.baseVal;
+    try { return String(cn || ''); } catch { return ''; }
   }
 
   /**
@@ -514,10 +568,7 @@ class AuthingProductionFixer {
    * 判断是否是弹窗元素
    */
   private isModalElement(element: Element): boolean {
-    // 🔧 FIXED: 安全处理 className，可能是 DOMTokenList 或字符串
-    const className = typeof element.className === 'string'
-      ? element.className
-      : element.className?.toString() || '';
+    const className = this.getClassNameSafe(element);
     const role = element.getAttribute('role') || '';
     const ariaModal = element.getAttribute('aria-modal') || '';
 
