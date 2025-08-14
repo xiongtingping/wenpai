@@ -42,9 +42,10 @@ export default defineConfig({
     port: 5173,
     host: true,
     proxy: {
+      // 🔧 SECURITY: 仅在开发环境启用本地代理
       // 代理本地后端API请求
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.BACKEND_URL || 'http://localhost:3001',
         changeOrigin: true,
         configure: (proxy, options) => {
           proxy.on('error', (err, req, res) => {
