@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { getAuthingConfig } from '@/config/authing';
+import { getGuardInstance, checkGuardHealth } from '@/authing/guard';
 
 /**
  * 🔍 Authing Guard 调试页面
@@ -8,8 +10,54 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 export default function AuthingDebugPage() {
   const { user, login, logout, isAuthenticated, isLoading } = useUnifiedAuth();
   const [debugInfo, setDebugInfo] = useState<any>({});
+  const [configInfo, setConfigInfo] = useState<any>(null);
+  const [guardHealth, setGuardHealth] = useState<any>(null);
+  const [networkErrors, setNetworkErrors] = useState<any[]>([]);
 
   useEffect(() => {
+    // 🔧 FIXED: 2025-08-14 添加配置和健康检查
+    try {
+      const config = getAuthingConfig();
+      setConfigInfo(config);
+      console.log('🔧 当前 Authing 配置:', config);
+
+      const health = checkGuardHealth();
+      setGuardHealth(health);
+      console.log('🏥 Guard 健康状态:', health);
+    } catch (error) {
+      console.error('❌ 配置检查失败:', error);
+    }
+
+    // 🔧 FIXED: 2025-08-14 监听网络错误，特别是 400 错误
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      try {
+        const response = await originalFetch(...args);
+        if (!response.ok && args[0]?.toString().includes('authing')) {
+          const error = {
+            url: args[0],
+            status: response.status,
+            statusText: response.statusText,
+            timestamp: new Date().toISOString()
+          };
+          setNetworkErrors(prev => [...prev, error]);
+          console.error('🚨 Authing 网络错误:', error);
+        }
+        return response;
+      } catch (error) {
+        if (args[0]?.toString().includes('authing')) {
+          const errorInfo = {
+            url: args[0],
+            error: error.message,
+            timestamp: new Date().toISOString()
+          };
+          setNetworkErrors(prev => [...prev, errorInfo]);
+          console.error('🚨 Authing 请求失败:', errorInfo);
+        }
+        throw error;
+      }
+    };
+
     // 监听DOM变化，捕获undefinedundefined
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -106,6 +154,40 @@ export default function AuthingDebugPage() {
                   <pre className="bg-red-100 p-2 rounded text-sm">
                     {JSON.stringify(debugInfo.loginError, null, 2)}
                   </pre>
+                </div>
+              )}
+
+              {/* 🔧 FIXED: 2025-08-14 添加配置信息显示 */}
+              {configInfo && (
+                <div>
+                  <p><strong>Authing 配置:</strong></p>
+                  <pre className="bg-blue-100 p-2 rounded text-sm overflow-auto">
+                    {JSON.stringify(configInfo, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              {/* 🔧 FIXED: 2025-08-14 添加 Guard 健康状态显示 */}
+              {guardHealth && (
+                <div>
+                  <p><strong>Guard 健康状态:</strong></p>
+                  <pre className={`p-2 rounded text-sm ${guardHealth.isHealthy ? 'bg-green-100' : 'bg-red-100'}`}>
+                    {JSON.stringify(guardHealth, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              {/* 🔧 FIXED: 2025-08-14 添加网络错误显示 */}
+              {networkErrors.length > 0 && (
+                <div>
+                  <p><strong>网络错误 ({networkErrors.length}):</strong></p>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {networkErrors.map((error, index) => (
+                      <pre key={index} className="bg-red-100 p-2 rounded text-sm">
+                        {JSON.stringify(error, null, 2)}
+                      </pre>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

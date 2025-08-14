@@ -49,14 +49,19 @@ export function createGuardInstance(): Guard {
   });
 
   try {
-    // ✅ 正确的Guard初始化格式（统一配置对象）
-    // 🔧 FIXED: 2025-08-14 使用最简化配置，确保弹窗正常显示
+    // 🔧 FIXED: 2025-08-14 修复 Guard 配置，解决 400 错误
+    // 根据 Authing 文档，确保配置参数正确
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
       mode: 'modal',  // 🎯 弹窗模式
-      lang: 'zh-CN'  // 中文界面
+      lang: 'zh-CN',  // 中文界面
+      // 🔧 FIXED: 添加必要的配置参数解决 400 错误
+      isSSO: false,   // 非 SSO 模式
+      scope: 'openid profile email phone',  // 授权范围
+      responseType: 'code',  // 授权码模式
+      responseMode: 'query'  // 使用 query 模式而不是 web_message
     });
 
     // 🧪 实例验证
