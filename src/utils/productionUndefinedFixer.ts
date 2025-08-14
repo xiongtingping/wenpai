@@ -124,8 +124,11 @@ class ProductionUndefinedFixer {
       const textNodes: Text[] = [];
       let node;
       while (node = walker.nextNode()) {
-        if (node.textContent?.includes('undefinedundefined')) {
-          textNodes.push(node as Text);
+        const textNode = node as Text;
+        const parentEl = (textNode.parentElement || (textNode as any).parentNode) as Element | null;
+        const inAuthingModal = parentEl?.closest('#authing_guard_container, .authing-ant-modal-root, #authing-guard-container-v4');
+        if (!inAuthingModal && textNode.textContent?.includes('undefinedundefined')) {
+          textNodes.push(textNode);
         }
       }
 
@@ -199,13 +202,16 @@ class ProductionUndefinedFixer {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach(node => {
             if (node.nodeType === Node.TEXT_NODE) {
-              if (node.textContent?.includes('undefinedundefined')) {
+              const textNode = node as Text;
+              const parentEl = (textNode.parentElement || (textNode as any).parentNode) as Element | null;
+              const inAuthingModal = parentEl?.closest('#authing_guard_container, .authing-ant-modal-root, #authing-guard-container-v4');
+              if (!inAuthingModal && textNode.textContent?.includes('undefinedundefined')) {
                 needsFix = true;
               }
             } else if (node.nodeType === Node.ELEMENT_NODE) {
               const element = node as Element;
               // 跳过 Authing 弹窗区域
-              const inAuthingModal = element.closest('#authing_guard_container, .authing-ant-modal-root');
+              const inAuthingModal = element.closest('#authing_guard_container, .authing-ant-modal-root, #authing-guard-container-v4');
               if (!inAuthingModal && element.textContent?.includes('undefinedundefined')) {
                 needsFix = true;
               }
