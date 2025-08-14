@@ -48,13 +48,14 @@ export function getAuthingConfig() {
   // 动态获取回调URI - 优先使用环境变量配置
   let redirectUri;
   if (typeof window !== 'undefined') {
-    // 检查是否为生产环境
-    const isProduction = window.location.hostname.includes('netlify.app') ||
-                        window.location.hostname === 'wenpai.netlify.app';
+    // 检查是否为生产环境 - 修复：使用正确的生产域名
+    const isProduction = window.location.hostname.includes('wenpai.xyz') ||
+                        window.location.hostname === 'www.wenpai.xyz' ||
+                        window.location.hostname.includes('netlify.app');
 
     if (isProduction) {
-      // 生产环境使用固定的配置URL
-      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_PROD', 'https://wenpai.netlify.app/callback');
+      // 生产环境使用固定的配置URL - 修复：使用正确的生产回调地址
+      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_PROD', 'https://www.wenpai.xyz/callback');
     } else {
       // 开发环境使用开发配置
       redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
