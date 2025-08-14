@@ -154,8 +154,8 @@ function getGuardInstance() {
       isSSO: false,
       // 🔧 确保正确的响应类型
       responseType: 'code',
-      // 🔧 CRITICAL FIX: 添加更多登录配置，确保完整的登录表单
-      target: '#authing_guard_container',
+      // 🔧 CRITICAL FIX: modal模式下不需要target参数，移除可能导致冲突的target配置
+      // target: '#authing_guard_container', // modal模式自动创建容器
       // 🔧 确保显示完整的登录表单
       hideQRCode: false,
       hideUP: false,
@@ -163,7 +163,10 @@ function getGuardInstance() {
       hideRegister: false,
       hidePhone: false,
       hideUsername: false,
-      hideForgetPassword: false
+      hideForgetPassword: false,
+      // 🔧 CRITICAL FIX: 添加更多关键配置确保表单完整显示
+      qrcodeTabsOrder: ['app-qrcode', 'password', 'phone-code'],
+      defaultLoginMethod: 'password'
     });
 
     console.log('✅ Authing Guard实例初始化成功');
@@ -200,6 +203,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       
       // 设置 Guard 事件监听
       if (guardRef.current) {
+        // 🔧 CRITICAL FIX: 添加load事件监听，诊断Guard加载问题
+        guardRef.current.on('load', (authClient: any) => {
+          console.log('✅ Guard 加载成功:', authClient);
+          console.log('🔍 Guard 实例详情:', guardRef.current);
+        });
+
+        guardRef.current.on('load-error', (error: any) => {
+          console.error('❌ Guard 加载失败:', error);
+          setError('Guard加载失败: ' + (error.message || error));
+        });
+
         guardRef.current.on('login', (userInfo: any) => {
           console.log('🔐 Guard 登录成功:', userInfo);
           handleAuthingLogin(userInfo);
@@ -225,12 +239,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             }
           }, 1000); // 延迟1秒关闭，让用户看到成功状态
         });
-        
+
         guardRef.current.on('login-error', (error: any) => {
           console.error('❌ Guard 登录失败:', error);
           setError('登录失败: ' + (error.message || error));
         });
-        
+
         guardRef.current.on('register-error', (error: any) => {
           console.error('❌ Guard 注册失败:', error);
           setError('注册失败: ' + (error.message || error));
