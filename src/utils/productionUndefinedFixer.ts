@@ -41,16 +41,21 @@ class ProductionUndefinedFixer {
                        window.location.hostname.includes('.app') ||
                        !import.meta.env.DEV;
 
-    console.log('🔍 环境检测:', {
-      'import.meta.env.PROD': import.meta.env.PROD,
-      'hostname': window.location.hostname,
-      'isProduction': this.isProduction,
-      'import.meta.env.DEV': import.meta.env.DEV
-    });
+    // 🔧 FIXED: 减少重复日志输出
+    if (!window.productionUndefinedFixer) {
+      console.log('🔍 环境检测:', {
+        'import.meta.env.PROD': import.meta.env.PROD,
+        'hostname': window.location.hostname,
+        'isProduction': this.isProduction,
+        'import.meta.env.DEV': import.meta.env.DEV
+      });
+    }
 
     // 🚨 FORCE ENABLE: 无论什么环境都启动修复器
     this.init();
-    console.log('🛡️ 修复器已强制启动（所有环境）');
+    if (!window.productionUndefinedFixer) {
+      console.log('🛡️ 修复器已强制启动（所有环境）');
+    }
   }
 
   /**
@@ -96,6 +101,15 @@ class ProductionUndefinedFixer {
       return;
     }
 
+    // 🛡️ SAFE: Authing 登录弹窗激活时暂停全局修复，避免干扰真实登录
+    if (this.isGuardActive()) {
+      if (this.fixCount % 20 === 0) {
+        console.log('🛑 暂停全局 undefined 修复：Authing 登录弹窗激活中');
+      }
+      this.fixCount++;
+      return;
+    }
+
     this.fixCount++;
     let fixedCount = 0;
 
@@ -126,8 +140,8 @@ class ProductionUndefinedFixer {
         }
       });
 
-      // 修复所有元素属性
-      const elements = document.querySelectorAll('*');
+      // 修复所有元素属性（跳过 Authing 弹窗区域）
+      const elements = document.querySelectorAll('*:not(#authing_guard_container *):not(.authing-ant-modal-root *)');
       elements.forEach(element => {
         // 检查常见属性
         ['title', 'alt', 'placeholder', 'aria-label', 'data-tooltip'].forEach(attr => {
@@ -190,7 +204,9 @@ class ProductionUndefinedFixer {
               }
             } else if (node.nodeType === Node.ELEMENT_NODE) {
               const element = node as Element;
-              if (element.textContent?.includes('undefinedundefined')) {
+              // 跳过 Authing 弹窗区域
+              const inAuthingModal = element.closest('#authing_guard_container, .authing-ant-modal-root');
+              if (!inAuthingModal && element.textContent?.includes('undefinedundefined')) {
                 needsFix = true;
               }
             }
@@ -209,6 +225,21 @@ class ProductionUndefinedFixer {
       subtree: true,
       characterData: true
     });
+  }
+
+  // 检测登录弹窗是否激活
+  private isGuardActive(): boolean {
+    const selectors = ['#authing_guard_container', '.authing-ant-modal-root', '#authing-guard-container-v4'];
+    for (const sel of selectors) {
+      const el = document.querySelector(sel) as HTMLElement | null;
+      if (el && this.isElementVisible(el)) return true;
+    }
+    return false;
+  }
+
+  private isElementVisible(el: HTMLElement): boolean {
+    const style = window.getComputedStyle(el);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
   }
 
   /**
@@ -300,15 +331,18 @@ declare global {
   }
 }
 
-// 🚨 FORCE ENABLE: 强制启用修复器（包括开发环境）
-// 用于测试生产环境 Authing 登录行为
-window.productionUndefinedFixer = new ProductionUndefinedFixer({
-  enableGlobalFix: true,
-  enableDOMObserver: true,
-  enableConsoleFilter: false, // 开发环境保留控制台输出
-  fixInterval: 500, // 更频繁的检查
-  maxFixAttempts: 200
-});
-console.log('🚨 FORCE ENABLED: 生产环境修复器已强制启用（包括开发环境）');
+// 🔧 FIXED: 避免重复启动修复器
+if (!window.productionUndefinedFixer) {
+  window.productionUndefinedFixer = new ProductionUndefinedFixer({
+    enableGlobalFix: true,
+    enableDOMObserver: true,
+    enableConsoleFilter: false, // 开发环境保留控制台输出
+    fixInterval: 500, // 更频繁的检查
+    maxFixAttempts: 200
+  });
+  console.log('🚨 FORCE ENABLED: 生产环境修复器已强制启用（包括开发环境）');
+} else {
+  console.log('🔍 生产环境修复器已存在，跳过重复启动');
+}
 
 export default ProductionUndefinedFixer;

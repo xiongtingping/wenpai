@@ -41,15 +41,20 @@ class AuthingProductionFixer {
                        window.location.hostname.includes('.vercel.app') ||
                        window.location.hostname.includes('.app');
 
-    console.log('🔍 Authing修复器环境检测:', {
-      'import.meta.env.PROD': import.meta.env.PROD,
-      'hostname': window.location.hostname,
-      'isProduction': this.isProduction
-    });
+    // 🔧 FIXED: 减少重复日志输出
+    if (!window.authingProductionFixer) {
+      console.log('🔍 Authing修复器环境检测:', {
+        'import.meta.env.PROD': import.meta.env.PROD,
+        'hostname': window.location.hostname,
+        'isProduction': this.isProduction
+      });
+    }
 
     // 🚨 FORCE ENABLE: 无论什么环境都启动Authing修复器
     this.init();
-    console.log('🛡️ Authing修复器已强制启动（所有环境）');
+    if (!window.authingProductionFixer) {
+      console.log('🛡️ Authing修复器已强制启动（所有环境）');
+    }
   }
 
   /**
@@ -70,8 +75,8 @@ class AuthingProductionFixer {
     // 监听 Authing Guard 相关事件
     this.monitorAuthingEvents();
 
-    // 拦截 Authing Guard 的用户信息处理
-    this.interceptUserInfoProcessing();
+    // 🛡️ SAFE: 不再全局覆盖 JSON.stringify，避免干扰 Authing SDK
+    // this.interceptUserInfoProcessing();
 
     // 🚨 NEW: 启动弹窗监控和自动关闭
     this.startModalMonitoring();
@@ -82,6 +87,15 @@ class AuthingProductionFixer {
    */
   private checkAndFix(): void {
     if (this.retryCount >= this.config.maxRetries) {
+      return;
+    }
+
+    // 登录弹窗显示时暂停修复，防止干扰用户输入与 SDK 行为
+    if (this.isGuardActive()) {
+      if (this.retryCount % 10 === 1) {
+        console.log('🛑 暂停 Authing 修复器：登录弹窗激活中');
+      }
+      this.retryCount++;
       return;
     }
 
@@ -201,6 +215,11 @@ class AuthingProductionFixer {
    * 修复元素内容
    */
   private fixElementContent(element: HTMLElement): void {
+    // 登录弹窗激活期间，不对 Authing 弹窗内容做任何修改，避免干扰真实登录
+    if (this.isGuardActive() && this.isAuthingElement(element)) {
+      return;
+    }
+
     // 修复文本节点
     const walker = document.createTreeWalker(
       element,
@@ -300,34 +319,39 @@ class AuthingProductionFixer {
    * 判断是否是 Authing 相关元素
    */
   private isAuthingElement(element: Element): boolean {
-    const className = element.className || '';
+    // 🔧 FIXED: 安全处理 className，可能是 DOMTokenList 或字符串
+    const className = typeof element.className === 'string'
+      ? element.className
+      : element.className?.toString() || '';
     const id = element.id || '';
-    
+
     return className.includes('authing') ||
            className.includes('guard') ||
            id.includes('authing') ||
            id.includes('guard');
   }
 
+  // 检测登录弹窗是否激活
+  private isGuardActive(): boolean {
+    const selectors = ['#authing_guard_container', '.authing-ant-modal-root', '#authing-guard-container-v4'];
+    for (const sel of selectors) {
+      const el = document.querySelector(sel) as HTMLElement | null;
+      if (el && this.isElementVisible(el)) return true;
+    }
+    return false;
+  }
+
+  private isElementVisible(el: HTMLElement): boolean {
+    const style = window.getComputedStyle(el);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+  }
+
   /**
    * 拦截用户信息处理
    */
   private interceptUserInfoProcessing(): void {
-    // 拦截可能的用户信息处理函数
-    const originalStringify = JSON.stringify;
-    JSON.stringify = function(value, replacer, space) {
-      if (value && typeof value === 'object' && (value.nickname || value.username)) {
-        // 安全处理用户对象
-        const safeValue = {
-          ...value,
-          nickname: value.nickname || '',
-          username: value.username || '',
-          displayName: getUserDisplayName(value, '用户')
-        };
-        return originalStringify.call(this, safeValue, replacer, space);
-      }
-      return originalStringify.call(this, value, replacer, space);
-    };
+    // 🛡️ SAFE NO-OP: 之前覆盖 JSON.stringify 会影响 SDK 的请求序列化，已禁用
+    // 如需安全序列化，请在本模块内使用局部 safeStringify，而不是全局覆盖
   }
 
   /**
@@ -490,7 +514,10 @@ class AuthingProductionFixer {
    * 判断是否是弹窗元素
    */
   private isModalElement(element: Element): boolean {
-    const className = element.className || '';
+    // 🔧 FIXED: 安全处理 className，可能是 DOMTokenList 或字符串
+    const className = typeof element.className === 'string'
+      ? element.className
+      : element.className?.toString() || '';
     const role = element.getAttribute('role') || '';
     const ariaModal = element.getAttribute('aria-modal') || '';
 
@@ -508,6 +535,11 @@ class AuthingProductionFixer {
    */
   private handleModalElement(element: HTMLElement): void {
     const textContent = element.textContent || '';
+
+    // 登录弹窗激活期间，不做任何内容修复
+    if (this.isGuardActive()) {
+      return;
+    }
 
     // 检查是否包含 undefinedundefined
     if (textContent.includes('undefinedundefined')) {
@@ -528,8 +560,7 @@ class AuthingProductionFixer {
       const zIndex = parseInt(style.zIndex) || 0;
 
       if (zIndex > 1000) {
-        console.log('🚨 检测到高层级弹窗:', {
-          zIndex,
+        console.log('� 高层级弹窗内容检查:', {
           textContent: textContent.substring(0, 100),
           className: element.className
         });
@@ -639,9 +670,11 @@ declare global {
   }
 }
 
-// 自动启动（仅在生产环境）
-if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
+// 🔧 FIXED: 避免重复启动修复器
+if ((import.meta.env.PROD || window.location.hostname !== 'localhost') && !window.authingProductionFixer) {
   window.authingProductionFixer = new AuthingProductionFixer();
+} else if (window.authingProductionFixer) {
+  console.log('🔍 Authing修复器已存在，跳过重复启动');
 }
 
 export default AuthingProductionFixer;
