@@ -1,9 +1,8 @@
 import './index.css';
-// ✅ FIXED: 2025-08-13 修复 Authing Guard 弹窗空白问题
-// 🐛 问题原因：使用了错误的 CSS 文件路径，导致弹窗样式缺失
-// 🔧 修复方式：导入正确的 Guard React CSS 文件
-// 📌 重要：必须使用 guard-react 的 CSS 文件
-import '@authing/guard-react/dist/esm/guard.min.css';
+// ✅ FIXED: 2025-08-14 修复生产环境 CSS 导入问题
+// 🐛 问题原因：guard-react CSS 文件路径在生产环境中无法解析
+// 🔧 修复方式：使用正确的 CSS 文件路径
+import '@authing/guard/dist/esm/guard.min.css';
 
 // 🔧 FIXED: 2025-08-13 导入自定义 Authing Guard 样式
 // 确保弹窗正确显示和样式覆盖
