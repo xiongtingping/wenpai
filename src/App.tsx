@@ -5,7 +5,6 @@ import { ScrollManager } from '@/components/layout/ScrollManager';
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 // 🔧 SYSTEM REBUILD: 使用嵌套Provider结构，保持向后兼容
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
-import { AuthingWebProvider } from '@/contexts/AuthingWebContext';
 import { UserDataIsolationProvider } from '@/hooks/useUserDataIsolationInit';
 import PageTracker from '@/components/analytics/PageTracker';
 import { Toaster } from '@/components/ui/toaster';
@@ -78,7 +77,7 @@ import BlurEffectTestPage from '@/pages/BlurEffectTestPage';
 import DiscountTestPage from '@/pages/DiscountTestPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import PermissionSystemDemoPage from '@/pages/PermissionSystemDemoPage';
-import AuthingDebugPage from '@/pages/AuthingDebugPage';
+// 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14] 已删除AuthingDebugPage，统一使用@authing/guard
 import UserPersistenceTestPage from '@/pages/UserPersistenceTestPage';
 import AuthingGuardTestPage from '@/pages/AuthingGuardTestPage';
 import ProductionAuthTestPage from '@/pages/ProductionAuthTestPage';
@@ -314,7 +313,7 @@ function AppContent() {
           <Route path="/discount-test" element={<DiscountTestPage />} />
           <Route path="/feature-showcase" element={<FeatureShowcasePage />} />
           <Route path="/permission-system-demo" element={<PermissionSystemDemoPage />} />
-          <Route path="/authing-debug" element={<AuthingDebugPage />} />
+          {/* 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14] 已删除authing-debug路由 */}
           <Route path="/user-persistence-test" element={<UserPersistenceTestPage />} />
           <Route path="/authing-guard-test" element={<AuthingGuardTestPage />} />
           <Route path="/production-auth-test" element={<ProductionAuthTestPage />} />
@@ -342,22 +341,20 @@ function AppContent() {
  */
 export default function App() {
   return (
-    <AuthingWebProvider>
-      <UnifiedAuthProvider>
-        <UserDataIsolationProvider
-          config={{
-            enableLogging: import.meta.env.DEV,
-            autoCleanupOnLogout: false,
-            services: {
-              payment: true,
-              hashtag: true
-            }
-          }}
-        >
-          <AppContent />
-          <Toaster />
-        </UserDataIsolationProvider>
-      </UnifiedAuthProvider>
-    </AuthingWebProvider>
+    <UnifiedAuthProvider>
+      <UserDataIsolationProvider
+        config={{
+          enableLogging: import.meta.env.DEV,
+          autoCleanupOnLogout: false,
+          services: {
+            payment: true,
+            hashtag: true
+          }
+        }}
+      >
+        <AppContent />
+        <Toaster />
+      </UserDataIsolationProvider>
+    </UnifiedAuthProvider>
   );
 }

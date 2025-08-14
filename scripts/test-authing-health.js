@@ -10,11 +10,11 @@ import path from 'path';
 
 console.log('🔍 开始Authing健康检查...');
 
-// 检查关键文件是否存在
+// 🔒 [AUTHING_GUARD_HEALTH_CHECK_v2025.08.14]
+// 检查关键文件是否存在 - 已移除guard.ts，统一使用UnifiedAuthContext
 const criticalFiles = [
   'src/contexts/UnifiedAuthContext.tsx',
   'src/config/authing.ts',
-  'src/authing/guard.ts',
   'package.json'
 ];
 
@@ -30,32 +30,42 @@ criticalFiles.forEach(file => {
   }
 });
 
-// 2. 检查Guard初始化格式（在guard.ts文件中）
+// 🔒 [AUTHING_GUARD_UNIFIED_CHECK_v2025.08.14]
+// 2. 检查Guard初始化格式（在UnifiedAuthContext.tsx中）
 try {
-  const guardFile = fs.readFileSync('src/authing/guard.ts', 'utf8');
+  const contextFile = fs.readFileSync('src/contexts/UnifiedAuthContext.tsx', 'utf8');
 
   // 检查Guard导入
-  if (guardFile.includes('import { Guard }') || guardFile.includes('import Guard')) {
+  if (contextFile.includes('import { Guard }') || contextFile.includes('import Guard')) {
     console.log('✅ Guard导入格式正确');
   } else {
     console.warn('⚠️ 未检测到Guard导入');
   }
 
   // 检查Guard初始化格式
-  if (guardFile.includes('new Guard({')) {
+  if (contextFile.includes('new Guard({')) {
     console.log('✅ Guard初始化格式正确');
-  } else if (guardFile.includes('new Guard(')) {
+  } else if (contextFile.includes('new Guard(')) {
     console.error('❌ Guard初始化格式错误，应使用 new Guard({...}) 而不是 new Guard(appId, {...})');
     hasErrors = true;
   }
 
   // 检查是否有userPoolId配置（已废弃）
-  if (guardFile.includes('userPoolId')) {
+  if (contextFile.includes('userPoolId')) {
     console.warn('⚠️ 检测到已废弃的userPoolId配置，建议移除');
   }
 
+  // 检查是否有@authing/web残留（排除注释）
+  const authingWebImports = contextFile.match(/^[^\/]*import.*@authing\/web/gm);
+  if (authingWebImports && authingWebImports.length > 0) {
+    console.error('❌ 检测到@authing/web残留导入，应使用@authing/guard');
+    hasErrors = true;
+  } else {
+    console.log('✅ 没有@authing/web残留导入');
+  }
+
 } catch (error) {
-  console.error(`❌ 读取guard.ts失败: ${error.message}`);
+  console.error(`❌ 读取UnifiedAuthContext.tsx失败: ${error.message}`);
   hasErrors = true;
 }
 

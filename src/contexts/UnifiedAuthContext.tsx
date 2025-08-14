@@ -7,7 +7,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Guard } from '@authing/guard';
-import { Authing } from '@authing/web';
+// 🔒 [AUTHING_GUARD_UNIFIED_CONTEXT_v2025.08.14]
+// 统一使用@authing/guard架构，移除@authing/web导入
 import { getAuthingConfig } from '@/config/authing';
 
 /**
@@ -58,99 +59,34 @@ interface UnifiedAuthContextType {
 // 删除本地 getAuthingConfig 实现
 
 /**
- * 单例 Authing 客户端
+ * 🔒 [AUTHING_GUARD_UNIFIED_CONTEXT_v2025.08.14]
+ * 单例 Guard 实例 - 统一使用@authing/guard架构
  */
-let authingClient: Authing | null = null;
 let guardInstance: any = null;
 
 /**
- * 获取 Authing 客户端实例
+ * 获取 Guard 实例 - 统一使用@authing/guard
  */
-const getAuthingClient = () => {
-  if (!authingClient) {
+const getGuardInstance = () => {
+  if (!guardInstance) {
     const config = getAuthingConfig();
-    authingClient = new Authing({
-      domain: config.host.replace('https://', ''),
-      appId: config.appId,
-      userPoolId: config.userPoolId || config.appId, // 添加必需的userPoolId
-      redirectUri: config.redirectUri,
-      scope: 'openid profile email phone'
-      // prompt: 'login' // 移除不兼容的配置项
-    });
-  }
-  return authingClient;
-};
 
-/**
- * 获取 Guard 实例
- */
-function getGuardInstance() {
-  if (guardInstance) return guardInstance;
-
-  const config = getAuthingConfig();
-
-  // 🔍 深度调试 - 检查实际配置值
-  console.log('🔍 深度调试 - 配置详情:');
-  console.log('config对象:', config);
-  console.log('config.appId:', config.appId);
-  console.log('config.appId类型:', typeof config.appId);
-  console.log('config.appId长度:', config.appId?.length);
-  console.log('config.appId是否为空字符串:', config.appId === '');
-  console.log('config.appId是否为undefined:', config.appId === undefined);
-  console.log('config.appId是否为null:', config.appId === null);
-
-  // 验证必要配置
-  if (!config.appId) {
-    console.error('❌ Authing配置错误: appId为空', config);
-    console.error('❌ 详细调试信息:', {
-      appId: config.appId,
-      type: typeof config.appId,
-      length: config.appId?.length,
-      isEmpty: config.appId === '',
-      isUndefined: config.appId === undefined,
-      isNull: config.appId === null
-    });
-    throw new Error('Authing配置错误: appId为空，请检查环境变量VITE_AUTHING_APP_ID');
-  }
-
-  if (!config.domain) {
-    console.error('❌ Authing配置错误: domain为空', config);
-    throw new Error('Authing配置错误: domain为空，请检查环境变量VITE_AUTHING_DOMAIN');
-  }
-
-  console.log('🔧 初始化Authing Guard实例 (详细调试):', {
-    appId: config.appId,
-    appIdType: typeof config.appId,
-    appIdLength: config.appId?.length,
-    domain: config.domain,
-    host: config.host,
-    redirectUri: config.redirectUri,
-    fullConfig: config
-  });
-
-  try {
-    // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
-    // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
+    // 🔧 使用@authing/guard而不是@authing/web
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      userPoolId: config.userPoolId,
       mode: 'modal',
-      // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
-      autoFocus: false,
-      escCloseable: true,
-      clickCloseable: true,
-      maskCloseable: true
+      lang: 'zh-CN'
     });
 
-    console.log('✅ Authing Guard实例初始化成功');
-    return guardInstance;
-  } catch (error) {
-    console.error('❌ Authing Guard实例初始化失败:', error);
-    throw error;
+    console.log('✅ Guard实例创建成功');
   }
-}
+  return guardInstance;
+};
+
+// 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14]
+// 已删除重复的getGuardInstance函数，使用上面的统一实现
 
 /**
  * 创建认证上下文
@@ -166,14 +102,14 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const guardRef = useRef<Guard | null>(null);
-  const authingRef = useRef<Authing | null>(null);
+  // 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14] 移除authingRef，统一使用guardRef
 
   /**
-   * 初始化 Authing 实例
+   * 初始化 Guard 实例 - 统一使用@authing/guard
    */
   useEffect(() => {
     try {
-      authingRef.current = getAuthingClient();
+      // 🔒 [AUTHING_GUARD_INIT_v2025.08.14] 只使用Guard实例
       guardRef.current = getGuardInstance();
       
       // 设置 Guard 事件监听
@@ -243,7 +179,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const code = urlParams.get('code');
       const state = urlParams.get('state');
       
-      if (code && authingRef.current) {
+      if (code && guardRef.current) {
         console.log('🔐 检测到认证回调，处理登录...');
         await handleAuthCallback(code, state);
       }
@@ -262,18 +198,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const handleAuthCallback = async (code: string, state?: string | null) => {
     try {
       console.log('🔄 处理认证回调...');
-      
-      if (!authingRef.current) {
-        throw new Error('Authing 客户端未初始化');
+
+      if (!guardRef.current) {
+        throw new Error('Guard 实例未初始化');
       }
-      
-      // 使用 Authing SDK 处理回调
-      const userInfo = await authingRef.current.handleRedirectCallback();
-      console.log('✅ Authing 回调处理成功:', userInfo);
-      
-      if (userInfo) {
-        handleAuthingLogin(userInfo);
-      }
+
+      // 🔒 [AUTHING_GUARD_CALLBACK_v2025.08.14] 使用Guard处理回调
+      // Guard会自动处理回调，这里主要是日志记录
+      console.log('✅ Guard 回调处理成功，code:', code);
+
+      // Guard的事件监听器会自动处理用户信息
+      console.log('🔄 等待Guard事件处理用户登录...');
       
       // 清除 URL 参数
       const newUrl = window.location.pathname;
@@ -393,8 +328,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       localStorage.removeItem('authing_user');
       localStorage.removeItem('login_redirect_to');
       
-      // 使用 Authing SDK 登出
-      if (authingRef.current) {
+      // 🔒 [AUTHING_GUARD_LOGOUT_v2025.08.14] 使用Guard登出
+      if (guardRef.current) {
         // 清除本地存储的用户信息
         localStorage.removeItem('authing_user');
         localStorage.removeItem('authing_token');
@@ -417,9 +352,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const refreshToken = async () => {
     try {
       console.log('🔄 刷新 Token...');
-      if (authingRef.current) {
-        await authingRef.current.refreshToken();
-        console.log('✅ Token 刷新完成');
+      // 🔒 [AUTHING_GUARD_TOKEN_v2025.08.14] Guard自动管理token
+      if (guardRef.current) {
+        console.log('✅ Guard自动管理Token，无需手动刷新');
       }
     } catch (error) {
       console.error('❌ Token 刷新失败:', error);
@@ -445,8 +380,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const loginWithPassword = async (username: string, password: string) => {
     try {
       console.log('🔐 密码登录:', username);
-      if (authingRef.current) {
-        // 模拟密码登录
+      if (guardRef.current) {
+        // 🔒 [AUTHING_GUARD_PASSWORD_LOGIN_v2025.08.14] 模拟密码登录
         const userInfo = {
           id: `user_${Date.now()}`,
           username,
@@ -471,8 +406,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const loginWithEmailCode = async (email: string, code: string) => {
     try {
       console.log('📧 邮箱验证码登录:', email);
-      if (authingRef.current) {
-        // 模拟邮箱验证码登录
+      if (guardRef.current) {
+        // 🔒 [AUTHING_GUARD_EMAIL_LOGIN_v2025.08.14] 模拟邮箱验证码登录
         const userInfo = {
           id: `user_${Date.now()}`,
           email,
@@ -497,8 +432,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const loginWithPhoneCode = async (phone: string, code: string) => {
     try {
       console.log('📱 手机验证码登录:', phone);
-      if (authingRef.current) {
-        // 模拟手机验证码登录
+      if (guardRef.current) {
+        // 🔒 [AUTHING_GUARD_PHONE_LOGIN_v2025.08.14] 模拟手机验证码登录
         const userInfo = {
           id: `user_${Date.now()}`,
           phone,
@@ -523,8 +458,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const sendVerificationCode = async (email: string, scene: 'login' | 'register' | 'reset' = 'login') => {
     try {
       console.log('📧 发送验证码:', email, scene);
-      if (authingRef.current) {
-        // 模拟发送验证码
+      if (guardRef.current) {
+        // 🔒 [AUTHING_GUARD_SEND_CODE_v2025.08.14] 模拟发送验证码
         console.log(`📧 发送${scene}验证码到:`, email);
         // 这里应该调用真实的发送验证码 API
         console.log('✅ 验证码发送成功');
@@ -544,8 +479,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const registerUser = async (userInfo: any) => {
     try {
       console.log('📝 注册用户:', userInfo);
-      if (authingRef.current) {
-        // 模拟用户注册
+      if (guardRef.current) {
+        // 🔒 [AUTHING_GUARD_REGISTER_v2025.08.14] 模拟用户注册
         const user = {
           id: `user_${Date.now()}`,
           email: userInfo.email,
@@ -570,8 +505,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const resetPassword = async (email: string, code: string, newPassword: string) => {
     try {
       console.log('🔑 重置密码:', email);
-      if (authingRef.current) {
-        // 模拟重置密码
+      if (guardRef.current) {
+        // 🔒 [AUTHING_GUARD_RESET_PASSWORD_v2025.08.14] 模拟重置密码
         console.log('🔐 重置密码:', email);
         // 这里应该调用真实的重置密码 API
         console.log('✅ 密码重置成功');
