@@ -29,8 +29,8 @@ export function createGuardInstance(): Guard {
   const config = getAuthingConfig();
   
   // 🛑 参数校验 - 必要参数检查
-  if (!config?.appId || !config?.host) {
-    const error = "🚨 Guard 初始化失败：缺少必要参数 appId 或 host";
+  if (!config?.appId || !config?.domain) {
+    const error = "🚨 Guard 初始化失败：缺少必要参数 appId 或 domain";
     console.error(error, { config });
     throw new Error(error);
   }
@@ -43,34 +43,36 @@ export function createGuardInstance(): Guard {
 
   console.log('🔧 Guard配置验证通过:', {
     appId: config.appId,
-    host: config.host,
+    domain: config.domain,
     redirectUri: config.redirectUri,
     hasUserPoolId: !!config.userPoolId
   });
 
   try {
-    // ✅ RESTORED: 2025-08-14 恢复历史成功配置的 Guard 初始化
-    // 使用历史成功版本的完整配置
+    // ✅ FIXED: 2025-08-14 基于提交71ef411成功配置的Guard初始化
+    // 📌 关键修复：使用domain而不是host，修复undefined弹窗问题
     guardInstance = new Guard({
       appId: config.appId,
-      host: config.host,
+      // 🔧 关键修复：使用domain而不是host
+      domain: config.domain,
       redirectUri: config.redirectUri,
-      userPoolId: config.userPoolId,
       mode: 'modal',
-      // ✅ RESTORED: 历史成功版本的 accessibility 配置
+      // ✅ FIXED: 修复aria-hidden焦点问题的accessibility配置
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
-      maskCloseable: true
+      maskCloseable: true,
+      // 🔧 添加语言配置，避免字符编码问题
+      lang: 'zh-CN'
     });
 
     // 🧪 实例验证
-    if (!guardInstance || typeof guardInstance.on !== 'function') {
+    if (!guardInstance || typeof guardInstance.show !== 'function' || typeof guardInstance.on !== 'function') {
       throw new Error('Guard实例创建失败: 实例无效或缺少必要方法');
     }
 
     console.log('✅ Guard实例创建成功');
-    console.log('✅ Guard实例验证通过，具备必要方法');
+    console.log('✅ Guard实例验证通过，具备show/hide/on方法');
     
     return guardInstance;
     

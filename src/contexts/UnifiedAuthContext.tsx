@@ -6,9 +6,10 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Guard } from '@authing/guard';
 import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
+// ✅ FIXED: 2025-08-14 使用统一的Guard实例管理，避免重复创建
+import { getGuardInstance } from '@/authing/guard';
 
 /**
  * 用户信息接口
@@ -81,76 +82,8 @@ const getAuthingClient = () => {
   return authingClient;
 };
 
-/**
- * 获取 Guard 实例
- */
-function getGuardInstance() {
-  if (guardInstance) return guardInstance;
-
-  const config = getAuthingConfig();
-
-  // 🔍 深度调试 - 检查实际配置值
-  console.log('🔍 深度调试 - 配置详情:');
-  console.log('config对象:', config);
-  console.log('config.appId:', config.appId);
-  console.log('config.appId类型:', typeof config.appId);
-  console.log('config.appId长度:', config.appId?.length);
-  console.log('config.appId是否为空字符串:', config.appId === '');
-  console.log('config.appId是否为undefined:', config.appId === undefined);
-  console.log('config.appId是否为null:', config.appId === null);
-
-  // 验证必要配置
-  if (!config.appId) {
-    console.error('❌ Authing配置错误: appId为空', config);
-    console.error('❌ 详细调试信息:', {
-      appId: config.appId,
-      type: typeof config.appId,
-      length: config.appId?.length,
-      isEmpty: config.appId === '',
-      isUndefined: config.appId === undefined,
-      isNull: config.appId === null
-    });
-    throw new Error('Authing配置错误: appId为空，请检查环境变量VITE_AUTHING_APP_ID');
-  }
-
-  if (!config.domain) {
-    console.error('❌ Authing配置错误: domain为空', config);
-    throw new Error('Authing配置错误: domain为空，请检查环境变量VITE_AUTHING_DOMAIN');
-  }
-
-  console.log('🔧 初始化Authing Guard实例 (详细调试):', {
-    appId: config.appId,
-    appIdType: typeof config.appId,
-    appIdLength: config.appId?.length,
-    domain: config.domain,
-    host: config.host,
-    redirectUri: config.redirectUri,
-    fullConfig: config
-  });
-
-  try {
-    // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
-    // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
-    guardInstance = new Guard({
-      appId: config.appId,
-      host: config.host,
-      redirectUri: config.redirectUri,
-      userPoolId: config.userPoolId,
-      mode: 'modal',
-      // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
-      autoFocus: false,
-      escCloseable: true,
-      clickCloseable: true,
-      maskCloseable: true
-    });
-
-    console.log('✅ Authing Guard实例初始化成功');
-    return guardInstance;
-  } catch (error) {
-    console.error('❌ Authing Guard实例初始化失败:', error);
-    throw error;
-  }
-}
+// ✅ FIXED: 2025-08-14 移除重复的Guard实例创建逻辑
+// 📌 统一使用 src/authing/guard.ts 中的Guard实例管理
 
 /**
  * 创建认证上下文
