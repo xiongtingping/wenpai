@@ -358,22 +358,71 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (guardRef.current) {
         guardRef.current.show();
 
-        // 🔧 CRITICAL FIX: 显示后立即修复可能的undefined文本
+        // 🔧 ULTIMATE FIX: 超强力undefined修复系统
         setTimeout(() => {
-          const fixUndefinedInModal = () => {
-            const modalSelectors = [
+          console.log('🚀 启动超强力undefined修复系统...');
+
+          const ultimateFixUndefined = () => {
+            let fixCount = 0;
+
+            // 1. 全页面扫描所有可能的弹窗容器
+            const allModalSelectors = [
               '#authing_guard_container',
               '#authing-guard-container-v4',
               '.authing-ant-modal-root',
-              '.authing-guard-container'
+              '.authing-guard-container',
+              '[class*="authing"]',
+              '[class*="guard"]',
+              '[class*="modal"]',
+              '[role="dialog"]',
+              '.ant-modal',
+              '.ant-modal-wrap',
+              '.ant-modal-content',
+              // 更广泛的选择器
+              'div[style*="z-index"]',
+              'div[style*="position: fixed"]',
+              'div[style*="position:fixed"]'
             ];
 
-            modalSelectors.forEach(selector => {
-              const modal = document.querySelector(selector);
-              if (modal) {
-                // 修复所有文本节点中的undefined
+            // 2. 检查所有高z-index元素
+            const allElements = document.querySelectorAll('*');
+            const highZIndexElements = Array.from(allElements).filter(el => {
+              const style = window.getComputedStyle(el);
+              const zIndex = parseInt(style.zIndex);
+              return zIndex > 1000 && style.display !== 'none';
+            });
+
+            console.log('🔍 发现高z-index元素:', highZIndexElements.length);
+
+            // 3. 合并所有可能的容器
+            const allContainers = new Set();
+
+            // 添加选择器匹配的元素
+            allModalSelectors.forEach(selector => {
+              try {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => allContainers.add(el));
+              } catch (e) {
+                // 忽略无效选择器
+              }
+            });
+
+            // 添加高z-index元素
+            highZIndexElements.forEach(el => allContainers.add(el));
+
+            console.log('🔍 总共发现容器:', allContainers.size);
+
+            // 4. 对每个容器进行修复
+            allContainers.forEach(container => {
+              if (!container || !container.textContent) return;
+
+              // 检查是否包含undefined
+              if (container.textContent.includes('undefined')) {
+                console.log('🎯 发现包含undefined的容器:', container);
+
+                // 修复所有文本节点
                 const walker = document.createTreeWalker(
-                  modal,
+                  container,
                   NodeFilter.SHOW_TEXT,
                   null
                 );
@@ -382,45 +431,70 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
                 while (node = walker.nextNode()) {
                   if (node.textContent && node.textContent.includes('undefined')) {
                     const original = node.textContent;
-                    const fixed = original
-                      .replace(/undefinedundefined/g, '登录')
-                      .replace(/undefined/g, '');
-                    node.textContent = fixed;
-                    console.log('🛠️ 修复Guard弹窗文本:', original, '->', fixed);
+                    let fixed = original;
+
+                    // 多种修复策略
+                    if (fixed.includes('undefinedundefined')) {
+                      fixed = fixed.replace(/undefinedundefined/g, '登录');
+                      console.log('🛠️ 修复undefinedundefined:', original, '->', fixed);
+                    } else if (fixed.trim() === 'undefined') {
+                      fixed = '登录';
+                      console.log('🛠️ 修复单独undefined:', original, '->', fixed);
+                    } else if (fixed.includes('undefined')) {
+                      fixed = fixed.replace(/undefined/g, '');
+                      console.log('🛠️ 移除undefined:', original, '->', fixed);
+                    }
+
+                    if (fixed !== original) {
+                      node.textContent = fixed;
+                      fixCount++;
+                    }
                   }
                 }
 
                 // 修复元素属性
-                const elements = modal.querySelectorAll('*');
+                const elements = container.querySelectorAll('*');
                 elements.forEach(element => {
-                  ['title', 'placeholder', 'alt', 'aria-label'].forEach(attr => {
+                  ['title', 'placeholder', 'alt', 'aria-label', 'data-title', 'data-content'].forEach(attr => {
                     const value = element.getAttribute(attr);
                     if (value && value.includes('undefined')) {
                       const fixed = value
                         .replace(/undefinedundefined/g, '登录')
                         .replace(/undefined/g, '');
                       element.setAttribute(attr, fixed);
-                      console.log('🛠️ 修复Guard元素属性:', attr, value, '->', fixed);
+                      console.log('🛠️ 修复元素属性:', attr, value, '->', fixed);
+                      fixCount++;
                     }
                   });
                 });
               }
             });
+
+            if (fixCount > 0) {
+              console.log(`✅ 本轮修复了 ${fixCount} 个undefined问题`);
+            }
+
+            return fixCount;
           };
 
           // 立即执行一次
-          fixUndefinedInModal();
+          ultimateFixUndefined();
 
-          // 每500ms检查一次，持续5秒
-          let attempts = 0;
+          // 更频繁的检查：每200ms检查一次，持续10秒
+          let totalAttempts = 0;
+          let totalFixed = 0;
           const interval = setInterval(() => {
-            fixUndefinedInModal();
-            attempts++;
-            if (attempts >= 10) {
+            const fixed = ultimateFixUndefined();
+            totalFixed += fixed;
+            totalAttempts++;
+
+            if (totalAttempts >= 50) { // 10秒
               clearInterval(interval);
+              console.log(`🏁 超强力修复系统完成，总共修复了 ${totalFixed} 个问题`);
             }
-          }, 500);
-        }, 100);
+          }, 200);
+
+        }, 50); // 更快启动
 
       } else {
         throw new Error('Guard 实例未初始化');
