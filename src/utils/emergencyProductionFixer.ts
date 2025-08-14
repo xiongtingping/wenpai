@@ -7,6 +7,8 @@ class EmergencyProductionFixer {
   private isActive = false;
   private fixInterval: number | null = null;
 
+  private lastPauseLog = 0;
+
   constructor() {
     // 仅在生产环境启动
     if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
@@ -37,6 +39,16 @@ class EmergencyProductionFixer {
    * 执行紧急修复
    */
   private performEmergencyFix(): void {
+    // 🛡️ SAFE: Authing 登录弹窗激活时，暂停紧急修复，避免干扰真实登录
+    if (this.isGuardActive()) {
+      const now = Date.now();
+      if (now - this.lastPauseLog > 2000) {
+        console.log('🛑 暂停 Authing 修复器：登录弹窗激活中');
+        this.lastPauseLog = now;
+      }
+      return;
+    }
+
     try {
       // 1. 修复 undefinedundefined 问题
       this.fixUndefinedConcatenation();
@@ -67,7 +79,7 @@ class EmergencyProductionFixer {
     let node;
     while (node = walker.nextNode()) {
       const textContent = node.textContent || '';
-      if (textContent.includes('undefinedundefined') || 
+      if (textContent.includes('undefinedundefined') ||
           textContent.includes('undefined') && textContent.length < 50) {
         problematicNodes.push(node as Text);
       }
@@ -80,7 +92,7 @@ class EmergencyProductionFixer {
 
         // 移除 undefinedundefined
         fixed = fixed.replace(/undefinedundefined/g, '');
-        
+
         // 移除单独的 undefined（但保留有意义的文本）
         if (fixed.trim() === 'undefined' || fixed.match(/^undefined\s*$/)) {
           fixed = '';
@@ -159,7 +171,7 @@ class EmergencyProductionFixer {
     const originalError = console.error;
     console.error = (...args) => {
       const message = args.join(' ');
-      
+
       // 过滤 Authing 相关的已知错误
       if (message.includes('getCurrentUser is not a function')) {
         console.warn('🔧 Authing API 错误已被拦截并处理');
@@ -183,9 +195,10 @@ class EmergencyProductionFixer {
     const originalWarn = console.warn;
     console.warn = (...args) => {
       const message = args.join(' ');
-      
+
+
       // 过滤模块完整性相关警告
-      if (message.includes('模块完整性验证') || 
+      if (message.includes('模块完整性验证') ||
           message.includes('callContentAdapter is not defined')) {
         console.log('🔧 模块完整性警告已被处理');
         return;
@@ -208,6 +221,21 @@ class EmergencyProductionFixer {
     console.log('🚨 紧急生产环境修复器已销毁');
   }
 
+  // 检测登录弹窗是否激活（与其他修复器保持一致）
+  private isGuardActive(): boolean {
+    const selectors = ['#authing_guard_container', '.authing-ant-modal-root', '#authing-guard-container-v4'];
+    for (const sel of selectors) {
+      const el = document.querySelector(sel) as HTMLElement | null;
+      if (el && this.isElementVisible(el)) return true;
+    }
+    return false;
+  }
+
+  private isElementVisible(el: HTMLElement): boolean {
+    const style = window.getComputedStyle(el);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+  }
+
   /**
    * 获取修复器状态
    */
@@ -227,9 +255,11 @@ declare global {
   }
 }
 
-// 自动启动
-if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
+// 🔧 FIXED: 避免重复启动修复器
+if ((import.meta.env.PROD || window.location.hostname !== 'localhost') && !window.emergencyProductionFixer) {
   window.emergencyProductionFixer = new EmergencyProductionFixer();
+} else if (window.emergencyProductionFixer) {
+  console.log('🔍 紧急修复器已存在，跳过重复启动');
 }
 
 export default EmergencyProductionFixer;
