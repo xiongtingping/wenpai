@@ -29,8 +29,8 @@ export function createGuardInstance(): Guard {
   const config = getAuthingConfig();
   
   // 🛑 参数校验 - 必要参数检查
-  if (!config?.appId || !config?.domain) {
-    const error = "🚨 Guard 初始化失败：缺少必要参数 appId 或 domain";
+  if (!config?.appId || !config?.host) {
+    const error = "🚨 Guard 初始化失败：缺少必要参数 appId 或 host";
     console.error(error, { config });
     throw new Error(error);
   }
@@ -43,19 +43,20 @@ export function createGuardInstance(): Guard {
 
   console.log('🔧 Guard配置验证通过:', {
     appId: config.appId,
-    domain: config.domain,
+    host: config.host,
     redirectUri: config.redirectUri,
     hasUserPoolId: !!config.userPoolId
   });
 
   try {
     // ✅ FIXED: 2025-08-14 基于提交71ef411成功配置的Guard初始化
-    // 📌 关键修复：使用domain而不是host，修复undefined弹窗问题
+    // 📌 关键修复：使用正确的Guard构造方式和参数
     guardInstance = new Guard({
       appId: config.appId,
-      // 🔧 关键修复：使用domain而不是host
-      domain: config.domain,
+      // 🔧 使用host参数，这是Authing Guard的标准配置
+      host: config.host,
       redirectUri: config.redirectUri,
+      userPoolId: config.userPoolId,
       mode: 'modal',
       // ✅ FIXED: 修复aria-hidden焦点问题的accessibility配置
       autoFocus: false,
