@@ -15,7 +15,7 @@ console.log('📋 使用新的@authing/web架构，保持向后兼容');
 // 创建Authing Web SDK实例
 const authingWebSDK = new AuthingWebSDK({
   appId: authingConfig.appId,
-  appHost: authingConfig.host,
+  appHost: authingConfig.appHost, // 使用纯域名
   redirectUri: authingConfig.redirectUri,
   mode: 'redirect'
 });

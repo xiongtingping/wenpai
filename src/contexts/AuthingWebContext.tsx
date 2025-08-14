@@ -10,6 +10,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useNavigate } from 'react-router-dom';
 import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
+import { createAuthingInstance, getAuthingInstance } from '@/authing/guardManager';
 
 /**
  * 用户信息接口
@@ -77,38 +78,22 @@ export const AuthingWebProvider: React.FC<AuthingWebProviderProps> = ({ children
   const navigate = useNavigate();
 
   /**
-   * 初始化Authing客户端
+   * 初始化Authing客户端 - 使用统一管理器
    */
   const initializeAuthing = async () => {
     try {
-      const config = getAuthingConfig();
-      
-      console.log('🔧 初始化Authing Web客户端:', {
-        appId: config.appId,
-        domain: config.domain,
-        redirectUri: config.redirectUri
-      });
+      console.log('🔧 使用统一Guard管理器初始化Authing客户端...');
 
-      const client = new Authing({
-        appId: config.appId,
-        domain: config.domain,
-        redirectUri: config.redirectUri,
-        userPoolId: config.userPoolId,
-        // 🔧 使用内置登录组件
-        mode: 'redirect', // 或 'popup'
-        scope: 'openid profile email phone',
-        responseType: 'code',
-        // 🔧 语言配置
-        lang: 'zh-CN'
-      });
+      // 🔧 使用统一的Guard管理器
+      const client = await createAuthingInstance();
 
       setAuthingClient(client);
       console.log('✅ Authing Web客户端初始化成功');
-      
+
       return client;
     } catch (error) {
       console.error('❌ Authing Web客户端初始化失败:', error);
-      setError('认证系统初始化失败');
+      setError('认证系统初始化失败: ' + (error instanceof Error ? error.message : String(error)));
       throw error;
     }
   };

@@ -6,7 +6,8 @@
 
 export interface AuthingConfig {
   appId: string;
-  host: string;
+  host: string; // 完整URL，用于兼容性
+  appHost: string; // 纯域名，用于@authing/web
   redirectUri: string;
   userPoolId?: string;
   domain: string;
@@ -37,6 +38,8 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 const APP_ID = '68823897631e1ef8ff3720b2';
 const DOMAIN = 'rzcswqd4sq0f.authing.cn';
 const HOST = 'https://rzcswqd4sq0f.authing.cn';
+// 🔧 修复：appHost应该是域名，不包含https://
+const APP_HOST = 'rzcswqd4sq0f.authing.cn';
 
 let cachedConfig: any = null;
 export function getAuthingConfig() {
@@ -63,7 +66,8 @@ export function getAuthingConfig() {
 
   cachedConfig = {
     appId: APP_ID,
-    host: HOST,
+    host: HOST, // 保持完整URL用于兼容性
+    appHost: APP_HOST, // 新增：纯域名用于@authing/web
     domain: DOMAIN,
     redirectUri: redirectUri,
     userPoolId: getEnvVar('VITE_AUTHING_USER_POOL_ID', ''),
