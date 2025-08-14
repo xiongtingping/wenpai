@@ -22,8 +22,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 🔧 FIXED: 2025-08-13 修复 Guard 导入，使用正确的 guard-react 包
-import { Guard } from '@authing/guard-react';
+
+import type { Guard } from '@authing/guard';
 // import * as AuthingWeb from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 // 🔧 FIXED: 2025-08-13 使用统一的 Guard 实例管理
@@ -104,78 +104,40 @@ const getAuthingClient = async () => {
   if (!authingClient) {
     const config = getAuthingConfig();
     try {
-      // 🔧 FIXED: 2025-08-13 修复 Authing v5 SDK 初始化
-      console.log('🔧 初始化 Authing v5 客户端...');
+      console.log('🔧 初始化真实 @authing/web v5 客户端...');
 
-      // 🚨 生产环境特殊处理
       const isProduction = import.meta.env.PROD || window.location.hostname !== 'localhost';
       if (isProduction) {
-        console.log('🌐 检测到生产环境，应用生产环境配置...');
-
-        // 生产环境额外验证
-        if (!config.appId || config.appId.includes('undefined')) {
-          console.error('❌ 生产环境 Authing 配置错误:', config);
+        console.log('🌐 检测到生产环境，进行严格配置校验...');
+        if (!config.appId || !config.host || !config.redirectUri) {
+          console.error('❌ 生产环境 Authing 配置缺失:', config);
           throw new Error('生产环境 Authing 配置无效');
         }
-      }
-
-      // 🔧 FIXED: 2025-08-13 修复生产环境构建问题
-      // 改为静态导入，避免 Vite 构建时的动态导入解析问题
-      // 🔧 FIXED: 2025-08-13 完全移除 @authing/web 依赖，避免构建问题
-      console.log('✅ 使用 Guard 内置功能，无需单独的 Authing 客户端');
-
-      // 🚨 生产环境安全配置
-      const clientConfig = {
-        domain: config.host.replace('https://', ''),
-        appId: config.appId,
-        userPoolId: config.userPoolId || config.appId,
-        redirectUri: config.redirectUri,
-        scope: 'openid profile email phone',
-        // v5 版本可能需要的额外配置
-        protocol: 'oidc',
-        tokenEndPointAuthMethod: 'client_secret_post',
-        introspectionEndPointAuthMethod: 'client_secret_post',
-        revocationEndPointAuthMethod: 'client_secret_post'
-      };
-
-      // 🚨 生产环境配置验证
-      if (isProduction) {
-        Object.keys(clientConfig).forEach(key => {
-          const value = (clientConfig as any)[key];
-          if (typeof value === 'string' && value.includes('undefined')) {
-            console.error(`❌ 生产环境配置包含 undefined: ${key} = ${value}`);
-            throw new Error(`生产环境配置错误: ${key} 包含 undefined`);
+        ['appId', 'host', 'redirectUri'].forEach((k) => {
+          const v = (config as any)[k];
+          if (typeof v === 'string' && v.includes('undefined')) {
+            throw new Error(`生产环境配置错误: ${k} 包含 undefined`);
           }
         });
       }
 
-      // 🔧 FIXED: 2025-08-13 创建模拟客户端，避免 @authing/web 依赖
-      authingClient = {
-        getCurrentUser: async () => {
-          // 通过 Guard 获取用户信息
-          const guardInstance = getGuardInstance();
-          if (guardInstance && typeof guardInstance.getCurrentUser === 'function') {
-            return await guardInstance.getCurrentUser();
-          }
-          // 从本地存储获取
-          const storedUser = localStorage.getItem('authing_user');
-          return storedUser ? JSON.parse(storedUser) : null;
-        },
-        checkLoginStatus: async () => {
-          // 检查本地存储的登录状态
-          const token = localStorage.getItem('authing_token');
-          const user = localStorage.getItem('authing_user');
-          return !!(token && user);
-        }
-      } as any;
+      // 动态导入真实 SDK
+      const WebModule = await import('@authing/web');
+      const RealAuthing = (WebModule as any).Authing;
 
-      console.log('✅ Authing v5 客户端初始化成功');
-      console.log('🔍 客户端实例方法:', Object.getOwnPropertyNames(Object.getPrototypeOf(authingClient)));
+      const domain = (config as any).domain
+        ? (config as any).domain.replace(/^https?:\/\//, '')
+        : config.host.replace(/^https?:\/\//, '');
 
-      // 🚨 生产环境额外验证
-      if (isProduction) {
-        console.log('🌐 生产环境 Authing 客户端验证通过');
-      }
+      authingClient = new RealAuthing({
+        domain,
+        appId: config.appId,
+        userPoolId: config.userPoolId || undefined,
+        redirectUri: config.redirectUri,
+        scope: 'openid profile email phone',
+      });
+
+      console.log('✅ 使用真实 @authing/web 客户端');
     } catch (error) {
       console.error('❌ Authing 客户端初始化失败:', error);
       throw new Error('Authing 客户端初始化失败');
@@ -228,7 +190,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 🔧 FIXED: 2025-08-13 使用统一的 Guard 实例管理
       guardRef.current = getGuardInstance();
-      
+
       // 设置 Guard 事件监听
       if (guardRef.current) {
         // ✅ FIXED: 2025-07-25 登录成功事件处理已封装
@@ -264,18 +226,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             }
           }, 1000); // 延迟1秒关闭，让用户看到成功状态
         }));
-        
+
         guardRef.current.on('login-error', (error: any) => {
           console.error('❌ Guard 登录失败:', error);
           setError('登录失败: ' + (error.message || error));
         });
-        
+
         guardRef.current.on('register-error', (error: any) => {
           console.error('❌ Guard 注册失败:', error);
           setError('注册失败: ' + (error.message || error));
         });
       }
-      
+
       console.log('✅ Authing 实例初始化成功');
     } catch (error) {
       console.error('❌ Authing 实例初始化失败:', error);
@@ -446,23 +408,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const handleAuthCallback = async (code: string, state?: string | null) => {
     try {
       console.log('🔄 处理认证回调...');
-      
+
       if (!authingRef.current) {
         throw new Error('Authing 客户端未初始化');
       }
-      
+
       // 使用 Authing SDK 处理回调
       const userInfo = await authingRef.current.handleRedirectCallback();
       console.log('✅ Authing 回调处理成功:', userInfo);
-      
+
       if (userInfo) {
         handleAuthingLogin(userInfo);
       }
-      
+
       // 清除 URL 参数
       const newUrl = window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);
-      
+
     } catch (error) {
       console.error('❌ 处理认证回调失败:', error);
       setError('认证回调处理失败');
@@ -475,7 +437,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const handleAuthingLogin = (userInfo: any) => {
     try {
       console.log('🔐 处理 Authing 登录:', JSON.stringify(userInfo, null, 2));
-      
+
       // 🛡️ 使用系统的安全用户信息处理器，防止undefinedundefined拼接
       const sanitizedUserInfo = sanitizeUserInfo(userInfo);
 
@@ -488,11 +450,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         accessToken: userInfo.accessToken || userInfo.token || userInfo.idToken,
         token: userInfo.token || userInfo.accessToken || userInfo.idToken
       };
-      
+
       // 存储用户信息
       setUser(user);
       localStorage.setItem('authing_user', JSON.stringify(user));
-      
+
       // 处理登录成功后的跳转
       const redirectTo = localStorage.getItem('login_redirect_to');
       if (redirectTo) {
@@ -502,9 +464,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           navigate(redirectTo);
         }, 500);
       }
-      
+
       console.log('✅ 用户登录成功:', JSON.stringify(user, null, 2));
-      
+
     } catch (error) {
       console.error('❌ 处理 Authing 登录失败:', error);
       setError('登录处理失败');
@@ -595,19 +557,19 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('📝 开始注册流程...');
       setError(null);
-      
+
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
       }
-      
+
       // 使用 Guard 弹窗注册
       if (guardRef.current) {
         guardRef.current.show();
       } else {
         throw new Error('Guard 实例未初始化');
       }
-      
+
     } catch (error) {
       console.error('❌ 注册失败:', error);
       setError('注册失败');
@@ -620,24 +582,24 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const logout = async () => {
     try {
       console.log('🚪 开始登出流程...');
-      
+
       // 清除用户信息
       setUser(null);
       localStorage.removeItem('authing_user');
       localStorage.removeItem('login_redirect_to');
-      
+
       // 使用 Authing SDK 登出
       if (authingRef.current) {
         // 清除本地存储的用户信息
         localStorage.removeItem('authing_user');
         localStorage.removeItem('authing_token');
       }
-      
+
       // 跳转到首页
       navigate('/');
-      
+
       console.log('✅ 用户登出成功');
-      
+
     } catch (error) {
       console.error('❌ 登出失败:', error);
       setError('登出失败');
@@ -882,4 +844,4 @@ export const useUnifiedAuth = (): UnifiedAuthContextType => {
   return context;
 };
 
-export default UnifiedAuthContext; 
+export default UnifiedAuthContext;
