@@ -1,12 +1,17 @@
 /**
  * 🚨 生产环境专用 undefinedundefined 修复器
- * 专门解决生产环境中出现的 undefinedundefined 问题
- * 
- * 生产环境特有问题：
+ * ⚠️ TEMPORARILY DISABLED: 2025-08-14 临时禁用以修复Authing Guard冲突
+ * 📌 避免与Authing登录弹窗产生干扰
+ *
+ * 原生产环境特有问题：
  * 1. 构建优化可能导致环境变量处理差异
  * 2. 代码压缩可能影响字符串处理逻辑
  * 3. 网络延迟可能导致用户信息加载不完整
  */
+
+// ⚠️ 临时禁用整个修复器
+console.log('⚠️ 生产环境undefined修复器已临时禁用，避免与Authing Guard冲突');
+export {};
 
 interface ProductionFixConfig {
   enableGlobalFix: boolean;
@@ -338,8 +343,9 @@ declare global {
   }
 }
 
+// ⚠️ TEMPORARILY DISABLED: 2025-08-14 临时禁用以修复Authing Guard冲突
 // 🔧 FIXED: 避免重复启动修复器
-if (!window.productionUndefinedFixer) {
+if (false && !window.productionUndefinedFixer) {
   window.productionUndefinedFixer = new ProductionUndefinedFixer({
     enableGlobalFix: true,
     enableDOMObserver: true,
@@ -349,7 +355,7 @@ if (!window.productionUndefinedFixer) {
   });
   console.log('🚨 FORCE ENABLED: 生产环境修复器已强制启用（包括开发环境）');
 } else {
-  console.log('🔍 生产环境修复器已存在，跳过重复启动');
+  console.log('⚠️ 生产环境修复器已临时禁用，避免与Authing Guard冲突');
 }
 
 export default ProductionUndefinedFixer;

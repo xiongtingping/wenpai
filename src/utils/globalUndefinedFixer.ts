@@ -3,8 +3,8 @@
  * 直接修复页面上所有的 undefinedundefined 问题
  */
 
-if (import.meta.env.DEV) {
-  console.log('🚨 全局 undefinedundefined 修复器已启动');
+if (false) { // ⚠️ TEMPORARILY DISABLED: 2025-08-14 临时禁用以修复Authing Guard冲突
+  console.log('⚠️ 全局 undefinedundefined 修复器已临时禁用，避免与Authing Guard冲突');
 
   // 🚨 强力修复函数 - 立即清除页面上所有的 undefinedundefined
   const fixUndefinedUndefined = () => {
