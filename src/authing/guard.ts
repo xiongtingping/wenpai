@@ -49,19 +49,19 @@ export function createGuardInstance(): Guard {
   });
 
   try {
-    // 🔧 FIXED: 2025-08-14 修复 Guard 配置，解决 400 错误
-    // 根据 Authing 文档，确保配置参数正确
+    // ✅ RESTORED: 2025-08-14 恢复历史成功配置的 Guard 初始化
+    // 使用历史成功版本的完整配置
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      mode: 'modal',  // 🎯 弹窗模式
-      lang: 'zh-CN',  // 中文界面
-      // 🔧 FIXED: 添加必要的配置参数解决 400 错误
-      isSSO: false,   // 非 SSO 模式
-      scope: 'openid profile email phone',  // 授权范围
-      responseType: 'code',  // 授权码模式
-      responseMode: 'query'  // 使用 query 模式而不是 web_message
+      userPoolId: config.userPoolId,
+      mode: 'modal',
+      // ✅ RESTORED: 历史成功版本的 accessibility 配置
+      autoFocus: false,
+      escCloseable: true,
+      clickCloseable: true,
+      maskCloseable: true
     });
 
     // 🧪 实例验证

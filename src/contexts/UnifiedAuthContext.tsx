@@ -129,16 +129,14 @@ const getAuthingClient = async () => {
         ? (config as any).domain.replace(/^https?:\/\//, '')
         : config.host.replace(/^https?:\/\//, '');
 
-      // 🔧 FIXED: 2025-08-14 完善 Authing Web SDK 配置，确保认证流程完整
+      // ✅ RESTORED: 2025-08-14 恢复历史成功配置的 Authing Web SDK
       authingClient = new RealAuthing({
-        domain,
+        domain: config.host.replace('https://', ''),
         appId: config.appId,
-        userPoolId: config.userPoolId || undefined,
+        userPoolId: config.userPoolId || config.appId, // 添加必需的userPoolId
         redirectUri: config.redirectUri,
-        scope: 'openid profile email phone',
-        responseType: 'code',
-        state: `state_${Date.now()}`,
-        prompt: 'login'
+        scope: 'openid profile email phone'
+        // prompt: 'login' // 移除不兼容的配置项
       });
 
       console.log('✅ 使用真实 @authing/web 客户端');
