@@ -39,16 +39,17 @@ try {
   hasErrors = true;
 }
 
-// 检查2: 文件导入检查
+// 🔒 [AUTHING_GUARD_DEPLOYMENT_CHECK_v2025.08.14]
+// 检查2: 文件导入检查（排除注释）
 console.log('\n🔍 检查2: 文件导入一致性');
 try {
-  const result = execSync('grep -r "@authing/web" src/ --include="*.tsx" --include="*.ts" || true', { encoding: 'utf8' });
+  const result = execSync('grep -r "^[^/]*import.*@authing/web" src/ --include="*.tsx" --include="*.ts" || true', { encoding: 'utf8' });
   if (result.trim()) {
-    console.log('❌ 发现@authing/web导入:');
+    console.log('❌ 发现@authing/web实际导入:');
     console.log(result);
     hasErrors = true;
   } else {
-    console.log('✅ 没有@authing/web导入');
+    console.log('✅ 没有@authing/web实际导入');
   }
 } catch (error) {
   console.log('⚠️ 无法检查@authing/web导入');

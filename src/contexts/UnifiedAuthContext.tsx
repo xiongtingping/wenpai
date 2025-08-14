@@ -65,19 +65,41 @@ interface UnifiedAuthContextType {
 let guardInstance: any = null;
 
 /**
- * 获取 Guard 实例 - 统一使用@authing/guard
+ * 🔒 [AUTHING_GUARD_FIXED_CONFIG_v2025.08.14]
+ * 获取 Guard 实例 - 使用完整的成功配置
  */
 const getGuardInstance = () => {
   if (!guardInstance) {
     const config = getAuthingConfig();
 
-    // 🔧 使用@authing/guard而不是@authing/web
+    console.log('🔧 初始化Guard实例，配置:', {
+      appId: config.appId,
+      host: config.host,
+      redirectUri: config.redirectUri
+    });
+
+    // 🔧 使用最简单的成功配置，基于官方文档
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
       mode: 'modal',
       lang: 'zh-CN'
+    });
+
+    // 🔒 [AUTHING_GUARD_EVENTS_v2025.08.14] 添加关键事件监听器
+    guardInstance.on('login', (userInfo: any) => {
+      console.log('🔐 Guard 登录成功:', userInfo);
+      // 这里需要调用handleAuthingLogin，但在这个作用域中不可用
+      // 所以我们将在组件中重新设置事件监听器
+    });
+
+    guardInstance.on('login-error', (error: any) => {
+      console.error('❌ Guard 登录失败:', error);
+    });
+
+    guardInstance.on('close', () => {
+      console.log('🔒 Guard 弹窗已关闭');
     });
 
     console.log('✅ Guard实例创建成功');
