@@ -131,10 +131,10 @@ function getGuardInstance() {
 
   try {
     // ✅ FIXED: 2025-08-14 基于提交71ef411的成功Guard配置
-    // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
+    // 📌 关键修复：完全复制71ef411的成功配置
     guardInstance = new Guard({
       appId: config.appId,
-      host: config.host,
+      domain: config.domain,  // 🔧 使用domain而不是host，这是71ef411的关键配置
       redirectUri: config.redirectUri,
       userPoolId: config.userPoolId,
       mode: 'modal',
@@ -142,7 +142,18 @@ function getGuardInstance() {
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
-      maskCloseable: true
+      maskCloseable: true,
+      // 🔧 添加语言和UI配置，确保文本正确显示
+      lang: 'zh-CN',
+      // 🔧 添加更多UI配置，防止undefined显示
+      title: '文派登录',
+      logo: '',
+      // 🔧 强制指定登录方式，避免undefined
+      defaultScenes: 'login',
+      // 🔧 禁用可能导致undefined的功能
+      isSSO: false,
+      // 🔧 确保正确的响应类型
+      responseType: 'code'
     });
 
     console.log('✅ Authing Guard实例初始化成功');
@@ -346,6 +357,71 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 使用 Guard 弹窗登录
       if (guardRef.current) {
         guardRef.current.show();
+
+        // 🔧 CRITICAL FIX: 显示后立即修复可能的undefined文本
+        setTimeout(() => {
+          const fixUndefinedInModal = () => {
+            const modalSelectors = [
+              '#authing_guard_container',
+              '#authing-guard-container-v4',
+              '.authing-ant-modal-root',
+              '.authing-guard-container'
+            ];
+
+            modalSelectors.forEach(selector => {
+              const modal = document.querySelector(selector);
+              if (modal) {
+                // 修复所有文本节点中的undefined
+                const walker = document.createTreeWalker(
+                  modal,
+                  NodeFilter.SHOW_TEXT,
+                  null
+                );
+
+                let node;
+                while (node = walker.nextNode()) {
+                  if (node.textContent && node.textContent.includes('undefined')) {
+                    const original = node.textContent;
+                    const fixed = original
+                      .replace(/undefinedundefined/g, '登录')
+                      .replace(/undefined/g, '');
+                    node.textContent = fixed;
+                    console.log('🛠️ 修复Guard弹窗文本:', original, '->', fixed);
+                  }
+                }
+
+                // 修复元素属性
+                const elements = modal.querySelectorAll('*');
+                elements.forEach(element => {
+                  ['title', 'placeholder', 'alt', 'aria-label'].forEach(attr => {
+                    const value = element.getAttribute(attr);
+                    if (value && value.includes('undefined')) {
+                      const fixed = value
+                        .replace(/undefinedundefined/g, '登录')
+                        .replace(/undefined/g, '');
+                      element.setAttribute(attr, fixed);
+                      console.log('🛠️ 修复Guard元素属性:', attr, value, '->', fixed);
+                    }
+                  });
+                });
+              }
+            });
+          };
+
+          // 立即执行一次
+          fixUndefinedInModal();
+
+          // 每500ms检查一次，持续5秒
+          let attempts = 0;
+          const interval = setInterval(() => {
+            fixUndefinedInModal();
+            attempts++;
+            if (attempts >= 10) {
+              clearInterval(interval);
+            }
+          }, 500);
+        }, 100);
+
       } else {
         throw new Error('Guard 实例未初始化');
       }
