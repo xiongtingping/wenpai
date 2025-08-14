@@ -92,14 +92,8 @@ class AuthingProductionFixer {
       return;
     }
 
-    // 登录弹窗显示时暂停修复，防止干扰用户输入与 SDK 行为
+    // 登录弹窗显示时完全静默，不进行任何 DOM 读写或日志，以避免干扰
     if (this.isGuardActive()) {
-      // 限频打印暂停日志
-      if (this.retryCount % 10 === 1) {
-        console.log('🛑 暂停 Authing 修复器：登录弹窗激活中');
-      }
-      // 在不触碰结构的前提下，仅清理弹窗中的"undefinedundefined"纯文本
-      this.minimalCleanUndefinedInGuardModal();
       this.retryCount++;
       return;
     }

@@ -6,7 +6,10 @@ import '@authing/guard/dist/esm/guard.min.css';
 
 // 🔧 FIXED: 2025-08-13 导入自定义 Authing Guard 样式
 // 确保弹窗正确显示和样式覆盖
-import './styles/authing-guard.css';
+// In production, disable custom Authing Guard CSS to avoid overlay conflicts
+if (!import.meta.env.PROD) {
+  import('./styles/authing-guard.css');
+}
 import './styles/authing-accessibility-fix.css';
 
 // 🚨 生产环境 undefinedundefined 修复器

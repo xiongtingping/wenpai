@@ -28,11 +28,11 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# Authing回调重定向到Netlify函数
-[[redirects]]
-  from = "/callback"
-  to = "/.netlify/functions/authing-callback"
-  status = 200
+# Authing 回调交由前端路由 /callback 处理，不再经由函数，避免循环与拦截
+# [[redirects]]
+#   from = "/callback"
+#   to = "/.netlify/functions/authing-callback"
+#   status = 200
 
 # 静态资源处理 - 确保CSS和JS文件不被重定向
 [[redirects]]
