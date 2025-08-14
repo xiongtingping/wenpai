@@ -587,8 +587,9 @@ class AuthingProductionFixer {
   private handleModalElement(element: HTMLElement): void {
     const textContent = element.textContent || '';
 
-    // 登录弹窗激活期间，不做任何内容修复
+    // 登录弹窗激活期间，仅执行“极小范围清理”，不做其它改动
     if (this.isGuardActive()) {
+      this.minimalCleanUndefinedInGuardModal();
       return;
     }
 
