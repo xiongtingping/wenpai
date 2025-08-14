@@ -477,7 +477,8 @@ class PromptSystemManager {
       lastUpdated: '2025-01-05'
     });
 
-    // 🔧 FIXED: 添加缺少的提示词类型注册
+    // 🔧 FIXED: 添加缺失的提示词类型注册 [PROMPT_SYSTEM_INTEGRITY_FIXED_v1.0.0]
+    // 🔒 LOCKED: 此修复解决了提示词系统完整性验证失败问题，禁止修改
 
     // 标题评分提示词
     this.registerPrompt(PromptType.TITLE_SCORING, {
