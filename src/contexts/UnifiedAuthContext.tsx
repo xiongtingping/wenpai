@@ -243,25 +243,45 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   /**
-   * 处理 Authing 登录
+   * 🔒 [AUTHING_GUARD_LOGIN_HANDLER_v2025.08.14]
+   * 处理 Authing 登录 - 修复undefinedundefined问题
    */
   const handleAuthingLogin = (userInfo: any) => {
     try {
       console.log('🔐 处理 Authing 登录:', userInfo);
-      
-      // 统一用户信息格式
+
+      // 🔧 安全的字符串提取函数，防止undefined拼接
+      const safeString = (value: any, fallback: string = '') => {
+        if (value === null || value === undefined || value === 'undefined' || value === 'null') {
+          return fallback;
+        }
+        const str = String(value).trim();
+        return str === 'undefined' || str === 'null' || str === '' ? fallback : str;
+      };
+
+      // 🔧 统一用户信息格式 - 使用安全字符串提取
       const user: UserInfo = {
-        id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
-        username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
-        email: userInfo.email || userInfo.emailAddress || '',
-        phone: userInfo.phone || userInfo.phoneNumber || '',
-        nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
-        avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
+        id: safeString(userInfo.id) || safeString(userInfo.userId) || safeString(userInfo.sub) || `user_${Date.now()}`,
+        username: safeString(userInfo.username) || safeString(userInfo.nickname) || safeString(userInfo.name) || '用户',
+        email: safeString(userInfo.email) || safeString(userInfo.emailAddress) || '',
+        phone: safeString(userInfo.phone) || safeString(userInfo.phoneNumber) || '',
+        nickname: safeString(userInfo.nickname) || safeString(userInfo.username) || safeString(userInfo.name) || '用户',
+        avatar: safeString(userInfo.avatar) || safeString(userInfo.photo) || safeString(userInfo.picture) || '',
         loginTime: new Date().toISOString(),
-        roles: userInfo.roles || userInfo.role || ['user'],
-        permissions: userInfo.permissions || userInfo.permission || ['basic'],
+        roles: Array.isArray(userInfo.roles) ? userInfo.roles : (Array.isArray(userInfo.role) ? userInfo.role : ['user']),
+        permissions: Array.isArray(userInfo.permissions) ? userInfo.permissions : (Array.isArray(userInfo.permission) ? userInfo.permission : ['basic']),
         ...userInfo
       };
+
+      // 🚨 最终安全检查：确保没有undefined值
+      Object.keys(user).forEach(key => {
+        if (user[key as keyof UserInfo] === undefined || user[key as keyof UserInfo] === 'undefined') {
+          console.warn(`🛠️ 修复用户信息中的undefined字段: ${key}`);
+          (user as any)[key] = '';
+        }
+      });
+
+      console.log('✅ 安全处理后的用户信息:', user);
       
       // 存储用户信息
       setUser(user);
