@@ -9,9 +9,8 @@
  * 3. 网络延迟可能导致用户信息加载不完整
  */
 
-// ⚠️ 临时禁用整个修复器
-console.log('⚠️ 生产环境undefined修复器已临时禁用，避免与Authing Guard冲突');
-export {};
+// 🚨 [UNDEFINED_FIXER_RESTORED_v2025.08.14] 重新启用修复器
+console.log('🛡️ 生产环境undefined修复器已重新启用，专门修复undefinedundefined问题');
 
 interface ProductionFixConfig {
   enableGlobalFix: boolean;
@@ -343,9 +342,9 @@ declare global {
   }
 }
 
-// ⚠️ TEMPORARILY DISABLED: 2025-08-14 临时禁用以修复Authing Guard冲突
+// 🚨 [UNDEFINED_FIXER_RESTORED_v2025.08.14] 重新启用修复器
 // 🔧 FIXED: 避免重复启动修复器
-if (false && !window.productionUndefinedFixer) {
+if (!window.productionUndefinedFixer) {
   window.productionUndefinedFixer = new ProductionUndefinedFixer({
     enableGlobalFix: true,
     enableDOMObserver: true,

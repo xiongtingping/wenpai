@@ -3,8 +3,8 @@
  * 专门用于定位 undefinedundefined 问题的源头
  */
 
-// 🚨 DISABLED: 紧急检测器已禁用，避免与其他修复器冲突
-if (import.meta.env.DEV) {
+// 🚨 [EMERGENCY_DETECTOR_ENABLED_v2025.08.14] 重新启用紧急检测器
+if (true) {
   console.log('🚨 紧急 undefined 拼接检测器已启动');
   
   // 检测所有可能的字符串操作
