@@ -77,7 +77,7 @@
   VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
-  VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
+  VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
