@@ -17,6 +17,7 @@ import { Guard } from '@authing/guard';
 import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 
+import AuthService from '@/services/authService';
 /**
  * 用户信息接口
  */
@@ -432,13 +433,38 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         throw new Error('Authing 客户端未初始化');
       }
 
-      // 使用 Authing SDK 处理回调
-      const userInfo = await authingRef.current.handleRedirectCallback();
-      console.log('✅ Authing 回调处理成功:', userInfo);
-
-      if (userInfo) {
-        handleAuthingLogin(userInfo);
+      // 优先使用 Authing SDK 处理回调
+      try {
+        const userInfo = await authingRef.current.handleRedirectCallback();
+        console.log('✅ Authing 回调处理成功:', userInfo);
+        if (userInfo) {
+          handleAuthingLogin(userInfo);
+          // 清除 URL 参数
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+          return;
+        }
+      } catch (sdkErr) {
+        console.warn('⚠️ Authing SDK 回调处理失败，尝试兜底流程(code→token→userinfo):', sdkErr);
       }
+
+      // 兜底：使用授权码直接换取 token，再拉取用户信息
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (!code) {
+        throw new Error('缺少授权码(code)');
+      }
+
+      const cfg = getAuthingConfig();
+      const svc = AuthService.getInstance();
+      const tokenData = await svc.exchangeCodeForToken(code, cfg.redirectUri);
+      const accessToken = tokenData?.access_token || tokenData?.accessToken;
+      if (!accessToken) {
+        throw new Error('未获取到 access_token');
+      }
+      const me = await svc.getUserInfo(accessToken);
+      const normalized = svc.buildUserInfo(me, tokenData);
+      handleAuthingLogin(normalized);
 
       // 清除 URL 参数
       const newUrl = window.location.pathname;
