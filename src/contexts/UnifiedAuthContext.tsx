@@ -455,19 +455,29 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       const hidden: HTMLElement[] = [];
       const prevDisplay = new WeakMap<HTMLElement, string | null>();
+      let observer: MutationObserver | null = null;
+
+      const hideElement = (el: HTMLElement) => {
+        if (!el.closest('.authing-ant-modal-root')) {
+          if (!prevDisplay.has(el)) {
+            prevDisplay.set(el, el.style.display || '');
+            hidden.push(el);
+          }
+          el.style.display = 'none';
+        }
+      };
 
       const hideOthers = () => {
         document.querySelectorAll('[role="dialog"]').forEach((node) => {
-          const el = node as HTMLElement;
-          if (!el.closest('.authing-ant-modal-root')) {
-            prevDisplay.set(el, el.style.display || '');
-            el.style.display = 'none';
-            hidden.push(el);
-          }
+          hideElement(node as HTMLElement);
         });
       };
 
       const restore = () => {
+        if (observer) {
+          try { observer.disconnect(); } catch {}
+          observer = null;
+        }
         hidden.forEach((el) => {
           const v = prevDisplay.get(el);
           el.style.display = v ?? '';
@@ -484,6 +494,24 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       };
 
       hideOthers();
+      // 观察新加入的对话框，出现即隐藏
+      observer = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.type === 'childList') {
+            m.addedNodes.forEach((n) => {
+              if (n.nodeType === 1) {
+                const el = n as HTMLElement;
+                if (el.getAttribute('role') === 'dialog') {
+                  hideElement(el);
+                }
+                el.querySelectorAll?.('[role="dialog"]').forEach((child) => hideElement(child as HTMLElement));
+              }
+            });
+          }
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
       if (guard && typeof guard.on === 'function') {
         try { guard.on('close', onDone); } catch {}
         try { guard.on('login', onDone); } catch {}
