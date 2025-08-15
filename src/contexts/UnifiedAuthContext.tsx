@@ -447,11 +447,29 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('📝 保存跳转目标:', redirectTo);
       }
 
-      // 使用 Guard 弹窗登录
-      if (guardRef.current) {
+      // 🎯 关键修复：确保 Guard 实例存在并正确调用 show 方法
+      console.log('🔍 检查 Guard 实例状态:');
+      console.log('  guardRef.current:', guardRef.current);
+      console.log('  guardRef.current 类型:', typeof guardRef.current);
+      console.log('  guardRef.current 是否有 show 方法:', guardRef.current && typeof guardRef.current.show === 'function');
+
+      if (guardRef.current && typeof guardRef.current.show === 'function') {
+        console.log('✅ 调用 Guard.show() 方法...');
         guardRef.current.show();
+        console.log('✅ Guard.show() 调用完成');
       } else {
-        throw new Error('Guard 实例未初始化');
+        // 尝试重新获取 Guard 实例
+        console.log('⚠️ Guard 实例不可用，尝试重新获取...');
+        const freshGuardInstance = getGuardInstance();
+        if (freshGuardInstance && typeof freshGuardInstance.show === 'function') {
+          console.log('✅ 使用新获取的 Guard 实例调用 show()...');
+          freshGuardInstance.show();
+          console.log('✅ 新 Guard 实例 show() 调用完成');
+          // 更新 ref
+          guardRef.current = freshGuardInstance;
+        } else {
+          throw new Error('Guard 实例未初始化或缺少 show 方法');
+        }
       }
 
     } catch (error) {
