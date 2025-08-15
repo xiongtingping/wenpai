@@ -24,6 +24,30 @@ const CallbackPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // 🔧 规范化回调URL：防止将多个回调地址拼接成路径，统一修复为 /callback?code=...&state=...
+    try {
+      const href = window.location.href;
+      if (href) {
+        const hasMalformed = /callbackhttps?:\/\//i.test(href) || href.includes('/callbackhttp');
+        const url = new URL(href);
+        const pathNotExact = url.pathname !== '/callback';
+        if (hasMalformed || pathNotExact) {
+          const codeMatch = href.match(/[?&]code=([^&]+)/);
+          const stateMatch = href.match(/[?&]state=([^&]+)/);
+          const norm = new URL(`${window.location.origin}/callback`);
+          if (codeMatch) norm.searchParams.set('code', decodeURIComponent(codeMatch[1]));
+          if (stateMatch) norm.searchParams.set('state', decodeURIComponent(stateMatch[1]));
+          if (href !== norm.toString()) {
+            console.warn('⚠️ 检测到异常回调URL，已规范化到:', norm.toString());
+            window.location.replace(norm.toString());
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ 回调URL规范化失败，继续按原逻辑处理', e);
+    }
+
     const handleCallback = async () => {
       try {
         console.log('🔄 CallbackPage: 开始处理认证回调...');
