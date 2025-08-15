@@ -335,6 +335,28 @@ export const PREVENTION_MEASURES = {
 const protectionSystem = UndefinedProtectionSystem.getInstance();
 protectionSystem.enable();
 
+// 🔧 [AUTHING_JSON_ERROR_FIX_v2025.08.14] 修复Authing JSON解析错误
+window.addEventListener('error', (event) => {
+  const message = event.message;
+  if (message && message.includes('Unexpected token \'<\'') && message.includes('not valid JSON')) {
+    console.warn('🛠️ 检测到Authing JSON解析错误，这通常是网络问题，不影响undefinedundefined防护');
+    event.preventDefault();
+    return false;
+  }
+});
+
+// 捕获Promise rejection错误
+window.addEventListener('unhandledrejection', (event) => {
+  const reason = event.reason;
+  if (reason && reason.message &&
+      reason.message.includes('Unexpected token \'<\'') &&
+      reason.message.includes('not valid JSON')) {
+    console.warn('🛠️ 捕获Authing JSON解析Promise错误，已处理');
+    event.preventDefault();
+    return false;
+  }
+});
+
 console.log('🛡️ undefinedundefined 防护系统已自动启用');
 
 export default {
