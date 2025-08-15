@@ -90,8 +90,11 @@ module.exports.handler = async (event, context) => {
     console.log('✅ 收到有效的授权码:', code);
 
     // 构建重定向 URL
-    const safeOrigin = isAllowedOrigin ? origin : 'https://wenpai.netlify.app';
-    const redirectUrl = new URL(safeOrigin || 'https://wenpai.netlify.app');
+    const PROD_ORIGIN = 'https://www.wenpai.xyz';
+    const PREVIEW_ORIGIN = 'https://wenpai.netlify.app';
+    // 优先使用允许来源；若非白名单，则在生产环境固定回主站
+    const safeOrigin = isAllowedOrigin ? origin : PROD_ORIGIN;
+    const redirectUrl = new URL(safeOrigin || PROD_ORIGIN);
     redirectUrl.pathname = '/callback';
     redirectUrl.searchParams.set('code', code);
     if (state) {

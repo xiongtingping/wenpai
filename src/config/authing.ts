@@ -73,12 +73,19 @@ export function getAuthingConfig() {
   let redirectUri = 'http://localhost:5173/callback';
   if (typeof window !== 'undefined') {
     const origin = window.location.origin;
+    const hostname = window.location.hostname;
+    const isProdHost = hostname === 'www.wenpai.xyz' || hostname === 'wenpai.xyz';
     const envOverride = (window as any).__ENV__?.VITE_AUTHING_REDIRECT_URI || (import.meta as any)?.env?.VITE_AUTHING_REDIRECT_URI;
     const cleaned = sanitizeRedirectUri(envOverride || '', origin);
-    if (envOverride && cleaned === envOverride) {
+
+    if (isProdHost) {
+      // 生产环境强制固定为主域回调，忽略任何外部覆盖
+      redirectUri = 'https://www.wenpai.xyz/callback';
+    } else if (envOverride && cleaned === envOverride) {
+      // 非生产环境才允许使用外部覆盖
       redirectUri = envOverride;
     } else if (/\.netlify\.app$/i.test(origin) && origin.includes('--')) {
-      // Netlify Deploy Preview → 强制回调到主站
+      // Netlify Deploy Preview → 仍保持原有逻辑
       redirectUri = 'https://wenpai.netlify.app/callback';
     } else {
       redirectUri = `${origin}/callback`;
