@@ -456,6 +456,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const hidden: HTMLElement[] = [];
       const prevDisplay = new WeakMap<HTMLElement, string | null>();
       let observer: MutationObserver | null = null;
+      let cssEl: HTMLStyleElement | null = null;
 
       const isInAuthingModal = (el: HTMLElement | null) => !!el?.closest('.authing-ant-modal-root');
       const isDialogLike = (el: HTMLElement) => {
@@ -472,6 +473,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           prevDisplay.set(el, el.style.display || '');
           hidden.push(el);
         }
+        el.setAttribute('data-hidden-by-authing-iso', '1');
+        el.setAttribute('hidden', 'true');
         el.style.display = 'none';
       };
 
@@ -481,14 +484,43 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         });
       };
 
+      const injectGlobalCss = () => {
+        try {
+          cssEl = document.createElement('style');
+          cssEl.id = 'authing-guard-isolation-style';
+          cssEl.textContent = `
+            body.authing-guard-open [role="dialog"]:not(.authing-ant-modal-root *),
+            body.authing-guard-open dialog,
+            body.authing-guard-open [data-radix-dialog-content] {
+              display: none !important;
+              visibility: hidden !important;
+              pointer-events: none !important;
+            }
+          `;
+          document.head.appendChild(cssEl);
+          document.body.classList.add('authing-guard-open');
+        } catch {}
+      };
+
+      const removeGlobalCss = () => {
+        try { document.body.classList.remove('authing-guard-open'); } catch {}
+        if (cssEl && cssEl.parentNode) {
+          try { cssEl.parentNode.removeChild(cssEl); } catch {}
+          cssEl = null;
+        }
+      };
+
       const restore = () => {
         if (observer) {
           try { observer.disconnect(); } catch {}
           observer = null;
         }
+        removeGlobalCss();
         hidden.forEach((el) => {
           const v = prevDisplay.get(el);
           el.style.display = v ?? '';
+          el.removeAttribute('hidden');
+          el.removeAttribute('data-hidden-by-authing-iso');
         });
       };
 
@@ -501,6 +533,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       };
 
+      // 启动隔离
+      injectGlobalCss();
       hideOthers();
       // 观察新加入的对话框，出现即隐藏
       observer = new MutationObserver((mutations) => {
