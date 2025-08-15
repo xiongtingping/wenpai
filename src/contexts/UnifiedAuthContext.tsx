@@ -457,18 +457,26 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const prevDisplay = new WeakMap<HTMLElement, string | null>();
       let observer: MutationObserver | null = null;
 
+      const isInAuthingModal = (el: HTMLElement | null) => !!el?.closest('.authing-ant-modal-root');
+      const isDialogLike = (el: HTMLElement) => {
+        const roleDialog = el.getAttribute('role') === 'dialog';
+        const htmlDialog = el.tagName === 'DIALOG';
+        const radixDialog = el.hasAttribute('data-radix-dialog-content') || el.closest('[data-radix-dialog-content]');
+        return !!(roleDialog || htmlDialog || radixDialog);
+      };
+
       const hideElement = (el: HTMLElement) => {
-        if (!el.closest('.authing-ant-modal-root')) {
-          if (!prevDisplay.has(el)) {
-            prevDisplay.set(el, el.style.display || '');
-            hidden.push(el);
-          }
-          el.style.display = 'none';
+        if (isInAuthingModal(el)) return; // 不处理 Authing 自身
+        if (!isDialogLike(el)) return;    // 仅处理对话框类元素
+        if (!prevDisplay.has(el)) {
+          prevDisplay.set(el, el.style.display || '');
+          hidden.push(el);
         }
+        el.style.display = 'none';
       };
 
       const hideOthers = () => {
-        document.querySelectorAll('[role="dialog"]').forEach((node) => {
+        document.querySelectorAll('[role="dialog"], dialog, [data-radix-dialog-content]').forEach((node) => {
           hideElement(node as HTMLElement);
         });
       };
@@ -501,10 +509,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             m.addedNodes.forEach((n) => {
               if (n.nodeType === 1) {
                 const el = n as HTMLElement;
-                if (el.getAttribute('role') === 'dialog') {
-                  hideElement(el);
-                }
-                el.querySelectorAll?.('[role="dialog"]').forEach((child) => hideElement(child as HTMLElement));
+                hideElement(el);
+                el.querySelectorAll?.('[role="dialog"], dialog, [data-radix-dialog-content]').forEach((child) => hideElement(child as HTMLElement));
               }
             });
           }
