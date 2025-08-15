@@ -134,6 +134,7 @@ function getGuardInstance() {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
+      userPoolId: config.appId, // ✅ CRITICAL: 成功备份中的关键参数
       mode: 'modal',
       // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
       autoFocus: false,
