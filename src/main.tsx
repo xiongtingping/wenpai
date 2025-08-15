@@ -5,7 +5,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
-// 确保使用UnifiedAuthProvider的App，而不是DirectAuthProvider的AppSafe
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

@@ -58,7 +58,7 @@ interface UnifiedAuthContextType {
 // 删除本地 getAuthingConfig 实现
 
 /**
- * 单例实例
+ * 单例 Authing 客户端
  */
 let authingClient: Authing | null = null;
 let guardInstance: any = null;
@@ -72,9 +72,10 @@ const getAuthingClient = () => {
     authingClient = new Authing({
       domain: config.host.replace('https://', ''),
       appId: config.appId,
-      userPoolId: config.appId, // 使用appId作为userPoolId
+      userPoolId: config.userPoolId || config.appId, // 添加必需的userPoolId
       redirectUri: config.redirectUri,
       scope: 'openid profile email phone'
+      // prompt: 'login' // 移除不兼容的配置项
     });
   }
   return authingClient;
@@ -134,7 +135,7 @@ function getGuardInstance() {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      userPoolId: config.appId, // ✅ CRITICAL: 成功备份中的关键参数
+      userPoolId: config.userPoolId,
       mode: 'modal',
       // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
       autoFocus: false,
