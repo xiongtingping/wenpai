@@ -6,7 +6,7 @@
 // 🚨 [AUTHING_ERROR_FIXER_v2025.08.14] 专门修复Authing内部错误
 console.log('🛡️ Authing错误修复器已启动');
 
-// 1. 修复JSON.stringify错误
+// 1. 修复JSON.stringify错误 - 增强版
 const originalStringify = JSON.stringify;
 JSON.stringify = function(value, replacer?, space?) {
   try {
@@ -18,19 +18,32 @@ JSON.stringify = function(value, replacer?, space?) {
     return originalStringify.call(this, value, replacer, space);
   } catch (error) {
     console.warn('🛠️ JSON.stringify错误，使用安全替代方案:', error);
-    // 安全的字符串化
-    if (value === null) return 'null';
-    if (value === undefined) return 'undefined';
-    if (typeof value === 'string') return `"${value}"`;
-    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-    if (typeof value === 'object') {
-      try {
-        return Object.prototype.toString.call(value);
-      } catch {
-        return '{}';
+
+    // 🚨 [ENHANCED_STRINGIFY_v2025.08.14] 增强的安全字符串化
+    const safeStringify = (obj: any): string => {
+      if (obj === null) return 'null';
+      if (obj === undefined) return '""'; // 返回空字符串而不是undefined
+      if (typeof obj === 'string') return `"${obj.replace(/"/g, '\\"')}"`;
+      if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
+      if (Array.isArray(obj)) {
+        return '[' + obj.map(item => safeStringify(item)).join(',') + ']';
       }
-    }
-    return String(value);
+      if (typeof obj === 'object') {
+        try {
+          const pairs = Object.keys(obj).map(key => {
+            const val = obj[key];
+            if (val === undefined) return null; // 跳过undefined值
+            return `"${key}":${safeStringify(val)}`;
+          }).filter(Boolean);
+          return '{' + pairs.join(',') + '}';
+        } catch {
+          return '{}';
+        }
+      }
+      return '""'; // 默认返回空字符串
+    };
+
+    return safeStringify(value);
   }
 };
 
@@ -110,53 +123,84 @@ Promise.resolve = function(value) {
   return originalPromiseResolve.call(this, value);
 };
 
-// 6. 监听Authing特定错误
+// 6. 监听Authing特定错误 - 增强版
 document.addEventListener('DOMContentLoaded', () => {
-  // 监听Authing容器的变化
+  // 🚨 [ENHANCED_DOM_MONITOR_v2025.08.14] 增强的DOM监控
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element;
-          
+
           // 检查是否是Authing相关元素
-          if (element.id?.includes('authing') || 
+          if (element.id?.includes('authing') ||
               element.className?.includes('authing')) {
-            
-            // 检查元素内容是否包含undefined
-            setTimeout(() => {
-              const textContent = element.textContent || '';
-              if (textContent.includes('undefinedundefined')) {
-                console.warn('🛠️ 检测到Authing元素包含undefinedundefined，尝试修复');
-                
+
+            // 立即检查和修复，不等待
+            const fixUndefinedInElement = (el: Element) => {
+              const textContent = el.textContent || '';
+              if (textContent.includes('undefinedundefined') ||
+                  textContent.includes('undefined') ||
+                  textContent.includes('null')) {
+
+                console.group('🛠️ 检测到Authing元素包含问题文本');
+                console.warn('原始文本:', textContent);
+
                 // 修复文本内容
                 const walker = document.createTreeWalker(
-                  element,
+                  el,
                   NodeFilter.SHOW_TEXT,
                   null
                 );
-                
+
                 let textNode;
+                let fixCount = 0;
                 while (textNode = walker.nextNode()) {
-                  if (textNode.textContent?.includes('undefinedundefined')) {
-                    textNode.textContent = textNode.textContent.replace(/undefinedundefined/g, '登录');
-                    console.log('✅ 已修复Authing元素中的undefinedundefined');
+                  if (textNode.textContent) {
+                    let originalText = textNode.textContent;
+                    let fixedText = originalText
+                      .replace(/undefinedundefined/g, '用户登录')
+                      .replace(/undefined/g, '')
+                      .replace(/null/g, '')
+                      .replace(/\s+/g, ' ')
+                      .trim();
+
+                    if (originalText !== fixedText) {
+                      textNode.textContent = fixedText;
+                      fixCount++;
+                      console.log(`✅ 修复文本节点 ${fixCount}: "${originalText}" → "${fixedText}"`);
+                    }
                   }
                 }
+
+                console.log(`✅ 总共修复了 ${fixCount} 个文本节点`);
+                console.groupEnd();
               }
-            }, 100);
+            };
+
+            // 立即修复
+            fixUndefinedInElement(element);
+
+            // 延迟修复（防止动态内容）
+            setTimeout(() => fixUndefinedInElement(element), 100);
+            setTimeout(() => fixUndefinedInElement(element), 500);
+            setTimeout(() => fixUndefinedInElement(element), 1000);
           }
         }
       });
     });
   });
-  
+
   observer.observe(document.body, {
     childList: true,
-    subtree: true
+    subtree: true,
+    characterData: true, // 监听文本变化
+    attributes: true,    // 监听属性变化
+    attributeOldValue: true,
+    characterDataOldValue: true
   });
-  
-  console.log('🛡️ Authing DOM监控已启动');
+
+  console.log('🛡️ Authing DOM监控已启动（增强版）');
 });
 
 // 7. 全局错误恢复机制
