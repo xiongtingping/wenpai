@@ -138,12 +138,18 @@ function getGuardInstance() {
   try {
     // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
     // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
-    // 🔧 [GUARD_HOST_FIX] 使用host而不是domain，可能更稳定
+    // ✅ 完全按照成功备份恢复Guard配置
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      mode: 'modal'
+      userPoolId: config.userPoolId,
+      mode: 'modal',
+      // accessibility配置
+      autoFocus: false,
+      escCloseable: true,
+      clickCloseable: true,
+      maskCloseable: true
     } as any);
 
     console.log('✅ Authing Guard实例初始化成功');
