@@ -136,35 +136,45 @@ function getGuardInstance() {
   });
 
   try {
-    // ✅ FIXED: 2025-08-15 修复Guard配置，添加关键UI配置项解决undefinedundefined问题
-    // 📌 根据文档和成功案例，添加完整的Guard配置
-    guardInstance = new Guard({
-      appId: config.appId,
-      host: config.host,
-      redirectUri: config.redirectUri,
-      userPoolId: config.userPoolId,
-      mode: 'modal',
-      // 🎯 关键修复：添加UI配置项，解决undefinedundefined显示问题
-      title: '文派',
-      lang: 'zh-CN',
-      // 弹窗模式配置
+    // ✅ FIXED: 2025-08-15 修复Guard配置，解决undefinedundefined显示问题
+    // 📌 使用正确的Guard配置格式，确保弹窗正常显示
+
+    // 🔍 调试：检查配置项是否有undefined值
+    console.log('🔧 Guard配置调试:');
+    console.log('  appId:', config.appId, typeof config.appId);
+    console.log('  domain:', config.domain, typeof config.domain);
+    console.log('  host:', config.host, typeof config.host);
+    console.log('  redirectUri:', config.redirectUri, typeof config.redirectUri);
+
+    // 🎯 关键修复：确保所有配置项都不是undefined
+    const guardConfig = {
+      appId: config.appId || '68823897631e1ef8ff3720b2',
+      // 🎯 关键修复：使用domain而不是host，确保格式正确
+      host: config.domain || 'rzcswqd4sq0f.authing.cn',
+      redirectUri: config.redirectUri || `${window.location.origin}/callback`,
+      mode: 'modal' as const,
+      // 🌐 界面配置 - 解决undefinedundefined显示问题
+      title: '文派AI',
+      lang: 'zh-CN' as const,
+      // 🎨 UI配置 - 确保所有字符串都有值
+      logo: 'https://files.authing.co/authing-console/default-app-logo.png',
+      // 🔧 弹窗配置
       autoRegister: false,
-      skipComplateFileds: false,
-      skipComplateFiledsPlace: 'modal',
       closeable: true,
       clickCloseableMask: true,
-      // 登录方式配置
-      loginMethodList: ['password', 'phone-code', 'email-code'],
-      // 注册方式配置
-      registerMethodList: ['phone', 'email'],
-      // 界面配置
-      logo: 'https://cdn.authing.co/authing-console/logo.png',
-      // accessibility配置
-      autoFocus: false,
       escCloseable: true,
-      clickCloseable: true,
-      maskCloseable: true
-    } as any);
+      // 🔐 登录配置
+      loginMethodList: ['password', 'phone-code', 'email-code'] as const,
+      registerMethodList: ['phone', 'email'] as const,
+      // 🎯 关键：确保弹窗可见性
+      autoFocus: false,
+      maskCloseable: true,
+      clickCloseable: true
+    };
+
+    console.log('🔧 最终Guard配置:', guardConfig);
+
+    guardInstance = new Guard(guardConfig);
 
     console.log('✅ Authing Guard实例初始化成功');
 
