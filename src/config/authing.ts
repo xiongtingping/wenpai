@@ -49,10 +49,20 @@ let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 动态获取回调URI（按照成功备份的简化方式）
-  const redirectUri = typeof window !== 'undefined'
-    ? `${window.location.origin}/callback`
-    : 'http://localhost:5173/callback';
+  // 动态获取回调URI（生产环境统一使用主域，避免 Netlify 预览域不在白名单）
+  let redirectUri = 'http://localhost:5173/callback';
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    const envOverride = (window as any).__ENV__?.VITE_AUTHING_REDIRECT_URI || (import.meta as any)?.env?.VITE_AUTHING_REDIRECT_URI;
+    if (envOverride) {
+      redirectUri = envOverride;
+    } else if (/\.netlify\.app$/i.test(origin) && origin.includes('--')) {
+      // Netlify Deploy Preview → 强制回调到主站
+      redirectUri = 'https://wenpai.netlify.app/callback';
+    } else {
+      redirectUri = `${origin}/callback`;
+    }
+  }
 
   cachedConfig = {
     appId: APP_ID,

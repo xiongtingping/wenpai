@@ -20,7 +20,7 @@ module.exports.handler = async (event, context) => {
     'http://localhost:8888'
   ];
   
-  const origin = event.headers.origin || event.headers.Origin;
+  const origin = event.headers.origin || event.headers.Origin || '';
   const isAllowedOrigin = allowedOrigins.includes(origin);
   
   const headers = {
@@ -90,7 +90,8 @@ module.exports.handler = async (event, context) => {
     console.log('✅ 收到有效的授权码:', code);
 
     // 构建重定向 URL
-    const redirectUrl = new URL(origin || 'http://localhost:5177');
+    const safeOrigin = isAllowedOrigin ? origin : 'https://wenpai.netlify.app';
+    const redirectUrl = new URL(safeOrigin || 'https://wenpai.netlify.app');
     redirectUrl.pathname = '/callback';
     redirectUrl.searchParams.set('code', code);
     if (state) {

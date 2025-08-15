@@ -434,7 +434,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     } catch (error) {
       console.error('❌ 处理认证回调失败:', error);
-      setError('认证回调处理失败');
+      // 统一错误文案，并清理URL，避免残留坏链接
+      setError('处理认证回调失败：回调地址不合法或已过期，请重试登录');
+      try {
+        const clean = window.location.pathname === '/callback' ? '/' : window.location.pathname;
+        window.history.replaceState({}, document.title, clean);
+      } catch {}
     }
   };
 
