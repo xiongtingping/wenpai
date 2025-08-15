@@ -446,6 +446,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     } catch (error) {
       console.error('❌ 处理认证回调失败:', error);
+      // 清理回调处理中标记，允许后续重试
+      try { setCallbackProcessing(false); } catch {}
+      try { redirectHandledRef.current = false; } catch {}
       // 统一错误文案，并清理URL，避免残留坏链接
       setError('处理认证回调失败：回调地址不合法或已过期，请重试登录');
       try {
