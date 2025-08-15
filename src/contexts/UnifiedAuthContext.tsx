@@ -146,12 +146,26 @@ function getGuardInstance() {
     console.log('  host:', config.host, typeof config.host);
     console.log('  redirectUri:', config.redirectUri, typeof config.redirectUri);
 
-    // 🎯 关键修复：使用最简化的Guard配置，避免初始化失败
+    // 🎯 关键修复：恢复完整的Guard配置，解决undefinedundefined显示问题
     const guardConfig = {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      mode: 'modal' as const
+      mode: 'modal' as const,
+      // 🌐 界面配置 - 解决undefinedundefined显示问题
+      title: '文派AI登录',
+      logo: 'https://files.authing.co/authing-console/default-app-logo.png',
+      lang: 'zh-CN' as const,
+      // 🔧 弹窗配置
+      autoRegister: true,
+      closeable: true,
+      clickCloseableMask: false,
+      escCloseable: true,
+      // 🔐 登录配置
+      defaultScene: 'login' as const,
+      // 🎯 关键：确保弹窗内容正确显示
+      autoFocus: true,
+      maskCloseable: false
     };
 
     console.log('🔧 最终Guard配置:', guardConfig);
