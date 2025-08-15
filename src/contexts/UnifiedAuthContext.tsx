@@ -293,7 +293,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       authingRef.current = getAuthingClient();
       guardRef.current = getGuardInstance();
-      
+
       // 设置 Guard 事件监听
       if (guardRef.current) {
         guardRef.current.on('login', (userInfo: any) => {
@@ -321,18 +321,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             }
           }, 1000); // 延迟1秒关闭，让用户看到成功状态
         });
-        
+
         guardRef.current.on('login-error', (error: any) => {
           console.error('❌ Guard 登录失败:', error);
           setError('登录失败: ' + (error.message || error));
         });
-        
+
         guardRef.current.on('register-error', (error: any) => {
           console.error('❌ Guard 注册失败:', error);
           setError('注册失败: ' + (error.message || error));
         });
       }
-      
+
       console.log('✅ Authing 实例初始化成功');
     } catch (error) {
       console.error('❌ Authing 实例初始化失败:', error);
@@ -347,7 +347,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       setLoading(true);
       setError(null);
-      
+
       // 从本地存储获取用户信息
       const storedUser = localStorage.getItem('authing_user');
       if (storedUser) {
@@ -355,17 +355,17 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         setUser(userData);
         console.log('✅ 从本地存储恢复用户信息:', userData);
       }
-      
+
       // 检查 URL 参数中是否有认证回调
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const state = urlParams.get('state');
-      
+
       if (code && authingRef.current) {
         console.log('🔐 检测到认证回调，处理登录...');
         await handleAuthCallback(code, state);
       }
-      
+
     } catch (error) {
       console.error('❌ 检查认证状态失败:', error);
       setError('认证状态检查失败');
@@ -380,23 +380,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const handleAuthCallback = async (code: string, state?: string | null) => {
     try {
       console.log('🔄 处理认证回调...');
-      
+
       if (!authingRef.current) {
         throw new Error('Authing 客户端未初始化');
       }
-      
+
       // 使用 Authing SDK 处理回调
       const userInfo = await authingRef.current.handleRedirectCallback();
       console.log('✅ Authing 回调处理成功:', userInfo);
-      
+
       if (userInfo) {
         handleAuthingLogin(userInfo);
       }
-      
+
       // 清除 URL 参数
       const newUrl = window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);
-      
+
     } catch (error) {
       console.error('❌ 处理认证回调失败:', error);
       setError('认证回调处理失败');
@@ -409,7 +409,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const handleAuthingLogin = (userInfo: any) => {
     try {
       console.log('🔐 处理 Authing 登录:', userInfo);
-      
+
       // ✅ FIXED: 2025-07-25 恢复成功备份的简化用户信息格式化
       const user: UserInfo = {
         id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
@@ -423,11 +423,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         permissions: userInfo.permissions || userInfo.permission || ['basic'],
         ...userInfo // 保留原始数据
       };
-      
+
       // 存储用户信息
       setUser(user);
       localStorage.setItem('authing_user', JSON.stringify(user));
-      
+
       // 处理登录成功后的跳转
       const redirectTo = localStorage.getItem('login_redirect_to');
       if (redirectTo) {
@@ -437,14 +437,65 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           navigate(redirectTo);
         }, 500);
       }
-      
+
       console.log('✅ 用户登录成功:', user);
-      
+
     } catch (error) {
       console.error('❌ 处理 Authing 登录失败:', error);
       setError('登录处理失败');
     }
   };
+
+  /**
+   * Guard 弹窗隔离器：在 Guard 显示期间，临时隐藏所有非 Authing 的对话框
+   * 目的：避免并发弹窗/焦点陷阱/aria-hidden 冲突导致的“undefinedundefined”或界面不可见
+   * 该隔离器仅在一次登录会话期间生效，结束后自动恢复
+   */
+  const isolateAuthingModalUntilClose = (guard: any) => {
+    try {
+      const hidden: HTMLElement[] = [];
+      const prevDisplay = new WeakMap<HTMLElement, string | null>();
+
+      const hideOthers = () => {
+        document.querySelectorAll('[role="dialog"]').forEach((node) => {
+          const el = node as HTMLElement;
+          if (!el.closest('.authing-ant-modal-root')) {
+            prevDisplay.set(el, el.style.display || '');
+            el.style.display = 'none';
+            hidden.push(el);
+          }
+        });
+      };
+
+      const restore = () => {
+        hidden.forEach((el) => {
+          const v = prevDisplay.get(el);
+          el.style.display = v ?? '';
+        });
+      };
+
+      const onDone = () => {
+        try { restore(); } catch (e) { console.warn('恢复对话框显示失败', e); }
+        if (guard && typeof guard.off === 'function') {
+          try { guard.off('close', onDone); } catch {}
+          try { guard.off('login', onDone); } catch {}
+          try { guard.off('register', onDone); } catch {}
+        }
+      };
+
+      hideOthers();
+      if (guard && typeof guard.on === 'function') {
+        try { guard.on('close', onDone); } catch {}
+        try { guard.on('login', onDone); } catch {}
+        try { guard.on('register', onDone); } catch {}
+      }
+      // 安全兜底：10秒后自动恢复，防止极端情况下未触发事件
+      setTimeout(() => { try { restore(); } catch {} }, 10000);
+    } catch (e) {
+      console.warn('弹窗隔离器初始化失败（忽略不致命错误）', e);
+    }
+  };
+
 
   /**
    * 登录方法 - 使用 Guard 弹窗
@@ -487,6 +538,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       if (guardRef.current && typeof guardRef.current.show === 'function') {
         console.log('✅ 调用 Guard.show() 方法...');
+        // 在显示前隔离其他对话框，避免并发冲突
+        isolateAuthingModalUntilClose(guardRef.current);
         guardRef.current.show();
         console.log('✅ Guard.show() 调用完成');
         setTimeout(ensureGuardVisibleOrFallback, 1500);
@@ -496,6 +549,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         const freshGuardInstance = getGuardInstance();
         if (freshGuardInstance && typeof freshGuardInstance.show === 'function') {
           console.log('✅ 使用新获取的 Guard 实例调用 show()...');
+          // 在显示前隔离其他对话框，避免并发冲突
+          isolateAuthingModalUntilClose(freshGuardInstance);
           freshGuardInstance.show();
           console.log('✅ 新 Guard 实例 show() 调用完成');
           // 更新 ref
@@ -532,11 +587,13 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (guard.changeScene) {
           guard.changeScene('register');
         }
+        // 在显示前隔离其他对话框，避免并发冲突
+        isolateAuthingModalUntilClose(guard);
         guard.show();
       } else {
         throw new Error('Guard 实例未初始化');
       }
-      
+
     } catch (error) {
       console.error('❌ 注册失败:', error);
       setError('注册失败');
@@ -549,24 +606,24 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   const logout = async () => {
     try {
       console.log('🚪 开始登出流程...');
-      
+
       // 清除用户信息
       setUser(null);
       localStorage.removeItem('authing_user');
       localStorage.removeItem('login_redirect_to');
-      
+
       // 使用 Authing SDK 登出
       if (authingRef.current) {
         // 清除本地存储的用户信息
         localStorage.removeItem('authing_user');
         localStorage.removeItem('authing_token');
       }
-      
+
       // 跳转到首页
       navigate('/');
-      
+
       console.log('✅ 用户登出成功');
-      
+
     } catch (error) {
       console.error('❌ 登出失败:', error);
       setError('登出失败');
@@ -755,11 +812,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (import.meta.env.DEV) {
       return true;
     }
-    
+
     if (!user || !user.permissions) {
       return false;
     }
-    
+
     return user.permissions.includes(permission);
   };
 
@@ -771,11 +828,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (import.meta.env.DEV) {
       return true;
     }
-    
+
     if (!user || !user.roles) {
       return false;
     }
-    
+
     return user.roles.includes(role);
   };
 
@@ -825,4 +882,4 @@ export const useUnifiedAuth = (): UnifiedAuthContextType => {
   return context;
 };
 
-export default UnifiedAuthContext; 
+export default UnifiedAuthContext;
