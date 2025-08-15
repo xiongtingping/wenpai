@@ -156,11 +156,6 @@ function getGuardInstance() {
 
     console.log('✅ Authing Guard实例初始化成功');
 
-    // 🔧 [GUARD_ERROR_HANDLER_v2025.08.15] 添加错误事件监听
-    guardInstance.on('error', (error: any) => {
-      console.error('🚨 Guard内部错误:', error);
-    });
-
     return guardInstance;
   } catch (error) {
     console.error('❌ Authing Guard实例初始化失败:', error);
