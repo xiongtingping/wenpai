@@ -136,8 +136,8 @@ function getGuardInstance() {
   });
 
   try {
-    // ✅ FIXED: 2025-08-15 修复Guard配置，解决undefinedundefined显示问题
-    // 📌 使用正确的Guard配置格式，确保弹窗正常显示
+    // ✅ FIXED: 2025-08-15 修复Guard初始化失败问题
+    // 📌 使用最简化的Guard配置，确保实例创建成功
 
     // 🔍 调试：检查配置项是否有undefined值
     console.log('🔧 Guard配置调试:');
@@ -146,42 +146,34 @@ function getGuardInstance() {
     console.log('  host:', config.host, typeof config.host);
     console.log('  redirectUri:', config.redirectUri, typeof config.redirectUri);
 
-    // 🎯 关键修复：确保所有配置项都不是undefined
+    // 🎯 关键修复：使用最简化的Guard配置，避免初始化失败
     const guardConfig = {
-      appId: config.appId || '68823897631e1ef8ff3720b2',
-      // 🎯 关键修复：host必须是完整的https URL格式
-      host: `https://${config.domain || 'rzcswqd4sq0f.authing.cn'}`,
-      redirectUri: config.redirectUri || `${window.location.origin}/callback`,
-      mode: 'modal' as const,
-      // 🌐 界面配置 - 解决undefinedundefined显示问题
-      title: '文派AI',
-      lang: 'zh-CN' as const,
-      // 🎨 UI配置 - 确保所有字符串都有值
-      logo: 'https://files.authing.co/authing-console/default-app-logo.png',
-      // 🔧 弹窗配置
-      autoRegister: false,
-      closeable: true,
-      clickCloseableMask: true,
-      escCloseable: true,
-      // 🔐 登录配置
-      loginMethodList: ['password', 'phone-code', 'email-code'] as const,
-      registerMethodList: ['phone', 'email'] as const,
-      // 🎯 关键：确保弹窗可见性
-      autoFocus: false,
-      maskCloseable: true,
-      clickCloseable: true
+      appId: config.appId,
+      host: config.host,
+      redirectUri: config.redirectUri,
+      mode: 'modal' as const
     };
 
     console.log('🔧 最终Guard配置:', guardConfig);
 
+    // 🎯 关键修复：添加详细的错误处理
     guardInstance = new Guard(guardConfig);
 
-    console.log('✅ Authing Guard实例初始化成功');
+    // 验证实例是否正确创建
+    if (!guardInstance) {
+      throw new Error('Guard实例创建失败: 返回null或undefined');
+    }
 
-    // 🎯 PRODUCTION-GRADE FIX: 生产级undefinedundefined防护系统
-    // 多层防护，确保在任何情况下都不会出现undefinedundefined问题
-    const setupProductionGradeProtection = () => {
-      // 1. 立即检查并修复现有问题
+    if (typeof guardInstance.show !== 'function') {
+      throw new Error('Guard实例创建失败: 缺少show方法');
+    }
+
+    console.log('✅ Authing Guard实例初始化成功');
+    console.log('✅ Guard实例验证通过，具备show方法');
+
+    // 🎯 简化的防护系统：只处理非 Authing 相关的 undefinedundefined 问题
+    const setupSimplifiedProtection = () => {
+      // 1. 立即检查并修复现有问题（跳过 Authing 元素）
       const immediateCheck = () => {
         const walker = document.createTreeWalker(
           document.body,
@@ -193,7 +185,18 @@ function getGuardInstance() {
         let node;
         let fixCount = 0;
         while (node = walker.nextNode()) {
-          if (node.textContent && node.textContent.includes('undefinedundefined')) {
+          // 检查是否在 Authing 相关元素内
+          let parent = node.parentElement;
+          let isAuthingRelated = false;
+          while (parent) {
+            if (parent.classList && Array.from(parent.classList).some(cls => cls.includes('authing'))) {
+              isAuthingRelated = true;
+              break;
+            }
+            parent = parent.parentElement;
+          }
+
+          if (!isAuthingRelated && node.textContent && node.textContent.includes('undefinedundefined')) {
             node.textContent = node.textContent.replace(/undefinedundefined/g, '文派');
             fixCount++;
           }
@@ -204,94 +207,29 @@ function getGuardInstance() {
         }
       };
 
-      // 2. 设置MutationObserver监听DOM变化
+      // 2. 简化的 MutationObserver - 只监听非 Authing 元素
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.type === 'childList') {
             mutation.addedNodes.forEach((node) => {
-              // 🎯 关键修复：跳过 Authing Guard 相关的元素，避免干扰弹窗渲染
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                // 检查是否是 Authing Guard 相关元素
-                const element = node as Element;
-                if (element.closest && (
-                  element.closest('[data-authing]') ||
-                  element.closest('[class*="authing"]') ||
-                  element.closest('[class*="guard"]') ||
-                  element.closest('dialog') ||
-                  element.querySelector && (
-                    element.querySelector('[data-authing]') ||
-                    element.querySelector('[class*="authing"]') ||
-                    element.querySelector('[class*="guard"]')
-                  )
-                )) {
-                  console.log('🛡️ 跳过 Authing Guard 元素，避免干扰弹窗渲染');
-                  return; // 跳过 Authing 相关元素
-                }
-              }
-
               if (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.includes('undefinedundefined')) {
-                // 检查父元素是否是 Authing 相关
+                // 检查是否在 Authing 相关元素内
                 let parent = node.parentElement;
+                let isAuthingRelated = false;
                 while (parent) {
-                  if (parent.classList && (
-                    Array.from(parent.classList).some(cls => cls.includes('authing') || cls.includes('guard')) ||
-                    parent.hasAttribute('data-authing')
-                  )) {
-                    console.log('🛡️ 跳过 Authing Guard 文本节点，避免干扰弹窗渲染');
-                    return; // 跳过 Authing 相关文本
+                  if (parent.classList && Array.from(parent.classList).some(cls => cls.includes('authing'))) {
+                    isAuthingRelated = true;
+                    break;
                   }
                   parent = parent.parentElement;
                 }
 
-                node.textContent = node.textContent.replace(/undefinedundefined/g, '文派');
-                console.log('🛠️ MutationObserver修复了undefinedundefined问题');
-              } else if (node.nodeType === Node.ELEMENT_NODE) {
-                // 检查新添加元素的所有文本节点
-                const walker = document.createTreeWalker(
-                  node,
-                  NodeFilter.SHOW_TEXT,
-                  null,
-                  false
-                );
-                let textNode;
-                while (textNode = walker.nextNode()) {
-                  // 检查文本节点的父元素是否是 Authing 相关
-                  let parent = textNode.parentElement;
-                  let isAuthingRelated = false;
-                  while (parent) {
-                    if (parent.classList && (
-                      Array.from(parent.classList).some(cls => cls.includes('authing') || cls.includes('guard')) ||
-                      parent.hasAttribute('data-authing')
-                    )) {
-                      isAuthingRelated = true;
-                      break;
-                    }
-                    parent = parent.parentElement;
-                  }
-
-                  if (!isAuthingRelated && textNode.textContent && textNode.textContent.includes('undefinedundefined')) {
-                    textNode.textContent = textNode.textContent.replace(/undefinedundefined/g, '文派');
-                    console.log('🛠️ MutationObserver修复了新元素中的undefinedundefined问题');
-                  }
+                if (!isAuthingRelated) {
+                  node.textContent = node.textContent.replace(/undefinedundefined/g, '文派');
+                  console.log('🛠️ MutationObserver修复了undefinedundefined问题');
                 }
               }
             });
-          } else if (mutation.type === 'characterData' && mutation.target.textContent && mutation.target.textContent.includes('undefinedundefined')) {
-            // 检查文本变化的父元素是否是 Authing 相关
-            let parent = mutation.target.parentElement;
-            while (parent) {
-              if (parent.classList && (
-                Array.from(parent.classList).some(cls => cls.includes('authing') || cls.includes('guard')) ||
-                parent.hasAttribute('data-authing')
-              )) {
-                console.log('🛡️ 跳过 Authing Guard 文本变化，避免干扰弹窗渲染');
-                return; // 跳过 Authing 相关文本变化
-              }
-              parent = parent.parentElement;
-            }
-
-            mutation.target.textContent = mutation.target.textContent.replace(/undefinedundefined/g, '文派');
-            console.log('🛠️ MutationObserver修复了文本变化中的undefinedundefined问题');
           }
         });
       });
@@ -299,27 +237,17 @@ function getGuardInstance() {
       // 3. 启动监听
       observer.observe(document.body, {
         childList: true,
-        subtree: true,
-        characterData: true
+        subtree: true
       });
 
       // 4. 立即执行检查
       immediateCheck();
 
-      // 5. 定期检查（作为备用）
-      const intervalCheck = setInterval(immediateCheck, 1000);
-
-      // 6. 60秒后停止定期检查，但保留MutationObserver
-      setTimeout(() => {
-        clearInterval(intervalCheck);
-        console.log('🏁 生产级防护系统：定期检查已停止，MutationObserver继续运行');
-      }, 60000);
-
-      console.log('🛡️ 生产级undefinedundefined防护系统已启动');
+      console.log('🛡️ 简化防护系统已启动');
     };
 
-    // 启动生产级防护系统
-    setupProductionGradeProtection();
+    // 启动简化防护系统
+    setupSimplifiedProtection();
 
     return guardInstance;
   } catch (error) {
