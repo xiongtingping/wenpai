@@ -42,8 +42,9 @@ try {
     console.warn('⚠️ DirectAuth实现可能不完整');
   }
 
-  // 检查是否有@authing/guard残留（已移除）
-  if (contextFile.includes('@authing/guard')) {
+  // 检查是否有@authing/guard残留导入（排除注释）
+  const authingGuardImports = contextFile.match(/^[^\/]*import.*@authing\/guard/gm);
+  if (authingGuardImports && authingGuardImports.length > 0) {
     console.error('❌ 检测到@authing/guard残留导入，应使用DirectAuth');
     hasErrors = true;
   } else {
