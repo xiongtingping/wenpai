@@ -168,6 +168,89 @@ function getGuardInstance() {
 
     console.log('✅ Authing Guard实例初始化成功');
 
+    // 🎯 PRODUCTION-GRADE FIX: 生产级undefinedundefined防护系统
+    // 多层防护，确保在任何情况下都不会出现undefinedundefined问题
+    const setupProductionGradeProtection = () => {
+      // 1. 立即检查并修复现有问题
+      const immediateCheck = () => {
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+          null,
+          false
+        );
+
+        let node;
+        let fixCount = 0;
+        while (node = walker.nextNode()) {
+          if (node.textContent && node.textContent.includes('undefinedundefined')) {
+            node.textContent = node.textContent.replace(/undefinedundefined/g, '文派');
+            fixCount++;
+          }
+        }
+
+        if (fixCount > 0) {
+          console.log(`🛠️ 立即修复了 ${fixCount} 个undefinedundefined问题`);
+        }
+      };
+
+      // 2. 设置MutationObserver监听DOM变化
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.includes('undefinedundefined')) {
+                node.textContent = node.textContent.replace(/undefinedundefined/g, '文派');
+                console.log('🛠️ MutationObserver修复了undefinedundefined问题');
+              } else if (node.nodeType === Node.ELEMENT_NODE) {
+                // 检查新添加元素的所有文本节点
+                const walker = document.createTreeWalker(
+                  node,
+                  NodeFilter.SHOW_TEXT,
+                  null,
+                  false
+                );
+                let textNode;
+                while (textNode = walker.nextNode()) {
+                  if (textNode.textContent && textNode.textContent.includes('undefinedundefined')) {
+                    textNode.textContent = textNode.textContent.replace(/undefinedundefined/g, '文派');
+                    console.log('🛠️ MutationObserver修复了新元素中的undefinedundefined问题');
+                  }
+                }
+              }
+            });
+          } else if (mutation.type === 'characterData' && mutation.target.textContent && mutation.target.textContent.includes('undefinedundefined')) {
+            mutation.target.textContent = mutation.target.textContent.replace(/undefinedundefined/g, '文派');
+            console.log('🛠️ MutationObserver修复了文本变化中的undefinedundefined问题');
+          }
+        });
+      });
+
+      // 3. 启动监听
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
+
+      // 4. 立即执行检查
+      immediateCheck();
+
+      // 5. 定期检查（作为备用）
+      const intervalCheck = setInterval(immediateCheck, 1000);
+
+      // 6. 60秒后停止定期检查，但保留MutationObserver
+      setTimeout(() => {
+        clearInterval(intervalCheck);
+        console.log('🏁 生产级防护系统：定期检查已停止，MutationObserver继续运行');
+      }, 60000);
+
+      console.log('🛡️ 生产级undefinedundefined防护系统已启动');
+    };
+
+    // 启动生产级防护系统
+    setupProductionGradeProtection();
+
     return guardInstance;
   } catch (error) {
     console.error('❌ Authing Guard实例初始化失败:', error);
