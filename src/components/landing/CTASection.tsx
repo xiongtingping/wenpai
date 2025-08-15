@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext"
+// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
+import { useDirectAuth } from "@/contexts/DirectAuthContext"
 
 export function CTASection() {
-  const { isAuthenticated, login } = useUnifiedAuth();
+  const { isAuthenticated, login } = useDirectAuth();
   const navigate = useNavigate();
 
   const handleButtonClick = () => {

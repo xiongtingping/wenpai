@@ -9,7 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
+import { useDirectAuth } from '@/contexts/DirectAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { getUserDisplayName, getUserEmail, getUserUsername, getUserId } from '@/utils/userDisplayUtils';
 import { 
@@ -34,7 +35,7 @@ import {
 export const DevTools: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('auth');
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useDirectAuth();
   const vipPermission = usePermission('vip:required');
   const authPermission = usePermission('auth:required');
 

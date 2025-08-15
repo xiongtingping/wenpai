@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { usePermission } from '@/hooks/usePermission';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
+import { useDirectAuth } from '@/contexts/DirectAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ThemeUpgradeDialog } from '@/components/ui/ThemeUpgradeDialog';
 import { generateStorageKey } from '@/utils/userDataIsolation';
@@ -86,7 +87,7 @@ function getInitialTheme(user?: any): Theme {
 }
 
 export const ThemeToggle: React.FC = () => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useDirectAuth();
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme(user));
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeConfig | null>(null);

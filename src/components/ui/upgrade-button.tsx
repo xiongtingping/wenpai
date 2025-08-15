@@ -6,7 +6,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Crown } from 'lucide-react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
+import { useDirectAuth } from '@/contexts/DirectAuthContext';
 
 /**
  * 升级专业版按钮属性
@@ -34,7 +35,7 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
   text = '立即解锁高级功能',
   className = '',
 }) => {
-  const { user } = useUnifiedAuth();
+  const { user } = useDirectAuth();
 
   /**
    * 检查是否应该显示升级按钮

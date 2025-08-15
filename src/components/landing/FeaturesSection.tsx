@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
+import { useDirectAuth } from '@/contexts/DirectAuthContext';
 import {
   Zap,
   Sparkles,
@@ -197,7 +198,7 @@ const advantages = [
  * 功能特性展示区域组件
  */
 export const FeaturesSection: React.FC = () => {
-  const { login, isAuthenticated } = useUnifiedAuth();
+  const { login, isAuthenticated } = useDirectAuth();
   const navigate = useNavigate();
 
   return (

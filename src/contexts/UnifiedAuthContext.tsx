@@ -6,7 +6,11 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Guard } from '@authing/guard';
+// 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 临时注释掉Guard导入，避免模块解析错误
+// import { Guard } from '@authing/guard';
+
+// 临时Guard类型定义，避免TypeScript错误
+type Guard = any;
 // 🔒 [AUTHING_GUARD_UNIFIED_CONTEXT_v2025.08.14]
 // 统一使用@authing/guard架构，移除@authing/web导入
 import { getAuthingConfig } from '@/config/authing';
@@ -78,33 +82,33 @@ const getGuardInstance = () => {
       redirectUri: config.redirectUri
     });
 
-    // 🔧 使用最简单的成功配置，基于官方文档
-    guardInstance = new Guard({
-      appId: config.appId,
-      host: config.host,
-      redirectUri: config.redirectUri,
-      mode: 'modal',
-      lang: 'zh-CN'
-    });
+    // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 临时注释掉Guard实例化，避免运行时错误
+    // guardInstance = new Guard({
+    //   appId: config.appId,
+    //   host: config.host,
+    //   redirectUri: config.redirectUri,
+    //   mode: 'modal',
+    //   lang: 'zh-CN'
+    // });
 
-    // 🔒 [AUTHING_GUARD_EVENTS_v2025.08.14] 添加关键事件监听器
-    guardInstance.on('login', (userInfo: any) => {
-      console.log('🔐 Guard 登录成功:', userInfo);
-      // 这里需要调用handleAuthingLogin，但在这个作用域中不可用
-      // 所以我们将在组件中重新设置事件监听器
-    });
+    // // 🔒 [AUTHING_GUARD_EVENTS_v2025.08.14] 添加关键事件监听器
+    // guardInstance.on('login', (userInfo: any) => {
+    //   console.log('🔐 Guard 登录成功:', userInfo);
+    //   // 这里需要调用handleAuthingLogin，但在这个作用域中不可用
+    //   // 所以我们将在组件中重新设置事件监听器
+    // });
 
-    guardInstance.on('login-error', (error: any) => {
-      console.error('❌ Guard 登录失败:', error);
-    });
+    // guardInstance.on('login-error', (error: any) => {
+    //   console.error('❌ Guard 登录失败:', error);
+    // });
 
-    guardInstance.on('close', () => {
-      console.log('🔒 Guard 弹窗已关闭');
-    });
+    // guardInstance.on('close', () => {
+    //   console.log('🔒 Guard 弹窗已关闭');
+    // });
 
-    console.log('✅ Guard实例创建成功');
+    console.log('⚠️ Guard实例已禁用 - 使用DirectAuthContext替代');
   }
-  return guardInstance;
+  return null; // 临时返回null
 };
 
 // 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14]

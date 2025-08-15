@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
+import { useDirectAuth } from '@/contexts/DirectAuthContext';
 
 /**
  * 权限判断结果
@@ -343,7 +344,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
  * @returns 权限判断结果
  */
 export const usePermission = (permissionKey: string | string[]): PermissionResult => {
-  const { user, isAuthenticated } = useUnifiedAuth();
+  const { user, isAuthenticated } = useDirectAuth();
 
   return useMemo(() => {
     const keys = Array.isArray(permissionKey) ? permissionKey : [permissionKey];

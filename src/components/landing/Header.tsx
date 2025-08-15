@@ -1,4 +1,5 @@
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
+import { useDirectAuth } from "@/contexts/DirectAuthContext";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -86,7 +87,7 @@ const HelpDocumentation = () => {
 
 export function Header() {
   const isMobile = useIsMobile()
-  const { user, isAuthenticated, login, register } = useUnifiedAuth()
+  const { user, isAuthenticated, login, register } = useDirectAuth()
   const navigate = useNavigate()
 
   /**

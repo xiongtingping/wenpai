@@ -53,8 +53,9 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          authing: ['@authing/guard']
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+          // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 移除authing chunk，避免构建时包含有问题的@authing/guard
+          // authing: ['@authing/guard']
         }
       },
       plugins: [
@@ -97,13 +98,16 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
-      '@authing/guard',
+      // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 暂时排除@authing/guard，避免正则表达式错误
+      // '@authing/guard',
       'axios',
       'crypto-js'
     ],
     exclude: [
       'stream',
-      'readable-stream'
+      'readable-stream',
+      // 🔧 [AUTHING_GUARD_FIX_v2025.08.15] 排除@authing/guard，避免预构建时的正则表达式错误
+      '@authing/guard'
     ],
     esbuildOptions: {
       define: {
