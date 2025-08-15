@@ -4,7 +4,9 @@
   "description": "Netlify functions for Wenpai app",
   "main": "index.js",
   "dependencies": {
+    "authing-js-sdk": "^4.23.44",
     "creem": "^0.3.37",
+    "mongodb": "^6.3.0",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
