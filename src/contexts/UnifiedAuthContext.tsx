@@ -136,15 +136,29 @@ function getGuardInstance() {
   });
 
   try {
-    // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
-    // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
-    // ✅ 完全按照成功备份恢复Guard配置
+    // ✅ FIXED: 2025-08-15 修复Guard配置，添加关键UI配置项解决undefinedundefined问题
+    // 📌 根据文档和成功案例，添加完整的Guard配置
     guardInstance = new Guard({
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
       userPoolId: config.userPoolId,
       mode: 'modal',
+      // 🎯 关键修复：添加UI配置项，解决undefinedundefined显示问题
+      title: '文派',
+      lang: 'zh-CN',
+      // 弹窗模式配置
+      autoRegister: false,
+      skipComplateFileds: false,
+      skipComplateFiledsPlace: 'modal',
+      closeable: true,
+      clickCloseableMask: true,
+      // 登录方式配置
+      loginMethodList: ['password', 'phone-code', 'email-code'],
+      // 注册方式配置
+      registerMethodList: ['phone', 'email'],
+      // 界面配置
+      logo: 'https://cdn.authing.co/authing-console/logo.png',
       // accessibility配置
       autoFocus: false,
       escCloseable: true,
