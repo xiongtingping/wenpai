@@ -254,8 +254,13 @@ function getGuardInstance() {
       console.log('🛡️ 简化防护系统已启动');
     };
 
-    // 启动简化防护系统
-    setupSimplifiedProtection();
+    // 启动简化防护系统（仅开发环境或显式开启时）
+    const enableUndefProtection = import.meta.env.DEV && (import.meta.env.VITE_ENABLE_UNDEF_PROTECTION === '1');
+    if (enableUndefProtection) {
+      setupSimplifiedProtection();
+    } else {
+      console.log('🛡️ 简化防护系统在当前环境未启用');
+    }
 
     return guardInstance;
   } catch (error) {
@@ -461,10 +466,30 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.log('  guardRef.current 类型:', typeof guardRef.current);
       console.log('  guardRef.current 是否有 show 方法:', guardRef.current && typeof guardRef.current.show === 'function');
 
+      const ensureGuardVisibleOrFallback = () => {
+        try {
+          const modalRoot = document.querySelector('.authing-ant-modal-root');
+          const hasForm = modalRoot && (modalRoot as HTMLElement).querySelector('input, button');
+          if (!hasForm) {
+            console.warn('⚠️ Guard 弹窗可见性检测失败，兜底跳转到 Authing 托管登录');
+            const cfg = getAuthingConfig();
+            const url = new URL(`https://${cfg.host.replace('https://','')}/login`);
+            const target = localStorage.getItem('login_redirect_to') || window.location.href;
+            url.searchParams.set('app_id', cfg.appId);
+            url.searchParams.set('redirect_uri', cfg.redirectUri || target);
+            url.searchParams.set('protocol', 'oidc');
+            window.location.href = url.toString();
+          }
+        } catch (e) {
+          console.error('兜底跳转处理异常', e);
+        }
+      };
+
       if (guardRef.current && typeof guardRef.current.show === 'function') {
         console.log('✅ 调用 Guard.show() 方法...');
         guardRef.current.show();
         console.log('✅ Guard.show() 调用完成');
+        setTimeout(ensureGuardVisibleOrFallback, 1500);
       } else {
         // 尝试重新获取 Guard 实例
         console.log('⚠️ Guard 实例不可用，尝试重新获取...');
@@ -475,6 +500,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           console.log('✅ 新 Guard 实例 show() 调用完成');
           // 更新 ref
           guardRef.current = freshGuardInstance;
+          setTimeout(ensureGuardVisibleOrFallback, 1500);
         } else {
           throw new Error('Guard 实例未初始化或缺少 show 方法');
         }
