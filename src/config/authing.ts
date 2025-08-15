@@ -35,14 +35,14 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 // 📌 App ID: 68823897631e1ef8ff3720b2 (用户确认)
 // 🔒 临时硬编码解决环境变量注入问题
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqs4sq0f.authing.cn';
-const HOST = 'https://rzcswqs4sq0f.authing.cn';
+const DOMAIN = 'rzcswqd4sq0f.authing.cn';
+const HOST = 'https://rzcswqd4sq0f.authing.cn';
 
 let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 🔧 [AUTHING_SUCCESS_BACKUP_v2025.07.25] 使用动态回调URI - 这是成功的关键！
+  // 动态获取回调URI
   const redirectUri = typeof window !== 'undefined'
     ? `${window.location.origin}/callback`
     : getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
@@ -80,6 +80,18 @@ export const getGuardConfig = () => {
 };
 
 /**
- * 🔒 [AUTHING_GUARD_CONFIG_v2025.08.14]
- * 已移除getAuthingWebConfig，统一使用getGuardConfig
+ * 获取 Authing Web SDK 配置
  */
+export const getAuthingWebConfig = () => {
+  const config = getAuthingConfig();
+
+  return {
+    domain: config.domain,
+    appId: config.appId,
+    redirectUri: config.redirectUri,
+    scope: 'openid profile email phone',
+    responseType: 'code' as const,
+    state: `state_${Date.now()}`,
+    prompt: 'login' as const
+  };
+};
