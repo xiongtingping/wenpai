@@ -331,9 +331,15 @@ export const PREVENTION_MEASURES = {
 
 // ==================== 自动启用防护系统 ====================
 
-// 🚨 [AUTO_ENABLE_v2025.08.14] 自动启用防护系统
+// 📴 生产默认不自动启用，避免与 Authing Guard 冲突；仅 DEV 或显式开关启用
 const protectionSystem = UndefinedProtectionSystem.getInstance();
-protectionSystem.enable();
+const ENABLE_UNDEF_PROTECTION = import.meta.env.DEV || (import.meta.env.VITE_ENABLE_UNDEF_PROTECTION === '1');
+if (ENABLE_UNDEF_PROTECTION) {
+  protectionSystem.enable();
+  console.log('🛡️ undefined 防护系统已启用（开关命中）');
+} else {
+  console.log('🛡️ undefined 防护系统默认关闭（生产环境）');
+}
 
 // 🔧 [AUTHING_JSON_ERROR_FIX_v2025.08.14] 修复Authing JSON解析错误
 window.addEventListener('error', (event) => {

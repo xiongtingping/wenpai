@@ -31,6 +31,7 @@ export default defineConfig({
       VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || 'https://rzcswqd4sq0f.authing.cn',
       NODE_ENV: process.env.NODE_ENV || '',
       BASE_PATH: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
+      VITE_AUTHING_FALLBACK_HOSTED: process.env.VITE_AUTHING_FALLBACK_HOSTED || '',
     })
   },
   // 开发服务器配置

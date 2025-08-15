@@ -9,8 +9,8 @@
  * 3. 网络延迟可能导致用户信息加载不完整
  */
 
-// 🚨 [UNDEFINED_FIXER_RESTORED_v2025.08.14] 重新启用修复器
-console.log('🛡️ 生产环境undefined修复器已重新启用，专门修复undefinedundefined问题');
+// 📴 默认禁用生产修复器：仅在显式开关 VITE_ENABLE_PROD_UNDEF_FIX=1 时启用
+console.log('🛡️ 生产环境 undefined 修复器默认禁用。设置 VITE_ENABLE_PROD_UNDEF_FIX=1 可启用');
 
 interface ProductionFixConfig {
   enableGlobalFix: boolean;
@@ -240,6 +240,9 @@ class ProductionUndefinedFixer {
 
   // 检测登录弹窗是否激活
   private isGuardActive(): boolean {
+    try {
+      if (document.body.classList.contains('authing-guard-open')) return true;
+    } catch {}
     const selectors = ['#authing_guard_container', '.authing-ant-modal-root', '#authing-guard-container-v4'];
     for (const sel of selectors) {
       const el = document.querySelector(sel) as HTMLElement | null;
@@ -342,19 +345,23 @@ declare global {
   }
 }
 
-// 🚨 [UNDEFINED_FIXER_RESTORED_v2025.08.14] 重新启用修复器
-// 🔧 FIXED: 避免重复启动修复器
-if (!window.productionUndefinedFixer) {
-  window.productionUndefinedFixer = new ProductionUndefinedFixer({
-    enableGlobalFix: true,
-    enableDOMObserver: true,
-    enableConsoleFilter: false, // 开发环境保留控制台输出
-    fixInterval: 500, // 更频繁的检查
-    maxFixAttempts: 200
-  });
-  console.log('🚨 FORCE ENABLED: 生产环境修复器已强制启用（包括开发环境）');
-} else {
-  console.log('⚠️ 生产环境修复器已临时禁用，避免与Authing Guard冲突');
-}
+// 📴 默认禁用：仅在 DEV 且显式开关或 PROD 且显式开关时启用
+// 开启方式：在环境变量中设置 VITE_ENABLE_PROD_UNDEF_FIX=1
+(() => {
+  const enabledByEnv = (import.meta.env.VITE_ENABLE_PROD_UNDEF_FIX === '1');
+  const shouldEnable = enabledByEnv;
+  if (!window.productionUndefinedFixer && shouldEnable) {
+    window.productionUndefinedFixer = new ProductionUndefinedFixer({
+      enableGlobalFix: true,
+      enableDOMObserver: true,
+      enableConsoleFilter: false,
+      fixInterval: 500,
+      maxFixAttempts: 200
+    });
+    console.log('✅ 生产 undefined 修复器已按显式开关启用');
+  } else {
+    console.log('ℹ️ 生产 undefined 修复器未启用（默认关闭）。如需开启，设置 VITE_ENABLE_PROD_UNDEF_FIX=1');
+  }
+})();
 
 export default ProductionUndefinedFixer;

@@ -185,9 +185,7 @@ function getGuardInstance() {
       const immediateCheck = () => {
         const walker = document.createTreeWalker(
           document.body,
-          NodeFilter.SHOW_TEXT,
-          null,
-          false
+          NodeFilter.SHOW_TEXT
         );
 
         let node;
@@ -377,7 +375,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 处理认证回调
    */
-  const handleAuthCallback = async (code: string, state?: string | null) => {
+  const handleAuthCallback = async (code: string, _state?: string | null) => {
     try {
       console.log('🔄 处理认证回调...');
 
@@ -455,16 +453,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       const hidden: HTMLElement[] = [];
       const prevDisplay = new WeakMap<HTMLElement, string | null>();
+      const inertEls: HTMLElement[] = [];
+      const prevAriaHidden = new WeakMap<HTMLElement, string | null>();
+      const prevInert = new WeakMap<HTMLElement, boolean>();
       let observer: MutationObserver | null = null;
+      let textObserver: MutationObserver | null = null;
       let cssEl: HTMLStyleElement | null = null;
       const debugISO = import.meta.env.DEV || (import.meta.env.VITE_LOG_MODAL_ISO === '1');
 
       const isInAuthingModal = (el: HTMLElement | null) => !!el?.closest('.authing-ant-modal-root');
       const isDialogLike = (el: HTMLElement) => {
-        const roleDialog = el.getAttribute('role') === 'dialog';
+        const roleDialog = el.getAttribute('role') === 'dialog' || el.getAttribute('aria-modal') === 'true';
         const htmlDialog = el.tagName === 'DIALOG';
         const radixDialog = el.hasAttribute('data-radix-dialog-content') || el.closest('[data-radix-dialog-content]');
-        return !!(roleDialog || htmlDialog || radixDialog);
+        const radixSheet = el.closest('[data-radix-dialog-content]'); // Radix Sheet 也是基于 Dialog
+        const radixPopover = el.hasAttribute('data-radix-popover-content') || el.closest('[data-radix-popover-content]');
+        const radixTooltip = el.hasAttribute('data-radix-tooltip-content') || el.closest('[data-radix-tooltip-content]');
+        return !!(roleDialog || htmlDialog || radixDialog || radixSheet || radixPopover || radixTooltip);
       };
 
       const hideElement = (el: HTMLElement) => {
@@ -484,7 +489,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       };
 
       const hideOthers = () => {
-        document.querySelectorAll('[role="dialog"], dialog, [data-radix-dialog-content]').forEach((node) => {
+        document.querySelectorAll('[role="dialog"], dialog, [data-radix-dialog-content], [data-radix-popover-content], [data-radix-tooltip-content], [aria-modal="true"], [class*="modal"], [class*="dialog"], [class*="popup"], [class*="overlay"], .ant-modal-root, .ant-modal-wrap, .ant-modal, .ant-drawer, .ant-drawer-content-wrapper, [role="alertdialog"]').forEach((node) => {
           hideElement(node as HTMLElement);
         });
       };
@@ -494,13 +499,51 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           cssEl = document.createElement('style');
           cssEl.id = 'authing-guard-isolation-style';
           cssEl.textContent = `
+            /* 全局隐藏非 Authing 对话框/弹层类型 */
             body.authing-guard-open [role="dialog"],
+            body.authing-guard-open [aria-modal="true"],
             body.authing-guard-open dialog,
-            body.authing-guard-open [data-radix-dialog-content] {
+            body.authing-guard-open [data-radix-dialog-content],
+            body.authing-guard-open [data-radix-popover-content],
+            body.authing-guard-open [data-radix-tooltip-content],
+            body.authing-guard-open [class*="modal"],
+            body.authing-guard-open [class*="dialog"],
+            body.authing-guard-open [class*="popup"],
+            body.authing-guard-open [class*="overlay"],
+            body.authing-guard-open .ant-modal-root,
+            body.authing-guard-open .ant-modal-wrap,
+            body.authing-guard-open .ant-modal,
+            body.authing-guard-open .ant-drawer,
+            body.authing-guard-open .ant-drawer-content-wrapper,
+            body.authing-guard-open [role="alertdialog"] {
               display: none !important;
               visibility: hidden !important;
               pointer-events: none !important;
             }
+            /* 允许 Authing 容器内的内容显示（防止误伤）*/
+            body.authing-guard-open .authing-ant-modal-root [role="dialog"],
+            body.authing-guard-open .authing-ant-modal-root [aria-modal="true"],
+            body.authing-guard-open .authing-ant-modal-root dialog,
+            body.authing-guard-open .authing-ant-modal-root [data-radix-dialog-content],
+            body.authing-guard-open .authing-ant-modal-root [data-radix-popover-content],
+            body.authing-guard-open .authing-ant-modal-root [data-radix-tooltip-content],
+            body.authing-guard-open .authing-ant-modal-root [class*="modal"],
+            body.authing-guard-open .authing-ant-modal-root [class*="dialog"],
+            body.authing-guard-open .authing-ant-modal-root [class*="popup"],
+            body.authing-guard-open .authing-ant-modal-root [class*="overlay"],
+            body.authing-guard-open .authing-ant-modal-root .ant-modal-root,
+            body.authing-guard-open .authing-ant-modal-root .ant-modal,
+            body.authing-guard-open .authing-ant-modal-root .ant-modal-wrap,
+            body.authing-guard-open .authing-ant-modal-root .ant-drawer,
+            body.authing-guard-open .authing-ant-modal-root .ant-drawer-content-wrapper,
+            body.authing-guard-open .authing-ant-modal-root [role="alertdialog"] {
+              display: revert !important;
+              visibility: revert !important;
+              pointer-events: auto !important;
+            }
+            /* 提升 Authing 弹窗层级，确保在最上层 */
+            body.authing-guard-open .authing-ant-modal-root { z-index: 2147483647 !important; }
+            body.authing-guard-open .authing-ant-modal-root * { z-index: inherit !important; }
           `;
           document.head.appendChild(cssEl);
           document.body.classList.add('authing-guard-open');
@@ -515,11 +558,29 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       };
 
+      const removeInert = () => {
+        inertEls.forEach((el) => {
+          const prev = prevAriaHidden.get(el);
+          if (prev === null) el.removeAttribute('aria-hidden'); else if (prev !== undefined) el.setAttribute('aria-hidden', prev);
+          if (prevInert.get(el)) {
+            // was true before
+            el.setAttribute('inert', '');
+          } else {
+            el.removeAttribute('inert');
+          }
+        });
+      };
+
       const restore = () => {
         if (observer) {
           try { observer.disconnect(); } catch {}
           observer = null;
         }
+        if (textObserver) {
+          try { textObserver.disconnect(); } catch {}
+          textObserver = null;
+        }
+        removeInert();
         removeGlobalCss();
         hidden.forEach((el) => {
           const v = prevDisplay.get(el);
@@ -539,9 +600,67 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         }
       };
 
+      const applyInert = () => {
+        try {
+          const authingRoot = document.querySelector('.authing-ant-modal-root');
+          Array.from(document.body.children).forEach((el) => {
+            const h = el as HTMLElement;
+            if (authingRoot && authingRoot.contains(h)) return;
+            if (h.tagName === 'SCRIPT' || h.tagName === 'STYLE' || h.id === 'authing-guard-isolation-style') return;
+            if (!prevAriaHidden.has(h)) prevAriaHidden.set(h, h.getAttribute('aria-hidden'));
+            if (!prevInert.has(h)) prevInert.set(h, h.hasAttribute('inert'));
+            h.setAttribute('aria-hidden', 'true');
+            h.setAttribute('inert', '');
+            inertEls.push(h);
+          });
+        } catch (e) { if (debugISO) console.debug('[ISO] applyInert 失败', e); }
+      };
+
       // 启动隔离
       injectGlobalCss();
+      applyInert();
       hideOthers();
+
+      // 在 Authing 容器内持续清理 undefinedundefined 文案（不改行为）
+      try {
+        const guardRoot = document.getElementById('authing_guard_container');
+        if (guardRoot) {
+          const sanitize = () => {
+            guardRoot.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+              .forEach((el) => {
+                if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                  el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                }
+              });
+          };
+          sanitize();
+          textObserver = new MutationObserver(() => sanitize());
+          textObserver.observe(guardRoot, { subtree: true, characterData: true, childList: true });
+        }
+      } catch (e) { if (debugISO) console.debug('[ISO] 文本清理挂载失败', e); }
+
+      // 监听 Guard 事件（若 SDK 暴露），在错误/切场景后沿再清洗一次
+      try {
+        const g: any = guard;
+        const events = ['login-error', 'register-error', 'change-scene', 'login', 'register'];
+        events.forEach((evt) => {
+          if (g?.on) {
+            g.on(evt, () => {
+              try {
+                const root = document.getElementById('authing_guard_container');
+                if (!root) return;
+                root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+                  .forEach((el) => {
+                    if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                      el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                    }
+                  });
+              } catch {}
+            });
+          }
+        });
+      } catch (e) { if (debugISO) console.debug('[ISO] Guard 事件绑定失败', e); }
+
       if (debugISO) console.debug('[ISO] 隔离器启动');
       // 观察新加入的对话框，出现即隐藏
       observer = new MutationObserver((mutations) => {
@@ -551,7 +670,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
               if (n.nodeType === 1) {
                 const el = n as HTMLElement;
                 hideElement(el);
-                el.querySelectorAll?.('[role="dialog"], dialog, [data-radix-dialog-content]').forEach((child) => hideElement(child as HTMLElement));
+                el.querySelectorAll?.('[role="dialog"], dialog, [data-radix-dialog-content], [data-radix-popover-content], [data-radix-tooltip-content], [aria-modal="true"], [class*="modal"], [class*="dialog"], [class*="popup"], [class*="overlay"], .ant-modal-root, .ant-modal-wrap, .ant-modal, .ant-drawer, .ant-drawer-content-wrapper, [role="alertdialog"]').forEach((child) => hideElement(child as HTMLElement));
               }
             });
           }
@@ -594,10 +713,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       const ensureGuardVisibleOrFallback = () => {
         try {
+          const fallbackEnabled = import.meta.env.VITE_AUTHING_FALLBACK_HOSTED === '1' || (window as any)?.__ENV__?.VITE_AUTHING_FALLBACK_HOSTED === '1';
+          if (!fallbackEnabled) {
+            console.log('ℹ️ 托管登录兜底开关未开启，跳过跳转检查');
+            return;
+          }
           const modalRoot = document.querySelector('.authing-ant-modal-root');
-          const hasForm = modalRoot && (modalRoot as HTMLElement).querySelector('input, button');
-          if (!hasForm) {
-            console.warn('⚠️ Guard 弹窗可见性检测失败，兜底跳转到 Authing 托管登录');
+          const hasInput = !!(modalRoot && (modalRoot as HTMLElement).querySelector('input'));
+          const hasErrorUndef = !!(modalRoot && (modalRoot as HTMLElement).textContent?.includes('undefinedundefined'));
+          if (!hasInput || hasErrorUndef) {
+            console.warn('⚠️ Guard 弹窗不可用或出现错误文案，启用托管登录兜底跳转');
             const cfg = getAuthingConfig();
             const url = new URL(`https://${cfg.host.replace('https://','')}/login`);
             const target = localStorage.getItem('login_redirect_to') || window.location.href;
@@ -616,6 +741,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 在显示前隔离其他对话框，避免并发冲突
         isolateAuthingModalUntilClose(guardRef.current);
         guardRef.current.show();
+        // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
+        const sanitizeAuthingText = () => {
+          try {
+            const root = document.getElementById('authing_guard_container');
+            if (!root) return;
+            root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+              .forEach((el) => {
+                if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                  el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                }
+              });
+          } catch {}
+        };
+        setTimeout(sanitizeAuthingText, 0);
+        setTimeout(sanitizeAuthingText, 200);
+        setTimeout(sanitizeAuthingText, 800);
+        requestAnimationFrame(sanitizeAuthingText);
         console.log('✅ Guard.show() 调用完成');
         setTimeout(ensureGuardVisibleOrFallback, 1500);
       } else {
@@ -627,6 +769,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           // 在显示前隔离其他对话框，避免并发冲突
           isolateAuthingModalUntilClose(freshGuardInstance);
           freshGuardInstance.show();
+          // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
+          const sanitizeAuthingText = () => {
+            try {
+              const root = document.getElementById('authing_guard_container');
+              if (!root) return;
+              root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+                .forEach((el) => {
+                  if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                    el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                  }
+                });
+            } catch {}
+          };
+          setTimeout(sanitizeAuthingText, 0);
+          setTimeout(sanitizeAuthingText, 200);
+          setTimeout(sanitizeAuthingText, 800);
+          requestAnimationFrame(sanitizeAuthingText);
           console.log('✅ 新 Guard 实例 show() 调用完成');
           // 更新 ref
           guardRef.current = freshGuardInstance;
@@ -665,6 +824,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 在显示前隔离其他对话框，避免并发冲突
         isolateAuthingModalUntilClose(guard);
         guard.show();
+        // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
+        const sanitizeAuthingText = () => {
+          try {
+            const root = document.getElementById('authing_guard_container');
+            if (!root) return;
+            root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+              .forEach((el) => {
+                if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                  el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                }
+              });
+          } catch {}
+        };
+        setTimeout(sanitizeAuthingText, 0);
+        setTimeout(sanitizeAuthingText, 200);
+        setTimeout(sanitizeAuthingText, 800);
+        requestAnimationFrame(sanitizeAuthingText);
       } else {
         throw new Error('Guard 实例未初始化');
       }
@@ -736,7 +912,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 密码登录
    */
-  const loginWithPassword = async (username: string, password: string) => {
+  const loginWithPassword = async (username: string, _password: string) => {
     try {
       console.log('🔐 密码登录:', username);
       if (authingRef.current) {
@@ -762,7 +938,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 邮箱验证码登录
    */
-  const loginWithEmailCode = async (email: string, code: string) => {
+  const loginWithEmailCode = async (email: string, _code: string) => {
     try {
       console.log('📧 邮箱验证码登录:', email);
       if (authingRef.current) {
@@ -788,7 +964,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 手机验证码登录
    */
-  const loginWithPhoneCode = async (phone: string, code: string) => {
+  const loginWithPhoneCode = async (phone: string, _code: string) => {
     try {
       console.log('📱 手机验证码登录:', phone);
       if (authingRef.current) {
@@ -861,7 +1037,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 重置密码
    */
-  const resetPassword = async (email: string, code: string, newPassword: string) => {
+  const resetPassword = async (email: string, _code: string, _newPassword: string) => {
     try {
       console.log('🔑 重置密码:', email);
       if (authingRef.current) {

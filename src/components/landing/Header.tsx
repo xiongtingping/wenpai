@@ -2,7 +2,7 @@
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { Menu, HelpCircle } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -281,56 +281,68 @@ export function Header() {
             </SheetTrigger>
             <SheetContent>
               <div className="flex flex-col space-y-4 mt-8">
-                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                  if (isAuthenticated) {
-                    navigate('/adapt');
-                  } else {
-                    login('/adapt');
-                  }
-                }}>
-                  AI内容适配器
-                </Button>
-                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                  if (isAuthenticated) {
-                    navigate('/hot-topics');
-                  } else {
-                    login('/hot-topics');
-                  }
-                }}>
-                  全网雷达
-                </Button>
-                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                  if (isAuthenticated) {
-                    navigate('/creative-studio');
-                  } else {
-                    login('/creative-studio');
-                  }
-                }}>
-                  创意魔方
-                </Button>
-                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                  if (isAuthenticated) {
-                    navigate('/library');
-                  } else {
-                    login('/library');
-                  }
-                }}>
-                  我的资料库
-                </Button>
-                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                  if (isAuthenticated) {
-                    navigate('/brand-library');
-                  } else {
-                    login('/brand-library');
-                  }
-                }}>
-                  品牌库
-                </Button>
-                <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
-                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-                }}>
-                  定价方案
-                </Button>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/adapt');
+                    } else {
+                      login('/adapt');
+                    }
+                  }}>
+                    AI内容适配器
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/hot-topics');
+                    } else {
+                      login('/hot-topics');
+                    }
+                  }}>
+                    全网雷达
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/creative-studio');
+                    } else {
+                      login('/creative-studio');
+                    }
+                  }}>
+                    创意魔方
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/library');
+                    } else {
+                      login('/library');
+                    }
+                  }}>
+                    我的资料库
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/brand-library');
+                    } else {
+                      login('/brand-library');
+                    }
+                  }}>
+                    品牌库
+                  </Button>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Button variant="ghost" className="text-lg font-medium py-2 w-full justify-start" onClick={() => {
+                    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                  }}>
+                    定价方案
+                  </Button>
+                </SheetClose>
 
                 <Button variant="ghost" className="flex items-center justify-start px-2 gap-1">
                   <HelpCircle className="h-4 w-4 mr-1" />
@@ -351,12 +363,16 @@ export function Header() {
                   />
                 ) : (
                   <div className="flex flex-col space-y-2">
-                    <Button variant="outline" onClick={() => login()}>
-                      登录
-                    </Button>
-                    <Button onClick={() => register()}>
-                      注册
-                    </Button>
+                    <SheetClose asChild>
+                      <Button variant="outline" onClick={() => login()}>
+                        登录
+                      </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Button onClick={() => register()}>
+                        注册
+                      </Button>
+                    </SheetClose>
                   </div>
                 )}
               </div>
