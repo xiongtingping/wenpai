@@ -457,6 +457,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const prevDisplay = new WeakMap<HTMLElement, string | null>();
       let observer: MutationObserver | null = null;
       let cssEl: HTMLStyleElement | null = null;
+      const debugISO = import.meta.env.DEV || (import.meta.env.VITE_LOG_MODAL_ISO === '1');
 
       const isInAuthingModal = (el: HTMLElement | null) => !!el?.closest('.authing-ant-modal-root');
       const isDialogLike = (el: HTMLElement) => {
@@ -476,6 +477,10 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         el.setAttribute('data-hidden-by-authing-iso', '1');
         el.setAttribute('hidden', 'true');
         el.style.display = 'none';
+        if (debugISO) {
+          const preview = (el.textContent || '').trim().slice(0, 120).replace(/\s+/g, ' ');
+          console.debug('[ISO] 隐藏对话框:', { id: el.id, class: el.className, preview });
+        }
       };
 
       const hideOthers = () => {
@@ -489,7 +494,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           cssEl = document.createElement('style');
           cssEl.id = 'authing-guard-isolation-style';
           cssEl.textContent = `
-            body.authing-guard-open [role="dialog"]:not(.authing-ant-modal-root *),
+            body.authing-guard-open [role="dialog"],
             body.authing-guard-open dialog,
             body.authing-guard-open [data-radix-dialog-content] {
               display: none !important;
@@ -522,6 +527,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           el.removeAttribute('hidden');
           el.removeAttribute('data-hidden-by-authing-iso');
         });
+        if (debugISO) console.debug('[ISO] 恢复对话框数量:', hidden.length);
       };
 
       const onDone = () => {
@@ -536,6 +542,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 启动隔离
       injectGlobalCss();
       hideOthers();
+      if (debugISO) console.debug('[ISO] 隔离器启动');
       // 观察新加入的对话框，出现即隐藏
       observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
