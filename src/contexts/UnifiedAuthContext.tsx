@@ -127,15 +127,29 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   // 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14] 移除authingRef，统一使用guardRef
 
   /**
-   * 初始化 Guard 实例 - 统一使用@authing/guard
+   * 🔧 [GUARD_INIT_FUNCTION_v2025.08.14] Guard初始化函数
    */
-  useEffect(() => {
+  const initializeGuard = async () => {
     try {
-      // 🔒 [AUTHING_GUARD_INIT_v2025.08.14] 只使用Guard实例
-      guardRef.current = getGuardInstance();
-      
-      // 设置 Guard 事件监听
+      console.log('🔄 开始初始化Guard实例...');
+
+      // 清理旧实例
       if (guardRef.current) {
+        try {
+          // Guard可能没有destroy方法，直接设为null
+          guardRef.current = null;
+        } catch (e) {
+          console.warn('清理旧Guard实例时出错:', e);
+        }
+      }
+
+      // 创建新实例
+      guardRef.current = getGuardInstance();
+
+      if (guardRef.current) {
+        console.log('✅ Guard实例创建成功');
+
+        // 设置事件监听
         guardRef.current.on('login', (userInfo: any) => {
           console.log('🔐 Guard 登录成功:', userInfo);
           handleAuthingLogin(userInfo);
@@ -161,23 +175,39 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             }
           }, 1000); // 延迟1秒关闭，让用户看到成功状态
         });
-        
+
         guardRef.current.on('login-error', (error: any) => {
           console.error('❌ Guard 登录失败:', error);
           setError('登录失败: ' + (error.message || error));
         });
-        
+
         guardRef.current.on('register-error', (error: any) => {
           console.error('❌ Guard 注册失败:', error);
           setError('注册失败: ' + (error.message || error));
         });
+
+        console.log('✅ Guard 初始化成功');
+        return true;
+      } else {
+        throw new Error('Guard 实例创建失败');
       }
-      
-      console.log('✅ Authing 实例初始化成功');
     } catch (error) {
-      console.error('❌ Authing 实例初始化失败:', error);
-      setError('认证系统初始化失败');
+      console.error('❌ Guard 初始化失败:', error);
+      return false;
     }
+  };
+
+  /**
+   * 初始化 Guard 实例 - 统一使用@authing/guard
+   */
+  useEffect(() => {
+    initializeGuard().then(success => {
+      if (success) {
+        console.log('✅ Authing 实例初始化成功');
+      } else {
+        setError('认证系统初始化失败');
+      }
+    });
   }, []);
 
   /**
@@ -312,23 +342,53 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🔐 开始登录流程...');
       setError(null);
-      
+
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
         console.log('📝 保存跳转目标:', redirectTo);
       }
-      
-      // 使用 Guard 弹窗登录
+
+      // 🚨 [LOGIN_FIX_v2025.08.14] 增强登录流程，处理JSON错误
       if (guardRef.current) {
-        guardRef.current.show();
+        try {
+          console.log('🔐 尝试显示Guard登录界面...');
+          guardRef.current.show();
+          console.log('✅ Guard登录界面已显示');
+        } catch (guardError) {
+          console.error('❌ Guard显示失败:', guardError);
+
+          // 如果Guard失败，尝试重新初始化
+          console.log('🔄 尝试重新初始化Guard...');
+          await initializeGuard();
+
+          // 重试显示
+          if (guardRef.current) {
+            guardRef.current.show();
+            console.log('✅ Guard重新初始化后显示成功');
+          } else {
+            throw new Error('Guard重新初始化失败');
+          }
+        }
       } else {
-        throw new Error('Guard 实例未初始化');
+        console.error('❌ Guard实例未初始化，尝试初始化...');
+        await initializeGuard();
+
+        if (guardRef.current) {
+          guardRef.current.show();
+          console.log('✅ Guard初始化后显示成功');
+        } else {
+          throw new Error('Guard 实例初始化失败');
+        }
       }
-      
+
     } catch (error) {
       console.error('❌ 登录失败:', error);
-      setError('登录失败');
+      setError('登录失败，请刷新页面重试');
+
+      // 🔧 提供备用登录方案
+      console.log('🔄 提供备用登录提示...');
+      alert('登录服务暂时不可用，请刷新页面重试。如果问题持续存在，请联系客服。');
     }
   };
 
