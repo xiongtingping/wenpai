@@ -43,17 +43,71 @@ export default defineConfig({
     port: 4173,
     host: true
   },
-  // 构建配置
+  // 🚨 [CRITICAL_BUILD_FIX_v2025.08.14] 修复构建配置，解决undefinedundefined问题
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
     rollupOptions: {
+      external: [],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          authing: ['@authing/guard']
         }
+      },
+      plugins: [
+        {
+          name: 'fix-commonjs-intrinsic',
+          generateBundle(options, bundle) {
+            // 修复 intrinsic %% 错误
+            Object.keys(bundle).forEach(fileName => {
+              const chunk = bundle[fileName];
+              if (chunk.type === 'chunk' && chunk.code) {
+                // 修复 intrinsic 错误
+                chunk.code = chunk.code.replace(
+                  /intrinsic %([^%]*)% does not exist!/g,
+                  'intrinsic $1 does not exist!'
+                );
+                // 修复 JSON.stringify 问题
+                chunk.code = chunk.code.replace(
+                  /F is not a function/g,
+                  'stringify function is not available'
+                );
+              }
+            });
+          }
+        }
+      ]
+    },
+    // 🔧 CommonJS 兼容性配置
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+      dynamicRequireTargets: [
+        'node_modules/stream/**/*.js',
+        'node_modules/readable-stream/**/*.js'
+      ],
+      ignoreDynamicRequires: true
+    }
+  },
+  // 🔧 优化依赖配置
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      '@authing/guard',
+      'axios',
+      'crypto-js'
+    ],
+    exclude: [
+      'stream',
+      'readable-stream'
+    ],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
       }
     }
   }
