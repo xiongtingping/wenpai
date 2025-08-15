@@ -138,10 +138,11 @@ function getGuardInstance() {
   try {
     // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
     // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
-    // 🔧 [GUARD_DOMAIN_FIX] 添加domain参数，这可能是关键
+    // 🔧 [GUARD_HOST_FIX] 使用host而不是domain，可能更稳定
     guardInstance = new Guard({
       appId: config.appId,
-      domain: config.domain,
+      host: config.host,
+      redirectUri: config.redirectUri,
       mode: 'modal'
     } as any);
 
