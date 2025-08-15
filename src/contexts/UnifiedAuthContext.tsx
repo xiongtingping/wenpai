@@ -209,7 +209,40 @@ function getGuardInstance() {
         mutations.forEach((mutation) => {
           if (mutation.type === 'childList') {
             mutation.addedNodes.forEach((node) => {
+              // 🎯 关键修复：跳过 Authing Guard 相关的元素，避免干扰弹窗渲染
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                // 检查是否是 Authing Guard 相关元素
+                const element = node as Element;
+                if (element.closest && (
+                  element.closest('[data-authing]') ||
+                  element.closest('[class*="authing"]') ||
+                  element.closest('[class*="guard"]') ||
+                  element.closest('dialog') ||
+                  element.querySelector && (
+                    element.querySelector('[data-authing]') ||
+                    element.querySelector('[class*="authing"]') ||
+                    element.querySelector('[class*="guard"]')
+                  )
+                )) {
+                  console.log('🛡️ 跳过 Authing Guard 元素，避免干扰弹窗渲染');
+                  return; // 跳过 Authing 相关元素
+                }
+              }
+
               if (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.includes('undefinedundefined')) {
+                // 检查父元素是否是 Authing 相关
+                let parent = node.parentElement;
+                while (parent) {
+                  if (parent.classList && (
+                    Array.from(parent.classList).some(cls => cls.includes('authing') || cls.includes('guard')) ||
+                    parent.hasAttribute('data-authing')
+                  )) {
+                    console.log('🛡️ 跳过 Authing Guard 文本节点，避免干扰弹窗渲染');
+                    return; // 跳过 Authing 相关文本
+                  }
+                  parent = parent.parentElement;
+                }
+
                 node.textContent = node.textContent.replace(/undefinedundefined/g, '文派');
                 console.log('🛠️ MutationObserver修复了undefinedundefined问题');
               } else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -222,7 +255,21 @@ function getGuardInstance() {
                 );
                 let textNode;
                 while (textNode = walker.nextNode()) {
-                  if (textNode.textContent && textNode.textContent.includes('undefinedundefined')) {
+                  // 检查文本节点的父元素是否是 Authing 相关
+                  let parent = textNode.parentElement;
+                  let isAuthingRelated = false;
+                  while (parent) {
+                    if (parent.classList && (
+                      Array.from(parent.classList).some(cls => cls.includes('authing') || cls.includes('guard')) ||
+                      parent.hasAttribute('data-authing')
+                    )) {
+                      isAuthingRelated = true;
+                      break;
+                    }
+                    parent = parent.parentElement;
+                  }
+
+                  if (!isAuthingRelated && textNode.textContent && textNode.textContent.includes('undefinedundefined')) {
                     textNode.textContent = textNode.textContent.replace(/undefinedundefined/g, '文派');
                     console.log('🛠️ MutationObserver修复了新元素中的undefinedundefined问题');
                   }
@@ -230,6 +277,19 @@ function getGuardInstance() {
               }
             });
           } else if (mutation.type === 'characterData' && mutation.target.textContent && mutation.target.textContent.includes('undefinedundefined')) {
+            // 检查文本变化的父元素是否是 Authing 相关
+            let parent = mutation.target.parentElement;
+            while (parent) {
+              if (parent.classList && (
+                Array.from(parent.classList).some(cls => cls.includes('authing') || cls.includes('guard')) ||
+                parent.hasAttribute('data-authing')
+              )) {
+                console.log('🛡️ 跳过 Authing Guard 文本变化，避免干扰弹窗渲染');
+                return; // 跳过 Authing 相关文本变化
+              }
+              parent = parent.parentElement;
+            }
+
             mutation.target.textContent = mutation.target.textContent.replace(/undefinedundefined/g, '文派');
             console.log('🛠️ MutationObserver修复了文本变化中的undefinedundefined问题');
           }
