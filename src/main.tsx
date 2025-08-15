@@ -13,6 +13,8 @@ import './utils/authingProductionFixer';
 import './utils/productionEnvChecker';
 // 🚨 紧急检测器 - 找到undefinedundefined的真正源头
 import './utils/emergencyUndefinedDetector';
+// 🛡️ Authing错误修复器 - 专门修复Authing内部错误
+import './utils/authingErrorFixer';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
