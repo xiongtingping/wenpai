@@ -53,8 +53,8 @@ import PrivacyPage from '@/pages/PrivacyPage';
 import EmojiPage from '@/pages/EmojiPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import SettingsPage from '@/pages/SettingsPage';
-// 🚨 重新启用 UndefinedTestPage 用于验证修复效果
-import UndefinedTestPage from '@/pages/UndefinedTestPage';
+// 🚨 临时禁用 UndefinedTestPage 导入，避免生产环境意外触发 undefinedundefined 问题
+// import UndefinedTestPage from '@/pages/UndefinedTestPage';
 import UpgradeButtonTestPage from '@/pages/UpgradeButtonTestPage';
 import TitleGrammarTestPage from '@/pages/TitleGrammarTestPage';
 import TitleFixTestPage from '@/pages/TitleFixTestPage';
@@ -286,8 +286,8 @@ function AppContent() {
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
 
-          {/* 🚨 重新启用 UndefinedTestPage 路由用于验证修复效果 */}
-          <Route path="/undefined-test" element={<UndefinedTestPage />} />
+          {/* 🚨 临时禁用 UndefinedTestPage 路由，避免生产环境意外触发 undefinedundefined 问题 */}
+          {/* <Route path="/undefined-test" element={<UndefinedTestPage />} /> */}
           <Route path="/upgrade-button-test" element={<UpgradeButtonTestPage />} />
 
           <Route path="/route-test" element={<RouteTestPage />} />
