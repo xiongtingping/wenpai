@@ -338,6 +338,34 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   }, []);
 
+
+    // 防重复处理回调
+    const redirectHandledRef = useRef(false);
+
+    // 规范化回调URL，避免 /callbackhttp... 等非法路径导致404与SDK拒绝
+    const normalizeCallbackUrlIfNeeded = () => {
+      try {
+        const href = window.location.href;
+        if (!href) return;
+        const hasMalformed = /callbackhttps?:\/\//i.test(href) || href.includes('/callbackhttp');
+        const url = new URL(href);
+        const pathNotExact = url.pathname !== '/callback' && url.pathname.includes('callback');
+        if (hasMalformed || pathNotExact) {
+          const codeMatch = href.match(/[?&]code=([^&]+)/);
+          const stateMatch = href.match(/[?&]state=([^&]+)/);
+          const norm = new URL(`${window.location.origin}/callback`);
+          if (codeMatch) norm.searchParams.set('code', decodeURIComponent(codeMatch[1]));
+          if (stateMatch) norm.searchParams.set('state', decodeURIComponent(stateMatch[1]));
+          if (href !== norm.toString()) {
+            console.warn('[Auth] 回调URL异常，规范化重定向到:', norm.toString());
+            window.location.replace(norm.toString());
+          }
+        }
+      } catch (e) {
+        console.warn('[Auth] 回调URL规范化失败（忽略继续）', e);
+      }
+    };
+
   /**
    * 检查认证状态
    */
@@ -345,6 +373,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       setLoading(true);
       setError(null);
+
+      // 优先规范化异常回调URL（若触发将发生重定向，后续逻辑自然中止）
+      normalizeCallbackUrlIfNeeded();
 
       // 从本地存储获取用户信息
       const storedUser = localStorage.getItem('authing_user');
@@ -354,12 +385,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         console.log('✅ 从本地存储恢复用户信息:', userData);
       }
 
-      // 检查 URL 参数中是否有认证回调
+      // 回调处理仅在 /callback 路径且存在 code 时触发，且防重复
+      const pathname = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const state = urlParams.get('state');
 
-      if (code && authingRef.current) {
+      if (pathname === '/callback' && code && authingRef.current) {
+        if (redirectHandledRef.current) {
+          console.log('ℹ️ 回调已处理过，跳过');
+          return;
+        }
+        redirectHandledRef.current = true;
         console.log('🔐 检测到认证回调，处理登录...');
         await handleAuthCallback(code, state);
       }
@@ -375,7 +412,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 处理认证回调
    */
-  const handleAuthCallback = async (code: string, _state?: string | null) => {
+  const handleAuthCallback = async (_code: string, _state?: string | null) => {
     try {
       console.log('🔄 处理认证回调...');
 
@@ -1089,6 +1126,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // 初始化时检查认证状态
   useEffect(() => {
+    normalizeCallbackUrlIfNeeded();
     checkAuth();
   }, []);
 
