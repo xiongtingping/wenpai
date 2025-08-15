@@ -329,6 +329,14 @@ export const PREVENTION_MEASURES = {
 
 // ==================== 导出接口 ====================
 
+// ==================== 自动启用防护系统 ====================
+
+// 🚨 [AUTO_ENABLE_v2025.08.14] 自动启用防护系统
+const protectionSystem = UndefinedProtectionSystem.getInstance();
+protectionSystem.enable();
+
+console.log('🛡️ undefinedundefined 防护系统已自动启用');
+
 export default {
   PROBLEM_ROOT_CAUSE,
   SOLUTION_STRATEGY,
