@@ -366,6 +366,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       }
     };
 
+
+    // 回调处理中全局标记，防止兜底/再次触发
+    const setCallbackProcessing = (on: boolean) => {
+      try {
+        (window as any).__AUTHING_IN_CALLBACK = !!on;
+        if (on) sessionStorage.setItem('auth_cb_processing', '1');
+        else sessionStorage.removeItem('auth_cb_processing');
+      } catch {}
+    };
+
   /**
    * 检查认证状态
    */
@@ -392,13 +402,15 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       const state = urlParams.get('state');
 
       if (pathname === '/callback' && code && authingRef.current) {
-        if (redirectHandledRef.current) {
-          console.log('ℹ️ 回调已处理过，跳过');
+        if (redirectHandledRef.current || (window as any).__AUTHING_IN_CALLBACK || sessionStorage.getItem('auth_cb_processing') === '1') {
+          console.log('ℹ️ 回调已处理或正在处理中，跳过');
           return;
         }
         redirectHandledRef.current = true;
+        setCallbackProcessing(true);
         console.log('🔐 检测到认证回调，处理登录...');
         await handleAuthCallback(code, state);
+        setCallbackProcessing(false);
       }
 
     } catch (error) {
@@ -760,17 +772,34 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             console.log('ℹ️ 托管登录兜底开关未开启，跳过跳转检查');
             return;
           }
+          // 避免在回调处理中触发兜底，防止重定向循环
+          const pathname = window.location.pathname;
+          const hasCode = new URLSearchParams(window.location.search).get('code');
+          if (pathname === '/callback' || hasCode || (window as any).__AUTHING_IN_CALLBACK || sessionStorage.getItem('auth_cb_processing') === '1') {
+            console.log('ℹ️ 当前处于回调阶段或处理中，跳过兜底');
+            return;
+          }
+          // 防抖：60秒内仅触发一次兜底，避免循环
+          const now = Date.now();
+          const last = Number(localStorage.getItem('authing_fallback_lock_ts') || '0');
+          if (now - last < 60000) {
+            console.log('ℹ️ 兜底已在60秒内触发过，跳过');
+            return;
+          }
+
           const modalRoot = document.querySelector('.authing-ant-modal-root');
           const hasInput = !!(modalRoot && (modalRoot as HTMLElement).querySelector('input'));
           const hasErrorUndef = !!(modalRoot && (modalRoot as HTMLElement).textContent?.includes('undefinedundefined'));
           if (!hasInput || hasErrorUndef) {
             console.warn('⚠️ Guard 弹窗不可用或出现错误文案，启用托管登录兜底跳转');
             const cfg = getAuthingConfig();
-            const url = new URL(`https://${cfg.host.replace('https://','')}/login`);
-            const target = localStorage.getItem('login_redirect_to') || window.location.href;
+            // 使用按应用路径的托管登录地址，避免 /login 404
+            const host = cfg.host.replace(/\/$/, '').replace('https://', '');
+            const url = new URL(`https://${host}/${cfg.appId}/login`);
             url.searchParams.set('app_id', cfg.appId);
-            url.searchParams.set('redirect_uri', cfg.redirectUri || target);
+            url.searchParams.set('redirect_uri', cfg.redirectUri);
             url.searchParams.set('protocol', 'oidc');
+            localStorage.setItem('authing_fallback_lock_ts', String(now));
             window.location.href = url.toString();
           }
         } catch (e) {
