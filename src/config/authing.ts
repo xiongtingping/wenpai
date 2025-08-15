@@ -35,8 +35,8 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 // 📌 App ID: 68823897631e1ef8ff3720b2 (用户确认)
 // 🔒 临时硬编码解决环境变量注入问题
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const HOST = 'https://rzcswqd4sq0f.authing.cn';
+const DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 let cachedConfig: any = null;
 export function getAuthingConfig() {
