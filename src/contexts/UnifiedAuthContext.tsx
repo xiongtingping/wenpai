@@ -478,8 +478,12 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 统一错误文案，并清理URL，避免残留坏链接
       setError('处理认证回调失败：回调地址不合法或已过期，请重试登录');
       try {
-        const clean = window.location.pathname === '/callback' ? '/' : window.location.pathname;
-        window.history.replaceState({}, document.title, clean);
+        // 不要清理为根路径，保留 /callback 以便用户可重试并保留诊断信息
+        // 但移除敏感查询参数
+        const cleaned = new URL(window.location.href);
+        cleaned.searchParams.delete('code');
+        cleaned.searchParams.delete('state');
+        window.history.replaceState({}, document.title, cleaned.pathname + cleaned.search);
       } catch {}
     }
   };

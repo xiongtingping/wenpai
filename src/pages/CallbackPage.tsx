@@ -81,7 +81,20 @@ const CallbackPage: React.FC = () => {
         // 重新检查认证状态（这会触发 UnifiedAuthContext 中的回调处理）
         console.log('🔐 CallbackPage: 重新检查认证状态...');
         await checkAuth();
-        
+
+        // 若状态仍未登录，直接走兜底流程，提高鲁棒性
+        try {
+          const u = localStorage.getItem('authing_user');
+          if (!u) {
+            const { robustHandleAuthCallback } = await import('@/authing/robustCallback');
+            const normalized = await robustHandleAuthCallback();
+            // UnifiedAuthContext 暴露了 handleAuthingLogin
+            handleAuthingLogin(normalized);
+          }
+        } catch (e) {
+          console.warn('⚠️ 兜底回调处理失败(可忽略继续):', e);
+        }
+
         // 等待一段时间让认证处理完成
         setTimeout(() => {
           console.log('✅ CallbackPage: 认证处理完成');

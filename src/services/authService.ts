@@ -43,17 +43,20 @@ class AuthService {
    */
   async exchangeCodeForToken(code: string, redirectUri?: string): Promise<any> {
     try {
-      const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
-      const tokenData = await request.post(`https://${base}/oidc/token`,
+      const domain = (this.config.domain || this.config.host || '')
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+      const tokenUrl = `https://${domain}/oidc/token`;
+      const tokenData = await request.post(
+        tokenUrl,
         new URLSearchParams({
           grant_type: 'authorization_code',
           client_id: this.config.appId,
-          code: code,
+          code,
           redirect_uri: redirectUri || this.config.redirectUri,
-        }), {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+        }),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }
       );
 
@@ -69,8 +72,11 @@ class AuthService {
    */
   async getUserInfo(accessToken: string): Promise<any> {
     try {
-      const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
-      const userData = await request.get(`https://${base}/oidc/me`, {
+      const domain = (this.config.domain || this.config.host || '')
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+      const meUrl = `https://${domain}/oidc/me`;
+      const userData = await request.get(meUrl, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
