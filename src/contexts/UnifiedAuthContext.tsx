@@ -793,12 +793,14 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           if (!hasInput || hasErrorUndef) {
             console.warn('⚠️ Guard 弹窗不可用或出现错误文案，启用托管登录兜底跳转');
             const cfg = getAuthingConfig();
-            // 使用按应用路径的托管登录地址，避免 /login 404
+            // 直接使用 OIDC 授权端点，强制使用单一 redirect_uri，避免托管页改写
             const host = cfg.host.replace(/\/$/, '').replace('https://', '');
-            const url = new URL(`https://${host}/${cfg.appId}/login`);
-            url.searchParams.set('app_id', cfg.appId);
+            const url = new URL(`https://${host}/${cfg.appId}/oidc/auth`);
+            url.searchParams.set('client_id', cfg.appId);
             url.searchParams.set('redirect_uri', cfg.redirectUri);
-            url.searchParams.set('protocol', 'oidc');
+            url.searchParams.set('response_type', 'code');
+            url.searchParams.set('scope', 'openid profile email phone');
+            url.searchParams.set('state', `login_${Date.now()}`);
             localStorage.setItem('authing_fallback_lock_ts', String(now));
             window.location.href = url.toString();
           }

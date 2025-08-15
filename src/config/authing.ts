@@ -38,6 +38,25 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
   return defaultValue;
 }
 
+/**
+ * 强力净化回调 URL：
+ * - 仅允许一个协议头
+ * - 若检测到多个 http(s):// 或 callbackhttp 拼接，则回退到 origin/callback
+ */
+function sanitizeRedirectUri(raw: string, origin: string): string {
+  try {
+    if (!raw) return `${origin}/callback`;
+    const decoded = decodeURIComponent(raw);
+    const protocolCount = (decoded.match(/https?:\/\//g)?.length || 0);
+    const hasBadConcat = /callbackhttps?:\/\//i.test(decoded) || decoded.includes('/callbackhttp');
+    if (protocolCount > 1 || hasBadConcat) return `${origin}/callback`;
+    return decoded;
+  } catch {
+    return `${origin}/callback`;
+  }
+}
+
+
 // ✅ FIXED: 2025-07-25 直接硬编码配置确保正确传递
 // 📌 App ID: 68823897631e1ef8ff3720b2 (用户确认)
 // 🔒 临时硬编码解决环境变量注入问题
@@ -54,8 +73,8 @@ export function getAuthingConfig() {
   if (typeof window !== 'undefined') {
     const origin = window.location.origin;
     const envOverride = (window as any).__ENV__?.VITE_AUTHING_REDIRECT_URI || (import.meta as any)?.env?.VITE_AUTHING_REDIRECT_URI;
-    const isMalformed = typeof envOverride === 'string' && (/callbackhttps?:\/\//i.test(envOverride) || envOverride.includes('/callbackhttp') || (envOverride.match(/https?:\/\//g)?.length || 0) > 1);
-    if (envOverride && !isMalformed) {
+    const cleaned = sanitizeRedirectUri(envOverride || '', origin);
+    if (envOverride && cleaned === envOverride) {
       redirectUri = envOverride;
     } else if (/\.netlify\.app$/i.test(origin) && origin.includes('--')) {
       // Netlify Deploy Preview → 强制回调到主站
