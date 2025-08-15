@@ -142,10 +142,9 @@ function getGuardInstance() {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
+      userPoolId: config.userPoolId,
       mode: 'modal',
-      // 🔧 [GUARD_CONFIG_FIX_v2025.08.15]
-      // 使用类型断言添加成功备份中的配置参数
-      ...(config.userPoolId ? { userPoolId: config.userPoolId } : {}),
+      // 🔧 [GUARD_CONFIG_FIX_v2025.08.15] 恢复成功备份中的完整配置
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
