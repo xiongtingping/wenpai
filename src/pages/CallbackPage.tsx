@@ -51,6 +51,17 @@ const CallbackPage: React.FC = () => {
     const handleCallback = async () => {
       try {
         console.log('🔄 CallbackPage: 开始处理认证回调...');
+        // 若已登录，直接成功并跳转，避免重复处理导致“缺少授权码”误报
+        try {
+          const existing = localStorage.getItem('authing_user');
+          if (existing) {
+            setStatus('success');
+            setMessage('认证成功！正在跳转...');
+            navigate('/', { replace: true });
+            return;
+          }
+        } catch {}
+
         
         // 获取 URL 参数
         const code = searchParams.get('code');
