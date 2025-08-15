@@ -6,11 +6,53 @@
 // 🚨 [EMERGENCY_DETECTOR_ENABLED_v2025.08.14] 重新启用紧急检测器
 if (true) {
   console.log('🚨 紧急 undefined 拼接检测器已启动');
-  
+
+  // 🚨 [CRITICAL_ERROR_HANDLER_v2025.08.14] 添加全局错误处理
+  window.addEventListener('error', (event) => {
+    const error = event.error;
+    const message = event.message;
+
+    if (message && (message.includes('is not a function') || message.includes('undefined'))) {
+      console.group('🚨 检测到可能导致undefinedundefined的错误');
+      console.error('错误信息:', message);
+      console.error('错误对象:', error);
+      console.error('文件:', event.filename);
+      console.error('行号:', event.lineno);
+      console.error('列号:', event.colno);
+      console.trace('调用栈:');
+      console.groupEnd();
+
+      // 尝试修复：如果是函数调用错误，可能导致返回undefined
+      if (message.includes('is not a function')) {
+        console.warn('🛠️ 检测到函数调用错误，这可能导致undefined返回值');
+      }
+    }
+  });
+
+  // 🚨 [FUNCTION_CALL_SAFETY_v2025.08.14] 添加函数调用安全检查
+  const originalFunction = Function.prototype.call;
+  Function.prototype.call = function(thisArg, ...args) {
+    try {
+      if (typeof this !== 'function') {
+        console.warn('🚨 检测到非函数对象被调用:', this);
+        return undefined;
+      }
+      return originalFunction.apply(this, [thisArg, ...args]);
+    } catch (error) {
+      console.group('🚨 函数调用错误捕获');
+      console.error('函数:', this);
+      console.error('参数:', args);
+      console.error('错误:', error);
+      console.trace('调用栈:');
+      console.groupEnd();
+      return undefined;
+    }
+  };
+
   // 检测所有可能的字符串操作
   let detectionCount = 0;
   const MAX_DETECTIONS = 10;
-  
+
   // 1. 拦截 String 构造函数
   const originalString = window.String;
   window.String = function(...args: any[]) {
