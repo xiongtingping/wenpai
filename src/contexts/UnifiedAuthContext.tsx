@@ -149,8 +149,8 @@ function getGuardInstance() {
     // 🎯 关键修复：确保所有配置项都不是undefined
     const guardConfig = {
       appId: config.appId || '68823897631e1ef8ff3720b2',
-      // 🎯 关键修复：使用domain而不是host，确保格式正确
-      host: config.domain || 'rzcswqd4sq0f.authing.cn',
+      // 🎯 关键修复：host必须是完整的https URL格式
+      host: `https://${config.domain || 'rzcswqd4sq0f.authing.cn'}`,
       redirectUri: config.redirectUri || `${window.location.origin}/callback`,
       mode: 'modal' as const,
       // 🌐 界面配置 - 解决undefinedundefined显示问题
