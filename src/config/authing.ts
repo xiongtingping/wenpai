@@ -59,7 +59,7 @@ export function getAuthingConfig() {
     host: HOST,
     domain: DOMAIN,
     redirectUri: redirectUri,
-    userPoolId: '688237f7f9e118de849dc274', // 🔧 设置正确的userPoolId
+    userPoolId: '', // 🔧 恢复成功备份中的空字符串配置
   };
 
   // 调试信息 - 强制输出以验证配置（按照成功备份格式）

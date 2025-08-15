@@ -10,13 +10,13 @@
   const originalStringConcat = String.prototype.concat;
   String.prototype.concat = function(...args) {
     const result = originalStringConcat.apply(this, args);
-    
+
     // 如果检测到undefinedundefined，立即修复
     if (result.includes('undefinedundefined')) {
-      console.warn('🔧 检测到undefinedundefined，自动修复为"用户"');
-      return result.replace(/undefinedundefined/g, '用户');
+      console.warn('🔧 检测到undefinedundefined，自动修复为空字符串');
+      return result.replace(/undefinedundefined/g, '');
     }
-    
+
     return result;
   };
   
@@ -84,7 +84,7 @@
     }
     
     nodesToFix.forEach(node => {
-      const fixedText = node.textContent.replace(/undefinedundefined/g, '用户');
+      const fixedText = node.textContent.replace(/undefinedundefined/g, '');
       node.textContent = fixedText;
       console.log('🔧 修复DOM文本:', node.textContent);
     });
