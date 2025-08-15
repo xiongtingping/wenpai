@@ -300,14 +300,22 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🔐 处理 Authing 登录:', userInfo);
       
-      // 统一用户信息格式
+      // 🚨 PRODUCTION FIX: 强化用户信息格式化，防止undefinedundefined
       const user: UserInfo = {
         id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
-        username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
-        email: userInfo.email || userInfo.emailAddress || '',
-        phone: userInfo.phone || userInfo.phoneNumber || '',
-        nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
-        avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
+        username: (userInfo.username && userInfo.username !== 'undefined') ? userInfo.username :
+                 (userInfo.nickname && userInfo.nickname !== 'undefined') ? userInfo.nickname :
+                 (userInfo.name && userInfo.name !== 'undefined') ? userInfo.name : '用户',
+        email: (userInfo.email && userInfo.email !== 'undefined') ? userInfo.email :
+               (userInfo.emailAddress && userInfo.emailAddress !== 'undefined') ? userInfo.emailAddress : '',
+        phone: (userInfo.phone && userInfo.phone !== 'undefined') ? userInfo.phone :
+               (userInfo.phoneNumber && userInfo.phoneNumber !== 'undefined') ? userInfo.phoneNumber : '',
+        nickname: (userInfo.nickname && userInfo.nickname !== 'undefined') ? userInfo.nickname :
+                 (userInfo.username && userInfo.username !== 'undefined') ? userInfo.username :
+                 (userInfo.name && userInfo.name !== 'undefined') ? userInfo.name : '用户',
+        avatar: (userInfo.avatar && userInfo.avatar !== 'undefined') ? userInfo.avatar :
+                (userInfo.photo && userInfo.photo !== 'undefined') ? userInfo.photo :
+                (userInfo.picture && userInfo.picture !== 'undefined') ? userInfo.picture : '',
         loginTime: new Date().toISOString(),
         roles: userInfo.roles || userInfo.role || ['user'],
         permissions: userInfo.permissions || userInfo.permission || ['basic'],
