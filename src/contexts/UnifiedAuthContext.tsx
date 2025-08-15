@@ -138,17 +138,10 @@ function getGuardInstance() {
   try {
     // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
     // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
+    // 🔧 [GUARD_MINIMAL_CONFIG_v2025.08.15] 使用最简化配置解决弹窗异常
     guardInstance = new Guard({
       appId: config.appId,
-      host: config.host,
-      redirectUri: config.redirectUri,
-      userPoolId: config.userPoolId,
-      mode: 'modal',
-      // 🔧 [GUARD_CONFIG_FIX_v2025.08.15] 恢复成功备份中的完整配置
-      autoFocus: false,
-      escCloseable: true,
-      clickCloseable: true,
-      maskCloseable: true
+      mode: 'modal'
     } as any);
 
     console.log('✅ Authing Guard实例初始化成功');
@@ -350,20 +343,52 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🔐 开始登录流程...');
       setError(null);
-      
+
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
         console.log('📝 保存跳转目标:', redirectTo);
       }
-      
+
+      // 🔧 [GUARD_FORCE_REINIT_v2025.08.15] 强制重新初始化Guard以解决弹窗异常
+      if (!guardRef.current) {
+        console.log('🔄 Guard实例不存在，重新初始化...');
+        guardRef.current = getGuardInstance();
+
+        // 重新设置事件监听
+        if (guardRef.current) {
+          guardRef.current.on('login', (userInfo: any) => {
+            console.log('🔐 Guard 登录成功:', userInfo);
+            handleAuthingLogin(userInfo);
+            setTimeout(() => {
+              if (guardRef.current) {
+                guardRef.current.hide();
+                console.log('✅ Guard 弹窗已关闭');
+              }
+            }, 1000);
+          });
+
+          guardRef.current.on('register', (userInfo: any) => {
+            console.log('📝 Guard 注册成功:', userInfo);
+            handleAuthingLogin(userInfo);
+            setTimeout(() => {
+              if (guardRef.current) {
+                guardRef.current.hide();
+                console.log('✅ Guard 弹窗已关闭');
+              }
+            }, 1000);
+          });
+        }
+      }
+
       // 使用 Guard 弹窗登录
       if (guardRef.current) {
+        console.log('🚀 显示Guard登录弹窗...');
         guardRef.current.show();
       } else {
-        throw new Error('Guard 实例未初始化');
+        throw new Error('Guard 实例初始化失败');
       }
-      
+
     } catch (error) {
       console.error('❌ 登录失败:', error);
       setError('登录失败');
