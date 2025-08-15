@@ -138,21 +138,19 @@ function getGuardInstance() {
   try {
     // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
     // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
-    // 🔧 [GUARD_WITH_DOMAIN_v2025.08.15] 使用domain参数而不是host
-    const guardConfig = {
+    // ✅ FIXED: 2025-07-25 完全恢复成功备份配置
+    guardInstance = new Guard({
       appId: config.appId,
-      domain: config.domain, // 使用domain而不是host
+      host: config.host,
       redirectUri: config.redirectUri,
+      userPoolId: config.userPoolId,
       mode: 'modal',
+      // accessibility配置
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
       maskCloseable: true
-    };
-
-    console.log('🔧 Guard配置详情:', guardConfig);
-
-    guardInstance = new Guard(guardConfig as any);
+    } as any);
 
     console.log('✅ Authing Guard实例初始化成功');
 
@@ -304,26 +302,18 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log('🔐 处理 Authing 登录:', userInfo);
       
-      // 🚨 PRODUCTION FIX: 强化用户信息格式化，防止undefinedundefined
+      // ✅ FIXED: 2025-07-25 恢复成功备份的简化用户信息格式化
       const user: UserInfo = {
         id: userInfo.id || userInfo.userId || userInfo.sub || `user_${Date.now()}`,
-        username: (userInfo.username && userInfo.username !== 'undefined') ? userInfo.username :
-                 (userInfo.nickname && userInfo.nickname !== 'undefined') ? userInfo.nickname :
-                 (userInfo.name && userInfo.name !== 'undefined') ? userInfo.name : '用户',
-        email: (userInfo.email && userInfo.email !== 'undefined') ? userInfo.email :
-               (userInfo.emailAddress && userInfo.emailAddress !== 'undefined') ? userInfo.emailAddress : '',
-        phone: (userInfo.phone && userInfo.phone !== 'undefined') ? userInfo.phone :
-               (userInfo.phoneNumber && userInfo.phoneNumber !== 'undefined') ? userInfo.phoneNumber : '',
-        nickname: (userInfo.nickname && userInfo.nickname !== 'undefined') ? userInfo.nickname :
-                 (userInfo.username && userInfo.username !== 'undefined') ? userInfo.username :
-                 (userInfo.name && userInfo.name !== 'undefined') ? userInfo.name : '用户',
-        avatar: (userInfo.avatar && userInfo.avatar !== 'undefined') ? userInfo.avatar :
-                (userInfo.photo && userInfo.photo !== 'undefined') ? userInfo.photo :
-                (userInfo.picture && userInfo.picture !== 'undefined') ? userInfo.picture : '',
+        username: userInfo.username || userInfo.nickname || userInfo.name || '用户',
+        email: userInfo.email || userInfo.emailAddress || '',
+        phone: userInfo.phone || userInfo.phoneNumber || '',
+        nickname: userInfo.nickname || userInfo.username || userInfo.name || '用户',
+        avatar: userInfo.avatar || userInfo.photo || userInfo.picture || '',
         loginTime: new Date().toISOString(),
         roles: userInfo.roles || userInfo.role || ['user'],
         permissions: userInfo.permissions || userInfo.permission || ['basic'],
-        ...userInfo
+        ...userInfo // 保留原始数据
       };
       
       // 存储用户信息
