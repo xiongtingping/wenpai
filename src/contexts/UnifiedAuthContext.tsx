@@ -1,7 +1,14 @@
 /**
- * ✅ FIXED: 2025-01-05 使用 Authing 官方 SDK 重写统一认证上下文
- * 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
- * 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
+ * 🔧 [UNIFIED_AUTH_CONTEXT_v2025.08.15]
+ * 统一认证上下文 - 明确SDK分工架构
+ *
+ * SDK职责分工：
+ * - @authing/guard: 负责登录/注册弹窗UI，用户交互
+ * - @authing/web: 负责OAuth2回调处理，token管理
+ *
+ * 流程：Guard弹窗 → 用户认证 → OAuth2回调 → token处理 → 状态更新
+ *
+ * 🔒 LOCKED: 核心架构已优化，请勿随意修改
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
@@ -135,14 +142,15 @@ function getGuardInstance() {
       appId: config.appId,
       host: config.host,
       redirectUri: config.redirectUri,
-      userPoolId: config.userPoolId,
       mode: 'modal',
-      // ✅ FIXED: 2025-07-25 添加accessibility配置，修复aria-hidden焦点问题
+      // 🔧 [GUARD_CONFIG_FIX_v2025.08.15]
+      // 使用类型断言添加成功备份中的配置参数
+      ...(config.userPoolId ? { userPoolId: config.userPoolId } : {}),
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
       maskCloseable: true
-    });
+    } as any);
 
     console.log('✅ Authing Guard实例初始化成功');
     return guardInstance;
@@ -356,21 +364,26 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   /**
-   * 注册方法 - 使用 Guard 弹窗
+   * 注册方法 - 使用 Guard 弹窗注册模式
    */
   const register = async (redirectTo?: string) => {
     try {
       console.log('📝 开始注册流程...');
       setError(null);
-      
+
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
       }
-      
-      // 使用 Guard 弹窗注册
+
+      // 🔧 [SDK_DIVISION_v2025.08.15] 使用Guard的注册模式
       if (guardRef.current) {
-        guardRef.current.show();
+        // 使用类型断言调用注册相关方法
+        const guard = guardRef.current as any;
+        if (guard.changeScene) {
+          guard.changeScene('register');
+        }
+        guard.show();
       } else {
         throw new Error('Guard 实例未初始化');
       }

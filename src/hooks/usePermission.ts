@@ -1,6 +1,16 @@
+/**
+ * 🔧 [UNIFIED_PERMISSION_HOOK_v2025.08.15]
+ * 统一权限管理Hook - 系统性架构优化
+ *
+ * 这是整个应用的统一权限管理入口，提供：
+ * 1. 权限检查的统一接口
+ * 2. 角色验证的标准化方法
+ * 3. 订阅等级的判断逻辑
+ * 4. 开发环境的权限模拟
+ */
+
 import { useMemo } from 'react';
-// 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useDirectAuth } from '@/contexts/DirectAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 
 /**
  * 权限判断结果
@@ -344,7 +354,7 @@ const PERMISSION_CONFIGS: Record<string, PermissionConfig> = {
  * @returns 权限判断结果
  */
 export const usePermission = (permissionKey: string | string[]): PermissionResult => {
-  const { user, isAuthenticated } = useDirectAuth();
+  const { user, isAuthenticated } = useUnifiedAuth();
 
   return useMemo(() => {
     const keys = Array.isArray(permissionKey) ? permissionKey : [permissionKey];

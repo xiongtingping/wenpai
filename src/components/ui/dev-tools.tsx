@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useDirectAuth } from '@/contexts/DirectAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { getUserDisplayName, getUserEmail, getUserUsername, getUserId } from '@/utils/userDisplayUtils';
 import { 
@@ -35,7 +35,7 @@ import {
 export const DevTools: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('auth');
-  const { user, isAuthenticated } = useDirectAuth();
+  const { user, isAuthenticated } = useUnifiedAuth();
   const vipPermission = usePermission('vip:required');
   const authPermission = usePermission('auth:required');
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useDirectAuth } from '@/contexts/DirectAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { generateStorageKey } from '@/utils/userDataIsolation';
 
 /**
@@ -45,7 +45,7 @@ export const THEMES: Record<Theme, { name: string; description: string; icon: st
  * @returns 当前主题、切换方法、主题列表
  */
 export function useTheme() {
-  const { user } = useDirectAuth();
+  const { user } = useUnifiedAuth();
 
   // 生成用户专属的主题存储键
   const getThemeStorageKey = useCallback(() => {

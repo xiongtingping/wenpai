@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useDirectAuth } from "@/contexts/DirectAuthContext"
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext"
 import { Crown, Sparkles, Check, X, Star, TrendingUp, Zap } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"
@@ -22,7 +22,7 @@ export function PricingSection() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [timeLeftMs, setTimeLeftMs] = useState(0); // 添加毫秒级倒计时
   const { toast } = useToast()
-  const { user: currentUser, isAuthenticated } = useDirectAuth();
+  const { user: currentUser, isAuthenticated } = useUnifiedAuth();
 
   // 使用统一认证状态
   const inPromo = isInPromoPeriod(currentUser?.id);

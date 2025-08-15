@@ -47,16 +47,12 @@ import SettingsPermissionDemo from '@/pages/SettingsPermissionDemo';
 import SubscriptionDataTestPage from '@/pages/SubscriptionDataTestPage';
 import TokenTestPage from '@/pages/TokenTestPage';
 import FunctionalityTestPage from '@/pages/FunctionalityTestPage';
-import { TestLoginPage } from '@/pages/TestLoginPage';
 import QRCodeTestPage from '@/pages/QRCodeTestPage';
 import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import EmojiPage from '@/pages/EmojiPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import SettingsPage from '@/pages/SettingsPage';
-import AuthTestPage from '@/pages/AuthTestPage';
-import SimpleAuthTestPage from '@/pages/SimpleAuthTestPage';
-import AuthingTestPage from '@/pages/AuthingTestPage';
 // 🚨 重新启用 UndefinedTestPage 用于验证修复效果
 import UndefinedTestPage from '@/pages/UndefinedTestPage';
 import UpgradeButtonTestPage from '@/pages/UpgradeButtonTestPage';
@@ -79,8 +75,7 @@ import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import PermissionSystemDemoPage from '@/pages/PermissionSystemDemoPage';
 // 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14] 已删除AuthingDebugPage，统一使用@authing/guard
 import UserPersistenceTestPage from '@/pages/UserPersistenceTestPage';
-import AuthingGuardTestPage from '@/pages/AuthingGuardTestPage';
-import ProductionAuthTestPage from '@/pages/ProductionAuthTestPage';
+
 
 /**
  * 条件性导航组件
@@ -290,13 +285,11 @@ function AppContent() {
           <Route path="/token-test" element={<TokenTestPage />} />
           <Route path="/functionality-test" element={<FunctionalityTestPage />} />
           <Route path="/qrcode-test" element={<QRCodeTestPage />} />
-          <Route path="/auth-test" element={<AuthTestPage />} />
-          <Route path="/simple-auth-test" element={<SimpleAuthTestPage />} />
-          <Route path="/authing-test" element={<AuthingTestPage />} />
+
           {/* 🚨 重新启用 UndefinedTestPage 路由用于验证修复效果 */}
           <Route path="/undefined-test" element={<UndefinedTestPage />} />
           <Route path="/upgrade-button-test" element={<UpgradeButtonTestPage />} />
-          <Route path="/test-login" element={<TestLoginPage />} />
+
           <Route path="/route-test" element={<RouteTestPage />} />
           <Route path="/title-grammar-test" element={<TitleGrammarTestPage />} />
           <Route path="/title-fix-test" element={<TitleFixTestPage />} />
@@ -315,8 +308,7 @@ function AppContent() {
           <Route path="/permission-system-demo" element={<PermissionSystemDemoPage />} />
           {/* 🔒 [AUTHING_GUARD_UNIFIED_v2025.08.14] 已删除authing-debug路由 */}
           <Route path="/user-persistence-test" element={<UserPersistenceTestPage />} />
-          <Route path="/authing-guard-test" element={<AuthingGuardTestPage />} />
-          <Route path="/production-auth-test" element={<ProductionAuthTestPage />} />
+
 
           {/* 历史记录页面 */}
           <Route path="/history" element={

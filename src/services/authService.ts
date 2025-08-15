@@ -1,6 +1,18 @@
 /**
- * 统一认证服务
- * 提供完整的认证功能，包括登录、注册、token管理、用户信息管理等
+ * 🔧 [UNIFIED_AUTH_SERVICE_v2025.08.15]
+ * 统一认证服务 - 系统性架构优化
+ *
+ * 这是整个应用的统一认证服务层，提供：
+ * 1. OAuth2授权码交换和token管理
+ * 2. 用户信息的CRUD操作
+ * 3. 权限和角色的验证逻辑
+ * 4. 认证状态的持久化管理
+ * 5. 与Authing后端的API交互
+ *
+ * 职责分工：
+ * - AuthService: 后端API交互和数据处理
+ * - UnifiedAuthContext: 前端状态管理和UI交互
+ * - useAuth: 组件层的统一接口
  */
 
 import { request } from '@/api/request';
