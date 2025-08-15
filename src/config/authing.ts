@@ -79,19 +79,3 @@ export const getGuardConfig = () => {
   };
 };
 
-/**
- * 获取 Authing Web SDK 配置
- */
-export const getAuthingWebConfig = () => {
-  const config = getAuthingConfig();
-
-  return {
-    domain: config.domain,
-    appId: config.appId,
-    redirectUri: config.redirectUri,
-    scope: 'openid profile email phone',
-    responseType: 'code' as const,
-    state: `state_${Date.now()}`,
-    prompt: 'login' as const
-  };
-};
