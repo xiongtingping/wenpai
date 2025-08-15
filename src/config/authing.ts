@@ -42,26 +42,10 @@ let cachedConfig: any = null;
 export function getAuthingConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 根据环境获取正确的回调URI
-  let redirectUri: string;
-
-  if (typeof window !== 'undefined') {
-    // 检测生产环境
-    const isProduction = window.location.hostname.includes('wenpai.xyz') ||
-                        window.location.hostname === 'www.wenpai.xyz' ||
-                        window.location.hostname.includes('netlify.app');
-
-    if (isProduction) {
-      // 生产环境使用配置的回调URI
-      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_PROD', 'https://www.wenpai.xyz/callback');
-    } else {
-      // 开发环境使用配置的回调URI
-      redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
-    }
-  } else {
-    // 服务端渲染时的默认值
-    redirectUri = getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
-  }
+  // 🔧 [AUTHING_SUCCESS_BACKUP_v2025.07.25] 使用动态回调URI - 这是成功的关键！
+  const redirectUri = typeof window !== 'undefined'
+    ? `${window.location.origin}/callback`
+    : getEnvVar('VITE_AUTHING_REDIRECT_URI_DEV', 'http://localhost:5173/callback');
 
   cachedConfig = {
     appId: APP_ID,
