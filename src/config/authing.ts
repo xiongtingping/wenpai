@@ -62,7 +62,8 @@ function sanitizeRedirectUri(raw: string, origin: string): string {
 // 🔒 临时硬编码解决环境变量注入问题
 const APP_ID = '68823897631e1ef8ff3720b2';
 const DOMAIN = 'rzcswqs4sq0f.authing.cn';
-const HOST = 'https://rzcswqs4sq0f.authing.cn';
+// HOST 保持为纯域名（带协议），以兼容 Guard 初始化；构造 OIDC 端点时再拼接 /{appId}
+const HOST = `https://${DOMAIN}`;
 
 let cachedConfig: any = null;
 export function getAuthingConfig() {

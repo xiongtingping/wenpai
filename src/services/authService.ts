@@ -43,7 +43,8 @@ class AuthService {
    */
   async exchangeCodeForToken(code: string, redirectUri?: string): Promise<any> {
     try {
-      const tokenData = await request.post(`https://${this.config.host}/oidc/token`, 
+      const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
+      const tokenData = await request.post(`https://${base}/oidc/token`,
         new URLSearchParams({
           grant_type: 'authorization_code',
           client_id: this.config.appId,
@@ -68,7 +69,8 @@ class AuthService {
    */
   async getUserInfo(accessToken: string): Promise<any> {
     try {
-      const userData = await request.get(`https://${this.config.host}/oidc/me`, {
+      const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
+      const userData = await request.get(`https://${base}/oidc/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
         },
@@ -86,7 +88,8 @@ class AuthService {
    */
   async refreshToken(refreshToken: string): Promise<any> {
     try {
-      const tokenData = await request.post(`https://${this.config.host}/oidc/token`, 
+      const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
+      const tokenData = await request.post(`https://${base}/oidc/token`,
         new URLSearchParams({
           grant_type: 'refresh_token',
           client_id: this.config.appId,
@@ -111,7 +114,8 @@ class AuthService {
   async logout(accessToken?: string): Promise<void> {
     try {
       if (accessToken) {
-        await request.post(`https://${this.config.host}/oidc/logout`, {
+        const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
+        await request.post(`https://${base}/oidc/logout`, {
           token: accessToken,
         });
       }
