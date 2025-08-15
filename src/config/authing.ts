@@ -42,8 +42,8 @@ function getEnvVar(key: string, defaultValue: string = ''): string {
 // 📌 App ID: 68823897631e1ef8ff3720b2 (用户确认)
 // 🔒 临时硬编码解决环境变量注入问题
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const HOST = 'https://rzcswqd4sq0f.authing.cn';
+const DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 let cachedConfig: any = null;
 export function getAuthingConfig() {
@@ -54,7 +54,8 @@ export function getAuthingConfig() {
   if (typeof window !== 'undefined') {
     const origin = window.location.origin;
     const envOverride = (window as any).__ENV__?.VITE_AUTHING_REDIRECT_URI || (import.meta as any)?.env?.VITE_AUTHING_REDIRECT_URI;
-    if (envOverride) {
+    const isMalformed = typeof envOverride === 'string' && (/callbackhttps?:\/\//i.test(envOverride) || envOverride.includes('/callbackhttp') || (envOverride.match(/https?:\/\//g)?.length || 0) > 1);
+    if (envOverride && !isMalformed) {
       redirectUri = envOverride;
     } else if (/\.netlify\.app$/i.test(origin) && origin.includes('--')) {
       // Netlify Deploy Preview → 强制回调到主站
@@ -104,6 +105,7 @@ export const getAuthingWebConfig = () => {
     scope: 'openid profile email phone',
     responseType: 'code' as const,
     state: `state_${Date.now()}`,
-    prompt: 'login' as const
+    prompt: 'login' as const,
+    userPoolId: (window as any).__ENV__?.VITE_AUTHING_USER_POOL_ID || (import.meta as any)?.env?.VITE_AUTHING_USER_POOL_ID || '688237f7f9e118de849dc274'
   };
 };

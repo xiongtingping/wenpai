@@ -79,7 +79,7 @@ const getAuthingClient = () => {
     authingClient = new Authing({
       domain: config.host.replace('https://', ''),
       appId: config.appId,
-      userPoolId: config.userPoolId || config.appId, // 添加必需的userPoolId
+      userPoolId: (window as any).__ENV__?.VITE_AUTHING_USER_POOL_ID || (import.meta as any)?.env?.VITE_AUTHING_USER_POOL_ID || config.userPoolId || config.appId,
       redirectUri: config.redirectUri,
       scope: 'openid profile email phone'
       // prompt: 'login' // 移除不兼容的配置项

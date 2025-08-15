@@ -22,11 +22,11 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# Authing回调重定向到Netlify函数
-[[redirects]]
-  from = "/callback"
-  to = "/.netlify/functions/authing-callback"
-  status = 200
+# Authing回调由前端路由直接处理，避免与函数重定向形成循环
+# [[redirects]]
+#   from = "/callback"
+#   to = "/.netlify/functions/authing-callback"
+#   status = 200
 
 # 静态资源处理 - 确保CSS和JS文件不被重定向
 [[redirects]]
@@ -74,11 +74,12 @@
   NODE_ENV = "production"
   # Authing配置
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
-  VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
-  VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
+  VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
@@ -99,11 +100,12 @@
   NODE_ENV = "preview"
   # Authing配置
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
-  VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
-  VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
+  VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
@@ -124,11 +126,12 @@
   NODE_ENV = "development"
   # Authing配置
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
-  VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
-  VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
+  VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"
+  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_APP_TYPE = "oidc"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
