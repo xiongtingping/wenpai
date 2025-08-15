@@ -138,23 +138,33 @@ function getGuardInstance() {
   try {
     // ✅ FIXED: 2025-07-25 修复Guard构造函数参数格式
     // 📌 正确的用法：传递单个配置对象，而不是分别传递appId
-    // 🔧 [GUARD_NO_HOST_v2025.08.15] 尝试不传递host参数解决错误页面问题
-    guardInstance = new Guard({
+    // 🔧 [GUARD_WITH_DOMAIN_v2025.08.15] 使用domain参数而不是host
+    const guardConfig = {
       appId: config.appId,
-      // host: config.host, // 暂时移除host参数
+      domain: config.domain, // 使用domain而不是host
       redirectUri: config.redirectUri,
-      // userPoolId: config.userPoolId, // 暂时移除userPoolId
       mode: 'modal',
       autoFocus: false,
       escCloseable: true,
       clickCloseable: true,
       maskCloseable: true
-    } as any);
+    };
+
+    console.log('🔧 Guard配置详情:', guardConfig);
+
+    guardInstance = new Guard(guardConfig as any);
 
     console.log('✅ Authing Guard实例初始化成功');
+
+    // 🔧 [GUARD_ERROR_HANDLER_v2025.08.15] 添加错误事件监听
+    guardInstance.on('error', (error: any) => {
+      console.error('🚨 Guard内部错误:', error);
+    });
+
     return guardInstance;
   } catch (error) {
     console.error('❌ Authing Guard实例初始化失败:', error);
+    console.error('❌ 配置信息:', config);
     throw error;
   }
 }
