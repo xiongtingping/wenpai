@@ -891,9 +891,21 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         const freshGuardInstance = getGuardInstance();
         if (freshGuardInstance && typeof freshGuardInstance.show === 'function') {
           console.log('✅ 使用新获取的 Guard 实例调用 show()...');
-          // 先展示 Guard，再异步启动隔离，避免焦点与 aria-hidden 冲突
+          // 先展示 Guard，再在弹窗可见后启动隔离，避免焦点与 aria-hidden 冲突
           freshGuardInstance.show();
-          setTimeout(() => isolateAuthingModalUntilClose(freshGuardInstance), 0);
+          const __tryStartIsoFresh = (attempt = 0) => {
+            const root = document.getElementById('authing_guard_container')
+              || document.querySelector('.authing-ant-modal-root')
+              || document.querySelector('.authing-guard-container')
+              || document.getElementById('authing-guard-container-v4');
+            const visible = !!root && (((root as HTMLElement).offsetParent !== null) || ((root as HTMLElement).getBoundingClientRect().height > 0));
+            if (root && visible) {
+              isolateAuthingModalUntilClose(freshGuardInstance);
+            } else if (attempt < 10) {
+              setTimeout(() => __tryStartIsoFresh(attempt + 1), 50);
+            }
+          };
+          setTimeout(() => __tryStartIsoFresh(0), 0);
           // 使用封装模块进行清理
           try {
             const a11y = createAuthingModalA11yController();
@@ -946,9 +958,21 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (guard.changeScene) {
           guard.changeScene('register');
         }
-        // 先展示 Guard，再异步启动隔离，避免在焦点尚未切入 Guard 时把外层设为 aria-hidden 导致报错
+        // 先展示 Guard，再在弹窗可见后启动隔离，避免焦点与 aria-hidden 冲突
         guard.show();
-        setTimeout(() => isolateAuthingModalUntilClose(guard), 0);
+        const __tryStartIso = (attempt = 0) => {
+          const root = document.getElementById('authing_guard_container')
+            || document.querySelector('.authing-ant-modal-root')
+            || document.querySelector('.authing-guard-container')
+            || document.getElementById('authing-guard-container-v4');
+          const visible = !!root && (((root as HTMLElement).offsetParent !== null) || ((root as HTMLElement).getBoundingClientRect().height > 0));
+          if (root && visible) {
+            isolateAuthingModalUntilClose(guard);
+          } else if (attempt < 10) {
+            setTimeout(() => __tryStartIso(attempt + 1), 50);
+          }
+        };
+        setTimeout(() => __tryStartIso(0), 0);
         // 使用封装模块进行清理
         try {
           const a11y = createAuthingModalA11yController();
