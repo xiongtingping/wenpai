@@ -16,6 +16,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Guard } from '@authing/guard';
+import { createAuthingModalA11yController, sanitizeSiteDialogsOnce } from '@/utils/authingModalA11y';
 import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -296,42 +297,38 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       guardRef.current = getGuardInstance();
 
       // 设置 Guard 事件监听
-      if (guardRef.current) {
-        guardRef.current.on('login', (userInfo: any) => {
+      const g: any = guardRef.current;
+      if (g) {
+        const onLogin = (userInfo: any) => {
           console.log('🔐 Guard 登录成功:', userInfo);
           handleAuthingLogin(userInfo);
-
-          // ✅ FIXED: 2025-07-25 登录成功后关闭弹窗
-          setTimeout(() => {
-            if (guardRef.current) {
-              guardRef.current.hide();
-              console.log('✅ Guard 弹窗已关闭');
-            }
-          }, 1000); // 延迟1秒关闭，让用户看到成功状态
-        });
-
-        guardRef.current.on('register', (userInfo: any) => {
+          setTimeout(() => { try { g.hide?.(); } catch {} }, 1000);
+        };
+        const onRegister = (userInfo: any) => {
           console.log('📝 Guard 注册成功:', userInfo);
           handleAuthingLogin(userInfo);
-
-          // ✅ FIXED: 2025-07-25 注册成功后关闭弹窗
-          setTimeout(() => {
-            if (guardRef.current) {
-              guardRef.current.hide();
-              console.log('✅ Guard 弹窗已关闭');
-            }
-          }, 1000); // 延迟1秒关闭，让用户看到成功状态
-        });
-
-        guardRef.current.on('login-error', (error: any) => {
+          setTimeout(() => { try { g.hide?.(); } catch {} }, 1000);
+        };
+        const onLoginError = (error: any) => {
           console.error('❌ Guard 登录失败:', error);
-          setError('登录失败: ' + (error.message || error));
-        });
-
-        guardRef.current.on('register-error', (error: any) => {
+          setError('登录失败: ' + (error?.message || String(error)));
+        };
+        const onRegisterError = (error: any) => {
           console.error('❌ Guard 注册失败:', error);
-          setError('注册失败: ' + (error.message || error));
-        });
+          setError('注册失败: ' + (error?.message || String(error)));
+        };
+        try { g.on?.('login', onLogin); } catch {}
+        try { g.on?.('register', onRegister); } catch {}
+        try { g.on?.('login-error', onLoginError); } catch {}
+        try { g.on?.('register-error', onRegisterError); } catch {}
+
+        // 清理：卸载时移除事件监听，避免潜在内存泄漏
+        return () => {
+          try { g.off?.('login', onLogin); } catch {}
+          try { g.off?.('register', onRegister); } catch {}
+          try { g.off?.('login-error', onLoginError); } catch {}
+          try { g.off?.('register-error', onRegisterError); } catch {}
+        };
       }
 
       console.log('✅ Authing 实例初始化成功');
@@ -711,60 +708,22 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         } catch (e) { if (debugISO) console.debug('[ISO] applyInert 失败', e); }
       };
 
-      // 启动隔离
+      // 启动隔离（先安全移除当前焦点，避免 aria-hidden 阻断警告）
+      try { (document.activeElement as HTMLElement | null)?.blur(); } catch {}
       injectGlobalCss();
       applyInert();
       hideOthers();
 
-      // 在 Authing 容器内持续清理 undefinedundefined 文案（不改行为）
+      // 在 Authing 容器内持续清理 undefinedundefined 文案（不改行为） - 使用封装模块
       try {
-        const roots: HTMLElement[] = [];
-        document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, .authing-ant-modal, #authing-guard-container-v4')
-          .forEach((el) => roots.push(el as HTMLElement));
-        const idRoot = document.getElementById('authing_guard_container');
-        if (idRoot && !roots.includes(idRoot)) roots.push(idRoot);
-
-        const re = /undefined\s*undefined/gi;
-        const sanitizeRoot = (root: HTMLElement) => {
-          try {
-            // 1) 修复文本节点
-            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-            let n: Node | null;
-            while (n = walker.nextNode()) {
-              const t = n as Text;
-              if (t.nodeValue && re.test(t.nodeValue)) {
-                t.nodeValue = t.nodeValue.replace(re, '');
-              }
-            }
-            // 2) 针对常见容器兜底
-            root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
-              .forEach((el) => {
-                if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
-                  el.textContent = el.textContent.replace(/undefinedundefined/g, '');
-                }
-              });
-          } catch {}
-        };
-        const fixFocus = (root: HTMLElement) => {
-          try {
-            const active = document.activeElement as HTMLElement | null;
-            const isHidden = (el: HTMLElement | null): boolean => !!el && (el.getAttribute('aria-hidden') === 'true' || isHidden(el.parentElement));
-            if (active && isHidden(active)) active.blur();
-            const focusable = root.querySelector<HTMLElement>('input, button, [tabindex]:not([tabindex="-1"])');
-            focusable?.focus();
-          } catch {}
-        };
-
-        if (roots.length) {
-          roots.forEach((root) => {
-            sanitizeRoot(root);
-            fixFocus(root);
-          });
-          textObserver = new MutationObserver(() => {
-            roots.forEach((root) => sanitizeRoot(root));
-          });
-          roots.forEach((root) => textObserver!.observe(root, { subtree: true, characterData: true, childList: true }));
-        }
+        const a11y = createAuthingModalA11yController();
+        a11y.mount();
+        // 在展示后的多个时点做额外清理，兼容动画/延迟渲染
+        setTimeout(() => a11y.sanitizeOnce(), 0);
+        setTimeout(() => a11y.sanitizeOnce(), 200);
+        setTimeout(() => a11y.sanitizeOnce(), 800);
+        requestAnimationFrame(() => a11y.sanitizeOnce());
+        // Guard 关闭时由 onDone -> restore → 触发 a11y.unmount 由调用方负责
       } catch (e) { if (debugISO) console.debug('[ISO] 文本清理挂载失败', e); }
 
       // 监听 Guard 事件（若 SDK 暴露），在错误/切场景后沿再清洗一次
@@ -931,40 +890,26 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           // 在显示前隔离其他对话框，避免并发冲突
           isolateAuthingModalUntilClose(freshGuardInstance);
           freshGuardInstance.show();
-          // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
-          const sanitizeAuthingText = () => {
-            try {
-              const roots: HTMLElement[] = [];
-              document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, .authing-ant-modal, #authing-guard-container-v4')
-                .forEach((el) => roots.push(el as HTMLElement));
-              const idRoot = document.getElementById('authing_guard_container');
-              if (idRoot && !roots.includes(idRoot)) roots.push(idRoot);
-
-              const re = /undefined\s*undefined/gi;
-              const sanitizeRoot = (root: HTMLElement) => {
-                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-                let n: Node | null;
-                while (n = walker.nextNode()) {
-                  const t = n as Text;
-                  if (t.nodeValue && re.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(re, '');
-                }
-                root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
-                  .forEach((el) => {
-                    if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
-                      el.textContent = el.textContent.replace(/undefinedundefined/g, '');
-                    }
-                  });
-              };
-              roots.forEach((r) => sanitizeRoot(r));
-            } catch {}
-          };
-          setTimeout(sanitizeAuthingText, 0);
-          setTimeout(sanitizeAuthingText, 200);
-          setTimeout(sanitizeAuthingText, 800);
-          requestAnimationFrame(sanitizeAuthingText);
+          // 使用封装模块进行清理
+          try {
+            const a11y = createAuthingModalA11yController();
+            a11y.mount();
+            setTimeout(() => a11y.sanitizeOnce(), 0);
+            setTimeout(() => a11y.sanitizeOnce(), 200);
+            setTimeout(() => a11y.sanitizeOnce(), 800);
+            requestAnimationFrame(() => a11y.sanitizeOnce());
+          } catch {}
           console.log('✅ 新 Guard 实例 show() 调用完成');
           // 更新 ref
           guardRef.current = freshGuardInstance;
+          // 同步清理站内 Dialog 弹窗中的 undefinedundefined（与 Authing 无关）
+          try {
+            const { sanitizeSiteDialogsOnce } = await import('@/utils/authingModalA11y');
+            setTimeout(() => sanitizeSiteDialogsOnce(), 0);
+            setTimeout(() => sanitizeSiteDialogsOnce(), 200);
+            setTimeout(() => sanitizeSiteDialogsOnce(), 800);
+            requestAnimationFrame(() => sanitizeSiteDialogsOnce());
+          } catch {}
           setTimeout(ensureGuardVisibleOrFallback, 1500);
         } else {
           throw new Error('Guard 实例未初始化或缺少 show 方法');
@@ -1000,37 +945,23 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 在显示前隔离其他对话框，避免并发冲突
         isolateAuthingModalUntilClose(guard);
         guard.show();
-        // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
-        const sanitizeAuthingText = () => {
-          try {
-            const roots: HTMLElement[] = [];
-            document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, .authing-ant-modal, #authing-guard-container-v4')
-              .forEach((el) => roots.push(el as HTMLElement));
-            const idRoot = document.getElementById('authing_guard_container');
-            if (idRoot && !roots.includes(idRoot)) roots.push(idRoot);
-
-            const re = /undefined\s*undefined/gi;
-            const sanitizeRoot = (root: HTMLElement) => {
-              const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-              let n: Node | null;
-              while (n = walker.nextNode()) {
-                const t = n as Text;
-                if (t.nodeValue && re.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(re, '');
-              }
-              root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
-                .forEach((el) => {
-                  if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
-                    el.textContent = el.textContent.replace(/undefinedundefined/g, '');
-                  }
-                });
-            };
-            roots.forEach((r) => sanitizeRoot(r));
-          } catch {}
-        };
-        setTimeout(sanitizeAuthingText, 0);
-        setTimeout(sanitizeAuthingText, 200);
-        setTimeout(sanitizeAuthingText, 800);
-        requestAnimationFrame(sanitizeAuthingText);
+        // 使用封装模块进行清理
+        try {
+          const a11y = createAuthingModalA11yController();
+          a11y.mount();
+          setTimeout(() => a11y.sanitizeOnce(), 0);
+          setTimeout(() => a11y.sanitizeOnce(), 200);
+          setTimeout(() => a11y.sanitizeOnce(), 800);
+          requestAnimationFrame(() => a11y.sanitizeOnce());
+        } catch {}
+        // 同步清理站内 Dialog 弹窗中的 undefinedundefined（与 Authing 无关）
+        try {
+          const { sanitizeSiteDialogsOnce } = await import('@/utils/authingModalA11y');
+          setTimeout(() => sanitizeSiteDialogsOnce(), 0);
+          setTimeout(() => sanitizeSiteDialogsOnce(), 200);
+          setTimeout(() => sanitizeSiteDialogsOnce(), 800);
+          requestAnimationFrame(() => sanitizeSiteDialogsOnce());
+        } catch {}
       } else {
         throw new Error('Guard 实例未初始化');
       }
