@@ -79,8 +79,8 @@ export function getAuthingConfig() {
     const cleaned = sanitizeRedirectUri(envOverride || '', origin);
 
     if (isProdHost) {
-      // 生产环境强制固定为主域回调，忽略任何外部覆盖
-      redirectUri = 'https://www.wenpai.xyz/callback';
+      // 生产环境：严格按照当前访问域名生成回调，支持 apex 与 www 双域
+      redirectUri = `${origin}/callback`;
     } else if (envOverride && cleaned === envOverride) {
       // 非生产环境才允许使用外部覆盖
       redirectUri = envOverride;
@@ -97,7 +97,7 @@ export function getAuthingConfig() {
     host: HOST,
     domain: DOMAIN,
     redirectUri: redirectUri,
-    userPoolId: '', // 🔧 恢复成功备份中的空字符串配置
+    userPoolId: '688237f7f9e118de849dc274', // 🔧 同步最新用户池 ID
   };
 
   // 调试信息 - 强制输出以验证配置（按照成功备份格式）

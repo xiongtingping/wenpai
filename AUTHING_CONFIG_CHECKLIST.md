@@ -10,7 +10,7 @@ auth?redirect_uri=https%3A%2F%2Fwenpai.netlify.app%2Fcallback&response_mode=web_
 
 ### 1. 应用基本信息
 - [ ] **应用 ID**: `68823897631e1ef8ff3720b2`
-- [ ] **应用域名**: `rzcswqd4sq0f.authing.cn`
+- [ ] **应用域名**: `rzcswqs4sq0f.authing.cn`
 - [ ] **应用类型**: 应该设置为 `单页 Web 应用 (SPA)` 或 `传统 Web 应用`
 
 ### 2. 回调地址配置 ⚠️ 重要
@@ -49,7 +49,7 @@ auth?redirect_uri=https%3A%2F%2Fwenpai.netlify.app%2Fcallback&response_mode=web_
 ```typescript
 guardInstance = new Guard({
   appId: '68823897631e1ef8ff3720b2',
-  host: 'https://rzcswqd4sq0f.authing.cn',
+  host: 'https://rzcswqs4sq0f.authing.cn',
   redirectUri: 'https://wenpai.netlify.app/callback', // 动态生成
   mode: 'modal',
   lang: 'zh-CN',
@@ -63,7 +63,7 @@ guardInstance = new Guard({
 ### Web SDK 配置 (src/contexts/UnifiedAuthContext.tsx)
 ```typescript
 authingClient = new RealAuthing({
-  domain: 'rzcswqd4sq0f.authing.cn',
+  domain: 'rzcswqs4sq0f.authing.cn',
   appId: '68823897631e1ef8ff3720b2',
   redirectUri: 'https://wenpai.netlify.app/callback',
   scope: 'openid profile email phone',

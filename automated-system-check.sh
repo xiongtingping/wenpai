@@ -233,7 +233,7 @@ check_network() {
     fi
     
     # 检查 Authing 域名
-    if curl -s --max-time 5 https://rzcswqd4sq0f.authing.cn > /dev/null 2>&1; then
+    if curl -s --max-time 5 https://rzcswqs4sq0f.authing.cn > /dev/null 2>&1; then
         log_success "Authing 域名可访问"
         update_stats "pass"
     else

@@ -11,7 +11,7 @@ console.log('🎉 Authing修复成功验证\n');
 
 // 正确的配置
 const CORRECT_APP_ID = '68823897631e1ef8ff3720b2';
-const EXPECTED_DOMAIN = 'rzcswqd4sq0f.authing.cn';
+const EXPECTED_DOMAIN = 'rzcswqs4sq0f.authing.cn';
 
 let successCount = 0;
 let totalTests = 0;

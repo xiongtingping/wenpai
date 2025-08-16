@@ -12,8 +12,8 @@ console.log('🎯 Round #3: 最终Authing修复验证\n');
 
 // 配置信息
 const CORRECT_APP_ID = '68823897631e1ef8ff3720b2';
-const EXPECTED_DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const EXPECTED_HOST = 'https://rzcswqd4sq0f.authing.cn';
+const EXPECTED_DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const EXPECTED_HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 let allTestsPassed = true;
 let testResults = [];

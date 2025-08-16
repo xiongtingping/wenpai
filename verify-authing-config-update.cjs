@@ -13,8 +13,8 @@ console.log('🔍 验证Authing配置更新状态...\n');
 // 最新配置信息（从截图获取）
 const EXPECTED_CONFIG = {
   appId: '688237f7f9e118de849dc274',
-  domain: 'rzcswqd4sq0f.authing.cn',
-  host: 'https://rzcswqd4sq0f.authing.cn'
+  domain: 'rzcswqs4sq0f.authing.cn',
+  host: 'https://rzcswqs4sq0f.authing.cn'
 };
 
 console.log('📋 预期配置:');

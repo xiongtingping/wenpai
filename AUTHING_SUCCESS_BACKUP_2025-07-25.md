@@ -65,8 +65,8 @@ Authing配置管理(authing.ts) + Guard实例管理
 ```typescript
 // ✅ 核心配置 - 硬编码确保稳定性
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const HOST = 'https://rzcswqd4sq0f.authing.cn';
+const DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 // 动态回调URI - 自适应环境
 const redirectUri = typeof window !== 'undefined'
@@ -327,8 +327,8 @@ export interface AuthingConfig {
 
 // ✅ FIXED: 2025-07-25 直接硬编码配置确保正确传递
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const HOST = 'https://rzcswqd4sq0f.authing.cn';
+const DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 let cachedConfig: any = null;
 export function getAuthingConfig() {
@@ -409,8 +409,8 @@ PORT=5174
 
 # Authing配置（硬编码在代码中，无需环境变量）
 APP_ID=68823897631e1ef8ff3720b2
-DOMAIN=rzcswqd4sq0f.authing.cn
-HOST=https://rzcswqd4sq0f.authing.cn
+DOMAIN=rzcswqs4sq0f.authing.cn
+HOST=https://rzcswqs4sq0f.authing.cn
 ```
 
 ### 2. 生产环境适配
@@ -421,7 +421,7 @@ HOST=https://rzcswqd4sq0f.authing.cn
 ### 3. Authing控制台配置
 ```
 应用ID: 68823897631e1ef8ff3720b2
-应用域名: rzcswqd4sq0f.authing.cn
+应用域名: rzcswqs4sq0f.authing.cn
 回调地址:
   - http://localhost:5174/callback (开发)
   - https://yourdomain.com/callback (生产)
@@ -473,7 +473,7 @@ open http://localhost:5174
 
 2. **验证配置**
    - App ID: `68823897631e1ef8ff3720b2`
-   - Domain: `rzcswqd4sq0f.authing.cn`
+   - Domain: `rzcswqs4sq0f.authing.cn`
    - CSS导入: `@authing/guard/dist/esm/guard.min.css`
 
 3. **重启服务**

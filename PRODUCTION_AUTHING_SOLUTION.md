@@ -20,8 +20,8 @@
 ```typescript
 // src/config/authing.ts
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const HOST = 'https://rzcswqd4sq0f.authing.cn';
+const DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 // 动态回调地址
 const redirectUri = typeof window !== 'undefined'
@@ -66,8 +66,8 @@ if (isProduction) {
 define: {
   __ENV__: JSON.stringify({
     VITE_AUTHING_APP_ID: process.env.VITE_AUTHING_APP_ID || '68823897631e1ef8ff3720b2',
-    VITE_AUTHING_DOMAIN: process.env.VITE_AUTHING_DOMAIN || 'rzcswqd4sq0f.authing.cn',
-    VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || 'https://rzcswqd4sq0f.authing.cn',
+    VITE_AUTHING_DOMAIN: process.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn',
+    VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn',
   })
 }
 ```
@@ -77,8 +77,8 @@ define: {
 # netlify.toml
 [context.production.environment]
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
-  VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
-  VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+  VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
+  VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
 ```
 

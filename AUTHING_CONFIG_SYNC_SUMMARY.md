@@ -9,8 +9,8 @@
 
 ### 新配置（基于Authing控制台截图）
 - **App ID**: `688237f7f9e118de849dc274`
-- **认证域名**: `rzcswqd4sq0f.authing.cn`
-- **认证地址**: `https://rzcswqd4sq0f.authing.cn`
+- **认证域名**: `rzcswqs4sq0f.authing.cn`
+- **认证地址**: `https://rzcswqs4sq0f.authing.cn`
 
 ### 旧配置（已替换）
 - **旧App ID 1**: `687e0aafee2b84f86685b644`
@@ -116,7 +116,7 @@ open http://localhost:5173
 
 1. **400错误**: 检查App ID和域名是否正确
 2. **回调URL不匹配**: 确保Authing控制台中的回调URL与代码中一致
-3. **网络连接**: 确保能访问 `https://rzcswqd4sq0f.authing.cn`
+3. **网络连接**: 确保能访问 `https://rzcswqs4sq0f.authing.cn`
 4. **缓存问题**: 清除浏览器缓存并重启开发服务器
 
 ## 🔒 配置锁定

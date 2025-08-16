@@ -68,7 +68,7 @@ function checkUrl(url) {
 function checkAuthingConfig() {
   const expectedConfig = {
     appId: '68823897631e1ef8ff3720b2',
-    appHost: 'rzcswqd4sq0f.authing.cn',
+    appHost: 'rzcswqs4sq0f.authing.cn',
     redirectUri: 'https://wenpai.netlify.app/callback'
   };
   

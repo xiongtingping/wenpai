@@ -7,7 +7,7 @@ console.log('🔍 开始验证Authing配置...\n');
 
 // 预期配置
 const EXPECTED_APP_ID = '68823897631e1ef8ff3720b2';
-const EXPECTED_DOMAIN = 'rzcswqd4sq0f.authing.cn';
+const EXPECTED_DOMAIN = 'rzcswqs4sq0f.authing.cn';
 
 console.log('📋 预期配置:');
 console.log('App ID:', EXPECTED_APP_ID);

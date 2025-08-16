@@ -6,7 +6,7 @@
 
 ### 应用信息
 - **应用ID**: `688237f7f9e118de849dc274`
-- **域名**: `rzcswqd4sq0f.authing.cn`
+- **域名**: `rzcswqs4sq0f.authing.cn`
 - **应用类型**: OIDC
 
 ### 回调地址配置
@@ -56,7 +56,7 @@ https://wenpai.netlify.app/
 ### 测试URL
 使用以下URL测试认证流程：
 ```
-https://rzcswqd4sq0f.authing.cn/oidc/auth?client_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&response_type=code&scope=openid+profile+email&state=test
+https://rzcswqs4sq0f.authing.cn/oidc/auth?client_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback&response_type=code&scope=openid+profile+email&state=test
 ```
 
 ### 本地测试步骤
@@ -94,7 +94,7 @@ https://rzcswqd4sq0f.authing.cn/oidc/auth?client_id=688237f7f9e118de849dc274&red
 
 ### 如果出现其他错误
 1. **检查应用状态**：确保应用在Authing控制台中为"已启用"状态
-2. **检查域名**：确保域名 `rzcswqd4sq0f.authing.cn` 可正常访问
+2. **检查域名**：确保域名 `rzcswqs4sq0f.authing.cn` 可正常访问
 3. **检查网络**：确保可以访问Authing服务
 
 ## 📞 技术支持

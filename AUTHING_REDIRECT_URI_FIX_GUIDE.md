@@ -54,7 +54,7 @@ https://wenpai.netlify.app/
 
 访问以下URL测试认证流程：
 ```
-https://rzcswqd4sq0f.authing.cn/oidc/auth?redirect_uri=https%3A%2F%2Fwenpai.netlify.app%2Fcallback&response_mode=fragment&response_type=code&client_id=68823897631e1ef8ff3720b2&state=test&nonce=test&scope=openid%20profile%20email%20phone&code_challenge=test&code_challenge_method=S256
+https://rzcswqs4sq0f.authing.cn/oidc/auth?redirect_uri=https%3A%2F%2Fwenpai.netlify.app%2Fcallback&response_mode=fragment&response_type=code&client_id=68823897631e1ef8ff3720b2&state=test&nonce=test&scope=openid%20profile%20email%20phone&code_challenge=test&code_challenge_method=S256
 ```
 
 ### 方法2: 在应用中测试登录
@@ -93,7 +93,7 @@ https://rzcswqd4sq0f.authing.cn/oidc/auth?redirect_uri=https%3A%2F%2Fwenpai.netl
 如果配置后仍有问题：
 
 1. **检查应用状态**：确保应用在Authing控制台中状态为"已启用"
-2. **检查域名配置**：确认域名 `rzcswqd4sq0f.authing.cn` 配置正确
+2. **检查域名配置**：确认域名 `rzcswqs4sq0f.authing.cn` 配置正确
 3. **清除缓存**：清除浏览器缓存和Cookie
 4. **等待生效**：配置修改后等待5分钟再测试
 

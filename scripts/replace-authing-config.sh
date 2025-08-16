@@ -16,8 +16,8 @@ OLD_HOST4="ai-wenpai.authing.cn"
 
 # 新配置 - 基于Authing控制台最新配置
 NEW_APPID="688237f7f9e118de849dc274"
-NEW_DOMAIN="rzcswqd4sq0f.authing.cn"
-NEW_HOST="https://rzcswqd4sq0f.authing.cn"
+NEW_DOMAIN="rzcswqs4sq0f.authing.cn"
+NEW_HOST="https://rzcswqs4sq0f.authing.cn"
 
 # 回调URL
 OLD_CALLBACK1="http://localhost:5173/callback"

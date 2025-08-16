@@ -14,8 +14,8 @@ console.log('=====================================\n');
 // 当前配置
 const CONFIG = {
   appId: '68823897631e1ef8ff3720b2',
-  domain: 'rzcswqd4sq0f.authing.cn',
-  host: 'https://rzcswqd4sq0f.authing.cn',
+  domain: 'rzcswqs4sq0f.authing.cn',
+  host: 'https://rzcswqs4sq0f.authing.cn',
   redirectUris: [
     'http://localhost:5173/callback',
     'https://wenpai.netlify.app/callback'

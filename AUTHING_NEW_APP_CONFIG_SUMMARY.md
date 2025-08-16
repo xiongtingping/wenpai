@@ -4,7 +4,7 @@
 
 ### 🎯 新Authing应用信息：
 - **App ID**: `688237f7f9e118de849dc274`
-- **认证地址**: `https://rzcswqd4sq0f.authing.cn`
+- **认证地址**: `https://rzcswqs4sq0f.authing.cn`
 - **登录回调 URL**: `https://wenpai.netlify.app/callback`
 - **应用类型**: OIDC 单页 Web 应用
 
@@ -29,19 +29,19 @@
 ### Authing控制台配置：
 - ✅ 应用类型：OIDC 单页 Web 应用
 - ✅ 登录回调 URL：`https://wenpai.netlify.app/callback`
-- ✅ 认证地址：`https://rzcswqd4sq0f.authing.cn`
+- ✅ 认证地址：`https://rzcswqs4sq0f.authing.cn`
 - ✅ 域名白名单：`wenpai.netlify.app`
 
 ### 代码配置：
 - ✅ App ID：`688237f7f9e118de849dc274`
-- ✅ Host：`rzcswqd4sq0f.authing.cn`
+- ✅ Host：`rzcswqs4sq0f.authing.cn`
 - ✅ 回调URL：`https://wenpai.netlify.app/callback`
 
 ## 🎯 预期结果：
 
 重新创建Authing应用后，登录流程应该完全正常：
 
-1. **点击登录** → 跳转到 `https://rzcswqd4sq0f.authing.cn/login`
+1. **点击登录** → 跳转到 `https://rzcswqs4sq0f.authing.cn/login`
 2. **完成登录** → 跳转到 `https://wenpai.netlify.app/callback`
 3. **处理回调** → 跳转到应用首页
 

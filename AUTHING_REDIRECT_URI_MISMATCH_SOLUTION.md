@@ -38,8 +38,8 @@ const client = new Authing({
 
 ### 2. appHost格式错误
 
-**错误格式**: `https://rzcswqd4sq0f.authing.cn` (包含协议)  
-**正确格式**: `rzcswqd4sq0f.authing.cn` (纯域名)
+**错误格式**: `https://rzcswqs4sq0f.authing.cn` (包含协议)
+**正确格式**: `rzcswqs4sq0f.authing.cn` (纯域名)
 
 ## ✅ 完整解决方案
 
@@ -56,9 +56,9 @@ export interface AuthingConfig {
 }
 
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const HOST = 'https://rzcswqd4sq0f.authing.cn';
-const APP_HOST = 'rzcswqd4sq0f.authing.cn'; // 纯域名
+const DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const HOST = 'https://rzcswqs4sq0f.authing.cn';
+const APP_HOST = 'rzcswqs4sq0f.authing.cn'; // 纯域名
 ```
 
 ### 2. 创建统一Guard管理器 (`src/authing/guardManager.ts`)

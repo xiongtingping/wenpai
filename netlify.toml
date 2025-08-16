@@ -16,7 +16,18 @@
   status = 301
   force = true
 
-# API重定向到Netlify函数
+# API 优先路由到专用 usage-count 函数，兼容旧路径
+[[redirects]]
+  from = "/api/user/usage/*"
+  to = "/.netlify/functions/api/usage-count/user/usage/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/consume-usage"
+  to = "/.netlify/functions/api/usage-count/consume-usage"
+  status = 200
+
+# 其他 /api/* 走通用网关函数
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
@@ -67,11 +78,12 @@
 # ===================
 # ✅ FIXED: 2025-07-25 Authing配置已更新为用户确认的App ID
 # App ID: 68823897631e1ef8ff3720b2 (用户确认)
-# 认证域名: rzcswqd4sq0f.authing.cn
+# 认证域名: rzcswqs4sq0f.authing.cn
 # 📌 基于用户提供的正确App ID更新
 # ===================
 [context.production.environment]
   NODE_ENV = "production"
+  VITE_AUTHING_FALLBACK_HOSTED = "1"
   # Authing配置
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
@@ -99,6 +111,7 @@
 
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
+  VITE_AUTHING_FALLBACK_HOSTED = "1"
   # Authing配置
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
@@ -126,6 +139,7 @@
 
 [context.branch-deploy.environment]
   NODE_ENV = "development"
+  VITE_AUTHING_FALLBACK_HOSTED = "1"
   # Authing配置
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
@@ -161,8 +175,8 @@
     CREEM_API_KEY = "creem_EGDvCS72OYrsU8ho7aJ1C"
     # Authing配置
     VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
-    VITE_AUTHING_DOMAIN = "rzcswqd4sq0f.authing.cn"
-    VITE_AUTHING_HOST = "https://rzcswqd4sq0f.authing.cn"
+    VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
+    VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
     VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://www.wenpai.xyz/callback"

@@ -382,8 +382,8 @@ VITE_GEMINI_MODEL=gemini-pro
 # Authing 认证配置 (已预配置)
 # ===========================================
 VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
-VITE_AUTHING_DOMAIN=rzcswqd4sq0f.authing.cn
-VITE_AUTHING_HOST=https://rzcswqd4sq0f.authing.cn
+VITE_AUTHING_DOMAIN=rzcswqs4sq0f.authing.cn
+VITE_AUTHING_HOST=https://rzcswqs4sq0f.authing.cn
 VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 

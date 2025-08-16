@@ -44,19 +44,34 @@ function fixFocusIn(root: HTMLElement) {
   } catch {}
 }
 
-function sanitizeUndefinedTextIn(root: HTMLElement) {
+function sanitizeUndefinedTextIn(root: HTMLElement | ShadowRoot) {
   try {
     const re = /undefined\s*undefined/gi;
+    const fallback = '发生错误，请稍后重试';
+
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let n: Node | null;
     while (n = walker.nextNode()) {
       const t = n as Text;
-      if (t.nodeValue && re.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(re, '');
+      if (t.nodeValue && re.test(t.nodeValue)) {
+        // 若属于错误信息区域，则替换为友好的中文提示；否则去除串联内容
+        const parentEl = t.parentElement;
+        const inErrorArea = !!parentEl?.closest('.g2-error-message-text, .g2-view-error, .authing-ant-modal-body, .authing-ant-modal-content');
+        t.nodeValue = inErrorArea ? t.nodeValue.replace(re, fallback) : t.nodeValue.replace(re, '');
+      }
     }
+
     root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
       .forEach((el) => {
-        if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
-          el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+        if (!el) return;
+        const txt = el.textContent || '';
+        if (re.test(txt)) {
+          // 在可见错误区域直接给出友好提示
+          if (el.classList.contains('g2-error-message-text') || el.closest('.g2-view-error')) {
+            el.textContent = txt.replace(re, fallback);
+          } else {
+            el.textContent = txt.replace(re, '');
+          }
         }
       });
   } catch {}
@@ -64,33 +79,107 @@ function sanitizeUndefinedTextIn(root: HTMLElement) {
 
 export function createAuthingModalA11yController(): ModalA11yController {
   let textObserver: MutationObserver | null = null;
+  let attachObserver: MutationObserver | null = null;
+  let pulseTimer: number | null = null;
+  let pulseEndTimer: number | null = null;
+  const observedRoots = new Set<HTMLElement>();
+  const observedShadows = new Set<ShadowRoot>();
 
   const blurActive = () => {
     try { (document.activeElement as HTMLElement | null)?.blur(); } catch {}
   };
 
+  const observeRoot = (root: HTMLElement) => {
+    if (!observedRoots.has(root)) observedRoots.add(root);
+    try {
+      sanitizeUndefinedTextIn(root);
+      fixFocusIn(root);
+      if (!textObserver) {
+        textObserver = new MutationObserver(() => {
+          observedRoots.forEach((r) => sanitizeUndefinedTextIn(r));
+          observedShadows.forEach((sr) => sanitizeUndefinedTextIn(sr));
+        });
+      }
+      textObserver.observe(root, { subtree: true, characterData: true, childList: true });
+      // 递归登记 shadowRoot
+      root.querySelectorAll('*').forEach((el) => {
+        const sr = (el as any).shadowRoot as ShadowRoot | undefined;
+        if (sr && !observedShadows.has(sr)) {
+          observedShadows.add(sr);
+          try { textObserver!.observe(sr as any, { subtree: true, characterData: true, childList: true }); } catch {}
+          sanitizeUndefinedTextIn(sr);
+        }
+      });
+    } catch {}
+  };
+
   const sanitizeOnce = () => {
     try {
       const roots = collectAuthingRoots();
-      roots.forEach((r) => sanitizeUndefinedTextIn(r));
+      roots.forEach(observeRoot);
+      observedRoots.forEach((r) => sanitizeUndefinedTextIn(r));
+      observedShadows.forEach((sr) => sanitizeUndefinedTextIn(sr));
     } catch {}
   };
 
   const mount = () => {
     blurActive();
-    const roots = collectAuthingRoots();
-    roots.forEach((r) => { sanitizeUndefinedTextIn(r); fixFocusIn(r); });
-    if (!textObserver && roots.length) {
-      textObserver = new MutationObserver(() => {
-        roots.forEach((r) => sanitizeUndefinedTextIn(r));
+    // 1) 立即处理已存在的根
+    collectAuthingRoots().forEach(observeRoot);
+
+    // 2) 监听后续插入的 Authing 根节点（晚加载场景）
+    if (!attachObserver) {
+      attachObserver = new MutationObserver((mutations) => {
+        try {
+          for (const m of mutations) {
+            if (m.type === 'childList') {
+              m.addedNodes.forEach((n) => {
+                if (n.nodeType !== 1) return;
+                const el = n as HTMLElement;
+                // 如果自身或其后代包含任一根选择器，则登记观察
+                const selfMatch = AUTHING_ROOT_SELECTORS.some((sel) => el.matches?.(sel));
+                const deepMatch = AUTHING_ROOT_SELECTORS.some((sel) => el.querySelector?.(sel));
+                if (selfMatch) observeRoot(el);
+                if (deepMatch) {
+                  AUTHING_ROOT_SELECTORS.forEach((sel) => el.querySelectorAll?.(sel).forEach((e) => observeRoot(e as HTMLElement)));
+                }
+              });
+            }
+          }
+        } catch {}
       });
-      roots.forEach((r) => textObserver!.observe(r, { subtree: true, characterData: true, childList: true }));
+      try { attachObserver.observe(document.body, { subtree: true, childList: true }); } catch {}
     }
+
+    // 3) 补刀：在多个延迟时点再次清理，覆盖动画/远程渲染
+    try {
+      setTimeout(sanitizeOnce, 0);
+      setTimeout(sanitizeOnce, 300);
+      setTimeout(sanitizeOnce, 800);
+      setTimeout(sanitizeOnce, 1500);
+      requestAnimationFrame(sanitizeOnce);
+
+      // 4) 脉冲清理：短时间高频清理以覆盖最慢的渲染节奏
+      if (!pulseTimer) {
+        // 每 200ms 执行一次，持续 5s
+        pulseTimer = window.setInterval(sanitizeOnce, 200);
+        pulseEndTimer = window.setTimeout(() => {
+          if (pulseTimer) { try { clearInterval(pulseTimer); } catch {} ; pulseTimer = null; }
+          if (pulseEndTimer) { try { clearTimeout(pulseEndTimer); } catch {} ; pulseEndTimer = null; }
+        }, 5000);
+      }
+    } catch {}
   };
 
   const unmount = () => {
     try { textObserver?.disconnect(); } catch {}
+    try { attachObserver?.disconnect(); } catch {}
+    if (pulseTimer) { try { clearInterval(pulseTimer); } catch {}; pulseTimer = null; }
+    if (pulseEndTimer) { try { clearTimeout(pulseEndTimer); } catch {}; pulseEndTimer = null; }
     textObserver = null;
+    attachObserver = null;
+    observedRoots.clear();
+    observedShadows.clear();
   };
 
   return { mount, unmount, blurActive, sanitizeOnce };

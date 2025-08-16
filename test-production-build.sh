@@ -56,7 +56,7 @@ else
     echo "⚠️ 构建文件中未找到 Authing APP_ID，可能被环境变量覆盖"
 fi
 
-if grep -q "rzcswqd4sq0f.authing.cn" dist/assets/*.js; then
+if grep -q "rzcswqs4sq0f.authing.cn" dist/assets/*.js; then
     echo "✅ 构建文件包含正确的 Authing 域名"
 else
     echo "⚠️ 构建文件中未找到 Authing 域名"

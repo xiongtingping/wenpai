@@ -10,9 +10,9 @@ console.log('🧪 Guard初始化测试开始...\n');
 // 模拟配置
 const mockConfig = {
   appId: '68823897631e1ef8ff3720b2',
-  appHost: 'rzcswqd4sq0f.authing.cn',
-  host: 'https://rzcswqd4sq0f.authing.cn',
-  domain: 'rzcswqd4sq0f.authing.cn',
+  appHost: 'rzcswqs4sq0f.authing.cn',
+  host: 'https://rzcswqs4sq0f.authing.cn',
+  domain: 'rzcswqs4sq0f.authing.cn',
   redirectUri: 'https://wenpai.netlify.app/callback'
 };
 

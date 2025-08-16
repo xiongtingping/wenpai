@@ -74,7 +74,7 @@ export interface SubscriptionExpiryResult {
  * 统一使用量管理服务类
  */
 class UnifiedUsageService {
-  private readonly API_ENDPOINT = '/api';
+  private readonly API_ENDPOINT = '/.netlify/functions/api/usage-count';
   private readonly STORAGE_KEY = 'unified_usage_stats';
   private readonly SYNC_INTERVAL = 5 * 60 * 1000; // 5分钟同步一次
   
@@ -177,7 +177,7 @@ class UnifiedUsageService {
   async getUserUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
     try {
       // 调用正确的后端API获取真实数据
-      const response = await request.get(`${this.API_ENDPOINT}/user/usage/${userId}`);
+      const response = await request.get(`${this.API_ENDPOINT}/user/usage/${userId}`); // returns { totalUsed }
       const usageData = response.data;
 
       // 计算总使用次数

@@ -55,8 +55,8 @@ npm install @authing/guard
 ```typescript
 // 硬编码配置确保稳定性
 const APP_ID = '68823897631e1ef8ff3720b2';
-const DOMAIN = 'rzcswqd4sq0f.authing.cn';
-const HOST = 'https://rzcswqd4sq0f.authing.cn';
+const DOMAIN = 'rzcswqs4sq0f.authing.cn';
+const HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 export function getAuthingConfig() {
   // 动态获取回调URI - 关键！

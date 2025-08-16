@@ -47,22 +47,49 @@ class AuthService {
         .replace(/^https?:\/\//, '')
         .replace(/\/$/, '');
       const tokenUrl = `https://${domain}/oidc/token`;
+
+      // 尝试读取 PKCE code_verifier（由 Guard/SDK 生成并存储）
+      let codeVerifier: string | null = null;
+      if (typeof window !== 'undefined') {
+        const keys = [
+          'AUTHING_CODE_VERIFIER',
+          'authing_code_verifier',
+          'code_verifier',
+          'AUTHING_PKCE_CODE_VERIFIER'
+        ];
+        for (const k of keys) {
+          try {
+            codeVerifier = codeVerifier || window.localStorage.getItem(k) || window.sessionStorage.getItem(k);
+          } catch {}
+        }
+      }
+
+      // 可选：从环境变量读取 client_secret（仅当明确配置时使用）
+      const clientSecret = (import.meta as any)?.env?.VITE_AUTHING_CLIENT_SECRET || (window as any)?.__ENV__?.VITE_AUTHING_CLIENT_SECRET;
+
+      const params = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: this.config.appId,
+        code,
+        redirect_uri: redirectUri || this.config.redirectUri,
+      });
+
+      if (codeVerifier) params.append('code_verifier', codeVerifier);
+      if (clientSecret) params.append('client_secret', clientSecret);
+
       const tokenData = await request.post(
         tokenUrl,
-        new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: this.config.appId,
-          code,
-          redirect_uri: redirectUri || this.config.redirectUri,
-        }),
+        params,
         {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }
       );
 
       return tokenData;
-    } catch (error) {
-      console.error('Token 交换失败:', error);
+    } catch (error: any) {
+      // 输出更多错误上下文，便于排查（仅控制台）
+      const details = (error && (error.response?.data || error.message)) || error;
+      console.error('Token 交换失败:', details);
       throw new Error('Token 交换失败');
     }
   }
