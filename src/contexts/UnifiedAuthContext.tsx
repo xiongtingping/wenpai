@@ -887,9 +887,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         const freshGuardInstance = getGuardInstance();
         if (freshGuardInstance && typeof freshGuardInstance.show === 'function') {
           console.log('✅ 使用新获取的 Guard 实例调用 show()...');
-          // 在显示前隔离其他对话框，避免并发冲突
-          isolateAuthingModalUntilClose(freshGuardInstance);
+          // 先展示 Guard，再异步启动隔离，避免焦点与 aria-hidden 冲突
           freshGuardInstance.show();
+          setTimeout(() => isolateAuthingModalUntilClose(freshGuardInstance), 0);
           // 使用封装模块进行清理
           try {
             const a11y = createAuthingModalA11yController();
@@ -942,9 +942,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (guard.changeScene) {
           guard.changeScene('register');
         }
-        // 在显示前隔离其他对话框，避免并发冲突
-        isolateAuthingModalUntilClose(guard);
+        // 先展示 Guard，再异步启动隔离，避免在焦点尚未切入 Guard 时把外层设为 aria-hidden 导致报错
         guard.show();
+        setTimeout(() => isolateAuthingModalUntilClose(guard), 0);
         // 使用封装模块进行清理
         try {
           const a11y = createAuthingModalA11yController();
