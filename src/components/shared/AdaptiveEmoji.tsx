@@ -4,12 +4,12 @@
  */
 
 import React from 'react';
-import { 
-  UnifiedEmojiItem, 
-  EmojiUsageContext, 
+import {
+  UnifiedEmojiItem,
+  EmojiUsageContext,
   PlatformType,
   generateEmojiStyle,
-  detectPlatform 
+  detectPlatform
 } from '@/services/unifiedEmojiSystem';
 
 interface AdaptiveEmojiProps {
@@ -41,10 +41,10 @@ const AdaptiveEmoji: React.FC<AdaptiveEmojiProps> = ({
   // 获取emoji字符
   const emojiChar = typeof emoji === 'string' ? emoji : emoji.emoji;
   const emojiName = typeof emoji === 'string' ? emoji : emoji.name;
-  
+
   // 生成自适应样式
-  const adaptiveStyle = generateEmojiStyle(context, platform, style);
-  
+  const adaptiveStyle = generateEmojiStyle(context, platform, style as any);
+
   // 合并样式
   const finalStyle: React.CSSProperties = {
     ...adaptiveStyle,
@@ -53,20 +53,20 @@ const AdaptiveEmoji: React.FC<AdaptiveEmojiProps> = ({
     transition: 'transform 0.2s ease',
     ...style
   };
-  
+
   // 添加hover效果
   const handleMouseEnter = (e: React.MouseEvent<HTMLSpanElement>) => {
     if (onClick) {
       e.currentTarget.style.transform = 'scale(1.1)';
     }
   };
-  
+
   const handleMouseLeave = (e: React.MouseEvent<HTMLSpanElement>) => {
     if (onClick) {
       e.currentTarget.style.transform = 'scale(1)';
     }
   };
-  
+
   return (
     <span
       className={`adaptive-emoji ${className}`}
@@ -103,7 +103,7 @@ export const EmojiAvatar: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
     medium: 'avatar',
     large: 'card'
   };
-  
+
   return <AdaptiveEmoji {...props} context={sizeMap[size]} />;
 };
 
@@ -119,11 +119,11 @@ export const EmojiButton: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
     ghost: 'hover:bg-accent',
     outline: 'border border-border hover:bg-accent'
   };
-  
+
   return (
-    <AdaptiveEmoji 
-      {...props} 
-      context="button" 
+    <AdaptiveEmoji
+      {...props}
+      context="button"
       className={`${variantClasses[variant]} ${className}`}
     />
   );
@@ -151,6 +151,7 @@ export const EmojiIcon: React.FC<Omit<AdaptiveEmojiProps, 'context'>> = (props) 
  */
 export const EmojiBadge: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
   count?: number;
+  children?: React.ReactNode;
 }> = ({ count, children, ...props }) => {
   return (
     <div className="relative inline-flex">
@@ -174,7 +175,7 @@ export const EmojiReaction: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
   active?: boolean;
 }> = ({ count, active = false, className = '', ...props }) => {
   const activeClass = active ? 'bg-accent border-primary' : 'bg-accent border-border';
-  
+
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border ${activeClass} ${className}`}>
       <AdaptiveEmoji {...props} context="reaction" />
@@ -198,12 +199,12 @@ export const EmojiStatus: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
     busy: '🔴',
     away: '🟡'
   };
-  
+
   return (
-    <AdaptiveEmoji 
-      {...props} 
+    <AdaptiveEmoji
+      {...props}
       emoji={statusEmojis[status]}
-      context="status" 
+      context="status"
     />
   );
 };
@@ -213,10 +214,10 @@ export const EmojiStatus: React.FC<Omit<AdaptiveEmojiProps, 'context'> & {
  */
 export function useUnifiedEmoji() {
   const platform = detectPlatform();
-  
+
   return {
     platform,
-    generateStyle: (context: EmojiUsageContext, customStyles?: React.CSSProperties) => 
+    generateStyle: (context: EmojiUsageContext, customStyles?: React.CSSProperties) =>
       generateEmojiStyle(context, platform, customStyles),
     AdaptiveEmoji,
     EmojiAvatar,

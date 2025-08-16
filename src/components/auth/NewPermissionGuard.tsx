@@ -154,7 +154,7 @@ export const NewPermissionGuard: React.FC<NewPermissionGuardProps> = ({
           <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <UpgradeText as="h3" type="title" size="lg" className="mb-2">需要升级解锁</UpgradeText>
           <PermissionText type="description" size="sm" className="mb-4">
-            {featureName} 需要 {requiredTier === 'pro' ? '专业版' : '高级版'} 权限
+            {featureName} 需要 {requiredTier === 'pro' ? '专业版/高级版' : '高级版'} 权限
           </PermissionText>
           <Button onClick={handleUpgradeClick}>
             <Crown className="h-4 w-4 mr-2" />

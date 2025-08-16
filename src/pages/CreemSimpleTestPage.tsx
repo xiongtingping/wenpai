@@ -78,8 +78,8 @@ export default function CreemSimpleTestPage() {
       name: testMethod.name,
       timestamp: new Date().toISOString(),
       success: false,
-      data: null,
-      error: null
+      data: null as any,
+      error: null as any
     };
 
     try {

@@ -670,7 +670,7 @@ export default function BookmarkPage() {
           mdContent += `### ${index + 1}. ${favorite.title}\n\n`;
           mdContent += `**类型**: ${favorite.type}\n`;
           mdContent += `**收藏时间**: ${new Date(favorite.createdAt).toLocaleString()}\n`;
-          if (favorite.platform) mdContent += `**平台**: ${favorite.platform}\n`;
+          if ((favorite as any).platform) mdContent += `**平台**: ${(favorite as any).platform}\n`;
           if (favorite.tags && favorite.tags.length > 0) mdContent += `**标签**: ${favorite.tags.join(', ')}\n`;
           mdContent += `\n**内容**:\n${favorite.content}\n\n`;
           mdContent += `---\n\n`;

@@ -191,7 +191,7 @@ export const ThemeAwareUpgradeCard: React.FC<ThemeAwareUpgradeCardProps> = ({
         {/* 价格信息 */}
         <div className="mt-3 text-center">
           <span className="text-xs text-muted-foreground">
-            {plan.price} • 随时可取消
+            {plan.monthly?.discountPrice ?? plan.yearly?.discountPrice ?? ''} • 随时可取消
           </span>
         </div>
       </CardContent>

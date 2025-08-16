@@ -52,7 +52,7 @@ export default function PaymentFlowTestPage() {
 
   const runTest = async (testCase: any) => {
     setCurrentStep('testing');
-    setTestResults(prev => ({
+    setTestResults((prev: any) => ({
       ...prev,
       [testCase.id]: { status: 'running', steps: [] }
     }));
@@ -68,7 +68,7 @@ export default function PaymentFlowTestPage() {
       ]
     };
 
-    setTestResults(prev => ({
+    setTestResults((prev: any) => ({
       ...prev,
       [testCase.id]: results
     }));

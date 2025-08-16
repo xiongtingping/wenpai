@@ -100,7 +100,7 @@ export const BlurEffectTestPage: React.FC = () => {
           </h2>
           
           <UnifiedPermissionGuard
-            permission="premium_features"
+            requiredPermission="tier:premium"
             featureName="高级内容生成"
             description="体验最先进的AI内容创作功能"
             className="rounded-lg"
@@ -140,7 +140,7 @@ export const BlurEffectTestPage: React.FC = () => {
         />
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes blob {
           0% {
             transform: translate(0px, 0px) scale(1);

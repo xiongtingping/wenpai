@@ -25,7 +25,7 @@ export const secureStorage = {
   set(key: string, value: any) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-    } catch {}
+    } catch { /* noop */ }
   },
   /**
    * 移除存储内容
@@ -34,6 +34,6 @@ export const secureStorage = {
   remove(key: string) {
     try {
       localStorage.removeItem(key);
-    } catch {}
+    } catch { /* noop */ }
   }
 }; 

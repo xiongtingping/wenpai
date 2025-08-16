@@ -332,7 +332,7 @@ export function PDFChatDialog({
         "这个文档对我有什么启发？",
         "如何应用文档中的知识？"
       ],
-      specific: []
+      specific: [] as string[]
     };
 
     // 根据文档名称和内容添加特定建议
@@ -340,16 +340,16 @@ export function PDFChatDialog({
     const docContent = selectedDocument.content.toLowerCase();
 
     if (docName.includes('报告') || docName.includes('report')) {
-      suggestions.specific.push("报告的主要结论是什么？" as any);
+      suggestions.specific.push("报告的主要结论是什么？");
     }
     if (docName.includes('手册') || docName.includes('manual')) {
-      suggestions.specific.push("如何使用这个手册？" as any);
+      suggestions.specific.push("如何使用这个手册？");
     }
     if (docName.includes('合同') || docName.includes('contract')) {
-      suggestions.specific.push("合同的关键条款有哪些？" as any);
+      suggestions.specific.push("合同的关键条款有哪些？");
     }
     if (docContent.includes('数据') || docContent.includes('统计')) {
-      suggestions.specific.push("文档中的数据说明了什么？" as any);
+      suggestions.specific.push("文档中的数据说明了什么？");
     }
 
     // 合并所有建议并随机选择

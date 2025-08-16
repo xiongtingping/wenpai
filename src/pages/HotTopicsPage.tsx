@@ -220,7 +220,8 @@ export default function HotTopicsPage() {
 
   // 支持的平台列表（只显示有数据的平台） - LOCKED LOGIC
   const supportedPlatforms = getSupportedPlatforms().filter(platform => {
-    return allHotData?.data?.[platform]?.length > 0;
+    const list = (allHotData?.data?.[platform] as any[] | undefined);
+    return Array.isArray(list) && list.length > 0;
   });
 
   // 所有支持的平台列表（用于订阅选择） - PROTECTED
@@ -232,7 +233,8 @@ export default function HotTopicsPage() {
     blockedPlatforms: [],
     preferredKeywords: [],
     preferredPlatforms: [],
-    showBlocked: false
+    showBlocked: false,
+    categoryPreferences: {}
   });
 
   // 分类状态 - PROTECTED
@@ -988,7 +990,7 @@ export default function HotTopicsPage() {
                 if (subscription) {
                   notifyTopicUpdate(
                     subscription.keyword,
-                    `发现 ${topicResults.length} 个相关话题`,
+                    [`发现 ${topicResults.length} 个相关话题`],
                     topicResults[0].url // 第一个话题的链接
                   );
                 }
@@ -1059,7 +1061,8 @@ export default function HotTopicsPage() {
       blockedPlatforms: [],
       preferredKeywords: [],
       preferredPlatforms: [],
-      showBlocked: false
+      showBlocked: false,
+      categoryPreferences: {}
     });
 
     // 清除本地存储的兴趣设置

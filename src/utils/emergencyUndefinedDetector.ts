@@ -4,7 +4,7 @@
  */
 
 // 🚨 [EMERGENCY_DETECTOR_ENABLED_v2025.08.14] 重新启用紧急检测器
-if (true) {
+if (typeof window !== 'undefined') {
   console.log('🚨 紧急 undefined 拼接检测器已启动');
 
   // 🚨 [CRITICAL_ERROR_HANDLER_v2025.08.14] 添加全局错误处理

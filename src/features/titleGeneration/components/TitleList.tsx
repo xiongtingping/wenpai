@@ -33,7 +33,7 @@ export const TitleList = memo<TitleListProps>(({
     if (onTitleCopy) {
       const success = await onTitleCopy(title);
       // 可以添加成功提示
-      console.log(success ? '复制成功' : '复制失败');
+      console.log((success as unknown as boolean) ? '复制成功' : '复制失败');
     }
   };
 

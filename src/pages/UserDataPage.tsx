@@ -48,12 +48,12 @@ interface UserDataRecord {
  * 用户数据查看页面
  */
 export default function UserDataPage() {
-  const { getCurrentUserId, isTempUserIdBound } = useAuthStore();
+  const authState = useAuthStore();
   const [userData, setUserData] = useState<UserDataRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const currentUserId = getCurrentUserId();
+  const currentUserId = authState.user?.id || 'guest';
 
   useEffect(() => {
     loadUserData();
@@ -69,7 +69,7 @@ export default function UserDataPage() {
     try {
       const userDataService = UserDataService.getInstance();
       
-      if (isTempUserIdBound) {
+      if (!authState.isAuthenticated) {
         // 如果是正式用户，获取所有关联数据
         const data = await userDataService.getRealUserData(currentUserId);
         setUserData(data);
@@ -155,8 +155,11 @@ export default function UserDataPage() {
           <h1 className="text-3xl font-bold text-foreground">用户数据管理</h1>
           <p className="text-muted-foreground mt-2">
             当前用户ID: {currentUserId}
-            {isTempUserIdBound && <Badge className="ml-2">正式用户</Badge>}
-            {!isTempUserIdBound && <Badge variant="secondary" className="ml-2">临时用户</Badge>}
+            {authState.isAuthenticated ? (
+              <Badge className="ml-2">正式用户</Badge>
+            ) : (
+              <Badge variant="secondary" className="ml-2">临时用户</Badge>
+            )}
           </p>
         </div>
 

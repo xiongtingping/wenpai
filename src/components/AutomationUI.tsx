@@ -46,7 +46,7 @@ export interface AutomationUIProps {
 export interface AutomationOptions {
   enablePreview: boolean;
   enableConfirmation: boolean;
-  method: 'auto' | 'browser' | 'manual';
+  method: 'auto' | 'browser' | 'manual' | 'extension' | 'script' | 'rpa';
   retryCount: number;
 }
 

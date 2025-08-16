@@ -18,7 +18,7 @@ import type { AIProviderInterface } from '../types';
  * 🔓 UNLOCKED: AI 禁止修改此类
  */
 export class OpenAIProvider implements AIProviderInterface {
-  name: 'openai' = 'openai';
+  name = 'openai' as const;
   private apiKey: string;
   private baseURL: string;
 

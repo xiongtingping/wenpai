@@ -106,6 +106,37 @@ export const ThemeToggle: React.FC = () => {
     }
   }, [user?.id]);
 
+  // 当主题或权限变更时，强制将不具备权限的主题回退到浅色（trial 不能使用深色）
+  useEffect(() => {
+    const cfg = themes.find(t => t.value === theme);
+    if (!cfg) return;
+
+    // 检查权限
+    const allowed = (() => {
+      switch (cfg.permissionLevel) {
+        case 'basic':
+          return basicPermission.pass;
+        case 'advanced':
+          return advancedPermission.pass;
+        case 'premium':
+          return premiumPermission.pass;
+        default:
+          return false;
+      }
+    })();
+
+    // 如果没有权限且当前主题不是light，则回退到light
+    if (!allowed && theme !== 'light') {
+      console.log(`🎨 主题权限不足，从 ${theme} 回退到 light`);
+      setTheme('light');
+      const themeKey = generateStorageKey('wenpai-theme', user);
+      localStorage.setItem(themeKey, 'light');
+      const html = document.documentElement;
+      html.setAttribute('data-theme', 'light');
+      html.classList.remove('dark');
+    }
+  }, [theme, basicPermission.pass, advancedPermission.pass, premiumPermission.pass, user]);
+
   useEffect(() => {
     const html = document.documentElement;
     html.setAttribute('data-theme', theme);

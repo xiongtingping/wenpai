@@ -44,6 +44,7 @@ import BrandProfileGenerator from '@/components/creative/BrandProfileGenerator';
 import BrandProfileViewer from '@/components/creative/BrandProfileViewer';
 import { PDFChatDialog } from '@/components/creative/PDFChatDialog';
 import { BrandProfile, BrandAsset } from '@/types/brand';
+import type { BrandAssetType } from '@/types/brand';
 import AIAnalysisService from '@/services/aiAnalysisService';
 import { WebContentExtractorService, WebExtractionResult } from '@/services/webContentExtractor';
 import BrandCorpusService, { BrandCorpus, BrandCorpusExtraction, BrandCorpusSource } from '@/services/brandCorpusService';
@@ -220,9 +221,9 @@ export default function BrandLibraryPageFixed() {
         case 'name-desc':
           return b.name.localeCompare(a.name);
         case 'size-large':
-          return parseFloat(b.size.replace(' KB', '')) - parseFloat(a.size.replace(' KB', ''));
+          return parseFloat((b.size || '0').replace(' KB', '')) - parseFloat((a.size || '0').replace(' KB', ''));
         case 'size-small':
-          return parseFloat(a.size.replace(' KB', '')) - parseFloat(b.size.replace(' KB', ''));
+          return parseFloat((a.size || '0').replace(' KB', '')) - parseFloat((b.size || '0').replace(' KB', ''));
         default:
           return 0;
       }
@@ -602,8 +603,8 @@ export default function BrandLibraryPageFixed() {
               const updated = prev.map(a =>
                 a.id === asset.id ? {
                   ...a,
-                  status: 'analyzed',
-                  analysisResult: analysisResult
+                  status: 'analyzed' as const,
+                  analysisResult: analysisResult as any
                 } : a
               );
               // 保存到localStorage
@@ -621,7 +622,7 @@ export default function BrandLibraryPageFixed() {
           // 更新状态为错误
           setBrandAssets(prev => {
             const updated = prev.map(a =>
-              a.id === asset.id ? { ...a, status: 'error' } : a
+              a.id === asset.id ? { ...a, status: 'error' as const } : a
             );
             saveAssetsToStorage(updated);
             return updated;
@@ -964,7 +965,7 @@ export default function BrandLibraryPageFixed() {
     setCorpusProcessingProgress(0);
 
     try {
-      const extractions: BrandCorpusExtraction[] = [];
+      const extractions: BrandCorpusExtraction[] = []; // 类型保持为旧版以兼容 UI 渲染
 
       // 动态导入AI服务和品牌语料库服务
       const { callAI, AITaskType } = await import('@/api/aiService');
@@ -1004,18 +1005,18 @@ export default function BrandLibraryPageFixed() {
           // 转换为旧版格式以保持兼容性
           const analysisResult = corpusService.convertV2ToLegacyFormat(analysisResultV2);
 
-          const extraction: BrandCorpusExtraction = {
+          const extraction: any = {
             id: `extraction-${Date.now()}-${i}`,
             sourceId: asset.id,
             sourceName: asset.name,
             sourceType: asset.type,
             extractedAt: new Date().toISOString(),
             extractedFields: analysisResult.extractedFields,
-            status: 'completed',
+            status: 'confirmed',
             aiAnalysisMetadata: {
               model: 'deepseek-chat',
-              confidence: analysisResult.overallConfidence || 0.8,
-              processingTime: analysisResult.processingTime || 0,
+              confidence: analysisResult.aiAnalysisMetadata?.confidence || 0.8,
+              processingTime: analysisResult.aiAnalysisMetadata?.processingTime || 0,
               extractedFieldsCount: Object.keys(analysisResult.extractedFields).length
             }
           };
@@ -1046,7 +1047,7 @@ export default function BrandLibraryPageFixed() {
 
           console.log(`✅ AI分析完成: ${asset.name}`, {
             extractedFields: Object.keys(analysisResult.extractedFields).length,
-            confidence: analysisResult.overallConfidence
+            confidence: analysisResult.aiAnalysisMetadata?.confidence
           });
 
         } catch (error) {
@@ -1302,7 +1303,7 @@ export default function BrandLibraryPageFixed() {
 
     // 如果处理后的内容为空，跳过
     if (!processedContent || processedContent === 'undefined' || processedContent === 'null') {
-      console.warn(`跳过空内容: ${fieldName} -> ${value}`);
+      console.warn(`跳过空内容: ${originalFieldName ?? dimensionId} -> ${value}`);
       return;
     }
 
@@ -1381,7 +1382,7 @@ export default function BrandLibraryPageFixed() {
     console.log('🔍 开始批量AI分析，当前所有资产:', brandAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
 
     const unprocessedAssets = brandAssets.filter(asset =>
-      asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'analyzing' || asset.status === 'processing'
+      asset.status === 'uploaded' || asset.status === 'error' || asset.status === 'processing'
     );
 
     console.log('📋 找到待处理资产:', unprocessedAssets.map(a => ({ id: a.id, name: a.name, status: a.status })));
@@ -1439,18 +1440,18 @@ export default function BrandLibraryPageFixed() {
           // 转换为旧版格式以保持兼容性
           const analysisResult = corpusService.convertV2ToLegacyFormat(analysisResultV2);
 
-          const extraction: BrandCorpusExtraction = {
+          const extraction: any = {
             id: `extraction-${Date.now()}-${i}`,
             sourceId: asset.id,
             sourceName: asset.name,
             sourceType: asset.type,
             extractedAt: new Date().toISOString(),
             extractedFields: analysisResult.extractedFields,
-            status: 'completed',
+            status: 'confirmed',
             aiAnalysisMetadata: {
               model: 'deepseek-chat',
-              confidence: analysisResult.overallConfidence || 0.8,
-              processingTime: analysisResult.processingTime || 0,
+              confidence: analysisResult.aiAnalysisMetadata?.confidence || 0.8,
+              processingTime: analysisResult.aiAnalysisMetadata?.processingTime || 0,
               extractedFieldsCount: Object.keys(analysisResult.extractedFields).length
             }
           };
@@ -1481,7 +1482,7 @@ export default function BrandLibraryPageFixed() {
 
           console.log(`✅ AI分析完成: ${asset.name}`, {
             extractedFields: Object.keys(analysisResult.extractedFields).length,
-            confidence: analysisResult.overallConfidence
+            confidence: analysisResult.aiAnalysisMetadata?.confidence
           });
 
         } catch (error) {
@@ -1571,8 +1572,8 @@ export default function BrandLibraryPageFixed() {
       });
 
       // 删除来源匹配的keywords（保持向后兼容）
-      const filteredKeywords = dimension.keywords.filter(keyword =>
-        !keyword.source || keyword.source !== assetToDelete.name
+      const filteredKeywords = dimension.keywords.filter((keyword: any) =>
+        !keyword?.source || keyword.source !== assetToDelete.name
       );
 
       return {
@@ -1630,8 +1631,8 @@ export default function BrandLibraryPageFixed() {
       });
 
       // 删除来源匹配的keywords（保持向后兼容）
-      const filteredKeywords = dimension.keywords.filter(keyword =>
-        !keyword.source || !assetNames.includes(keyword.source)
+      const filteredKeywords = dimension.keywords.filter((keyword: any) =>
+        !keyword?.source || !assetNames.includes(keyword.source)
       );
 
       return {
@@ -1785,7 +1786,7 @@ export default function BrandLibraryPageFixed() {
   const handleDownloadFile = (asset: BrandAsset) => {
     // 创建一个虚拟的下载链接
     const link = document.createElement('a');
-    link.href = asset.url || '#';
+    link.href = (asset as any).url || '#';
     link.download = asset.name;
     document.body.appendChild(link);
     link.click();
@@ -1861,13 +1862,13 @@ export default function BrandLibraryPageFixed() {
         }
 
         // 创建资产对象
-        let fileType = 'document';
+        let fileType: BrandAssetType = 'document';
         if (file.type.startsWith('image/')) {
           fileType = 'image';
         } else if (file.type === 'application/pdf') {
-          fileType = 'pdf';
+          fileType = 'document';
         } else if (file.name.endsWith('.html') || file.name.endsWith('.htm') || file.name.endsWith('.mhtml')) {
-          fileType = 'web';
+          fileType = 'document';
         }
 
         // 读取文件内容
@@ -2155,8 +2156,8 @@ export default function BrandLibraryPageFixed() {
 
                     {/* 支持的文件格式 - 使用新的格式展示组件 */}
                     <div className="mt-4 pt-4 border-t border-border">
-                      <FileFormatDisplay 
-                        mode="compact" 
+                      <FileFormatDisplay
+                        mode="compact"
                         showCategories={true}
                         showQuality={false}
                         className="text-center"
@@ -2315,7 +2316,7 @@ export default function BrandLibraryPageFixed() {
                       featureName="PDF智能对话"
                       variant="outline"
                       size="sm"
-                      disabled={!brandAssets.some(asset => asset.type === 'pdf')}
+                      disabled={!brandAssets.some(asset => asset.type === 'document')}
                       onClick={() => setShowPdfDialog(true)}
                       className="border-border text-primary hover:bg-accent"
                     >
@@ -2414,10 +2415,8 @@ export default function BrandLibraryPageFixed() {
                             <div className="p-2 bg-accent rounded">
                               {asset.type === 'image' ? (
                                 <FileImage className="h-5 w-5" />
-                              ) : asset.type === 'pdf' ? (
+                              ) : asset.type === 'document' ? (
                                 <FileText className="h-5 w-5" />
-                              ) : asset.type === 'web' ? (
-                                <Globe className="h-5 w-5" />
                               ) : (
                                 <FileText className="h-5 w-5" />
                               )}
@@ -2426,11 +2425,10 @@ export default function BrandLibraryPageFixed() {
                               <h5 className="font-medium truncate">{asset.name}</h5>
                               <Badge variant={
                                 asset.status === 'uploaded' ? 'secondary' :
-                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'default' :
-                                asset.status === 'analyzed' ? 'default' : 'destructive'
+                                asset.status === 'analyzed' ? 'default' :
+                                'destructive'
                               } className="text-xs">
                                 {asset.status === 'uploaded' ? '待分析' :
-                                 (asset.status === 'analyzing' || asset.status === 'processing') ? '分析中' :
                                  asset.status === 'analyzed' ? '已分析' : '错误'}
                               </Badge>
                             </div>
@@ -2563,10 +2561,8 @@ export default function BrandLibraryPageFixed() {
                           <div className="p-2 bg-accent rounded">
                             {asset.type === 'image' ? (
                               <FileImage className="h-5 w-5" />
-                            ) : asset.type === 'pdf' ? (
+                            ) : asset.type === 'document' ? (
                               <FileText className="h-5 w-5" />
-                            ) : asset.type === 'web' ? (
-                              <Globe className="h-5 w-5" />
                             ) : (
                               <FileText className="h-5 w-5" />
                             )}
@@ -2576,11 +2572,9 @@ export default function BrandLibraryPageFixed() {
                               <h5 className="font-medium">{asset.name}</h5>
                               <Badge variant={
                                 asset.status === 'uploaded' ? 'secondary' :
-                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'default' :
                                 asset.status === 'analyzed' ? 'default' : 'destructive'
                               }>
                                 {asset.status === 'uploaded' ? '待分析' :
-                                 (asset.status === 'analyzing' || asset.status === 'processing') ? '分析中' :
                                  asset.status === 'analyzed' ? '已分析' : '错误'}
                               </Badge>
                             </div>
@@ -2604,11 +2598,10 @@ export default function BrandLibraryPageFixed() {
                               size="sm"
                               className={
                                 asset.status === 'analyzed' ? 'bg-primary text-primary-foreground hover:bg-primary/90' :
-                                (asset.status === 'analyzing' || asset.status === 'processing') ? 'bg-muted text-muted-foreground' :
                                 asset.status === 'error' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' :
                                 'border border-border text-foreground hover:bg-accent'
                               }
-                              disabled={(asset.status === 'analyzing' || asset.status === 'processing') || isBackgroundAnalysisRunning}
+                              disabled={(asset.status === 'processing') || isBackgroundAnalysisRunning}
                               onClick={() => {
                                 if (asset.status === 'analyzed') {
                                   // 查看分析结果 - 打开分析结果对话框
@@ -2634,7 +2627,7 @@ export default function BrandLibraryPageFixed() {
                                   <Eye className="h-4 w-4 mr-1" />
                                   查看结果
                                 </>
-                              ) : (asset.status === 'analyzing' || asset.status === 'processing') ? (
+                              ) : asset.status === 'processing' ? (
                                 <>
                                   <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                                   分析中
@@ -2659,7 +2652,7 @@ export default function BrandLibraryPageFixed() {
                                 onClick={() => {
                                   console.log('重新分析文件:', asset.name);
                                   const updatedAssets = brandAssets.map(a =>
-                                    a.id === asset.id ? { ...a, status: 'analyzing' as const } : a
+                                    a.id === asset.id ? { ...a, status: 'processing' as const } : a
                                   );
                                   setBrandAssets(updatedAssets);
 
@@ -2973,7 +2966,7 @@ export default function BrandLibraryPageFixed() {
         {/* PDF智能对话组件 */}
         <PDFChatDialog
           documents={brandAssets
-            .filter(asset => asset.type === 'pdf')
+            .filter(asset => asset.type === 'document')
             .map(asset => ({
               id: asset.id,
               name: asset.name,

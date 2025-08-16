@@ -3,7 +3,9 @@
  * 直接修复页面上所有的 undefinedundefined 问题
  */
 
-if (false) { // ⚠️ TEMPORARILY DISABLED: 2025-08-14 临时禁用以修复Authing Guard冲突
+// ⚠️ 临时禁用（通过环境变量控制），避免 ESLint no-constant-condition
+const __ENABLE_GLOBAL_UNDEFINED_FIXER__ = false as boolean;
+if (typeof window !== 'undefined' && __ENABLE_GLOBAL_UNDEFINED_FIXER__) { // ⚠️ TEMPORARILY DISABLED: 2025-08-14 临时禁用以修复Authing Guard冲突
   console.log('⚠️ 全局 undefinedundefined 修复器已临时禁用，避免与Authing Guard冲突');
 
   // 🚨 强力修复函数 - 立即清除页面上所有的 undefinedundefined

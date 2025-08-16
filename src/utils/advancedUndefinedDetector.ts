@@ -155,25 +155,27 @@ class AdvancedUndefinedDetector {
   private setupReactMonitoring(): void {
     // 监控React DevTools
     if (typeof window !== 'undefined') {
-      const originalSetTimeout = window.setTimeout;
-      window.setTimeout = function(callback: TimerHandler, delay?: number, ...args: any[]): number {
-        const wrappedCallback = (...args: any[]) => {
+      const originalSetTimeout = window.setTimeout.bind(window) as typeof window.setTimeout;
+      window.setTimeout = ((handler: TimerHandler, timeout?: number, ...args: any[]): number => {
+        const wrapped = (...cbArgs: any[]) => {
           try {
-            return callback.apply(this, args);
+            return (handler as any)(...cbArgs);
           } catch (error) {
             if (error instanceof Error && error.message.includes('undefined')) {
-              this.recordEvent({
-                source: 'react-error',
-                content: error.message,
-                context: 'setTimeout callback',
-                stackTrace: error.stack || ''
-              });
+              if ((window as any).recordEvent) {
+                (window as any).recordEvent({
+                  source: 'react-error',
+                  content: (error as Error).message,
+                  context: 'setTimeout callback',
+                  stackTrace: (error as Error).stack || ''
+                });
+              }
             }
             throw error;
           }
         };
-        return originalSetTimeout(wrappedCallback, delay);
-      };
+        return (originalSetTimeout as any)(wrapped, timeout, ...args);
+      }) as any;
     }
   }
 
@@ -190,7 +192,7 @@ class AdvancedUndefinedDetector {
       }
     } else if (node.nodeType === Node.ELEMENT_NODE) {
       const element = node as Element;
-      
+
       // 检查属性
       Array.from(element.attributes || []).forEach(attr => {
         if (this.containsUndefined(attr.value)) {
@@ -213,11 +215,11 @@ class AdvancedUndefinedDetector {
   private getNodeContext(node: Node): string {
     const parent = node.parentElement;
     if (!parent) return 'unknown';
-    
+
     const tag = parent.tagName.toLowerCase();
     const className = parent.className ? `.${parent.className.split(' ').join('.')}` : '';
     const id = parent.id ? `#${parent.id}` : '';
-    
+
     return `${tag}${id}${className}`;
   }
 
@@ -287,7 +289,7 @@ class AdvancedUndefinedDetector {
       'dom-attribute': '检查元素属性值，确保提供默认值',
       'react-error': '检查React组件中的状态和props处理'
     };
-    
+
     return suggestions[source as keyof typeof suggestions] || '使用安全的字符串处理函数';
   }
 
@@ -297,7 +299,7 @@ class AdvancedUndefinedDetector {
   }
 
   private triggerAlert(): void {
-    const recentEvents = this.events.filter(event => 
+    const recentEvents = this.events.filter(event =>
       event.timestamp > Date.now() - 5 * 60 * 1000
     );
 
@@ -344,7 +346,7 @@ class AdvancedUndefinedDetector {
       stats: this.getStats(),
       events: this.events
     };
-    
+
     return JSON.stringify(report, null, 2);
   }
 }
@@ -355,7 +357,7 @@ const detector = new AdvancedUndefinedDetector();
 // 自动启动（仅开发环境）
 if (import.meta.env.DEV) {
   detector.start();
-  
+
   // 暴露到全局对象供调试使用
   if (typeof window !== 'undefined') {
     (window as any).__advancedUndefinedDetector = detector;

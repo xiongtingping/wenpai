@@ -128,7 +128,7 @@ class ProductionUndefinedFixer {
 
       const textNodes: Text[] = [];
       let node;
-      while (node = walker.nextNode()) {
+      while ((node = walker.nextNode())) {
         const textNode = node as Text;
         const parentEl = (textNode.parentElement || (textNode as any).parentNode) as Element | null;
         const inAuthingModal = parentEl?.closest('#authing_guard_container, .authing-ant-modal-root, #authing-guard-container-v4');
@@ -242,7 +242,9 @@ class ProductionUndefinedFixer {
   private isGuardActive(): boolean {
     try {
       if (document.body.classList.contains('authing-guard-open')) return true;
-    } catch {}
+    } catch {
+      // Ignore errors
+    }
     const selectors = ['#authing_guard_container', '.authing-ant-modal-root', '#authing-guard-container-v4'];
     for (const sel of selectors) {
       const el = document.querySelector(sel) as HTMLElement | null;

@@ -54,7 +54,7 @@ export class StreamingTitleService {
 
     const completedTitles: GeneratedTitle[] = [];
     const outputCount = input.outputCount || 5;
-    let currentProgress = 0;
+    const currentProgress = 0;
 
     try {
       // 阶段1: 准备

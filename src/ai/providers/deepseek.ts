@@ -18,7 +18,7 @@ import type { AIProviderInterface } from '../types';
  * 🔓 UNLOCKED: AI 禁止修改此类
  */
 export class DeepSeekProvider implements AIProviderInterface {
-  name: 'deepseek' = 'deepseek';
+  name = 'deepseek' as const;
   private apiKey: string;
   private baseURL: string;
 

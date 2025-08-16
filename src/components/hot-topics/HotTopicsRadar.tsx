@@ -228,10 +228,11 @@ export default function HotTopicsRadar({
   // 兴趣过滤器状态
   const [interestFilters, setInterestFilters] = useState<InterestFilters>({
     categoryPreferences: {},
-    platforms: [],
-    timeRange: 'today',
-    sortBy: 'heat',
-    minHeat: 0
+    blockedKeywords: [],
+    blockedPlatforms: [],
+    preferredKeywords: [],
+    preferredPlatforms: [],
+    showBlocked: false
   });
 
   // 支持的平台列表
@@ -356,7 +357,7 @@ export default function HotTopicsRadar({
                 if (subscription) {
                   notifyTopicUpdate(
                     subscription.keyword,
-                    `发现 ${topicResults.length} 个相关话题`,
+                    [`发现 ${topicResults.length} 个相关话题`],
                     topicResults[0].url // 第一个话题的链接
                   );
                 }
@@ -439,12 +440,9 @@ export default function HotTopicsRadar({
     }
     
     // 应用兴趣过滤器
-    if (interestFilters.categories.length > 0) {
+    const categoryKeys = Object.keys(interestFilters.categoryPreferences);
+    if (categoryKeys.length > 0) {
       // 这里可以根据分类过滤，需要话题数据包含分类信息
-    }
-    
-    if (interestFilters.minHeat > 0) {
-      allTopics = allTopics.filter(topic => topic.hot >= interestFilters.minHeat);
     }
     
     return allTopics;
@@ -491,7 +489,7 @@ export default function HotTopicsRadar({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="secondary" className="text-xs">
-                        {getPlatformDisplayName(topic.platform)}
+                        {getPlatformDisplayName(topic.platform || 'unknown')}
                       </Badge>
                       {topic.hot && (
                         <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
@@ -743,7 +741,7 @@ export default function HotTopicsRadar({
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
                                 <div>
-                                  <h3 className="text-base font-medium text-foreground">{subscription.name}</h3>
+                                  <h3 className="text-base font-medium text-foreground">{subscription.keyword}</h3>
                                   <p className="text-sm text-muted-foreground">关键词: {subscription.keyword}</p>
                                 </div>
                               </div>

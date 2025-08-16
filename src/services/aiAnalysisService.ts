@@ -169,10 +169,10 @@ ${content}
         } else {
           // 尝试从文本中提取关键信息
           console.warn('尝试从非JSON响应中提取信息');
-          const keywords = content.match(/关键词[：:]\s*([^，。\n]+)/g)?.map(k => k.replace(/关键词[：:]\s*/, '')) || 
+          const keywords = content.match(/关键词[：:]\s*([^，。\n]+)/g)?.map((k: string) => k.replace(/关键词[：:]\s*/, '')) ||
                           ['品牌建设', '市场定位', '用户价值'];
           const tone = content.match(/语气[：:]\s*([^，。\n]+)/)?.pop() || '专业、可靠、创新';
-          const suggestions = content.match(/建议[：:]\s*([^，。\n]+)/g)?.map(s => s.replace(/建议[：:]\s*/, '')) || 
+          const suggestions = content.match(/建议[：:]\s*([^，。\n]+)/g)?.map((s: string) => s.replace(/建议[：:]\s*/, '')) ||
                              ['加强品牌故事传播', '突出产品差异化优势', '建立用户情感连接'];
           
           result = {
@@ -413,10 +413,10 @@ ${content}
               console.log(`📄 开始解析Word文档: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
 
               // 使用mammoth解析Word文档
-              const result = await mammoth.extractRawText({
+              const result = await (mammoth as any).extractRawText({
                 arrayBuffer,
                 // 添加更多选项以提高解析成功率
-                convertImage: mammoth.images.ignoreAll,
+                convertImage: (mammoth as any).images?.ignoreAll,
                 includeDefaultStyleMap: true
               });
 
@@ -439,7 +439,7 @@ ${content}
               console.error('Word文档解析失败:', wordError);
 
               // 提供详细的错误信息和建议
-              const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${wordError.message || '未知错误'}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
+              const errorMessage = `Word文档解析失败: ${file.name}\n错误信息: ${(wordError as any)?.message || '未知错误'}\n\n建议解决方案：\n1. 检查文档是否损坏\n2. 尝试用Word重新保存文档\n3. 另存为.docx格式（推荐）\n4. 复制文档内容到文本文件\n5. 转换为PDF格式后上传`;
 
               resolve(errorMessage);
             }

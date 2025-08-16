@@ -373,9 +373,9 @@ const ShareManager: React.FC = () => {
   };
 
   /**
-   * 使用模板
+   * 使用模板（重命名避免触发 Hooks 规则）
    */
-  const useTemplate = (template: ContentTemplate) => {
+  const applyTemplate = (template: ContentTemplate) => {
     setPublishContent({
       title: template.title,
       content: template.content,
@@ -694,7 +694,7 @@ const ShareManager: React.FC = () => {
                     <div className="text-sm text-muted-foreground">
                       使用 {template.useCount} 次
                     </div>
-                    <Button onClick={() => useTemplate(template)} size="sm">
+                    <Button onClick={() => applyTemplate(template)} size="sm">
                       使用模板
                     </Button>
                   </div>

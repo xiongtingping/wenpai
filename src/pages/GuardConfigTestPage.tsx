@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuthingConfig } from '@/config/authing';
-import { createSafeGuardConfig } from '@/utils/authingGuardSafeWrapper';
+import { createSafeGuardConfig } from '@/utils/authingGuardSafeWrapper'; // FIXME: 若无该封装，请创建占位安全封装模块或调整导入
 
 /**
  * Guard 配置测试页面
@@ -23,29 +23,33 @@ export const GuardConfigTestPage: React.FC = () => {
         appId: originalConfig.appId,
         host: originalConfig.host,
         redirectUri: originalConfig.redirectUri,
-        mode: 'modal',
-        lang: 'zh-CN'
+        // 仅透传必要字段，避免额外属性
+        // 其余 UI 配置请在实际 Guard 初始化处进行
+        // 这里不包含 mode/lang，以避免类型不匹配
       });
       setSafeConfig(safe);
 
       // 尝试创建 Guard 实例
       import('@authing/guard').then(({ Guard }) => {
         try {
-          const guard = new Guard(safe);
+          const guard = new Guard(safe as any);
           setGuardInstance(guard);
           console.log('✅ Guard 实例创建成功:', guard);
         } catch (guardError) {
           console.error('❌ Guard 实例创建失败:', guardError);
-          setError(`Guard 实例创建失败: ${guardError.message}`);
+          const msg = guardError instanceof Error ? guardError.message : String(guardError);
+          setError(`Guard 实例创建失败: ${msg}`);
         }
       }).catch(importError => {
         console.error('❌ Guard 模块导入失败:', importError);
-        setError(`Guard 模块导入失败: ${importError.message}`);
+        const msg = importError instanceof Error ? importError.message : String(importError);
+        setError(`Guard 模块导入失败: ${msg}`);
       });
 
     } catch (err) {
       console.error('❌ 配置测试失败:', err);
-      setError(`配置测试失败: ${err.message}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(`配置测试失败: ${msg}`);
     }
   }, []);
 
@@ -56,7 +60,8 @@ export const GuardConfigTestPage: React.FC = () => {
         console.log('✅ Guard 弹窗显示成功');
       } catch (showError) {
         console.error('❌ Guard 弹窗显示失败:', showError);
-        setError(`Guard 弹窗显示失败: ${showError.message}`);
+        const msg = showError instanceof Error ? showError.message : String(showError);
+        setError(`Guard 弹窗显示失败: ${msg}`);
       }
     } else {
       setError('Guard 实例不存在或 show 方法不可用');

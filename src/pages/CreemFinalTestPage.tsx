@@ -42,9 +42,9 @@ export default function CreemFinalTestPage() {
       name: config.name,
       timestamp: new Date().toISOString(),
       success: false,
-      data: null,
-      error: null,
-      stats: null
+      data: null as any,
+      error: null as any,
+      stats: null as any
     };
 
     try {
@@ -59,22 +59,22 @@ export default function CreemFinalTestPage() {
       
       result.success = true;
       result.data = data;
-      result.stats = creemOptimizer.getStats();
+      result.stats = creemOptimizer.getStats() as any;
       
       // 检查支付宝二维码
       const alipayQr = data.alipayQrCodeUrl || 
                       data.alipay_qr_code_url || 
                       (data.qrCodes && data.qrCodes.alipay);
       
-      if (alipayQr) {
-        result.data.qrCodeUrl = alipayQr;
+      if (alipayQr && result.data) {
+        (result.data as any).qrCodeUrl = alipayQr;
       }
       
     } catch (error: any) {
       console.error(`${config.name} 测试失败:`, error);
       result.success = false;
       result.error = error.message || '未知错误';
-      result.stats = creemOptimizer.getStats();
+      result.stats = creemOptimizer.getStats() as any;
     }
 
     setTestResults(prev => [result, ...prev]);

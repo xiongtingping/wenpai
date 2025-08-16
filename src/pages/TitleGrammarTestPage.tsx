@@ -61,8 +61,8 @@ const TitleGrammarTestPage: React.FC = () => {
           content: testCase.content,
           platform: testCase.platform,
           expectedIssue: testCase.expectedIssue,
-          result: testResults[0],
-          isFixed: !hasGrammarError(testResults[0])
+          result: testResults[0]?.result ?? '生成失败',
+          isFixed: testResults[0] ? !hasGrammarError(testResults[0].result) : false
         });
 
       } catch (error) {
@@ -157,18 +157,21 @@ const TitleGrammarTestPage: React.FC = () => {
           <TitleGenerator
             content="这里有5个发现宝藏AI工具，真的很好用！包括ChatGPT、Claude等强大的AI工具。还有3种新软件推荐，都是很棒的开发工具。"
             platformId="xiaohongshu"
+            platformName="小红书"
             versions={[
               {
                 id: 'test-a',
                 title: '测试版本A',
                 content: '这里有5个发现宝藏AI工具，真的很好用！包括ChatGPT、Claude等强大的AI工具。',
-                style: 'standard' as const
+                style: 'standard' as const,
+                charCount: 50
               },
               {
                 id: 'test-b', 
                 title: '测试版本B',
                 content: '还有3种新软件推荐，都是很棒的开发工具，提高效率必备。',
-                style: 'creative' as const
+                style: 'creative' as const,
+                charCount: 50
               }
             ]}
             onTitleChange={(title) => console.log('标题变更:', title)}

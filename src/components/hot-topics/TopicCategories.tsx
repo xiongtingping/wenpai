@@ -89,7 +89,7 @@ const updateCategoryInterest = (categoryId: string, action: 'view' | 'bookmark' 
 // 分类排序算法
 const calculateCategoryScore = (category: any, userWeights: UserInterestWeights): CategoryScore => {
   const topicCount = category.topics.length;
-  const avgHeat = category.topics.reduce((sum: number, topic: DailyHotItem) => sum + (topic.hot || 0), 0) / topicCount;
+  const avgHeat = category.topics.reduce((sum: number, topic: DailyHotItem) => sum + (parseInt(topic.hot as string) || 0), 0) / topicCount;
   const userWeight = userWeights[category.id] || 0.5; // 默认权重0.5
 
   // 综合评分算法

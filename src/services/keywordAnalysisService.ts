@@ -111,10 +111,13 @@ function generateLocalDescription(keyword: string): KeywordAnalysis {
     return {
       keyword,
       description: `关注"${keyword}"的最新动态、作品发布、公开活动和相关新闻`,
+      analysis: `围绕“${keyword}”的娱乐话题舆情波动较大，建议关注新剧/综艺上线时间、路演活动、舆情争议点，并结合社媒热度（如B站、微博话题榜）判断传播窗口。`,
       category: '娱乐',
       tags: ['娱乐', '明星', '影视'],
       suggestedTimeRange: '6h',
-      suggestedHeatThreshold: 3000
+      suggestedHeatThreshold: 3000,
+      relatedKeywords: [`${keyword}新剧`, `${keyword}综艺`, `${keyword}代言`],
+      monitoringTips: ['关注新作品发布与路演', '跟踪粉丝圈层舆情', '留意代言与商务合作']
     };
   }
 
@@ -123,10 +126,13 @@ function generateLocalDescription(keyword: string): KeywordAnalysis {
     return {
       keyword,
       description: `监控"${keyword}"相关的政策变化、官方发布、解读分析和影响评估`,
+      analysis: `政策/时事类关键词“${keyword}”需要关注官方发布、三方解读与影响评估，建议订阅权威媒体与政府官网RSS，设置高优先级提醒。`,
       category: '政策',
       tags: ['政策', '时事', '官方'],
       suggestedTimeRange: '24h',
-      suggestedHeatThreshold: 1000
+      suggestedHeatThreshold: 1000,
+      relatedKeywords: [`${keyword}解读`, `${keyword}影响`, `${keyword}发布会`],
+      monitoringTips: ['关注权威发布渠道', '保存权威解读文章', '记录政策落地时间线']
     };
   }
 
@@ -135,10 +141,13 @@ function generateLocalDescription(keyword: string): KeywordAnalysis {
     return {
       keyword,
       description: `跟踪"${keyword}"的产品动态、发布信息、用户反馈和市场反应`,
+      analysis: `产品/品牌类“${keyword}”建议关注发布会、版本更新说明、用户反馈（小红书/知乎）、竞品对比与测评内容。`,
       category: '产品',
       tags: ['产品', '品牌', '发布'],
       suggestedTimeRange: '24h',
-      suggestedHeatThreshold: 1500
+      suggestedHeatThreshold: 1500,
+      relatedKeywords: [`${keyword}发布`, `${keyword}评测`, `${keyword}体验`],
+      monitoringTips: ['关注版本更新日志', '收集用户真实反馈', '对比竞品功能']
     };
   }
 
@@ -147,10 +156,13 @@ function generateLocalDescription(keyword: string): KeywordAnalysis {
     return {
       keyword,
       description: `实时关注"${keyword}"相关的热点事件、新闻报道和舆论动态`,
+      analysis: `事件/热点类“${keyword}”易出现舆情反转与假消息，建议多源求证，保存关键节点报道。`,
       category: '热点',
       tags: ['热点', '事件', '新闻'],
       suggestedTimeRange: '6h',
-      suggestedHeatThreshold: 2000
+      suggestedHeatThreshold: 2000,
+      relatedKeywords: [`${keyword}事件`, `${keyword}争议`, `${keyword}真相`],
+      monitoringTips: ['多源校验信息', '记录时间线', '关注权威辟谣']
     };
   }
 

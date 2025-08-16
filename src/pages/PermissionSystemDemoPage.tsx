@@ -21,7 +21,9 @@ import {
   Save,
   Share2,
   Settings,
-  Star
+  Star,
+  Search,
+  Lightbulb
 } from 'lucide-react';
 
 /**

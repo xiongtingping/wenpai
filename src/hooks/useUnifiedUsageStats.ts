@@ -88,7 +88,7 @@ function getUsageCountLimit(tier: SubscriptionTier): number {
 async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier): Promise<UsageCountStats> {
   try {
     // 调用统一使用服务获取真实数据
-    const unifiedUsageService = new (await import('@/services/unifiedUsageService')).UnifiedUsageService();
+    const { unifiedUsageService } = await import('@/services/unifiedUsageService');
     return await unifiedUsageService.getUserUsageCountStats(userId, userTier);
   } catch (error) {
     console.error('获取使用次数统计失败:', error);
@@ -99,8 +99,7 @@ async function fetchUsageCountStats(userId: string, userTier: SubscriptionTier):
       usedCount: 0,
       availableUses,
       usagePercentage: 0,
-      remainingUses: availableUses === -1 ? -1 : availableUses,
-      lastUpdated: new Date().toISOString()
+      remainingUses: availableUses === -1 ? -1 : availableUses
     };
   }
 }

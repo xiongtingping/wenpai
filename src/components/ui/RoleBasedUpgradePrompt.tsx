@@ -172,7 +172,7 @@ export const RoleBasedUpgradePrompt: React.FC<RoleBasedUpgradePromptProps> = ({
       {/* 价格信息 */}
       <div className="mt-2 pt-2 border-t border-border/50">
         <span className="text-xs text-muted-foreground">
-          {plan.price} • 随时可取消
+          {plan.monthly?.discountPrice ?? plan.yearly?.discountPrice ?? ''} • 随时可取消
         </span>
       </div>
     </div>

@@ -320,7 +320,7 @@ export function getCharCountByPreset(
         target: Math.min(600, Math.floor(maxChars * 0.8))
       };
       
-    case 'detailed':
+    case 'detailed': {
       // 详细版确保至少800字，目标为平台限制的85-90%
       const detailedMin = 800;
       const detailedTarget = Math.floor(maxChars * 0.87);
@@ -329,6 +329,7 @@ export function getCharCountByPreset(
         max: Math.max(detailedTarget, detailedMin),
         target: Math.max(detailedTarget, detailedMin)
       };
+    }
       
     case 'auto':
     default:

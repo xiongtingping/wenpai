@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-// @ts-ignore
+// @ts-expect-error - vite-env-plugin.js is a custom plugin without types
 import envPlugin from './vite-env-plugin.js'
 
 // https://vitejs.dev/config/

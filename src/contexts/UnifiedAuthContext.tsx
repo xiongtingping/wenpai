@@ -10,6 +10,8 @@
  *
  * 🔒 LOCKED: 核心架构已优化，请勿随意修改
  */
+/* eslint-disable no-empty */
+/* eslint-disable no-cond-assign */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -716,21 +718,52 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 在 Authing 容器内持续清理 undefinedundefined 文案（不改行为）
       try {
-        const guardRoot = document.getElementById('authing_guard_container')
-          || document.querySelector('.authing-ant-modal-root')
-          || document.querySelector('.authing-guard-container');
-        if (guardRoot) {
-          const sanitize = () => {
-            guardRoot.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+        const roots: HTMLElement[] = [];
+        document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, .authing-ant-modal, #authing-guard-container-v4')
+          .forEach((el) => roots.push(el as HTMLElement));
+        const idRoot = document.getElementById('authing_guard_container');
+        if (idRoot && !roots.includes(idRoot)) roots.push(idRoot);
+
+        const re = /undefined\s*undefined/gi;
+        const sanitizeRoot = (root: HTMLElement) => {
+          try {
+            // 1) 修复文本节点
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            let n: Node | null;
+            while (n = walker.nextNode()) {
+              const t = n as Text;
+              if (t.nodeValue && re.test(t.nodeValue)) {
+                t.nodeValue = t.nodeValue.replace(re, '');
+              }
+            }
+            // 2) 针对常见容器兜底
+            root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
               .forEach((el) => {
                 if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
                   el.textContent = el.textContent.replace(/undefinedundefined/g, '');
                 }
               });
-          };
-          sanitize();
-          textObserver = new MutationObserver(() => sanitize());
-          textObserver.observe(guardRoot, { subtree: true, characterData: true, childList: true });
+          } catch {}
+        };
+        const fixFocus = (root: HTMLElement) => {
+          try {
+            const active = document.activeElement as HTMLElement | null;
+            const isHidden = (el: HTMLElement | null): boolean => !!el && (el.getAttribute('aria-hidden') === 'true' || isHidden(el.parentElement));
+            if (active && isHidden(active)) active.blur();
+            const focusable = root.querySelector<HTMLElement>('input, button, [tabindex]:not([tabindex="-1"])');
+            focusable?.focus();
+          } catch {}
+        };
+
+        if (roots.length) {
+          roots.forEach((root) => {
+            sanitizeRoot(root);
+            fixFocus(root);
+          });
+          textObserver = new MutationObserver(() => {
+            roots.forEach((root) => sanitizeRoot(root));
+          });
+          roots.forEach((root) => textObserver!.observe(root, { subtree: true, characterData: true, childList: true }));
         }
       } catch (e) { if (debugISO) console.debug('[ISO] 文本清理挂载失败', e); }
 
@@ -859,16 +892,28 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
         const sanitizeAuthingText = () => {
           try {
-            const root = document.getElementById('authing_guard_container')
-              || document.querySelector('.authing-ant-modal-root')
-              || document.querySelector('.authing-guard-container');
-            if (!root) return;
-            root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
-              .forEach((el) => {
-                if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
-                  el.textContent = el.textContent.replace(/undefinedundefined/g, '');
-                }
-              });
+            const roots: HTMLElement[] = [];
+            document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, .authing-ant-modal, #authing-guard-container-v4')
+              .forEach((el) => roots.push(el as HTMLElement));
+            const idRoot = document.getElementById('authing_guard_container');
+            if (idRoot && !roots.includes(idRoot)) roots.push(idRoot);
+
+            const re = /undefined\s*undefined/gi;
+            const sanitizeRoot = (root: HTMLElement) => {
+              const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+              let n: Node | null;
+              while (n = walker.nextNode()) {
+                const t = n as Text;
+                if (t.nodeValue && re.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(re, '');
+              }
+              root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+                .forEach((el) => {
+                  if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                    el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                  }
+                });
+            };
+            roots.forEach((r) => sanitizeRoot(r));
           } catch {}
         };
         setTimeout(sanitizeAuthingText, 0);
@@ -889,16 +934,28 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
           const sanitizeAuthingText = () => {
             try {
-              const root = document.getElementById('authing_guard_container')
-                || document.querySelector('.authing-ant-modal-root')
-                || document.querySelector('.authing-guard-container');
-              if (!root) return;
-              root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
-                .forEach((el) => {
-                  if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
-                    el.textContent = el.textContent.replace(/undefinedundefined/g, '');
-                  }
-                });
+              const roots: HTMLElement[] = [];
+              document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, .authing-ant-modal, #authing-guard-container-v4')
+                .forEach((el) => roots.push(el as HTMLElement));
+              const idRoot = document.getElementById('authing_guard_container');
+              if (idRoot && !roots.includes(idRoot)) roots.push(idRoot);
+
+              const re = /undefined\s*undefined/gi;
+              const sanitizeRoot = (root: HTMLElement) => {
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+                let n: Node | null;
+                while (n = walker.nextNode()) {
+                  const t = n as Text;
+                  if (t.nodeValue && re.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(re, '');
+                }
+                root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+                  .forEach((el) => {
+                    if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                      el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                    }
+                  });
+              };
+              roots.forEach((r) => sanitizeRoot(r));
             } catch {}
           };
           setTimeout(sanitizeAuthingText, 0);
@@ -946,16 +1003,28 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
         const sanitizeAuthingText = () => {
           try {
-            const root = document.getElementById('authing_guard_container')
-              || document.querySelector('.authing-ant-modal-root')
-              || document.querySelector('.authing-guard-container');
-            if (!root) return;
-            root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
-              .forEach((el) => {
-                if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
-                  el.textContent = el.textContent.replace(/undefinedundefined/g, '');
-                }
-              });
+            const roots: HTMLElement[] = [];
+            document.querySelectorAll('#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, .authing-ant-modal, #authing-guard-container-v4')
+              .forEach((el) => roots.push(el as HTMLElement));
+            const idRoot = document.getElementById('authing_guard_container');
+            if (idRoot && !roots.includes(idRoot)) roots.push(idRoot);
+
+            const re = /undefined\s*undefined/gi;
+            const sanitizeRoot = (root: HTMLElement) => {
+              const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+              let n: Node | null;
+              while (n = walker.nextNode()) {
+                const t = n as Text;
+                if (t.nodeValue && re.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(re, '');
+              }
+              root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
+                .forEach((el) => {
+                  if (el && el.textContent && el.textContent.includes('undefinedundefined')) {
+                    el.textContent = el.textContent.replace(/undefinedundefined/g, '');
+                  }
+                });
+            };
+            roots.forEach((r) => sanitizeRoot(r));
           } catch {}
         };
         setTimeout(sanitizeAuthingText, 0);

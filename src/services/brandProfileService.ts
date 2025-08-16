@@ -414,13 +414,13 @@ class BrandProfileService {
    * 获取平台策略
    * @param platform 平台名称
    */
-  public async getPlatformStrategy(platform: string): Promise<any> {
+  public async getPlatformStrategy(platform: keyof BrandProfile['platformStrategies'] | string): Promise<any> {
     const profile = await this.getCurrentProfile();
     if (!profile || !profile.platformStrategies) {
       return null;
     }
 
-    return profile.platformStrategies[platform as string] || null;
+    return (profile.platformStrategies as any)?.[platform as string] || null;
   }
 
   /**
@@ -428,7 +428,7 @@ class BrandProfileService {
    * @param platform 平台名称
    * @param strategy 平台策略
    */
-  public async updatePlatformStrategy(platform: string, strategy: any): Promise<void> {
+  public async updatePlatformStrategy(platform: keyof BrandProfile['platformStrategies'] | string, strategy: any): Promise<void> {
     const profile = await this.getCurrentProfile();
     if (!profile) {
       throw new Error('未设置品牌档案');
@@ -436,9 +436,9 @@ class BrandProfileService {
 
     // 更新平台策略
     if (!profile.platformStrategies) {
-      profile.platformStrategies = {};
+      (profile as any).platformStrategies = {};
     }
-    profile.platformStrategies[platform as string] = strategy;
+    (profile.platformStrategies as any)[platform as string] = strategy;
     profile.updatedAt = new Date();
 
     // 保存更新

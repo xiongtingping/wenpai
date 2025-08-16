@@ -19,5 +19,13 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "src/**/*.backup.*",
+    "src/**/*.old.*",
+    "src/**/final-*.js",
+    "src/**/verify-*.js",
+    "src/**/debug-*.js",
+    "**/*.md"
+  ]
 }

@@ -743,21 +743,26 @@ function MarketingCalendar() {
       // 3. 应用用户选择的排序方式
       let comparison = 0;
       switch (sortBy) {
-        case 'priority':
-          const priorityOrder = { high: 3, medium: 2, low: 1 };
-          comparison = priorityOrder[b.priority] - priorityOrder[a.priority];
+        case 'priority': {
+          const priorityOrder = { high: 3, medium: 2, low: 1 } as const;
+          comparison = (priorityOrder[b.priority as keyof typeof priorityOrder] || 0) - (priorityOrder[a.priority as keyof typeof priorityOrder] || 0);
           break;
-        case 'date':
+        }
+        case 'date': {
           comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
           break;
-        case 'created':
+        }
+        case 'created': {
           comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
           break;
-        case 'title':
+        }
+        case 'title': {
           comparison = a.title.localeCompare(b.title);
           break;
-        default:
+        }
+        default: {
           comparison = a.order - b.order;
+        }
       }
 
       return sortDirection === 'asc' ? comparison : -comparison;

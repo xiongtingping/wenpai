@@ -10,14 +10,15 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  FileText, 
-  CheckCircle, 
-  XCircle, 
-  Loader2, 
-  Play, 
+import {
+  FileText,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Play,
   Download,
   RefreshCw
+, Upload
 } from 'lucide-react';
 
 import FileFormatTester, { FileFormatTestResult } from '@/utils/fileFormatTester';
@@ -63,9 +64,9 @@ export default function FileFormatTestPage() {
         try {
           const result = await tester.testSingleFormat(format);
           results.push(result);
-          
+
           // 实时更新结果
-          setTestResults(prev => prev.map(r => 
+          setTestResults(prev => prev.map(r =>
             r.extension === result.extension ? result : r
           ));
 
@@ -187,7 +188,7 @@ export default function FileFormatTestPage() {
             测试和验证所有支持的文件格式是否能正常解析内容
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             onClick={resetTests}
@@ -197,7 +198,7 @@ export default function FileFormatTestPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             重置
           </Button>
-          
+
           <Button
             onClick={downloadReport}
             variant="outline"
@@ -206,7 +207,7 @@ export default function FileFormatTestPage() {
             <Download className="h-4 w-4 mr-2" />
             下载报告
           </Button>
-          
+
           <Button
             onClick={runAllTests}
             disabled={isRunning}
@@ -331,21 +332,21 @@ export default function FileFormatTestPage() {
             <p className="text-xs text-muted-foreground">总计格式</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold text-foreground">{successCount}</div>
             <p className="text-xs text-muted-foreground">成功解析</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold text-destructive">{errorCount}</div>
             <p className="text-xs text-muted-foreground">解析失败</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold text-primary">
@@ -390,14 +391,14 @@ export default function FileFormatTestPage() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   {result.contentLength && (
                     <Badge variant="secondary">
                       {result.contentLength} 字符
                     </Badge>
                   )}
-                  
+
                   {result.testStatus === 'success' && (
                     <CheckCircle className="h-5 w-5 text-foreground" />
                   )}

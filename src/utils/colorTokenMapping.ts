@@ -114,7 +114,7 @@ export function replaceColorsInObject<T extends Record<string, any>>(obj: T): T 
   
   for (const key in result) {
     if (typeof result[key] === 'string' && result[key].startsWith('#')) {
-      result[key] = mapColorToToken(result[key]);
+      result[key] = mapColorToToken(result[key] as string) as any;
     } else if (typeof result[key] === 'object' && result[key] !== null) {
       result[key] = replaceColorsInObject(result[key]);
     }

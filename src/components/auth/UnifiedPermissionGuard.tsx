@@ -27,9 +27,13 @@ export type PermissionType =
   | 'tier:pro'               // 专业版权限
   | 'tier:premium'           // 高级版权限
   | 'feature:creative-studio' // 创意魔方功能
-  | 'feature:brand-library'   // 品牌库功能
-  | 'feature:unlimited-usage' // 无限使用功能
-  | 'feature:advanced-models' // 高级模型功能
+  | 'feature:creative-cube'    // 创意魔方-九宫格
+  | 'feature:marketing-calendar' // 营销日历
+  | 'feature:wechat-templates' // 微信朋友圈文案模板
+  | 'feature:emoji-generator'  // Emoji生成功能
+  | 'feature:brand-library'    // 品牌库功能
+  | 'feature:unlimited-usage'  // 无限使用功能
+  | 'feature:advanced-models'  // 高级模型功能
   | 'theme:basic'            // 基础主题
   | 'theme:advanced'         // 高级主题
   | 'theme:premium';         // 专业主题
@@ -58,6 +62,8 @@ interface UnifiedPermissionGuardProps {
   disableInteraction?: boolean;
   /** 自定义升级URL */
   upgradeUrl?: string;
+  /** 允许预览模式（覆盖层可见但禁用交互） */
+  allowPreview?: boolean;
 }
 
 /**
@@ -68,16 +74,16 @@ const getUserTier = (user: any): SubscriptionTier => {
   if (user?.subscription?.tier) {
     return user.subscription.tier;
   }
-  
+
   // 从用户VIP等级推断
   if (user?.vipLevel === 'premium') return 'premium';
   if (user?.vipLevel === 'pro') return 'pro';
   if (user?.isVip) return 'pro';
-  
+
   // 从权限推断
   if (user?.permissions?.includes('tier:premium')) return 'premium';
   if (user?.permissions?.includes('tier:pro')) return 'pro';
-  
+
   // 默认为体验版
   return 'trial';
 };
@@ -125,6 +131,50 @@ const PERMISSION_CONFIGS = {
   'feature:creative-studio': {
     name: '创意魔方',
     description: 'AI驱动的创意内容生成工具',
+    requiredTier: 'pro' as SubscriptionTier,
+    check: (user: any) => {
+      if (!user) return false;
+      const userTier = getUserTier(user);
+      return userTier === 'pro' || userTier === 'premium';
+    },
+    redirectUrl: '/payment'
+  },
+  'feature:creative-cube': {
+    name: '九宫格创意魔方',
+    description: '快速生成多维度创意内容',
+    requiredTier: 'pro' as SubscriptionTier,
+    check: (user: any) => {
+      if (!user) return false;
+      const userTier = getUserTier(user);
+      return userTier === 'pro' || userTier === 'premium';
+    },
+    redirectUrl: '/payment'
+  },
+  'feature:marketing-calendar': {
+    name: '营销日历',
+    description: '节日热点和营销节点智能提醒',
+    requiredTier: 'pro' as SubscriptionTier,
+    check: (user: any) => {
+      if (!user) return false;
+      const userTier = getUserTier(user);
+      return userTier === 'pro' || userTier === 'premium';
+    },
+    redirectUrl: '/payment'
+  },
+  'feature:wechat-templates': {
+    name: '微信朋友圈文案模板',
+    description: '专业设计的社交媒体文案模板库',
+    requiredTier: 'pro' as SubscriptionTier,
+    check: (user: any) => {
+      if (!user) return false;
+      const userTier = getUserTier(user);
+      return userTier === 'pro' || userTier === 'premium';
+    },
+    redirectUrl: '/payment'
+  },
+  'feature:emoji-generator': {
+    name: 'Emoji生成器',
+    description: 'AI生成专属表情符号',
     requiredTier: 'pro' as SubscriptionTier,
     check: (user: any) => {
       if (!user) return false;
@@ -298,18 +348,20 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
     }
   }, [user?.registrationDate]);
 
-  // 获取权限配置
+  // 获取权限配置（提供安全回退以避免条件性Hooks）
   const permissionConfig = PERMISSION_CONFIGS[requiredPermission];
-  
-  if (!permissionConfig) {
-    console.warn(`未找到权限配置: ${requiredPermission}`);
-    return <>{children}</>;
-  }
+  const effectivePermissionConfig = permissionConfig || {
+    name: featureName || '功能访问',
+    description: description || '默认允许访问',
+    requiredTier: 'trial' as SubscriptionTier,
+    check: () => true,
+    redirectUrl: '/payment'
+  };
 
   // 检查权限
   const hasPermission = useMemo(() => {
-    return permissionConfig.check(user);
-  }, [user, permissionConfig]);
+    return effectivePermissionConfig.check(user);
+  }, [user, effectivePermissionConfig]);
 
   // 获取用户当前等级
   const userTier = useMemo(() => {
@@ -318,7 +370,7 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
   }, [user, isAuthenticated]);
 
   // 获取所需等级信息
-  const requiredTierInfo = getTierInfo(permissionConfig.requiredTier);
+  const requiredTierInfo = getTierInfo(effectivePermissionConfig.requiredTier);
   const currentTierInfo = getTierInfo(userTier);
 
   // 处理升级 - 直接跳转到支付页面
@@ -412,9 +464,14 @@ export const UnifiedPermissionGuard: React.FC<UnifiedPermissionGuardProps> = ({
               <PermissionText type="description" size="sm" className="mb-3">
                 {description || permissionConfig.description}
               </PermissionText>
-              <Badge className={`text-xs px-2 py-1 ${requiredTierInfo.color}`}>
-                需要 {requiredTierInfo.name} 或更高版本
-              </Badge>
+              <div className="flex flex-col items-center gap-2">
+                <Badge className={`text-xs px-3 py-1.5 ${requiredTierInfo.color} font-semibold`}>
+                  {requiredTierInfo.name}/高级版专属功能
+                </Badge>
+                <p className="text-xs text-muted-foreground text-center">
+                  升级解锁，享受更多高级功能
+                </p>
+              </div>
             </div>
 
             {/* 定价方案卡片 */}
@@ -586,7 +643,7 @@ export const useUnifiedPermission = (requiredPermission: PermissionType) => {
 
   return useMemo(() => {
     const permissionConfig = PERMISSION_CONFIGS[requiredPermission];
-    
+
     if (!permissionConfig) {
       console.warn(`未找到权限配置: ${requiredPermission}`);
       return {
@@ -600,7 +657,7 @@ export const useUnifiedPermission = (requiredPermission: PermissionType) => {
 
     const userTier = getUserTier(user);
     const hasPermission = permissionConfig.check(user);
-    
+
     return {
       hasPermission,
       userTier,

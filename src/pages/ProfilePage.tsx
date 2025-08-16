@@ -317,7 +317,7 @@ export default function ProfilePage() {
           // 显示错误提示
           toast({
             title: "同步失败",
-            description: `无法同步到Authing服务器: ${error.message}`,
+            description: `无法同步到Authing服务器: ${(error as any)?.message ?? String(error)}`,
             variant: "destructive"
           });
 
@@ -532,7 +532,7 @@ export default function ProfilePage() {
         if (result.success && result.avatarUrl) {
           setProfileForm(prev => ({
             ...prev,
-            avatar: result.avatarUrl
+            avatar: result.avatarUrl || prev.avatar
           }));
           setHasUnsavedChanges(true);
 

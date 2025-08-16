@@ -16,7 +16,7 @@ class ProductionEnvChecker {
   private checkResults: EnvCheckResult[] = [];
 
   constructor() {
-    this.isProduction = import.meta.env.PROD || 
+    this.isProduction = !!(import.meta as any).env?.PROD ||
                        window.location.hostname !== 'localhost';
 
     if (this.isProduction) {
@@ -66,11 +66,11 @@ class ProductionEnvChecker {
     ];
 
     authingChecks.forEach(check => {
-      const isValid = check.validator(check.value || '');
+      const isValid = !!check.validator((check.value as string) || '');
       this.checkResults.push({
         key: check.key,
-        value: check.value || 'undefined',
-        isValid,
+        value: (check.value as string) || 'undefined',
+        isValid: !!isValid,
         issue: !isValid ? '配置无效或包含 undefined' : undefined,
         suggestion: !isValid ? '检查 Netlify 环境变量配置' : undefined
       });

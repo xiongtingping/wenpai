@@ -266,12 +266,11 @@ export class UndefinedConcatDetector {
     const walker = document.createTreeWalker(
       element,
       NodeFilter.SHOW_TEXT,
-      null,
-      false,
+      null
     );
-    
-          let node;
-      while ((node = walker.nextNode()) !== null) {
+
+    let node: Node | null;
+    while ((node = walker.nextNode() as Node | null) !== null) {
       if (node.textContent?.includes('undefinedundefined')) {
         console.warn('🚨 检测到 undefined 拼接:', {
           element: node.parentElement,

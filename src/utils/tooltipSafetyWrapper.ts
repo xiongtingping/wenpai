@@ -10,7 +10,7 @@ import React from 'react';
 import { SafeTooltip } from '@/components/ui/SafeTooltip';
 
 // ✅ 原始Tooltip组件的引用缓存
-let originalTooltipComponents: any = null;
+const originalTooltipComponents: Record<string, unknown> | null = null;
 
 /**
  * Tooltip安全包装器 - 透明替换原始Tooltip
@@ -26,7 +26,7 @@ export const createSafeTooltipWrapper = (OriginalTooltip: any) => {
       ];
       
       return dangerousPatterns.some(pattern => 
-        props.hasOwnProperty(pattern) && 
+        Object.prototype.hasOwnProperty.call(props, pattern) &&
         typeof props[pattern] === 'function'
       );
     }, [props]);
@@ -34,19 +34,17 @@ export const createSafeTooltipWrapper = (OriginalTooltip: any) => {
     // ✅ 如果检测到危险props，使用SafeTooltip
     if (hasDangerousProps) {
       console.log('🛡️ TooltipSafetyWrapper: 检测到危险props，使用SafeTooltip');
-      return React.createElement(SafeTooltip, {
-        ...props,
-        ref
-      });
+      return React.createElement(SafeTooltip as any, {
+        ...props
+      } as any);
     }
     
     // ✅ 否则使用原始Tooltip，但添加安全监控
-    return React.createElement(OriginalTooltip, {
-      ...props,
-      ref,
+    return React.createElement(OriginalTooltip as any, {
+      ...(props as any),
       // 添加安全的onOpenChange处理
       onOpenChange: props.onOpenChange ? createSafeOpenChangeHandler(props.onOpenChange) : undefined
-    });
+    } as any);
   });
 };
 
@@ -202,8 +200,8 @@ export const emergencyTooltipFix = () => {
   console.warn('🚨 TooltipSafetyWrapper: 执行紧急Tooltip修复');
   
   // 清理所有Tooltip相关的定时器
-  const highestTimeoutId = setTimeout(() => {}, 0);
-  for (let i = 0; i < highestTimeoutId; i++) {
+  const highestTimeoutId = (setTimeout(() => {}, 0) as unknown) as number;
+  for (let i = 0; i < (highestTimeoutId as number); i++) {
     clearTimeout(i);
   }
   

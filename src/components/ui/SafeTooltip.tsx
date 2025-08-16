@@ -19,28 +19,29 @@ const RESET_INTERVAL = 1000; // 1秒后重置计数
 /**
  * 安全的ref处理函数 - 防止无限循环
  */
-const createSafeRef = (componentId: string) => {
+// ✅ 转换为自定义Hook，符合 Hooks 规则
+const useSafeRef = (componentId: string) => {
   return useCallback((node: HTMLElement | null) => {
     const now = Date.now();
     const lastTimestamp = refCallTimestamps.get(componentId) || 0;
-    
+
     // 如果距离上次调用超过重置间隔，重置计数
     if (now - lastTimestamp > RESET_INTERVAL) {
       refCallCounts.set(componentId, 0);
     }
-    
+
     const currentCount = refCallCounts.get(componentId) || 0;
-    
+
     // 检测无限循环
     if (currentCount >= MAX_REF_CALLS) {
       console.warn(`🚨 SafeTooltip: 检测到ref无限循环，组件ID: ${componentId}`);
       return; // 阻止进一步的ref调用
     }
-    
+
     // 更新计数和时间戳
     refCallCounts.set(componentId, currentCount + 1);
     refCallTimestamps.set(componentId, now);
-    
+
     // 正常处理ref
     if (node) {
       // 这里可以添加必要的DOM操作
@@ -79,7 +80,7 @@ export const SafeTooltip: React.FC<SafeTooltipProps> = React.memo(({
   }, []);
   
   // ✅ 创建安全的ref处理函数
-  const safeRef = createSafeRef(componentId);
+  const safeRef = useSafeRef(componentId);
   
   // ✅ 防抖状态管理
   const [isOpen, setIsOpen] = React.useState(false);

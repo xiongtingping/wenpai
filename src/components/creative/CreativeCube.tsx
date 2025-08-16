@@ -247,7 +247,11 @@ function DimensionCard({
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          isPinned ? onUnpinItem(item) : onPinItem(item);
+                          if (isPinned) {
+                            onUnpinItem(item);
+                          } else {
+                            onPinItem(item);
+                          }
                         }}
                       >
                         📌
@@ -303,7 +307,11 @@ function DimensionCard({
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        isPinned ? onUnpinItem(item) : onPinItem(item);
+                        if (isPinned) {
+                          onUnpinItem(item);
+                        } else {
+                          onPinItem(item);
+                        }
                       }}
                     >
                       📌
@@ -1074,7 +1082,7 @@ export function CreativeCube() {
     console.log('🎲 可用的dimensions数组:', dimensions.map(d => ({ id: d.id, name: d.name, itemCount: d.defaultItems.length })));
 
     // 直接构建维度选择，确保包含所有必选维度
-    let selectedDimensionIds: string[] = [...coreRequiredDimensions];
+    const selectedDimensionIds: string[] = [...coreRequiredDimensions];
     console.log('🎲 首先添加必选维度:', selectedDimensionIds);
 
     // 添加已固定的维度（如果不在必选维度中）

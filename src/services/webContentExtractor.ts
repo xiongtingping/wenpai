@@ -186,7 +186,7 @@ export class WebContentExtractorService {
     const asset: BrandAsset = {
       id: extractionResult.id,
       name: extractionResult.title,
-      type: 'web-content',
+      type: 'document', // 归入现有的 BrandAssetType 范畴
       content: extractionResult.content,
       extractedContent: this.formatExtractedContent(extractionResult),
       uploadDate: new Date(extractionResult.extractedAt),
@@ -197,14 +197,8 @@ export class WebContentExtractorService {
       description: extractionResult.metadata.description || `从 ${extractionResult.metadata.domain} 提取的网页内容`,
       category: category,
       processingStatus: extractionResult.brandAnalysis ? 'completed' : 'pending',
-      extractedKeywords: extractionResult.brandAnalysis?.brandKeywords || extractionResult.metadata.keywords || [],
-      metadata: {
-        sourceUrl: extractionResult.url,
-        domain: extractionResult.metadata.domain,
-        extractedAt: extractionResult.extractedAt,
-        wordCount: extractionResult.metadata.wordCount,
-        charCount: extractionResult.metadata.charCount
-      }
+      extractedKeywords: extractionResult.brandAnalysis?.brandKeywords || extractionResult.metadata.keywords || []
+
     };
 
     return asset;

@@ -410,11 +410,11 @@ ${platformStrategy}`;
    * @returns 平台策略字符串
    */
   private getPlatformStrategy(profile: BrandProfile, platform: string): string {
-    if (!profile.platformStrategies || !profile.platformStrategies[platform as string]) {
+    if (!profile.platformStrategies || !(profile.platformStrategies as any)[platform as string]) {
       return '';
     }
 
-    const strategy = profile.platformStrategies[platform as string];
+    const strategy = (profile.platformStrategies as any)[platform as string];
     const parts: string[] = [];
 
     if (strategy.tone) {

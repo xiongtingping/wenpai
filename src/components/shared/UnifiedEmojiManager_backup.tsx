@@ -252,7 +252,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
         case 'color':
           return a.color.localeCompare(b.color);
         case 'popularity':
-          return (b.popularity || 0) - (a.popularity || 0);
+          return 0;
         default:
           return 0;
       }

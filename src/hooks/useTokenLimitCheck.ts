@@ -83,7 +83,7 @@ export function useTokenLimitCheck() {
         limitType,
         stats: result.stats,
         reason: result.reason,
-        suggestedAction: result.suggestedAction
+        suggestedAction: (result as any).suggestedAction
       };
       
       setLimitCheckResult(checkResult);

@@ -63,7 +63,7 @@ const CallbackPage: React.FC = () => {
             navigate('/', { replace: true });
             return;
           }
-        } catch {}
+        } catch { /* noop */ }
 
         
         // 获取 URL 参数

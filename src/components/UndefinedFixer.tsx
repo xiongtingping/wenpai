@@ -49,8 +49,8 @@ export const getUserDisplayName = (user: any): string => {
 
 // 全局字符串拦截器
 const originalStringify = JSON.stringify;
-JSON.stringify = function(value: any, replacer?: ((this: any, key: string, value: any) => any) | (string | number)[] | null, space?: string | number) {
-  const result = originalStringify.call(this, value, replacer, space);
+JSON.stringify = function(value: any, replacer?: ((this: any, key: string, value: any) => any) | Array<string | number> | null, space?: string | number) {
+  const result = (originalStringify as any).call(this, value, replacer as any, space as any);
   if (result && result.includes('undefinedundefined')) {
     console.warn('🛠️ JSON.stringify 产生了 undefinedundefined，已修复');
     return result.replace(/undefinedundefined/g, '');
@@ -87,8 +87,9 @@ export const UndefinedFixer: React.FC<{ children: React.ReactNode }> = ({ childr
       );
 
       const textNodes = [];
-      let node;
-      while (node = walker.nextNode()) {
+      let node: Node | null;
+      // 使用赋值表达式需要显式判断
+      while ((node = walker.nextNode())) {
         textNodes.push(node);
       }
 

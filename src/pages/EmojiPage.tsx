@@ -253,11 +253,10 @@ const EmojiPage: React.FC = () => {
       const response = await callAI({
         prompt: `请为以下内容推荐合适的表情符号：\n\n${contentContext}\n\n请推荐5-10个相关的表情符号，并说明推荐理由。`
       });
-      
-      const responseData = response as unknown as Record<string, unknown>;
-      const choices = responseData?.data as Record<string, unknown>;
-      if (response.success && choices?.choices?.[0]?.message?.content) {
-        const content = choices.choices[0].message.content;
+
+      const responseData = response as unknown as { success?: boolean; data?: { choices?: Array<{ message?: { content?: string } }> } };
+      const content = responseData?.data?.choices?.[0]?.message?.content;
+      if (responseData?.success && content) {
         
         // 提取推荐的emoji
         const emojiMatch = content.match(/推荐emoji[:：]\s*(.+?)(?:\n|推荐理由|$)/i);

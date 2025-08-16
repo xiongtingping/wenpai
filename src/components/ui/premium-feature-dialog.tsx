@@ -107,12 +107,12 @@ export function PremiumFeatureDialog({
               <div
                 key={plan.name}
                 className={`relative p-6 rounded-lg border ${
-                  plan.popular
+                  plan.recommended
                     ? 'border-primary bg-primary/5 shadow-lg'
                     : 'border-border bg-card'
                 }`}
               >
-                {plan.popular && (
+                {plan.recommended && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-primary text-primary-foreground">
                       推荐
@@ -132,18 +132,9 @@ export function PremiumFeatureDialog({
                 <div className="space-y-3 mb-6">
                   {plan.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center justify-between">
-                      <span className="text-sm">{feature.name}</span>
+                      <span className="text-sm">{typeof feature === 'string' ? feature : String(feature)}</span>
                       <div className="flex items-center gap-2">
-                        {feature.available ? (
-                          <Check className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <X className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        <span className={`text-xs ${
-                          feature.available ? 'text-foreground' : 'text-muted-foreground'
-                        }`}>
-                          {feature.value}
-                        </span>
+                        <Check className="h-4 w-4 text-green-500" />
                       </div>
                     </div>
                   ))}

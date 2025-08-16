@@ -78,7 +78,7 @@ class EmergencyProductionFixer {
 
     const problematicNodes: Text[] = [];
     let node;
-    while (node = walker.nextNode()) {
+    while ((node = walker.nextNode())) {
       const textContent = node.textContent || '';
       if (textContent.includes('undefinedundefined') ||
           textContent.includes('undefined') && textContent.length < 50) {
@@ -132,7 +132,7 @@ class EmergencyProductionFixer {
         );
 
         let textNode;
-        while (textNode = walker.nextNode()) {
+        while ((textNode = walker.nextNode())) {
           if (textNode.textContent?.includes('undefinedundefined')) {
             textNode.textContent = textNode.textContent.replace(/undefinedundefined/g, '用户');
           }

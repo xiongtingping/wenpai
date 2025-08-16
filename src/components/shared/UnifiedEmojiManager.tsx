@@ -211,7 +211,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
     // 加载使用次数
     const savedUsage = localStorage.getItem('emoji-usage-counts');
     if (savedUsage) {
-      try { setUsageCounts(JSON.parse(savedUsage)); } catch {}
+      try { setUsageCounts(JSON.parse(savedUsage)); } catch { /* noop */ }
     }
 
     updateDisplayEmojis();
@@ -476,7 +476,7 @@ const UnifiedEmojiManager: React.FC<UnifiedEmojiManagerProps> = ({
       // 记录一次使用（用于“按热度”）
       const next = { ...usageCounts, [emoji.id]: (usageCounts[emoji.id] || 0) + 1 };
       setUsageCounts(next);
-      try { localStorage.setItem('emoji-usage-counts', JSON.stringify(next)); } catch {}
+      try { localStorage.setItem('emoji-usage-counts', JSON.stringify(next)); } catch { /* noop */ }
 
       // 更明显的成功提示
       toast({

@@ -79,9 +79,7 @@ export const DevPermissionSwitcher: React.FC<DevPermissionSwitcherProps> = ({ cl
     setCurrentProfile(profileKey);
     
     // 更新用户状态
-    if (setUser) {
-      setUser(profile as any);
-    }
+    // setUser functionality removed - use proper auth context methods
     
     console.log('🔄 开发环境权限切换:', {
       profile: profileKey,

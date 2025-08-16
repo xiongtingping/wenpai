@@ -63,15 +63,14 @@ export class TitleGenerationService implements ITitleGenerationService {
       concurrency: input.concurrency || 2
     });
 
-    let result: TitleGenerationResult | null = null;
+    // 消费进度但不保留中间结果
     for await (const progress of generator) {
-      // 这里可以添加进度回调
       console.log(`流式生成进度: ${progress.progress}% - ${progress.message}`);
     }
 
-    // 获取最终结果
-    const finalResult = await generator.return(undefined);
-    return finalResult.value!;
+    // 生成器声明的返回类型为 TitleGenerationResult，直接 return 即可
+    const final = await generator.return(undefined as unknown as TitleGenerationResult);
+    return final.value as TitleGenerationResult;
   }
 
   /**

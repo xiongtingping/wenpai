@@ -4,6 +4,7 @@
  */
 
 import { callAI, callAIWithRetry } from '@/api/ai';
+import type { AICallParams } from '@/api/ai';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import { concurrencyManager } from './ConcurrencyManager';
 import type {
@@ -29,7 +30,7 @@ export class AIService implements IAIService {
   private initializeModels(): void {
     const config = TitleGenerationConfig.aiService;
     this.availableModels = [config.primaryModel, ...config.fallbackModels];
-    
+
     // 初始化模型状态
     this.availableModels.forEach(model => {
       this.modelStatus.set(model, true);
@@ -171,12 +172,11 @@ export class AIService implements IAIService {
   ): Promise<any> {
     const config = TitleGenerationConfig.aiService;
 
-    const callParams = {
+    const callParams: AICallParams = {
       prompt,
-      model,
+      model: model as any,
       temperature: options.temperature ?? config.temperature,
-      maxTokens: options.maxTokens ?? config.maxTokens,
-      timeout: options.timeout ?? config.timeout
+      maxTokens: options.maxTokens ?? config.maxTokens
     };
 
     // 根据模型选择调用方式
@@ -199,11 +199,11 @@ export class AIService implements IAIService {
 
     try {
       // 发送简单的测试请求
-      await this.callSingleModel(model, '测试', { 
-        maxTokens: 10, 
-        timeout: 5000 
+      await this.callSingleModel(model, '测试', {
+        maxTokens: 10,
+        timeout: 5000
       });
-      
+
       this.modelStatus.set(model, true);
       return true;
     } catch (error) {
@@ -218,7 +218,7 @@ export class AIService implements IAIService {
    * 获取可用模型列表
    */
   getAvailableModels(): string[] {
-    return this.availableModels.filter(model => 
+    return this.availableModels.filter(model =>
       this.modelStatus.get(model) !== false
     );
   }
@@ -238,13 +238,13 @@ export class AIService implements IAIService {
    */
   getModelStats(): Record<string, { available: boolean; lastUsed?: number }> {
     const stats: Record<string, { available: boolean; lastUsed?: number }> = {};
-    
+
     this.availableModels.forEach(model => {
       stats[model] = {
         available: this.modelStatus.get(model) ?? false
       };
     });
-    
+
     return stats;
   }
 
@@ -252,14 +252,14 @@ export class AIService implements IAIService {
    * 构建标题生成提示词
    */
   buildTitleGenerationPrompt(
-    content: string, 
-    platform: string, 
-    styles: string[], 
+    content: string,
+    platform: string,
+    styles: string[],
     count: number
   ): string {
     const systemPrompt = this.getSystemPrompt();
     const userPrompt = this.getUserPrompt(content, platform, styles, count);
-    
+
     return `${systemPrompt}\n\n${userPrompt}`;
   }
 

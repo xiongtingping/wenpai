@@ -98,7 +98,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
     }
 
     // 时间相同时按热度排序
-    return (b.hot || 0) - (a.hot || 0);
+    return (parseInt(b.hot as string) || 0) - (parseInt(a.hot as string) || 0);
   });
 
   const displayResults = sortedResults.slice(0, maxResults);
@@ -162,7 +162,7 @@ export const SubscriptionMasonryCard: React.FC<SubscriptionMasonryCardProps> = (
               <Switch
                 checked={subscription.isActive}
                 onCheckedChange={(checked) => onToggle(subscription.id, checked)}
-                size="sm"
+                className="h-5 w-9"
               />
               <span className="text-sm font-medium">
                 {subscription.isActive ? '运行中' : '已暂停'}

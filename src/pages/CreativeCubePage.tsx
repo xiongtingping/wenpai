@@ -87,7 +87,7 @@ const CreativeCubePage: React.FC = () => {
         featureName="创意魔方"
         requiredPermission="creative:basic"
         requiredTier="pro"
-        description="创意魔方是专业版功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
+        description="创意魔方是专业版/高级版专属功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* 输入区域 */}

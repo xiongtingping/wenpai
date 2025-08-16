@@ -43,8 +43,8 @@ export default function CreemPaymentTestPage() {
       name: config.name,
       timestamp: new Date().toISOString(),
       success: false,
-      data: null,
-      error: null
+      data: null as any,
+      error: null as any
     };
 
     try {
@@ -71,8 +71,8 @@ export default function CreemPaymentTestPage() {
                       checkout.alipay_qr_code_url || 
                       (checkout.qrCodes && checkout.qrCodes.alipay);
       
-      if (alipayQr) {
-        result.data.qrCodeUrl = alipayQr;
+      if (alipayQr && result.data) {
+        (result.data as any).qrCodeUrl = alipayQr;
       }
       
     } catch (error: any) {

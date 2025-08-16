@@ -610,7 +610,7 @@ function ensureMinimumPerCategory(minCount = 100) {
       if (!seen.has(`${candidate.emoji}|${candidate.name}`)) {
         buckets[cat].push(candidate);
       }
-    } catch {}
+    } catch { /* noop */ }
   });
 
   // 逐类补齐
@@ -727,7 +727,7 @@ export function getAdaptiveEmojiSize(
 export function generateEmojiStyle(
   context: EmojiUsageContext,
   platform?: PlatformType,
-  customStyles?: Partial<EmojiSizeConfig>
+  customStyles?: Partial<EmojiSizeConfig> | React.CSSProperties
 ): React.CSSProperties {
   const config = getAdaptiveEmojiSize(context, platform);
 
@@ -741,7 +741,7 @@ export function generateEmojiStyle(
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    ...customStyles
+    ...(customStyles as React.CSSProperties)
   };
 }
 

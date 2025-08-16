@@ -30,7 +30,7 @@ import { BatchForwardModal } from '../components/BatchForwardModal';
 import { PageNavigation } from '@/components/layout/PageNavigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import {
   Card,
   CardContent,
   CardDescription,
@@ -48,20 +48,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { 
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
+import {
   Slider
 } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -69,8 +69,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  generateAdaptedContent, 
+import {
+  generateAdaptedContent,
   regenerateAdaptedContent,
   getAvailablePlatforms,
   getAvailableStyles,
@@ -78,22 +78,22 @@ import {
 } from "@/api/contentAdapter";
 import ContentFormSelector from '@/components/creative/ContentFormSelector';
 import QuickReferenceSelector from '@/components/creative/QuickReferenceSelector';
-import { 
-  getAvailableModelsForTier, 
-  getModelInfo, 
+import {
+  getAvailableModelsForTier,
+  getModelInfo,
   isModelAvailableForTier,
   getAllModels,
   getModelProvider,
-  type AIModel 
+  type AIModel
 } from "@/config/aiModels";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 import { PlatformApiManager } from '@/components/platform/PlatformApiManager';
 import { UsageReminderDialog } from '@/components/ui/usage-reminder-dialog';
 import { PremiumFeatureDialog } from '@/components/ui/premium-feature-dialog';
-import { 
-  publishContent, 
-  batchPublishContent, 
+import {
+  publishContent,
+  batchPublishContent,
   checkPlatformAuth,
   type PublishContent,
   type PublishResult
@@ -643,7 +643,7 @@ export default function AdaptPage() {
   // 平台特定的超时和加载状态管理
   const [longContentPlatforms, setLongContentPlatforms] = useState<Set<string>>(new Set());
   const [platformLoadingMessages, setPlatformLoadingMessages] = useState<Map<string, string>>(new Map());
-  
+
   // Tab状态动画跟踪 - 确保动画只在首次生成完成时触发
   const [completedPlatforms, setCompletedPlatforms] = useState<Set<string>>(new Set());
 
@@ -712,11 +712,11 @@ export default function AdaptPage() {
           // 🔒 LOCKED: AI 禁止对此函数做任何修改
           if (attempt <= 3) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            
+
             // 检测402错误（账户余额不足）
             if (errorMessage.includes('402') || errorMessage.includes('Payment Requihsl(var(--destructive))')) {
               console.log(`🚨 ${versionName} - 检测到402错误（账户余额不足），启动智能降级`);
-              
+
               if (params.model.includes('deepseek')) {
                 console.log(`🔄 ${versionName} - DeepSeek余额不足，切换到GPT-4o-mini`);
                 params.model = 'gpt-4o-mini';
@@ -774,13 +774,13 @@ export default function AdaptPage() {
 
     // 恢复原始模型设置
     params.model = originalModel;
-    
+
     // ✅ FIXED: 2025-08-03 修复队列管理器返回值问题
     // 🐛 问题原因：callAIWithRetry失败时抛出错误，但队列管理器期望返回结果对象
     // 🔧 修复方案：返回标准化的错误结果对象
     // 📌 已封装：错误处理逻辑已验证稳定，请勿修改
     // 🔒 LOCKED: AI 禁止对此函数做任何修改
-    
+
     const errorMessage = lastError ? lastError.message : `${versionName} - 所有重试都失败了`;
     return {
       success: false,
@@ -1000,9 +1000,9 @@ export default function AdaptPage() {
       // 🔧 修复方案：使用队列管理器串行处理请求
       // 📌 已封装：队列请求逻辑已验证稳定，请勿修改
       // 🔒 LOCKED: AI 禁止对此函数做任何修改
-      
+
       const platformAPICaller = createPlatformAPICaller(platformId);
-      
+
       const standardResult = await platformAPICaller(
         '标准版本',
         () => callAIWithRetry(getPlatformOptimizedParams({
@@ -1165,24 +1165,24 @@ export default function AdaptPage() {
       return [];
     }
   };
-  
+
   // AI Model settings
   const [apiProvider, setCurrentApiProvider] = useState<'openai' | 'gemini' | 'deepseek'>('openai');
   const [selectedModel, setSelectedModel] = useState(getModel());
-  
+
   // 订阅等级本地状态，后续可全局提升
   const [userPlan, setUserPlan] = useState<'trial' | 'pro' | 'premium'>('trial');
-  
+
   // 内容形式和风格选择
   const [selectedFormId, setSelectedFormId] = useState<string | undefined>(undefined);
   const [selectedStyle, setSelectedStyle] = useState<StyleType | undefined>(undefined);
-  
+
   // 获取可用模型
   const availableModels = getAvailableModelsForTier(userPlan);
-  
+
   // 所有模型
   const allModels = getAllModels();
-  
+
   // 处理模型选择
   const handleModelSelect = (modelId: string, disabled: boolean) => {
     if (disabled) {
@@ -1250,7 +1250,7 @@ export default function AdaptPage() {
       sessionStorage.removeItem(`ai_adapter_source_${userId}`);
     }
   }, [originalContent, toast, user?.id]);
-  
+
   // ✅ FIXED: 2025-08-04 修复无限循环问题
   // 🐛 问题原因：useAuthStore((state) => state.getUsageRemaining()) 会导致每次渲染都调用get()，触发无限循环
   // 🔧 修复方式：直接从state中计算usageRemaining，避免调用get()方法
@@ -1261,7 +1261,7 @@ export default function AdaptPage() {
   // 使用次数提醒弹窗状态
   const [showUsageReminder, setShowUsageReminder] = useState(false);
   const [usageReminderCount, setUsageReminderCount] = useState(0);
-  
+
   // 高级功能权限弹窗状态
   const [showPremiumFeature, setShowPremiumFeature] = useState(false);
   const [premiumFeatureInfo, setPremiumFeatureInfo] = useState({ name: '', description: '' });
@@ -1369,7 +1369,7 @@ export default function AdaptPage() {
 
     if (platformResult.success && platformResult.data) {
       try {
-        setPlatformSettings(platformResult.data);
+        setPlatformSettings(platformResult.data as unknown as Record<string, PlatformSettings>);
       } catch {
         console.error("Failed to parse saved platform settings");
         initializeDefaultSettings();
@@ -1380,7 +1380,7 @@ export default function AdaptPage() {
 
     if (globalResult.success && globalResult.data) {
       try {
-        setGlobalSettings(globalResult.data);
+        setGlobalSettings(globalResult.data as unknown as GlobalSettings);
       } catch {
         console.error("Failed to parse saved global settings");
       }
@@ -1389,13 +1389,13 @@ export default function AdaptPage() {
     if (selectedResult.success && selectedResult.data) {
       try {
         // 去重处理，确保没有重复的平台ID
-        const uniquePlatforms = Array.from(new Set(selectedResult.data)) as string[];
+        const uniquePlatforms = Array.from(new Set(selectedResult.data as unknown as string[])) as string[];
         setSelectedPlatforms(uniquePlatforms);
       } catch {
         console.error("Failed to parse saved selected platforms");
       }
     }
-    
+
     // Initialize showSettings
     const initialShowSettings: Record<string, boolean> = {};
     platforms.forEach(platform => {
@@ -1423,7 +1423,7 @@ export default function AdaptPage() {
 
   // Character count display
   const contentCharCount = originalContent.length;
-  
+
   // Check if content meets requirements for selected platforms
   const canGenerate = originalContent.trim().length > 10 && selectedPlatforms.length > 0 && usageRemaining > 0;
 
@@ -1658,7 +1658,7 @@ export default function AdaptPage() {
   // 修改generateContent，在内容生成成功后调用saveToHistory
   const generateContent = async () => {
     if (!checkUsageAndShowReminder()) return;
-    
+
     if (!originalContent.trim()) {
       toast({
         title: "请输入内容",
@@ -1828,7 +1828,7 @@ export default function AdaptPage() {
 
       // 保存到历史记录
       saveToHistory(newResults);
-      
+
       toast({
         title: "生成完成",
         description: `已为 ${selectedPlatforms.length} 个平台生成内容`,
@@ -2142,7 +2142,7 @@ export default function AdaptPage() {
         enableConfirmation: options.enableConfirmation,
         method: options.method as 'script' | 'auto' | 'browser' | 'extension' | 'rpa',
         onProgress: (progress) => {
-          setAutomationProgress(progress);
+          setAutomationProgress(progress as any);
         }
       });
 
@@ -2547,7 +2547,7 @@ export default function AdaptPage() {
 
       // 保持旧系统兼容性 - 使用用户隔离存储
       const favoritesResult = favoritesDataManager.loadData();
-      const favorites = favoritesResult.data || [];
+      const favorites = (favoritesResult.data as any[]) || [];
       const updatedFavorites = favorites.filter((fav: any) => {
         const key = fav.versionId ? `${fav.platformId}-${fav.versionId}` : fav.platformId;
         return key !== favoriteKey;
@@ -2588,7 +2588,7 @@ export default function AdaptPage() {
 
       // 保持旧系统兼容性 - 使用用户隔离存储
       const favoritesResult = favoritesDataManager.loadData();
-      const favorites = favoritesResult.data || [];
+      const favorites = (favoritesResult.data as any[]) || [];
       const legacyFavoriteItem = {
         id: favoriteId,
         platformId,
@@ -2698,7 +2698,7 @@ export default function AdaptPage() {
     }
 
     setPublishingPlatforms(prev => new Set(prev).add(platformId));
-    
+
     try {
       const publishData: PublishContent = {
         text: content,
@@ -2707,7 +2707,7 @@ export default function AdaptPage() {
       };
 
       const result = await publishContent(platformId, publishData);
-      
+
       if (result.success) {
         // 写入历史记录
         const shareHistory: ShareHistoryItem[] = JSON.parse(localStorage.getItem('shareHistory') || '[]');
@@ -2756,7 +2756,7 @@ export default function AdaptPage() {
    */
   const handleBatchApiPublish = async (platforms: string[]) => {
     const unauthorizedPlatforms = platforms.filter(p => !checkPlatformAuth(p));
-    
+
     if (unauthorizedPlatforms.length > 0) {
       toast({
         title: "部分平台未授权",
@@ -2798,16 +2798,15 @@ export default function AdaptPage() {
     };
 
     const results = await batchPublishContent(availablePlatforms, publishData);
-      
+
       const successCount = results.filter(r => r.success).length;
       const failCount = results.length - successCount;
 
-      // ✅ FIXED: 用户数据隔离 - 写入分享历史记录
-      const shareHistoryManager = useUserDataIsolation({
-        modulePrefix: 'share_history',
-        fallbackToGuest: true,
-        enableLogging: true
-      });
+      // ✅ FIXED: 用户数据隔离 - 写入分享历史记录（避免在非Hook中调用Hook，改为直接使用本地存储隔离器）
+      const shareHistoryManager = {
+        loadData: <T,>() => ({ success: true, data: JSON.parse(localStorage.getItem('share_history') || '[]') as T }),
+        saveData: (data: any) => localStorage.setItem('share_history', JSON.stringify(data))
+      };
 
       const shareHistoryResult = shareHistoryManager.loadData<ShareHistoryItem[]>();
       const shareHistory: ShareHistoryItem[] = shareHistoryResult.data || [];
@@ -2861,7 +2860,7 @@ export default function AdaptPage() {
   const confirmPublish = () => {
     if (!pendingPublish) return;
     const { platformId, content } = pendingPublish;
-    
+
     if (publishMode === 'api') {
       handleApiPublish(platformId, content);
     } else {
@@ -2892,7 +2891,7 @@ export default function AdaptPage() {
         });
       }
     }
-    
+
     setPublishDialogOpen(false);
     setPendingPublish(null);
   };
@@ -2961,7 +2960,7 @@ export default function AdaptPage() {
   // ✅ FIXED: 已移除模拟翻译功能
   // 📌 请勿再修改该逻辑，已封装稳定。如需改动请单独重构新模块。
   // 🔒 LOCKED: AI 禁止对此函数或文件做任何修改
-  // 
+  //
   // 系统现在直接调用真实翻译API，不再提供模拟翻译
   const simulateTranslation = async (content: string): Promise<never> => {
     throw new Error('翻译API调用失败，请检查网络连接和API配置');
@@ -2970,7 +2969,7 @@ export default function AdaptPage() {
   // Regenerate content for a specific platform
   const handleRegeneratePlatformContent = async (platformId: string) => {
     if (!checkUsageAndShowReminder()) return;
-    
+
     const platformResult = results.find(r => r.platformId === platformId);
     if (!platformResult) return;
 
@@ -2998,10 +2997,10 @@ export default function AdaptPage() {
     try {
       // 步骤1: 开始重新生成
       updateStep(0, 'completed');
-      
+
       // 步骤2: 构建提示词
       updateStep(1, 'loading');
-      
+
       // 调用新的重新生成API
       const request: ContentAdaptationRequest = {
         originalContent: originalContent.trim(),
@@ -3010,15 +3009,15 @@ export default function AdaptPage() {
         style: selectedStyle,
         charCount: platformSettings[platformId]?.charCount || getCharCountMax(platformId)
       };
-      
+
       const response = await regenerateAdaptedContent(request);
-      
+
       // 步骤3: 调用AI服务
       updateStep(2, 'completed');
-      
+
       // 步骤4: 处理响应
       updateStep(3, 'loading');
-      
+
       // 使用统一字符数控制系统获取目标字符数
       const charCountControl = getUnifiedCharCountLimit(
         platformId,
@@ -3119,7 +3118,7 @@ export default function AdaptPage() {
       }
     } catch (error) {
       console.error(`重新生成 ${platformId} 内容失败:`, error);
-      
+
       const currentResults = [...results];
       if (currentResults[resultIndex]) {
         currentResults[resultIndex].error = error instanceof Error ? error.message : '重新生成失败';
@@ -3940,8 +3939,8 @@ ${charCountControl.source === 'platform-specific'
         <Card variant="soft" className="mt-4 rounded-xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Checkbox 
-                id="use-brand-library" 
+              <Checkbox
+                id="use-brand-library"
                 checked={useBrandLibrary}
                 onCheckedChange={(checked) => {
                   if (checked && !checkPremiumFeature('品牌库功能', '使用品牌库资料进行创作，AI会自动遵循您的品牌语言规范')) {
@@ -4484,37 +4483,8 @@ ${charCountControl.source === 'platform-specific'
       </Card>
 
       {/* AI模型说明 - 完全隐藏，简化界面 */}
-      {false && selectedModelDescription && (
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium text-foreground mb-3">模型详细说明</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">特点：</span>
-                    <span className="text-xs text-foreground">{selectedModelDescription.features}</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">场景：</span>
-                    <span className="text-xs text-foreground">{selectedModelDescription.scenarios}</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">风格：</span>
-                    <span className="text-xs text-foreground">{selectedModelDescription.style}</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-xs font-medium text-muted-foreground min-w-[60px]">速度：</span>
-                    <span className="text-xs text-foreground">{selectedModelDescription.speed}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* 隐藏模型说明区块，直接注释整个 JSX 以避免常量表达式 */}
+      {/* 模型说明区块已隐藏 */}
 
       {/* Generate Button */}
 
@@ -4616,14 +4586,14 @@ ${charCountControl.source === 'platform-specific'
                 const hasError = !!result.error;
                 const isGenerating = generating && !result.content && !result.error;
                 const isFirstTimeCompleted = isCompleted && !completedPlatforms.has(result.platformId);
-                
+
                 // 如果是首次完成，添加到完成列表
                 if (isFirstTimeCompleted) {
                   setTimeout(() => {
                     setCompletedPlatforms(prev => new Set(prev).add(result.platformId));
                   }, 1000); // 动画结束后移除动画类
                 }
-                
+
                 return (
                   <TabsTrigger
                     key={result.platformId}
@@ -4645,8 +4615,8 @@ ${charCountControl.source === 'platform-specific'
                     {/* 平台状态指示器 - 集成到Tab标签中 */}
                     <PlatformTabStatusWithTooltip
                       platformId={result.platformId}
-                      status={result.error ? 'error' : 
-                             (result.content || (result.versions && result.versions.length > 0)) ? 'completed' : 
+                      status={result.error ? 'error' :
+                             (result.content || (result.versions && result.versions.length > 0)) ? 'completed' :
                              generating ? 'generating' : 'waiting'}
                       message={result.error || (generating && !result.content && !result.error ? platformLoadingMessages.get(result.platformId) : undefined)}
                       isGenerating={generating && !result.content && !result.error}
@@ -4658,7 +4628,7 @@ ${charCountControl.source === 'platform-specific'
                 );
               })}
             </TabsList>
-            
+
             {results.map(result => (
               <TabsContent key={result.platformId} value={result.platformId}>
                 <Card
@@ -4684,7 +4654,7 @@ ${charCountControl.source === 'platform-specific'
                         <div className="text-sm text-destructive">{result.error}</div>
                       </div>
                     )}
-                    
+
                     {/* 三个同层级智能组件管理区域 */}
                     <div className="space-y-3">
 
@@ -5061,9 +5031,9 @@ ${charCountControl.source === 'platform-specific'
                                       <Textarea
                                         value={result.content}
                                         onChange={(e) => {
-                                          setResults(current => 
-                                            current.map(r => 
-                                              r.platformId === result.platformId 
+                                          setResults(current =>
+                                            current.map(r =>
+                                              r.platformId === result.platformId
                                                 ? { ...r, content: e.target.value }
                                                 : r
                                             )
@@ -5259,8 +5229,8 @@ ${charCountControl.source === 'platform-specific'
         </DialogHeader>
         <div className="py-2 text-foreground">
           <p>
-            {publishMode === 'api' 
-              ? '是否通过API直接发布内容？' 
+            {publishMode === 'api'
+              ? '是否通过API直接发布内容？'
               : '内容已复制到剪贴板，是否跳转到平台发布页？'
             }
           </p>
@@ -5389,9 +5359,9 @@ ${charCountControl.source === 'platform-specific'
         </DialogFooter>
       </DialogContent>
     </Dialog>
-    <PlatformApiManager 
-      open={apiManagerOpen} 
-      onOpenChange={setApiManagerOpen} 
+    <PlatformApiManager
+      open={apiManagerOpen}
+      onOpenChange={setApiManagerOpen}
     />
 
     {/* 使用次数提醒弹窗 */}

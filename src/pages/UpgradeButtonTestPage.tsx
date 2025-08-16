@@ -8,7 +8,7 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
  * 用于验证不同用户版本下"立即解锁高级功能"按钮的显示/隐藏逻辑
  */
 export default function UpgradeButtonTestPage() {
-  const { user, setUser } = useUnifiedAuth();
+  const { user } = useUnifiedAuth();
   const [testResults, setTestResults] = useState<string[]>([]);
 
   // 模拟不同版本的用户数据
@@ -134,17 +134,8 @@ export default function UpgradeButtonTestPage() {
   };
 
   const switchToUser = (userData: any, userName: string) => {
-    if (userData) {
-      setUser({
-        ...userData,
-        loginTime: new Date().toISOString(),
-        roles: ['user'],
-        permissions: ['auth:required'],
-        isVip: userData.plan !== 'trial'
-      });
-    } else {
-      setUser(null);
-    }
+    // 统一鉴权上下文不再暴露 setUser，测试页面仅记录意图
+    console.log('模拟切换用户（已禁用实际状态变更）:', userName, userData);
     setTestResults([`已切换到: ${userName}`]);
   };
 

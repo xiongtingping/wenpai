@@ -542,7 +542,7 @@ export class BrandCorpusService {
     extractionResult: { [fieldName: string]: { value: any; excerpt: string; confidence: number } },
     docId: string,
     fileName: string
-  ): { [fieldName: string]: { value: any; excerpt: string; confidence: number; docId: string; fileName: string; status: string } } {
+  ): { [fieldName: string]: { value: any; excerpt: string; confidence: number; docId: string; fileName: string; extractedAt: string; status: 'extracted' | 'confirmed' | 'pinned' | 'deleted' | 'blocked'; source: { type: 'ai_extraction' | 'manual_input' | 'imported'; docId: string; fileName: string; excerpt: string; confidence: number } } } {
     const structured: { [fieldName: string]: any } = {};
 
     Object.keys(extractionResult).forEach(fieldName => {
@@ -1075,18 +1075,24 @@ export class BrandCorpusService {
    */
   private createDefaultExtractionResult(): BrandCorpusExtractionV2 {
     return {
+      extractionId: `ex-${Date.now()}`,
+      sourceDocument: {
+        id: 'unknown',
+        name: 'unknown',
+        type: 'document'
+      },
       extractedFields: {
         brandName: {
           value: '解析失败',
           confidence: 0.1,
-          excerpt: '无法解析AI响应',
           sources: []
         }
       },
       overallConfidence: 0.1,
       processingTime: 0,
-      timestamp: new Date().toISOString(),
-      version: 'v2.0'
+      aiModel: 'unknown',
+      version: 'v2.0',
+      timestamp: new Date().toISOString()
     };
   }
 
@@ -1113,7 +1119,7 @@ export class BrandCorpusService {
       // 修复数组中的hashtag和未加引号的值（更全面的处理）
       cleaned = cleaned.replace(/\[([^\]]+)\]/g, (match, arrayContent) => {
         // 分割数组内容
-        const items = arrayContent.split(',').map(item => {
+        const items = arrayContent.split(',').map((item: string) => {
           const trimmed = item.trim();
 
           // 如果已经有引号，保持不变
@@ -1162,7 +1168,7 @@ export class BrandCorpusService {
   /**
    * ✅ FIXED: 2025-08-06 将v2.0提取结果转换为旧版格式（向后兼容）
    */
-  public convertV2ToLegacyFormat(v2Result: BrandCorpusExtractionV2): BrandCorpusExtraction {
+  public convertV2ToLegacyFormat(v2Result: BrandCorpusExtractionV2): BrandCorpusExtraction & { aiAnalysisMetadata: { model: string; confidence: number; processingTime: number; extractedFieldsCount: number } } {
     // ✅ FIXED: 2025-08-06 增强空值检查
     if (!v2Result || !v2Result.extractedFields) {
       console.warn('⚠️ v2Result为空或缺少extractedFields，返回默认结果');
@@ -1173,24 +1179,24 @@ export class BrandCorpusService {
         sourceType: 'document',
         extractedAt: new Date().toISOString(),
         extractedFields: {},
-        status: 'completed',
+        status: 'pending_user_confirmation',
         aiAnalysisMetadata: {
           model: 'unknown',
           confidence: 0.1,
           processingTime: 0,
           extractedFieldsCount: 0
         }
-      };
+      } as any;
     }
 
-    const legacyResult: BrandCorpusExtraction = {
+    const legacyResult: any = {
       id: v2Result.extractionId || `extraction-${Date.now()}`,
       sourceId: v2Result.sourceDocument?.id || 'unknown',
       sourceName: v2Result.sourceDocument?.name || 'unknown',
       sourceType: (v2Result.sourceDocument?.type as any) || 'document',
       extractedAt: v2Result.timestamp || new Date().toISOString(),
       extractedFields: {},
-      status: 'completed',
+      status: 'confirmed',
       aiAnalysisMetadata: {
         model: v2Result.aiModel || 'unknown',
         confidence: v2Result.overallConfidence || 0.1,
@@ -1203,10 +1209,20 @@ export class BrandCorpusService {
     Object.entries(v2Result.extractedFields || {}).forEach(([fieldName, fieldData]) => {
       if (fieldData) {
         legacyResult.extractedFields[fieldName] = {
+          excerpt: fieldData.sources?.[0]?.excerpt || '',
+          docId: v2Result.sourceDocument?.id || 'unknown',
+          fileName: v2Result.sourceDocument?.name || 'unknown',
+          extractedAt: v2Result.timestamp || new Date().toISOString(),
+          status: 'extracted',
+          source: {
+            type: 'ai_extraction',
+            docId: v2Result.sourceDocument?.id || 'unknown',
+            fileName: v2Result.sourceDocument?.name || 'unknown',
+            excerpt: fieldData.sources?.[0]?.excerpt || '',
+            confidence: fieldData.confidence || 0.1
+          },
           value: fieldData.value || '',
-          confidence: fieldData.confidence || 0.1,
-          sources: fieldData.sources?.map(source => source?.excerpt || '').join('; ') || '',
-          aiSuggestions: fieldData.ai_suggestions || []
+          confidence: fieldData.confidence || 0.1
         };
       }
     });

@@ -54,9 +54,10 @@ export class WordDocumentTester {
       const arrayBuffer = await this.readFileAsArrayBuffer(file);
       
       // 使用mammoth解析
-      const mammothResult = await mammoth.extractRawText({ 
+      const mammothResult = await (mammoth as any).extractRawText({
         arrayBuffer,
-        convertImage: mammoth.images.ignoreAll,
+        // 类型兼容处理
+        convertImage: (mammoth as any).images?.ignoreAll,
         includeDefaultStyleMap: true
       });
 
@@ -72,7 +73,7 @@ export class WordDocumentTester {
       result.parseInfo = {
         textLength: extractedText.length,
         hasWarnings: mammothResult.messages && mammothResult.messages.length > 0,
-        warnings: mammothResult.messages?.map(msg => msg.message) || []
+        warnings: mammothResult.messages?.map((msg: any) => msg.message) || []
       };
 
       console.log(`✅ Word文档解析成功:`, result.parseInfo);

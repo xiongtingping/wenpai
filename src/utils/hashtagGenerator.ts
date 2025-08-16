@@ -181,7 +181,7 @@ export class HashtagGenerator {
     const cleanContent = content
       .replace(/[#@*[\]]/g, '') // 移除特殊符号
       .replace(/[，。！？；：""''（）【】]/g, ' ') // 替换标点为空格
-      .replace(/[✔️❌⭐🔥💡📝🎯]/g, '') // 单独移除 emoji
+      .replace(/[\u2713\u274C\u2B50\uD83D\uDD25\uD83D\uDCA1\uD83D\uDCDD\uD83C\uDFAF]/gu, '') // 单独移除 emoji
       .replace(/\u2600-\u27BF|\uE000-\uF8FF|\u2011-\u26FF/g, '') // 移除emoji区间
       .trim();
 
