@@ -792,6 +792,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       console.log('🔐 开始登录流程...');
       setError(null);
 
+      // 当前弹窗场景：登录/注册（用于 Guard 默认视图与兜底路径）
+      const scene = (options?.scene === 'register' ? 'register' : 'login');
+
       // 保存跳转目标
       if (redirectTo) {
         localStorage.setItem('login_redirect_to', redirectTo);
@@ -808,7 +811,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         try {
           const fallbackEnabled = import.meta.env.VITE_AUTHING_FALLBACK_HOSTED === '1' || (window as any)?.__ENV__?.VITE_AUTHING_FALLBACK_HOSTED === '1';
           if (!fallbackEnabled) {
-            console.log('ℹ️ 托管登录兜底开关未开启，跳过跳转检查');
+            console.log('ℹ️ 托管兜底开关未开启，跳过跳转检查');
             return;
           }
           // 避免在回调处理中触发兜底，防止重定向循环
@@ -830,15 +833,16 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           const hasInput = !!(modalRoot && (modalRoot as HTMLElement).querySelector('input'));
           const hasErrorUndef = !!(modalRoot && (modalRoot as HTMLElement).textContent?.includes('undefinedundefined'));
           if (!hasInput || hasErrorUndef) {
-            console.warn('⚠️ Guard 弹窗不可用或出现错误文案，启用托管登录兜底跳转');
+            console.warn('⚠️ Guard 弹窗不可用或出现错误文案，启用托管兜底跳转');
             const cfg = getAuthingConfig();
             // 使用标准托管登录地址，保留单一 redirect_uri
             const domain = (cfg.domain || cfg.host.replace(/^https?:\/\//, '').split('/')[0]).replace(/\/$/, '');
-            const url = new URL(`https://${domain}/${cfg.appId}/login`);
+            const isRegister = options?.scene === 'register';
+            const url = new URL(`https://${domain}/${cfg.appId}/${isRegister ? 'register' : 'login'}`);
             url.searchParams.set('app_id', cfg.appId);
             url.searchParams.set('redirect_uri', cfg.redirectUri);
             url.searchParams.set('protocol', 'oidc');
-            url.searchParams.set('state', `login_${Date.now()}`);
+            url.searchParams.set('state', `${isRegister ? 'register' : 'login'}_${Date.now()}`);
             localStorage.setItem('authing_fallback_lock_ts', String(now));
             window.location.href = url.toString();
           }
@@ -853,6 +857,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 在显示前隔离其他对话框，避免并发冲突
         isolateAuthingModalUntilClose(guardRef.current);
         guardRef.current.show();
+        try { if (options?.scene === 'register') { (guardRef.current as any)?.changeScene?.('register'); } } catch (e) { console.warn('changeScene register post-show failed', e); }
         // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
         const sanitizeAuthingText = () => {
           try {
@@ -895,6 +900,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           try { if (options?.scene === 'register') { (freshGuardInstance as any)?.changeScene?.('register'); } } catch (e) { console.warn('changeScene register failed', e); }
           // 先展示 Guard，再在弹窗可见后启动隔离，避免焦点与 aria-hidden 冲突
           freshGuardInstance.show();
+          try { if (options?.scene === 'register') { (freshGuardInstance as any)?.changeScene?.('register'); } } catch (e) { console.warn('changeScene register post-show failed', e); }
           const __tryStartIsoFresh = (attempt = 0) => {
             const root = document.getElementById('authing_guard_container')
               || document.querySelector('.authing-ant-modal-root')
