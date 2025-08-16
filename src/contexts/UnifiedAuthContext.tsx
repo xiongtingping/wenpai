@@ -16,7 +16,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Guard } from '@authing/guard';
-import { createAuthingModalA11yController, sanitizeSiteDialogsOnce } from '@/utils/authingModalA11y';
+import { createAuthingModalA11yController } from '@/utils/authingModalA11y';
 import { Authing } from '@authing/web';
 import { getAuthingConfig } from '@/config/authing';
 
@@ -787,7 +787,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
   /**
    * 登录方法 - 使用 Guard 弹窗
    */
-  const login = async (redirectTo?: string) => {
+  const login = async (redirectTo?: string, options?: { scene?: 'login' | 'register' }) => {
     try {
       console.log('🔐 开始登录流程...');
       setError(null);
@@ -849,6 +849,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       if (guardRef.current && typeof guardRef.current.show === 'function') {
         console.log('✅ 调用 Guard.show() 方法...');
+        try { if (options?.scene === 'register') { (guardRef.current as any)?.changeScene?.('register'); } } catch (e) { console.warn('changeScene register failed', e); }
         // 在显示前隔离其他对话框，避免并发冲突
         isolateAuthingModalUntilClose(guardRef.current);
         guardRef.current.show();
@@ -891,6 +892,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         const freshGuardInstance = getGuardInstance();
         if (freshGuardInstance && typeof freshGuardInstance.show === 'function') {
           console.log('✅ 使用新获取的 Guard 实例调用 show()...');
+          try { if (options?.scene === 'register') { (freshGuardInstance as any)?.changeScene?.('register'); } } catch (e) { console.warn('changeScene register failed', e); }
           // 先展示 Guard，再在弹窗可见后启动隔离，避免焦点与 aria-hidden 冲突
           freshGuardInstance.show();
           const __tryStartIsoFresh = (attempt = 0) => {
@@ -942,62 +944,8 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
    * 注册方法 - 使用 Guard 弹窗注册模式
    */
   const register = async (redirectTo?: string) => {
-    try {
-      console.log('📝 开始注册流程...');
-      setError(null);
-
-      // 保存跳转目标
-      if (redirectTo) {
-        localStorage.setItem('login_redirect_to', redirectTo);
-      }
-
-      // 🔧 [SDK_DIVISION_v2025.08.15] 使用Guard的注册模式
-      if (guardRef.current) {
-        // 使用类型断言调用注册相关方法
-        const guard = guardRef.current as any;
-        if (guard.changeScene) {
-          guard.changeScene('register');
-        }
-        // 先展示 Guard，再在弹窗可见后启动隔离，避免焦点与 aria-hidden 冲突
-        guard.show();
-        const __tryStartIso = (attempt = 0) => {
-          const root = document.getElementById('authing_guard_container')
-            || document.querySelector('.authing-ant-modal-root')
-            || document.querySelector('.authing-guard-container')
-            || document.getElementById('authing-guard-container-v4');
-          const visible = !!root && (((root as HTMLElement).offsetParent !== null) || ((root as HTMLElement).getBoundingClientRect().height > 0));
-          if (root && visible) {
-            isolateAuthingModalUntilClose(guard);
-          } else if (attempt < 10) {
-            setTimeout(() => __tryStartIso(attempt + 1), 50);
-          }
-        };
-        setTimeout(() => __tryStartIso(0), 0);
-        // 使用封装模块进行清理
-        try {
-          const a11y = createAuthingModalA11yController();
-          a11y.mount();
-          setTimeout(() => a11y.sanitizeOnce(), 0);
-          setTimeout(() => a11y.sanitizeOnce(), 200);
-          setTimeout(() => a11y.sanitizeOnce(), 800);
-          requestAnimationFrame(() => a11y.sanitizeOnce());
-        } catch {}
-        // 同步清理站内 Dialog 弹窗中的 undefinedundefined（与 Authing 无关）
-        try {
-          const { sanitizeSiteDialogsOnce } = await import('@/utils/authingModalA11y');
-          setTimeout(() => sanitizeSiteDialogsOnce(), 0);
-          setTimeout(() => sanitizeSiteDialogsOnce(), 200);
-          setTimeout(() => sanitizeSiteDialogsOnce(), 800);
-          requestAnimationFrame(() => sanitizeSiteDialogsOnce());
-        } catch {}
-      } else {
-        throw new Error('Guard 实例未初始化');
-      }
-
-    } catch (error) {
-      console.error('❌ 注册失败:', error);
-      setError('注册失败');
-    }
+    // 保持与登录按钮的弹窗处理一模一样：直接复用登录流程
+    return login(redirectTo, { scene: 'register' });
   };
 
   /**
