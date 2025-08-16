@@ -606,6 +606,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             body.authing-guard-open .ant-modal,
             body.authing-guard-open .ant-drawer,
             body.authing-guard-open .ant-drawer-content-wrapper,
+            body.authing-guard-open .authing-ant-modal-mask,
             body.authing-guard-open [role="alertdialog"] {
               display: none !important;
               visibility: hidden !important;
@@ -618,6 +619,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
             body.authing-guard-open .authing-ant-modal-root [data-radix-dialog-content],
             body.authing-guard-open .authing-ant-modal-root [data-radix-popover-content],
             body.authing-guard-open .authing-ant-modal-root [data-radix-tooltip-content],
+            body.authing-guard-open .authing-ant-modal-root, .authing-ant-modal-root * {
             body.authing-guard-open .authing-ant-modal-root [class*="modal"],
             body.authing-guard-open .authing-ant-modal-root [class*="dialog"],
             body.authing-guard-open .authing-ant-modal-root [class*="popup"],
@@ -714,7 +716,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       // 在 Authing 容器内持续清理 undefinedundefined 文案（不改行为）
       try {
-        const guardRoot = document.getElementById('authing_guard_container');
+        const guardRoot = document.getElementById('authing_guard_container')
+          || document.querySelector('.authing-ant-modal-root')
+          || document.querySelector('.authing-guard-container');
         if (guardRoot) {
           const sanitize = () => {
             guardRoot.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
@@ -738,7 +742,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           if (g?.on) {
             g.on(evt, () => {
               try {
-                const root = document.getElementById('authing_guard_container');
+                const root = document.getElementById('authing_guard_container')
+                  || document.querySelector('.authing-ant-modal-root')
+                  || document.querySelector('.authing-guard-container');
                 if (!root) return;
                 root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
                   .forEach((el) => {
@@ -853,7 +859,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
         const sanitizeAuthingText = () => {
           try {
-            const root = document.getElementById('authing_guard_container');
+            const root = document.getElementById('authing_guard_container')
+              || document.querySelector('.authing-ant-modal-root')
+              || document.querySelector('.authing-guard-container');
             if (!root) return;
             root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
               .forEach((el) => {
@@ -881,7 +889,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
           // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
           const sanitizeAuthingText = () => {
             try {
-              const root = document.getElementById('authing_guard_container');
+              const root = document.getElementById('authing_guard_container')
+                || document.querySelector('.authing-ant-modal-root')
+                || document.querySelector('.authing-guard-container');
               if (!root) return;
               root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
                 .forEach((el) => {
@@ -936,7 +946,9 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         // 极小范围：仅清理 Authing 弹窗内部的 "undefinedundefined" 文案，不修改其行为
         const sanitizeAuthingText = () => {
           try {
-            const root = document.getElementById('authing_guard_container');
+            const root = document.getElementById('authing_guard_container')
+              || document.querySelector('.authing-ant-modal-root')
+              || document.querySelector('.authing-guard-container');
             if (!root) return;
             root.querySelectorAll('.g2-error-message-text, .authing-ant-modal-body, .authing-ant-modal-content')
               .forEach((el) => {
