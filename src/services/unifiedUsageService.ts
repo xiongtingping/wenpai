@@ -74,7 +74,7 @@ export interface SubscriptionExpiryResult {
  * 统一使用量管理服务类
  */
 class UnifiedUsageService {
-  private readonly API_ENDPOINT = '/.netlify/functions/api/usage-count';
+  private readonly API_ENDPOINT = '/.netlify/functions/api-usage-count';
   private readonly STORAGE_KEY = 'unified_usage_stats';
   private readonly SYNC_INTERVAL = 5 * 60 * 1000; // 5分钟同步一次
   
