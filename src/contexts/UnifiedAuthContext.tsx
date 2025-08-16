@@ -551,7 +551,11 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       let cssEl: HTMLStyleElement | null = null;
       const debugISO = import.meta.env.DEV || (import.meta.env.VITE_LOG_MODAL_ISO === '1');
 
-      const isInAuthingModal = (el: HTMLElement | null) => !!el?.closest('.authing-ant-modal-root');
+      const AUTHING_ROOT_SELECTORS = '#authing_guard_container, .authing-ant-modal-root, .authing-guard-container, #authing-guard-container-v4';
+      const isInAuthingModal = (el: HTMLElement | null) => {
+        if (!el) return false;
+        return !!el.closest(AUTHING_ROOT_SELECTORS);
+      };
       const isDialogLike = (el: HTMLElement) => {
         const roleDialog = el.getAttribute('role') === 'dialog' || el.getAttribute('aria-modal') === 'true';
         const htmlDialog = el.tagName === 'DIALOG';
@@ -694,7 +698,7 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       const applyInert = () => {
         try {
-          const authingRoot = document.querySelector('.authing-ant-modal-root');
+          const authingRoot = document.querySelector('.authing-ant-modal-root, #authing_guard_container, .authing-guard-container, #authing-guard-container-v4');
           Array.from(document.body.children).forEach((el) => {
             const h = el as HTMLElement;
             if (authingRoot && authingRoot.contains(h)) return;
