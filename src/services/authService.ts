@@ -222,34 +222,39 @@ class AuthService {
    */
   async updateUserInfo(accessToken: string, updates: Partial<UserInfo>): Promise<UserInfo> {
     try {
-      console.log('🔄 使用@authing/guard API更新用户信息:', updates);
+      if (!accessToken) throw new Error('缺少访问令牌 accessToken');
 
-      // 🔒 [AUTHING_GUARD_UPDATE_v2025.08.14] 架构统一化: 使用@authing/guard
-      // 通过UnifiedAuthContext获取Guard实例
-      console.log('📤 准备调用Authing Guard API');
+      // 仅映射支持的字段
+      const payload: any = {};
+      if (typeof updates.nickname === 'string') payload.nickname = updates.nickname;
+      if (typeof updates.username === 'string') payload.username = updates.username;
+      if (typeof (updates as any).photo === 'string' || typeof updates.avatar === 'string') {
+        payload.photo = (updates as any).photo || updates.avatar;
+      }
+      if (typeof (updates as any).company === 'string') payload.company = (updates as any).company;
+      if (typeof updates.email === 'string') payload.email = updates.email; // 需要后端策略允许
+      if (typeof updates.phone === 'string') payload.phone = updates.phone; // 需要后端策略允许
 
-      // 构建更新数据，使用Authing API支持的字段
-      const updateData: any = {};
+      // 构建 Authing API 地址
+      const domain = (this.config.domain || this.config.host || '')
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+      const url = `https://${domain}/api/v3/update-profile`;
 
-      if (updates.nickname) updateData.nickname = updates.nickname;
-      if (updates.photo || updates.avatar) updateData.photo = updates.photo || updates.avatar;
-      if (updates.company) updateData.company = updates.company;
-      if (updates.username) updateData.username = updates.username;
+      // 发起更新
+      await request.post(url, payload, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      console.log('📤 发送到Authing API的数据:', updateData);
-
-      // 🚨 注意：需要通过UnifiedAuthContext获取Guard实例
-      // 暂时返回模拟数据，实际应该通过Guard的updateProfile方法
-      console.log('⚠️ 暂时返回模拟数据，需要集成Guard API');
-
-      const updatedUser = { ...updateData, id: 'mock-user-id' };
-
-      console.log('✅ Authing API返回的更新后用户信息:', updatedUser);
-
-      return this.buildUserInfo(updatedUser);
-    } catch (error) {
-      console.error('❌ Authing API更新用户信息失败:', error);
-      throw new Error(`Authing Guard更新失败: ${error instanceof Error ? error.message : String(error)}`);
+      // 更新成功后强制拉取最新用户信息
+      const remote = await this.getUserInfo(accessToken);
+      return this.buildUserInfo(remote);
+    } catch (error: any) {
+      console.error('❌ 更新用户信息失败:', error?.response?.data || error?.message || error);
+      throw new Error(`更新用户信息失败：${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

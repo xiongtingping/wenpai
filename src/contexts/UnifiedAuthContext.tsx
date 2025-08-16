@@ -391,12 +391,29 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       // 优先规范化异常回调URL（若触发将发生重定向，后续逻辑自然中止）
       normalizeCallbackUrlIfNeeded();
 
-      // 从本地存储获取用户信息
+      // 从本地存储获取用户信息（仅作为初始占位，稍后将用服务端信息覆盖）
       const storedUser = localStorage.getItem('authing_user');
       if (storedUser) {
         const userData = JSON.parse(storedUser);
         setUser(userData);
         console.log('✅ 从本地存储恢复用户信息:', userData);
+      }
+
+      // 若存在有效 token，强制同步服务端用户资料，避免“登出再登录仍是旧资料”
+      try {
+        const token = JSON.parse(localStorage.getItem('authing_user') || '{}')?.accessToken
+          || localStorage.getItem('authing_token')
+          || '';
+        if (token) {
+          const svc = AuthService.getInstance();
+          const remote = await svc.getUserInfo(token);
+          const normalized = svc.buildUserInfo(remote, { access_token: token });
+          setUser(normalized);
+          localStorage.setItem('authing_user', JSON.stringify(normalized));
+          console.log('🔄 已用服务端资料覆盖本地缓存用户信息');
+        }
+      } catch (e) {
+        console.warn('获取远端用户资料失败（忽略）', e);
       }
 
       // 回调处理仅在 /callback 路径且存在 code 时触发，且防重复
