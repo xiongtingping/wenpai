@@ -103,9 +103,19 @@ module.exports.handler = async (event, context) => {
       return await getReferralStats(requestBody, headers);
     }
 
-    // 处理推荐人ID验证请求
-    if (action === 'referral-validate') {
-      return await validateReferrerId(requestBody, headers);
+    // 统一使用次数统计与消费（转发到 usage-count 子路由）
+    if (action === 'user-usage' && requestBody?.userId) {
+      // 兼容 POST body 形式
+      const path = `/.netlify/functions/api/usage-count/user/usage/${encodeURIComponent(requestBody.userId)}`;
+      const resp = await fetch(path, { method: 'GET', headers: { 'Content-Type': 'application/json' }});
+      const data = await resp.json().catch(() => ({}));
+      return { statusCode: resp.status, headers, body: JSON.stringify(data) };
+    }
+    if (action === 'consume-usage' && requestBody?.userId) {
+      const path = `/.netlify/functions/api/usage-count/consume-usage`;
+      const resp = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: requestBody.userId, amount: requestBody.amount||1 })});
+      const data = await resp.json().catch(() => ({}));
+      return { statusCode: resp.status, headers, body: JSON.stringify(data) };
     }
 
     return {

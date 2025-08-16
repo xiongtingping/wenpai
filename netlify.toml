@@ -16,15 +16,15 @@
   status = 301
   force = true
 
-# API 优先路由到专用 usage-count 函数，兼容旧路径
+# API 路由到统一网关函数 api（内部再分发 usage-count 逻辑）
 [[redirects]]
   from = "/api/user/usage/*"
-  to = "/.netlify/functions/api/usage-count/user/usage/:splat"
+  to = "/.netlify/functions/api/user/usage/:splat"
   status = 200
 
 [[redirects]]
   from = "/api/consume-usage"
-  to = "/.netlify/functions/api/usage-count/consume-usage"
+  to = "/.netlify/functions/api/consume-usage"
   status = 200
 
 # 其他 /api/* 走通用网关函数
