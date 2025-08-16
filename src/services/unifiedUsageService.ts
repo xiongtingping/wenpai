@@ -178,7 +178,7 @@ class UnifiedUsageService {
     try {
       // 调用正确的后端API获取真实数据
       const response = await request.get(`${this.API_ENDPOINT}/user/usage/${userId}`); // returns { totalUsed }
-      const usageData = response.data;
+      const usageData = (response as any)?.data ?? response;
 
       // 计算总使用次数
       const usedCount = usageData.totalUsed || 0;

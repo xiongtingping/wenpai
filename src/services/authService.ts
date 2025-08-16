@@ -46,7 +46,7 @@ class AuthService {
       const domain = (this.config.domain || this.config.host || '')
         .replace(/^https?:\/\//, '')
         .replace(/\/$/, '');
-      const tokenUrl = `https://${domain}/oidc/token`;
+      const tokenUrl = `https://${domain}/${this.config.appId}/oidc/token`;
 
       // 尝试读取 PKCE code_verifier（由 Guard/SDK 生成并存储）
       let codeVerifier: string | null = null;
@@ -102,7 +102,7 @@ class AuthService {
       const domain = (this.config.domain || this.config.host || '')
         .replace(/^https?:\/\//, '')
         .replace(/\/$/, '');
-      const meUrl = `https://${domain}/oidc/me`;
+      const meUrl = `https://${domain}/${this.config.appId}/oidc/me`;
       const userData = await request.get(meUrl, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -121,8 +121,11 @@ class AuthService {
    */
   async refreshToken(refreshToken: string): Promise<any> {
     try {
-      const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
-      const tokenData = await request.post(`https://${base}/oidc/token`,
+      const domain = (this.config.domain || this.config.host || '')
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+      const base = `https://${domain}/${this.config.appId}`;
+      const tokenData = await request.post(`${base}/oidc/token`,
         new URLSearchParams({
           grant_type: 'refresh_token',
           client_id: this.config.appId,
@@ -147,8 +150,11 @@ class AuthService {
   async logout(accessToken?: string): Promise<void> {
     try {
       if (accessToken) {
-        const base = `${this.config.host.replace(/\/$/, '')}/${this.config.appId}`;
-        await request.post(`https://${base}/oidc/logout`, {
+        const domain = (this.config.domain || this.config.host || '')
+          .replace(/^https?:\/\//, '')
+          .replace(/\/$/, '');
+        const base = `https://${domain}/${this.config.appId}`;
+        await request.post(`${base}/oidc/logout`, {
           token: accessToken,
         });
       }

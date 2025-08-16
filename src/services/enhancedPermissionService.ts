@@ -268,20 +268,20 @@ class EnhancedPermissionService {
   async checkSubscriptionExpiry(userId: string): Promise<SubscriptionExpiryCheck> {
     try {
       const response = await request.get(`${this.API_ENDPOINT}/subscription-expiry/${userId}`);
+      const data = response?.data ?? response;
 
-      // 确保返回的数据有必要的属性
-      const data = response.data;
-      if (!data || typeof data !== 'object') {
-        throw new Error('Invalid response data');
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        return {
+          isExpired: Boolean(data.isExpired),
+          expiryDate: data.expiryDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          daysRemaining: typeof data.daysRemaining === 'number' ? data.daysRemaining : 30,
+          inGracePeriod: Boolean(data.inGracePeriod),
+          requiredActions: Array.isArray(data.requiredActions) ? data.requiredActions : []
+        };
       }
 
-      return {
-        isExpired: Boolean(data.isExpired),
-        expiryDate: data.expiryDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        daysRemaining: typeof data.daysRemaining === 'number' ? data.daysRemaining : 30,
-        inGracePeriod: Boolean(data.inGracePeriod),
-        requiredActions: Array.isArray(data.requiredActions) ? data.requiredActions : []
-      };
+      // 如果返回结构不符合预期，走兜底
+      throw new Error('Invalid response data');
     } catch (error) {
       console.warn('检查套餐到期状态失败，使用默认值:', error);
 
@@ -392,20 +392,20 @@ class EnhancedPermissionService {
   ): Promise<{ allowed: boolean; reason?: string }> {
     try {
       const response = await request.get(`${this.API_ENDPOINT}/usage-limits/${userId}/${featureId}`);
-      const usage = response.data;
-      
-      if (limits.daily && limits.daily !== -1 && usage.dailyUsage >= limits.daily) {
+      const usage = response?.data ?? response;
+
+      if (limits.daily && limits.daily !== -1 && Number(usage.dailyUsage || 0) >= limits.daily) {
         return { allowed: false, reason: `已达到每日使用限制 (${limits.daily} 次)` };
       }
-      
-      if (limits.monthly && limits.monthly !== -1 && usage.monthlyUsage >= limits.monthly) {
+
+      if (limits.monthly && limits.monthly !== -1 && Number(usage.monthlyUsage || 0) >= limits.monthly) {
         return { allowed: false, reason: `已达到每月使用限制 (${limits.monthly} 次)` };
       }
-      
-      if (limits.concurrent && limits.concurrent !== -1 && usage.concurrentUsage >= limits.concurrent) {
+
+      if (limits.concurrent && limits.concurrent !== -1 && Number(usage.concurrentUsage || 0) >= limits.concurrent) {
         return { allowed: false, reason: `已达到并发使用限制 (${limits.concurrent} 个)` };
       }
-      
+
       return { allowed: true };
     } catch (error) {
       console.warn('检查使用限制失败，默认允许:', error);
