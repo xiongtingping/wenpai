@@ -28,19 +28,22 @@ const CallbackPage: React.FC = () => {
     try {
       const href = window.location.href;
       if (href) {
-        const hasMalformed = /callbackhttps?:\/\//i.test(href) || href.includes('/callbackhttp');
         const url = new URL(href);
-        const pathNotExact = url.pathname !== '/callback';
-        if (hasMalformed || pathNotExact) {
-          const codeMatch = href.match(/[?&]code=([^&]+)/);
-          const stateMatch = href.match(/[?&]state=([^&]+)/);
-          const norm = new URL(`${window.location.origin}/callback`);
-          if (codeMatch) norm.searchParams.set('code', decodeURIComponent(codeMatch[1]));
-          if (stateMatch) norm.searchParams.set('state', decodeURIComponent(stateMatch[1]));
-          if (href !== norm.toString()) {
-            console.warn('⚠️ 检测到异常回调URL，已规范化到:', norm.toString());
-            window.location.replace(norm.toString());
-            return;
+        // 仅在存在 code/state 时才进行规范化，避免无参时循环
+        const codeMatch = href.match(/[?&]code=([^&]+)/);
+        const stateMatch = href.match(/[?&]state=([^&]+)/);
+        if (codeMatch || stateMatch) {
+          const hasMalformed = /callbackhttps?:\/\//i.test(href) || href.includes('/callbackhttp');
+          const pathNotExact = url.pathname !== '/callback';
+          if (hasMalformed || pathNotExact) {
+            const norm = new URL(`${window.location.origin}/callback`);
+            if (codeMatch) norm.searchParams.set('code', decodeURIComponent(codeMatch[1]));
+            if (stateMatch) norm.searchParams.set('state', decodeURIComponent(stateMatch[1]));
+            if (href !== norm.toString()) {
+              console.warn('⚠️ 检测到异常回调URL，已规范化到:', norm.toString());
+              window.location.replace(norm.toString());
+              return;
+            }
           }
         }
       }

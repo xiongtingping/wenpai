@@ -343,17 +343,21 @@ export const UnifiedAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
     // 防重复处理回调
     const redirectHandledRef = useRef(false);
 
-    // 规范化回调URL，避免 /callbackhttp... 等非法路径导致404与SDK拒绝
+    // 规范化回调URL：仅在当前路径与回调相关且存在 code/state 时执行，避免首页与 /callback 循环
     const normalizeCallbackUrlIfNeeded = () => {
       try {
         const href = window.location.href;
         if (!href) return;
-        const hasMalformed = /callbackhttps?:\/\//i.test(href) || href.includes('/callbackhttp');
         const url = new URL(href);
-        const pathNotExact = url.pathname !== '/callback' && url.pathname.includes('callback');
+        // 仅在当前就是回调相关路径时才处理
+        if (!url.pathname.includes('callback')) return;
+        const codeMatch = href.match(/[?&]code=([^&]+)/);
+        const stateMatch = href.match(/[?&]state=([^&]+)/);
+        // 没有任何回调参数时，不做规范化，避免空跳转
+        if (!codeMatch && !stateMatch) return;
+        const hasMalformed = /callbackhttps?:\/\//i.test(href) || href.includes('/callbackhttp');
+        const pathNotExact = url.pathname !== '/callback';
         if (hasMalformed || pathNotExact) {
-          const codeMatch = href.match(/[?&]code=([^&]+)/);
-          const stateMatch = href.match(/[?&]state=([^&]+)/);
           const norm = new URL(`${window.location.origin}/callback`);
           if (codeMatch) norm.searchParams.set('code', decodeURIComponent(codeMatch[1]));
           if (stateMatch) norm.searchParams.set('state', decodeURIComponent(stateMatch[1]));
