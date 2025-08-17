@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
   const guardRef = useRef<any>(null);
 
+
   // 初始化时从 localStorage 恢复用户状态
   React.useEffect(() => {
     try {
@@ -86,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           host: cleanHost,
           redirectUri: cfg.redirectUri,
           mode: 'modal', // 使用弹窗模式
-          autoFocus: false,
+          autoFocus: true,
           escCloseable: true,
           clickCloseable: true,
           maskCloseable: true,
@@ -158,24 +159,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 显示登录弹窗
       logger.debug('显示 Authing Guard 弹窗...');
 
-      // 尝试多种显示方法
+      // 仅使用 modal.show，避免与 start(container) 混用导致的焦点与 aria-hidden 冲突
       try {
         if (typeof guardRef.current.show === 'function') {
           await guardRef.current.show();
-        } else if (typeof guardRef.current.start === 'function') {
-          await guardRef.current.start('#authing_container');
         } else {
-          logger.error('Guard实例没有可用的显示方法');
+          throw new Error('Guard.show 不可用（当前为 modal 模式仅支持 show）');
         }
       } catch (showError) {
         logger.error('显示Guard弹窗失败:', showError);
-        // 尝试备用方法
-        try {
-          await guardRef.current.start('#authing_container');
-        } catch (startError) {
-          logger.error('启动Guard失败:', startError);
-          throw new Error('无法显示登录弹窗');
-        }
+        throw new Error('无法显示登录弹窗');
       }
 
     } catch (e: any) {
