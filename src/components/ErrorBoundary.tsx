@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 /**
  * 错误边界状态接口
@@ -60,7 +61,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   private static isInitializationError(error: Error): boolean {
     const errorMessage = error.message.toLowerCase();
     const errorStack = error.stack?.toLowerCase() || '';
-    
+
     // 检查常见的初始化错误模式
     const initializationPatterns = [
       'useunifiedauth must be used within a unifiedauthprovider',
@@ -69,11 +70,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       'router context',
       'navigation context',
       'cannot read properties of undefined',
+      'cannot read property',
+      'undefined is not an object',
+      'null is not an object',
       'yield*',
-      'suspended while responding to synchronous input'
+      'suspended while responding to synchronous input',
+      'chunk load error',
+      'loading chunk',
+      'network error',
+      'failed to fetch'
     ];
-    
-    return initializationPatterns.some(pattern => 
+
+    return initializationPatterns.some(pattern =>
       errorMessage.includes(pattern) || errorStack.includes(pattern)
     );
   }
@@ -82,7 +90,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
    * 错误信息记录
    */
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('🚨 应用错误被捕获:', {
+    // 使用logger系统记录错误，生产环境仍然会记录错误信息
+    logger.error('🚨 应用错误被捕获:', {
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,
@@ -90,7 +99,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       url: window.location.href,
-      isInitializationError: this.state.isInitializationError
+      isInitializationError: this.state.isInitializationError,
+      // 增加更多诊断信息
+      errorName: error.name,
+      errorCause: (error as any).cause,
+      reactVersion: React.version
     });
 
     this.setState({
@@ -137,7 +150,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         });
       }
     } catch (reportError) {
-      console.error('错误报告发送失败:', reportError);
+      logger.error('错误报告发送失败:', reportError);
     }
   }
 

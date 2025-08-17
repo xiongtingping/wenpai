@@ -64,10 +64,13 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <AuthProvider>
-          <UnifiedAuthProvider>
-          <Router>
-            <div className="min-h-screen bg-background">
+        <ErrorBoundary>
+          <AuthProvider>
+            <ErrorBoundary>
+              <UnifiedAuthProvider>
+                <ErrorBoundary>
+                  <Router>
+                    <div className="min-h-screen bg-background">
               <ConditionalNavigation>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
@@ -109,9 +112,12 @@ const App: React.FC = () => {
             
             {/* 全局通知组件 */}
             <Toaster />
-          </Router>
-        </UnifiedAuthProvider>
-        </AuthProvider>
+                  </Router>
+                </ErrorBoundary>
+              </UnifiedAuthProvider>
+            </ErrorBoundary>
+          </AuthProvider>
+        </ErrorBoundary>
       </ThemeProvider>
     </ErrorBoundary>
   );

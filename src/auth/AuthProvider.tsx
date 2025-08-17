@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
+import { logger } from '@/utils/logger';
 
 export interface AuthUser {
   id: string;
@@ -40,10 +41,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (token && userData) {
         const parsedUser = JSON.parse(userData);
         setUser({ ...parsedUser, token });
-        console.log('🔄 从本地存储恢复用户状态:', parsedUser);
+        logger.debug('🔄 从本地存储恢复用户状态:', parsedUser);
       }
     } catch (error) {
-      console.error('恢复用户状态失败:', error);
+      logger.error('恢复用户状态失败:', error);
     }
   }, []);
 
@@ -52,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setAuthTokenGetter(() => user?.token || null);
     } catch (error) {
-      console.error('设置令牌获取器失败:', error);
+      logger.error('设置令牌获取器失败:', error);
     }
   }, [user?.token]);
 
