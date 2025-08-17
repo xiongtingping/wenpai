@@ -17,6 +17,8 @@
  * - 所有其他AI功能的提示词
  */
 
+import { logger, logModuleInit, logModuleLock } from '@/utils/logger';
+
 // 🔒 模块锁定标记
 const PROMPT_SYSTEM_LOCK_SIGNATURE = 'PROMPT_SYSTEM_LOCKED_v1.0.0';
 const PROMPT_SYSTEM_CREATION_TIME = Date.now();
@@ -569,7 +571,7 @@ class PromptSystemManager {
     });
 
     this.initialized = true;
-    console.log('🚀 提示词系统初始化完成');
+    logModuleInit('提示词系统', '1.0.0');
   }
 
   /**
@@ -1984,13 +1986,7 @@ export function verifyPromptSystemIntegrity(): boolean {
 }
 
 // 🔒 模块锁定声明
-console.warn(`
-🔒 提示词系统模块已锁定 [${PROMPT_SYSTEM_MODULE_LOCK.signature}]
-⚠️  本模块统一管理所有AI提示词逻辑，禁止擅自修改
-📋 如需修改，请提交变更说明并通过审查
-🚫 禁止复制本模块逻辑到其他文件
-📞 如有问题，请联系开发负责人
-`);
+logModuleLock('提示词系统模块', PROMPT_SYSTEM_MODULE_LOCK.signature);
 
 // ==================== 九宫格创意魔方提示词系统 ====================
 

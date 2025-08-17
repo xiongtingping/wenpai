@@ -16,6 +16,7 @@
 import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/auth/AuthProvider';
 import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -57,13 +58,14 @@ const ConditionalNavigation: React.FC<{ children: React.ReactNode }> = ({ childr
  */
 const App: React.FC = () => {
   useEffect(() => {
-    console.log('🚀 文派AI应用启动');
+    // 应用启动 - 生产环境静默
   }, []);
 
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <UnifiedAuthProvider>
+        <AuthProvider>
+          <UnifiedAuthProvider>
           <Router>
             <div className="min-h-screen bg-background">
               <ConditionalNavigation>
@@ -109,6 +111,7 @@ const App: React.FC = () => {
             <Toaster />
           </Router>
         </UnifiedAuthProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

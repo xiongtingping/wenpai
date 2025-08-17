@@ -32,6 +32,7 @@
  */
 
 import { configManager, getAIConfig } from '@/config/configManager';
+import { logger, logModuleInit, logModuleLock } from '@/utils/logger';
 import request from './request';
 import { queueAPICall } from '@/utils/apiRequestQueue';
 import { getPrompt, PromptType } from '@/prompts/PromptSystem';
@@ -546,7 +547,7 @@ export async function initializeAIService(): Promise<{
   message: string;
   violations: string[];
 }> {
-  console.log('🚀 初始化AI服务模块...');
+  logModuleInit('AI服务模块', '2.0.0');
 
   try {
     // 检查模块完整性
@@ -1336,7 +1337,7 @@ export function verifyModuleIntegrity(): boolean {
       return false;
     }
 
-    console.log('✅ AI服务模块完整性验证通过');
+    logger.debug('✅ AI服务模块完整性验证通过');
     return true;
   } catch (error) {
     console.error('🚨 模块完整性验证异常:', error);
@@ -1344,14 +1345,8 @@ export function verifyModuleIntegrity(): boolean {
   }
 }
 
-// 🔒 模块锁定声明 - 禁止修改警告
-console.warn(`
-🔒 AI服务模块已锁定 [${AI_SERVICE_MODULE_LOCK.signature}]
-⚠️  本模块为稳定模块，禁止擅自修改
-📋 如需修改，请提交变更说明并通过审查
-🚫 禁止复制本模块逻辑到其他文件
-📞 如有问题，请联系开发负责人
-`);
+// 🔒 模块锁定声明
+logModuleLock('AI服务模块', AI_SERVICE_MODULE_LOCK.signature);
 
 // 🔧 FIXED: 2025-08-14 禁用自动完整性验证以避免生产环境错误
 // 自动进行完整性验证 - 暂时禁用以避免 eval 相关错误

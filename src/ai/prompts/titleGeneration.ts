@@ -13,6 +13,8 @@
  * - 禁止模板句式、空泛用语、符号滥用
  */
 
+import { logModuleInit } from '@/utils/logger';
+
 import type { PromptTemplate } from '../types';
 
 /**
@@ -297,4 +299,4 @@ ${debug ? '\n## 🔧 调试模式\n请提供详细的评估过程和判断依据
 现在开始质量检查：`;
 };
 
-console.log('🧠 智能标题生成 Prompt 系统已加载');
+logModuleInit('智能标题生成 Prompt 系统');
