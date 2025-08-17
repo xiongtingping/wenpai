@@ -83,6 +83,7 @@
 # ===================
 [context.production.environment]
   NODE_ENV = "production"
+  VITE_DEBUG = "false"  # 确保生产环境控制台静默
   # Authing 相关环境变量已移除
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
@@ -101,6 +102,7 @@
 
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
+  VITE_DEBUG = "false"  # 预览环境也保持静默
   # Authing 相关环境变量已移除
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
