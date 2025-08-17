@@ -21,7 +21,7 @@ const HeroSection: React.FC = () => {
   /**
    * 处理按钮点击事件
    */
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     console.log('=== Hero按钮点击事件开始 ===');
     console.log('Hero开始创作按钮被点击');
     console.log('当前认证状态:', isAuthenticated);
@@ -35,7 +35,10 @@ const HeroSection: React.FC = () => {
       } else {
         console.log('用户未登录，调用登录函数');
         if (typeof login === 'function') {
-          login('/new-adapt');
+          // 保存登录后的跳转地址
+          localStorage.setItem('login_redirect_to', '/new-adapt');
+          // 调用登录函数
+          await login();
         } else {
           console.error('❌ login函数不可用:', login);
           // 备用方案：直接跳转到登录页面

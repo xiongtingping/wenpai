@@ -60,21 +60,127 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (): Promise<void> => {
     if (!isAuthConfigValid(cfg)) {
       setError('Auth 配置无效');
+      logger.error('Auth 配置无效:', cfg);
       return;
     }
+
     try {
+      logger.debug('开始初始化 Authing Guard...');
+      setError(null);
+
       const mod = await import('@authing/guard');
       const { Guard } = mod as any;
+
       if (!guardRef.current) {
-        guardRef.current = new Guard({ appId: cfg.appId, host: `https://${cfg.host}`, redirectUri: cfg.redirectUri });
+        // 确保使用完整的HTTPS URL
+        const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
+
+        logger.debug('Guard配置:', {
+          appId: cfg.appId,
+          host: cleanHost,
+          redirectUri: cfg.redirectUri
+        });
+
+        guardRef.current = new Guard({
+          appId: cfg.appId,
+          host: cleanHost,
+          redirectUri: cfg.redirectUri,
+          mode: 'modal', // 使用弹窗模式
+          autoFocus: false,
+          escCloseable: true,
+          clickCloseable: true,
+          maskCloseable: true,
+          lang: 'zh-CN',
+          // 添加更多配置选项
+          defaultScene: 'login',
+          autoRegister: false,
+          skipComplateFileds: false,
+          skipComplateFiledsPlace: 'modal',
+          closeable: true,
+          clickCloseableMask: true,
+          // 登录配置
+          loginMethodList: ['password', 'phone-code', 'email-code'],
+          // 注册配置
+          registerMethodList: ['phone', 'email'],
+          // 界面配置
+          logo: 'https://files.authing.co/authing-console/default-app-logo.png',
+          title: '文派'
+        });
+
+        // 添加事件监听器
+        guardRef.current.on('login', (userInfo: any) => {
+          logger.debug('登录成功:', userInfo);
+          const user = {
+            id: userInfo.id || userInfo.sub,
+            username: userInfo.username,
+            email: userInfo.email,
+            phone: userInfo.phone,
+            nickname: userInfo.nickname || userInfo.name,
+            avatar: userInfo.avatar || userInfo.picture,
+            token: userInfo.token || userInfo.access_token
+          };
+
+          // 保存用户信息
+          setUser(user);
+          localStorage.setItem('auth_token', user.token || '');
+          localStorage.setItem('authing_user', JSON.stringify(user));
+
+          // 关闭弹窗
+          guardRef.current?.hide();
+
+          // 处理登录后跳转
+          const redirectTo = localStorage.getItem('login_redirect_to');
+          if (redirectTo) {
+            localStorage.removeItem('login_redirect_to');
+            // 使用setTimeout确保状态更新完成后再跳转
+            setTimeout(() => {
+              window.location.href = redirectTo;
+            }, 100);
+          }
+        });
+
+        guardRef.current.on('register', (userInfo: any) => {
+          logger.debug('注册成功:', userInfo);
+          // 注册成功后的处理逻辑与登录相同
+          guardRef.current?.emit('login', userInfo);
+        });
+
+        guardRef.current.on('login-error', (error: any) => {
+          logger.error('登录失败:', error);
+          setError(error?.message || '登录失败');
+        });
+
+        guardRef.current.on('close', () => {
+          logger.debug('Guard弹窗已关闭');
+        });
       }
-      await guardRef.current.start('#authing_container');
-      // Guard 关闭后，尝试从 localStorage 等处恢复用户（示例占位）
-      const token = localStorage.getItem('auth_token') || '';
-      const profile = token ? { id: 'uid', nickname: '用户', token } : null;
-      setUser(profile as any);
+
+      // 显示登录弹窗
+      logger.debug('显示 Authing Guard 弹窗...');
+
+      // 尝试多种显示方法
+      try {
+        if (typeof guardRef.current.show === 'function') {
+          await guardRef.current.show();
+        } else if (typeof guardRef.current.start === 'function') {
+          await guardRef.current.start('#authing_container');
+        } else {
+          logger.error('Guard实例没有可用的显示方法');
+        }
+      } catch (showError) {
+        logger.error('显示Guard弹窗失败:', showError);
+        // 尝试备用方法
+        try {
+          await guardRef.current.start('#authing_container');
+        } catch (startError) {
+          logger.error('启动Guard失败:', startError);
+          throw new Error('无法显示登录弹窗');
+        }
+      }
+
     } catch (e: any) {
-      setError(e?.message || '登录失败');
+      logger.error('Guard初始化失败:', e);
+      setError(e?.message || '登录系统初始化失败');
     }
   };
 
@@ -101,8 +207,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={api}>
       {children}
-      {/* Guard 容器占位 */}
-      <div id="authing_container" style={{ display: 'none' }} />
+      {/* Guard 容器 - 移除 display: none，让弹窗正常显示 */}
+      <div id="authing_container" />
     </AuthContext.Provider>
   );
 };

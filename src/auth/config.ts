@@ -9,12 +9,21 @@ export interface AuthConfig {
 
 export const getAuthConfig = (): AuthConfig => {
   const appId = import.meta.env.VITE_AUTHING_APP_ID || '';
-  const host = import.meta.env.VITE_AUTHING_DOMAIN || import.meta.env.VITE_AUTHING_HOST || '';
-  const redirectUri =
-    import.meta.env.VITE_AUTHING_REDIRECT_URI ||
-    import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD ||
-    import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV ||
-    (typeof window !== 'undefined' ? `${window.location.origin}/callback` : '/callback');
+
+  // 优先使用DOMAIN，如果没有则使用HOST，保持完整URL格式
+  let host = import.meta.env.VITE_AUTHING_DOMAIN || import.meta.env.VITE_AUTHING_HOST || '';
+  // 确保host包含协议
+  if (host && !host.startsWith('http')) {
+    host = `https://${host}`;
+  }
+
+  // 根据环境选择回调地址
+  const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
+  const redirectUri = isDev
+    ? (import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback')
+    : (import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || `${window.location.origin}/callback`);
+
+  console.log('🔧 Auth配置:', { appId, host, redirectUri, isDev });
 
   return { appId, host, redirectUri };
 };
