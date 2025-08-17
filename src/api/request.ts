@@ -82,21 +82,21 @@ const getAPIConfig = (): APIConfig => {
   };
 };
 
+// 提供可注入的用户令牌获取器，供认证模块设置 - 移到全局作用域
+let authTokenGetter: (() => string | null | undefined) | null = null;
+
 /**
  * 创建axios实例
  */
 const createAxiosInstance = (): AxiosInstance => {
   const config = getAPIConfig();
-  
+
   const instance = axios.create({
     timeout: 30000, // 30秒超时
     headers: {
       'Content-Type': 'application/json',
     },
   });
-
-// 提供可注入的用户令牌获取器，供认证模块设置
-let authTokenGetter: (() => string | null | undefined) | null = null;
 
 // 请求拦截器
 instance.interceptors.request.use(
