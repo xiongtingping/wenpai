@@ -101,9 +101,6 @@ const App: React.FC = () => {
                     <Route path="/privacy" element={<PrivacyPage />} />
                     <Route path="/features" element={<FeatureShowcasePage />} />
 
-                    {/* 测试页面 */}
-                    <Route path="/login-test" element={<LoginTestPage />} />
-                    
                     {/* 错误页面 */}
                     <Route path="/403" element={<ForbiddenPage />} />
                     <Route path="/404" element={<NotFoundPage />} />
