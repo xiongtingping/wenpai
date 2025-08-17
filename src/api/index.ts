@@ -21,11 +21,7 @@ export {
   generateImage as generateDirectImage
 } from './ai';
 
-// 认证相关 API
-export { 
-  getAuthingConfig, 
-  getGuardConfig
-} from '../config/authing';
+// 认证系统已下线：不再导出认证相关 API
 
 // 支付相关 API
 export { 

@@ -1,0 +1,5 @@
+src/api/index.ts(28,8): error TS2307: Cannot find module '../config/authing' or its corresponding type declarations.
+src/pages/GuardConfigTestPage.tsx(2,34): error TS2307: Cannot find module '@/config/authing' or its corresponding type declarations.
+src/pages/GuardConfigTestPage.tsx(3,39): error TS2307: Cannot find module '@/utils/authingGuardSafeWrapper' or its corresponding type declarations.
+src/pages/GuardConfigTestPage.tsx(33,14): error TS2307: Cannot find module '@authing/guard' or its corresponding type declarations.
+src/pages/ProfilePage.tsx(64,25): error TS2307: Cannot find module '@/services/authService' or its corresponding type declarations.

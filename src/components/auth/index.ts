@@ -10,7 +10,35 @@
  */
 
 // ============================================================================
-// 核心认证组件 (推荐使用)
+// 🔐 新的统一付费墙系统 (推荐使用)
+// ============================================================================
+
+/**
+ * 统一混合付费墙守卫 - 主要付费墙组件
+ * 用途：实现统一的按钮加锁提示升级UI，支持多种模式
+ */
+export { default as UnifiedPaywallGuard } from './UnifiedPaywallGuard';
+
+/**
+ * 付费墙按钮 - 按钮级付费墙控制
+ * 用途：统一的按钮加锁UI，支持多种按钮样式和交互
+ */
+export { default as PaywallButton } from './PaywallButton';
+
+/**
+ * 付费墙卡片 - 卡片级付费墙控制
+ * 用途：统一的卡片加锁UI，适用于功能卡片、内容区域等
+ */
+export { default as PaywallCard } from './PaywallCard';
+
+/**
+ * 权限守卫 - 统一混合付费墙权限守卫
+ * 用途：实现按订阅版本解锁功能，统一UI格式
+ */
+export { PermissionGuard } from './PermissionGuard';
+
+// ============================================================================
+// 核心认证组件 (保留兼容性)
 // ============================================================================
 
 /**
@@ -20,22 +48,16 @@
 export { UnifiedPermissionGuard } from './UnifiedPermissionGuard';
 
 /**
- * 权限守卫 - 简化版权限控制
- * 用途：组件级权限控制，轻量级使用
- */
-export { PermissionGuard } from './PermissionGuard';
-
-/**
  * 用户头像组件 - 用户信息展示
  * 用途：导航栏、用户中心等用户信息展示
  */
 export { UserAvatar } from './UserAvatar';
 
 /**
- * Authing Guard组件 - 登录弹窗
- * 用途：自定义登录流程，高级用法
+ * Authing Guard 相关组件已下线
+ * 提示：认证系统已移除，不再提供登录弹窗组件
  */
-export { AuthingGuard } from './AuthingGuard';
+// export { AuthingGuard } from './AuthingGuard';
 
 // ============================================================================
 // 权限相关组件
@@ -147,26 +169,37 @@ export { PermissionOverlay } from './PermissionOverlay';
 
 /**
  * 推荐的组件使用方案：
- * 
- * 1. 页面级权限控制：
+ *
+ * 🔐 新的统一付费墙系统：
+ *
+ * 1. 统一付费墙守卫（推荐）：
+ *    <UnifiedPaywallGuard requiredTier="pro" featureName="创意魔方" mode="button">
+ *      <YourComponent />
+ *    </UnifiedPaywallGuard>
+ *
+ * 2. 付费墙按钮：
+ *    <PaywallButton requiredTier="premium" featureName="高级功能" onClick={handleClick}>
+ *      高级功能按钮
+ *    </PaywallButton>
+ *
+ * 3. 付费墙卡片：
+ *    <PaywallCard requiredTier="pro" featureName="专业功能" mode="overlay">
+ *      <YourCard />
+ *    </PaywallCard>
+ *
+ * 4. 权限守卫（混合付费墙）：
+ *    <PermissionGuard requiredTier="pro" featureName="功能名称" buttonMode={true}>
+ *      <YourComponent />
+ *    </PermissionGuard>
+ *
+ * 🔧 兼容性组件：
+ *
+ * 5. 页面级权限控制：
  *    <UnifiedPermissionGuard required="feature:premium">
  *      <YourPage />
  *    </UnifiedPermissionGuard>
- * 
- * 2. 组件级权限控制：
- *    <PermissionGuard required="auth:required">
- *      <YourComponent />
- *    </PermissionGuard>
- * 
- * 3. 按钮级权限控制：
- *    <PermissionLockedButton permission="feature:upload">
- *      上传文件
- *    </PermissionLockedButton>
- * 
- * 4. 用户信息展示：
- *    <UserAvatar showUsername={true} />
- * 
- * 5. 订阅级别控制：
+ *
+ * 6. 订阅级别控制：
  *    <SubscriptionGuard requiredTier="pro">
  *      <PremiumFeature />
  *    </SubscriptionGuard>

@@ -338,13 +338,7 @@ export class BrandCorpusService {
     const startTime = Date.now();
 
     try {
-      // 检查API配置
-      const { getAPIConfig } = await import('@/config/apiConfig');
-      const config = getAPIConfig();
-
-      if (!config.deepseek.apiKey || config.deepseek.apiKey === 'your_deepseek_key_here') {
-        throw new Error('DeepSeek API密钥未配置或使用默认占位符。请在.env文件中设置正确的VITE_DEEPSEEK_API_KEY');
-      }
+      // 已删除API配置检查，直接使用配置管理器
 
       // 预处理内容
       const cleanedContent = this.preprocessContent(content);

@@ -35,7 +35,7 @@ import {
   formatTimeLeft as formatTimeLeftUtil
 } from "@/utils/paymentTimer";
 import { paymentStatusService } from '@/services/paymentStatusService';
-import { creemOptimizer } from '@/utils/creemOptimizer';
+// 已删除creemOptimizer导入，直接使用Creem API
 
 const CreemAlipayQRCode: React.FC<{ 
   priceId: string;
@@ -162,7 +162,24 @@ export default function PaymentPage() {
         throw new Error('支付配置错误');
       }
 
-      const checkout = await creemOptimizer.smartCreateCheckout(priceId, apiKey);
+      // 直接调用Creem API创建支付订单
+      const response = await fetch('https://api.creem.com/v1/checkout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          price_id: priceId,
+          payment_method: 'alipay'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`支付订单创建失败: ${response.status}`);
+      }
+
+      const checkout = await response.json();
 
       setCurrentCheckout(checkout);
       setPaymentStatus('pending');

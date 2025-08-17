@@ -50,7 +50,7 @@ import { WebContentExtractorService, WebExtractionResult } from '@/services/webC
 import BrandCorpusService, { BrandCorpus, BrandCorpusExtraction, BrandCorpusSource } from '@/services/brandCorpusService';
 import FileFormatSupportService from '@/services/fileFormatSupportService';
 import FileFormatDisplay from '@/components/ui/FileFormatDisplay';
-import { testDeepSeekAPI, diagnoseAPIIssues } from '@/utils/apiTest';
+// 已删除API测试工具导入，直接使用真实API
 
 /**
  * 品牌信息条目接口
@@ -235,27 +235,7 @@ export default function BrandLibraryPageFixed() {
   const corpusService = BrandCorpusService.getInstance();
 
   // 检查API配置
-  useEffect(() => {
-    const checkAPIConfig = async () => {
-      try {
-        const { getAPIConfig } = await import('@/config/apiConfig');
-        const config = getAPIConfig();
-
-        if (!config.deepseek.apiKey || config.deepseek.apiKey === 'your_deepseek_key_here') {
-          toast({
-            title: "AI服务配置提醒",
-            description: "DeepSeek API密钥未配置，AI分析功能将无法使用。请在.env文件中设置VITE_DEEPSEEK_API_KEY",
-            variant: "default",
-            duration: 8000,
-          });
-        }
-      } catch (error) {
-        console.error('API配置检查失败:', error);
-      }
-    };
-
-    checkAPIConfig();
-  }, []);
+  // 已删除API配置检查，直接使用配置管理器
 
   // 初始化示例数据已删除 - 保持空状态，等待用户上传
 
@@ -296,13 +276,13 @@ export default function BrandLibraryPageFixed() {
             dim.icon && typeof dim.icon === 'object' && dim.icon.type
           );
           if (hasCorruptedData) {
-            console.log('🧹 检测到损坏的localStorage数据，正在清除...');
+            // 检测到损坏的localStorage数据，正在清除
             localStorage.removeItem('brandDimensions');
             localStorage.removeItem('brandDimensionsTimestamp');
           }
         }
       } catch (error) {
-        console.log('🧹 清除localStorage数据时出错，移除所有相关数据');
+        // 清除localStorage数据时出错，移除所有相关数据
         localStorage.removeItem('brandDimensions');
         localStorage.removeItem('brandDimensionsTimestamp');
       }
@@ -479,7 +459,7 @@ export default function BrandLibraryPageFixed() {
     const savedDimensions = loadDimensionsFromStorage();
     if (savedDimensions.length > 0) {
       setBrandDimensions(savedDimensions);
-      console.log('📂 从localStorage恢复品牌维度数据:', savedDimensions.length, '个维度');
+      // 从localStorage恢复品牌维度数据
     } else {
       // 如果没有保存的数据，则初始化默认维度
       initializeDimensions();
@@ -489,12 +469,12 @@ export default function BrandLibraryPageFixed() {
     const savedAssets = loadAssetsFromStorage();
     if (savedAssets.length > 0) {
       setBrandAssets(savedAssets);
-      console.log('📂 从localStorage恢复资产:', savedAssets.length, '个文件');
+      // 从localStorage恢复资产
 
       // 检查是否有未完成的分析任务
       const pendingAssets = savedAssets.filter(asset => asset.status === 'processing');
       if (pendingAssets.length > 0) {
-        console.log('🔄 发现未完成的分析任务，继续后台处理:', pendingAssets.length, '个文件');
+        // 发现未完成的分析任务，继续后台处理
         setTimeout(() => startBackgroundAnalysis(pendingAssets), 2000);
       }
     }
@@ -834,98 +814,9 @@ export default function BrandLibraryPageFixed() {
   };
 
   // API连接测试
-  const handleAPITest = async () => {
-    try {
-      toast({
-        title: "开始API测试",
-        description: "正在测试DeepSeek API连接...",
-      });
+  // 已删除API测试功能
 
-      const diagnosis = await diagnoseAPIIssues();
-
-      console.log('🔍 API诊断结果:', diagnosis);
-
-      if (diagnosis.deepseek.success) {
-        toast({
-          title: "✅ API连接正常",
-          description: "DeepSeek API可以正常使用，AI分析功能应该能正常工作",
-          duration: 5000,
-        });
-      } else {
-        toast({
-          title: "❌ API连接失败",
-          description: `${diagnosis.deepseek.message}。建议：${diagnosis.recommendations.slice(0, 2).join('、')}`,
-          variant: "destructive",
-          duration: 8000,
-        });
-
-        // 显示详细的诊断信息
-        setTimeout(() => {
-          toast({
-            title: "诊断建议",
-            description: diagnosis.recommendations.join('；'),
-            duration: 10000,
-          });
-        }, 1000);
-      }
-    } catch (error) {
-      console.error('API测试失败:', error);
-      toast({
-        title: "测试失败",
-        description: "无法执行API测试，请检查网络连接",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // 简化AI测试
-  const handleSimpleAITest = async () => {
-    try {
-      toast({
-        title: "开始简化AI测试",
-        description: "测试基础AI调用功能...",
-      });
-
-      console.log('🧪 开始简化AI测试');
-
-      // 动态导入AI服务
-      const { callAI, AITaskType } = await import('@/api/aiService');
-
-      // 使用最简单的AI调用测试
-      const testResult = await callAI({
-        prompt: "请回复：测试成功",
-        taskType: AITaskType.GENERAL_CHAT,
-        model: 'deepseek-chat',
-        maxTokens: 50,
-        temperature: 0.1
-      });
-
-      console.log('🧪 AI测试结果:', testResult);
-
-      if (testResult && testResult.content) {
-        toast({
-          title: "✅ AI调用成功",
-          description: `AI响应: ${testResult.content.substring(0, 50)}...`,
-          duration: 5000,
-        });
-      } else {
-        toast({
-          title: "⚠️ AI调用异常",
-          description: "AI有响应但格式异常，请检查配置",
-          variant: "destructive",
-          duration: 5000,
-        });
-      }
-    } catch (error) {
-      console.error('❌ 简化AI测试失败:', error);
-      toast({
-        title: "❌ AI调用失败",
-        description: `错误: ${error instanceof Error ? error.message : '未知错误'}`,
-        variant: "destructive",
-        duration: 8000,
-      });
-    }
-  };
+  // 已删除AI测试功能
 
   // 停止AI分析
   const handleStopAnalysis = () => {

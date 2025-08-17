@@ -1,5 +1,5 @@
 import './index.css';
-// ✅ FIXED: 2025-07-25 添加Authing Guard样式文件，修复图标显示异常
+// 认证系统：使用 @authing/guard 的样式
 import '@authing/guard/dist/esm/guard.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';

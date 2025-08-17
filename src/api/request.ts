@@ -93,40 +93,50 @@ const createAxiosInstance = (): AxiosInstance => {
     },
   });
 
-  // 请求拦截器
-  instance.interceptors.request.use(
-    (config) => {
-      // 根据URL自动添加对应的API密钥
-      const url = config.url || '';
-      
-      if (url.includes('openai') || url.includes('api.openai.com')) {
-        config.headers.Authorization = `Bearer ${getAPIConfig().openai.apiKey}`;
-        config.baseURL = getAPIConfig().openai.baseURL;
-      } else if (url.includes('gemini') || url.includes('generativelanguage.googleapis.com')) {
-        config.headers['x-goog-api-key'] = getAPIConfig().gemini.apiKey;
-        config.baseURL = getAPIConfig().gemini.baseURL;
-      } else if (url.includes('deepseek') || url.includes('api.deepseek.com')) {
-        config.headers.Authorization = `Bearer ${getAPIConfig().deepseek.apiKey}`;
-        config.baseURL = getAPIConfig().deepseek.baseURL;
-      } else if (url.includes('creem') || url.includes('api.creem.com')) {
-        config.headers['x-api-key'] = getAPIConfig().creem.apiKey;
-        config.baseURL = getAPIConfig().creem.baseURL;
-      }
-      
-      console.log('🔧 API请求:', {
-        method: config.method?.toUpperCase(),
-        url: config.url,
-        baseURL: config.baseURL,
-        hasAuth: !!config.headers.Authorization || !!config.headers['x-goog-api-key'] || !!config.headers['x-api-key']
-      });
-      
-      return config;
-    },
-    (error) => {
-      console.error('❌ 请求拦截器错误:', error);
-      return Promise.reject(error);
+// 提供可注入的用户令牌获取器，供认证模块设置
+let authTokenGetter: (() => string | null | undefined) | null = null;
+
+// 请求拦截器
+instance.interceptors.request.use(
+  (config) => {
+    // 根据URL自动添加对应的API密钥
+    const url = config.url || '';
+
+    // 优先附加用户身份令牌（若存在）
+    const token = authTokenGetter ? authTokenGetter() : null;
+    if (token) {
+      config.headers = config.headers || {};
+      (config.headers as any).Authorization = `Bearer ${token}`;
     }
-  );
+
+    if (url.includes('openai') || url.includes('api.openai.com')) {
+      config.headers.Authorization = `Bearer ${getAPIConfig().openai.apiKey}`;
+      config.baseURL = getAPIConfig().openai.baseURL;
+    } else if (url.includes('gemini') || url.includes('generativelanguage.googleapis.com')) {
+      (config.headers as any)['x-goog-api-key'] = getAPIConfig().gemini.apiKey;
+      config.baseURL = getAPIConfig().gemini.baseURL;
+    } else if (url.includes('deepseek') || url.includes('api.deepseek.com')) {
+      config.headers.Authorization = `Bearer ${getAPIConfig().deepseek.apiKey}`;
+      config.baseURL = getAPIConfig().deepseek.baseURL;
+    } else if (url.includes('creem') || url.includes('api.creem.com')) {
+      (config.headers as any)['x-api-key'] = getAPIConfig().creem.apiKey;
+      config.baseURL = getAPIConfig().creem.baseURL;
+    }
+
+    console.log('🔧 API请求:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      hasAuth: !!(config.headers as any)?.Authorization || !!(config.headers as any)['x-goog-api-key'] || !!(config.headers as any)['x-api-key']
+    });
+
+    return config;
+  },
+  (error) => {
+    console.error('❌ 请求拦截器错误:', error);
+    return Promise.reject(error);
+  }
+);
 
   // 响应拦截器
   instance.interceptors.response.use(
@@ -268,8 +278,15 @@ export const validateAPIConfig = (): boolean => {
 };
 
 /**
+ * 设置认证令牌获取器
+ */
+export const setAuthTokenGetter = (getter: () => string | null | undefined) => {
+  authTokenGetter = getter;
+};
+
+/**
  * 导出axios实例（仅用于特殊情况）
  */
 export { axiosInstance };
 
-export default request; 
+export default request;

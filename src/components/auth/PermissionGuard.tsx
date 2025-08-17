@@ -1,99 +1,257 @@
 /**
- * ✅ FIXED: 2025-08-04 架构级重构 - 优化权限检查逻辑
- * 🔒 LOCKED: 此重构已验证解决React无限循环问题，请勿修改
+ * 🔐 统一混合付费墙权限守卫组件
+ * 实现按订阅版本解锁功能，统一UI格式为按钮加锁提示升级
  *
- * 🐛 原问题：权限检查在渲染过程中触发状态更新，导致无限循环
- * 🔧 修复方案：使用React.memo优化、缓存权限结果、避免渲染时状态更新
+ * 功能特性：
+ * - 体验版：能访问功能和页面内容，但是受限（只读/灰色按钮），提示升级
+ * - 专业版：解锁专业功能
+ * - 高级版：解锁所有功能，无限制
+ *
+ * 混合付费墙策略：
+ * - 前端显示：所有功能入口对免费用户可见，但不可使用
+ * - 按钮灰色或加锁，点击时弹出「升级解锁」提示
+ * - 后端接口必须进行二次验证，禁止通过修改前端绕过限制
  */
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Lock, Crown, Zap, Star } from 'lucide-react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { getUserTier, hasPermission, getTierDisplayName } from '@/utils/subscriptionUtils';
+
+export type SubscriptionTier = 'trial' | 'pro' | 'premium';
 
 export interface PermissionGuardProps {
   children: React.ReactNode;
-  required?: string;
+  /** 所需的最低订阅等级 */
+  requiredTier?: SubscriptionTier;
+  /** 功能名称，用于升级提示 */
+  featureName?: string;
+  /** 功能描述 */
+  description?: string;
+  /** 是否显示为按钮模式（灰色+锁定） */
+  buttonMode?: boolean;
+  /** 自定义样式类名 */
+  className?: string;
+  /** 无权限时的回退组件 */
   fallback?: React.ReactNode;
-  autoRedirect?: boolean;
+  /** 是否禁用交互（点击无效果） */
+  disableInteraction?: boolean;
 }
 
-// ✅ 权限检查结果缓存，避免重复计算
-const permissionCache = new Map<string, boolean>();
-const CACHE_TTL = 5000; // 5秒缓存
-const cacheTimestamps = new Map<string, number>();
-
 /**
- * 安全的权限检查函数 - 避免在渲染过程中触发状态更新
+ * 获取等级图标
  */
-const checkPermissionSafely = (
-  required: string | undefined,
-  isAuthenticated: boolean,
-  user: any,
-  isDevelopment: boolean
-): boolean => {
-  if (!required) return true;
-
-  // 移除开发环境权限绕过，使用真实权限检查
-
-  console.log('🔒 权限检查:', required, { isAuthenticated, user: user?.id });
-
-  // 缓存检查
-  const cacheKey = `${required}_${isAuthenticated}_${user?.id || 'anonymous'}`;
-  const now = Date.now();
-  const cachedTime = cacheTimestamps.get(cacheKey);
-
-  if (cachedTime && (now - cachedTime) < CACHE_TTL && permissionCache.has(cacheKey)) {
-    return permissionCache.get(cacheKey)!;
+const getTierIcon = (tier: SubscriptionTier) => {
+  switch (tier) {
+    case 'premium':
+      return <Crown className="h-4 w-4" />;
+    case 'pro':
+      return <Zap className="h-4 w-4" />;
+    case 'trial':
+    default:
+      return <Star className="h-4 w-4" />;
   }
-
-  // 权限检查逻辑
-  let hasPermission = false;
-
-  if (!isAuthenticated || !user) {
-    hasPermission = false;
-  } else if (required === 'auth:required') {
-    hasPermission = true;
-  } else if (required.startsWith('feature:')) {
-    // 功能权限检查
-    hasPermission = true; // 简化实现，实际可根据需要扩展
-  } else {
-    hasPermission = false;
-  }
-
-  // 更新缓存
-  permissionCache.set(cacheKey, hasPermission);
-  cacheTimestamps.set(cacheKey, now);
-
-  return hasPermission;
 };
 
 /**
- * 权限守卫组件 - 使用React.memo优化性能
+ * 获取等级颜色
  */
-export const PermissionGuard: React.FC<PermissionGuardProps> = React.memo(({
+const getTierColor = (tier: SubscriptionTier) => {
+  switch (tier) {
+    case 'premium':
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+    case 'pro':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+    case 'trial':
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+  }
+};
+
+/**
+ * 统一混合付费墙权限守卫组件
+ */
+export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   children,
-  required,
-  fallback = <div>权限不足</div>
+  requiredTier = 'trial',
+  featureName = '此功能',
+  description,
+  buttonMode = false,
+  className = '',
+  fallback,
+  disableInteraction = false
 }) => {
   const { user, isAuthenticated } = useUnifiedAuth();
+  const navigate = useNavigate();
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
 
-  // ✅ FIXED: 检查强制生产模式
-  const forceProductionMode = useMemo(() =>
-    import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true', []);
-  const isDevelopment = useMemo(() =>
-    !forceProductionMode && import.meta.env.DEV, [forceProductionMode]);
+  // 获取用户当前等级
+  const userTier = useMemo(() => {
+    if (!isAuthenticated || !user) return 'trial';
+    return getUserTier(user);
+  }, [user, isAuthenticated]);
 
-  // ✅ 使用useMemo缓存权限检查结果，避免每次渲染都重新计算
-  const hasPermission = useMemo(() => {
-    return checkPermissionSafely(required, isAuthenticated, user, isDevelopment);
-  }, [required, isAuthenticated, user?.id, isDevelopment]);
+  // 检查权限
+  const hasAccess = useMemo(() => {
+    return hasPermission(user, requiredTier);
+  }, [user, requiredTier]);
 
-  // ✅ 使用useCallback优化渲染性能
-  const renderContent = useCallback(() => {
-    return hasPermission ? children : fallback;
-  }, [hasPermission, children, fallback]);
+  // 处理升级点击
+  const handleUpgradeClick = () => {
+    if (disableInteraction) return;
+    setShowUpgradeDialog(true);
+  };
 
-  return <>{renderContent()}</>;
-});
+  // 处理升级确认
+  const handleUpgradeConfirm = () => {
+    setShowUpgradeDialog(false);
+    navigate('/payment');
+  };
 
-// ✅ 设置displayName以便调试
+  // 如果有权限，直接渲染
+  if (hasAccess) {
+    return <div className={className}>{children}</div>;
+  }
+
+  // 按钮模式：显示灰色锁定按钮
+  if (buttonMode) {
+    return (
+      <>
+        <div className={`relative ${className}`}>
+          <div className="opacity-50 pointer-events-none">
+            {children}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleUpgradeClick}
+              className="bg-background/90 backdrop-blur-sm border-dashed"
+              disabled={disableInteraction}
+            >
+              <Lock className="h-3 w-3 mr-1" />
+              升级解锁
+            </Button>
+          </div>
+        </div>
+
+        {/* 升级对话框 */}
+        <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Lock className="h-5 w-5" />
+                升级解锁 {featureName}
+              </DialogTitle>
+              <DialogDescription>
+                {description || `${featureName} 需要 ${getTierDisplayName(requiredTier)} 或更高版本才能使用。`}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">当前版本：</span>
+                  <Badge variant="outline" className={getTierColor(userTier)}>
+                    {getTierIcon(userTier)}
+                    <span className="ml-1">{getTierDisplayName(userTier)}</span>
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">所需版本：</span>
+                  <Badge className={getTierColor(requiredTier)}>
+                    {getTierIcon(requiredTier)}
+                    <span className="ml-1">{getTierDisplayName(requiredTier)}</span>
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowUpgradeDialog(false)} className="flex-1">
+                  取消
+                </Button>
+                <Button onClick={handleUpgradeConfirm} className="flex-1">
+                  <Crown className="h-4 w-4 mr-2" />
+                  立即升级
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  // 默认模式：显示内容但添加锁定提示
+  return (
+    <>
+      <div className={`relative ${className}`}>
+        <div className="opacity-75">
+          {children}
+        </div>
+
+        {/* 锁定提示覆盖层 */}
+        <div
+          className="absolute top-2 right-2 z-10 cursor-pointer"
+          onClick={handleUpgradeClick}
+        >
+          <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm border-dashed">
+            <Lock className="h-3 w-3 mr-1" />
+            {getTierDisplayName(requiredTier)}
+          </Badge>
+        </div>
+      </div>
+
+      {/* 升级对话框 */}
+      <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5" />
+              升级解锁 {featureName}
+            </DialogTitle>
+            <DialogDescription>
+              {description || `${featureName} 需要 ${getTierDisplayName(requiredTier)} 或更高版本才能使用。`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">当前版本：</span>
+                <Badge variant="outline" className={getTierColor(userTier)}>
+                  {getTierIcon(userTier)}
+                  <span className="ml-1">{getTierDisplayName(userTier)}</span>
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">所需版本：</span>
+                <Badge className={getTierColor(requiredTier)}>
+                  {getTierIcon(requiredTier)}
+                  <span className="ml-1">{getTierDisplayName(requiredTier)}</span>
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowUpgradeDialog(false)} className="flex-1">
+                取消
+              </Button>
+              <Button onClick={handleUpgradeConfirm} className="flex-1">
+                <Crown className="h-4 w-4 mr-2" />
+                立即升级
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+// 设置displayName以便调试
 PermissionGuard.displayName = 'PermissionGuard';

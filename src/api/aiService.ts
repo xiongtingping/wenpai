@@ -31,7 +31,7 @@
  * - 复制封装函数至其他模块（禁止重复分发调用逻辑）
  */
 
-import { getAPIConfig } from '@/config/apiConfig';
+import { configManager, getAIConfig } from '@/config/configManager';
 import request from './request';
 import { queueAPICall } from '@/utils/apiRequestQueue';
 import { getPrompt, PromptType } from '@/prompts/PromptSystem';
@@ -342,7 +342,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
   });
 
   try {
-    const config = getAPIConfig();
+    const config = await getAIConfig();
     const isDev = import.meta.env.DEV;
 
     let result: AIResponse;
@@ -512,7 +512,7 @@ export async function checkAIStatus(): Promise<{
   deepseek: boolean;
   message: string;
 }> {
-  const config = getAPIConfig();
+  const config = await getAIConfig();
   const status = {
     deepseek: false,
     message: ''

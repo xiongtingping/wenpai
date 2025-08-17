@@ -320,25 +320,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
 
     // ✅ FIXED: 2025-08-02 增强浏览器网络错误处理
     // 导入浏览器网络诊断模块
-    try {
-      import('../utils/browserNetworkFix').then(module => {
-        if (module && typeof module.diagnoseBrowserNetworkIssue === 'function') {
-          const diagnostic = module.diagnoseBrowserNetworkIssue(error);
-          console.log('🔍 浏览器网络问题诊断:', diagnostic);
-          
-          if (diagnostic.canAutoFix) {
-            console.log('🔄 尝试自动修复浏览器网络问题...');
-            module.applyBrowserNetworkFix();
-          }
-        } else {
-          console.warn('⚠️ 浏览器网络诊断模块加载失败');
-        }
-      }).catch(importError => {
-        console.warn('⚠️ 浏览器网络诊断模块导入失败:', importError);
-      });
-    } catch (diagnosticError) {
-      console.warn('⚠️ 浏览器网络诊断执行失败:', diagnosticError);
-    }
+    // 已删除浏览器网络修复功能
 
     // 详细的错误分析和用户友好提示
     let userFriendlyError = '未知错误';

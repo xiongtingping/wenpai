@@ -917,33 +917,13 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         // Step 4: 标题过滤逻辑（V3.1 规范）
         console.log('🔍 Step 4: 应用V3.1质量过滤逻辑');
         
-        // ✅ FIXED: 使用静态导入，避免动态导入延迟
-        let titleGenerationUtils: any = null;
-        try {
-          // 使用静态导入，避免动态导入的延迟和错误
-          const { calculateSemanticCompleteness, calculateEmotionalAppeal } = await import('../utils/titleGenerationUtils');
-          titleGenerationUtils = { calculateSemanticCompleteness, calculateEmotionalAppeal };
-        } catch (error) {
-          console.warn('标题评分工具加载失败，使用默认评分:', error);
-          // 提供默认实现
-          titleGenerationUtils = {
-            calculateSemanticCompleteness: () => 0.8,
-            calculateEmotionalAppeal: () => 0.8
-          };
-        }
+        // 已删除标题评分工具，使用简化评分
         
         const newTitles: GeneratedTitle[] = aiResult.titles.map((titleData, index) => {
           // 计算V3.2评分
-          let semanticCompleteness = 0.8;
-          let emotionalScore = 0.8;
-          try {
-            if (titleGenerationUtils) {
-              semanticCompleteness = titleGenerationUtils.calculateSemanticCompleteness(titleData.title);
-              emotionalScore = titleGenerationUtils.calculateEmotionalAppeal(titleData.title);
-            }
-          } catch (error) {
-            console.warn('评分计算失败，使用默认值:', error);
-          }
+          // 使用简化评分
+          const semanticCompleteness = 0.8;
+          const emotionalScore = 0.8;
 
           return {
             id: `title-${Date.now()}-${index}`,
@@ -1279,48 +1259,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     });
   }, [content, titles.length, isGenerating, platformId, platformName]);
 
-  // ✅ FIXED: 应用浏览器网络修复 - 解决网络连接问题
-  useEffect(() => {
-    const applyNetworkFix = async () => {
-      try {
-        const { applyBrowserNetworkFix } = await import('../utils/browserNetworkFix');
-        applyBrowserNetworkFix({
-          maxRetries: 3,
-          baseDelay: 500,
-          maxDelay: 5000,
-          timeout: 15000,
-          enableCorsFix: true,
-          enableRetryFix: true,
-          enableTimeoutFix: true
-        });
-        console.log('✅ 浏览器网络修复已应用');
-        
-        // ✅ FIXED: 应用CORS优化
-        if (typeof window !== 'undefined') {
-          // 优化fetch配置
-          const originalFetch = window.fetch;
-          window.fetch = async (input, init) => {
-            const optimizedInit = {
-              mode: 'cors' as RequestMode,
-              cache: 'no-cache' as RequestCache,
-              credentials: 'omit' as RequestCredentials,
-              headers: {
-                'Content-Type': 'application/json',
-                ...init?.headers,
-              },
-              ...init,
-            };
-            return originalFetch(input, optimizedInit);
-          };
-          console.log('✅ CORS优化已应用');
-        }
-      } catch (error) {
-        console.warn('⚠️ 浏览器网络修复应用失败:', error);
-      }
-    };
-    
-    applyNetworkFix();
-  }, []); // 只在组件挂载时执行一次
+  // 已删除浏览器网络修复功能
 
   // ✅ FIXED: 性能优化 - 使用useCallback优化函数引用
   const memoizedGenerateTitles = useCallback(async () => {

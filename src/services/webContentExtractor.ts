@@ -84,13 +84,25 @@ export class WebContentExtractorService {
 
       try {
         // 由于浏览器安全限制，我们无法直接抓取跨域网页内容
-        // 这里我们使用一个模拟的内容提取，实际项目中需要后端支持
+        // 需要通过后端API实现网页内容提取
         console.log('🌐 尝试提取网页内容:', normalizedUrl);
 
-        // 模拟网页内容提取（实际应该通过后端API实现）
-        const mockContent = await this.simulateWebContentExtraction(normalizedUrl);
-        pageContent = mockContent.content;
-        pageTitle = mockContent.title;
+        // 调用后端API进行网页内容提取
+        const response = await fetch('/api/extract-web-content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: normalizedUrl })
+        });
+
+        if (!response.ok) {
+          throw new Error(`网页内容提取失败: ${response.status} ${response.statusText}`);
+        }
+
+        const extractedData = await response.json();
+        pageContent = extractedData.content || '';
+        pageTitle = extractedData.title || '未知标题';
 
       } catch (error) {
         console.warn('直接内容提取失败，使用AI分析URL:', error);
@@ -237,48 +249,7 @@ export class WebContentExtractorService {
     }
   }
 
-  /**
-   * 模拟网页内容提取（实际项目中应该通过后端API实现）
-   */
-  private async simulateWebContentExtraction(url: string): Promise<{title: string, content: string}> {
-    const domain = new URL(url).hostname;
-
-    // 根据不同域名提供不同的模拟内容
-    const mockData = this.getMockContentByDomain(domain);
-
-    return {
-      title: mockData.title,
-      content: mockData.content
-    };
-  }
-
-  /**
-   * 根据域名获取模拟内容
-   */
-  private getMockContentByDomain(domain: string): {title: string, content: string} {
-    // 这里可以根据常见网站提供更真实的模拟数据
-    if (domain.includes('github.com')) {
-      return {
-        title: 'GitHub项目页面',
-        content: '这是一个开源项目，包含代码仓库、文档说明、贡献指南等内容。项目致力于提供高质量的解决方案。'
-      };
-    } else if (domain.includes('zhihu.com')) {
-      return {
-        title: '知乎文章',
-        content: '这是一篇知乎文章，包含专业的见解和深度分析。作者分享了丰富的经验和独到的观点。'
-      };
-    } else if (domain.includes('weixin.qq.com')) {
-      return {
-        title: '微信公众号文章',
-        content: '这是一篇微信公众号文章，内容丰富，包含了最新的行业动态和实用信息。'
-      };
-    } else {
-      return {
-        title: `${domain}网站内容`,
-        content: `这是来自${domain}的网页内容，包含了该网站的主要信息和特色内容。`
-      };
-    }
-  }
+  // 已删除模拟网页内容提取方法，现在直接使用后端API
 
   /**
    * 分析提取的内容

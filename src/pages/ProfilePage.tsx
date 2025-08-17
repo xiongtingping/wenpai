@@ -61,7 +61,7 @@ import PageNavigation from '@/components/layout/PageNavigation';
 import TokenUsageSection from '@/components/profile/TokenUsageSection';
 import { getUserDisplayName, getUserAvatar, getUserAvatarFallback, getUserAltText } from '@/utils/userDisplayUtils';
 import { avatarService } from '@/services/avatarService';
-import AuthService from '@/services/authService';
+// 认证系统已下线：移除 AuthService 依赖
 import { isDevelopment } from '@/utils/env-validator';
 import { getUserTier } from '@/utils/subscriptionUtils';
 
@@ -286,43 +286,8 @@ export default function ProfilePage() {
         updateUser(updatedUserData);
 
         // 2. 尝试同步到Authing服务器（后台进行）
-        console.log('☁️ 第二步：尝试同步到Authing服务器');
-        const authService = AuthService.getInstance();
-        const accessToken = (user as any)?.accessToken || (user as any)?.token || '';
-
-        // 🚨 CRITICAL: 同步调用Authing API，确保服务器更新成功
-        console.log('☁️ 开始同步到Authing服务器...');
-
-        try {
-          const remote = await authService.updateUserInfo(accessToken || '', {
-            nickname: profileForm.nickname,
-            email: profileForm.email,
-            phone: profileForm.phone,
-            photo: profileForm.avatar,
-            avatar: profileForm.avatar
-          });
-
-          console.log('✅ Authing服务器同步成功:', remote);
-
-          // 用服务器返回的数据更新本地状态
-          updateUser({
-            ...updatedUserData,
-            ...remote,
-            avatar: remote.avatar || remote.photo || updatedUserData.avatar
-          });
-
-        } catch (error) {
-          console.error('❌ Authing服务器同步失败:', error);
-
-          // 显示错误提示
-          toast({
-            title: "同步失败",
-            description: `无法同步到Authing服务器: ${(error as any)?.message ?? String(error)}`,
-            variant: "destructive"
-          });
-
-          throw error; // 重新抛出错误
-        }
+        console.log('☁️ 第二步：已移除服务器同步（无认证模式）');
+        // 无认证模式：仅本地更新，无远端调用
 
         // 3. 标记为已持久化
         const persistentUserData = {

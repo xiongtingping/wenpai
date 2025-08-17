@@ -115,13 +115,8 @@ export const TopNavigation: React.FC = () => {
    * 处理导航点击
    */
   const handleNavigation = (item: typeof navItems[0]) => {
-    if (item.requiresAuth && !isAuthenticated) {
-      // 未登录用户，弹出登录弹窗
-      login(item.path);
-    } else {
-      // 已登录用户或不需要认证的页面，直接跳转
-      navigate(item.path);
-    }
+    // 无认证软模式：不再拦截，直接导航
+    navigate(item.path);
   };
 
   /**
