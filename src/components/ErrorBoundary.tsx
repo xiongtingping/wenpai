@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 import { logger } from '@/utils/logger';
+import request from '@/api/request';
 
 /**
  * 错误边界状态接口
@@ -139,13 +140,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       // 发送错误报告（可选）
       if (import.meta.env.PROD) {
         // 在生产环境中发送错误报告
-        fetch('/.netlify/functions/error-report', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(errorReport)
-        }).catch(() => {
+        request.post('/.netlify/functions/error-report', errorReport).catch(() => {
           // 静默处理发送失败
         });
       }

@@ -10,6 +10,7 @@ import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 import { SubscriptionPlan, SubscriptionPeriod } from '@/types/subscription';
 import AlipayQRCode from '@/components/payment/AlipayQRCode';
 import { EnhancedPaymentStatusMonitor } from '@/components/payment/EnhancedPaymentStatusMonitor';
+import request from '@/api/request';
 import { PaymentSuccessHandler } from '@/components/payment/PaymentSuccessHandler';
 import { PaymentStatusRecovery } from '@/components/payment/PaymentStatusRecovery';
 import { PageNavigation } from '@/components/layout/PageNavigation';
@@ -157,29 +158,12 @@ export default function PaymentPage() {
         throw new Error('无效的套餐配置');
       }
 
-      const apiKey = import.meta.env.VITE_CREEM_API_KEY;
-      if (!apiKey) {
-        throw new Error('支付配置错误');
-      }
 
-      // 直接调用Creem API创建支付订单
-      const response = await fetch('https://api.creem.com/v1/checkout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          price_id: priceId,
-          payment_method: 'alipay'
-        })
+      // 使用统一后端接口创建支付订单
+      const checkout = await request.post('/.netlify/functions/checkout', {
+        priceId: priceId,
+        customerEmail: currentUser?.email || undefined
       });
-
-      if (!response.ok) {
-        throw new Error(`支付订单创建失败: ${response.status}`);
-      }
-
-      const checkout = await response.json();
 
       setCurrentCheckout(checkout);
       setPaymentStatus('pending');

@@ -70,7 +70,6 @@ import {
   type CreativeCubeSelection,
   type CreativeCubeConfig
 } from '@/prompts/PromptSystem';
-import { logger } from '@/utils/logger';
 
 /**
  * 九宫格维度定义

@@ -159,5 +159,4 @@ export const isProduction = (): boolean => {
  */
 export const isPreview = (): boolean => {
   return import.meta.env.MODE === 'preview';
-import { logger } from '@/utils/logger';
-}; 
+};

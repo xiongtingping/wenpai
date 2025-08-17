@@ -49,7 +49,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { callPDFChat } from '@/api/aiService';
-import { logger } from '@/utils/logger';
 
 /**
  * 对话消息接口

@@ -3,6 +3,8 @@
  * 当Netlify Functions不可用时提供备用方案
  */
 
+import request from './request';
+
 // API端点配置
 const API_ENDPOINTS = {
   NETLIFY: '/.netlify/functions/api',
@@ -32,52 +34,20 @@ export async function callOpenAIProxy(
   maxTokens: number = 1000
 ): Promise<ProxyResponse> {
   try {
-    console.log('callOpenAIProxy 开始调用...');
-    console.log('API端点:', API_ENDPOINTS.NETLIFY);
-    console.log('请求参数:', { provider: 'openai', action: 'generate', messages, model });
-    
-    // 首先尝试Netlify Functions
-    const response = await fetch(API_ENDPOINTS.NETLIFY, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'generate',
-        messages,
-        model,
-        temperature,
-        maxTokens
-      })
+    const data = await request.post(API_ENDPOINTS.NETLIFY, {
+      provider: 'openai',
+      action: 'generate',
+      messages,
+      model,
+      temperature,
+      maxTokens
     });
 
-    console.log('API响应状态:', response.status);
-    console.log('API响应头:', Object.fromEntries(response.headers.entries()));
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      console.error('非JSON响应:', textBody);
-      throw new Error('Netlify Functions不可用，请确保已正确部署到生产环境');
-    }
-
-    const data = await response.json();
-    console.log('API响应数据:', data);
-
-    if (!response.ok) {
-      console.error('API错误响应:', data);
-      throw new Error(`AI服务调用失败: ${data.error || data.message || `HTTP ${response.status}`}`);
-    }
-
-    console.log('API调用成功');
     return {
       success: true,
       data
     };
   } catch (error) {
-    console.error('callOpenAIProxy 异常:', error);
     throw new Error(`AI服务连接失败: ${error instanceof Error ? error.message : '未知错误'}`);
   }
 }
@@ -87,35 +57,18 @@ export async function callOpenAIProxy(
  */
 export async function testApiConnectivity(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.NETLIFY, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'status'
-      })
+    const data = await request.post(API_ENDPOINTS.NETLIFY, {
+      provider: 'openai',
+      action: 'status'
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      return {
-        success: true,
-        data: {
-          netlify: true,
-          ...data
-        }
-      };
-    } else {
-      return {
-        success: false,
-        data: {
-          netlify: false,
-          error: `HTTP ${response.status}`
-        }
-      };
-    }
+    return {
+      success: true,
+      data: {
+        netlify: true,
+        ...data
+      }
+    };
   } catch (error) {
     return {
       success: false,
@@ -132,37 +85,19 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
  */
 export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.NETLIFY, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'status'
-      })
+    const data = await request.post(API_ENDPOINTS.NETLIFY, {
+      provider: 'openai',
+      action: 'status'
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      return {
-        success: true,
-        data: {
-          available: data.available || false,
-          responseTime: data.responseTime,
-          lastChecked: data.lastChecked
-        }
-      };
-    } else {
-      return {
-        success: false,
-        error: `HTTP ${response.status}`,
-        data: {
-          available: false,
-          error: `API不可用: ${response.status}`
-        }
-      };
-    }
+    return {
+      success: true,
+      data: {
+        available: (data as any).available || false,
+        responseTime: (data as any).responseTime,
+        lastChecked: (data as any).lastChecked
+      }
+    };
   } catch (error) {
     return {
       success: false,
@@ -173,4 +108,4 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
       }
     };
   }
-} 
+}

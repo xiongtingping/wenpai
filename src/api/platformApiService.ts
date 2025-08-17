@@ -3,6 +3,7 @@
  * 支持主流平台的内容直接发布功能
  * 需要用户配置相应的API密钥和授权信息
  */
+import request from './request';
 
 /**
  * 平台API配置接口
@@ -183,19 +184,17 @@ async function publishToWeibo(content: PublishContent, config: PlatformApiConfig
       return { success: false, error: '未授权，请先完成微博授权' };
     }
 
-    const response = await fetch(`${config.apiBaseUrl}/statuses/update.json`, {
+    // 使用统一 request 模块（保留表单编码）
+    const form = new URLSearchParams({ status: content.text, source: 'wenpai-app' });
+    const data = await request.request({
+      url: `${config.apiBaseUrl}/statuses/update.json`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': `Bearer ${config.accessToken}`
       },
-      body: new URLSearchParams({
-        status: content.text,
-        source: 'wenpai-app'
-      })
+      data: form.toString()
     });
-
-    const data = await response.json();
     
     if (data.id) {
       // 安全构建发布URL，避免undefined拼接
@@ -229,31 +228,19 @@ async function publishToZhihu(content: PublishContent, config: PlatformApiConfig
     }
 
     // 知乎API需要先创建草稿，然后发布
-    const draftResponse = await fetch(`${config.apiBaseUrl}/drafts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.accessToken}`
-      },
-      body: JSON.stringify({
-        title: content.title || '新文章',
-        content: content.text,
-        topics: content.hashtags || []
-      })
+    const draftData = await request.post(`${config.apiBaseUrl}/drafts`, {
+      title: content.title || '新文章',
+      content: content.text,
+      topics: content.hashtags || []
+    }, {
+      headers: { 'Authorization': `Bearer ${config.accessToken}` }
     });
-
-    const draftData = await draftResponse.json();
     
     if (draftData.id) {
       // 发布草稿
-      const publishResponse = await fetch(`${config.apiBaseUrl}/drafts/${draftData.id}/publish`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${config.accessToken}`
-        }
+      const publishData = await request.post(`${config.apiBaseUrl}/drafts/${draftData.id}/publish`, {}, {
+        headers: { 'Authorization': `Bearer ${config.accessToken}` }
       });
-
-      const publishData = await publishResponse.json();
       
       if (publishData.url) {
         return {
@@ -283,18 +270,14 @@ async function publishToTwitter(content: PublishContent, config: PlatformApiConf
       return { success: false, error: '未授权，请先完成Twitter授权' };
     }
 
-    const response = await fetch(`${config.apiBaseUrl}/tweets`, {
-      method: 'POST',
+    const data = await request.post(`${config.apiBaseUrl}/tweets`, {
+      text: content.text
+    }, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${config.accessToken}`
-      },
-      body: JSON.stringify({
-        text: content.text
-      })
+      }
     });
-
-    const data = await response.json();
     
     if (data.data?.id) {
       return {

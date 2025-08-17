@@ -198,7 +198,6 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
                       <Switch
                         checked={previewMode}
                         onCheckedChange={setPreviewMode}
-                        size="sm"
                       />
                       <span className="text-sm text-muted-foreground">
                         {previewMode ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}

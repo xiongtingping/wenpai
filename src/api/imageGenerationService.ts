@@ -17,6 +17,7 @@
 
 import { generateImage as callAIGenerateImage } from './ai';
 import type { ImageGenerationParams } from './types';
+import request from './request';
 
 export interface ImageGenerationRequest {
   prompt: string;
@@ -45,25 +46,14 @@ export interface ImageGenerationResponse {
  * @param request 图像生成请求参数
  * @returns Promise<ImageGenerationResponse>
  */
-export async function generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
+export async function generateImage(params: ImageGenerationRequest): Promise<ImageGenerationResponse> {
   try {
-    const response = await fetch('/.netlify/functions/api', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'generate-image',
-        ...request
-      })
+    const data = await request.post('/.netlify/functions/api', {
+      provider: 'openai',
+      action: 'generate-image',
+      ...params
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP错误: ${response.status}`);
-    }
-
-    const data = await response.json();
     return data;
   } catch (error) {
     console.error('图像生成API调用失败:', error);
@@ -114,23 +104,12 @@ export async function generateImagesBatch(
  */
 export async function checkImageGenerationStatus(): Promise<boolean> {
   try {
-    const response = await fetch('/.netlify/functions/api', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'status'
-      })
+    const data = await request.post('/.netlify/functions/api', {
+      provider: 'openai',
+      action: 'status'
     });
 
-    if (!response.ok) {
-      return false;
-    }
-
-    const data = await response.json();
-    return data.success && data.available;
+    return !!(data && (data as any).success && (data as any).available);
   } catch (error) {
     console.error('图像生成API状态检查失败:', error);
     return false;

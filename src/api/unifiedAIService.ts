@@ -27,7 +27,6 @@ import { logger } from '@/utils/logger';
 const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
 const isDevelopment = !forceProductionMode && import.meta.env.DEV;
 const isProduction = forceProductionMode || import.meta.env.PROD;
-import { logger } from '@/utils/logger';
 
 /**
  * 统一的AI调用服务

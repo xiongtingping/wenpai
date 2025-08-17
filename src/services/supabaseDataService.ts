@@ -240,7 +240,8 @@ export class SupabaseDataService {
         updatedAt: new Date().toISOString()
       };
 
-      const { data: result, error } = await supabase
+      const client = await getSupabaseClient();
+      const { data: result, error } = await client
         .from(this.tableName)
         .update(updateData)
         .eq('id', id)
@@ -272,7 +273,8 @@ export class SupabaseDataService {
         throw new Error('记录不存在或无权访问');
       }
 
-      const { error } = await supabase
+      const client = await getSupabaseClient();
+      const { error } = await client
         .from(this.tableName)
         .delete()
         .eq('id', id)
@@ -295,7 +297,8 @@ export class SupabaseDataService {
    */
   async deleteMany(ids: string[]): Promise<void> {
     try {
-      const { error } = await supabase
+      const client = await getSupabaseClient();
+      const { error } = await client
         .from(this.tableName)
         .delete()
         .in('id', ids)
@@ -318,7 +321,8 @@ export class SupabaseDataService {
    */
   async count(filters?: Record<string, any>): Promise<number> {
     try {
-      let query = supabase
+      const client = await getSupabaseClient();
+      let query = client
         .from(this.tableName)
         .select('*', { count: 'exact', head: true })
         .eq('userId', this.userId);
@@ -360,7 +364,8 @@ export class SupabaseDataService {
    */
   async clearAllUserData(): Promise<void> {
     try {
-      const { error } = await supabase
+      const client = await getSupabaseClient();
+      const { error } = await client
         .from(this.tableName)
         .delete()
         .eq('userId', this.userId);

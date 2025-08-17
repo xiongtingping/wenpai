@@ -25,7 +25,6 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   constructor() {
     this.apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
-import { logger } from '@/utils/logger';
     this.baseURL = 'https://api.deepseek.com';
   }
 

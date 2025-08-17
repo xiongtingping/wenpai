@@ -20,9 +20,10 @@ export const NetworkStatus: React.FC = () => {
    */
   const checkAuthingStatus = async () => {
     try {
-      const response = await fetch('https://ai-wenpai.authing.cn/688237f7f9e118de849dc274/api/v2/applications/688237f7f9e118de849dc274/public-config', {
+      // 保持 no-cors 探测语义，不解析响应体
+      await fetch('https://ai-wenpai.authing.cn/688237f7f9e118de849dc274/api/v2/applications/688237f7f9e118de849dc274/public-config', {
         method: 'GET',
-        mode: 'no-cors', // 避免CORS问题
+        mode: 'no-cors',
         cache: 'no-cache'
       });
       setAuthingStatus('online');

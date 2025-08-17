@@ -6,8 +6,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { titleGenerationService } from '../services/TitleGenerationService';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
-import type {
 import { logger } from '@/utils/logger';
+import type {
   TitleGenerationState,
   TitleGenerationActions,
   TitleGenerationInput,
@@ -383,7 +383,7 @@ export const useTitleGeneration = (
     exportTitles,
     importTitles
   };
-import { logger } from '@/utils/logger';
+
 };
 
 export default useTitleGeneration;

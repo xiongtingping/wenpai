@@ -23,13 +23,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { 
 import { logger } from '@/utils/logger';
-  TrendingUp, 
-  Clock, 
-  Users, 
-  Hash, 
-  Flame, 
+import {
+  TrendingUp,
+  Clock,
+  Users,
+  Hash,
+  Flame,
   Search,
   Filter,
   Download,
@@ -350,7 +350,6 @@ export default function HotTopicsRadar({
 
             // 发送通知
             const { notifyTopicUpdate } = await import('@/services/notificationService');
-import { logger } from '@/utils/logger';
 
             // 为每个有结果的订阅发送通知
             Object.entries(results).forEach(([subscriptionId, topicResults]) => {

@@ -423,28 +423,16 @@ async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse>
       stream: false // DeepSeek不支持流式
     };
 
-    console.log('🔗 直连DeepSeek API（通过队列管理）');
-    console.log('📡 API地址:', config.deepseek.baseURL);
-    console.log('🔑 API密钥:', config.deepseek.apiKey ? '已配置' : '未配置');
+    logger.debug('🔗 直连DeepSeek API（通过队列管理）');
+    logger.debug('📡 API地址:', config.deepseek.baseURL);
 
-    // 🚀 使用队列管理系统调用DeepSeek API
+    // 🚀 使用队列管理系统调用DeepSeek API（统一使用 request 模块）
     const queueId = `deepseek-${taskType || 'general'}-${Date.now()}`;
     const apiCall = async () => {
-      const response = await fetch(`${config.deepseek.baseURL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.deepseek.apiKey}`,
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`DeepSeek API请求失败: ${response.status} ${response.statusText} - ${errorText}`);
-      }
-
-      return await response.json();
+      // 通过 request 直接调用完整 URL，触发拦截器自动注入 DeepSeek 鉴权
+      const aiCfg = await getAIConfig();
+      const data = await request.post(`${aiCfg.deepseek.baseURL}/chat/completions`, requestBody);
+      return data;
     };
 
     const data = await queueAPICall(queueId, apiCall, 0, 3);

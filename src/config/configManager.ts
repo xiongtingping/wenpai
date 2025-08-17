@@ -1,4 +1,5 @@
 import { logger } from '@/utils/logger';
+import request from '@/api/request';
 /**
  * 🔧 统一配置管理器
  * 禁止硬编码，统一从部署后台调取配置信息
@@ -107,21 +108,12 @@ export class ConfigManager {
   private async fetchRemoteConfig(): Promise<Partial<AppConfig> | null> {
     try {
       const environment = this.getCurrentEnvironment();
-      const response = await fetch(`${this.CONFIG_API_ENDPOINT}?env=${environment}`, {
-        method: 'GET',
+      const remoteConfig = await request.get(`${this.CONFIG_API_ENDPOINT}?env=${environment}`, {
         headers: {
           'Content-Type': 'application/json',
           'X-Config-Version': '1.0'
-        },
-        cache: 'no-cache'
+        }
       });
-
-      if (!response.ok) {
-        console.warn(`远程配置获取失败: ${response.status} ${response.statusText}`);
-        return null;
-      }
-
-      const remoteConfig = await response.json();
       logger.debug('✅ 成功获取远程配置');
       
       // 缓存远程配置
@@ -246,21 +238,21 @@ export class ConfigManager {
    */
   private mergeConfigs(...configs: Partial<AppConfig>[]): AppConfig {
     const defaultConfig = this.getDefaultConfig();
-    
-    return configs.reduce((merged, config) => {
-      return this.deepMerge(merged, config);
+    // 显式指定 reduce 返回类型为 AppConfig，避免被数组元素类型 Partial<AppConfig> 拉低
+    return configs.reduce<AppConfig>((merged, config) => {
+      return this.deepMerge<AppConfig>(merged, config as Partial<AppConfig>);
     }, defaultConfig);
   }
 
   /**
    * 深度合并对象
    */
-  private deepMerge(target: any, source: any): any {
-    const result = { ...target };
-    
+  private deepMerge<T = any>(target: T, source: any): T {
+    const result: any = { ...target };
+
     for (const key in source) {
       if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-        result[key] = this.deepMerge(target[key] || {}, source[key]);
+        result[key] = this.deepMerge(result[key] || {}, source[key]);
       } else if (source[key] !== undefined && source[key] !== null && source[key] !== '') {
         result[key] = source[key];
       }

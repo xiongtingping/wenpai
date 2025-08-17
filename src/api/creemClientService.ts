@@ -5,6 +5,7 @@
 
 import QRCode from "qrcode";
 import { createCreemCheckout as directCreateCheckout } from "./creemService";
+import request from './request';
 import { logger } from '@/utils/logger';
 
 /**
@@ -55,34 +56,21 @@ export async function createCreemCheckout(priceId: string, customerEmail?: strin
       return await createDirectCreemCheckout(priceId, customerEmail);
     }
 
-    // 生产环境：调用后端API创建支付检查点
-    const response = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        priceId,
-        customerEmail
-      }),
+    // 生产环境：调用后端API创建支付检查点（统一 request）
+    const data = await request.post(apiEndpoint, {
+      priceId,
+      customerEmail
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: '网络请求失败' }));
-      console.error('支付API错误:', errorData);
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
     console.log('支付检查点创建成功:', data);
-    
+
     return {
       success: true,
-      checkout: data.checkout,
-      url: data.url,
-      qrCodeUrl: data.qrCodeUrl,
-      qrCodeDataURL: data.qrCodeDataURL,
-      price: data.price
+      checkout: (data as any).checkout,
+      url: (data as any).url,
+      qrCodeUrl: (data as any).qrCodeUrl,
+      qrCodeDataURL: (data as any).qrCodeDataURL,
+      price: (data as any).price
     };
   } catch (error: any) {
     console.error('支付服务调用失败:', error);
@@ -204,24 +192,11 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
       throw new Error('网络连接不可用');
     }
 
-    // 调用后端API创建支付检查点
-    const response = await fetch('http://localhost:8888/.netlify/functions/checkout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        priceId,
-        customerEmail
-      }),
+    // 调用后端API创建支付检查点（统一 request）
+    const data = await request.post('/.netlify/functions/checkout', {
+      priceId,
+      customerEmail
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
 
     if (!data.success || !data.url) {
       throw new Error((data as any).error || '无法获取支付页面URL');

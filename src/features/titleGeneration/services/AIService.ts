@@ -7,14 +7,13 @@ import { callAI, callAIWithRetry } from '@/api/ai';
 import type { AICallParams } from '@/api/ai';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import { concurrencyManager } from './ConcurrencyManager';
-import type {
 import { logger } from '@/utils/logger';
+import type {
   IAIService,
   AICallOptions,
   AIResponse
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
-import { logger } from '@/utils/logger';
 
 export class AIService implements IAIService {
   private availableModels: string[] = [];

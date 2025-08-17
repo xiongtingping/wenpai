@@ -38,7 +38,7 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({
   redirectTo = '/',
   customCheck
 }) => {
-  const { user, isAuthenticated, isLoading } = useUnifiedAuth();
+  const { user, isAuthenticated, loading: isLoading } = useUnifiedAuth();
   const location = useLocation();
 
   // 加载中状态
@@ -56,7 +56,7 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({
     const userTier = user.tier || 'free';
     const tierLevels = { free: 0, pro: 1, premium: 2 };
     
-    if (tierLevels[userTier] < tierLevels[requiredTier]) {
+    if (tierLevels[userTier as keyof typeof tierLevels] < tierLevels[requiredTier as keyof typeof tierLevels]) {
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
           <Card className="max-w-md w-full">

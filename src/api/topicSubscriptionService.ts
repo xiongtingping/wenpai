@@ -19,7 +19,6 @@ import {
   notifySubscriptionStatus
 } from '@/services/notificationService';
 import { fetchHotTopics, DailyHotItem, DailyHotResponse } from './hotTopicsService';
-import { logger } from '@/utils/logger';
 
 /**
  * 订阅话题接口

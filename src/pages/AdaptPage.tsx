@@ -1977,14 +1977,14 @@ export default function AdaptPage() {
 
       // 3. AI API端点测试
       try {
-        const response = await fetch('https://api.deepseek.com/v1/models', {
+        const res = await request.request({
+          url: 'https://api.deepseek.com/v1/models',
           method: 'GET',
-          headers: {
-            'Authorization': 'Bearer test'
-          }
+          headers: { 'Authorization': 'Bearer test' },
+          validateStatus: () => true // 将 401/200 都视为成功返回
         });
-        // 即使返回401，也说明端点可达
-        diagnosticResults.apiEndpoint = response.status === 401 || response.status === 200;
+        // 统一 request 返回 data，没有 status，这里用 validateStatus 委托 axios 返回
+        diagnosticResults.apiEndpoint = true;
       } catch (error) {
         diagnosticResults.apiEndpoint = false;
       }

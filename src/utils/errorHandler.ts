@@ -1,4 +1,5 @@
 import { logger } from '@/utils/logger';
+import request from '@/api/request';
 /**
  * 全局错误处理工具
  * 用于捕获和处理应用中的各种错误
@@ -104,21 +105,15 @@ export function logError(error: Error | string, context?: Record<string, any>): 
  */
 async function reportErrorToServer(errorInfo: ErrorInfo): Promise<void> {
   try {
-    await fetch('/.netlify/functions/error-report', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...errorInfo,
-        buildInfo: {
-          version: import.meta.env.VITE_APP_VERSION || 'unknown',
-          environment: import.meta.env.MODE,
-          buildTime: import.meta.env.VITE_BUILD_TIME || 'unknown'
-        }
-      })
+    await request.post('/.netlify/functions/error-report', {
+      ...errorInfo,
+      buildInfo: {
+        version: import.meta.env.VITE_APP_VERSION || 'unknown',
+        environment: import.meta.env.MODE,
+        buildTime: import.meta.env.VITE_BUILD_TIME || 'unknown'
+      }
     });
-import { logger } from '@/utils/logger';
+
   } catch (error) {
     console.error('错误报告发送失败:', error);
   }
@@ -208,35 +203,35 @@ export function getErrorRecoverySuggestions(errorType: ErrorType): string[] {
         '检查防火墙设置',
         '尝试使用其他网络'
       ];
-    
+
     case ErrorType.CONFIG:
       return [
         '检查环境变量配置',
         '确认API密钥有效性',
         '联系管理员获取帮助'
       ];
-    
+
     case ErrorType.AUTH:
       return [
         '重新登录应用',
         '清除浏览器缓存',
         '检查登录状态'
       ];
-    
+
     case ErrorType.PAYMENT:
       return [
         '稍后重试支付',
         '检查支付宝App状态',
         '联系客服获取帮助'
       ];
-    
+
     case ErrorType.AI:
       return [
         '稍后重试AI功能',
         '检查网络连接',
         '联系技术支持'
       ];
-    
+
     default:
       return [
         '刷新页面重试',
@@ -244,4 +239,4 @@ export function getErrorRecoverySuggestions(errorType: ErrorType): string[] {
         '联系技术支持'
       ];
   }
-} 
+}

@@ -3,6 +3,8 @@
  * @description 处理推荐人和被推荐人的奖励逻辑
  */
 
+import request from './request';
+
 /**
  * 推荐奖励请求接口
  */
@@ -71,24 +73,10 @@ export async function mockReferralReward(request: ReferralRewardRequest): Promis
  * @param request 推荐奖励请求
  * @returns 推荐奖励响应
  */
-export async function sendReferralReward(request: ReferralRewardRequest): Promise<ReferralRewardResponse> {
+export async function sendReferralReward(requestBody: ReferralRewardRequest): Promise<ReferralRewardResponse> {
   try {
-    // 首先尝试调用真实API
-    const response = await fetch('/api/referral/reward', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result;
-    } else {
-      console.error('推荐奖励API调用失败:', response.status);
-      throw new Error(`推荐奖励API调用失败: ${response.status}`);
-    }
+    const result = await request.post('/api/referral/reward', requestBody);
+    return result as ReferralRewardResponse;
   } catch (error) {
     console.error('推荐奖励API调用错误:', error);
     throw new Error(`推荐奖励API调用失败: ${error instanceof Error ? error.message : '未知错误'}`);
@@ -119,20 +107,8 @@ async function mockReferralStats(referrerId: string): Promise<ReferralStats> {
  */
 export async function getReferralStats(referrerId: string): Promise<ReferralStats | null> {
   try {
-    const response = await fetch(`/api/referral/stats?referrerId=${encodeURIComponent(referrerId)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.success ? result.data : null;
-    } else {
-      console.warn('真实API调用失败，使用模拟统计:', response.status);
-      return await mockReferralStats(referrerId);
-    }
+    const result = await request.get(`/api/referral/stats?referrerId=${encodeURIComponent(referrerId)}`);
+    return (result as any)?.success ? (result as any).data : null;
   } catch (error) {
     console.warn('API调用错误，使用模拟统计:', error);
     return await mockReferralStats(referrerId);
@@ -159,20 +135,8 @@ async function mockValidateReferrerId(referrerId: string): Promise<boolean> {
  */
 export async function validateReferrerId(referrerId: string): Promise<boolean> {
   try {
-    const response = await fetch(`/api/referral/validate?referrerId=${encodeURIComponent(referrerId)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.success && result.isValid;
-    } else {
-      console.warn('真实API调用失败，使用模拟验证:', response.status);
-      return await mockValidateReferrerId(referrerId);
-    }
+    const result = await request.get(`/api/referral/validate?referrerId=${encodeURIComponent(referrerId)}`);
+    return !!((result as any)?.success && (result as any)?.isValid);
   } catch (error) {
     console.warn('API调用错误，使用模拟验证:', error);
     return await mockValidateReferrerId(referrerId);

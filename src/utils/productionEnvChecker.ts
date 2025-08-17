@@ -267,7 +267,6 @@ declare global {
 // 自动启动（仅在生产环境）
 if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
   window.productionEnvChecker = new ProductionEnvChecker();
-import { logger } from '@/utils/logger';
 }
 
 export default ProductionEnvChecker;

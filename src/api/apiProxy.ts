@@ -3,6 +3,8 @@
  * 提供统一的API调用接口，支持多种AI提供商
  */
 
+import request from './request';
+
 // API端点配置
 const API_ENDPOINTS = {
   API: '/.netlify/functions/api'
@@ -34,58 +36,20 @@ export async function callOpenAIProxy(
   maxTokens: number = 1000
 ): Promise<ProxyResponse> {
   try {
-    console.log('callOpenAIProxy 开始调用...');
-    console.log('API端点:', API_ENDPOINTS.API);
-    console.log('请求参数:', { provider: 'openai', action: 'generate', messages, model });
-    
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'generate',
-        messages,
-        model,
-        temperature,
-        maxTokens
-      })
+    const data = await request.post(API_ENDPOINTS.API, {
+      provider: 'openai',
+      action: 'generate',
+      messages,
+      model,
+      temperature,
+      maxTokens
     });
 
-    console.log('API响应状态:', response.status);
-    console.log('API响应头:', Object.fromEntries(response.headers.entries()));
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      console.error('非JSON响应:', textBody);
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-    console.log('API响应数据:', data);
-
-    if (!response.ok) {
-      console.error('API错误响应:', data);
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
-
-    console.log('API调用成功');
     return {
       success: true,
       data
     };
   } catch (error) {
-    console.error('callOpenAIProxy 异常:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error calling OpenAI API proxy'
@@ -104,39 +68,13 @@ export async function callDeepSeekProxy(
   model: string = 'deepseek-chat'
 ): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'deepseek',
-        action: 'generate',
-        messages,
-        model,
-        temperature: 0.7
-      })
+    const data = await request.post(API_ENDPOINTS.API, {
+      provider: 'deepseek',
+      action: 'generate',
+      messages,
+      model,
+      temperature: 0.7
     });
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
 
     return {
       success: true,
@@ -157,37 +95,11 @@ export async function callDeepSeekProxy(
  */
 export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'gemini',
-        action: 'generate',
-        prompt
-      })
+    const data = await request.post(API_ENDPOINTS.API, {
+      provider: 'gemini',
+      action: 'generate',
+      prompt
     });
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
 
     return {
       success: true,
@@ -207,33 +119,7 @@ export async function callGeminiProxy(prompt: string): Promise<ProxyResponse> {
  */
 export async function testApiConnectivity(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({})
-    });
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
+    const data = await request.post(API_ENDPOINTS.API, {});
 
     return {
       success: true,
@@ -253,36 +139,10 @@ export async function testApiConnectivity(): Promise<ProxyResponse> {
  */
 export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'openai',
-        action: 'status'
-      })
+    const data = await request.post(API_ENDPOINTS.API, {
+      provider: 'openai',
+      action: 'status'
     });
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
 
     return {
       success: true,
@@ -302,36 +162,10 @@ export async function checkOpenAIAvailability(): Promise<ProxyResponse> {
  */
 export async function checkGeminiAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'gemini',
-        action: 'status'
-      })
+    const data = await request.post(API_ENDPOINTS.API, {
+      provider: 'gemini',
+      action: 'status'
     });
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
 
     return {
       success: true,
@@ -351,36 +185,10 @@ export async function checkGeminiAvailability(): Promise<ProxyResponse> {
  */
 export async function checkDeepSeekAvailability(): Promise<ProxyResponse> {
   try {
-    const response = await fetch(API_ENDPOINTS.API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        provider: 'deepseek',
-        action: 'status'
-      })
+    const data = await request.post(API_ENDPOINTS.API, {
+      provider: 'deepseek',
+      action: 'status'
     });
-
-    // 检查响应类型
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const textBody = await response.text();
-      return {
-        success: false,
-        error: `Unexpected non-JSON response: ${textBody.substring(0, 100)}...`
-      };
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || data.message || `API error: ${response.status}`,
-        detail: data.detail
-      };
-    }
 
     return {
       success: true,

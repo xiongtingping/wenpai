@@ -139,7 +139,6 @@ export const setupGlobalTooltipSafety = () => {
       // 在开发环境中提供更多信息
       if (import.meta.env.DEV) {
         console.trace('错误堆栈追踪:');
-import { logger } from '@/utils/logger';
       }
     }
     

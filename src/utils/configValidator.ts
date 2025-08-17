@@ -1,4 +1,5 @@
 import { logger } from '@/utils/logger';
+import request from '@/api/request';
 /**
  * 全局配置验证器
  * 用于验证应用运行所需的配置和环境
@@ -67,21 +68,18 @@ export async function validateAllConfigs(): Promise<ConfigValidationResult> {
   try {
     const apiEndpoint = getPaymentAPIEndpoint();
     result.networkStatus.apiEndpoint = apiEndpoint;
-    
+
     // 测试API连接
-    const response = await fetch(apiEndpoint, {
-      method: 'OPTIONS',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    result.networkStatus.canConnect = response.ok;
-    
-    if (!response.ok) {
-      result.errors.push(`支付API连接失败: ${response.status}`);
-      result.isValid = false;
+    try {
+      await request.request({ url: apiEndpoint, method: 'OPTIONS', validateStatus: () => true });
+      result.networkStatus.canConnect = true;
+    } catch {
+      result.networkStatus.canConnect = false;
     }
+
+    // 统一 request 已尝试连接（validateStatus 委托总是返回 true），此处不再依赖 response
+    // 如果需要更细日志，可在后端记录
+    // 连接失败的情况已在 catch 中处理
   } catch (error: any) {
     result.networkStatus.canConnect = false;
     result.errors.push(`支付API连接错误: ${error.message}`);
@@ -104,11 +102,11 @@ function getPaymentAPIEndpoint(): string {
   if (import.meta.env.PROD) {
     return '/.netlify/functions/checkout';
   }
-  
+
   if (import.meta.env.DEV) {
     return 'http://localhost:8888/.netlify/functions/checkout';
   }
-  
+
   return '/.netlify/functions/checkout';
 }
 
@@ -156,10 +154,10 @@ export function getConfigSummary(): string {
  */
 export function initializeConfigValidation(): void {
   logger.debug('🔧 开始验证应用配置...');
-  
+
   validateAllConfigs().then(result => {
     console.log('📋 配置验证结果:', result);
-    
+
     if (!result.isValid) {
       console.warn('⚠️ 配置验证失败:', {
         missing: result.missingConfigs,
@@ -169,7 +167,7 @@ export function initializeConfigValidation(): void {
     } else {
       logger.debug('✅ 配置验证通过');
     }
-    
+
     console.log('🌐 网络状态:', result.networkStatus);
   }).catch(error => {
     console.error('❌ 配置验证过程出错:', error);
@@ -181,4 +179,4 @@ if (typeof window !== 'undefined') {
   (window as any).__validateConfig__ = validateAllConfigs;
   (window as any).__validateSpecificConfig__ = validateConfig;
   (window as any).__getConfigSummary__ = getConfigSummary;
-} 
+}

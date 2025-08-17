@@ -6,6 +6,7 @@
 
 import { Creem } from "creem";
 import QRCode from "qrcode";
+import request from './request';
 
 // 开发环境直接使用Creem SDK
 const creem = new Creem();
@@ -124,24 +125,11 @@ export async function startCheckout(priceId: string, customerEmail?: string) {
   try {
     console.log('开始支付流程:', { priceId, customerEmail });
 
-    // 调用API创建支付检查点
-    const response = await fetch('/.netlify/functions/api/creem/checkout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        priceId,
-        customerEmail
-      }),
+    // 调用API创建支付检查点（统一 request）
+    const data = await request.post('/.netlify/functions/api/creem/checkout', {
+      priceId,
+      customerEmail
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
     console.log('支付检查点创建成功:', data);
 
     if (!data.success || !data.url) {

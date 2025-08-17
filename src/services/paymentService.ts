@@ -4,6 +4,7 @@
  */
 
 import { securityUtils } from '@/lib/security';
+import request from '@/api/request';
 
 export interface PaymentOrder {
   id: string;
@@ -59,25 +60,16 @@ export class PaymentService {
     paymentMethod: string = 'alipay'
   ): Promise<PaymentOrder> {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/payment/create-order`, {
-        method: 'POST',
+      const order = await request.post(`${this.apiBaseUrl}/payment/create-order`, {
+        userId,
+        planId,
+        amount,
+        paymentMethod,
+      }, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`,
         },
-        body: JSON.stringify({
-          userId,
-          planId,
-          amount,
-          paymentMethod,
-        }),
       });
-
-      if (!response.ok) {
-        throw new Error('创建支付订单失败');
-      }
-
-      const order = await response.json();
       securityUtils.secureLog('支付订单创建成功', { orderId: order.id, amount });
       return order;
     } catch (error: any) {
@@ -91,23 +83,14 @@ export class PaymentService {
    */
   async verifyPayment(orderId: string, paymentData: any): Promise<boolean> {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/payment/verify`, {
-        method: 'POST',
+      const result = await request.post(`${this.apiBaseUrl}/payment/verify`, {
+        orderId,
+        paymentData,
+      }, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`,
         },
-        body: JSON.stringify({
-          orderId,
-          paymentData,
-        }),
       });
-
-      if (!response.ok) {
-        throw new Error('验证支付失败');
-      }
-
-      const result = await response.json();
       securityUtils.secureLog('支付验证结果', { orderId, success: result.success });
       return result.success;
     } catch (error: any) {
@@ -119,26 +102,16 @@ export class PaymentService {
   /**
    * 升级用户会员
    */
-  async upgradeMembership(request: UpgradeMembershipRequest): Promise<UpgradeMembershipResponse> {
+  async upgradeMembership(payload: UpgradeMembershipRequest): Promise<UpgradeMembershipResponse> {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/user/upgrade-membership`, {
-        method: 'POST',
+      const result = await request.post(`${this.apiBaseUrl}/user/upgrade-membership`, payload, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`,
         },
-        body: JSON.stringify(request),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '升级会员失败');
-      }
-
-      const result = await response.json();
-      securityUtils.secureLog('会员升级成功', { 
-        planTier: request.planTier, 
-        planPeriod: request.planPeriod 
+      securityUtils.secureLog('会员升级成功', {
+        planTier: payload.planTier,
+        planPeriod: payload.planPeriod
       });
       
       return {
@@ -147,9 +120,9 @@ export class PaymentService {
         message: '会员升级成功',
       };
     } catch (error: any) {
-      securityUtils.secureLog('升级会员失败', { 
-        planTier: request.planTier, 
-        error: error.message 
+      securityUtils.secureLog('升级会员失败', {
+        planTier: payload.planTier,
+        error: error.message
       }, 'error');
       
       return {
@@ -166,18 +139,11 @@ export class PaymentService {
    */
   async getPaymentOrderStatus(orderId: string): Promise<PaymentOrder> {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/payment/order/${orderId}`, {
-        method: 'GET',
+      const order = await request.get(`${this.apiBaseUrl}/payment/order/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${this.getAuthToken()}`,
         },
       });
-
-      if (!response.ok) {
-        throw new Error('获取订单状态失败');
-      }
-
-      const order = await response.json();
       return order;
     } catch (error: any) {
       securityUtils.secureLog('获取订单状态失败', { orderId, error: error.message }, 'error');
@@ -194,18 +160,11 @@ export class PaymentService {
     }
 
     try {
-      const response = await fetch(`${this.apiBaseUrl}/payment/history?userId=${userId}&limit=${limit}`, {
-        method: 'GET',
+      const history = await request.get(`${this.apiBaseUrl}/payment/history?userId=${userId}&limit=${limit}`, {
         headers: {
           'Authorization': `Bearer ${this.getAuthToken()}`,
         },
       });
-
-      if (!response.ok) {
-        throw new Error('获取支付历史失败');
-      }
-
-      const history = await response.json();
       return history;
     } catch (error: any) {
       securityUtils.secureLog('获取支付历史失败', { userId, error: error.message }, 'error');

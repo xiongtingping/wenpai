@@ -6,6 +6,7 @@
 import { callAI } from '@/api/unifiedAIService';
 import { BrandAsset } from '@/types/brand';
 import React from 'react';
+import request from '@/api/request';
 
 export interface WebExtractionResult {
   id: string;
@@ -88,19 +89,7 @@ export class WebContentExtractorService {
         console.log('🌐 尝试提取网页内容:', normalizedUrl);
 
         // 调用后端API进行网页内容提取
-        const response = await fetch('/api/extract-web-content', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ url: normalizedUrl })
-        });
-
-        if (!response.ok) {
-          throw new Error(`网页内容提取失败: ${response.status} ${response.statusText}`);
-        }
-
-        const extractedData = await response.json();
+        const extractedData = await request.post('/api/extract-web-content', { url: normalizedUrl });
         pageContent = extractedData.content || '';
         pageTitle = extractedData.title || '未知标题';
 

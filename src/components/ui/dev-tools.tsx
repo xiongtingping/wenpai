@@ -13,15 +13,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { getUserDisplayName, getUserEmail, getUserUsername, getUserId } from '@/utils/userDisplayUtils';
-import { 
 import { logger } from '@/utils/logger';
-  Settings, 
-  Database, 
-  Network, 
-  Shield, 
-  User, 
-  Key, 
-  Eye, 
+import {
+  Settings,
+  Database,
+  Network,
+  Shield,
+  User,
+  Key,
+  Eye,
   EyeOff,
   RefreshCw,
   Terminal,
@@ -169,7 +169,6 @@ export const DevTools: React.FC = () => {
                       variant="outline"
                       onClick={() => {
                         logger.debug('🔧 DevTools: 用户信息', user);
-import { logger } from '@/utils/logger';
                         logger.debug('🔧 DevTools: 权限信息', { authPermission, vipPermission });
                       }}
                       className="w-full"

@@ -10,8 +10,8 @@ import { performanceMonitor } from './PerformanceMonitor';
 import { streamingTitleService } from './StreamingTitleService';
 import { concurrencyManager } from './ConcurrencyManager';
 import { TitleGenerationConfig, generateCacheKey } from '../config/titleGeneration.config';
-import type {
 import { logger } from '@/utils/logger';
+import type {
   ITitleGenerationService,
   TitleGenerationInput,
   TitleGenerationResult,
@@ -22,7 +22,6 @@ import { logger } from '@/utils/logger';
   ServiceStats
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
-import { logger } from '@/utils/logger';
 
 export class TitleGenerationService implements ITitleGenerationService {
   private stats: ServiceStats = {
