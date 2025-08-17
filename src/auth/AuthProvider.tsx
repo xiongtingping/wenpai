@@ -35,6 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const guardRef = useRef<any>(null);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const fixObserverRef = useRef<MutationObserver | null>(null);
+  const modalFallbackTriggeredRef = useRef<boolean>(false);
 
   // 初始化时从 localStorage 恢复用户状态
   React.useEffect(() => {
@@ -174,91 +175,94 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 打开对话框并在容器中启动 Guard（优先嵌入，失败则兜底为官方弹窗）
       setAuthDialogOpen(true);
       const guard = await ensureGuard();
+
+      const triggerModalFallback = async (reason: string) => {
+        if (modalFallbackTriggeredRef.current) return;
+        modalFallbackTriggeredRef.current = true;
+        logger.warn(`[Authing兜底] 启用独立 modal 实例，原因: ${reason}`);
+        try {
+          stopUndefinedSanitizer();
+          setAuthDialogOpen(false); // 关闭自有对话框，避免双模态冲突
+          const mod = await import('@authing/guard');
+          const { Guard } = mod as any;
+          const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
+          const modalGuard = new Guard({
+            appId: cfg.appId,
+            host: cleanHost,
+            redirectUri: cfg.redirectUri,
+            mode: 'modal',
+            lang: 'zh-CN',
+            defaultScene: 'login',
+            autoRegister: false,
+            closeable: true
+          });
+          modalGuard.on('login', (userInfo: any) => {
+            try {
+              guardRef.current?.emit?.('login', userInfo);
+            } catch {
+              const user = {
+                id: userInfo.id || userInfo.sub,
+                username: userInfo.username,
+                email: userInfo.email,
+                phone: userInfo.phone,
+                nickname: userInfo.nickname || userInfo.name,
+                avatar: userInfo.avatar || userInfo.picture,
+                token: userInfo.token || userInfo.access_token
+              };
+              setUser(user);
+              localStorage.setItem('auth_token', user.token || '');
+              localStorage.setItem('authing_user', JSON.stringify(user));
+            }
+          });
+          modalGuard.show();
+        } catch (e) {
+          logger.error('Guard 弹窗兜底失败:', e);
+        }
+      };
+
       // 延迟到对话框内容挂载后再启动
       setTimeout(() => {
         try {
-          const container = document.getElementById('authing_container');
+          const container = document.getElementById('authing_container') as HTMLElement | null;
           if (container && typeof guard.start === 'function') {
             guard.start('#authing_container');
             startUndefinedSanitizer();
 
-            // 兜底策略：若嵌入容器在短时间内仍为空，则使用“独立 modal 实例”
-            setTimeout(async () => {
+            // 兜底策略 1：300ms 内无子元素或无 iframe/高度太小，触发 modal
+            setTimeout(() => {
               try {
-                const rendered = !!document.getElementById('authing_container')?.childElementCount;
-                if (!rendered) {
-                  logger.warn('Authing Guard 未成功嵌入容器，启用独立 modal 实例作为兜底');
-                  stopUndefinedSanitizer();
-                  setAuthDialogOpen(false); // 关闭自有对话框，避免双模态冲突
-
-                  // 创建独立的 modal 模式实例并显示
-                  const mod = await import('@authing/guard');
-                  const { Guard } = mod as any;
-                  const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
-                  const modalGuard = new Guard({
-                    appId: cfg.appId,
-                    host: cleanHost,
-                    redirectUri: cfg.redirectUri,
-                    mode: 'modal',
-                    lang: 'zh-CN',
-                    defaultScene: 'login',
-                    autoRegister: false,
-                    closeable: true
-                  });
-
-                  // 将 modal 实例的登录事件转发到统一处理
-                  modalGuard.on('login', (userInfo: any) => {
-                    try {
-                      guardRef.current?.emit?.('login', userInfo);
-                    } catch {
-                      const user = {
-                        id: userInfo.id || userInfo.sub,
-                        username: userInfo.username,
-                        email: userInfo.email,
-                        phone: userInfo.phone,
-                        nickname: userInfo.nickname || userInfo.name,
-                        avatar: userInfo.avatar || userInfo.picture,
-                        token: userInfo.token || userInfo.access_token
-                      };
-                      setUser(user);
-                      localStorage.setItem('auth_token', user.token || '');
-                      localStorage.setItem('authing_user', JSON.stringify(user));
-                    }
-                  });
-
-                  modalGuard.show();
+                const el = document.getElementById('authing_container') as HTMLElement | null;
+                const hasChild = !!el?.childElementCount;
+                const iframe = el?.querySelector('iframe');
+                const tooSmall = (el?.offsetHeight || 0) < 80;
+                if (!hasChild || !iframe || tooSmall) {
+                  triggerModalFallback(`embed-check-300ms hasChild=${hasChild} iframe=${!!iframe} h=${el?.offsetHeight}`);
                 }
               } catch (e) {
-                logger.error('Guard 弹窗兜底失败:', e);
+                logger.error('Guard 弹窗兜底检测失败(300ms):', e);
               }
             }, 300);
+
+            // 兜底策略 2：1200ms 再次校验，仍异常则强制 modal
+            setTimeout(() => {
+              try {
+                const el = document.getElementById('authing_container') as HTMLElement | null;
+                const hasChild = !!el?.childElementCount;
+                const iframe = el?.querySelector('iframe');
+                const tooSmall = (el?.offsetHeight || 0) < 80;
+                if (!hasChild || !iframe || tooSmall) {
+                  triggerModalFallback(`embed-check-1200ms hasChild=${hasChild} iframe=${!!iframe} h=${el?.offsetHeight}`);
+                }
+              } catch (e) {
+                logger.error('Guard 弹窗兜底检测失败(1200ms):', e);
+              }
+            }, 1200);
+          } else {
+            triggerModalFallback('no-container-or-start-missing');
           }
         } catch (err) {
           logger.error('启动 Guard 失败，将尝试使用独立 modal 实例:', err);
-          try {
-            stopUndefinedSanitizer();
-            setAuthDialogOpen(false);
-
-            (async () => {
-              const mod = await import('@authing/guard');
-              const { Guard } = mod as any;
-              const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
-              const modalGuard = new Guard({
-                appId: cfg.appId,
-                host: cleanHost,
-                redirectUri: cfg.redirectUri,
-                mode: 'modal',
-                lang: 'zh-CN',
-                defaultScene: 'login'
-              });
-              modalGuard.on('login', (userInfo: any) => {
-                guardRef.current?.emit?.('login', userInfo);
-              });
-              modalGuard.show();
-            })();
-          } catch (e) {
-            setError('无法启动登录组件');
-          }
+          triggerModalFallback('start-exception');
         }
       }, 0);
     } catch (e: any) {
@@ -300,7 +304,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             <DialogTitle>登录文派</DialogTitle>
             <DialogDescription>请使用手机号/邮箱登录或注册，信息仅用于身份验证。</DialogDescription>
           </DialogHeader>
-          <div id="authing_container" />
+          <div id="authing_container" className="min-h-[520px] w-full" />
         </DialogContent>
       </Dialog>
     </AuthContext.Provider>

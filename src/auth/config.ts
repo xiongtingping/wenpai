@@ -19,9 +19,15 @@ export const getAuthConfig = (): AuthConfig => {
 
   // 根据环境选择回调地址
   const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
-  const redirectUri = isDev
+  let redirectUri = isDev
     ? (import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback')
     : (import.meta.env.VITE_AUTHING_REDIRECT_URI_PROD || `${window.location.origin}/callback`);
+
+  // 重要：在 Netlify 预览/临时域名下，强制使用当前域名作为回调，避免 redirect_uri 与预览域名不匹配
+  const hostName = window.location.hostname;
+  if (!isDev && (hostName.endsWith('netlify.app') || hostName.includes('--'))) {
+    redirectUri = `${window.location.origin}/callback`;
+  }
 
   console.log('🔧 Auth配置:', { appId, host, redirectUri, isDev });
 
