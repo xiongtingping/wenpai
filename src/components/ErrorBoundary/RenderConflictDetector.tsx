@@ -7,6 +7,7 @@
  */
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { logger } from '@/utils/logger';
 
 interface RenderConflictState {
   hasError: boolean;
@@ -159,7 +160,7 @@ export class RenderConflictDetector extends Component<RenderConflictProps, Rende
         lastRenderTime: Date.now()
       });
       
-      console.log('✅ RenderConflictDetector: 自动恢复完成');
+      logger.debug('✅ RenderConflictDetector: 自动恢复完成');
     }, 2000);
     
     this.renderTimeouts.push(recoveryTimeout);
@@ -308,7 +309,7 @@ export const resetRenderStats = () => {
   globalRenderStats.conflictCount = 0;
   globalRenderStats.lastConflictTime = 0;
   globalRenderStats.componentStats.clear();
-  console.log('✅ RenderConflictDetector: 全局统计已重置');
+  logger.debug('✅ RenderConflictDetector: 全局统计已重置');
 };
 
 export default RenderConflictDetector;

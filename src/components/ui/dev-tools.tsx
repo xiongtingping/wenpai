@@ -14,6 +14,7 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { usePermission } from '@/hooks/usePermission';
 import { getUserDisplayName, getUserEmail, getUserUsername, getUserId } from '@/utils/userDisplayUtils';
 import { 
+import { logger } from '@/utils/logger';
   Settings, 
   Database, 
   Network, 
@@ -167,8 +168,9 @@ export const DevTools: React.FC = () => {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        console.log('🔧 DevTools: 用户信息', user);
-                        console.log('🔧 DevTools: 权限信息', { authPermission, vipPermission });
+                        logger.debug('🔧 DevTools: 用户信息', user);
+import { logger } from '@/utils/logger';
+                        logger.debug('🔧 DevTools: 权限信息', { authPermission, vipPermission });
                       }}
                       className="w-full"
                     >

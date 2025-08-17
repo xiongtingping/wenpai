@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/utils/logger';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -891,7 +892,7 @@ export default function HotTopicsPage() {
     try {
       markSubscriptionAsViewed(subscriptionId);
       loadSubscriptions(); // 重新加载订阅列表以更新红点状态
-      console.log(`✅ 订阅 ${subscriptionId} 已标记为已查看，红点已清除`);
+      logger.debug('✅ 订阅 ${subscriptionId} 已标记为已查看，红点已清除');
     } catch (error) {
       console.error('标记已查看失败:', error);
     }
@@ -978,7 +979,7 @@ export default function HotTopicsPage() {
 
           const totalResults = Object.values(results).flat().length;
           if (totalResults > 0) {
-            console.log(`✅ 自动监控发现 ${totalResults} 个相关话题`);
+            logger.debug('✅ 自动监控发现 ${totalResults} 个相关话题');
 
             // 发送通知
             const { notifyTopicUpdate } = await import('@/services/notificationService');
@@ -1004,7 +1005,7 @@ export default function HotTopicsPage() {
     }, 5 * 60 * 1000); // 5分钟
 
     setMonitoringTimer(timer);
-    console.log('🚀 话题订阅自动监控已启动（每5分钟检查一次）');
+    logger.system('🚀 话题订阅自动监控已启动（每5分钟检查一次）');
   };
 
   /**

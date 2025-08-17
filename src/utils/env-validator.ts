@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 /**
  * 环境变量验证工具
  * 确保必需的环境变量在运行时存在
@@ -103,7 +104,7 @@ export const validateAndLogEnvironment = (): boolean => {
   console.log('是否开发环境:', result.environment.isDevelopment);
   
   if (result.isValid) {
-    console.log('✅ 所有必需的环境变量都已设置');
+    logger.debug('✅ 所有必需的环境变量都已设置');
   } else {
     console.error('❌ 缺少必需的环境变量:', result.missing);
   }
@@ -158,4 +159,5 @@ export const isProduction = (): boolean => {
  */
 export const isPreview = (): boolean => {
   return import.meta.env.MODE === 'preview';
+import { logger } from '@/utils/logger';
 }; 

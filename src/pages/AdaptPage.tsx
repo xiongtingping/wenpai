@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { logger } from '@/utils/logger';
 import {
   Book, Video, MessageSquare, Send,
   RefreshCw, ArrowRight, ChevronDown, ChevronUp,
@@ -694,7 +695,7 @@ export default function AdaptPage() {
           const result = await callAI(adjustedParams);
 
           if (result.success && result.content && result.content.trim().length > 100) {
-            console.log(`✅ ${versionName} - 第${attempt}次尝试成功`);
+            logger.debug('✅ ${versionName} - 第${attempt}次尝试成功');
             return result;
           } else {
             const errorMsg = result.error || '生成内容为空或过短';
@@ -715,7 +716,7 @@ export default function AdaptPage() {
 
             // 检测402错误（账户余额不足）
             if (errorMessage.includes('402') || errorMessage.includes('Payment Requihsl(var(--destructive))')) {
-              console.log(`🚨 ${versionName} - 检测到402错误（账户余额不足），启动智能降级`);
+              logger.warn('🚨 ${versionName} - 检测到402错误（账户余额不足），启动智能降级');
 
               if (params.model.includes('deepseek')) {
                 console.log(`🔄 ${versionName} - DeepSeek余额不足，切换到GPT-4o-mini`);
@@ -1051,7 +1052,7 @@ export default function AdaptPage() {
         } else if (actualCharCount > maxCharCount) {
           console.warn(`标准版本内容超出限制: ${actualCharCount}/${maxCharCount} 字符，需要截断`);
         } else {
-          console.log(`✅ 标准版本字符数符合要求: ${actualCharCount}字符（${minCharCount}-${maxCharCount}）`);
+          logger.debug('✅ 标准版本字符数符合要求: ${actualCharCount}字符（${minCharCount}-${maxCharCount}）');
         }
 
         const validation = validateCharacterCount(finalContent, platformId, targetCharCount);
@@ -1101,7 +1102,7 @@ export default function AdaptPage() {
         } else if (actualCharCount > maxCharCount) {
           console.warn(`创意版本内容超出限制: ${actualCharCount}/${maxCharCount} 字符，需要截断`);
         } else {
-          console.log(`✅ 创意版本字符数符合要求: ${actualCharCount}字符（${minCharCount}-${maxCharCount}）`);
+          logger.debug('✅ 创意版本字符数符合要求: ${actualCharCount}字符（${minCharCount}-${maxCharCount}）');
         }
 
         const validation = validateCharacterCount(finalContent, platformId, targetCharCount);
@@ -2048,7 +2049,7 @@ export default function AdaptPage() {
       // 重新生成内容
       await generateSinglePlatformContent(platformId);
 
-      console.log(`✅ 平台 ${platformId} 第 ${retryCount} 次重试成功`);
+      logger.debug('✅ 平台 ${platformId} 第 ${retryCount} 次重试成功');
 
       // 显示成功消息
       toast({
@@ -3080,10 +3081,10 @@ export default function AdaptPage() {
             }
 
             warningMessage = `🔧 重新生成内容已截断：${actualCharCount} -> ${finalContent.length}字符`;
-            console.log(`🔧 重新生成内容超出限制，已智能截断: ${actualCharCount} -> ${finalContent.length} 字符`);
+            logger.debug('🔧 重新生成内容超出限制，已智能截断: ${actualCharCount} -> ${finalContent.length} 字符');
           } else {
             warningMessage = `✅ 重新生成完成：${actualCharCount}字符（符合${minCharCount}-${maxCharCount}字符要求）`;
-            console.log(`✅ 重新生成字符数符合要求: ${actualCharCount}字符`);
+            logger.debug('✅ 重新生成字符数符合要求: ${actualCharCount}字符');
           }
 
           console.log(`🎯 字符数控制来源: ${charCountControl.description}`);
@@ -4516,6 +4517,7 @@ ${charCountControl.source === 'platform-specific'
           generating,
           shouldShow: results.length > 0 || generating
         });
+
         return (results.length > 0 || generating);
       })() && (
         <div className="mt-8">

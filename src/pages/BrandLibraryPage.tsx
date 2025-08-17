@@ -17,6 +17,7 @@ import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
+import { logger } from '@/utils/logger';
 import {
   Database, Upload, FileText, File, FileImage,
   AlertCircle, Info, Search, Check, Clock, Trash2,
@@ -592,7 +593,7 @@ export default function BrandLibraryPageFixed() {
               return updated;
             });
 
-            console.log(`✅ [后台] 分析完成: ${asset.name}`);
+            logger.debug('✅ [后台] 分析完成: ${asset.name}');
           } else {
             throw new Error('AI分析返回空结果');
           }
@@ -887,7 +888,7 @@ export default function BrandLibraryPageFixed() {
             throw new Error('AI分析返回空结果');
           }
 
-          console.log(`✅ [v2.0] AI分析完成: ${asset.name}`, {
+          logger.debug('✅ [v2.0] AI分析完成: ${asset.name}', {
             fieldsCount: Object.keys(analysisResultV2.extractedFields).length,
             confidence: analysisResultV2.overallConfidence,
             version: analysisResultV2.version
@@ -936,7 +937,7 @@ export default function BrandLibraryPageFixed() {
             } : a
           ));
 
-          console.log(`✅ AI分析完成: ${asset.name}`, {
+          logger.debug('✅ AI分析完成: ${asset.name}', {
             extractedFields: Object.keys(analysisResult.extractedFields).length,
             confidence: analysisResult.aiAnalysisMetadata?.confidence
           });
@@ -1228,7 +1229,7 @@ export default function BrandLibraryPageFixed() {
             console.log(`🧹 自动去重: 在维度 ${dimension.title} 中移除了 ${duplicatesRemoved} 条重复内容`);
           }
 
-          console.log(`✅ 添加到维度 ${dimensionId}:`, newItem.content);
+          logger.debug('✅ 添加到维度 ${dimensionId}:', newItem.content);
           return {
             ...dimension,
             items: deduplicatedItems
@@ -1296,6 +1297,7 @@ export default function BrandLibraryPageFixed() {
       // 动态导入AI服务和品牌语料库服务
       const { callAI, AITaskType } = await import('@/api/aiService');
       const { BrandCorpusService } = await import('@/services/brandCorpusService');
+
       const corpusService = BrandCorpusService.getInstance();
 
       for (let i = 0; i < unprocessedAssets.length; i++) {
@@ -1322,7 +1324,7 @@ export default function BrandLibraryPageFixed() {
             throw new Error('AI分析返回空结果');
           }
 
-          console.log(`✅ [v2.0] AI分析完成: ${asset.name}`, {
+          logger.debug('✅ [v2.0] AI分析完成: ${asset.name}', {
             fieldsCount: Object.keys(analysisResultV2.extractedFields).length,
             confidence: analysisResultV2.overallConfidence,
             version: analysisResultV2.version
@@ -1371,7 +1373,7 @@ export default function BrandLibraryPageFixed() {
             } : a
           ));
 
-          console.log(`✅ AI分析完成: ${asset.name}`, {
+          logger.debug('✅ AI分析完成: ${asset.name}', {
             extractedFields: Object.keys(analysisResult.extractedFields).length,
             confidence: analysisResult.aiAnalysisMetadata?.confidence
           });
@@ -1477,7 +1479,7 @@ export default function BrandLibraryPageFixed() {
     setBrandDimensions(updatedDimensions);
     saveDimensionsToStorage(updatedDimensions);
 
-    console.log(`✅ 删除完成: 共删除 ${deletedItemsCount} 条语料信息`);
+    logger.debug('✅ 删除完成: 共删除 ${deletedItemsCount} 条语料信息');
 
     toast({
       title: "删除成功",
@@ -1536,7 +1538,7 @@ export default function BrandLibraryPageFixed() {
     setBrandDimensions(updatedDimensions);
     saveDimensionsToStorage(updatedDimensions);
 
-    console.log(`✅ 批量删除完成: 删除了 ${assetsToDelete.length} 个资产和 ${totalDeletedItemsCount} 条语料信息`);
+    logger.debug('✅ 批量删除完成: 删除了 ${assetsToDelete.length} 个资产和 ${totalDeletedItemsCount} 条语料信息');
 
     toast({
       title: "批量删除成功",
@@ -1621,14 +1623,14 @@ export default function BrandLibraryPageFixed() {
       setBrandDimensions(updatedDimensions);
       saveDimensionsToStorage(updatedDimensions);
 
-      console.log(`✅ 清理完成: 删除了 ${cleanedItemsCount} 条孤立语料信息`);
+      logger.debug('✅ 清理完成: 删除了 ${cleanedItemsCount} 条孤立语料信息');
 
       toast({
         title: "清理完成",
         description: `已清理 ${cleanedItemsCount} 条孤立的语料信息`,
       });
     } else {
-      console.log('✅ 没有发现孤立的语料信息');
+      logger.debug('✅ 没有发现孤立的语料信息');
       toast({
         title: "清理完成",
         description: "没有发现需要清理的孤立语料信息",
@@ -1861,7 +1863,7 @@ export default function BrandLibraryPageFixed() {
         throw new Error(extractionResult.error || '内容提取失败');
       }
 
-      console.log('✅ 网页内容提取成功:', {
+      logger.debug('✅ 网页内容提取成功:', {
         title: extractionResult.title,
         contentLength: extractionResult.content?.length || 0,
         domain: extractionResult.metadata?.domain

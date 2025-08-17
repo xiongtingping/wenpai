@@ -4,6 +4,7 @@
  */
 
 import { PlatformAdapterBase, LoginStatus, PublishOptions, PublishResult } from './PlatformAdapterBase';
+import { logger } from '@/utils/logger';
 
 export class DouyinAdapter extends PlatformAdapterBase {
   constructor(timeout: number = 30000) {
@@ -103,7 +104,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
    */
   async handleSpecialCases(): Promise<void> {
     try {
-      console.log('🔧 处理抖音特殊情况...');
+      logger.debug('🔧 处理抖音特殊情况...');
 
       const specialInstructions = `
         <strong>抖音特殊注意事项：</strong><br>
@@ -229,7 +230,7 @@ export class DouyinAdapter extends PlatformAdapterBase {
    */
   async executeEnhancedPublish(content: string, options?: PublishOptions): Promise<PublishResult> {
     try {
-      console.log('🚀 开始抖音增强发布流程...');
+      logger.system('🚀 开始抖音增强发布流程...');
 
       // 1. 内容优化
       const optimizedContent = this.optimizeDouyinHashtags(content);

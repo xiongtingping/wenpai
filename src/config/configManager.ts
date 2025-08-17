@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 /**
  * 🔧 统一配置管理器
  * 禁止硬编码，统一从部署后台调取配置信息
@@ -121,7 +122,7 @@ export class ConfigManager {
       }
 
       const remoteConfig = await response.json();
-      console.log('✅ 成功获取远程配置');
+      logger.debug('✅ 成功获取远程配置');
       
       // 缓存远程配置
       this.configCache.set('remote', remoteConfig);
@@ -174,6 +175,7 @@ export class ConfigManager {
       version: import.meta.env.VITE_APP_VERSION || '1.0.0',
       debug: import.meta.env.DEV || false
     };
+
   }
 
   /**
@@ -327,7 +329,7 @@ export class ConfigManager {
       // 缓存到本地
       this.configCache.set('local', this.config);
 
-      console.log('✅ 配置加载完成:', {
+      logger.debug('✅ 配置加载完成:', {
         environment: this.config.environment,
         hasRemoteConfig: !!remoteConfig,
         configSource: remoteConfig ? 'remote' : 'local'

@@ -10,6 +10,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
+import { logger } from '@/utils/logger';
 
 /**
  * 用户数据隔离接口
@@ -245,7 +246,7 @@ export function migrateUserData(oldKey: string, newKey: string): boolean {
     if (data) {
       localStorage.setItem(newKey, data);
       localStorage.removeItem(oldKey);
-      console.log(`✅ 数据迁移成功: ${oldKey} -> ${newKey}`);
+      logger.debug('✅ 数据迁移成功: ${oldKey} -> ${newKey}');
       return true;
     }
     return false;
@@ -270,7 +271,7 @@ export function cleanupUserData(userId: string): number {
       cleanedCount++;
     });
     
-    console.log(`✅ 清理用户数据完成: ${userId}, 清理了 ${cleanedCount} 项`);
+    logger.debug('✅ 清理用户数据完成: ${userId}, 清理了 ${cleanedCount} 项');
   } catch (error) {
     console.error(`❌ 清理用户数据失败: ${userId}`, error);
   }

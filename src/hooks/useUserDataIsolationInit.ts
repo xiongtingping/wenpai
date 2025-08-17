@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { paymentStatusService } from '@/services/paymentStatusService';
 import { hashtagGenerator } from '@/utils/hashtagGenerator';
+import { logger } from '@/utils/logger';
 
 /**
  * 用户数据隔离初始化配置
@@ -79,7 +80,7 @@ export function useUserDataIsolationInit(config: UserDataIsolationInitConfig = {
     }
 
     if (enableLogging) {
-      console.log(`✅ 用户数据清理完成: ${targetUserId}, 总计清理 ${totalCleaned} 项`);
+      logger.debug('✅ 用户数据清理完成: ${targetUserId}, 总计清理 ${totalCleaned} 项');
     }
 
     return totalCleaned;
@@ -136,7 +137,7 @@ export function useUserDataIsolationInit(config: UserDataIsolationInitConfig = {
       });
 
       if (enableLogging) {
-        console.log(`✅ 数据迁移完成: ${migratedCount} 项`);
+        logger.debug('✅ 数据迁移完成: ${migratedCount} 项');
       }
     } catch (error) {
       console.error('❌ 数据迁移失败:', error);
@@ -226,7 +227,7 @@ export const userDataIsolationUtils = {
     });
 
     if (orphanKeys.length > 0) {
-      console.log(`✅ 清理孤儿数据完成: ${orphanKeys.length} 项`);
+      logger.debug('✅ 清理孤儿数据完成: ${orphanKeys.length} 项');
     }
 
     return orphanKeys.length;
@@ -261,7 +262,7 @@ export const userDataIsolationUtils = {
       if (!isValid) {
         console.error('❌ 用户数据隔离验证失败:', issues);
       } else {
-        console.log('✅ 用户数据隔离验证通过');
+        logger.debug('✅ 用户数据隔离验证通过');
       }
 
       return isValid;

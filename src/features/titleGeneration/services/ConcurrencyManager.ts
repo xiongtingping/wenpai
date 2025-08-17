@@ -6,6 +6,7 @@
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import { performanceMonitor } from './PerformanceMonitor';
 import { TitleGenerationError } from '../types/titleGeneration.types';
+import { logger } from '@/utils/logger';
 
 interface ConcurrentRequest<T> {
   id: string;
@@ -280,7 +281,7 @@ export class ConcurrencyManager {
     if (config.rateLimitCount) this.rateLimitCount = config.rateLimitCount;
     if (config.rateLimitWindow) this.rateLimitWindow = config.rateLimitWindow;
 
-    console.log('🔧 并发管理器配置已更新:', config);
+    logger.debug('🔧 并发管理器配置已更新:', config);
   }
 
   /**

@@ -10,6 +10,7 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { configManager, getSupabaseConfig } from '@/config/configManager';
+import { logger } from '@/utils/logger';
 
 // 全局 Supabase 客户端实例
 let supabase: SupabaseClient | null = null;
@@ -34,7 +35,7 @@ async function initializeSupabase(): Promise<SupabaseClient> {
     supabase = createClient(config.url, config.anonKey);
     isInitialized = true;
 
-    console.log('✅ Supabase 客户端初始化成功:', {
+    logger.debug('✅ Supabase 客户端初始化成功:', {
       url: config.url,
       projectId: config.projectId
     });
@@ -131,7 +132,7 @@ export class SupabaseDataService {
         throw new Error(`创建记录失败: ${error.message}`);
       }
 
-      console.log(`✅ 创建${this.tableName}记录成功:`, result.id);
+      logger.debug('✅ 创建${this.tableName}记录成功:', result.id);
       return result as T;
     } catch (error) {
       console.error(`创建${this.tableName}记录异常:`, error);
@@ -179,7 +180,7 @@ export class SupabaseDataService {
         throw new Error(`查询记录失败: ${error.message}`);
       }
 
-      console.log(`✅ 查询${this.tableName}记录成功: ${data?.length || 0} 条`);
+      logger.debug('✅ 查询${this.tableName}记录成功: ${data?.length || 0} 条');
       return {
         data: (data || []) as T[],
         count: count || 0
@@ -215,7 +216,7 @@ export class SupabaseDataService {
         throw new Error(`查询记录失败: ${error.message}`);
       }
 
-      console.log(`✅ 查询${this.tableName}记录成功:`, id);
+      logger.debug('✅ 查询${this.tableName}记录成功:', id);
       return data as T;
     } catch (error) {
       console.error(`查询${this.tableName}记录异常:`, error);
@@ -252,7 +253,7 @@ export class SupabaseDataService {
         throw new Error(`更新记录失败: ${error.message}`);
       }
 
-      console.log(`✅ 更新${this.tableName}记录成功:`, id);
+      logger.debug('✅ 更新${this.tableName}记录成功:', id);
       return result as T;
     } catch (error) {
       console.error(`更新${this.tableName}记录异常:`, error);
@@ -282,7 +283,7 @@ export class SupabaseDataService {
         throw new Error(`删除记录失败: ${error.message}`);
       }
 
-      console.log(`✅ 删除${this.tableName}记录成功:`, id);
+      logger.debug('✅ 删除${this.tableName}记录成功:', id);
     } catch (error) {
       console.error(`删除${this.tableName}记录异常:`, error);
       throw error;
@@ -305,7 +306,7 @@ export class SupabaseDataService {
         throw new Error(`批量删除记录失败: ${error.message}`);
       }
 
-      console.log(`✅ 批量删除${this.tableName}记录成功: ${ids.length} 条`);
+      logger.debug('✅ 批量删除${this.tableName}记录成功: ${ids.length} 条');
     } catch (error) {
       console.error(`批量删除${this.tableName}记录异常:`, error);
       throw error;
@@ -369,7 +370,7 @@ export class SupabaseDataService {
         throw new Error(`清理用户数据失败: ${error.message}`);
       }
 
-      console.log(`✅ 清理${this.tableName}用户数据成功`);
+      logger.debug('✅ 清理${this.tableName}用户数据成功');
     } catch (error) {
       console.error(`清理${this.tableName}用户数据异常:`, error);
       throw error;

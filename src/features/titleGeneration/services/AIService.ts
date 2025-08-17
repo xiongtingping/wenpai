@@ -8,11 +8,13 @@ import type { AICallParams } from '@/api/ai';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import { concurrencyManager } from './ConcurrencyManager';
 import type {
+import { logger } from '@/utils/logger';
   IAIService,
   AICallOptions,
   AIResponse
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
+import { logger } from '@/utils/logger';
 
 export class AIService implements IAIService {
   private availableModels: string[] = [];
@@ -123,7 +125,7 @@ export class AIService implements IAIService {
         const response = await this.callSingleModel(model, prompt, options);
         const duration = performance.now() - startTime;
 
-        console.log(`✅ 模型 ${model} 调用成功，耗时: ${duration.toFixed(2)}ms`);
+        logger.debug('✅ 模型 ${model} 调用成功，耗时: ${duration.toFixed(2)}ms');
 
         // 标记模型为可用
         this.modelStatus.set(model, true);

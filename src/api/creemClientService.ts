@@ -5,6 +5,7 @@
 
 import QRCode from "qrcode";
 import { createCreemCheckout as directCreateCheckout } from "./creemService";
+import { logger } from '@/utils/logger';
 
 /**
  * 获取API端点
@@ -14,13 +15,13 @@ export function getAPIEndpoint(): string {
   // 检查是否有自定义的API端点配置
   const customEndpoint = import.meta.env.VITE_CREEM_API_ENDPOINT;
   if (customEndpoint) {
-    console.log('🔧 使用自定义Creem API端点:', customEndpoint);
+    logger.debug('🔧 使用自定义Creem API端点:', customEndpoint);
     return customEndpoint;
   }
 
   // 开发环境：优先尝试直接使用Creem服务
   if (import.meta.env.DEV) {
-    console.log('🔧 开发环境：使用直接Creem服务调用');
+    logger.debug('🔧 开发环境：使用直接Creem服务调用');
     return '/api/creem/direct'; // 使用直接调用方式
   }
 
@@ -266,10 +267,11 @@ export async function redirectToCheckout(priceId: string, customerEmail?: string
  */
 async function createDirectCreemCheckout(priceId: string, customerEmail?: string) {
   try {
-    console.log('🔧 开发环境：直接调用Creem服务');
+    logger.debug('🔧 开发环境：直接调用Creem服务');
 
     // 检查API密钥配置
     const apiKey = import.meta.env.VITE_CREEM_API_KEY;
+
     if (!apiKey || apiKey.includes('your-')) {
       throw new Error('Creem API密钥未正确配置，请在.env.local文件中设置VITE_CREEM_API_KEY');
     }

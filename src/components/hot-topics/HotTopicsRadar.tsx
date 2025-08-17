@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { 
+import { logger } from '@/utils/logger';
   TrendingUp, 
   Clock, 
   Users, 
@@ -345,10 +346,11 @@ export default function HotTopicsRadar({
 
           const totalResults = Object.values(results).flat().length;
           if (totalResults > 0) {
-            console.log(`✅ 全网雷达自动监控发现 ${totalResults} 个相关话题`);
+            logger.debug('✅ 全网雷达自动监控发现 ${totalResults} 个相关话题');
 
             // 发送通知
             const { notifyTopicUpdate } = await import('@/services/notificationService');
+import { logger } from '@/utils/logger';
 
             // 为每个有结果的订阅发送通知
             Object.entries(results).forEach(([subscriptionId, topicResults]) => {
@@ -371,7 +373,7 @@ export default function HotTopicsRadar({
     }, 5 * 60 * 1000); // 5分钟
 
     setMonitoringTimer(timer);
-    console.log('🚀 全网雷达话题订阅自动监控已启动（每5分钟检查一次）');
+    logger.system('🚀 全网雷达话题订阅自动监控已启动（每5分钟检查一次）');
   };
 
   /**

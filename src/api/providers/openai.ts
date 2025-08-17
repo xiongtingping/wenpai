@@ -12,6 +12,7 @@
 
 import request from '../request';
 import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
+import { logger } from '@/utils/logger';
 
 /**
  * OpenAI服务商配置
@@ -132,7 +133,7 @@ export class OpenAIProvider {
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
       
-      console.log('✅ OpenAI调用成功:', {
+      logger.debug('✅ OpenAI调用成功:', {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -190,7 +191,7 @@ export class OpenAIProvider {
         }
       });
 
-      console.log('✅ OpenAI图像生成成功:', {
+      logger.debug('✅ OpenAI图像生成成功:', {
         model: requestData.model,
         imagesCount: response.data?.length || 0
       });
@@ -244,4 +245,4 @@ export default {
   create: createOpenAIProvider
 };
 
-console.log('🔧 OpenAI提供者已加载');
+logger.debug('🔧 OpenAI提供者已加载');

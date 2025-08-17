@@ -6,6 +6,7 @@
 import { unifiedUsageService } from '@/services/unifiedUsageService';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
 import { enhancedInviteService } from '@/services/enhancedInviteService';
+import { logger } from '@/utils/logger';
 
 /**
  * 系统健康状态
@@ -92,7 +93,7 @@ class SystemMonitorService {
       return;
     }
 
-    console.log('🚀 启动系统监控服务');
+    logger.system('🚀 启动系统监控服务');
     this.isRunning = true;
 
     // 1. 启动各个服务的自动同步
@@ -107,7 +108,7 @@ class SystemMonitorService {
     // 4. 启动自动化任务
     this.startAutomationTasks();
 
-    console.log('✅ 系统监控服务启动完成');
+    logger.debug('✅ 系统监控服务启动完成');
   }
 
   /**
@@ -133,7 +134,7 @@ class SystemMonitorService {
     // 停止各服务的自动同步
     this.stopServiceAutoSync();
 
-    console.log('✅ 系统监控服务已停止');
+    logger.debug('✅ 系统监控服务已停止');
   }
 
   /**

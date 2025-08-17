@@ -12,6 +12,7 @@
 
 import request from '../request';
 import type { AICallParams, AIResponse, ImageGenerationParams } from '../types';
+import { logger } from '@/utils/logger';
 
 /**
  * DeepSeek服务商配置
@@ -125,7 +126,7 @@ export class DeepSeekProvider {
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
       
-      console.log('✅ DeepSeek调用成功:', {
+      logger.debug('✅ DeepSeek调用成功:', {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -205,4 +206,4 @@ export default {
   create: createDeepSeekProvider
 };
 
-console.log('🔧 DeepSeek提供者已加载');
+logger.debug('🔧 DeepSeek提供者已加载');

@@ -11,6 +11,7 @@
 
 import { useMemo } from 'react';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { logger } from '@/utils/logger';
 
 /**
  * 权限判断结果
@@ -387,7 +388,7 @@ export const usePermission = (permissionKey: string | string[]): PermissionResul
       const hasPermission = config.check(user);
       
       // 打印权限检查日志
-      console.log(`🔒 权限检查: ${key}`, {
+      logger.lock('🔒 权限检查: ${key}', {
         user: user ? { id: user.id, isVip: user.isVip, permissions: user.permissions, roles: user.roles } : null,
         hasPermission,
         config: config.description

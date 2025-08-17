@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger';
+
 /**
  * ✅ FIXED: 2025-07-25 AI系统工具函数
  * 
@@ -236,7 +238,7 @@ export function withPerformanceMonitoring<T extends (...args: any[]) => Promise<
     try {
       const result = await fn(...args);
       const duration = Date.now() - startTime;
-      console.log(`✅ ${name} 执行完成，耗时: ${duration}ms`);
+      logger.debug('✅ ${name} 执行完成，耗时: ${duration}ms');
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;
@@ -280,4 +282,4 @@ export function withCache<T extends (...args: any[]) => Promise<any>>(
   }) as T;
 }
 
-console.log('🔧 AI系统工具函数已加载');
+logger.debug('🔧 AI系统工具函数已加载');

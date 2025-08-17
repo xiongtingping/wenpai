@@ -12,6 +12,7 @@
 
 import request from '../../api/request';
 import type { AIProviderInterface } from '../types';
+import { logger } from '@/utils/logger';
 
 /**
  * OpenAI提供者实现
@@ -24,6 +25,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
   constructor() {
     this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
+import { logger } from '@/utils/logger';
     this.baseURL = 'https://api.openai.com';
   }
 
@@ -142,7 +144,7 @@ export class OpenAIProvider implements AIProviderInterface {
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
       
-      console.log('✅ OpenAI内容生成成功:', {
+      logger.debug('✅ OpenAI内容生成成功:', {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -215,7 +217,7 @@ export class OpenAIProvider implements AIProviderInterface {
 
       const images = response.data?.map((item: any) => item.url) || [];
       
-      console.log('✅ OpenAI图像生成成功:', {
+      logger.debug('✅ OpenAI图像生成成功:', {
         model: requestData.model,
         imagesCount: images.length
       });
@@ -279,4 +281,4 @@ export function createOpenAIProvider(): OpenAIProvider {
  */
 export default createOpenAIProvider();
 
-console.log('🔧 OpenAI提供者已加载');
+logger.debug('🔧 OpenAI提供者已加载');

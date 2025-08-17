@@ -1977,7 +1977,7 @@ export function verifyPromptSystemIntegrity(): boolean {
       return false;
     }
 
-    console.log('✅ 提示词系统完整性验证通过');
+    logger.debug('✅ 提示词系统完整性验证通过');
     return true;
   } catch (error) {
     console.error('🚨 提示词系统完整性验证异常:', error);

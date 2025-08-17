@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger';
+
 /**
  * 智能话题标签生成器
  * 支持自动提取、系统推荐、热点话题等功能
@@ -159,7 +161,7 @@ export class HashtagGenerator {
 
     // 4. 过滤和排序
     const filteredTags = this.filterAndRankTags(contentBasedTags, content, maxTags);
-    console.log('✅ 最终标签:', filteredTags.map(t => t.tag));
+    logger.debug('✅ 最终标签:', filteredTags.map(t => t.tag));
 
     return filteredTags;
   }
@@ -683,7 +685,7 @@ export class HashtagGenerator {
       description: tag.description
     }));
 
-    console.log('✅ 生成话题标签:', suggestions.map(s => s.tag));
+    logger.debug('✅ 生成话题标签:', suggestions.map(s => s.tag));
     return suggestions;
   }
 
@@ -1236,7 +1238,7 @@ export class HashtagGenerator {
         cleanedCount++;
       });
 
-      console.log(`✅ 清理用户标签数据完成: ${userId}, 清理了 ${cleanedCount} 项`);
+      logger.debug('✅ 清理用户标签数据完成: ${userId}, 清理了 ${cleanedCount} 项');
     } catch (error) {
       console.error(`❌ 清理用户标签数据失败: ${userId}`, error);
     }

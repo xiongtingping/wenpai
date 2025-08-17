@@ -376,7 +376,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
     }
 
     // 📈 成功日志记录
-    console.log(`✅ AI服务调用成功 [${taskType}]`, {
+    logger.debug('✅ AI服务调用成功 [${taskType}]', {
       responseTime: result.responseTime,
       contentLength: result.content.length,
       model: result.model,
@@ -453,7 +453,7 @@ async function callDeepSeekDirect(config: any, params: any): Promise<AIResponse>
     const content = data.choices[0]?.message?.content || '';
     const usage = data.usage;
 
-    console.log('✅ DeepSeek响应成功');
+    logger.debug('✅ DeepSeek响应成功');
     console.log('📝 响应内容长度:', content.length);
 
     return {

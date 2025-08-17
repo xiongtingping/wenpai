@@ -7,6 +7,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { titleGenerationService } from '../services/TitleGenerationService';
 import { TitleGenerationConfig } from '../config/titleGeneration.config';
 import type {
+import { logger } from '@/utils/logger';
   TitleGenerationState,
   TitleGenerationActions,
   TitleGenerationInput,
@@ -155,7 +156,7 @@ export const useTitleGeneration = (
         options.onSuccess(result.titles);
       }
 
-      console.log(`✅ 生成${result.titles.length}个标题，平均评分: ${result.averageScore.toFixed(2)}`);
+      logger.debug('✅ 生成${result.titles.length}个标题，平均评分: ${result.averageScore.toFixed(2)}');
 
     } catch (error) {
       // 清除进度定时器
@@ -382,6 +383,7 @@ export const useTitleGeneration = (
     exportTitles,
     importTitles
   };
+import { logger } from '@/utils/logger';
 };
 
 export default useTitleGeneration;

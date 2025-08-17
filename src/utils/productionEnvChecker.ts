@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 /**
  * 🚨 生产环境配置检查器
  * 专门检查生产环境中可能导致 undefinedundefined 问题的配置差异
@@ -151,7 +152,7 @@ class ProductionEnvChecker {
       // 在页面上显示警告（仅生产环境的开发者工具）
       this.showProductionWarning(errors);
     } else {
-      console.log('✅ 生产环境配置检查通过');
+      logger.debug('✅ 生产环境配置检查通过');
     }
   }
 
@@ -266,6 +267,7 @@ declare global {
 // 自动启动（仅在生产环境）
 if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
   window.productionEnvChecker = new ProductionEnvChecker();
+import { logger } from '@/utils/logger';
 }
 
 export default ProductionEnvChecker;

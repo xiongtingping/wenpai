@@ -4,6 +4,7 @@
  */
 
 import { PlatformLimit, getPlatformLimit } from '../config/platformLimits';
+import { logger } from '@/utils/logger';
 
 // 核心接口定义
 export interface PlatformContent {
@@ -292,7 +293,7 @@ export class AutomationEngine {
           });
       }
 
-      console.log(`✅ 成功检测到 ${platformData.length} 个平台的内容`);
+      logger.debug('✅ 成功检测到 ${platformData.length} 个平台的内容');
 
       // 如果仍然没有找到内容，提供更详细的错误信息
       if (platformData.length === 0) {
@@ -376,7 +377,7 @@ export class AutomationEngine {
    * 执行自动化转发
    */
   async executeForward(platformContents: PlatformContent[]): Promise<ForwardResult[]> {
-    console.log('🚀 开始执行自动化转发...');
+    logger.system('🚀 开始执行自动化转发...');
     
     // 过滤选中的平台
     const selectedContents = this.options.selectedPlatforms 
@@ -469,7 +470,7 @@ export class AutomationEngine {
       status: this.abortController.signal.aborted ? 'cancelled' : 'completed'
     });
 
-    console.log('✅ 自动化转发完成');
+    logger.debug('✅ 自动化转发完成');
     return results;
   }
 

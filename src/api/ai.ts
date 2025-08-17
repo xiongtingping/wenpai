@@ -10,6 +10,7 @@
 
 import request from './request';
 import { getAPIConfig } from './request';
+import { logger } from '@/utils/logger';
 
 /**
  * AI模型类型定义
@@ -274,7 +275,7 @@ export async function callAI(params: AICallParams): Promise<AIResponse> {
                                 systemPrompt?.includes('知乎') ||
                                 maxTokens > 2000;
 
-    console.log('🔧 API请求:', {
+    logger.debug('🔧 API请求:', {
       url: selectedConfig.baseURL,
       model: model,
       promptLength: prompt.length,
@@ -579,7 +580,7 @@ export async function callAIWithRetry(
 ): Promise<AIResponse> {
   let lastError: Error | null = null;
 
-  console.log(`🚀 callAIWithRetry 开始: 最大重试次数=${maxRetries}`);
+  logger.system('🚀 callAIWithRetry 开始: 最大重试次数=${maxRetries}');
 
   for (let i = 0; i < maxRetries; i++) {
     console.log(`🔄 第${i + 1}次尝试调用AI...`);

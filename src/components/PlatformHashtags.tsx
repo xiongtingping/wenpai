@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tag, Plus, X, Copy, Edit3, RotateCcw } from 'lucide-react';
 import { hashtagGenerator, HashtagSuggestion } from '../utils/hashtagGenerator';
+import { logger } from '@/utils/logger';
 
 export interface PlatformHashtagsProps {
   platformId: string;
@@ -63,7 +64,7 @@ export const PlatformHashtags: React.FC<PlatformHashtagsProps> = ({
         .slice(0, Math.min(limits.max, 8)) // 限制最多8个话题标签
         .map(h => h.tag);
 
-      console.log(`✅ 生成了${relevantTags.length}个话题标签:`, relevantTags);
+      logger.debug('✅ 生成了${relevantTags.length}个话题标签:', relevantTags);
 
       setTags(relevantTags);
       onTagsChange?.(relevantTags);

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 /**
  * 全局配置验证器
  * 用于验证应用运行所需的配置和环境
@@ -123,6 +124,7 @@ export function validateConfig(configName: string): boolean {
     'creem': import.meta.env.VITE_CREEM_API_KEY,
   };
 
+
   return !!configMap[configName];
 }
 
@@ -153,7 +155,7 @@ export function getConfigSummary(): string {
  * 在应用启动时自动运行
  */
 export function initializeConfigValidation(): void {
-  console.log('🔧 开始验证应用配置...');
+  logger.debug('🔧 开始验证应用配置...');
   
   validateAllConfigs().then(result => {
     console.log('📋 配置验证结果:', result);
@@ -165,7 +167,7 @@ export function initializeConfigValidation(): void {
         errors: result.errors
       });
     } else {
-      console.log('✅ 配置验证通过');
+      logger.debug('✅ 配置验证通过');
     }
     
     console.log('🌐 网络状态:', result.networkStatus);

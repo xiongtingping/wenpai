@@ -11,6 +11,7 @@ import { streamingTitleService } from './StreamingTitleService';
 import { concurrencyManager } from './ConcurrencyManager';
 import { TitleGenerationConfig, generateCacheKey } from '../config/titleGeneration.config';
 import type {
+import { logger } from '@/utils/logger';
   ITitleGenerationService,
   TitleGenerationInput,
   TitleGenerationResult,
@@ -21,6 +22,7 @@ import type {
   ServiceStats
 } from '../types/titleGeneration.types';
 import { TitleGenerationError } from '../types/titleGeneration.types';
+import { logger } from '@/utils/logger';
 
 export class TitleGenerationService implements ITitleGenerationService {
   private stats: ServiceStats = {
@@ -105,7 +107,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       const concurrency = input.concurrency || 2;
       const prompts = this.createConcurrentPrompts(input, platformConfig, outputCount, concurrency);
 
-      console.log(`🚀 开始并发AI生成 (${concurrency}个并发请求)...`);
+      logger.system('🚀 开始并发AI生成 (${concurrency}个并发请求)...');
 
       // 5. 并发调用AI
       const aiResponses = await aiService.callBatch(prompts, {
@@ -155,7 +157,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       performanceMonitor.recordResponseTime(result.generationTime, 'concurrent_title_generation', true);
       performanceMonitor.recordCacheHit(false, 'concurrent_title_generation');
 
-      console.log(`✅ 并发标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms`);
+      logger.debug('✅ 并发标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms');
       return result;
 
     } catch (error) {
@@ -249,7 +251,7 @@ export class TitleGenerationService implements ITitleGenerationService {
       performanceMonitor.recordResponseTime(result.generationTime, 'title_generation', true);
       performanceMonitor.recordCacheHit(false, 'title_generation');
 
-      console.log(`✅ 标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms`);
+      logger.debug('✅ 标题生成完成，耗时: ${result.generationTime.toFixed(2)}ms');
       return result;
 
     } catch (error) {
@@ -459,7 +461,7 @@ export class TitleGenerationService implements ITitleGenerationService {
         };
       });
 
-      console.log(`✅ 成功解析 ${result.length} 个标题`);
+      logger.debug('✅ 成功解析 ${result.length} 个标题');
       return result;
 
     } catch (error) {

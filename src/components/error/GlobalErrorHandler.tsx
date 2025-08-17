@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { X, RefreshCw, AlertTriangle, Wifi, Shield, Clock } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 /**
  * 错误类型
@@ -270,7 +271,7 @@ export function setupGlobalErrorHandler() {
     });
   });
 
-  console.log('✅ 全局错误处理已设置');
+  logger.debug('✅ 全局错误处理已设置');
 }
 
 export default GlobalErrorHandler;

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 /**
  * 支付状态持久化服务
  * 用于在页面刷新后恢复支付状态和配置
@@ -340,6 +341,7 @@ class PaymentStatusService {
   importPaymentData(data: string): boolean {
     try {
       const parsedData = JSON.parse(data);
+
       
       if (parsedData.payments) {
         localStorage.setItem(this.getStorageKey('status'), JSON.stringify(parsedData.payments));
@@ -391,7 +393,7 @@ class PaymentStatusService {
         cleanedCount++;
       });
 
-      console.log(`✅ 清理用户支付数据完成: ${userId}, 清理了 ${cleanedCount} 项`);
+      logger.debug('✅ 清理用户支付数据完成: ${userId}, 清理了 ${cleanedCount} 项');
     } catch (error) {
       console.error(`❌ 清理用户支付数据失败: ${userId}`, error);
     }

@@ -11,6 +11,7 @@
  */
 
 import type { PromptTemplate } from '../types';
+import { logger } from '@/utils/logger';
 
 /**
  * 品牌综合分析提示词
@@ -243,4 +244,4 @@ export function getBrandPromptByTask(task: string): PromptTemplate {
   }
 }
 
-console.log('🔧 品牌分析提示词模板已加载');
+logger.debug('🔧 品牌分析提示词模板已加载');

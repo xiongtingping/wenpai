@@ -18,6 +18,7 @@ import { callAI, generateImage as directGenerateImage } from './ai';
 import { callOpenAIProxy, callDeepSeekProxy, callGeminiProxy } from './apiProxy';
 import { generateImage as proxyGenerateImage } from './imageGenerationService';
 import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
+import { logger } from '@/utils/logger';
 
 /**
  * 环境检测
@@ -26,6 +27,7 @@ import type { AICallParams, AIResponse, ImageGenerationParams } from './types';
 const forceProductionMode = import.meta.env.VITE_FORCE_PRODUCTION_MODE === 'true';
 const isDevelopment = !forceProductionMode && import.meta.env.DEV;
 const isProduction = forceProductionMode || import.meta.env.PROD;
+import { logger } from '@/utils/logger';
 
 /**
  * 统一的AI调用服务
@@ -250,5 +252,5 @@ export {
 
 // 输出环境信息
 const envInfo = getUnifiedEnvironmentInfo();
-console.log('🔧 统一AI服务已加载:', envInfo);
-console.log(`📍 当前使用: ${envInfo.apiMethod} (${envInfo.description})`);
+logger.debug('🔧 统一AI服务已加载:', envInfo);
+logger.debug('📍 当前使用: ${envInfo.apiMethod} (${envInfo.description})');

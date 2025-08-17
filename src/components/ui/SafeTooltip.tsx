@@ -7,6 +7,7 @@
  */
 
 import React, { useRef, useCallback, useMemo, useEffect, useState } from 'react';
+import { logger } from '@/utils/logger';
 // ✅ FIXED: 2025-08-04 完全移除对原始Tooltip组件的依赖，使用纯CSS实现
 // 不再导入会导致setRef无限循环的Radix UI Tooltip组件
 
@@ -45,7 +46,7 @@ const useSafeRef = (componentId: string) => {
     // 正常处理ref
     if (node) {
       // 这里可以添加必要的DOM操作
-      console.log(`✅ SafeTooltip: ref设置成功，组件ID: ${componentId}`);
+      logger.debug('✅ SafeTooltip: ref设置成功，组件ID: ${componentId}');
     }
   }, [componentId]);
 };

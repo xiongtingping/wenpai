@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger';
+
 /**
  * ✅ FIXED: 2025-08-03 API请求队列管理器
  * 
@@ -140,7 +142,7 @@ class APIRequestQueue {
       console.log(`🔄 执行队列请求: ${item.id} (重试: ${item.retryCount}/${item.maxRetries})`);
       
       const result = await item.execute();
-      console.log(`✅ 队列请求成功: ${item.id}`);
+      logger.debug('✅ 队列请求成功: ${item.id}');
       return result;
       
     } catch (error) {

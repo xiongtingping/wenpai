@@ -9,6 +9,7 @@ import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 // 图片 OCR
 import Tesseract from 'tesseract.js';
+import { logger } from '@/utils/logger';
 
 // 配置 PDF.js worker - 使用本地托管的worker文件
 if (typeof window !== 'undefined') {
@@ -389,7 +390,7 @@ ${content}
                 throw new Error('PDF内容为空');
               }
 
-              console.log(`✅ PDF解析完成: ${numPages}页，提取文本 ${text.length} 字符`);
+              logger.debug('✅ PDF解析完成: ${numPages}页，提取文本 ${text.length} 字符');
               resolve(text);
             } catch (pdfError) {
               console.warn('PDF解析失败，尝试备用方案:', pdfError);
@@ -426,7 +427,7 @@ ${content}
                 console.warn('Word文档解析结果为空');
                 resolve(`Word文档: ${file.name}\n文件大小: ${(file.size / 1024).toFixed(2)} KB\n\n文档内容为空或无法提取文本。\n建议：\n1. 检查文档是否包含文字内容\n2. 尝试另存为较新的.docx格式\n3. 复制文档内容到文本文件后上传`);
               } else {
-                console.log(`✅ Word文档解析完成: 提取文本 ${extractedText.length} 字符`);
+                logger.debug('✅ Word文档解析完成: 提取文本 ${extractedText.length} 字符');
 
                 // 如果有解析警告，记录但不影响结果
                 if (result.messages && result.messages.length > 0) {
@@ -475,6 +476,7 @@ ${content}
                 // PPTX 文件处理（基于 ZIP 结构）
                 try {
                   const JSZip = (await import('jszip')).default;
+
                   const zip = await JSZip.loadAsync(arrayBuffer);
                   let extractedText = '';
 

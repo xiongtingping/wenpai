@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { 
+import { logger } from '@/utils/logger';
+import {
   Card,
   CardContent,
   CardDescription,
@@ -48,6 +49,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { callPDFChat } from '@/api/aiService';
+import { logger } from '@/utils/logger';
 
 /**
  * 对话消息接口
@@ -143,7 +145,7 @@ export function PDFChatDialog({
    * 发送消息
    */
   const sendMessage = async () => {
-    console.log('🚀 sendMessage 被调用');
+    logger.system('🚀 sendMessage 被调用');
     console.log('📝 输入值:', inputValue);
     console.log('📄 选中文档:', selectedDocument?.name);
     console.log('⏳ 加载状态:', isLoading);
@@ -153,7 +155,7 @@ export function PDFChatDialog({
       return;
     }
 
-    console.log('✅ 开始发送消息');
+    logger.debug('✅ 开始发送消息');
 
     const userMessage: ChatMessage = {
       id: `user_${Date.now()}`,
@@ -287,7 +289,7 @@ export function PDFChatDialog({
       };
 
       setMessages([welcomeMessage]);
-      console.log('✅ 重新初始化欢迎消息');
+      logger.debug('✅ 重新初始化欢迎消息');
     } else {
       console.log('❌ 没有选中文档，无法初始化欢迎消息');
     }

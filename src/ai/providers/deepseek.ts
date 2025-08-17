@@ -12,6 +12,7 @@
 
 import request from '../../api/request';
 import type { AIProviderInterface } from '../types';
+import { logger } from '@/utils/logger';
 
 /**
  * DeepSeek提供者实现
@@ -24,6 +25,7 @@ export class DeepSeekProvider implements AIProviderInterface {
 
   constructor() {
     this.apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
+import { logger } from '@/utils/logger';
     this.baseURL = 'https://api.deepseek.com';
   }
 
@@ -136,7 +138,7 @@ export class DeepSeekProvider implements AIProviderInterface {
       const responseTime = Date.now() - startTime;
       const content = response.choices?.[0]?.message?.content || '';
       
-      console.log('✅ DeepSeek内容生成成功:', {
+      logger.debug('✅ DeepSeek内容生成成功:', {
         model: requestData.model,
         responseTime: `${responseTime}ms`,
         contentLength: content.length,
@@ -234,4 +236,4 @@ export function createDeepSeekProvider(): DeepSeekProvider {
  */
 export default createDeepSeekProvider();
 
-console.log('🔧 DeepSeek提供者已加载');
+logger.debug('🔧 DeepSeek提供者已加载');

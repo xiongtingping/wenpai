@@ -4,6 +4,7 @@
  */
 
 import { AutomationEngine, PlatformContent, ForwardResult, AutomationOptions, AutomationProgress } from './AutomationEngine';
+import { logger } from '@/utils/logger';
 
 // 保持向后兼容的接口
 interface LegacyForwardResult {
@@ -58,7 +59,7 @@ export class BatchForwardAutomation {
     const results: ForwardResult[] = [];
 
     try {
-      console.log('🚀 启动批量转发自动化（简化版本）...');
+      logger.system('🚀 启动批量转发自动化（简化版本）...');
 
       // 获取当前页面的内容数据
       const platformData = await this.extractCurrentPageData();
@@ -92,7 +93,7 @@ export class BatchForwardAutomation {
         await this.delay(1000);
       }
 
-      console.log('✅ 批量转发自动化完成');
+      logger.debug('✅ 批量转发自动化完成');
       return results;
 
     } catch (error) {
@@ -308,7 +309,7 @@ export class BatchForwardAutomation {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(content);
-        console.log('✅ 内容已复制到剪贴板');
+        logger.debug('✅ 内容已复制到剪贴板');
       } else {
         // 降级方案：使用传统的复制方法
         const textArea = document.createElement('textarea');
@@ -319,7 +320,7 @@ export class BatchForwardAutomation {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        console.log('✅ 内容已复制到剪贴板（降级方案）');
+        logger.debug('✅ 内容已复制到剪贴板（降级方案）');
       }
     } catch (error) {
       console.error('❌ 复制到剪贴板失败:', error);
@@ -342,7 +343,7 @@ export class BatchForwardAutomation {
       // 在新标签页中打开发布页面
       const newWindow = window.open(url, '_blank');
       if (newWindow) {
-        console.log(`✅ 已打开发布页面: ${url}`);
+        logger.debug('✅ 已打开发布页面: ${url}');
         return true;
       } else {
         console.error('❌ 无法打开新窗口，可能被浏览器阻止');
@@ -367,7 +368,7 @@ export class BatchForwardAutomation {
  * 增强版本，支持多种自动化方式
  */
 export async function executeBatchForward(options: BatchForwardOptions): Promise<LegacyForwardResult[]> {
-  console.log('🚀 启动增强版批量转发自动化...');
+  logger.system('🚀 启动增强版批量转发自动化...');
   console.log('配置选项:', options);
 
   try {

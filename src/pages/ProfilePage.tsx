@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { logger } from '@/utils/logger';
 import {
   User,
   Settings,
@@ -530,6 +531,7 @@ export default function ProfilePage() {
       // 动态导入统一emoji系统
       const { getRandomEmojis, getAllEmojis, generateEmojiSVG } = await import('@/services/unifiedEmojiSystem');
 
+
       // 优先从“动物类”选择，若不足则退回“全量”
       let pool = getRandomEmojis(1, 'animals');
       if (pool.length === 0) {
@@ -569,7 +571,7 @@ export default function ProfilePage() {
         description: `随机选择了可爱的${selectedEmoji.name} ${selectedEmoji.emoji}`,
       });
 
-      console.log('✅ 动物头像更新完成');
+      logger.debug('✅ 动物头像更新完成');
 
     } catch (error) {
       console.error('❌ 随机动物头像生成失败:', error);
@@ -749,7 +751,7 @@ export default function ProfilePage() {
                               });
                             }}
                             onLoad={() => {
-                              console.log('✅ 头像加载成功:', getCurrentFormAvatar());
+                              logger.debug('✅ 头像加载成功:', getCurrentFormAvatar());
                             }}
                           />
                           <AvatarFallback className="text-lg bg-accent text-foreground">

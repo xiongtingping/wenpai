@@ -12,12 +12,14 @@
  */
 
 import request from './request';
+import { logger } from '@/utils/logger';
 import {
   notifyTopicUpdate,
   notifyHeatAlert,
   notifySubscriptionStatus
 } from '@/services/notificationService';
 import { fetchHotTopics, DailyHotItem, DailyHotResponse } from './hotTopicsService';
+import { logger } from '@/utils/logger';
 
 /**
  * 订阅话题接口
@@ -515,7 +517,7 @@ async function searchRealHotTopics(keyword: string, source: SearchSource): Promi
       });
     });
 
-    console.log(`✅ 成功转换 ${results.length} 个监控结果`);
+    logger.debug('✅ 成功转换 ${results.length} 个监控结果');
 
   } catch (error) {
     console.error(`搜索真实热点数据失败:`, error);
@@ -585,7 +587,7 @@ export async function getTopicHeatTrend(keyword: string, days: number = 7): Prom
     const realTrendData = await generateRealTrendData(keyword, days);
 
     if (realTrendData.length > 0) {
-      console.log(`✅ 成功生成 ${realTrendData.length} 天的真实趋势数据`);
+      logger.debug('✅ 成功生成 ${realTrendData.length} 天的真实趋势数据');
       return realTrendData;
     }
 

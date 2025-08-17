@@ -13,6 +13,7 @@
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { logger } from '@/utils/logger';
 
 /**
  * API配置接口
@@ -50,6 +51,7 @@ const getAPIConfig = (): APIConfig => {
   
   const getEnvVar = (key: string, defaultValue?: string): string => {
     return globalEnv[key] || import.meta.env[key] || defaultValue || '';
+
   };
 
   return {
@@ -123,7 +125,7 @@ instance.interceptors.request.use(
       config.baseURL = getAPIConfig().creem.baseURL;
     }
 
-    console.log('🔧 API请求:', {
+    logger.debug('🔧 API请求:', {
       method: config.method?.toUpperCase(),
       url: config.url,
       baseURL: config.baseURL,
@@ -141,7 +143,7 @@ instance.interceptors.request.use(
   // 响应拦截器
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
-      console.log('✅ API响应成功:', {
+      logger.debug('✅ API响应成功:', {
         status: response.status,
         url: response.config.url,
         dataType: typeof response.data
@@ -273,7 +275,7 @@ export const validateAPIConfig = (): boolean => {
     }
   }
 
-  console.log('✅ API配置验证通过');
+  logger.debug('✅ API配置验证通过');
   return true;
 };
 

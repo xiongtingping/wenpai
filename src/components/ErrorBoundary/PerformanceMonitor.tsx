@@ -7,6 +7,7 @@
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { logger } from '@/utils/logger';
 
 interface PerformanceMetrics {
   renderTime: number;
@@ -228,7 +229,7 @@ export const resetPerformanceStats = () => {
   globalPerformanceStats.renderCount = 0;
   globalPerformanceStats.memoryLeaks = 0;
   globalPerformanceStats.performanceWarnings = 0;
-  console.log('✅ PerformanceMonitor: 性能统计已重置');
+  logger.debug('✅ PerformanceMonitor: 性能统计已重置');
 };
 
 /**

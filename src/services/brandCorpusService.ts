@@ -19,6 +19,7 @@
 
 import { callAI, AITaskType } from '@/api/aiService';
 import { getPrompt, PromptType } from '@/prompts/PromptSystem';
+import { logger } from '@/utils/logger';
 
 /**
  * v2.0 提取结果接口
@@ -364,7 +365,7 @@ export class BrandCorpusService {
         systemPrompt: '你是专业的品牌策略顾问，擅长从品牌资料中提取结构化信息。请严格按照JSON格式输出结果。'
       });
 
-      console.log(`✅ [v2.0] AI提取完成，开始解析结果...`);
+      logger.debug('✅ [v2.0] AI提取完成，开始解析结果...');
 
       // ✅ FIXED: 2025-08-06 增强JSON解析错误处理
       // 解析AI响应
@@ -373,7 +374,7 @@ export class BrandCorpusService {
         // 先尝试清理markdown格式
         const cleanedContent = this.cleanAIResponse(aiResponse.content);
         extractionResult = JSON.parse(cleanedContent);
-        console.log('✅ [v2.0] JSON解析成功');
+        logger.debug('✅ [v2.0] JSON解析成功');
       } catch (parseError) {
         console.error('❌ [v2.0] JSON解析失败，尝试修复...', parseError);
         console.log('🔍 原始AI响应内容:', aiResponse.content.substring(0, 500) + '...');
@@ -381,9 +382,9 @@ export class BrandCorpusService {
         try {
           // 尝试修复JSON格式
           const fixedJson = this.fixJsonFormat(aiResponse.content);
-          console.log('🔧 修复后的JSON:', fixedJson.substring(0, 500) + '...');
+          logger.debug('🔧 修复后的JSON:', fixedJson.substring(0, 500) + '...');
           extractionResult = JSON.parse(fixedJson);
-          console.log('✅ [v2.0] JSON修复成功');
+          logger.debug('✅ [v2.0] JSON修复成功');
         } catch (fixError) {
           console.error('❌ [v2.0] JSON修复也失败了:', fixError);
           console.log('🔍 完整AI响应内容:', aiResponse.content);
@@ -393,7 +394,7 @@ export class BrandCorpusService {
           if (extractedJson) {
             try {
               extractionResult = JSON.parse(extractedJson);
-              console.log('✅ [v2.0] 从文本中提取JSON成功');
+              logger.debug('✅ [v2.0] 从文本中提取JSON成功');
             } catch (extractError) {
               console.error('❌ [v2.0] 提取的JSON也无法解析:', extractError);
               extractionResult = this.createDefaultExtractionResult();
@@ -536,7 +537,8 @@ export class BrandCorpusService {
     extractionResult: { [fieldName: string]: { value: any; excerpt: string; confidence: number } },
     docId: string,
     fileName: string
-  ): { [fieldName: string]: { value: any; excerpt: string; confidence: number; docId: string; fileName: string; extractedAt: string; status: 'extracted' | 'confirmed' | 'pinned' | 'deleted' | 'blocked'; source: { type: 'ai_extraction' | 'manual_input' | 'imported'; docId: string; fileName: string; excerpt: string; confidence: number } } } {
+  ): { [fieldName: string]: { value: any; excerpt: string; confidence: number; docId: string; fileName: string; extractedAt: string; status: 'extracted' | 'confirmed' | 'pinned' | 'deleted' | 'blocked'; source: { type: 'ai_extraction' | 'manual_input' | 'imported';
+docId: string; fileName: string; excerpt: string; confidence: number } } } {
     const structured: { [fieldName: string]: any } = {};
 
     Object.keys(extractionResult).forEach(fieldName => {
@@ -707,7 +709,7 @@ export class BrandCorpusService {
       }
     }
     
-    console.log(`✅ 批量处理完成，成功处理 ${results.length}/${documents.length} 个文档`);
+    logger.debug('✅ 批量处理完成，成功处理 ${results.length}/${documents.length} 个文档');
     return results;
   }
 
@@ -1252,7 +1254,7 @@ export class BrandCorpusService {
         const batchResults = await Promise.all(batchPromises);
         results.push(...batchResults);
 
-        console.log(`✅ [v2.0] 批次 ${Math.floor(i/concurrencyLimit) + 1} 处理完成`);
+        logger.debug('✅ [v2.0] 批次 ${Math.floor(i/concurrencyLimit) + 1} 处理完成');
       } catch (error) {
         console.error(`❌ [v2.0] 批次处理失败:`, error);
         // 继续处理其他批次

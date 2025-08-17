@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
+import { logger } from '@/utils/logger';
 import {
   Sparkles,
   RefreshCw,
@@ -69,6 +70,7 @@ import {
   type CreativeCubeSelection,
   type CreativeCubeConfig
 } from '@/prompts/PromptSystem';
+import { logger } from '@/utils/logger';
 
 /**
  * 九宫格维度定义
@@ -636,7 +638,7 @@ export function CreativeCube() {
             });
             return merged;
           });
-          console.log(`🔧 已加载用户自定义维度选项:`, customItems);
+          logger.debug('🔧 已加载用户自定义维度选项:', customItems);
         }
 
         // 加载隐藏项

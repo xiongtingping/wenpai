@@ -5,6 +5,7 @@
 
 import { request } from '@/api/request';
 import type { SubscriptionTier } from '@/types/subscription';
+import { logger } from '@/utils/logger';
 
 // 临时的套餐配置函数，避免循环依赖
 function getTokenLimitForTier(tier: SubscriptionTier): number {
@@ -159,7 +160,7 @@ class TokenUsageService {
       // 2. 尝试同步到后端
       await this.syncTokenUsageToBackend(fullRecord);
       
-      console.log('✅ Token使用量记录成功:', {
+      logger.debug('✅ Token使用量记录成功:', {
         userId: record.userId,
         feature: record.feature,
         totalTokens: record.totalTokens,

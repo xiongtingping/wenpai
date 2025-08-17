@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 /**
  * 全局错误处理工具
  * 用于捕获和处理应用中的各种错误
@@ -117,6 +118,7 @@ async function reportErrorToServer(errorInfo: ErrorInfo): Promise<void> {
         }
       })
     });
+import { logger } from '@/utils/logger';
   } catch (error) {
     console.error('错误报告发送失败:', error);
   }
@@ -155,7 +157,7 @@ export function setupGlobalErrorHandler(): void {
     }
   }, true);
 
-  console.log('✅ 全局错误处理器已设置');
+  logger.debug('✅ 全局错误处理器已设置');
 }
 
 /**

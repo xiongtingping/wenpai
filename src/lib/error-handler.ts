@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger';
+
 /**
  * 全局错误处理器
  */
@@ -19,6 +21,6 @@ export const setupGlobalErrorHandler = () => {
 
   // 处理 React 错误边界
   if (process.env.NODE_ENV === 'development') {
-    console.log('🔧 全局错误处理器已设置');
+    logger.debug('🔧 全局错误处理器已设置');
   }
 }; 

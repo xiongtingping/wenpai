@@ -16,6 +16,7 @@ import type { TitleGenerationResponse, TitleQualityCheck } from '@/ai/types';
 import { getPlatformLimit } from '@/config/platformLimits';
 import { safeTrimTitle } from '@/utils/safeTrimTitle';
 import { V3_3_TITLE_SCORE_WEIGHTS } from '@/score/titleScoreWeights';
+import { logger } from '@/utils/logger';
 
 // ✅ FIXED: 添加JSON修复函数，处理AI响应截断问题
 /**
@@ -29,7 +30,7 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
     JSON.parse(truncatedJson);
     return truncatedJson;
   } catch (error) {
-    console.log('🔧 开始修复截断的JSON...');
+    logger.debug('🔧 开始修复截断的JSON...');
   }
 
   // 查找最后一个完整的对象或数组
@@ -83,7 +84,7 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
   // 6. 验证修复后的JSON
   try {
     JSON.parse(fixedJson);
-    console.log('✅ JSON修复成功');
+    logger.debug('✅ JSON修复成功');
     return fixedJson;
   } catch (error) {
     console.log('❌ JSON修复失败，尝试更激进的修复...');
@@ -94,7 +95,7 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
       const lastCompleteObject = lastCompleteObjectMatch[lastCompleteObjectMatch.length - 1];
       try {
         JSON.parse(lastCompleteObject);
-        console.log('✅ 使用最后一个完整对象');
+        logger.debug('✅ 使用最后一个完整对象');
         return lastCompleteObject;
       } catch (error) {
         // 继续尝试其他修复方法
@@ -119,7 +120,7 @@ const fixTruncatedJSON = (truncatedJson: string): string | null => {
           }`;
           try {
             JSON.parse(minimalJson);
-            console.log('✅ 构建最小有效JSON成功');
+            logger.debug('✅ 构建最小有效JSON成功');
             return minimalJson;
           } catch (error) {
             console.log('❌ 最小JSON构建失败');
@@ -343,7 +344,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     totalApiCallsRef.current++;
     
     const waitTime = getThrottleConfig();
-    console.log(`🚨 检测到429错误，连续次数: ${consecutive429CountRef.current}, 总调用次数: ${totalApiCallsRef.current}, 等待时间: ${waitTime}ms`);
+    logger.warn('🚨 检测到429错误，连续次数: ${consecutive429CountRef.current}, 总调用次数: ${totalApiCallsRef.current}, 等待时间: ${waitTime}ms');
     
     toast({
       title: "API调用频率超限",
@@ -358,7 +359,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const reset429Counter = () => {
     consecutive429CountRef.current = 0;
     successfulApiCallsRef.current++;
-    console.log('✅ API调用成功，重置429计数器');
+    logger.debug('✅ API调用成功，重置429计数器');
   };
 
   // 检查API调用限制
@@ -595,7 +596,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
   const generateTitles = async () => {
     // ✅ FIXED: 优化性能检查 - 减少不必要的生成
     if (globalRequestLockRef.current || isGenerating) {
-      console.log(`🔒 请求锁：已有请求正在进行，跳过本次请求`);
+      logger.lock('🔒 请求锁：已有请求正在进行，跳过本次请求');
       return;
     }
     
@@ -617,7 +618,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
     setLastGenerationTime(Date.now());
 
     try {
-      console.log('🚀 开始标题生成流程（AI模式）');
+      logger.system('🚀 开始标题生成流程（AI模式）');
 
       // ✅ FIXED: 优化内容获取 - 减少内容长度要求
       const sourceContent = getSourceContent();
@@ -670,7 +671,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
 
           try {
             await Promise.race([fallbackPromise, fallbackTimeoutPromise]);
-            console.log('✅ 备用模型生成成功');
+            logger.debug('✅ 备用模型生成成功');
           } catch (fallbackError) {
             console.log('❌ 备用模型也失败了:', fallbackError);
             if (isDeepSeekSelected) {
@@ -680,7 +681,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             }
           }
         } else {
-          console.log('✅ 已有标题生成，跳过备用模型调用');
+          logger.debug('✅ 已有标题生成，跳过备用模型调用');
         }
       }
 
@@ -868,7 +869,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
                     if (fixedJson) {
                       try {
                         aiResult = JSON.parse(fixedJson);
-                        console.log('✅ 成功修复截断的JSON');
+                        logger.debug('✅ 成功修复截断的JSON');
                       } catch (fixedParseError) {
                         const errorMessage = fixedParseError instanceof Error ? fixedParseError.message : '未知错误';
                         throw new Error(`修复后JSON解析失败: ${errorMessage}`);
@@ -906,7 +907,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
             }
           }
           
-          console.log('✅ JSON解析成功:', aiResult);
+          logger.debug('✅ JSON解析成功:', aiResult);
         } catch (parseError) {
           console.error('❌ AI响应解析失败:', parseError);
           console.error('📝 原始响应内容:', aiResponse.content);
@@ -971,7 +972,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         if (qualifiedTitles.length > 0) {
           // ✅ FIXED: 记录成功的模型
           successfulModel = modelConfig.name;
-          console.log(`✅ ${modelConfig.name} 模型调用成功，生成 ${qualifiedTitles.length} 个标题`);
+          logger.debug('✅ ${modelConfig.name} 模型调用成功，生成 ${qualifiedTitles.length} 个标题');
           
           // 更新标题状态
           setTitles(qualifiedTitles);
@@ -1078,7 +1079,7 @@ export const TitleGenerator: React.FC<TitleGeneratorProps> = ({
         duration: 2000,
       });
 
-      console.log('✅ 标题复制成功:', titlePreview);
+      logger.debug('✅ 标题复制成功:', titlePreview);
     } catch (error) {
       console.error('复制失败:', error);
       toast({
