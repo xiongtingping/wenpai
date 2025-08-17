@@ -182,15 +182,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             guard.start('#authing_container');
             startUndefinedSanitizer();
 
-            // 兜底策略：若嵌入容器在短时间内仍为空，则自动切换为 Guard 自带弹窗模式
-            setTimeout(() => {
+            // 兜底策略：若嵌入容器在短时间内仍为空，则使用“独立 modal 实例”
+            setTimeout(async () => {
               try {
                 const rendered = !!document.getElementById('authing_container')?.childElementCount;
-                if (!rendered && typeof guard.show === 'function') {
-                  logger.warn('Authing Guard 未成功嵌入容器，自动切换为弹窗模式');
+                if (!rendered) {
+                  logger.warn('Authing Guard 未成功嵌入容器，启用独立 modal 实例作为兜底');
                   stopUndefinedSanitizer();
                   setAuthDialogOpen(false); // 关闭自有对话框，避免双模态冲突
-                  guard.show();
+
+                  // 创建独立的 modal 模式实例并显示
+                  const mod = await import('@authing/guard');
+                  const { Guard } = mod as any;
+                  const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
+                  const modalGuard = new Guard({
+                    appId: cfg.appId,
+                    host: cleanHost,
+                    redirectUri: cfg.redirectUri,
+                    mode: 'modal',
+                    lang: 'zh-CN',
+                    defaultScene: 'login',
+                    autoRegister: false,
+                    closeable: true
+                  });
+
+                  // 将 modal 实例的登录事件转发到统一处理
+                  modalGuard.on('login', (userInfo: any) => {
+                    try {
+                      guardRef.current?.emit?.('login', userInfo);
+                    } catch {
+                      const user = {
+                        id: userInfo.id || userInfo.sub,
+                        username: userInfo.username,
+                        email: userInfo.email,
+                        phone: userInfo.phone,
+                        nickname: userInfo.nickname || userInfo.name,
+                        avatar: userInfo.avatar || userInfo.picture,
+                        token: userInfo.token || userInfo.access_token
+                      };
+                      setUser(user);
+                      localStorage.setItem('auth_token', user.token || '');
+                      localStorage.setItem('authing_user', JSON.stringify(user));
+                    }
+                  });
+
+                  modalGuard.show();
                 }
               } catch (e) {
                 logger.error('Guard 弹窗兜底失败:', e);
@@ -198,11 +234,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }, 300);
           }
         } catch (err) {
-          logger.error('启动 Guard 失败，将尝试直接显示官方弹窗:', err);
+          logger.error('启动 Guard 失败，将尝试使用独立 modal 实例:', err);
           try {
             stopUndefinedSanitizer();
             setAuthDialogOpen(false);
-            typeof guard.show === 'function' && guard.show();
+
+            (async () => {
+              const mod = await import('@authing/guard');
+              const { Guard } = mod as any;
+              const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
+              const modalGuard = new Guard({
+                appId: cfg.appId,
+                host: cleanHost,
+                redirectUri: cfg.redirectUri,
+                mode: 'modal',
+                lang: 'zh-CN',
+                defaultScene: 'login'
+              });
+              modalGuard.on('login', (userInfo: any) => {
+                guardRef.current?.emit?.('login', userInfo);
+              });
+              modalGuard.show();
+            })();
           } catch (e) {
             setError('无法启动登录组件');
           }
