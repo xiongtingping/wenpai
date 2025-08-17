@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo, useRef, useState } from 'rea
 import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 export interface AuthUser {
   id: string;
@@ -171,7 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logger.debug('开始初始化 Authing Guard...');
       setError(null);
 
-      // 打开对话框并在容器中启动 Guard
+      // 打开对话框并在容器中启动 Guard（优先嵌入，失败则兜底为官方弹窗）
       setAuthDialogOpen(true);
       const guard = await ensureGuard();
       // 延迟到对话框内容挂载后再启动
@@ -181,10 +181,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (container && typeof guard.start === 'function') {
             guard.start('#authing_container');
             startUndefinedSanitizer();
+
+            // 兜底策略：若嵌入容器在短时间内仍为空，则自动切换为 Guard 自带弹窗模式
+            setTimeout(() => {
+              try {
+                const rendered = !!document.getElementById('authing_container')?.childElementCount;
+                if (!rendered && typeof guard.show === 'function') {
+                  logger.warn('Authing Guard 未成功嵌入容器，自动切换为弹窗模式');
+                  stopUndefinedSanitizer();
+                  setAuthDialogOpen(false); // 关闭自有对话框，避免双模态冲突
+                  guard.show();
+                }
+              } catch (e) {
+                logger.error('Guard 弹窗兜底失败:', e);
+              }
+            }, 300);
           }
         } catch (err) {
-          logger.error('启动 Guard 失败:', err);
-          setError('无法启动登录组件');
+          logger.error('启动 Guard 失败，将尝试直接显示官方弹窗:', err);
+          try {
+            stopUndefinedSanitizer();
+            setAuthDialogOpen(false);
+            typeof guard.show === 'function' && guard.show();
+          } catch (e) {
+            setError('无法启动登录组件');
+          }
         }
       }, 0);
     } catch (e: any) {
@@ -224,6 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         <DialogContent className="sm:max-w-lg min-h-[520px]">
           <DialogHeader>
             <DialogTitle>登录文派</DialogTitle>
+            <DialogDescription>请使用手机号/邮箱登录或注册，信息仅用于身份验证。</DialogDescription>
           </DialogHeader>
           <div id="authing_container" />
         </DialogContent>
