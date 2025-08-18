@@ -18,9 +18,18 @@ export const getAuthConfig = (): AuthConfig => {
     host = `https://${host}`;
   }
 
-  // 🔧 根因修复：完全基于运行时域名判断，不依赖构建时环境变量
+  // 🔧 调试：检查实际的域名值
   const currentOrigin = window.location.origin;
   const hostname = window.location.hostname;
+
+  // 🚨 关键调试：输出实际值
+  console.log('🔍 域名调试:', {
+    currentOrigin,
+    hostname,
+    href: window.location.href,
+    originMatch: currentOrigin === 'https://www.wenpai.xyz',
+    hostnameMatch: hostname === 'www.wenpai.xyz'
+  });
 
   let redirectUri: string;
 
@@ -28,12 +37,15 @@ export const getAuthConfig = (): AuthConfig => {
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     // 本地开发环境
     redirectUri = 'http://localhost:5173/callback';
+    console.log('🔧 使用开发环境回调');
   } else if (currentOrigin === 'https://www.wenpai.xyz') {
     // 生产环境 - 硬编码正确的回调地址
     redirectUri = 'https://www.wenpai.xyz/callback';
+    console.log('🎯 使用生产环境回调');
   } else {
     // 其他环境（Netlify 预览等）- 使用当前域名
     redirectUri = `${currentOrigin}/callback`;
+    console.log('🔧 使用当前域名回调:', redirectUri);
   }
 
   return { appId, host, redirectUri };
