@@ -73,23 +73,32 @@ const CallbackPage: React.FC = () => {
 
         logger.debug('🎉 模拟登录成功:', mockUserInfo);
 
-        // 通知父窗口登录成功
-        if (window.opener) {
+        // 🔧 修复：处理两种登录模式
+        if (window.opener && !window.opener.closed) {
+          // 弹窗模式：通知父窗口登录成功
+          logger.debug('📤 弹窗模式：通知父窗口登录成功');
           window.opener.postMessage({
             type: 'AUTHING_LOGIN_SUCCESS',
             userInfo: mockUserInfo
           }, window.location.origin);
           window.close();
           return;
-        }
+        } else {
+          // 同窗口模式：直接处理登录状态
+          logger.debug('🔄 同窗口模式：直接处理登录状态');
 
-        // 如果不是弹窗，直接在当前窗口处理登录
-        // 保存用户信息到 localStorage
-        localStorage.setItem('auth_token', mockUserInfo.token);
-        localStorage.setItem('authing_user', JSON.stringify(mockUserInfo));
-        
-        // 重定向到首页
-        navigate('/');
+          // 保存用户信息到 localStorage
+          localStorage.setItem('auth_token', mockUserInfo.token);
+          localStorage.setItem('authing_user', JSON.stringify(mockUserInfo));
+
+          // 触发全局登录状态更新事件
+          window.dispatchEvent(new CustomEvent('auth-login-success', {
+            detail: mockUserInfo
+          }));
+
+          // 重定向到首页
+          navigate('/');
+        }
 
       } catch (error) {
         logger.error('❌ 处理登录回调时出错:', error);

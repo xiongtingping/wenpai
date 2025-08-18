@@ -222,9 +222,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       window.addEventListener('message', handleMessage);
 
+      // 🔧 监听同窗口登录成功事件
+      const handleAuthSuccess = (event: CustomEvent) => {
+        logger.debug('🎉 收到同窗口登录成功事件:', event.detail);
+        clearInterval(checkClosed);
+        if (loginWindow && !loginWindow.closed) {
+          loginWindow.close();
+        }
+        handleLogin(event.detail);
+      };
+
+      window.addEventListener('auth-login-success', handleAuthSuccess as EventListener);
+
       return () => {
         clearInterval(checkClosed);
         window.removeEventListener('message', handleMessage);
+        window.removeEventListener('auth-login-success', handleAuthSuccess as EventListener);
         if (loginWindow && !loginWindow.closed) {
           loginWindow.close();
         }
