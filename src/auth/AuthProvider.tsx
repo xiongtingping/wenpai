@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Guard, User, GuardMode } from '@authing/react-ui-components';
-import '@authing/react-ui-components/lib/index.min.css';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
@@ -58,7 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   // 处理登录成功
-  const handleLogin = (userInfo: User) => {
+  const handleLogin = (userInfo: any) => {
     logger.debug('[Authing] 登录成功:', userInfo);
 
     try {
@@ -167,35 +165,57 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setShowGuard,
   };
 
+  // 🔧 最终修复：使用原生 JavaScript SDK 而不是有问题的 React 组件
+  useEffect(() => {
+    if (showGuard && isAuthConfigValid(cfg)) {
+      // 动态加载 Authing Guard SDK
+      const script = document.createElement('script');
+      script.src = 'https://cdn.authing.co/packages/guard/5.1.5/guard.min.js';
+      script.onload = () => {
+        try {
+          // @ts-ignore
+          const guard = new window.GuardFactory.Guard({
+            appId: cfg.appId,
+            host: cfg.host,
+            mode: 'modal',
+            lang: 'zh-CN',
+            title: '登录 - 文派',
+            logo: 'https://www.wenpai.xyz/logo.png',
+          });
+
+          guard.on('login', (userInfo: any) => {
+            logger.debug('🎉 Authing 登录成功:', userInfo);
+            handleLogin(userInfo);
+          });
+
+          guard.on('close', () => {
+            logger.debug('🔧 Authing Guard 关闭');
+            handleClose();
+          });
+
+          guard.start();
+          logger.debug('🔧 Authing Guard 启动成功');
+        } catch (error) {
+          logger.error('❌ Authing Guard 初始化失败:', error);
+          setError('登录组件初始化失败');
+        }
+      };
+      script.onerror = () => {
+        logger.error('❌ Authing Guard SDK 加载失败');
+        setError('登录组件加载失败');
+      };
+      document.head.appendChild(script);
+
+      return () => {
+        // 清理脚本
+        document.head.removeChild(script);
+      };
+    }
+  }, [showGuard, cfg]);
+
   return (
     <AuthContext.Provider value={contextValue}>
       {children}
-
-      {/* 🔧 修复：使用最简化的配置，避免 undefinedundefined 错误 */}
-      {showGuard && isAuthConfigValid(cfg) && (
-        <Guard
-          appId={cfg.appId}
-          config={{
-            host: cfg.host,
-            mode: GuardMode.Modal,
-          }}
-          onLogin={handleLogin}
-          onClose={handleClose}
-          onLoad={(authClient) => {
-            logger.debug('🔧 Guard 组件加载成功', authClient);
-          }}
-          onLoadError={(error) => {
-            logger.error('❌ Guard 组件加载失败', error);
-            // 尝试获取更详细的错误信息
-            logger.error('错误详情:', {
-              message: error?.message,
-              stack: error?.stack,
-              name: error?.name,
-              toString: error?.toString?.()
-            });
-          }}
-        />
-      )}
     </AuthContext.Provider>
   );
 };
