@@ -127,7 +127,35 @@ const CallbackPage: React.FC = () => {
           localStorage.setItem('auth_token', token);
           localStorage.setItem('authing_user', JSON.stringify(mergedUser));
           window.dispatchEvent(new CustomEvent('auth-login-success', { detail: mergedUser }));
-          navigate('/');
+
+          // 解析 state 中的 redirectTo 并跳转
+          let finalRedirect = '/';
+          try {
+            if (state) {
+              const stateObj = JSON.parse(state);
+              if (stateObj.redirectTo) {
+                const redirectTo = stateObj.redirectTo;
+                logger.debug('📍 从 state 解析到跳转目标:', redirectTo);
+
+                // 如果是完整 URL，提取路径部分；如果是相对路径，直接使用
+                if (redirectTo.startsWith('http')) {
+                  try {
+                    const url = new URL(redirectTo);
+                    finalRedirect = url.pathname + url.search + url.hash;
+                  } catch (e) {
+                    logger.warn('⚠️ 解析 redirectTo URL 失败，使用默认跳转:', e);
+                  }
+                } else {
+                  finalRedirect = redirectTo;
+                }
+              }
+            }
+          } catch (e) {
+            logger.warn('⚠️ 解析 state 失败，使用默认跳转:', e);
+          }
+
+          logger.debug('🎯 最终跳转到:', finalRedirect);
+          navigate(finalRedirect);
         }
 
       } catch (error) {
