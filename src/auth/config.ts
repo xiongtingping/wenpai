@@ -18,16 +18,14 @@ export const getAuthConfig = (): AuthConfig => {
 
   let redirectUri: string;
 
-  // 精确的环境判断逻辑
+  // 🎯 最终修复：强制所有非开发环境都使用生产回调地址
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     // 本地开发环境
     redirectUri = 'http://localhost:5173/callback';
-  } else if (currentOrigin === 'https://www.wenpai.xyz') {
-    // 生产环境 - 硬编码正确的回调地址
-    redirectUri = 'https://www.wenpai.xyz/callback';
   } else {
-    // 其他环境（Netlify 预览等）- 使用当前域名
-    redirectUri = `${currentOrigin}/callback`;
+    // 所有其他环境（包括生产和预览）都使用生产回调地址
+    // 这样确保无论从哪个域名访问都能正常登录
+    redirectUri = 'https://www.wenpai.xyz/callback';
   }
 
   console.log('🔧 Auth配置 (完全硬编码):', { appId, host, redirectUri, hostname, currentOrigin });
