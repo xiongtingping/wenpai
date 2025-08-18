@@ -55,12 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
-  // 🔧 修复：使用 React UI Components 的简化配置格式
-  const guardConfig: Partial<GuardLocalConfig> = {
-    lang: 'zh-CN',
-    title: '登录 - 文派',
-    logo: 'https://www.wenpai.xyz/logo.png',
-  };
+
 
   // 处理登录成功
   const handleLogin = (userInfo: User) => {
@@ -69,14 +64,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       // 转换用户数据格式
       const authUser: AuthUser = {
-        id: userInfo.id || '',
+        id: userInfo.id || (userInfo as any).userId || '',
         username: userInfo.username || undefined,
         email: userInfo.email || undefined,
         phone: userInfo.phone || undefined,
         nickname: userInfo.nickname || userInfo.name || undefined,
         avatar: userInfo.photo || userInfo.avatar || undefined,
         token: userInfo.token || undefined,
-        ...userInfo
       };
 
       // 保存到状态
@@ -181,15 +175,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={contextValue}>
       {children}
 
-      {/* 🔧 修复：使用 React UI Components 的 Guard 组件 */}
-      {showGuard && isAuthConfigValid(cfg) && (
+      {/* 🔧 修复：Guard 组件应该始终渲染，使用 visible 控制显示 */}
+      {isAuthConfigValid(cfg) && (
         <Guard
           appId={cfg.appId}
+          config={{
+            host: cfg.host,
+            lang: 'zh-CN',
+            title: '登录 - 文派',
+            logo: 'https://www.wenpai.xyz/logo.png',
+          }}
+          visible={showGuard}
           onLogin={handleLogin}
           onRegister={handleRegister}
           onClose={handleClose}
-          visible={showGuard}
-          config={guardConfig}
         />
       )}
     </AuthContext.Provider>
