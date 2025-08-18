@@ -245,16 +245,9 @@ export function Header() {
                   登录
                 </Button>
                 <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🔧 注册按钮被点击，强制调用register()方法');
-                    console.log('🔧 当前时间戳:', Date.now());
-
-                    // 直接调用正常的register方法，不要强制覆盖
+                  onClick={() => {
+                    console.log('🔧 注册按钮被点击，调用register()方法');
                     register();
-
-                    forceRegister();
                   }}
                   className="bg-primary hover:bg-primary/90"
                 >

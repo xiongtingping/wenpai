@@ -283,10 +283,23 @@ class EnhancedPermissionService {
       // 如果返回结构不符合预期，走兜底
       throw new Error('Invalid response data');
     } catch (error: any) {
-      // 静默处理501错误，避免控制台噪音
-      if (error?.status === 501 || error?.response?.status === 501) {
+      // 🔧 更全面的501错误检测和静默处理
+      const is501Error =
+        error?.status === 501 ||
+        error?.response?.status === 501 ||
+        error?.message?.includes('501') ||
+        error?.message?.includes('Not Implemented');
+
+      if (is501Error) {
         // 501错误表示后端API未实现，这是正常情况
-        // 不输出错误日志，避免用户困惑
+        // 完全静默处理，不输出任何日志
+        return {
+          isExpired: false,
+          expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          daysRemaining: 30,
+          inGracePeriod: false,
+          requiredActions: []
+        };
       } else {
         console.warn('检查套餐到期状态失败，使用默认值:', error);
       }
@@ -414,10 +427,17 @@ class EnhancedPermissionService {
 
       return { allowed: true };
     } catch (error: any) {
-      // 静默处理501错误，避免控制台噪音
-      if (error?.status === 501 || error?.response?.status === 501) {
+      // 🔧 更全面的501错误检测和静默处理
+      const is501Error =
+        error?.status === 501 ||
+        error?.response?.status === 501 ||
+        error?.message?.includes('501') ||
+        error?.message?.includes('Not Implemented');
+
+      if (is501Error) {
         // 501错误表示后端API未实现，这是正常情况
-        // 不输出错误日志，避免用户困惑
+        // 完全静默处理，不输出任何日志
+        return { allowed: true };
       } else {
         console.warn('检查使用限制失败，默认允许:', error);
       }
