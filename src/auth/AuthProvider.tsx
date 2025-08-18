@@ -61,15 +61,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user?.token]);
 
-  // 针对 Authing 容器的 undefinedundefined 文案清理（仅在弹窗打开时启用）
+  // 针对 Guard 容器/对话框的 undefined 文案清理（在弹窗打开后尽快启用）
   const startUndefinedSanitizer = () => {
     try {
-      const container = document.getElementById('authing_container');
-      if (!container) return;
-      // 先进行一次同步清理
-      const scan = (root: HTMLElement) => {
+      const container = document.getElementById('authing_container') as HTMLElement | null;
+      const dialogRoot = document.querySelector('[role="dialog"]') as HTMLElement | null;
+      const root = container || dialogRoot;
+      if (!root) return;
+
+      const scan = (node: HTMLElement) => {
         const re = /undefined\s*undefined/gi;
-        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
         let n: Node | null;
         while ((n = walker.nextNode())) {
           const t = n as Text;
@@ -78,15 +80,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       };
-      scan(container);
-      // 观察后续变更
+
+      // 先进行一次同步清理
+      scan(root);
+
+      // 观察后续变更（容器出现后会自动纳入）
       stopUndefinedSanitizer();
-      const mo = new MutationObserver(() => scan(container));
-      mo.observe(container, { subtree: true, childList: true, characterData: true });
+      const mo = new MutationObserver(() => {
+        const target = (document.getElementById('authing_container') as HTMLElement | null) || root;
+        scan(target);
+      });
+      mo.observe(root, { subtree: true, childList: true, characterData: true });
       fixObserverRef.current = mo;
     } catch (e) {
       // 忽略清理失败
     }
+  };
+
+  // 等待元素出现（轮询），避免对话框尚未挂载时误判触发兜底
+  const waitForElement = async (selector: string, timeout = 1500, interval = 50): Promise<HTMLElement | null> => {
+    const start = Date.now();
+    return new Promise((resolve) => {
+      const tick = () => {
+        const el = document.querySelector(selector) as HTMLElement | null;
+        if (el) return resolve(el);
+        if (Date.now() - start >= timeout) return resolve(null);
+        setTimeout(tick, interval);
+      };
+      tick();
+    });
   };
 
   const stopUndefinedSanitizer = () => {
@@ -181,8 +203,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         modalFallbackTriggeredRef.current = true;
         logger.warn(`[Authing兜底] 启用独立 modal 实例，原因: ${reason}`);
         try {
+          // 先移除当前焦点，避免 aria-hidden 焦点冲突
+          try { (document.activeElement as HTMLElement | null)?.blur(); } catch {}
+
           stopUndefinedSanitizer();
-          setAuthDialogOpen(false); // 关闭自有对话框，避免双模态冲突
           const mod = await import('@authing/guard');
           const { Guard } = mod as any;
           const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
@@ -215,43 +239,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           });
           modalGuard.show();
+          // 让 Authing modal 先接管焦点，再关闭自有 Dialog，避免 aria-hidden 警告
+          setTimeout(() => setAuthDialogOpen(false), 0);
         } catch (e) {
           logger.error('Guard 弹窗兜底失败:', e);
         }
       };
 
       // 延迟到对话框内容挂载后再启动
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
-          const container = document.getElementById('authing_container') as HTMLElement | null;
+          // 等容器出现，避免过早误判（1500 -> 2500ms）
+          const container = (await waitForElement('#authing_container', 2500)) as HTMLElement | null;
           if (container && typeof guard.start === 'function') {
             guard.start('#authing_container');
             startUndefinedSanitizer();
 
-            // 兜底策略 1：300ms 内无子元素或无 iframe/高度太小，触发 modal
+            // 兜底策略 1：300ms 检查，改为“关键条件同时不满足才兜底”
             setTimeout(() => {
               try {
                 const el = document.getElementById('authing_container') as HTMLElement | null;
                 const hasChild = !!el?.childElementCount;
                 const iframe = el?.querySelector('iframe');
                 const tooSmall = (el?.offsetHeight || 0) < 80;
-                if (!hasChild || !iframe || tooSmall) {
-                  triggerModalFallback(`embed-check-300ms hasChild=${hasChild} iframe=${!!iframe} h=${el?.offsetHeight}`);
+                const noChild = !hasChild;
+                const noIframe = !iframe;
+                if (noChild && noIframe && tooSmall) {
+                  triggerModalFallback(`embed-check-300ms child=${hasChild} iframe=${!!iframe} h=${el?.offsetHeight}`);
                 }
               } catch (e) {
                 logger.error('Guard 弹窗兜底检测失败(300ms):', e);
               }
             }, 300);
 
-            // 兜底策略 2：1200ms 再次校验，仍异常则强制 modal
+            // 兜底策略 2：1200ms 再次校验，仍需“全部不满足”才兜底
             setTimeout(() => {
               try {
                 const el = document.getElementById('authing_container') as HTMLElement | null;
                 const hasChild = !!el?.childElementCount;
                 const iframe = el?.querySelector('iframe');
                 const tooSmall = (el?.offsetHeight || 0) < 80;
-                if (!hasChild || !iframe || tooSmall) {
-                  triggerModalFallback(`embed-check-1200ms hasChild=${hasChild} iframe=${!!iframe} h=${el?.offsetHeight}`);
+                const noChild = !hasChild;
+                const noIframe = !iframe;
+                if (noChild && noIframe && tooSmall) {
+                  triggerModalFallback(`embed-check-1200ms child=${hasChild} iframe=${!!iframe} h=${el?.offsetHeight}`);
                 }
               } catch (e) {
                 logger.error('Guard 弹窗兜底检测失败(1200ms):', e);
@@ -299,7 +330,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setAuthDialogOpen(open);
         if (!open) stopUndefinedSanitizer();
       }}>
-        <DialogContent className="sm:max-w-lg min-h-[520px]">
+        <DialogContent onCloseAutoFocus={(e) => e.preventDefault()} className="sm:max-w-lg min-h-[520px]">
           <DialogHeader>
             <DialogTitle>登录文派</DialogTitle>
             <DialogDescription>请使用手机号/邮箱登录或注册，信息仅用于身份验证。</DialogDescription>
