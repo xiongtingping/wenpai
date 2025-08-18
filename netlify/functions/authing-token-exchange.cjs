@@ -34,19 +34,21 @@ exports.handler = async (event) => {
       AUTHING_APP_ID,
       AUTHING_HOST,
       AUTHING_REDIRECT_URI,
+      VITE_AUTHING_APP_ID,
       VITE_AUTHING_HOST,
       VITE_AUTHING_REDIRECT_URI_PROD
     } = process.env;
 
-    // 对于免费版环境，优先使用前端构建期变量中的 host/redirect，因其不是密钥
+    // 对于免费版环境，优先使用前端构建期变量中的非密钥配置
+    const appId = AUTHING_APP_ID || VITE_AUTHING_APP_ID;
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || '').replace(/\/$/, '');
     const redirectUri = AUTHING_REDIRECT_URI || VITE_AUTHING_REDIRECT_URI_PROD;
 
-    if (!AUTHING_APP_ID || !host || !redirectUri) {
+    if (!appId || !host || !redirectUri) {
       return {
         statusCode: 500,
         headers: baseHeaders,
-        body: JSON.stringify({ error: 'Authing server config missing: require AUTHING_APP_ID, HOST, REDIRECT_URI' })
+        body: JSON.stringify({ error: 'Authing server config missing: require APP_ID, HOST, REDIRECT_URI' })
       };
     }
 
@@ -61,7 +63,7 @@ exports.handler = async (event) => {
     const form = new URLSearchParams();
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
-    form.set('client_id', AUTHING_APP_ID);
+    form.set('client_id', appId);
     form.set('code_verifier', code_verifier);
     form.set('redirect_uri', redirectUri);
 
