@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Guard, GuardLocalConfig, User } from '@authing/react-ui-components';
+import { Guard, User, GuardMode } from '@authing/react-ui-components';
 import '@authing/react-ui-components/lib/index.min.css';
 
 import { getAuthConfig, isAuthConfigValid } from './config';
@@ -94,11 +94,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // 处理注册成功
-  const handleRegister = (userInfo: User) => {
-    logger.debug('[Authing] 注册成功:', userInfo);
-    handleLogin(userInfo); // 注册成功后自动登录
-  };
+
 
   // 处理关闭
   const handleClose = () => {
@@ -175,20 +171,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={contextValue}>
       {children}
 
-      {/* 🔧 修复：Guard 组件应该始终渲染，使用 visible 控制显示 */}
-      {isAuthConfigValid(cfg) && (
+      {/* 🔧 修复：根据正确的 Guard API 使用 */}
+      {showGuard && isAuthConfigValid(cfg) && (
         <Guard
           appId={cfg.appId}
           config={{
             host: cfg.host,
+            mode: GuardMode.Modal,
             lang: 'zh-CN',
             title: '登录 - 文派',
             logo: 'https://www.wenpai.xyz/logo.png',
+            clickCloseable: true,
+            escCloseable: true,
           }}
-          visible={showGuard}
           onLogin={handleLogin}
-          onRegister={handleRegister}
           onClose={handleClose}
+          onLoad={(authClient) => {
+            logger.debug('🔧 Guard 组件加载成功', authClient);
+          }}
+          onLoadError={(error) => {
+            logger.error('❌ Guard 组件加载失败', error);
+          }}
         />
       )}
     </AuthContext.Provider>
