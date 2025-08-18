@@ -145,7 +145,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // 通过 OIDC Discovery 获取最终授权端点，避免命名空间不一致
     try {
-      const d = await fetch('/.netlify/functions/oidc-discovery').then(r => r.json());
+      const q = new URLSearchParams({ host: cfg.host, appId: cfg.appId });
+      const d = await fetch(`/.netlify/functions/oidc-discovery?${q.toString()}`).then(r => r.json());
       const authEndpoint = d.authorization_endpoint || `${cfg.host.replace(/\\\/$/, '')}/oidc/auth`;
       const loginUrl = `${authEndpoint}?${params.toString()}`;
       logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri, discovery: d });

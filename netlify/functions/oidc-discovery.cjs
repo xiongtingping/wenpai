@@ -3,8 +3,12 @@
  * Try standard and appId-prefixed well-known endpoints and return the discovered endpoints
  */
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   try {
+    const qs = event && event.queryStringParameters ? event.queryStringParameters : {};
+    const hostFromQs = (qs.host || '').replace(/\/$/, '');
+    const appIdFromQs = qs.appId || '';
+
     const {
       AUTHING_APP_ID,
       AUTHING_HOST,
@@ -12,11 +16,11 @@ exports.handler = async () => {
       VITE_AUTHING_HOST
     } = process.env;
 
-    const appId = AUTHING_APP_ID || VITE_AUTHING_APP_ID;
-    const host = (AUTHING_HOST || VITE_AUTHING_HOST || '').replace(/\/$/, '');
+    const appId = appIdFromQs || AUTHING_APP_ID || VITE_AUTHING_APP_ID;
+    const host = (hostFromQs || AUTHING_HOST || VITE_AUTHING_HOST || '').replace(/\/$/, '');
 
     if (!host || !appId) {
-      return { statusCode: 500, body: JSON.stringify({ error: 'Missing AUTHING_HOST or APP_ID' }) };
+      return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing AUTHING_HOST or APP_ID' }) };
     }
 
     const candidates = [
@@ -41,7 +45,7 @@ exports.handler = async () => {
     }
 
     if (!discovered) {
-      return { statusCode: 502, body: JSON.stringify({ error: 'discovery_failed', candidates }) };
+      return { statusCode: 502, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'discovery_failed', candidates }) };
     }
 
     const payload = {
@@ -57,7 +61,7 @@ exports.handler = async () => {
       body: JSON.stringify(payload)
     };
   } catch (e) {
-    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: e.message }) };
   }
 };
 

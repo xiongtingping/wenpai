@@ -62,7 +62,8 @@ exports.handler = async (event) => {
     // 通过 OIDC Discovery 获取 token 端点
     let tokenEndpoint = `${host}/oidc/token`;
     try {
-      const dResp = await fetch(`${process.env.URL || ''}/.netlify/functions/oidc-discovery`).catch(() => null);
+      const q = new URLSearchParams({ host, appId });
+      const dResp = await fetch(`${process.env.URL || ''}/.netlify/functions/oidc-discovery?${q.toString()}`).catch(() => null);
       if (dResp && dResp.ok) {
         const d = await dResp.json();
         if (d && d.token_endpoint) tokenEndpoint = d.token_endpoint;
