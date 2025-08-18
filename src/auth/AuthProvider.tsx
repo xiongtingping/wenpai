@@ -157,7 +157,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       code_challenge_method: 'S256'
     } as any);
 
-    // 通过 OIDC Discovery 获取最终授权端点，避免命名空间不一致
+    // 优先使用探测结果（可穿透供应商统一错误映射）
+    try {
+      const q = new URLSearchParams({ host: cfg.host, appId: cfg.appId, client_id: cfg.appId });
+      const p = await fetch(`/.netlify/functions/authing-authorize-probe?${q.toString()}`).then(r => r.json());
+      if (p && p.authorization_endpoint && p.redirect_uri) {
+        const authEndpoint = p.authorization_endpoint;
+        const loginParams = new URLSearchParams({
+          client_id: cfg.appId,
+          redirect_uri: p.redirect_uri,
+          response_type: 'code',
+          scope: 'openid',
+          state,
+          code_challenge: challenge,
+          code_challenge_method: 'S256'
+        } as any);
+        const loginUrl = `${authEndpoint}?${loginParams.toString()}`;
+        logger.debug('[Authing] authorize URL (probe)', { loginUrl, p });
+        window.location.href = loginUrl;
+        return;
+      }
+    } catch (_) {}
+
+    // 通过 OIDC Discovery 获取最终授权端点，避免命名空间不一致（若可用）
     try {
       const q = new URLSearchParams({ host: cfg.host, appId: cfg.appId });
       const d = await fetch(`/.netlify/functions/oidc-discovery?${q.toString()}`).then(r => r.json());
@@ -166,7 +188,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri, discovery: d });
       window.location.href = loginUrl;
     } catch (e) {
-      logger.error('OIDC Discovery failed, fallback to standard endpoint', e);
+      logger.error('OIDC Discovery failed, fallback to标准端点', e);
       const base = `${cfg.host.replace(/\/$/, '')}`;
       const loginUrl = `${base}/oidc/auth?${params.toString()}`;
       window.location.href = loginUrl;
