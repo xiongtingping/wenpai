@@ -68,6 +68,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         || (mod as any).GuardFactory?.Guard
         || (mod as any).default?.GuardFactory?.Guard
         || (mod as any).default;
+      logger.debug('[Authing] NPM Guard 解析结果:', {
+        from: '@authing/guard',
+        hasGuard: !!(mod as any).Guard,
+        hasDefault: !!(mod as any).default,
+        hasFactory: !!(mod as any).GuardFactory || !!(mod as any).default?.GuardFactory
+      });
       return typeof ctor === 'function' ? ctor : null;
     } catch (e) {
       logger.warn('NPM Guard 解析失败:', e);
@@ -116,13 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isUsableInstance = (inst: any) => !!inst && (typeof inst.show === 'function' || typeof inst.start === 'function');
 
 
-  // 已统一使用 Authing 官方 modal，移除内嵌容器与文本清理需求
-  const stopUndefinedSanitizer = () => {
-    try {
-      fixObserverRef.current?.disconnect();
-      fixObserverRef.current = null;
-    } catch {}
-  };
+
 
   const ensureGuard = async () => {
     // 先尝试从 NPM 解析 Guard 构造
