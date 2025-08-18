@@ -84,11 +84,15 @@
 [context.production.environment]
   NODE_ENV = "production"
   VITE_DEBUG = "false"  # 确保生产环境控制台静默
-  # Authing配置
+  # Authing配置 - 客户端
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  # Authing配置 - 服务端 (Netlify Functions)
+  AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
+  AUTHING_REDIRECT_URI = "https://www.wenpai.xyz/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -107,11 +111,15 @@
 [context.deploy-preview.environment]
   NODE_ENV = "preview"
   VITE_DEBUG = "false"  # 预览环境也保持静默
-  # Authing配置
+  # Authing配置 - 客户端
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
+  # Authing配置 - 服务端 (Netlify Functions)
+  AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
+  AUTHING_REDIRECT_URI = "https://www.wenpai.xyz/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -130,7 +138,7 @@
 [context.branch-deploy.environment]
   NODE_ENV = "development"
   VITE_AUTHING_FALLBACK_HOSTED = "1"
-  # Authing配置
+  # Authing配置 - 客户端
   VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
@@ -140,6 +148,10 @@
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_APP_TYPE = "oidc"
+  # Authing配置 - 服务端 (Netlify Functions)
+  AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
+  AUTHING_REDIRECT_URI = "https://wenpai.netlify.app/callback"
   # OpenAI配置
   VITE_OPENAI_API_KEY = "sk-your-openai-api-key-here"
   VITE_OPENAI_BASE_URL = "https://api.openai.com/v1"

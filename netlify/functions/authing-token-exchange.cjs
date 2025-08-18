@@ -40,17 +40,36 @@ exports.handler = async (event) => {
       VITE_AUTHING_REDIRECT_URI_PROD
     } = process.env;
 
-    // 对于免费版环境，优先使用前端构建期变量中的非密钥配置
+    // 环境变量优先级：服务端专用 > 客户端构建期变量 > 默认值
     // 支持新的 VITE_AUTHING_CLIENT_ID 配置
-    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID;
-    const host = (AUTHING_HOST || VITE_AUTHING_HOST || '').replace(/\/$/, '');
+    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68823897631e1ef8ff3720b2';
+    const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
     const redirectUri = AUTHING_REDIRECT_URI || VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
 
+    // 调试日志：输出配置信息（生产环境下隐藏敏感信息）
+    console.log('🔧 Authing配置检查:', {
+      appId: appId ? `${appId.substring(0, 8)}...` : 'MISSING',
+      host: host || 'MISSING',
+      redirectUri: redirectUri || 'MISSING',
+      env: process.env.NODE_ENV || 'unknown'
+    });
+
     if (!appId || !host || !redirectUri) {
+      const missingFields = [];
+      if (!appId) missingFields.push('APP_ID');
+      if (!host) missingFields.push('HOST');
+      if (!redirectUri) missingFields.push('REDIRECT_URI');
+
       return {
         statusCode: 500,
         headers: baseHeaders,
-        body: JSON.stringify({ error: 'Authing server config missing: require APP_ID, HOST, REDIRECT_URI' })
+        body: JSON.stringify({
+          error: `Authing server config missing: require ${missingFields.join(', ')}`,
+          debug: {
+            available_env_vars: Object.keys(process.env).filter(k => k.includes('AUTHING')),
+            missing_fields: missingFields
+          }
+        })
       };
     }
 
@@ -61,16 +80,31 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code or code_verifier' }) };
     }
 
-    // 通过 OIDC Discovery 获取 token 端点
-    let tokenEndpoint = `${host}/oidc/token`;
+    // 构建token端点URL - 根据Authing的实际端点格式
+    // 尝试多种可能的token端点格式
+    const possibleTokenEndpoints = [
+      `${host}/oidc/token`,
+      `${host}/${appId}/oidc/token`,
+      `${host}/api/v2/oidc/token`,
+      `${host}/oauth/token`
+    ];
+
+    let tokenEndpoint = possibleTokenEndpoints[0]; // 默认使用第一个
+
+    // 尝试通过 OIDC Discovery 获取正确的 token 端点
     try {
       const q = new URLSearchParams({ host, appId });
       const dResp = await fetch(`${process.env.URL || ''}/.netlify/functions/oidc-discovery?${q.toString()}`).catch(() => null);
       if (dResp && dResp.ok) {
         const d = await dResp.json();
-        if (d && d.token_endpoint) tokenEndpoint = d.token_endpoint;
+        if (d && d.token_endpoint) {
+          tokenEndpoint = d.token_endpoint;
+          console.log('🔍 通过OIDC Discovery获取token端点:', tokenEndpoint);
+        }
       }
-    } catch (_) {}
+    } catch (_) {
+      console.log('⚠️ OIDC Discovery失败，使用默认token端点');
+    }
 
     const form = new URLSearchParams();
     form.set('grant_type', 'authorization_code');
@@ -79,15 +113,61 @@ exports.handler = async (event) => {
     form.set('code_verifier', code_verifier);
     form.set('redirect_uri', redirectUri);
 
-    const tokenResp = await fetch(tokenEndpoint, {
+    console.log('🔄 尝试token交换:', {
+      endpoint: tokenEndpoint,
+      client_id: appId.substring(0, 8) + '...',
+      redirect_uri: redirectUri
+    });
+
+    let tokenResp = await fetch(tokenEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form.toString()
     });
 
-    const tokenJson = await tokenResp.json().catch(() => ({}));
+    let tokenJson = await tokenResp.json().catch(() => ({}));
+
+    // 如果第一个端点失败，尝试其他可能的端点
+    if (!tokenResp.ok && possibleTokenEndpoints.length > 1) {
+      console.log(`⚠️ 第一个端点失败 (${tokenResp.status})，尝试其他端点...`);
+
+      for (let i = 1; i < possibleTokenEndpoints.length; i++) {
+        const altEndpoint = possibleTokenEndpoints[i];
+        console.log(`🔄 尝试备用端点: ${altEndpoint}`);
+
+        try {
+          const altResp = await fetch(altEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: form.toString()
+          });
+
+          if (altResp.ok) {
+            tokenResp = altResp;
+            tokenJson = await altResp.json().catch(() => ({}));
+            console.log(`✅ 备用端点成功: ${altEndpoint}`);
+            break;
+          }
+        } catch (e) {
+          console.log(`❌ 备用端点失败: ${altEndpoint} - ${e.message}`);
+        }
+      }
+    }
+
     if (!tokenResp.ok) {
-      return { statusCode: tokenResp.status, headers: baseHeaders, body: JSON.stringify({ error: 'token_exchange_failed', detail: tokenJson }) };
+      console.log('❌ 所有token端点都失败了:', {
+        status: tokenResp.status,
+        response: tokenJson
+      });
+      return {
+        statusCode: tokenResp.status,
+        headers: baseHeaders,
+        body: JSON.stringify({
+          error: 'token_exchange_failed',
+          detail: tokenJson,
+          tried_endpoints: possibleTokenEndpoints
+        })
+      };
     }
 
     const accessToken = tokenJson.access_token;
