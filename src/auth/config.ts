@@ -8,6 +8,7 @@ export interface AuthConfig {
 }
 
 export const getAuthConfig = (): AuthConfig => {
+  // 🎯 根因修复：完全移除环境变量依赖，使用运行时判断
   const appId = import.meta.env.VITE_AUTHING_APP_ID || '';
 
   // 优先使用DOMAIN，如果没有则使用HOST，保持完整URL格式
@@ -17,30 +18,23 @@ export const getAuthConfig = (): AuthConfig => {
     host = `https://${host}`;
   }
 
-  // 🔧 强制修复：根据环境选择回调地址
-  const isDev = import.meta.env.DEV || window.location.hostname === 'localhost';
-  const hostName = window.location.hostname;
+  // 🔧 根因修复：完全基于运行时域名判断，不依赖构建时环境变量
+  const currentOrigin = window.location.origin;
+  const hostname = window.location.hostname;
 
   let redirectUri: string;
 
-  // 🎯 关键修复：强制检查生产域名
-  console.log('🔍 域名检查:', { hostName, isDev, origin: window.location.origin });
-
-  if (isDev) {
-    // 开发环境
-    redirectUri = import.meta.env.VITE_AUTHING_REDIRECT_URI_DEV || 'http://localhost:5173/callback';
-    console.log('🔧 使用开发环境回调:', redirectUri);
-  } else if (hostName === 'www.wenpai.xyz' || window.location.origin === 'https://www.wenpai.xyz') {
-    // 生产环境 - 强制使用生产域名（双重检查）
+  // 精确的环境判断逻辑
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // 本地开发环境
+    redirectUri = 'http://localhost:5173/callback';
+  } else if (currentOrigin === 'https://www.wenpai.xyz') {
+    // 生产环境 - 硬编码正确的回调地址
     redirectUri = 'https://www.wenpai.xyz/callback';
-    console.log('🎯 强制使用生产环境回调:', redirectUri);
   } else {
-    // Netlify 预览或其他环境 - 使用当前域名
-    redirectUri = `${window.location.origin}/callback`;
-    console.log('🔧 使用当前域名回调:', redirectUri);
+    // 其他环境（Netlify 预览等）- 使用当前域名
+    redirectUri = `${currentOrigin}/callback`;
   }
-
-  console.log('🔧 Auth配置:', { appId, host, redirectUri, isDev });
 
   return { appId, host, redirectUri };
 };
