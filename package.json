@@ -23,7 +23,7 @@
     "check-authing-config": "node check-authing-config.js"
   },
   "dependencies": {
-    "@authing/guard": "^5.3.9",
+    "@authing/react-ui-components": "^4.5.45",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",

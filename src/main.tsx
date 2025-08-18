@@ -1,6 +1,4 @@
 import './index.css';
-// 认证系统：使用 @authing/guard 的样式
-import '@authing/guard/dist/esm/guard.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

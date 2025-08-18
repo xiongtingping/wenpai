@@ -1,11 +1,10 @@
-import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
-
-import { Guard as GuardStatic } from '@authing/guard';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { Guard, GuardLocalConfig, User } from '@authing/react-ui-components';
+import '@authing/react-ui-components/lib/index.min.css';
 
 import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
-
 
 export interface AuthUser {
   id: string;
@@ -26,17 +25,19 @@ interface AuthContextType {
   login: (redirectTo?: string) => Promise<void>;
   register: (redirectTo?: string) => Promise<void>;
   logout: () => Promise<void>;
+  showGuard: boolean;
+  setShowGuard: (show: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const cfg = getAuthConfig();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const guardRef = useRef<any>(null);
+  const [showGuard, setShowGuard] = useState(false);
 
   // 初始化时从 localStorage 恢复用户状态
   React.useEffect(() => {
@@ -46,6 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (token && userData) {
         const parsedUser = JSON.parse(userData);
         setUser({ ...parsedUser, token });
+        setIsAuthenticated(true);
         logger.debug('🔄 从本地存储恢复用户状态:', parsedUser);
       }
     } catch (error) {
@@ -53,240 +55,153 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // 令牌注入到 API 请求
-  React.useEffect(() => {
-    try {
-      setAuthTokenGetter(() => user?.token || null);
-    } catch (error) {
-      logger.error('设置令牌获取器失败:', error);
-    }
-  }, [user?.token]);
-  // --- Guard 解析与加载工具（兼容 NPM 构建 & CDN） ---
-  const resolveGuardCtorFromNpm = async (): Promise<any | null> => {
-    try {
-      const mod = await import('@authing/guard');
-      const ctor = (mod as any).Guard
-        || (mod as any).default?.Guard
-        || (mod as any).GuardFactory?.Guard
-        || (mod as any).default?.GuardFactory?.Guard
-        || (mod as any).default;
-      logger.debug('[Authing] NPM Guard 解析结果:', {
-        from: '@authing/guard',
-        hasGuard: !!(mod as any).Guard,
-        hasDefault: !!(mod as any).default,
-        hasFactory: !!(mod as any).GuardFactory || !!(mod as any).default?.GuardFactory
-      });
-      return typeof ctor === 'function' ? ctor : null;
-    } catch (e) {
-      logger.warn('NPM Guard 解析失败:', e);
-      return null;
-    }
+  // 🔧 修复：使用 React UI Components 的简化配置格式
+  const guardConfig: Partial<GuardLocalConfig> = {
+    lang: 'zh-CN',
+    title: '登录 - 文派',
+    logo: 'https://www.wenpai.xyz/logo.png',
   };
 
-  const loadGuardCtorFromCDN = async (): Promise<any> => {
-    const JS_URL = 'https://cdn.authing.co/packages/guard@5.3.9/guard.min.js';
-    const CSS_URL = 'https://cdn.authing.co/packages/guard@5.3.9/guard.min.css';
-
-    const ensureCss = () => new Promise<void>((resolve) => {
-      if (document.querySelector(`link[href="${CSS_URL}"]`)) return resolve();
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = CSS_URL;
-      link.onload = () => resolve();
-      link.onerror = () => resolve(); // CSS 失败不阻断
-      document.head.appendChild(link);
-    });
-
-    const ensureJs = () => new Promise<void>((resolve, reject) => {
-      if ((window as any).GuardFactory?.Guard) return resolve();
-      if (document.querySelector(`script[src="${JS_URL}"]`)) {
-        // 已在加载，等待一小段时间
-        const timer = setInterval(() => {
-          if ((window as any).GuardFactory?.Guard) { clearInterval(timer); resolve(); }
-        }, 50);
-        setTimeout(() => { clearInterval(timer); resolve(); }, 3000);
-        return;
-      }
-      const s = document.createElement('script');
-      s.src = JS_URL; s.defer = true;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error('Authing Guard CDN 加载失败'));
-      document.head.appendChild(s);
-    });
-
-    await ensureCss();
-    await ensureJs();
-    const ctor = (window as any).GuardFactory?.Guard;
-    if (typeof ctor !== 'function') throw new Error('CDN GuardFactory.Guard 不可用');
-    return ctor;
-  };
-
-  const isUsableInstance = (inst: any) => !!inst && (typeof inst.show === 'function' || typeof inst.start === 'function');
-
-
-
-
-  // 🔧 修复：回退到 NPM 包版本，避免 CDN 加载问题
-  const ensureGuard = async () => {
-    logger.debug('[Authing] 开始初始化 Guard...');
+  // 处理登录成功
+  const handleLogin = (userInfo: User) => {
+    logger.debug('[Authing] 登录成功:', userInfo);
 
     try {
-      // 清理旧实例
-      if (guardRef.current) {
-        try {
-          (guardRef.current as any).hide?.();
-          (guardRef.current as any).destroy?.();
-        } catch {}
-        guardRef.current = null;
-      }
-
-      // 🔧 修复：直接使用 NPM 包，避免 CDN 问题
-      const { Guard } = await import('@authing/guard');
-      logger.debug('[Authing] ✅ NPM Guard 模块加载成功');
-
-      // 创建新实例
-      const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
-
-      const options = {
-        appId: cfg.appId,
-        host: cleanHost,
-        redirectUri: cfg.redirectUri,
-        mode: 'modal' as const,
-        lang: 'zh-CN' as const,
-        defaultScene: 'login' as const,
-        autoRegister: true,
-        clickCloseable: true,
-        escCloseable: true,
-        title: '登录 - 文派'
+      // 转换用户数据格式
+      const authUser: AuthUser = {
+        id: userInfo.id || '',
+        username: userInfo.username || undefined,
+        email: userInfo.email || undefined,
+        phone: userInfo.phone || undefined,
+        nickname: userInfo.nickname || userInfo.name || undefined,
+        avatar: userInfo.photo || userInfo.avatar || undefined,
+        token: userInfo.token || undefined,
+        ...userInfo
       };
 
-      logger.debug('[Authing] 创建 Guard 实例，配置:', options);
-      const instance = new Guard(options);
+      // 保存到状态
+      setUser(authUser);
+      setIsAuthenticated(true);
+      setShowGuard(false);
 
-      // 绑定事件
-      instance.on('login', (user: any) => {
-        logger.debug('[Authing] 登录成功:', user);
-        setUser(user);
-        setIsAuthenticated(true);
-      });
+      // 保存到本地存储
+      if (userInfo.token) {
+        localStorage.setItem('auth_token', userInfo.token);
+        localStorage.setItem('authing_user', JSON.stringify(authUser));
 
-      instance.on('register', (user: any) => {
-        logger.debug('[Authing] 注册成功:', user);
-        setUser(user);
-        setIsAuthenticated(true);
-      });
+        // 设置 API 请求的 token
+        setAuthTokenGetter(() => userInfo.token);
+      }
 
-      instance.on('close', () => {
-        logger.debug('[Authing] Guard 弹窗关闭');
-      });
-
-      guardRef.current = instance;
-      logger.debug('[Authing] ✅ Guard 实例创建成功');
-
-      return instance;
+      logger.debug('✅ 用户登录状态已保存');
     } catch (error) {
-      logger.error('[Authing] Guard 初始化失败:', error);
-      throw error;
+      logger.error('处理登录数据失败:', error);
+      setError('登录数据处理失败');
     }
   };
 
-  const login = async (): Promise<void> => {
+  // 处理注册成功
+  const handleRegister = (userInfo: User) => {
+    logger.debug('[Authing] 注册成功:', userInfo);
+    handleLogin(userInfo); // 注册成功后自动登录
+  };
+
+  // 处理关闭
+  const handleClose = () => {
+    logger.debug('[Authing] Guard 弹窗关闭');
+    setShowGuard(false);
+  };
+
+  // 登录方法
+  const login = async (redirectTo?: string) => {
+    logger.debug('🔐 开始登录流程...');
+
     if (!isAuthConfigValid(cfg)) {
-      setError('Auth 配置无效');
-      logger.error('Auth 配置无效:', cfg);
+      const errorMsg = 'Authing 配置无效，请检查环境变量';
+      logger.error(errorMsg);
+      setError(errorMsg);
       return;
     }
 
+    logger.debug('🔧 Auth配置:', cfg);
+    setShowGuard(true);
+  };
+
+  // 注册方法
+  const register = async (redirectTo?: string) => {
+    logger.debug('📝 开始注册流程...');
+
+    if (!isAuthConfigValid(cfg)) {
+      const errorMsg = 'Authing 配置无效，请检查环境变量';
+      logger.error(errorMsg);
+      setError(errorMsg);
+      return;
+    }
+
+    setShowGuard(true);
+  };
+
+  // 登出方法
+  const logout = async () => {
     try {
-      logger.debug('开始初始化 Authing Guard...');
+      logger.debug('🚪 开始登出流程...');
+
+      // 清除本地状态
+      setUser(null);
+      setIsAuthenticated(false);
       setError(null);
 
-      const guard = await ensureGuard();
-      try { (document.activeElement as HTMLElement | null)?.blur(); } catch {}
+      // 清除本地存储
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('authing_user');
 
-      // 🔧 关键修复：直接使用 guardRef.current 而不是 ensureGuard 的返回值
-      const actualGuard = guardRef.current;
+      // 清除 API token
+      setAuthTokenGetter(() => null);
 
-      const canShow = actualGuard && typeof (actualGuard as any).show === 'function';
-      const canStart = actualGuard && typeof (actualGuard as any).start === 'function';
-      const canRedirect = actualGuard && typeof (actualGuard as any).startWithRedirect === 'function';
-
-      // 🔍 详细调试：检查 Guard 实例的所有方法和属性
-      logger.debug('[Authing] guard capability:', { canShow, canStart, canRedirect });
-      logger.debug('[Authing] guard instance type:', typeof actualGuard);
-      logger.debug('[Authing] guard constructor:', actualGuard?.constructor?.name);
-      logger.debug('[Authing] guard methods:', Object.getOwnPropertyNames(actualGuard || {}).filter(name => typeof (actualGuard as any)?.[name] === 'function'));
-      logger.debug('[Authing] guard prototype methods:', actualGuard ? Object.getOwnPropertyNames(Object.getPrototypeOf(actualGuard)).filter(name => typeof (actualGuard as any)?.[name] === 'function') : []);
-
-      // 🔍 比较两个实例是否相同
-      logger.debug('[Authing] 实例比较:', {
-        guardFromEnsure: guard === actualGuard,
-        guardFromEnsureType: typeof guard,
-        actualGuardType: typeof actualGuard,
-        guardFromEnsureHasShow: guard && typeof (guard as any).show === 'function',
-        actualGuardHasShow: actualGuard && typeof (actualGuard as any).show === 'function'
-      });
-
-      if (canShow) {
-        logger.debug('[Authing] 调用 show 方法');
-        (actualGuard as any).show();
-      } else if (canStart) {
-        logger.debug('[Authing] 调用 start 方法');
-        const hostId = 'authing_modal_fallback_host';
-        let host = document.getElementById(hostId) as HTMLElement | null;
-        if (!host) {
-          host = document.createElement('div');
-          host.id = hostId;
-          Object.assign(host.style, { position: 'fixed', inset: '0', zIndex: '2147483646', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.45)' } as CSSStyleDeclaration);
-          document.body.appendChild(host);
-          const panel = document.createElement('div');
-          Object.assign(panel.style, { width: '90vw', maxWidth: '420px', minHeight: '520px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.35)' } as CSSStyleDeclaration);
-          panel.id = 'authing_container_fallback';
-          host.appendChild(panel);
-        }
-        await (actualGuard as any).start('#authing_container_fallback');
-      } else if (canRedirect) {
-        logger.debug('[Authing] 调用 startWithRedirect 方法');
-        await (actualGuard as any).startWithRedirect();
-      } else {
-        throw new Error('Guard 实例无可用展示方法(show/start/redirect)');
-      }
-    } catch (e: any) {
-      logger.error('Guard初始化失败:', e);
-      setError(e?.message || '登录系统初始化失败');
+      logger.debug('✅ 登出成功');
+    } catch (error) {
+      logger.error('登出失败:', error);
+      setError('登出失败');
     }
   };
 
-  const register = async (): Promise<void> => {
-    return login();
-  };
-
-  const logout = async (): Promise<void> => {
-    setUser(null);
-    localStorage.removeItem('auth_token');
-  };
-
-  const api = useMemo<AuthContextType>(() => ({
+  const contextValue: AuthContextType = {
     user,
-    isAuthenticated: !!user?.token,
+    isAuthenticated,
     loading,
     error,
     login,
     register,
-    logout
-  }), [user, loading, error]);
+    logout,
+    showGuard,
+    setShowGuard,
+  };
 
   return (
-    <AuthContext.Provider value={api}>
+    <AuthContext.Provider value={contextValue}>
       {children}
 
-
+      {/* 🔧 修复：使用 React UI Components 的 Guard 组件 */}
+      {showGuard && isAuthConfigValid(cfg) && (
+        <Guard
+          appId={cfg.appId}
+          onLogin={handleLogin}
+          onRegister={handleRegister}
+          onClose={handleClose}
+          visible={showGuard}
+          config={guardConfig}
+        />
+      )}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
+
+export default AuthProvider;
