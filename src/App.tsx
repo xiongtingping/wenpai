@@ -78,14 +78,9 @@ const App: React.FC = () => {
                     {/* 首页 */}
                     <Route path="/" element={<HomePage />} />
 
-                    {/* 登录回调页面 */}
-                    <Route path="/callback" element={
-                      <div style={{padding: '20px', textAlign: 'center'}}>
-                        <h1>CallbackPage 测试</h1>
-                        <p>URL: {window.location.href}</p>
-                        <CallbackPage />
-                      </div>
-                    } />
+                    {/* 登录回调页面 - 支持带/不带尾斜杠 */}
+                    <Route path="/callback" element={<CallbackPage />} />
+                    <Route path="/callback/" element={<CallbackPage />} />
 
                     {/* 核心功能页面 - 需要登录 */}
                     <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
