@@ -89,8 +89,21 @@ const CallbackPage: React.FC = () => {
         setProgress(30);
 
         const codeVerifier = sessionStorage.getItem('auth_pkce_verifier');
+
+        console.log('🔍 PKCE验证器检查:', {
+          hasVerifier: !!codeVerifier,
+          verifierLength: codeVerifier?.length,
+          sessionStorageKeys: Object.keys(sessionStorage),
+          currentUrl: window.location.href
+        });
+
         if (!codeVerifier) {
           console.error('❌ PKCE验证器丢失，尝试重新登录');
+          console.error('🔍 SessionStorage内容:', {
+            keys: Object.keys(sessionStorage),
+            authKeys: Object.keys(sessionStorage).filter(k => k.includes('auth'))
+          });
+
           // 清除可能损坏的状态
           sessionStorage.clear();
           localStorage.removeItem('authing_user');

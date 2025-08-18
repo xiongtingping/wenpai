@@ -238,7 +238,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const timestamp = Date.now();
     const stateObj = { ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href };
     const state = encodeURIComponent(JSON.stringify(stateObj));
-    logger.debug('📝 REGISTER State生成:', { stateObj, state, method: 'REGISTER' });
+    logger.debug('📝 REGISTER State生成:', {
+      stateObj,
+      state,
+      method: 'REGISTER',
+      verifier: verifier.substring(0, 10) + '...',
+      challenge: challenge.substring(0, 10) + '...',
+      verifierSaved: !!sessionStorage.getItem('auth_pkce_verifier')
+    });
     const params = new URLSearchParams({
       client_id: cfg.appId,
       redirect_uri: cfg.redirectUri,

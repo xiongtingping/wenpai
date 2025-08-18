@@ -251,28 +251,8 @@ export function Header() {
                     console.log('🔧 注册按钮被点击，强制调用register()方法');
                     console.log('🔧 当前时间戳:', Date.now());
 
-                    // 强制调用register方法，确保包含mode参数
-                    const forceRegister = async () => {
-                      console.log('🔧 强制注册开始...');
-
-                      // 清除会话
-                      localStorage.removeItem('authing_user');
-                      localStorage.removeItem('auth_token');
-                      sessionStorage.clear();
-
-                      // 生成带mode的state
-                      const timestamp = Date.now();
-                      const stateObj = { ts: timestamp, mode: 'register', redirectTo: window.location.origin + '/' };
-                      const state = encodeURIComponent(JSON.stringify(stateObj));
-
-                      console.log('🔧 强制注册State:', stateObj);
-
-                      // 直接跳转到注册URL
-                      const registerUrl = `https://rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2/login?client_id=68823897631e1ef8ff3720b2&redirect_uri=https://www.wenpai.xyz/callback&response_type=code&scope=openid&state=${state}&screen_hint=signup&prompt=login&max_age=0`;
-
-                      console.log('🔧 强制注册URL:', registerUrl);
-                      window.location.href = registerUrl;
-                    };
+                    // 直接调用正常的register方法，不要强制覆盖
+                    register();
 
                     forceRegister();
                   }}
