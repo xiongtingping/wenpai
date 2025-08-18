@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // 登录方法（PKCE + 同窗口跳转）
   const login = async (redirectTo?: string) => {
-    logger.debug('🔐 开始登录流程...');
+    logger.debug('🔐 开始登录流程...', { method: 'LOGIN', redirectTo });
 
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
@@ -148,6 +148,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const timestamp = Date.now();
     const state = JSON.stringify({ ts: timestamp, redirectTo: redirectTo || window.location.href });
+    logger.debug('🔐 LOGIN State生成:', { state, method: 'LOGIN' });
     const params = new URLSearchParams({
       client_id: cfg.appId,
       redirect_uri: cfg.redirectUri,
@@ -179,7 +180,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // 注册方法（PKCE + 同窗口跳转）
   const register = async (redirectTo?: string) => {
-    logger.debug('📝 开始注册流程...');
+    logger.debug('📝 开始注册流程...', { method: 'REGISTER', redirectTo });
 
     // 🔧 强制注册：清除现有会话，确保跳转到注册页面
     logger.debug('[Authing] 清除现有会话以强制显示注册页面');
@@ -234,7 +235,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     sessionStorage.setItem('auth_pkce_verifier', verifier);
 
     const timestamp = Date.now();
-    const state = encodeURIComponent(JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href }));
+    const stateObj = { ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href };
+    const state = encodeURIComponent(JSON.stringify(stateObj));
+    logger.debug('📝 REGISTER State生成:', { stateObj, state, method: 'REGISTER' });
     const params = new URLSearchParams({
       client_id: cfg.appId,
       redirect_uri: cfg.redirectUri,
