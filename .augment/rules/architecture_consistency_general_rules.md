@@ -1,7 +1,7 @@
 ---
-type: "always_apply"
+type: "agent_requested"
+description: "Example description"
 ---
-
 {
   "name": "architecture_consistency_general_rules",
   "severity": "critical",
