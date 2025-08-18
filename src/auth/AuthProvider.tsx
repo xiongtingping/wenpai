@@ -170,8 +170,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (showGuard && isAuthConfigValid(cfg)) {
       logger.debug('🚀 开始使用 Authing Web SDK 进行登录...');
 
+      // 🔧 强制修复：确保生产环境使用正确的回调地址
+      const forceCorrectRedirectUri = window.location.hostname === 'www.wenpai.xyz'
+        ? 'https://www.wenpai.xyz/callback'
+        : cfg.redirectUri;
+
       // 直接跳转到 Authing 登录页面
-      const loginUrl = `${cfg.host}/login?app_id=${cfg.appId}&redirect_uri=${encodeURIComponent(cfg.redirectUri)}&response_type=code&scope=openid profile email phone&state=${Date.now()}`;
+      const loginUrl = `${cfg.host}/login?app_id=${cfg.appId}&redirect_uri=${encodeURIComponent(forceCorrectRedirectUri)}&response_type=code&scope=openid profile email phone&state=${Date.now()}`;
 
       logger.debug('� 跳转到登录页面:', loginUrl);
 
