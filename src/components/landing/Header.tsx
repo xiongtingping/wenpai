@@ -244,7 +244,13 @@ export function Header() {
                 <Button variant="outline" onClick={() => login()}>
                   登录
                 </Button>
-                <Button onClick={() => register()} className="bg-primary hover:bg-primary/90">
+                <Button
+                  onClick={() => {
+                    console.log('🔧 注册按钮被点击，调用register()方法');
+                    register();
+                  }}
+                  className="bg-primary hover:bg-primary/90"
+                >
                   注册
                 </Button>
                 {/* 🧪 生产环境测试按钮 */}
@@ -369,7 +375,12 @@ export function Header() {
                       </Button>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Button onClick={() => register()}>
+                      <Button
+                        onClick={() => {
+                          console.log('🔧 移动端注册按钮被点击，调用register()方法');
+                          register();
+                        }}
+                      >
                         注册
                       </Button>
                     </SheetClose>
