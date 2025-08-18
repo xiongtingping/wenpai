@@ -126,47 +126,139 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
   const ensureGuard = async () => {
-    // 首选：静态导入的 Guard 构造，避免运行时解析不一致
-    let GuardClass: any = GuardStatic;
-    // 运行时保护：静态构造竟然不是函数，才尝试 NPM/CDN 动态回退
-    if (typeof GuardClass !== 'function') {
-      GuardClass = await resolveGuardCtorFromNpm();
-      if (!GuardClass) {
-        logger.warn('回退到 CDN 加载 Authing Guard');
-        GuardClass = await loadGuardCtorFromCDN();
+    // 🔧 系统性修复：完全重构 Guard 初始化流程
+    let GuardClass: any = null;
+
+    // 🎯 策略1：尝试最新的 Authing Guard 初始化方式
+    try {
+      // 清除可能的缓存模块
+      delete require.cache[require.resolve('@authing/guard')];
+
+      const guardModule = await import('@authing/guard');
+      logger.debug('[Authing] 模块导入详情:', {
+        module: guardModule,
+        keys: Object.keys(guardModule),
+        Guard: guardModule.Guard,
+        default: guardModule.default,
+        hasGuardConstructor: typeof guardModule.Guard === 'function',
+        hasDefaultConstructor: typeof guardModule.default === 'function'
+      });
+
+      // 尝试多种可能的 Guard 构造函数位置
+      GuardClass = guardModule.Guard ||
+                   guardModule.default?.Guard ||
+                   guardModule.default ||
+                   (guardModule as any).AuthingGuard ||
+                   (guardModule as any).GuardMode;
+
+      if (typeof GuardClass === 'function') {
+        logger.debug('[Authing] ✅ 成功获取 Guard 构造函数:', GuardClass.name);
       }
+    } catch (e) {
+      logger.warn('[Authing] 动态导入失败:', e);
     }
 
-    if (guardRef.current && !isUsableInstance(guardRef.current)) {
-      try { (guardRef.current as any).hide?.(); } catch {}
+    // 🎯 策略2：如果动态导入失败，尝试静态导入
+    if (typeof GuardClass !== 'function') {
+      GuardClass = GuardStatic;
+      logger.debug('[Authing] 使用静态导入 Guard:', typeof GuardClass);
+    }
+
+    // 🎯 策略3：CDN 回退
+    if (typeof GuardClass !== 'function') {
+      logger.warn('[Authing] 尝试 CDN 回退');
+      GuardClass = await loadGuardCtorFromCDN();
+    }
+
+    // 验证构造函数
+    if (typeof GuardClass !== 'function') {
+      throw new Error('❌ 无法获取有效的 Guard 构造函数');
+    }
+
+    // 清理旧实例
+    if (guardRef.current) {
+      try {
+        (guardRef.current as any).hide?.();
+        (guardRef.current as any).destroy?.();
+      } catch {}
       guardRef.current = null;
     }
 
     if (!guardRef.current) {
       const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
 
-      logger.debug('Guard配置:', { appId: cfg.appId, host: cleanHost, redirectUri: cfg.redirectUri, mode: 'modal' });
-
-      const options: any = {
+      // 🎯 修复：使用最简化但完整的配置
+      const options = {
         appId: cfg.appId,
         host: cleanHost,
         redirectUri: cfg.redirectUri,
-        mode: 'modal',
-        autoFocus: true,
-        lang: 'zh-CN',
-        defaultScene: 'login',
+        // 核心配置
+        mode: 'modal' as const,
+        lang: 'zh-CN' as const,
+        defaultScene: 'login' as const,
+        // 基础功能配置
         autoRegister: false,
         closeable: true,
+        autoFocus: false,
+        // 登录方式
         loginMethodList: ['password', 'phone-code', 'email-code'],
         registerMethodList: ['phone', 'email'],
+        // UI 配置
         logo: 'https://files.authing.co/authing-console/default-app-logo.png',
         title: '文派'
       };
 
+      logger.debug('[Authing] 🚀 开始创建 Guard 实例');
+      logger.debug('[Authing] 构造函数:', GuardClass.name);
+      logger.debug('[Authing] 配置参数:', options);
+
       let instance: any;
-      try { instance = new GuardClass(options); } catch (e) { logger.warn('静态 Guard 构造失败，尝试 CDN:', e); }
-      if (!isUsableInstance(instance)) { const CDNGuard = await loadGuardCtorFromCDN(); instance = new CDNGuard(options); }
-      if (!isUsableInstance(instance)) { throw new Error('Guard 实例构造成功但不具备 show/start 能力'); }
+      try {
+        // 🔧 关键修复：确保正确的实例化方式
+        instance = new GuardClass(options);
+
+        // 等待实例初始化完成（某些版本的 Guard 需要异步初始化）
+        if (instance && typeof instance.init === 'function') {
+          await instance.init();
+          logger.debug('[Authing] Guard 实例已初始化');
+        }
+
+        // 详细检查实例状态
+        const instanceInfo = {
+          type: typeof instance,
+          constructor: instance?.constructor?.name,
+          isGuardInstance: instance instanceof GuardClass,
+          hasShow: typeof instance?.show === 'function',
+          hasStart: typeof instance?.start === 'function',
+          hasStartWithRedirect: typeof instance?.startWithRedirect === 'function',
+          ownMethods: instance ? Object.getOwnPropertyNames(instance).filter(name => typeof instance[name] === 'function') : [],
+          prototypeMethods: instance ? Object.getOwnPropertyNames(Object.getPrototypeOf(instance)).filter(name => typeof instance[name] === 'function') : []
+        };
+
+        logger.debug('[Authing] 实例详情:', instanceInfo);
+
+        // 🔍 验证关键方法
+        if (!instance || typeof instance.show !== 'function') {
+          logger.error('[Authing] ❌ Guard 实例缺少 show 方法');
+          throw new Error('Guard 实例创建成功但缺少必要的方法');
+        }
+
+        logger.debug('[Authing] ✅ Guard 实例创建并验证成功');
+
+      } catch (e: any) {
+        logger.error('[Authing] ❌ Guard 构造失败:', e);
+        throw new Error(`Guard 构造失败: ${e?.message || e}`);
+      }
+
+      if (!isUsableInstance(instance)) {
+        logger.error('[Authing] Guard 实例不可用，尝试 CDN 回退');
+        const CDNGuard = await loadGuardCtorFromCDN();
+        instance = new CDNGuard(options);
+      }
+
+      if (!isUsableInstance(instance)) {
+        throw new Error('Guard 实例构造成功但不具备 show/start 能力');
+      }
 
       instance.on('login', (userInfo: any) => {
         logger.debug('登录成功:', userInfo);
@@ -188,6 +280,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       instance.on('login-error', (error: any) => { logger.error('登录失败:', error); setError(error?.message || '登录失败'); });
 
       guardRef.current = instance;
+
+      // 🔍 验证保存后的实例
+      logger.debug('[Authing] 保存后验证:', {
+        saved: !!guardRef.current,
+        hasShow: typeof guardRef.current?.show === 'function',
+        hasStart: typeof guardRef.current?.start === 'function',
+        hasStartWithRedirect: typeof guardRef.current?.startWithRedirect === 'function'
+      });
     }
 
     return guardRef.current;
@@ -207,14 +307,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const guard = await ensureGuard();
       try { (document.activeElement as HTMLElement | null)?.blur(); } catch {}
 
-      const canShow = guard && typeof (guard as any).show === 'function';
-      const canStart = guard && typeof (guard as any).start === 'function';
-      const canRedirect = guard && typeof (guard as any).startWithRedirect === 'function';
+      // 🔧 关键修复：直接使用 guardRef.current 而不是 ensureGuard 的返回值
+      const actualGuard = guardRef.current;
+
+      const canShow = actualGuard && typeof (actualGuard as any).show === 'function';
+      const canStart = actualGuard && typeof (actualGuard as any).start === 'function';
+      const canRedirect = actualGuard && typeof (actualGuard as any).startWithRedirect === 'function';
+
+      // 🔍 详细调试：检查 Guard 实例的所有方法和属性
       logger.debug('[Authing] guard capability:', { canShow, canStart, canRedirect });
+      logger.debug('[Authing] guard instance type:', typeof actualGuard);
+      logger.debug('[Authing] guard constructor:', actualGuard?.constructor?.name);
+      logger.debug('[Authing] guard methods:', Object.getOwnPropertyNames(actualGuard || {}).filter(name => typeof (actualGuard as any)?.[name] === 'function'));
+      logger.debug('[Authing] guard prototype methods:', actualGuard ? Object.getOwnPropertyNames(Object.getPrototypeOf(actualGuard)).filter(name => typeof (actualGuard as any)?.[name] === 'function') : []);
+
+      // 🔍 比较两个实例是否相同
+      logger.debug('[Authing] 实例比较:', {
+        guardFromEnsure: guard === actualGuard,
+        guardFromEnsureType: typeof guard,
+        actualGuardType: typeof actualGuard,
+        guardFromEnsureHasShow: guard && typeof (guard as any).show === 'function',
+        actualGuardHasShow: actualGuard && typeof (actualGuard as any).show === 'function'
+      });
 
       if (canShow) {
-        (guard as any).show();
+        logger.debug('[Authing] 调用 show 方法');
+        (actualGuard as any).show();
       } else if (canStart) {
+        logger.debug('[Authing] 调用 start 方法');
         const hostId = 'authing_modal_fallback_host';
         let host = document.getElementById(hostId) as HTMLElement | null;
         if (!host) {
@@ -227,9 +347,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           panel.id = 'authing_container_fallback';
           host.appendChild(panel);
         }
-        await (guard as any).start('#authing_container_fallback');
+        await (actualGuard as any).start('#authing_container_fallback');
       } else if (canRedirect) {
-        await (guard as any).startWithRedirect();
+        logger.debug('[Authing] 调用 startWithRedirect 方法');
+        await (actualGuard as any).startWithRedirect();
       } else {
         throw new Error('Guard 实例无可用展示方法(show/start/redirect)');
       }
