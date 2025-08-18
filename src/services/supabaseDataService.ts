@@ -50,7 +50,7 @@ async function initializeSupabase(): Promise<SupabaseClient> {
 /**
  * 获取 Supabase 客户端实例
  */
-async function getSupabaseClient(): Promise<SupabaseClient> {
+export async function getSupabaseClient(): Promise<SupabaseClient> {
   return await initializeSupabase();
 }
 

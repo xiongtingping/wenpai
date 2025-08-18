@@ -149,14 +149,31 @@ const CallbackPage: React.FC = () => {
           throw new Error('no access_token received');
         }
 
+        // 🔍 详细调试用户信息字段
+        console.log('🔍 原始用户信息调试:', {
+          userInfo,
+          availableFields: Object.keys(userInfo || {}),
+          nickname: userInfo?.nickname,
+          name: userInfo?.name,
+          username: userInfo?.username,
+          given_name: userInfo?.given_name,
+          family_name: userInfo?.family_name,
+          preferred_username: userInfo?.preferred_username,
+          photo: userInfo?.photo,
+          avatar: userInfo?.avatar,
+          picture: userInfo?.picture
+        });
+
         const mergedUser = {
           id: userInfo?.sub || userInfo?.userId || 'user_' + Date.now(),
           username: userInfo?.username,
           email: userInfo?.email,
-          nickname: userInfo?.nickname || userInfo?.name,
-          avatar: userInfo?.photo || userInfo?.avatar,
+          nickname: userInfo?.nickname || userInfo?.name || userInfo?.preferred_username || userInfo?.username || userInfo?.given_name || '用户',
+          avatar: userInfo?.photo || userInfo?.avatar || userInfo?.picture,
           token
         };
+
+        console.log('🔍 合并后用户信息:', mergedUser);
 
         setProcessingStep('保存登录状态...');
         setProgress(80);

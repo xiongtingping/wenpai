@@ -3,9 +3,9 @@
  * @description 提供细粒度的功能权限控制、套餐到期处理、权限升级降级的平滑过渡
  */
 
-import { request } from '@/api/request';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier, SubscriptionPlan } from '@/types/subscription';
+import { getSupabaseClient, TABLE_NAMES } from '@/services/supabaseDataService';
 
 /**
  * 权限检查结果
@@ -96,7 +96,6 @@ interface FeaturePermissionConfig {
  * 增强权限管理服务类
  */
 class EnhancedPermissionService {
-  private readonly API_ENDPOINT = '/api/enhanced-permissions';
   private readonly STORAGE_KEY = 'enhanced_permissions_cache';
   private readonly GRACE_PERIOD_DAYS = 7; // 7天宽限期
   
@@ -263,46 +262,52 @@ class EnhancedPermissionService {
   }
 
   /**
-   * 检查套餐到期状态
+   * 检查套餐到期状态 (使用 Supabase)
    */
   async checkSubscriptionExpiry(userId: string): Promise<SubscriptionExpiryCheck> {
     try {
-      const response = await request.get(`${this.API_ENDPOINT}/subscription-expiry/${userId}`);
-      const data = response?.data ?? response;
+      const supabase = await getSupabaseClient();
 
-      if (data && typeof data === 'object' && !Array.isArray(data)) {
+      // 查询用户订阅信息
+      const { data: subscription, error } = await supabase
+        .from(TABLE_NAMES.USER_SUBSCRIPTIONS)
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.warn('查询用户订阅信息失败:', error);
+        throw error;
+      }
+
+      if (subscription) {
+        const expiryDate = new Date(subscription.expires_at);
+        const now = new Date();
+        const isExpired = expiryDate < now;
+        const daysRemaining = Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+
         return {
-          isExpired: Boolean(data.isExpired),
-          expiryDate: data.expiryDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          daysRemaining: typeof data.daysRemaining === 'number' ? data.daysRemaining : 30,
-          inGracePeriod: Boolean(data.inGracePeriod),
-          requiredActions: Array.isArray(data.requiredActions) ? data.requiredActions : []
+          isExpired,
+          expiryDate: expiryDate.toISOString(),
+          daysRemaining,
+          inGracePeriod: isExpired && daysRemaining <= this.GRACE_PERIOD_DAYS,
+          requiredActions: isExpired ? ['renew'] : []
         };
       }
 
-      // 如果返回结构不符合预期，走兜底
-      throw new Error('Invalid response data');
+      // 新用户或无订阅，返回默认试用状态
+      const defaultExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      return {
+        isExpired: false,
+        expiryDate: defaultExpiryDate.toISOString(),
+        daysRemaining: 30,
+        inGracePeriod: false,
+        requiredActions: []
+      };
     } catch (error: any) {
-      // 🔧 更全面的501错误检测和静默处理
-      const is501Error =
-        error?.status === 501 ||
-        error?.response?.status === 501 ||
-        error?.message?.includes('501') ||
-        error?.message?.includes('Not Implemented');
-
-      if (is501Error) {
-        // 501错误表示后端API未实现，这是正常情况
-        // 完全静默处理，不输出任何日志
-        return {
-          isExpired: false,
-          expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          daysRemaining: 30,
-          inGracePeriod: false,
-          requiredActions: []
-        };
-      }
-
-      // 非501错误，输出警告并返回默认值
       console.warn('检查套餐到期状态失败，使用默认值:', error);
       return {
         isExpired: false,
@@ -398,7 +403,7 @@ class EnhancedPermissionService {
   }
 
   /**
-   * 检查使用限制
+   * 检查使用限制 (使用 Supabase)
    */
   private async checkUsageLimits(
     userId: string,
@@ -406,37 +411,50 @@ class EnhancedPermissionService {
     limits: { daily?: number; monthly?: number; concurrent?: number }
   ): Promise<{ allowed: boolean; reason?: string }> {
     try {
-      const response = await request.get(`${this.API_ENDPOINT}/usage-limits/${userId}/${featureId}`);
-      const usage = response?.data ?? response;
+      const supabase = await getSupabaseClient();
 
-      if (limits.daily && limits.daily !== -1 && Number(usage.dailyUsage || 0) >= limits.daily) {
+      // 获取今天和本月的开始时间
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      // 查询使用记录
+      const { data: usageLogs, error } = await supabase
+        .from(TABLE_NAMES.USER_USAGE_LOGS)
+        .select('*')
+        .eq('user_id', userId)
+        .eq('feature_id', featureId)
+        .gte('created_at', monthStart.toISOString());
+
+      if (error) {
+        console.warn('查询使用记录失败:', error);
+        return { allowed: true }; // 查询失败时默认允许
+      }
+
+      const todayUsage = usageLogs?.filter(log =>
+        new Date(log.created_at) >= todayStart
+      ).length || 0;
+
+      const monthlyUsage = usageLogs?.length || 0;
+
+      // 检查每日限制
+      if (limits.daily && limits.daily !== -1 && todayUsage >= limits.daily) {
         return { allowed: false, reason: `已达到每日使用限制 (${limits.daily} 次)` };
       }
 
-      if (limits.monthly && limits.monthly !== -1 && Number(usage.monthlyUsage || 0) >= limits.monthly) {
+      // 检查每月限制
+      if (limits.monthly && limits.monthly !== -1 && monthlyUsage >= limits.monthly) {
         return { allowed: false, reason: `已达到每月使用限制 (${limits.monthly} 次)` };
       }
 
-      if (limits.concurrent && limits.concurrent !== -1 && Number(usage.concurrentUsage || 0) >= limits.concurrent) {
-        return { allowed: false, reason: `已达到并发使用限制 (${limits.concurrent} 个)` };
+      // 并发限制暂时跳过，需要更复杂的实现
+      if (limits.concurrent && limits.concurrent !== -1) {
+        // TODO: 实现并发限制检查
       }
 
       return { allowed: true };
     } catch (error: any) {
-      // 🔧 更全面的501错误检测和静默处理
-      const is501Error =
-        error?.status === 501 ||
-        error?.response?.status === 501 ||
-        error?.message?.includes('501') ||
-        error?.message?.includes('Not Implemented');
-
-      if (is501Error) {
-        // 501错误表示后端API未实现，这是正常情况
-        // 完全静默处理，不输出任何日志
-        return { allowed: true };
-      } else {
-        console.warn('检查使用限制失败，默认允许:', error);
-      }
+      console.warn('检查使用限制失败，默认允许:', error);
       return { allowed: true };
     }
   }
