@@ -75,15 +75,15 @@ function generateRegisterUrlVariants(config: RegisterConfig): string[] {
       description: '登录端点+注册提示'
     },
     
-    // 变体4: 登录端点 + prompt=signup
+    // 变体4: 登录端点 + goto=register (Authing特有参数)
     {
       url: `${host}/${appId}/login`,
       params: (() => {
         const p = new URLSearchParams(baseParams);
-        p.set('prompt', 'signup');
+        p.set('goto', '/register');
         return p;
       })(),
-      description: '登录端点+注册提示(prompt)'
+      description: '登录端点+注册跳转(goto)'
     },
     
     // 变体5: 标准OIDC端点 + screen_hint
@@ -173,8 +173,8 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     code_challenge_method: 'S256',
     nonce,
     response_mode: 'query',
-    screen_hint: 'signup',
-    prompt: 'signup'
+    screen_hint: 'signup'
+    // 移除 prompt: 'signup' - Authing不支持此值
   });
 
   // 优先使用专用注册端点
