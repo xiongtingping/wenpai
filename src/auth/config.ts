@@ -19,22 +19,11 @@ export const getAuthConfig = (): AuthConfig => {
       ? `https://${domain.replace(/\/$/, '')}`
       : '';
 
-  // 选择 redirectUri：根据当前域名映射到已在白名单中的精确地址
+  // 选择 redirectUri：非本地环境一律使用生产回调，避免多域导致的校验分歧
   const h = window.location.hostname;
-  let redirectUri = '';
-  if (h === 'localhost' || h === '127.0.0.1') {
-    redirectUri = 'http://localhost:5173/callback';
-  } else if (h === 'www.wenpai.xyz') {
-    redirectUri = 'https://www.wenpai.xyz/callback';
-  } else if (h === 'preview.wenpai.xyz') {
-    redirectUri = 'https://preview.wenpai.xyz/callback';
-  } else if (h.endsWith('netlify.app')) {
-    // 预览/分支环境统一回调到根 Netlify 域，避免子域不在白名单
-    redirectUri = 'https://wenpai.netlify.app/callback';
-  } else {
-    // 兜底：使用生产域
-    redirectUri = 'https://www.wenpai.xyz/callback';
-  }
+  const redirectUri = (h === 'localhost' || h === '127.0.0.1')
+    ? 'http://localhost:5173/callback'
+    : 'https://www.wenpai.xyz/callback';
 
   return { appId, host, redirectUri };
 };

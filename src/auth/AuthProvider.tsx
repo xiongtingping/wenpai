@@ -140,12 +140,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       scope: 'openid',
       state,
       code_challenge: challenge,
-      code_challenge_method: 'S256'
-    });
+      code_challenge_method: 'S256',
+      nonce: genRandom(16),
+      response_mode: 'query'
+    } as any);
 
     // 使用带 AppID 前缀的授权端点
     const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
     const loginUrl = `${base}/oidc/auth?${params.toString()}`;
+    logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri });
     window.location.href = loginUrl;
   };
 
@@ -186,10 +189,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       scope: 'openid',
       state,
       code_challenge: challenge,
-      code_challenge_method: 'S256'
-    });
+      code_challenge_method: 'S256',
+      nonce: genRandom(16),
+      response_mode: 'query'
+    } as any);
     const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
     const loginUrl = `${base}/oidc/auth?${params.toString()}`;
+    logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri });
     window.location.href = loginUrl;
   };
 
