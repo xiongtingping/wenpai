@@ -126,45 +126,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
 
-  // 🔧 修复：使用 CDN 版本的 Authing Guard
-  const loadGuardFromCDN = async () => {
-    return new Promise((resolve, reject) => {
-      // 检查是否已经加载
-      if ((window as any).AuthingGuard) {
-        logger.debug('[Authing] CDN Guard 已存在');
-        resolve((window as any).AuthingGuard);
-        return;
-      }
-
-      // 加载 CSS
-      const cssLink = document.createElement('link');
-      cssLink.rel = 'stylesheet';
-      cssLink.href = 'https://cdn.authing.co/packages/guard/5.1.5/guard.min.css';
-      document.head.appendChild(cssLink);
-
-      // 加载 JS
-      const script = document.createElement('script');
-      script.src = 'https://cdn.authing.co/packages/guard/5.1.5/guard.min.js';
-      script.onload = () => {
-        if ((window as any).AuthingGuard) {
-          logger.debug('[Authing] ✅ CDN Guard 加载成功');
-          resolve((window as any).AuthingGuard);
-        } else {
-          reject(new Error('CDN Guard 加载失败'));
-        }
-      };
-      script.onerror = () => reject(new Error('CDN 脚本加载失败'));
-      document.head.appendChild(script);
-    });
-  };
-
+  // 🔧 修复：回退到 NPM 包版本，避免 CDN 加载问题
   const ensureGuard = async () => {
-    // 🔧 修复：使用 CDN 版本的 Authing Guard
-    logger.debug('[Authing] 开始加载 CDN Guard...');
+    logger.debug('[Authing] 开始初始化 Guard...');
 
     try {
-      const GuardClass = await loadGuardFromCDN();
-
       // 清理旧实例
       if (guardRef.current) {
         try {
@@ -174,6 +140,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         guardRef.current = null;
       }
 
+      // 🔧 修复：直接使用 NPM 包，避免 CDN 问题
+      const { Guard } = await import('@authing/guard');
+      logger.debug('[Authing] ✅ NPM Guard 模块加载成功');
+
       // 创建新实例
       const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
 
@@ -181,9 +151,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         appId: cfg.appId,
         host: cleanHost,
         redirectUri: cfg.redirectUri,
-        mode: 'modal',
-        lang: 'zh-CN',
-        defaultScene: 'login',
+        mode: 'modal' as const,
+        lang: 'zh-CN' as const,
+        defaultScene: 'login' as const,
         autoRegister: true,
         clickCloseable: true,
         escCloseable: true,
@@ -191,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       logger.debug('[Authing] 创建 Guard 实例，配置:', options);
-      const instance = new (GuardClass as any)(options);
+      const instance = new Guard(options);
 
       // 绑定事件
       instance.on('login', (user: any) => {
