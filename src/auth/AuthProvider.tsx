@@ -233,7 +233,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const verifier = genRandom(64);
     const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
     const challenge = toBase64Url(digest);
+
+    // 🔧 双重存储PKCE验证器，防止丢失
     sessionStorage.setItem('auth_pkce_verifier', verifier);
+    localStorage.setItem('auth_pkce_verifier_backup', verifier);
+
+    logger.debug('🔐 PKCE验证器已保存:', {
+      verifierLength: verifier.length,
+      challengeLength: challenge.length,
+      sessionStored: !!sessionStorage.getItem('auth_pkce_verifier'),
+      localStored: !!localStorage.getItem('auth_pkce_verifier_backup')
+    });
 
     const timestamp = Date.now();
     const stateObj = { ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href };

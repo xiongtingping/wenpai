@@ -88,26 +88,38 @@ const CallbackPage: React.FC = () => {
         setProcessingStep('交换访问令牌...');
         setProgress(30);
 
-        const codeVerifier = sessionStorage.getItem('auth_pkce_verifier');
+        let codeVerifier = sessionStorage.getItem('auth_pkce_verifier');
+
+        // 🔧 如果sessionStorage中没有，尝试从localStorage备份恢复
+        if (!codeVerifier) {
+          const backupVerifier = localStorage.getItem('auth_pkce_verifier_backup');
+          if (backupVerifier) {
+            console.log('🔄 从localStorage备份恢复PKCE验证器');
+            codeVerifier = backupVerifier;
+            sessionStorage.setItem('auth_pkce_verifier', backupVerifier);
+          }
+        }
 
         console.log('🔍 PKCE验证器检查:', {
-          hasVerifier: !!codeVerifier,
+          hasSessionVerifier: !!sessionStorage.getItem('auth_pkce_verifier'),
+          hasBackupVerifier: !!localStorage.getItem('auth_pkce_verifier_backup'),
+          finalVerifier: !!codeVerifier,
           verifierLength: codeVerifier?.length,
-          sessionStorageKeys: Object.keys(sessionStorage),
           currentUrl: window.location.href
         });
 
         if (!codeVerifier) {
-          console.error('❌ PKCE验证器丢失，尝试重新登录');
-          console.error('🔍 SessionStorage内容:', {
-            keys: Object.keys(sessionStorage),
-            authKeys: Object.keys(sessionStorage).filter(k => k.includes('auth'))
+          console.error('❌ PKCE验证器完全丢失，尝试重新登录');
+          console.error('🔍 存储状态:', {
+            sessionKeys: Object.keys(sessionStorage),
+            localAuthKeys: Object.keys(localStorage).filter(k => k.includes('auth'))
           });
 
           // 清除可能损坏的状态
           sessionStorage.clear();
           localStorage.removeItem('authing_user');
           localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_pkce_verifier_backup');
 
           // 重定向到首页并提示重新登录
           window.location.href = '/?error=pkce_missing';
@@ -164,6 +176,11 @@ const CallbackPage: React.FC = () => {
           logger.debug('🔄 同窗口模式：直接处理登录状态');
           localStorage.setItem('auth_token', token);
           localStorage.setItem('authing_user', JSON.stringify(mergedUser));
+
+          // 🔧 清除PKCE验证器（登录成功后不再需要）
+          sessionStorage.removeItem('auth_pkce_verifier');
+          localStorage.removeItem('auth_pkce_verifier_backup');
+
           window.dispatchEvent(new CustomEvent('auth-login-success', { detail: mergedUser }));
 
           // 解析 state 中的 redirectTo 并跳转 - 处理可能的双重编码
