@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setShowGuard(false);
   };
 
-  // 登录方法
+  // 登录方法（PKCE + 同窗口跳转）
   const login = async (redirectTo?: string) => {
     logger.debug('🔐 开始登录流程...');
 
@@ -111,11 +111,43 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    logger.debug('🔧 Auth配置:', cfg);
-    setShowGuard(true);
+    // 生成 code_verifier 与 code_challenge(S256)
+    const genRandom = (length: number) => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+      let res = '';
+      const array = new Uint8Array(length);
+      crypto.getRandomValues(array);
+      for (let i = 0; i < array.length; i++) {
+        res += chars[array[i] % chars.length];
+      }
+      return res;
+    };
+    const toBase64Url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const encoder = new TextEncoder();
+    const verifier = genRandom(64);
+    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
+    const challenge = toBase64Url(digest);
+
+    // 保存到 sessionStorage，回调时取出
+    sessionStorage.setItem('auth_pkce_verifier', verifier);
+
+    const timestamp = Date.now();
+    const state = encodeURIComponent(JSON.stringify({ ts: timestamp, redirectTo: redirectTo || window.location.href }));
+    const params = new URLSearchParams({
+      client_id: cfg.appId,
+      redirect_uri: cfg.redirectUri,
+      response_type: 'code',
+      scope: 'openid',
+      state,
+      code_challenge: challenge,
+      code_challenge_method: 'S256'
+    });
+
+    const loginUrl = `${cfg.host}/oidc/auth?${params.toString()}`;
+    window.location.href = loginUrl;
   };
 
-  // 注册方法
+  // 注册方法（PKCE + 同窗口跳转）
   const register = async (redirectTo?: string) => {
     logger.debug('📝 开始注册流程...');
 
@@ -126,7 +158,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    setShowGuard(true);
+    const genRandom = (length: number) => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+      let res = '';
+      const array = new Uint8Array(length);
+      crypto.getRandomValues(array);
+      for (let i = 0; i < array.length; i++) {
+        res += chars[array[i] % chars.length];
+      }
+      return res;
+    };
+    const toBase64Url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const encoder = new TextEncoder();
+    const verifier = genRandom(64);
+    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
+    const challenge = toBase64Url(digest);
+    sessionStorage.setItem('auth_pkce_verifier', verifier);
+
+    const timestamp = Date.now();
+    const state = encodeURIComponent(JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href }));
+    const params = new URLSearchParams({
+      client_id: cfg.appId,
+      redirect_uri: cfg.redirectUri,
+      response_type: 'code',
+      scope: 'openid',
+      state,
+      code_challenge: challenge,
+      code_challenge_method: 'S256'
+    });
+    const loginUrl = `${cfg.host}/oidc/auth?${params.toString()}`;
+    window.location.href = loginUrl;
   };
 
   // 登出方法
@@ -165,15 +226,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setShowGuard,
   };
 
-  // 🎯 最终解决方案：使用 Authing Web SDK 而不是有问题的 Guard SDK
+  // 🔔 全局监听同窗口登录成功事件：无论是否使用弹窗，都能更新状态
+  useEffect(() => {
+    const handleAuthSuccess = (event: Event) => {
+      try {
+        const detail = (event as CustomEvent).detail;
+        logger.debug('🎉 [Global] 收到登录成功事件:', detail);
+        if (detail) handleLogin(detail);
+      } catch (e) {
+        logger.error('[Global] 处理登录成功事件失败:', e);
+      }
+    };
+
+    window.addEventListener('auth-login-success', handleAuthSuccess);
+    return () => {
+      window.removeEventListener('auth-login-success', handleAuthSuccess);
+    };
+  }, []);
+
+  // 🪟 兼容旧版：当使用弹窗模式时的回调处理
   useEffect(() => {
     if (showGuard && isAuthConfigValid(cfg)) {
       logger.debug('🚀 开始使用 Authing Web SDK 进行登录...');
 
-      // 直接跳转到 Authing 登录页面
-      const loginUrl = `${cfg.host}/login?app_id=${cfg.appId}&redirect_uri=${encodeURIComponent(cfg.redirectUri)}&response_type=code&scope=openid profile email phone&state=${Date.now()}`;
+      // 🎯 最终根因修复：使用 OIDC 标准端点
+      const timestamp = Date.now();
+      const loginUrl = `${cfg.host}/oidc/auth?client_id=${cfg.appId}&redirect_uri=${encodeURIComponent(cfg.redirectUri)}&response_type=code&scope=openid&state=${timestamp}`;
 
       logger.debug('� 跳转到登录页面:', loginUrl);
+      logger.debug('🔍 实际发送的 redirect_uri:', cfg.redirectUri);
+      logger.debug('🔍 URL编码后的 redirect_uri:', encodeURIComponent(cfg.redirectUri));
 
       // 在新窗口中打开登录页面
       const loginWindow = window.open(
@@ -201,11 +283,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // 监听来自登录窗口的消息
       const handleMessage = (event: MessageEvent) => {
-        if (event.origin !== cfg.host) {
+        // 仅接受来自当前站点回调页面的消息
+        if (event.origin !== window.location.origin) {
           return;
         }
 
-        logger.debug('� 收到登录窗口消息:', event.data);
+        logger.debug('📩 收到登录窗口消息:', event.data);
 
         if (event.data.type === 'AUTHING_LOGIN_SUCCESS') {
           logger.debug('🎉 登录成功:', event.data.userInfo);
@@ -222,22 +305,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       window.addEventListener('message', handleMessage);
 
-      // 🔧 监听同窗口登录成功事件
-      const handleAuthSuccess = (event: CustomEvent) => {
-        logger.debug('🎉 收到同窗口登录成功事件:', event.detail);
-        clearInterval(checkClosed);
-        if (loginWindow && !loginWindow.closed) {
-          loginWindow.close();
-        }
-        handleLogin(event.detail);
-      };
-
-      window.addEventListener('auth-login-success', handleAuthSuccess as EventListener);
-
       return () => {
         clearInterval(checkClosed);
         window.removeEventListener('message', handleMessage);
-        window.removeEventListener('auth-login-success', handleAuthSuccess as EventListener);
         if (loginWindow && !loginWindow.closed) {
           loginWindow.close();
         }

@@ -4,10 +4,20 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Tag, Plus, X, Copy, Save, RotateCcw, Star, 
-  Edit3, Trash2, Download, Upload, Settings 
+import {
+  Tag, Plus, X, Copy, Save, RotateCcw, Star,
+  Edit3, Trash2, Download, Upload, Settings
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 
 export interface HashtagData {
   id: string;
@@ -161,21 +171,22 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
     setShowTemplates(false);
   };
 
-  // 删除模板
-  const deleteTemplate = (templateId: string) => {
-    // 🔧 修复：使用安全的确认对话框
-    const confirmMessage = '确定要删除这个模板吗？';
-    if (typeof window !== 'undefined' && window.confirm && confirm(confirmMessage)) {
-      const newTemplates = templates.filter(t => t.id !== templateId);
-      saveTemplatesToStorage(newTemplates);
-    }
+  // 删除模板（使用 AlertDialog）
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string }>({ open: false });
+  const deleteTemplate = (templateId: string) => setDeleteDialog({ open: true, id: templateId });
+  const confirmDeleteTemplate = () => {
+    if (!deleteDialog.id) return;
+    const newTemplates = templates.filter(t => t.id !== deleteDialog.id);
+    saveTemplatesToStorage(newTemplates);
+    setDeleteDialog({ open: false, id: undefined });
   };
 
-  // 重置标签
-  const resetTags = () => {
-    if (confirm('确定要重置所有标签吗？')) {
-      updateTags(initialTags);
-    }
+  // 重置标签（使用 AlertDialog）
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const resetTags = () => setResetDialogOpen(true);
+  const confirmResetTags = () => {
+    updateTags(initialTags);
+    setResetDialogOpen(false);
   };
 
   // 获取维度颜色
@@ -203,7 +214,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           <h3 className="text-lg font-semibold text-foreground">智能标签管理</h3>
           <span className="text-sm text-muted-foreground">({tags.length}个标签)</span>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowTemplates(!showTemplates)}
@@ -212,15 +223,15 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           >
             <Star className="h-4 w-4" />
           </button>
-          
+
           <button
-            onClick={resetTags}
+            onClick={() => setResetDialogOpen(true)}
             className="p-2 text-muted-foreground hover:text-muted-foreground rounded-lg hover:bg-accent"
             title="重置标签"
           >
             <RotateCcw className="h-4 w-4" />
           </button>
-          
+
           <button
             id="copy-all-btn"
             onClick={copyAllTags}
@@ -236,7 +247,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
       {showTemplates && (
         <div className="bg-accent rounded-lg p-4 space-y-4">
           <h4 className="font-medium text-foreground">标签模板</h4>
-          
+
           {/* 保存新模板 */}
           <div className="flex items-center space-x-2">
             <input
@@ -273,7 +284,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
                     应用
                   </button>
                   <button
-                    onClick={() => deleteTemplate(template.id)}
+                    onClick={() => setDeleteDialog({ open: true, id: template.id })}
                     className="p-1 text-muted-foreground hover:text-destructive rounded"
                   >
                     <Trash2 className="h-3 w-3" />
@@ -281,7 +292,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
                 </div>
               </div>
             ))}
-            
+
             {templates.length === 0 && (
               <div className="text-center text-muted-foreground text-sm py-4">
                 暂无保存的模板
@@ -294,7 +305,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
       {/* 标签显示和编辑区域 */}
       <div className="space-y-4">
         <h4 className="font-medium text-foreground">当前标签</h4>
-        
+
         {/* 标签列表 */}
         <div className="flex flex-wrap gap-2">
           {tags.map(tag => (
@@ -326,7 +337,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
                   </button>
                 </>
               )}
-              
+
               <button
                 onClick={() => removeTag(tag.id)}
                 className="ml-1 hover:bg-accent rounded p-0.5"
@@ -335,7 +346,7 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
               </button>
             </div>
           ))}
-          
+
           {/* 添加新标签 */}
           <div className="inline-flex items-center space-x-1">
             <input
@@ -382,6 +393,34 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
           </ul>
         </div>
       </div>
+
+      {/* 删除模板确认 */}
+      <AlertDialog open={deleteDialog.open}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除模板</AlertDialogTitle>
+            <AlertDialogDescription>确定要删除这个模板吗？该操作无法撤销。</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteDialog({ open: false, id: undefined })}>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTemplate}>删除</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 重置标签确认 */}
+      <AlertDialog open={resetDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认重置</AlertDialogTitle>
+            <AlertDialogDescription>确定要重置所有标签吗？该操作将丢失未保存的更改。</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setResetDialogOpen(false)}>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmResetTags}>重置</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -6,6 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { Copy, Check, X, Minus, Square, ExternalLink, ChevronDown, ChevronUp, Info, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useContentSyncStore, contentSyncUtils } from '@/stores/contentSyncStore';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 
 interface Platform {
   id: string;
@@ -74,15 +84,14 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
     }
   };
 
-  // 确认关闭弹窗
-  const handleClose = () => {
-    // 🔧 修复：使用安全的确认对话框
-    const confirmMessage = '确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。';
-    if (typeof window !== 'undefined' && window.confirm && confirm(confirmMessage)) {
-      onOpenChange(false);
-      setOpenedPlatforms(new Set());
-      setCopiedItems(new Set());
-    }
+  // 确认关闭弹窗（使用 AlertDialog）
+  const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
+  const handleClose = () => setCloseConfirmOpen(true);
+  const confirmClose = () => {
+    onOpenChange(false);
+    setOpenedPlatforms(new Set());
+    setCopiedItems(new Set());
+    setCloseConfirmOpen(false);
   };
 
   // 获取复制按钮状态
@@ -179,6 +188,22 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
               </div>
             </DialogHeader>
 
+            {/* 确认关闭对话框 */}
+            <AlertDialog open={closeConfirmOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>确认关闭</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
+                  <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
             {/* 优化后的紧凑内容区域 */}
             <div className="flex-1 overflow-y-auto px-4 py-3">
               {/* 优化后的使用说明 - 移至主标题下方，单行展示 */}
@@ -225,7 +250,7 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
                         </Button>
                       </CardTitle>
                     </CardHeader>
-                    
+
                     {/* 优化后的卡片内容 */}
                     <CardContent className="pt-4 pb-4 px-4">
                       {/* 内容同步状态提示 */}
@@ -354,6 +379,22 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* 关闭确认 AlertDialog */}
+      <AlertDialog open={closeConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认关闭</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCloseConfirmOpen(false)}>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmClose}>确认</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

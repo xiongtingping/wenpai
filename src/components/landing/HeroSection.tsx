@@ -22,36 +22,18 @@ const HeroSection: React.FC = () => {
    * 处理按钮点击事件
    */
   const handleButtonClick = async () => {
-    console.log('=== Hero按钮点击事件开始 ===');
-    console.log('Hero开始创作按钮被点击');
-    console.log('当前认证状态:', isAuthenticated);
-    console.log('login函数类型:', typeof login);
-    console.log('navigate函数类型:', typeof navigate);
-
     try {
       if (isAuthenticated) {
-        console.log('用户已登录，直接跳转到AI内容适配器页面');
         navigate('/new-adapt');
+      } else if (typeof login === 'function') {
+        localStorage.setItem('login_redirect_to', '/new-adapt');
+        await login();
       } else {
-        console.log('用户未登录，调用登录函数');
-        if (typeof login === 'function') {
-          // 保存登录后的跳转地址
-          localStorage.setItem('login_redirect_to', '/new-adapt');
-          // 调用登录函数
-          await login();
-        } else {
-          console.error('❌ login函数不可用:', login);
-          // 备用方案：直接跳转到登录页面
-          navigate('/login');
-        }
+        navigate('/login');
       }
-    } catch (error) {
-      console.error('❌ 按钮点击处理出错:', error);
-      // 备用方案：直接跳转到登录页面
+    } catch {
       navigate('/login');
     }
-
-    console.log('=== Hero按钮点击事件完成 ===');
   };
 
   return (

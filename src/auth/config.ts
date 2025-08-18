@@ -1,34 +1,30 @@
 /**
- * Auth 模块配置（从环境变量读取）
+ * Auth 模块配置（读取环境变量，兼容不同环境）
  */
 export interface AuthConfig {
   appId: string;
-  host: string; // 如：rzcswqs4sq0f.authing.cn
+  host: string; // 带协议，如：https://rzcswqs4sq0f.authing.cn
   redirectUri: string; // e.g. https://www.wenpai.xyz/callback 或本地回调
 }
 
 export const getAuthConfig = (): AuthConfig => {
-  // 🎯 真正的根因修复：完全硬编码配置，不依赖任何环境变量
-  const appId = '68823897631e1ef8ff3720b2';
-  const host = 'https://rzcswqs4sq0f.authing.cn';
+  const appId = (import.meta as any).env.VITE_AUTHING_APP_ID as string;
+  const domain = (import.meta as any).env.VITE_AUTHING_DOMAIN as string | undefined;
+  const hostFromEnv = (import.meta as any).env.VITE_AUTHING_HOST as string | undefined; // 可选：直接提供完整 host
 
-  // 🔧 运行时域名判断
-  const currentOrigin = window.location.origin;
-  const hostname = window.location.hostname;
+  // 规范化 host（必须含 https:// 前缀）
+  const host = hostFromEnv
+    ? hostFromEnv.replace(/\/$/, '')
+    : domain
+      ? `https://${domain.replace(/\/$/, '')}`
+      : '';
 
-  let redirectUri: string;
+  // 选择 redirectUri
+  const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const redirectDev = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_DEV as string | undefined;
+  const redirectProd = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_PROD as string | undefined;
 
-  // 🎯 最终修复：强制所有非开发环境都使用生产回调地址
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // 本地开发环境
-    redirectUri = 'http://localhost:5173/callback';
-  } else {
-    // 所有其他环境（包括生产和预览）都使用生产回调地址
-    // 这样确保无论从哪个域名访问都能正常登录
-    redirectUri = 'https://www.wenpai.xyz/callback';
-  }
-
-  console.log('🔧 Auth配置 (完全硬编码):', { appId, host, redirectUri, hostname, currentOrigin });
+  let redirectUri = isLocal ? (redirectDev || `${window.location.origin}/callback`) : (redirectProd || `${window.location.origin}/callback`);
 
   return { appId, host, redirectUri };
 };
