@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
+import { getRegisterUrlFast, isRealLogin, getLoginStatus } from '@/utils/authingRegisterHelper';
 
 export interface AuthUser {
   id: string;
@@ -232,16 +233,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       response_mode: 'query'
     } as any);
     try {
-      const d = await fetch('/.netlify/functions/oidc-discovery').then(r => r.json()).catch(() => null);
-      // 注册页面需要使用不同的端点或参数
-      const authEndpoint = d?.authorization_endpoint || `${cfg.host.replace(/\/$/, '')}/${cfg.appId}/login`;
+      // 使用智能注册助手生成最佳注册URL
+      const registerUrl = getRegisterUrlFast({
+        appId: cfg.appId,
+        host: cfg.host.replace(/\/$/, ''),
+        redirectUri: cfg.redirectUri,
+        state,
+        codeChallenge: challenge,
+        nonce: genRandom(16)
+      });
 
-      // 为注册添加特殊参数
-      const registerParams = new URLSearchParams(params);
-      registerParams.set('screen_hint', 'signup'); // 指定显示注册页面
+      logger.debug('[Authing] 智能注册URL', {
+        registerUrl,
+        redirectUri: cfg.redirectUri,
+        mode: 'register'
+      });
 
-      const registerUrl = `${authEndpoint}?${registerParams.toString()}`;
-      logger.debug('[Authing] register URL', { registerUrl, redirectUri: cfg.redirectUri, discovery: d });
       window.location.href = registerUrl;
     } catch (e) {
       logger.error('OIDC Discovery failed, fallback to standard endpoint', e);
