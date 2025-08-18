@@ -177,6 +177,13 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     // 移除 prompt: 'signup' - Authing不支持此值
   });
 
+  console.log('🔧 注册URL参数检查:', {
+    appId,
+    redirectUri,
+    state: JSON.parse(state),
+    hasCodeChallenge: !!codeChallenge
+  });
+
   // 优先使用专用注册端点
   return `${host}/${appId}/register?${params.toString()}`;
 }
