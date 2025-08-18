@@ -177,9 +177,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      // 动态加载 Authing Guard SDK
+      // 动态加载 Authing Guard SDK - 使用更稳定的版本
       const script = document.createElement('script');
-      script.src = 'https://cdn.authing.co/packages/guard/5.1.5/guard.min.js';
+      script.src = 'https://cdn.authing.co/packages/guard/5.1.3/guard.min.js';
       script.async = true;
 
       script.onload = () => {
@@ -204,14 +204,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             throw new Error('GuardFactory 未找到');
           }
 
-          // @ts-ignore
+          // @ts-ignore - 使用最简配置避免内部错误
           const guard = new window.GuardFactory.Guard({
             appId: cfg.appId,
             host: cfg.host,
             mode: 'modal',
             lang: 'zh-CN',
-            title: '登录 - 文派',
-            logo: 'https://www.wenpai.xyz/logo.png',
           });
 
           logger.debug('🔧 Guard 实例创建成功，绑定事件...');
