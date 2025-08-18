@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
+
 import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
@@ -58,6 +59,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logger.error('设置令牌获取器失败:', error);
     }
   }, [user?.token]);
+  // --- Guard 解析与加载工具（兼容 NPM 构建 & CDN） ---
+  const resolveGuardCtorFromNpm = async (): Promise<any | null> => {
+    try {
+      const mod = await import('@authing/guard');
+      const ctor = (mod as any).Guard
+        || (mod as any).default?.Guard
+        || (mod as any).GuardFactory?.Guard
+        || (mod as any).default?.GuardFactory?.Guard
+        || (mod as any).default;
+      return typeof ctor === 'function' ? ctor : null;
+    } catch (e) {
+      logger.warn('NPM Guard 解析失败:', e);
+      return null;
+    }
+  };
+
+  const loadGuardCtorFromCDN = async (): Promise<any> => {
+    const JS_URL = 'https://cdn.authing.co/packages/guard@5.3.9/guard.min.js';
+    const CSS_URL = 'https://cdn.authing.co/packages/guard@5.3.9/guard.min.css';
+
+    const ensureCss = () => new Promise<void>((resolve) => {
+      if (document.querySelector(`link[href="${CSS_URL}"]`)) return resolve();
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = CSS_URL;
+      link.onload = () => resolve();
+      link.onerror = () => resolve(); // CSS 失败不阻断
+      document.head.appendChild(link);
+    });
+
+    const ensureJs = () => new Promise<void>((resolve, reject) => {
+      if ((window as any).GuardFactory?.Guard) return resolve();
+      if (document.querySelector(`script[src="${JS_URL}"]`)) {
+        // 已在加载，等待一小段时间
+        const timer = setInterval(() => {
+          if ((window as any).GuardFactory?.Guard) { clearInterval(timer); resolve(); }
+        }, 50);
+        setTimeout(() => { clearInterval(timer); resolve(); }, 3000);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = JS_URL; s.defer = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('Authing Guard CDN 加载失败'));
+      document.head.appendChild(s);
+    });
+
+    await ensureCss();
+    await ensureJs();
+    const ctor = (window as any).GuardFactory?.Guard;
+    if (typeof ctor !== 'function') throw new Error('CDN GuardFactory.Guard 不可用');
+    return ctor;
+  };
+
+  const isUsableInstance = (inst: any) => !!inst && (typeof inst.show === 'function' || typeof inst.start === 'function');
+
 
   // 已统一使用 Authing 官方 modal，移除内嵌容器与文本清理需求
   const stopUndefinedSanitizer = () => {
@@ -68,36 +125,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const ensureGuard = async () => {
-    // 兼容不同打包导出形态
-    let GuardClass: any;
-    try {
-      const mod = await import('@authing/guard');
-      GuardClass = (mod as any).Guard
-        || (mod as any).default?.Guard
-        || (mod as any).GuardFactory?.Guard
-        || (mod as any).default?.GuardFactory?.Guard
-        || (mod as any).default;
-      if (typeof GuardClass !== 'function') {
-        // 回退到具体 ESM 路径再解析
-        const mod2 = await import('@authing/guard/dist/esm/guard.min.js');
-        GuardClass = (mod2 as any).Guard
-          || (mod2 as any).default?.Guard
-          || (mod2 as any).GuardFactory?.Guard
-          || (mod2 as any).default?.GuardFactory?.Guard
-          || (mod2 as any).default;
-      }
-    } catch (e) {
-      logger.error('动态加载 Guard 失败:', e);
-      throw e;
-    }
-    if (typeof GuardClass !== 'function') {
-      throw new Error('无法解析 Authing Guard 构造函数');
+    // 先尝试从 NPM 解析 Guard 构造
+    let GuardClass: any = await resolveGuardCtorFromNpm();
+    // 若失败则尝试从 CDN 加载
+    if (!GuardClass) {
+      logger.warn('回退到 CDN 加载 Authing Guard');
+      GuardClass = await loadGuardCtorFromCDN();
     }
 
-    // 若已有实例但不具备 modal 能力（无 show 方法），则丢弃重建
-    if (guardRef.current && typeof (guardRef.current as any).show !== 'function') {
+    // 若已有实例但不具备展示能力（无 show/start），则重建
+    if (guardRef.current && !isUsableInstance(guardRef.current)) {
       try { (guardRef.current as any).hide?.(); } catch {}
-      // 部分版本无 destroy，直接置空以强制重建
       guardRef.current = null;
     }
 
@@ -112,24 +150,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         mode: 'modal'
       });
 
-      const instance = new GuardClass({
+      const options = {
         appId: cfg.appId,
         host: cleanHost,
         redirectUri: cfg.redirectUri,
-        // 统一使用官方 modal 弹窗，避免双模态焦点冲突
         mode: 'modal',
         autoFocus: true,
         lang: 'zh-CN',
         defaultScene: 'login',
         autoRegister: false,
         closeable: true,
-        // 登录/注册方式
         loginMethodList: ['password', 'phone-code', 'email-code'],
         registerMethodList: ['phone', 'email'],
-        // UI
         logo: 'https://files.authing.co/authing-console/default-app-logo.png',
         title: '文派'
-      });
+      } as any;
+
+      let instance: any;
+      try {
+        instance = new GuardClass(options);
+      } catch (e) {
+        logger.warn('使用解析到的 GuardClass 构造失败，尝试 CDN 构造:', e);
+      }
+
+      if (!isUsableInstance(instance)) {
+        const CDNGuard = await loadGuardCtorFromCDN();
+        instance = new CDNGuard(options);
+      }
+
+      if (!isUsableInstance(instance)) {
+        throw new Error('Guard 实例构造成功但不具备 show/start 能力');
+      }
 
       // 事件监听器
       instance.on('login', (userInfo: any) => {
@@ -146,6 +197,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(user);
         localStorage.setItem('auth_token', user.token || '');
         localStorage.setItem('authing_user', JSON.stringify(user));
+        // 清理临时 embed 容器（如有）
+        try {
+          const host = document.getElementById('authing_modal_fallback_host');
+          if (host) host.remove();
+        } catch {}
       });
 
       instance.on('register', (userInfo: any) => {
