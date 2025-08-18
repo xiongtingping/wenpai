@@ -173,7 +173,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           code_challenge_method: 'S256'
         } as any);
         const loginUrl = `${authEndpoint}?${loginParams.toString()}`;
-        logger.debug('[Authing] authorize URL (probe)', { loginUrl, p });
+        logger.debug('[Authing] authorize URL (probe)', { loginUrl, p, client_id: cfg.appId });
         window.location.href = loginUrl;
         return;
       }

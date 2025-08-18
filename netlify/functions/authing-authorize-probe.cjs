@@ -21,13 +21,16 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'missing host or client_id' }) };
     }
 
-    const defaultCandidates = [
+    const baseCandidates = [
       'https://www.wenpai.xyz/callback',
       'https://wenpai.netlify.app/callback',
       'https://preview.wenpai.xyz/callback',
       'http://localhost:5173/callback',
       'https://wenpai.xyz/callback'
     ];
+    const withSlash = baseCandidates.map(u => u.endsWith('/') ? u : `${u}/`);
+    const withoutSlash = baseCandidates.map(u => u.endsWith('/') ? u.slice(0, -1) : u);
+    const defaultCandidates = Array.from(new Set([...withSlash, ...withoutSlash]));
     const candidates = Array.isArray(payload.candidates) ? payload.candidates : defaultCandidates;
 
     const namespaces = [{ ns: 'none', path: '/oidc/auth' }];

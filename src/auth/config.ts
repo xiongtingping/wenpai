@@ -8,7 +8,10 @@ export interface AuthConfig {
 }
 
 export const getAuthConfig = (): AuthConfig => {
-  const appId = (import.meta as any).env.VITE_AUTHING_APP_ID as string;
+  const clientId = (import.meta as any).env.VITE_AUTHING_CLIENT_ID as string | undefined;
+  const appId = (import.meta as any).env.VITE_AUTHING_APP_ID as string | undefined;
+  const effectiveAppId = clientId || appId || '';
+
   const domain = (import.meta as any).env.VITE_AUTHING_DOMAIN as string | undefined;
   const hostFromEnv = (import.meta as any).env.VITE_AUTHING_HOST as string | undefined; // 可选：直接提供完整 host
 
@@ -25,7 +28,7 @@ export const getAuthConfig = (): AuthConfig => {
     ? 'http://localhost:5173/callback'
     : 'https://www.wenpai.xyz/callback';
 
-  return { appId, host, redirectUri };
+  return { appId: effectiveAppId, host, redirectUri };
 };
 
 export const isAuthConfigValid = (cfg: AuthConfig): boolean => !!(cfg.appId && cfg.host && cfg.redirectUri);
