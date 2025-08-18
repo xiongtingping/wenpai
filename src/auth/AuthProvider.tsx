@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     sessionStorage.setItem('auth_pkce_verifier', verifier);
 
     const timestamp = Date.now();
-    const state = encodeURIComponent(JSON.stringify({ ts: timestamp, redirectTo: redirectTo || window.location.href }));
+    const state = JSON.stringify({ ts: timestamp, redirectTo: redirectTo || window.location.href });
     const params = new URLSearchParams({
       client_id: cfg.appId,
       redirect_uri: cfg.redirectUri,
@@ -140,16 +140,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       scope: 'openid',
       state,
       code_challenge: challenge,
-      code_challenge_method: 'S256',
-      nonce: genRandom(16),
-      response_mode: 'query'
+      code_challenge_method: 'S256'
     } as any);
 
-    // 使用标准未带 AppID 的授权端点
-    const base = `${cfg.host.replace(/\/$/, '')}`;
-    const loginUrl = `${base}/oidc/auth?${params.toString()}`;
-    logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri });
-    window.location.href = loginUrl;
+    // 通过 OIDC Discovery 获取最终授权端点，避免命名空间不一致
+    try {
+      const d = await fetch('/.netlify/functions/oidc-discovery').then(r => r.json());
+      const authEndpoint = d.authorization_endpoint || `${cfg.host.replace(/\\\/$/, '')}/oidc/auth`;
+      const loginUrl = `${authEndpoint}?${params.toString()}`;
+      logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri, discovery: d });
+      window.location.href = loginUrl;
+    } catch (e) {
+      logger.error('OIDC Discovery failed, fallback to standard endpoint', e);
+      const base = `${cfg.host.replace(/\/$/, '')}`;
+      const loginUrl = `${base}/oidc/auth?${params.toString()}`;
+      window.location.href = loginUrl;
+    }
   };
 
   // 注册方法（PKCE + 同窗口跳转）
@@ -193,10 +199,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       nonce: genRandom(16),
       response_mode: 'query'
     } as any);
-    const base = `${cfg.host.replace(/\/$/, '')}`;
-    const loginUrl = `${base}/oidc/auth?${params.toString()}`;
-    logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri });
-    window.location.href = loginUrl;
+    try {
+      const d = await fetch('/.netlify/functions/oidc-discovery').then(r => r.json());
+      const authEndpoint = d.authorization_endpoint || `${cfg.host.replace(/\\\/$/, '')}/oidc/auth`;
+      const loginUrl = `${authEndpoint}?${params.toString()}`;
+      logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri, discovery: d });
+      window.location.href = loginUrl;
+    } catch (e) {
+      logger.error('OIDC Discovery failed, fallback to standard endpoint', e);
+      const base = `${cfg.host.replace(/\/$/, '')}`;
+      const loginUrl = `${base}/oidc/auth?${params.toString()}`;
+      window.location.href = loginUrl;
+    }
   };
 
   // 登出方法

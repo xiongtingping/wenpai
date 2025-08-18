@@ -59,8 +59,16 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code or code_verifier' }) };
     }
 
-    // 使用标准未带 AppID 的 Token 端点
-    const tokenUrl = `${host}/oidc/token`;
+    // 通过 OIDC Discovery 获取 token 端点
+    let tokenEndpoint = `${host}/oidc/token`;
+    try {
+      const dResp = await fetch(`${process.env.URL || ''}/.netlify/functions/oidc-discovery`).catch(() => null);
+      if (dResp && dResp.ok) {
+        const d = await dResp.json();
+        if (d && d.token_endpoint) tokenEndpoint = d.token_endpoint;
+      }
+    } catch (_) {}
+
     const form = new URLSearchParams();
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
@@ -68,7 +76,7 @@ exports.handler = async (event) => {
     form.set('code_verifier', code_verifier);
     form.set('redirect_uri', redirectUri);
 
-    const tokenResp = await fetch(tokenUrl, {
+    const tokenResp = await fetch(tokenEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form.toString()
