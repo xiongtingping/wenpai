@@ -189,8 +189,8 @@ const CallbackPage: React.FC = () => {
               }
             }
 
-            // 最后兜底
-            return '用户';
+            // 不设置默认值，让AuthProvider处理
+            return undefined;
           };
 
           // 头像优先级：photo > picture > avatar
