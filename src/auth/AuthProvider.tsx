@@ -211,6 +211,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const nextUrl = redirectTo || window.location.href;
       const u = new URL('https://www.wenpai.xyz/');
       u.searchParams.set('authstart', '1');
+      u.searchParams.set('authmode', 'register'); // 标记为注册模式
       u.searchParams.set('next', nextUrl);
       logger.debug('🌐 非生产域发起注册，先跳转到生产域再授权:', { from: window.location.href, to: u.toString() });
       window.location.href = u.toString();
@@ -318,12 +319,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const url = new URL(window.location.href);
       if (url.hostname === 'www.wenpai.xyz' && url.searchParams.get('authstart') === '1') {
         const next = url.searchParams.get('next');
+        const authMode = url.searchParams.get('authmode'); // 获取认证模式
         // 修正：登录成功后应该跳转到生产域，而不是预览域
         const correctedNext = next ? 'https://www.wenpai.xyz/' : window.location.href;
         url.searchParams.delete('authstart');
+        url.searchParams.delete('authmode');
         window.history.replaceState({}, '', url.toString());
-        logger.debug('🚀 生产域自动发起登录（来源于预览域跳转），修正回跳地址为生产域');
-        login(correctedNext);
+
+        if (authMode === 'register') {
+          logger.debug('🚀 生产域自动发起注册（来源于预览域跳转），修正回跳地址为生产域');
+          register(correctedNext);
+        } else {
+          logger.debug('🚀 生产域自动发起登录（来源于预览域跳转），修正回跳地址为生产域');
+          login(correctedNext);
+        }
       }
     } catch (e) {}
 
