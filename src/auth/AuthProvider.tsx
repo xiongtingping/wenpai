@@ -61,16 +61,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logger.debug('[Authing] 登录成功:', userInfo);
 
     try {
+      // 🔍 详细调试用户信息
+      console.log('🔍 AuthProvider收到的用户信息:', {
+        userInfo,
+        availableFields: Object.keys(userInfo || {}),
+        nickname: userInfo?.nickname,
+        name: userInfo?.name,
+        username: userInfo?.username,
+        preferred_username: userInfo?.preferred_username,
+        given_name: userInfo?.given_name,
+        email: userInfo?.email
+      });
+
+      // 🔧 智能昵称处理
+      const getNickname = () => {
+        const candidates = [
+          userInfo?.nickname,
+          userInfo?.name,
+          userInfo?.preferred_username,
+          userInfo?.username,
+          userInfo?.given_name
+        ].filter(val => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim());
+
+        if (candidates.length > 0) {
+          return candidates[0].trim();
+        }
+
+        // 从email生成昵称
+        if (userInfo?.email && typeof userInfo.email === 'string') {
+          const emailPrefix = userInfo.email.split('@')[0];
+          if (emailPrefix && emailPrefix !== 'user') {
+            return emailPrefix;
+          }
+        }
+
+        return undefined; // 不设置默认值，让显示组件处理
+      };
+
       // 转换用户数据格式
       const authUser: AuthUser = {
-        id: userInfo.id || (userInfo as any).userId || '',
-        username: userInfo.username || undefined,
+        id: userInfo.id || (userInfo as any).userId || userInfo?.sub || '',
+        username: userInfo.username || userInfo?.preferred_username || undefined,
         email: userInfo.email || undefined,
         phone: userInfo.phone || undefined,
-        nickname: userInfo.nickname || userInfo.name || undefined,
-        avatar: userInfo.photo || userInfo.avatar || undefined,
+        nickname: getNickname(),
+        avatar: userInfo.photo || userInfo.picture || userInfo.avatar || undefined,
         token: userInfo.token || undefined,
       };
+
+      console.log('🔧 AuthProvider处理后的用户信息:', authUser);
 
       // 保存到状态
       setUser(authUser);
