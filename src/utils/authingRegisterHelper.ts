@@ -162,7 +162,7 @@ export async function getBestRegisterUrl(config: RegisterConfig): Promise<{
  */
 export function getRegisterUrlFast(config: RegisterConfig): string {
   const { appId, host, redirectUri, state, codeChallenge, nonce } = config;
-  
+
   const params = new URLSearchParams({
     client_id: appId,
     redirect_uri: redirectUri,
@@ -173,7 +173,9 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     code_challenge_method: 'S256',
     nonce,
     response_mode: 'query',
-    screen_hint: 'signup'
+    screen_hint: 'signup',
+    prompt: 'login', // 强制显示登录页面，避免自动登录
+    max_age: '0'     // 强制重新认证
     // 移除 prompt: 'signup' - Authing不支持此值
   });
 
@@ -181,11 +183,12 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     appId,
     redirectUri,
     state: JSON.parse(state),
-    hasCodeChallenge: !!codeChallenge
+    hasCodeChallenge: !!codeChallenge,
+    forceAuth: true
   });
 
-  // 优先使用专用注册端点
-  return `${host}/${appId}/register?${params.toString()}`;
+  // 使用登录端点但强制显示注册选项
+  return `${host}/${appId}/login?${params.toString()}`;
 }
 
 /**

@@ -181,6 +181,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (redirectTo?: string) => {
     logger.debug('📝 开始注册流程...');
 
+    // 🔧 强制注册：清除现有会话，确保跳转到注册页面
+    logger.debug('[Authing] 清除现有会话以强制显示注册页面');
+
+    // 清除本地存储的认证信息
+    localStorage.removeItem('authing_user');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('authing_access_token');
+    localStorage.removeItem('authing_id_token');
+    sessionStorage.removeItem('auth_pkce_verifier');
+
+    // 重置用户状态
+    setUser(null);
+    setIsAuthenticated(false);
+
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
       logger.error(errorMsg);
