@@ -300,17 +300,13 @@ class EnhancedPermissionService {
           inGracePeriod: false,
           requiredActions: []
         };
-      } else {
-        console.warn('检查套餐到期状态失败，使用默认值:', error);
       }
 
-      // 返回默认的未到期状态
-      const futureDate = new Date();
-      futureDate.setMonth(futureDate.getMonth() + 1);
-
+      // 非501错误，输出警告并返回默认值
+      console.warn('检查套餐到期状态失败，使用默认值:', error);
       return {
         isExpired: false,
-        expiryDate: futureDate.toISOString(),
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         daysRemaining: 30,
         inGracePeriod: false,
         requiredActions: []

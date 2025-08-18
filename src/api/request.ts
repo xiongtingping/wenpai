@@ -151,13 +151,26 @@ instance.interceptors.request.use(
       return response;
     },
     (error) => {
+      // 🔧 静默处理501错误，避免控制台噪音
+      const is501Error =
+        error.response?.status === 501 ||
+        error.message?.includes('501') ||
+        error.message?.includes('Not Implemented');
+
+      if (is501Error) {
+        // 501错误表示后端API未实现，完全静默处理
+        // 不输出任何日志，直接抛出错误供上层处理
+        return Promise.reject(error);
+      }
+
+      // 其他错误正常输出日志
       console.error('❌ API响应错误:', {
         status: error.response?.status,
         message: error.message,
         url: error.config?.url,
         data: error.response?.data
       });
-      
+
       // 统一错误处理
       if (error.response?.status === 401) {
         console.error('🔐 认证失败，请检查API密钥');
@@ -166,7 +179,7 @@ instance.interceptors.request.use(
       } else if (error.code === 'ECONNABORTED') {
         console.error('⏱️ 请求超时');
       }
-      
+
       return Promise.reject(error);
     }
   );
