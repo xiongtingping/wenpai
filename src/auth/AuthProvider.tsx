@@ -69,7 +69,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const ensureGuard = async () => {
     const mod = await import('@authing/guard');
-    const { Guard } = mod as any;
+    const GuardClass = (mod as any).Guard || (mod as any).default;
+
+    // 若已有实例但不具备 modal 能力（无 show 方法），则丢弃重建
+    if (guardRef.current && typeof (guardRef.current as any).show !== 'function') {
+      try { (guardRef.current as any).hide?.(); } catch {}
+      // 部分版本无 destroy，直接置空以强制重建
+      guardRef.current = null;
+    }
 
     if (!guardRef.current) {
       // 确保使用完整的HTTPS URL
@@ -78,10 +85,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logger.debug('Guard配置:', {
         appId: cfg.appId,
         host: cleanHost,
-        redirectUri: cfg.redirectUri
+        redirectUri: cfg.redirectUri,
+        mode: 'modal'
       });
 
-      guardRef.current = new Guard({
+      const instance = new GuardClass({
         appId: cfg.appId,
         host: cleanHost,
         redirectUri: cfg.redirectUri,
@@ -101,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       // 事件监听器
-      guardRef.current.on('login', (userInfo: any) => {
+      instance.on('login', (userInfo: any) => {
         logger.debug('登录成功:', userInfo);
         const user = {
           id: userInfo.id || userInfo.sub,
@@ -117,15 +125,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('authing_user', JSON.stringify(user));
       });
 
-      guardRef.current.on('register', (userInfo: any) => {
+      instance.on('register', (userInfo: any) => {
         logger.debug('注册成功:', userInfo);
-        guardRef.current?.emit('login', userInfo);
+        instance?.emit('login', userInfo);
       });
 
-      guardRef.current.on('login-error', (error: any) => {
+      instance.on('login-error', (error: any) => {
         logger.error('登录失败:', error);
         setError(error?.message || '登录失败');
       });
+
+      guardRef.current = instance;
     }
 
     return guardRef.current;
@@ -142,10 +152,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logger.debug('开始初始化 Authing Guard...');
       setError(null);
 
-      // 统一使用 Authing 官方 modal（根因修复：移除双模态与嵌入竞态）
       const guard = await ensureGuard();
       try { (document.activeElement as HTMLElement | null)?.blur(); } catch {}
-      guard.show();
+
+      if (guard && typeof (guard as any).show === 'function') {
+        (guard as any).show();
+      } else if (guard && typeof (guard as any).start === 'function') {
+        // 兼容无 show 的版本：创建临时容器以嵌入方式展示，但不再使用自有 Radix Dialog
+        const hostId = 'authing_modal_fallback_host';
+        let host = document.getElementById(hostId) as HTMLElement | null;
+        if (!host) {
+          host = document.createElement('div');
+          host.id = hostId;
+          Object.assign(host.style, {
+            position: 'fixed', inset: '0', zIndex: '2147483646',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.45)'
+          } as CSSStyleDeclaration);
+          document.body.appendChild(host);
+          const panel = document.createElement('div');
+          Object.assign(panel.style, {
+            width: '90vw', maxWidth: '420px', minHeight: '520px',
+            background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.35)'
+          } as CSSStyleDeclaration);
+          panel.id = 'authing_container_fallback';
+          host.appendChild(panel);
+        }
+        await (guard as any).start('#authing_container_fallback');
+      } else {
+        throw new Error('Guard 实例无可用展示方法(show/start)');
+      }
     } catch (e: any) {
       logger.error('Guard初始化失败:', e);
       setError(e?.message || '登录系统初始化失败');
