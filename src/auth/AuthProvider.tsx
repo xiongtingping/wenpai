@@ -131,8 +131,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 🎯 策略1：尝试最新的 Authing Guard 初始化方式
     try {
-      // 清除可能的缓存模块
-      delete require.cache[require.resolve('@authing/guard')];
+      // 🔧 修复：移除 require 相关代码，直接使用 ES6 动态导入
+      logger.debug('[Authing] 尝试 ES6 动态导入 @authing/guard...');
 
       const guardModule = await import('@authing/guard');
       logger.debug('[Authing] 模块导入详情:', {
@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logger.debug('[Authing] ✅ 成功获取 Guard 构造函数:', GuardClass.name);
       }
     } catch (e) {
-      logger.warn('[Authing] 动态导入失败:', e);
+      logger.warn('[Authing] ES6 动态导入失败:', e);
     }
 
     // 🎯 策略2：如果动态导入失败，尝试静态导入
