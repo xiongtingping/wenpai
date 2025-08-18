@@ -76,7 +76,9 @@ export const BatchForwardModal: React.FC<BatchForwardModalProps> = ({
 
   // 确认关闭弹窗
   const handleClose = () => {
-    if (confirm('确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。')) {
+    // 🔧 修复：使用安全的确认对话框
+    const confirmMessage = '确定要关闭批量转发窗口吗？已打开的平台页面将保持打开状态。';
+    if (typeof window !== 'undefined' && window.confirm && confirm(confirmMessage)) {
       onOpenChange(false);
       setOpenedPlatforms(new Set());
       setCopiedItems(new Set());

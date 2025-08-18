@@ -163,7 +163,9 @@ export const HashtagManager: React.FC<HashtagManagerProps> = ({
 
   // 删除模板
   const deleteTemplate = (templateId: string) => {
-    if (confirm('确定要删除这个模板吗？')) {
+    // 🔧 修复：使用安全的确认对话框
+    const confirmMessage = '确定要删除这个模板吗？';
+    if (typeof window !== 'undefined' && window.confirm && confirm(confirmMessage)) {
       const newTemplates = templates.filter(t => t.id !== templateId);
       saveTemplatesToStorage(newTemplates);
     }

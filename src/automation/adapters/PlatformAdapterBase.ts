@@ -58,10 +58,20 @@ export abstract class PlatformAdapterBase {
   protected showUserInstructions(instructions: string): void {
     // 显示用户指导信息
     console.log('用户指导:', instructions);
-    
-    // 可以扩展为显示模态框或通知
+
+    // 🔧 修复：确保不会显示 undefinedundefined
     if (typeof window !== 'undefined' && window.alert) {
-      window.alert(instructions);
+      // 清理 HTML 标签并确保内容安全
+      const cleanInstructions = instructions
+        ?.replace(/<[^>]*>/g, '') // 移除 HTML 标签
+        ?.replace(/undefinedundefined/g, '') // 移除 undefinedundefined
+        ?.replace(/undefined/g, '') // 移除单独的 undefined
+        ?.trim() || '操作指引';
+
+      // 只有在有有效内容时才显示
+      if (cleanInstructions && cleanInstructions !== '操作指引') {
+        window.alert(cleanInstructions);
+      }
     }
   }
   

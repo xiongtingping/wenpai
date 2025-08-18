@@ -168,11 +168,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // 🔧 最终修复：使用原生 JavaScript SDK 而不是有问题的 React 组件
   useEffect(() => {
     if (showGuard && isAuthConfigValid(cfg)) {
+      logger.debug('🚀 开始加载 Authing Guard SDK...');
+
+      // 检查是否已经加载过 SDK
+      if ((window as any).GuardFactory) {
+        logger.debug('🔧 SDK 已存在，直接初始化 Guard');
+        initializeGuard();
+        return;
+      }
+
       // 动态加载 Authing Guard SDK
       const script = document.createElement('script');
       script.src = 'https://cdn.authing.co/packages/guard/5.1.5/guard.min.js';
+      script.async = true;
+
       script.onload = () => {
+        logger.debug('✅ Authing Guard SDK 加载成功');
+        initializeGuard();
+      };
+
+      script.onerror = (error) => {
+        logger.error('❌ Authing Guard SDK 加载失败:', error);
+        setError('登录组件加载失败，请检查网络连接');
+      };
+
+      document.head.appendChild(script);
+
+      // 初始化 Guard 的函数
+      function initializeGuard() {
         try {
+          logger.debug('🔧 开始初始化 Authing Guard...');
+
+          // 检查 GuardFactory 是否可用
+          if (!(window as any).GuardFactory) {
+            throw new Error('GuardFactory 未找到');
+          }
+
           // @ts-ignore
           const guard = new window.GuardFactory.Guard({
             appId: cfg.appId,
@@ -182,6 +213,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             title: '登录 - 文派',
             logo: 'https://www.wenpai.xyz/logo.png',
           });
+
+          logger.debug('🔧 Guard 实例创建成功，绑定事件...');
 
           guard.on('login', (userInfo: any) => {
             logger.debug('🎉 Authing 登录成功:', userInfo);
@@ -193,22 +226,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             handleClose();
           });
 
+          guard.on('load', () => {
+            logger.debug('🔧 Authing Guard 加载完成');
+          });
+
+          guard.on('load-error', (error: any) => {
+            logger.error('❌ Authing Guard 加载错误:', error);
+            setError('登录组件加载错误');
+          });
+
+          logger.debug('🚀 启动 Authing Guard...');
           guard.start();
-          logger.debug('🔧 Authing Guard 启动成功');
+          logger.debug('✅ Authing Guard 启动成功');
         } catch (error) {
           logger.error('❌ Authing Guard 初始化失败:', error);
-          setError('登录组件初始化失败');
+          setError('登录组件初始化失败: ' + (error as Error).message);
         }
-      };
-      script.onerror = () => {
-        logger.error('❌ Authing Guard SDK 加载失败');
-        setError('登录组件加载失败');
-      };
-      document.head.appendChild(script);
+      }
 
       return () => {
-        // 清理脚本
-        document.head.removeChild(script);
+        // 清理脚本（如果是新添加的）
+        try {
+          if (script.parentNode) {
+            document.head.removeChild(script);
+          }
+        } catch (e) {
+          // 忽略清理错误
+        }
       };
     }
   }, [showGuard, cfg]);
