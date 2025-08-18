@@ -34,15 +34,17 @@ exports.handler = async (event) => {
       AUTHING_APP_ID,
       AUTHING_HOST,
       AUTHING_REDIRECT_URI,
+      VITE_AUTHING_CLIENT_ID,
       VITE_AUTHING_APP_ID,
       VITE_AUTHING_HOST,
       VITE_AUTHING_REDIRECT_URI_PROD
     } = process.env;
 
     // 对于免费版环境，优先使用前端构建期变量中的非密钥配置
-    const appId = AUTHING_APP_ID || VITE_AUTHING_APP_ID;
+    // 支持新的 VITE_AUTHING_CLIENT_ID 配置
+    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID;
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || '').replace(/\/$/, '');
-    const redirectUri = AUTHING_REDIRECT_URI || VITE_AUTHING_REDIRECT_URI_PROD;
+    const redirectUri = AUTHING_REDIRECT_URI || VITE_AUTHING_REDIRECT_URI_PROD || 'https://www.wenpai.xyz/callback';
 
     if (!appId || !host || !redirectUri) {
       return {
