@@ -34,7 +34,10 @@ exports.handler = async (event) => {
     const candidates = Array.isArray(payload.candidates) ? payload.candidates : defaultCandidates;
 
     const namespaces = [{ ns: 'none', path: '/oidc/auth' }];
-    if (appId) namespaces.push({ ns: 'app', path: `/${appId}/oidc/auth` });
+    if (appId) {
+      namespaces.push({ ns: 'app', path: `/${appId}` }); // 直接使用 appId 作为端点（后台显示格式）
+      namespaces.push({ ns: 'app-oidc', path: `/${appId}/oidc/auth` }); // 带 oidc/auth 后缀
+    }
 
     const tried = [];
 
