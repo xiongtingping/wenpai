@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   // 处理登录成功
-  const handleLogin = (userInfo: any) => {
+  const handleLogin = async (userInfo: any) => {
     logger.debug('[Authing] 登录成功:', userInfo);
 
     try {
@@ -110,6 +110,44 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       console.log('🔧 AuthProvider处理后的用户信息:', authUser);
+
+      // 🔧 检查用户信息完整性，如果不完整则尝试补全
+      const isIncompleteUserInfo = !authUser.nickname && userInfo.token;
+      if (isIncompleteUserInfo) {
+        console.log('🔍 检测到用户信息不完整，尝试重新获取...');
+
+        // 尝试使用token重新获取用户信息
+        try {
+          const response = await fetch('/.netlify/functions/authing-user-info', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: userInfo.token })
+          });
+
+          if (response.ok) {
+            const completeUserInfo = await response.json();
+            console.log('🔍 重新获取的完整用户信息:', completeUserInfo);
+
+            if (completeUserInfo.userInfo) {
+              // 重新处理完整的用户信息
+              const completeNickname = [
+                completeUserInfo.userInfo?.nickname,
+                completeUserInfo.userInfo?.name,
+                completeUserInfo.userInfo?.preferred_username,
+                completeUserInfo.userInfo?.username,
+                completeUserInfo.userInfo?.given_name
+              ].filter(val => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim())[0];
+
+              if (completeNickname) {
+                authUser.nickname = completeNickname.trim();
+                console.log('✅ 用户信息已补全:', { nickname: authUser.nickname });
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('⚠️ 重新获取用户信息失败:', error);
+        }
+      }
 
       // 保存到状态
       setUser(authUser);

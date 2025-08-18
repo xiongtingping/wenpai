@@ -327,8 +327,20 @@ const CallbackPage: React.FC = () => {
                     // 尝试双重解码后解析
                     stateObj = JSON.parse(decodeURIComponent(decodeURIComponent(state)));
                   } catch (e3) {
-                    logger.warn('⚠️ 所有state解析方式都失败:', { state, e1, e2, e3 });
-                    throw e3;
+                    try {
+                      // 尝试手动清理URL编码字符
+                      const cleanedState = state.replace(/%22/g, '"').replace(/%7B/g, '{').replace(/%7D/g, '}').replace(/%3A/g, ':').replace(/%2C/g, ',');
+                      stateObj = JSON.parse(cleanedState);
+                    } catch (e4) {
+                      console.error('🔍 State解析详细信息:', {
+                        originalState: state,
+                        stateLength: state.length,
+                        statePreview: state.substring(0, 100),
+                        errors: { e1: e1.message, e2: e2.message, e3: e3.message, e4: e4.message }
+                      });
+                      logger.warn('⚠️ 所有state解析方式都失败，使用默认值');
+                      stateObj = { redirectTo: '/' }; // 使用默认值而不是抛出错误
+                    }
                   }
                 }
               }
