@@ -171,18 +171,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={contextValue}>
       {children}
 
-      {/* 🔧 修复：根据正确的 Guard API 使用 */}
+      {/* 🔧 修复：使用最简化的配置，避免 undefinedundefined 错误 */}
       {showGuard && isAuthConfigValid(cfg) && (
         <Guard
           appId={cfg.appId}
           config={{
             host: cfg.host,
             mode: GuardMode.Modal,
-            lang: 'zh-CN',
-            title: '登录 - 文派',
-            logo: 'https://www.wenpai.xyz/logo.png',
-            clickCloseable: true,
-            escCloseable: true,
           }}
           onLogin={handleLogin}
           onClose={handleClose}
@@ -191,6 +186,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }}
           onLoadError={(error) => {
             logger.error('❌ Guard 组件加载失败', error);
+            // 尝试获取更详细的错误信息
+            logger.error('错误详情:', {
+              message: error?.message,
+              stack: error?.stack,
+              name: error?.name,
+              toString: error?.toString?.()
+            });
           }}
         />
       )}
