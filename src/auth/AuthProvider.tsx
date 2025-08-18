@@ -289,11 +289,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // 清除本地存储
       localStorage.removeItem('auth_token');
       localStorage.removeItem('authing_user');
+      localStorage.removeItem('authing_access_token');
+      localStorage.removeItem('authing_id_token');
 
       // 清除 API token
       setAuthTokenGetter(() => null);
 
+      // 🔧 尝试调用Authing登出API（可选，忽略错误）
+      try {
+        const logoutUrl = `${cfg.host}/api/v2/logout?app_id=${cfg.appId}`;
+        logger.debug('🌐 尝试调用Authing登出API:', logoutUrl);
+
+        const response = await fetch(logoutUrl, {
+          method: 'GET',
+          credentials: 'include',
+          mode: 'cors'
+        });
+
+        if (response.ok) {
+          logger.debug('✅ Authing登出API调用成功');
+        } else {
+          logger.debug('⚠️ Authing登出API返回非200状态:', response.status);
+        }
+      } catch (apiError: any) {
+        // 静默处理API错误，不影响本地登出
+        if (apiError?.status === 404 || apiError?.message?.includes('404')) {
+          logger.debug('ℹ️ Authing登出API不存在（404），这是正常的');
+        } else {
+          logger.debug('ℹ️ Authing登出API调用失败，但不影响本地登出:', apiError?.message);
+        }
+      }
+
       logger.debug('✅ 登出成功');
+
     } catch (error) {
       logger.error('登出失败:', error);
       setError('登出失败');
