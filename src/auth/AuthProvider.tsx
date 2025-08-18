@@ -145,8 +145,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       response_mode: 'query'
     } as any);
 
-    // 使用带 AppID 前缀的授权端点
-    const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
+    // 使用标准未带 AppID 的授权端点
+    const base = `${cfg.host.replace(/\/$/, '')}`;
     const loginUrl = `${base}/oidc/auth?${params.toString()}`;
     logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri });
     window.location.href = loginUrl;
@@ -193,7 +193,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       nonce: genRandom(16),
       response_mode: 'query'
     } as any);
-    const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
+    const base = `${cfg.host.replace(/\/$/, '')}`;
     const loginUrl = `${base}/oidc/auth?${params.toString()}`;
     logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri });
     window.location.href = loginUrl;
@@ -260,7 +260,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // 🎯 最终根因修复：使用 OIDC 标准端点
       const timestamp = Date.now();
-      const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
+      const base = `${cfg.host.replace(/\/$/, '')}`;
       const loginUrl = `${base}/oidc/auth?client_id=${cfg.appId}&redirect_uri=${encodeURIComponent(cfg.redirectUri)}&response_type=code&scope=openid&state=${timestamp}`;
 
       logger.debug('� 跳转到登录页面:', loginUrl);

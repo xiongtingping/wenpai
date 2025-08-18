@@ -59,9 +59,8 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code or code_verifier' }) };
     }
 
-    // 使用带 AppID 前缀的 Token 端点
-    const base = `${host}/${appId}`;
-    const tokenUrl = `${base}/oidc/token`;
+    // 使用标准未带 AppID 的 Token 端点
+    const tokenUrl = `${host}/oidc/token`;
     const form = new URLSearchParams();
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
