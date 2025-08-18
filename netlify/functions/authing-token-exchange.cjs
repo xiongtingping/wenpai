@@ -177,9 +177,31 @@ exports.handler = async (event) => {
     let userInfo = null;
     try {
       const meUrl = `${host}/oidc/me`;
+      console.log('🔍 获取用户信息:', { meUrl, hasAccessToken: !!accessToken });
+
       const meResp = await fetch(meUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
-      userInfo = await meResp.json();
+
+      if (!meResp.ok) {
+        console.error('❌ 用户信息获取失败:', {
+          status: meResp.status,
+          statusText: meResp.statusText,
+          url: meUrl
+        });
+        userInfo = null;
+      } else {
+        userInfo = await meResp.json();
+        console.log('✅ 用户信息获取成功:', {
+          hasUserInfo: !!userInfo,
+          availableFields: userInfo ? Object.keys(userInfo) : [],
+          nickname: userInfo?.nickname,
+          name: userInfo?.name,
+          username: userInfo?.username,
+          email: userInfo?.email,
+          sub: userInfo?.sub
+        });
+      }
     } catch (e) {
+      console.error('❌ 用户信息获取异常:', e.message);
       userInfo = null;
     }
 

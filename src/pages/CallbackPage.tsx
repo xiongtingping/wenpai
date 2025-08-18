@@ -164,16 +164,124 @@ const CallbackPage: React.FC = () => {
           picture: userInfo?.picture
         });
 
+        // 🔧 智能用户信息处理函数
+        const processUserInfo = (rawUserInfo: any) => {
+          // 昵称优先级：nickname > name > preferred_username > username > given_name
+          const getNickname = () => {
+            const candidates = [
+              rawUserInfo?.nickname,
+              rawUserInfo?.name,
+              rawUserInfo?.preferred_username,
+              rawUserInfo?.username,
+              rawUserInfo?.given_name
+            ].filter(Boolean); // 过滤掉空值
+
+            // 如果有有效的昵称，使用第一个
+            if (candidates.length > 0) {
+              return candidates[0];
+            }
+
+            // 如果都没有，尝试从email生成昵称
+            if (rawUserInfo?.email) {
+              const emailPrefix = rawUserInfo.email.split('@')[0];
+              if (emailPrefix && emailPrefix !== 'user') {
+                return emailPrefix;
+              }
+            }
+
+            // 最后兜底
+            return '用户';
+          };
+
+          // 头像优先级：photo > picture > avatar
+          const getAvatar = () => {
+            return rawUserInfo?.photo || rawUserInfo?.picture || rawUserInfo?.avatar || null;
+          };
+
+          // 用户名优先级：username > preferred_username > email前缀
+          const getUsername = () => {
+            if (rawUserInfo?.username) return rawUserInfo.username;
+            if (rawUserInfo?.preferred_username) return rawUserInfo.preferred_username;
+            if (rawUserInfo?.email) {
+              return rawUserInfo.email.split('@')[0];
+            }
+            return null;
+          };
+
+          return {
+            id: rawUserInfo?.sub || rawUserInfo?.userId || rawUserInfo?.id || 'user_' + Date.now(),
+            username: getUsername(),
+            email: rawUserInfo?.email,
+            nickname: getNickname(),
+            avatar: getAvatar(),
+            // 保存原始信息用于调试
+            _raw: rawUserInfo
+          };
+        };
+
+        const processedUserInfo = processUserInfo(userInfo);
         const mergedUser = {
-          id: userInfo?.sub || userInfo?.userId || 'user_' + Date.now(),
-          username: userInfo?.username,
-          email: userInfo?.email,
-          nickname: userInfo?.nickname || userInfo?.name || userInfo?.preferred_username || userInfo?.username || userInfo?.given_name || '用户',
-          avatar: userInfo?.photo || userInfo?.avatar || userInfo?.picture,
+          ...processedUserInfo,
           token
         };
 
-        console.log('🔍 合并后用户信息:', mergedUser);
+        console.log('🔍 处理后用户信息:', {
+          processed: processedUserInfo,
+          merged: mergedUser,
+          nicknameSource: userInfo?.nickname ? 'nickname' :
+                         userInfo?.name ? 'name' :
+                         userInfo?.preferred_username ? 'preferred_username' :
+                         userInfo?.username ? 'username' :
+                         userInfo?.given_name ? 'given_name' :
+                         userInfo?.email ? 'email' : 'fallback'
+        });
+
+        // 🔧 检查并修复用户信息一致性
+        const checkAndFixUserConsistency = (newUser: any) => {
+          const existingUserData = localStorage.getItem('authing_user');
+          if (existingUserData) {
+            try {
+              const existingUser = JSON.parse(existingUserData);
+
+              // 如果是同一个用户但信息不一致，进行智能合并
+              if (existingUser.id === newUser.id) {
+                console.log('🔍 检测到同一用户的不同信息，进行智能合并:', {
+                  existing: existingUser,
+                  new: newUser
+                });
+
+                // 优先使用更完整的信息
+                const mergedUserInfo = {
+                  ...existingUser,
+                  ...newUser,
+                  // 昵称：优先使用非默认值
+                  nickname: (newUser.nickname && newUser.nickname !== '用户') ? newUser.nickname :
+                           (existingUser.nickname && existingUser.nickname !== '用户') ? existingUser.nickname :
+                           newUser.nickname,
+                  // 头像：优先使用有值的
+                  avatar: newUser.avatar || existingUser.avatar,
+                  // 用户名：优先使用有值的
+                  username: newUser.username || existingUser.username,
+                  // 更新时间戳
+                  lastUpdated: Date.now()
+                };
+
+                console.log('🔧 合并后的用户信息:', mergedUserInfo);
+                return mergedUserInfo;
+              }
+            } catch (e) {
+              console.warn('解析现有用户数据失败:', e);
+            }
+          }
+
+          // 添加时间戳
+          return {
+            ...newUser,
+            lastUpdated: Date.now()
+          };
+        };
+
+        const finalUser = checkAndFixUserConsistency(mergedUser);
 
         setProcessingStep('保存登录状态...');
         setProgress(80);
@@ -184,7 +292,7 @@ const CallbackPage: React.FC = () => {
           logger.debug('📤 弹窗模式：通知父窗口登录成功');
           window.opener.postMessage({
             type: 'AUTHING_LOGIN_SUCCESS',
-            userInfo: mergedUser
+            userInfo: finalUser
           }, window.location.origin);
           window.close();
           return;
@@ -192,13 +300,13 @@ const CallbackPage: React.FC = () => {
           // 同窗口模式：直接处理登录状态
           logger.debug('🔄 同窗口模式：直接处理登录状态');
           localStorage.setItem('auth_token', token);
-          localStorage.setItem('authing_user', JSON.stringify(mergedUser));
+          localStorage.setItem('authing_user', JSON.stringify(finalUser));
 
           // 🔧 清除PKCE验证器（登录成功后不再需要）
           sessionStorage.removeItem('auth_pkce_verifier');
           localStorage.removeItem('auth_pkce_verifier_backup');
 
-          window.dispatchEvent(new CustomEvent('auth-login-success', { detail: mergedUser }));
+          window.dispatchEvent(new CustomEvent('auth-login-success', { detail: finalUser }));
 
           // 解析 state 中的 redirectTo 并跳转 - 处理可能的双重编码
           let finalRedirect = '/';
