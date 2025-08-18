@@ -68,8 +68,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const ensureGuard = async () => {
-    const mod = await import('@authing/guard');
-    const GuardClass = (mod as any).Guard || (mod as any).default;
+    // 兼容不同打包导出形态
+    let GuardClass: any;
+    try {
+      const mod = await import('@authing/guard');
+      GuardClass = (mod as any).Guard
+        || (mod as any).default?.Guard
+        || (mod as any).GuardFactory?.Guard
+        || (mod as any).default?.GuardFactory?.Guard
+        || (mod as any).default;
+      if (typeof GuardClass !== 'function') {
+        // 回退到具体 ESM 路径再解析
+        const mod2 = await import('@authing/guard/dist/esm/guard.min.js');
+        GuardClass = (mod2 as any).Guard
+          || (mod2 as any).default?.Guard
+          || (mod2 as any).GuardFactory?.Guard
+          || (mod2 as any).default?.GuardFactory?.Guard
+          || (mod2 as any).default;
+      }
+    } catch (e) {
+      logger.error('动态加载 Guard 失败:', e);
+      throw e;
+    }
+    if (typeof GuardClass !== 'function') {
+      throw new Error('无法解析 Authing Guard 构造函数');
+    }
 
     // 若已有实例但不具备 modal 能力（无 show 方法），则丢弃重建
     if (guardRef.current && typeof (guardRef.current as any).show !== 'function') {
