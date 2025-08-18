@@ -143,7 +143,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       code_challenge_method: 'S256'
     });
 
-    const loginUrl = `${cfg.host}/oidc/auth?${params.toString()}`;
+    // 使用带 AppID 前缀的授权端点
+    const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
+    const loginUrl = `${base}/oidc/auth?${params.toString()}`;
     window.location.href = loginUrl;
   };
 
@@ -186,7 +188,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       code_challenge: challenge,
       code_challenge_method: 'S256'
     });
-    const loginUrl = `${cfg.host}/oidc/auth?${params.toString()}`;
+    const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
+    const loginUrl = `${base}/oidc/auth?${params.toString()}`;
     window.location.href = loginUrl;
   };
 
@@ -251,7 +254,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // 🎯 最终根因修复：使用 OIDC 标准端点
       const timestamp = Date.now();
-      const loginUrl = `${cfg.host}/oidc/auth?client_id=${cfg.appId}&redirect_uri=${encodeURIComponent(cfg.redirectUri)}&response_type=code&scope=openid&state=${timestamp}`;
+      const base = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
+      const loginUrl = `${base}/oidc/auth?client_id=${cfg.appId}&redirect_uri=${encodeURIComponent(cfg.redirectUri)}&response_type=code&scope=openid&state=${timestamp}`;
 
       logger.debug('� 跳转到登录页面:', loginUrl);
       logger.debug('🔍 实际发送的 redirect_uri:', cfg.redirectUri);
