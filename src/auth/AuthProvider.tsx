@@ -111,6 +111,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
+    // 域源 Guard：非本地且非生产域，一律先跳转到生产域再发起授权
+    const h = window.location.hostname;
+    const isLocal = h === 'localhost' || h === '127.0.0.1';
+    const isProd = h === 'www.wenpai.xyz';
+    if (!isLocal && !isProd) {
+      const nextUrl = redirectTo || window.location.href;
+      const u = new URL('https://www.wenpai.xyz/');
+      u.searchParams.set('authstart', '1');
+      u.searchParams.set('next', nextUrl);
+      logger.debug('🌐 非生产域发起登录，先跳转到生产域再授权:', { from: window.location.href, to: u.toString() });
+      window.location.href = u.toString();
+      return;
+    }
+
     // 生成 code_verifier 与 code_challenge(S256)
     const genRandom = (length: number) => {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
@@ -167,6 +181,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const errorMsg = 'Authing 配置无效，请检查环境变量';
       logger.error(errorMsg);
       setError(errorMsg);
+      return;
+    }
+
+    // 域源 Guard：非本地且非生产域，一律先跳转到生产域再发起授权
+    const h = window.location.hostname;
+    const isLocal = h === 'localhost' || h === '127.0.0.1';
+    const isProd = h === 'www.wenpai.xyz';
+    if (!isLocal && !isProd) {
+      const nextUrl = redirectTo || window.location.href;
+      const u = new URL('https://www.wenpai.xyz/');
+      u.searchParams.set('authstart', '1');
+      u.searchParams.set('next', nextUrl);
+      logger.debug('🌐 非生产域发起注册，先跳转到生产域再授权:', { from: window.location.href, to: u.toString() });
+      window.location.href = u.toString();
       return;
     }
 
@@ -252,6 +280,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // 🔔 全局监听同窗口登录成功事件：无论是否使用弹窗，都能更新状态
   useEffect(() => {
+    // 如果在生产域携带 authstart=1，则自动发起登录（只触发一次），并保留 next 回跳
+    try {
+      const url = new URL(window.location.href);
+      if (url.hostname === 'www.wenpai.xyz' && url.searchParams.get('authstart') === '1') {
+        const next = url.searchParams.get('next') || window.location.href;
+        url.searchParams.delete('authstart');
+        window.history.replaceState({}, '', url.toString());
+        logger.debug('🚀 生产域自动发起登录（来源于预览域跳转）');
+        login(next);
+      }
+    } catch (e) {}
+
     const handleAuthSuccess = (event: Event) => {
       try {
         const detail = (event as CustomEvent).detail;
