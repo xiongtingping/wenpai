@@ -125,7 +125,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
 
+  // 🔧 新增：确保 Authing Guard CSS 样式加载
+  const ensureGuardStyles = () => {
+    const styleId = 'authing-guard-styles';
+    if (document.getElementById(styleId)) return;
+
+    const link = document.createElement('link');
+    link.id = styleId;
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.authing.co/packages/guard/5.1.5/guard.min.css';
+    document.head.appendChild(link);
+
+    logger.debug('[Authing] ✅ Guard CSS 样式已加载');
+  };
+
   const ensureGuard = async () => {
+    // 🔧 首先确保样式加载
+    ensureGuardStyles();
+
     // 🔧 系统性修复：完全重构 Guard 初始化流程
     let GuardClass: any = null;
 
@@ -187,25 +204,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!guardRef.current) {
       const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
 
-      // 🎯 修复：使用最简化但完整的配置
+      // 🔧 修复：使用最简化且兼容的配置，避免 undefined 问题
       const options = {
         appId: cfg.appId,
         host: cleanHost,
         redirectUri: cfg.redirectUri,
-        // 核心配置
-        mode: 'modal' as const,
-        lang: 'zh-CN' as const,
-        defaultScene: 'login' as const,
-        // 基础功能配置
-        autoRegister: false,
-        closeable: true,
-        autoFocus: false,
-        // 登录方式
-        loginMethodList: ['password', 'phone-code', 'email-code'],
-        registerMethodList: ['phone', 'email'],
-        // UI 配置
-        logo: 'https://files.authing.co/authing-console/default-app-logo.png',
-        title: '文派'
+        // 核心配置 - 使用最基本的设置
+        mode: 'modal',
+        lang: 'zh-CN',
+        defaultScene: 'login',
+        // 简化的功能配置
+        autoRegister: true,
+        clickCloseable: true,
+        escCloseable: true,
+        // 登录方式 - 使用字符串数组而不是复杂对象
+        loginMethods: ['phone-code', 'password'],
+        // UI 配置 - 简化
+        title: '登录 - 文派',
+        // 🔧 关键修复：确保容器配置正确
+        container: undefined, // 让 Guard 自动创建容器
+        isSSO: false // 简化 SSO 配置
       };
 
       logger.debug('[Authing] 🚀 开始创建 Guard 实例');
