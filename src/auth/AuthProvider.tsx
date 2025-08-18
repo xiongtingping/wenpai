@@ -165,91 +165,68 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setShowGuard,
   };
 
-  // 🔧 最终修复：使用原生 JavaScript SDK 而不是有问题的 React 组件
+  // 🎯 最终解决方案：使用 Authing Web SDK 而不是有问题的 Guard SDK
   useEffect(() => {
     if (showGuard && isAuthConfigValid(cfg)) {
-      logger.debug('🚀 开始加载 Authing Guard SDK...');
+      logger.debug('🚀 开始使用 Authing Web SDK 进行登录...');
 
-      // 检查是否已经加载过 SDK
-      if ((window as any).GuardFactory) {
-        logger.debug('🔧 SDK 已存在，直接初始化 Guard');
-        initializeGuard();
+      // 直接跳转到 Authing 登录页面
+      const loginUrl = `${cfg.host}/login?app_id=${cfg.appId}&redirect_uri=${encodeURIComponent(cfg.redirectUri)}&response_type=code&scope=openid profile email phone&state=${Date.now()}`;
+
+      logger.debug('� 跳转到登录页面:', loginUrl);
+
+      // 在新窗口中打开登录页面
+      const loginWindow = window.open(
+        loginUrl,
+        'authing_login',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      );
+
+      if (!loginWindow) {
+        logger.error('❌ 无法打开登录窗口，可能被浏览器阻止');
+        setError('无法打开登录窗口，请允许弹窗并重试');
         return;
       }
 
-      // 动态加载 Authing Guard SDK - 使用更稳定的版本
-      const script = document.createElement('script');
-      script.src = 'https://cdn.authing.co/packages/guard/5.1.3/guard.min.js';
-      script.async = true;
+      logger.debug('✅ 登录窗口已打开');
 
-      script.onload = () => {
-        logger.debug('✅ Authing Guard SDK 加载成功');
-        initializeGuard();
-      };
-
-      script.onerror = (error) => {
-        logger.error('❌ Authing Guard SDK 加载失败:', error);
-        setError('登录组件加载失败，请检查网络连接');
-      };
-
-      document.head.appendChild(script);
-
-      // 初始化 Guard 的函数
-      function initializeGuard() {
-        try {
-          logger.debug('🔧 开始初始化 Authing Guard...');
-
-          // 检查 GuardFactory 是否可用
-          if (!(window as any).GuardFactory) {
-            throw new Error('GuardFactory 未找到');
-          }
-
-          // @ts-ignore - 使用最简配置避免内部错误
-          const guard = new window.GuardFactory.Guard({
-            appId: cfg.appId,
-            host: cfg.host,
-            mode: 'modal',
-            lang: 'zh-CN',
-          });
-
-          logger.debug('🔧 Guard 实例创建成功，绑定事件...');
-
-          guard.on('login', (userInfo: any) => {
-            logger.debug('🎉 Authing 登录成功:', userInfo);
-            handleLogin(userInfo);
-          });
-
-          guard.on('close', () => {
-            logger.debug('🔧 Authing Guard 关闭');
-            handleClose();
-          });
-
-          guard.on('load', () => {
-            logger.debug('🔧 Authing Guard 加载完成');
-          });
-
-          guard.on('load-error', (error: any) => {
-            logger.error('❌ Authing Guard 加载错误:', error);
-            setError('登录组件加载错误');
-          });
-
-          logger.debug('🚀 启动 Authing Guard...');
-          guard.start();
-          logger.debug('✅ Authing Guard 启动成功');
-        } catch (error) {
-          logger.error('❌ Authing Guard 初始化失败:', error);
-          setError('登录组件初始化失败: ' + (error as Error).message);
+      // 监听窗口关闭
+      const checkClosed = setInterval(() => {
+        if (loginWindow.closed) {
+          logger.debug('🔧 登录窗口已关闭');
+          clearInterval(checkClosed);
+          handleClose();
         }
-      }
+      }, 1000);
+
+      // 监听来自登录窗口的消息
+      const handleMessage = (event: MessageEvent) => {
+        if (event.origin !== cfg.host) {
+          return;
+        }
+
+        logger.debug('� 收到登录窗口消息:', event.data);
+
+        if (event.data.type === 'AUTHING_LOGIN_SUCCESS') {
+          logger.debug('🎉 登录成功:', event.data.userInfo);
+          clearInterval(checkClosed);
+          loginWindow.close();
+          handleLogin(event.data.userInfo);
+        } else if (event.data.type === 'AUTHING_LOGIN_ERROR') {
+          logger.error('❌ 登录失败:', event.data.error);
+          clearInterval(checkClosed);
+          loginWindow.close();
+          setError('登录失败: ' + event.data.error);
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
 
       return () => {
-        // 清理脚本（如果是新添加的）
-        try {
-          if (script.parentNode) {
-            document.head.removeChild(script);
-          }
-        } catch (e) {
-          // 忽略清理错误
+        clearInterval(checkClosed);
+        window.removeEventListener('message', handleMessage);
+        if (loginWindow && !loginWindow.closed) {
+          loginWindow.close();
         }
       };
     }
