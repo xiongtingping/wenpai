@@ -174,8 +174,11 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     nonce,
     response_mode: 'query',
     screen_hint: 'signup',
-    prompt: 'login', // 强制显示登录页面，避免自动登录
-    max_age: '0'     // 强制重新认证
+    prompt: 'login',           // 强制显示登录页面，避免自动登录
+    max_age: '0',              // 强制重新认证
+    force_login: 'true',       // 强制登录（某些OAuth提供商支持）
+    login_hint: 'register',    // 提示注册模式
+    ui_locales: 'zh-CN'        // 设置语言，可能影响页面显示
     // 移除 prompt: 'signup' - Authing不支持此值
   });
 

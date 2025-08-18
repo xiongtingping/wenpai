@@ -196,6 +196,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
     setIsAuthenticated(false);
 
+    // 🔧 强制调用Authing登出API，清除服务端会话
+    try {
+      const logoutUrl = `${cfg.host}/api/v2/logout?app_id=${cfg.appId}`;
+      logger.debug('🔧 调用Authing登出API清除服务端会话:', logoutUrl);
+
+      // 使用fetch调用登出API，不等待结果
+      fetch(logoutUrl, {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'cors'
+      }).catch(e => {
+        logger.debug('ℹ️ Authing登出API调用失败，但不影响注册流程:', e?.message);
+      });
+    } catch (e) {
+      logger.debug('⚠️ 调用登出API失败，但不影响流程:', e);
+    }
+
+    // 🔧 清除Authing域名下的cookies，强制重新认证
+    try {
+      // 尝试清除Authing相关的cookies
+      const authingDomain = cfg.host.replace('https://', '').replace('http://', '');
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/;domain=" + authingDomain);
+      });
+      logger.debug('🔧 已清除Authing域名cookies');
+    } catch (e) {
+      logger.debug('⚠️ 清除cookies失败，但不影响流程:', e);
+    }
+
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
       logger.error(errorMsg);
