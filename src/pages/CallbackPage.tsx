@@ -145,11 +145,31 @@ const CallbackPage: React.FC = () => {
           localStorage.setItem('authing_user', JSON.stringify(mergedUser));
           window.dispatchEvent(new CustomEvent('auth-login-success', { detail: mergedUser }));
 
-          // 解析 state 中的 redirectTo 并跳转
+          // 解析 state 中的 redirectTo 并跳转 - 处理可能的双重编码
           let finalRedirect = '/';
           try {
             if (state) {
-              const stateObj = JSON.parse(state);
+              let stateObj: any = {};
+
+              // 尝试多种解码方式处理state参数
+              try {
+                // 尝试直接解析
+                stateObj = JSON.parse(state);
+              } catch (e1) {
+                try {
+                  // 尝试单次解码后解析
+                  stateObj = JSON.parse(decodeURIComponent(state));
+                } catch (e2) {
+                  try {
+                    // 尝试双重解码后解析
+                    stateObj = JSON.parse(decodeURIComponent(decodeURIComponent(state)));
+                  } catch (e3) {
+                    logger.warn('⚠️ 所有state解析方式都失败:', { state, e1, e2, e3 });
+                    throw e3;
+                  }
+                }
+              }
+
               if (stateObj.redirectTo) {
                 const redirectTo = stateObj.redirectTo;
                 logger.debug('📍 从 state 解析到跳转目标:', redirectTo);
@@ -165,6 +185,12 @@ const CallbackPage: React.FC = () => {
                 } else {
                   finalRedirect = redirectTo;
                 }
+              }
+
+              // 检查是否是注册模式
+              if (stateObj.mode === 'register') {
+                logger.debug('🎯 检测到注册模式，确保跳转到首页');
+                finalRedirect = '/';
               }
             }
           } catch (e) {

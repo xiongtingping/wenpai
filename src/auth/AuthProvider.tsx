@@ -232,11 +232,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       response_mode: 'query'
     } as any);
     try {
-      const d = await fetch('/.netlify/functions/oidc-discovery').then(r => r.json());
-      const authEndpoint = d.authorization_endpoint || `${cfg.host.replace(/\\\/$/, '')}/oidc/auth`;
-      const loginUrl = `${authEndpoint}?${params.toString()}`;
-      logger.debug('[Authing] authorize URL', { loginUrl, redirectUri: cfg.redirectUri, discovery: d });
-      window.location.href = loginUrl;
+      const d = await fetch('/.netlify/functions/oidc-discovery').then(r => r.json()).catch(() => null);
+      // 注册页面需要使用不同的端点或参数
+      const authEndpoint = d?.authorization_endpoint || `${cfg.host.replace(/\/$/, '')}/${cfg.appId}/login`;
+
+      // 为注册添加特殊参数
+      const registerParams = new URLSearchParams(params);
+      registerParams.set('screen_hint', 'signup'); // 指定显示注册页面
+
+      const registerUrl = `${authEndpoint}?${registerParams.toString()}`;
+      logger.debug('[Authing] register URL', { registerUrl, redirectUri: cfg.redirectUri, discovery: d });
+      window.location.href = registerUrl;
     } catch (e) {
       logger.error('OIDC Discovery failed, fallback to standard endpoint', e);
       const base = `${cfg.host.replace(/\/$/, '')}`;
