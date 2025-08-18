@@ -90,7 +90,15 @@ const CallbackPage: React.FC = () => {
 
         const codeVerifier = sessionStorage.getItem('auth_pkce_verifier');
         if (!codeVerifier) {
-          throw new Error('missing code_verifier');
+          console.error('❌ PKCE验证器丢失，尝试重新登录');
+          // 清除可能损坏的状态
+          sessionStorage.clear();
+          localStorage.removeItem('authing_user');
+          localStorage.removeItem('auth_token');
+
+          // 重定向到首页并提示重新登录
+          window.location.href = '/?error=pkce_missing';
+          return;
         }
 
         // 使用 Netlify Function 与 Authing 后端交换 token（PKCE，无 client_secret）

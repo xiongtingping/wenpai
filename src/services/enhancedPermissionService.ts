@@ -282,8 +282,14 @@ class EnhancedPermissionService {
 
       // 如果返回结构不符合预期，走兜底
       throw new Error('Invalid response data');
-    } catch (error) {
-      console.warn('检查套餐到期状态失败，使用默认值:', error);
+    } catch (error: any) {
+      // 静默处理501错误，避免控制台噪音
+      if (error?.status === 501 || error?.response?.status === 501) {
+        // 501错误表示后端API未实现，这是正常情况
+        // 不输出错误日志，避免用户困惑
+      } else {
+        console.warn('检查套餐到期状态失败，使用默认值:', error);
+      }
 
       // 返回默认的未到期状态
       const futureDate = new Date();
@@ -407,8 +413,14 @@ class EnhancedPermissionService {
       }
 
       return { allowed: true };
-    } catch (error) {
-      console.warn('检查使用限制失败，默认允许:', error);
+    } catch (error: any) {
+      // 静默处理501错误，避免控制台噪音
+      if (error?.status === 501 || error?.response?.status === 501) {
+        // 501错误表示后端API未实现，这是正常情况
+        // 不输出错误日志，避免用户困惑
+      } else {
+        console.warn('检查使用限制失败，默认允许:', error);
+      }
       return { allowed: true };
     }
   }

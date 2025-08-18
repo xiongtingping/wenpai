@@ -190,7 +190,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('auth_token');
     localStorage.removeItem('authing_access_token');
     localStorage.removeItem('authing_id_token');
-    sessionStorage.removeItem('auth_pkce_verifier');
+    // 注意：不清除 auth_pkce_verifier，因为注册流程需要它
 
     // 重置用户状态
     setUser(null);
