@@ -302,15 +302,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // 🔔 全局监听同窗口登录成功事件：无论是否使用弹窗，都能更新状态
   useEffect(() => {
-    // 如果在生产域携带 authstart=1，则自动发起登录（只触发一次），并保留 next 回跳
+    // 如果在生产域携带 authstart=1，则自动发起登录（只触发一次），并修正回跳地址为生产域
     try {
       const url = new URL(window.location.href);
       if (url.hostname === 'www.wenpai.xyz' && url.searchParams.get('authstart') === '1') {
-        const next = url.searchParams.get('next') || window.location.href;
+        const next = url.searchParams.get('next');
+        // 修正：登录成功后应该跳转到生产域，而不是预览域
+        const correctedNext = next ? 'https://www.wenpai.xyz/' : window.location.href;
         url.searchParams.delete('authstart');
         window.history.replaceState({}, '', url.toString());
-        logger.debug('🚀 生产域自动发起登录（来源于预览域跳转）');
-        login(next);
+        logger.debug('🚀 生产域自动发起登录（来源于预览域跳转），修正回跳地址为生产域');
+        login(correctedNext);
       }
     } catch (e) {}
 
