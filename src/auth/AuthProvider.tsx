@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
 
+import { Guard as GuardStatic } from '@authing/guard';
+
 import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
@@ -34,7 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const guardRef = useRef<any>(null);
-  const fixObserverRef = useRef<MutationObserver | null>(null);
 
   // 初始化时从 localStorage 恢复用户状态
   React.useEffect(() => {
@@ -125,32 +126,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
   const ensureGuard = async () => {
-    // 先尝试从 NPM 解析 Guard 构造
-    let GuardClass: any = await resolveGuardCtorFromNpm();
-    // 若失败则尝试从 CDN 加载
-    if (!GuardClass) {
-      logger.warn('回退到 CDN 加载 Authing Guard');
-      GuardClass = await loadGuardCtorFromCDN();
+    // 首选：静态导入的 Guard 构造，避免运行时解析不一致
+    let GuardClass: any = GuardStatic;
+    // 运行时保护：静态构造竟然不是函数，才尝试 NPM/CDN 动态回退
+    if (typeof GuardClass !== 'function') {
+      GuardClass = await resolveGuardCtorFromNpm();
+      if (!GuardClass) {
+        logger.warn('回退到 CDN 加载 Authing Guard');
+        GuardClass = await loadGuardCtorFromCDN();
+      }
     }
 
-    // 若已有实例但不具备展示能力（无 show/start），则重建
     if (guardRef.current && !isUsableInstance(guardRef.current)) {
       try { (guardRef.current as any).hide?.(); } catch {}
       guardRef.current = null;
     }
 
     if (!guardRef.current) {
-      // 确保使用完整的HTTPS URL
       const cleanHost = cfg.host.startsWith('http') ? cfg.host : `https://${cfg.host}`;
 
-      logger.debug('Guard配置:', {
-        appId: cfg.appId,
-        host: cleanHost,
-        redirectUri: cfg.redirectUri,
-        mode: 'modal'
-      });
+      logger.debug('Guard配置:', { appId: cfg.appId, host: cleanHost, redirectUri: cfg.redirectUri, mode: 'modal' });
 
-      const options = {
+      const options: any = {
         appId: cfg.appId,
         host: cleanHost,
         redirectUri: cfg.redirectUri,
@@ -164,25 +161,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         registerMethodList: ['phone', 'email'],
         logo: 'https://files.authing.co/authing-console/default-app-logo.png',
         title: '文派'
-      } as any;
+      };
 
       let instance: any;
-      try {
-        instance = new GuardClass(options);
-      } catch (e) {
-        logger.warn('使用解析到的 GuardClass 构造失败，尝试 CDN 构造:', e);
-      }
+      try { instance = new GuardClass(options); } catch (e) { logger.warn('静态 Guard 构造失败，尝试 CDN:', e); }
+      if (!isUsableInstance(instance)) { const CDNGuard = await loadGuardCtorFromCDN(); instance = new CDNGuard(options); }
+      if (!isUsableInstance(instance)) { throw new Error('Guard 实例构造成功但不具备 show/start 能力'); }
 
-      if (!isUsableInstance(instance)) {
-        const CDNGuard = await loadGuardCtorFromCDN();
-        instance = new CDNGuard(options);
-      }
-
-      if (!isUsableInstance(instance)) {
-        throw new Error('Guard 实例构造成功但不具备 show/start 能力');
-      }
-
-      // 事件监听器
       instance.on('login', (userInfo: any) => {
         logger.debug('登录成功:', userInfo);
         const user = {
@@ -197,22 +182,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(user);
         localStorage.setItem('auth_token', user.token || '');
         localStorage.setItem('authing_user', JSON.stringify(user));
-        // 清理临时 embed 容器（如有）
-        try {
-          const host = document.getElementById('authing_modal_fallback_host');
-          if (host) host.remove();
-        } catch {}
+        try { document.getElementById('authing_modal_fallback_host')?.remove(); } catch {}
       });
-
-      instance.on('register', (userInfo: any) => {
-        logger.debug('注册成功:', userInfo);
-        instance?.emit('login', userInfo);
-      });
-
-      instance.on('login-error', (error: any) => {
-        logger.error('登录失败:', error);
-        setError(error?.message || '登录失败');
-      });
+      instance.on('register', (userInfo: any) => { logger.debug('注册成功:', userInfo); instance?.emit('login', userInfo); });
+      instance.on('login-error', (error: any) => { logger.error('登录失败:', error); setError(error?.message || '登录失败'); });
 
       guardRef.current = instance;
     }
@@ -234,32 +207,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const guard = await ensureGuard();
       try { (document.activeElement as HTMLElement | null)?.blur(); } catch {}
 
-      if (guard && typeof (guard as any).show === 'function') {
+      const canShow = guard && typeof (guard as any).show === 'function';
+      const canStart = guard && typeof (guard as any).start === 'function';
+      const canRedirect = guard && typeof (guard as any).startWithRedirect === 'function';
+      logger.debug('[Authing] guard capability:', { canShow, canStart, canRedirect });
+
+      if (canShow) {
         (guard as any).show();
-      } else if (guard && typeof (guard as any).start === 'function') {
-        // 兼容无 show 的版本：创建临时容器以嵌入方式展示，但不再使用自有 Radix Dialog
+      } else if (canStart) {
         const hostId = 'authing_modal_fallback_host';
         let host = document.getElementById(hostId) as HTMLElement | null;
         if (!host) {
           host = document.createElement('div');
           host.id = hostId;
-          Object.assign(host.style, {
-            position: 'fixed', inset: '0', zIndex: '2147483646',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.45)'
-          } as CSSStyleDeclaration);
+          Object.assign(host.style, { position: 'fixed', inset: '0', zIndex: '2147483646', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.45)' } as CSSStyleDeclaration);
           document.body.appendChild(host);
           const panel = document.createElement('div');
-          Object.assign(panel.style, {
-            width: '90vw', maxWidth: '420px', minHeight: '520px',
-            background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.35)'
-          } as CSSStyleDeclaration);
+          Object.assign(panel.style, { width: '90vw', maxWidth: '420px', minHeight: '520px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.35)' } as CSSStyleDeclaration);
           panel.id = 'authing_container_fallback';
           host.appendChild(panel);
         }
         await (guard as any).start('#authing_container_fallback');
+      } else if (canRedirect) {
+        await (guard as any).startWithRedirect();
       } else {
-        throw new Error('Guard 实例无可用展示方法(show/start)');
+        throw new Error('Guard 实例无可用展示方法(show/start/redirect)');
       }
     } catch (e: any) {
       logger.error('Guard初始化失败:', e);
