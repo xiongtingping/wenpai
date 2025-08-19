@@ -310,6 +310,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // 🔧 注册应该跳转到注册页面，而不是执行OAuth授权流程
     logger.debug('[Authing] 跳转到注册页面而不是登录');
 
+    // 🚨 明显的测试日志 - 确认新代码被执行
+    console.log('🚨🚨🚨 新的注册方法被调用！这是修复后的代码！🚨🚨🚨');
+
     // 🔧 注册不需要清除会话，直接跳转到注册页面即可
 
     if (!isAuthConfigValid(cfg)) {
