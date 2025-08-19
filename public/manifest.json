@@ -1,0 +1,30 @@
+{
+  "name": "文派 - AI写作助手",
+  "short_name": "文派",
+  "description": "智能AI写作助手，提供高质量的内容创作服务",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["productivity", "utilities", "writing"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "开始写作",
+      "short_name": "写作",
+      "description": "快速开始AI写作",
+      "url": "/",
+      "icons": []
+    }
+  ]
+}

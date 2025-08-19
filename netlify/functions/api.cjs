@@ -42,6 +42,43 @@ module.exports.handler = async (event, context) => {
   }
 
   try {
+    // 🔧 处理 /api/config 路径
+    const path = event.path || event.rawUrl || '';
+    if (path.includes('/config')) {
+      const { env } = event.queryStringParameters || {};
+
+      // 基础配置
+      const config = {
+        environment: env || 'production',
+        supabase: {
+          url: process.env.VITE_SUPABASE_URL || 'https://weizkydylskcwgnaieqy.supabase.co',
+          anonKey: process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlaXpreWR5bHNrY3dnbmFpZXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ5NjI0NzQsImV4cCI6MjA1MDUzODQ3NH0.Qs8-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej-Ej'
+        },
+        authing: {
+          appId: '68823897631e1ef8ff3720b2',
+          host: 'https://rzcswqs4sq0f.authing.cn',
+          redirectUri: 'https://www.wenpai.xyz/callback'
+        },
+        features: {
+          enhancedPermissions: true,
+          subscriptionCheck: true,
+          usageLimits: true
+        }
+      };
+
+      console.log('📋 配置请求:', { env, timestamp: new Date().toISOString() });
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          config,
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
+
     const body = event.body ? JSON.parse(event.body) : {};
     const { provider, action, platform, ...requestBody } = body;
 
