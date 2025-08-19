@@ -384,6 +384,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       state: state
     });
 
+    // 🔧 强制调试：确保使用正确的URL
+    console.log('🔧 REGISTER DEBUG - 最终URL检查:', {
+      finalRegisterUrl,
+      containsCorrectAppId: finalRegisterUrl.includes('68823897631e1ef8ff3720b2'),
+      containsWrongAppId: finalRegisterUrl.includes('688237f8f58e454393add99e'),
+      urlPath: new URL(finalRegisterUrl).pathname,
+      timestamp: Date.now()
+    });
+
     // 跳转到注册页面
     window.location.href = finalRegisterUrl;
   };
