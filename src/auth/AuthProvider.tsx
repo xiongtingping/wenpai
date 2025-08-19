@@ -357,21 +357,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const timestamp = Date.now();
     const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
 
-    // 🔧 构建注册页面URL - 使用OAuth参数以支持回调
-    const registerPageUrl = `${cfg.host}/${cfg.appId}/register`;
+    // 🔧 构建注册页面URL - 跳转到Authing登录/注册统一页面，添加注册模式参数
+    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
 
-    // 添加OAuth参数，支持注册完成后的回调
+    // 添加OAuth参数和注册模式标识
     const urlParams = new URLSearchParams({
+      client_id: cfg.appId,
       redirect_uri: cfg.redirectUri,
-      app_id: cfg.appId,
       response_type: 'code',
       scope: 'openid',
       state: encodeURIComponent(state),
       code_challenge: challenge,
-      code_challenge_method: 'S256'
+      code_challenge_method: 'S256',
+      register: 'true'  // 添加注册模式参数
     });
 
-    const finalRegisterUrl = `${registerPageUrl}?${urlParams.toString()}`;
+    const finalRegisterUrl = `${authEndpoint}?${urlParams.toString()}`;
 
     logger.debug('📝 跳转到注册页面:', {
       registerPageUrl: finalRegisterUrl,

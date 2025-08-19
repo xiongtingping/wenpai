@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Copy, Edit, Heart, Search, Filter, MessageCircle, Calendar, Sparkles, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
+import { PermissionProtectedInput, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
 
 /**
  * 微信朋友圈文案模板接口定义
@@ -531,75 +532,45 @@ Good night, beautiful world 🌎
       <Card variant="enhanced">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                variant="enhanced"
-                placeholder="搜索文案..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-              {/* 权限遮罩 */}
-              <div className="absolute inset-0 pointer-events-none">
-                <PermissionLockedButton
-                  requiredTier="pro"
-                  featureName="文案搜索"
-                  variant="ghost"
-                  className="w-full h-full opacity-0 pointer-events-auto"
-                  onClick={() => {}}
-                >
-                </PermissionLockedButton>
+            <PermissionProtectedInput
+              requiredTier="pro"
+              featureName="文案搜索"
+            >
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  variant="enhanced"
+                  placeholder="搜索文案..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-            </div>
-            <div className="relative">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择分类" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部分类</SelectItem>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {/* 权限遮罩 */}
-              <div className="absolute inset-0 pointer-events-none">
-                <PermissionLockedButton
-                  requiredTier="pro"
-                  featureName="分类筛选"
-                  variant="ghost"
-                  className="w-full h-full opacity-0 pointer-events-auto"
-                  onClick={() => {}}
-                >
-                </PermissionLockedButton>
-              </div>
-            </div>
-            <div className="relative">
-              <Select value={selectedOccasion} onValueChange={setSelectedOccasion}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择场合" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部场合</SelectItem>
-                  {occasions.map(occasion => (
-                    <SelectItem key={occasion} value={occasion}>{occasion}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {/* 权限遮罩 */}
-              <div className="absolute inset-0 pointer-events-none">
-                <PermissionLockedButton
-                  requiredTier="pro"
-                  featureName="场合筛选"
-                  variant="ghost"
-                  className="w-full h-full opacity-0 pointer-events-auto"
-                  onClick={() => {}}
-                >
-                </PermissionLockedButton>
-              </div>
-            </div>
+            </PermissionProtectedInput>
+            <PermissionProtectedSelect
+              requiredTier="pro"
+              featureName="分类筛选"
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+              placeholder="选择分类"
+            >
+              <SelectItem value="all">全部分类</SelectItem>
+              {categories.map(category => (
+                <SelectItem key={category} value={category}>{category}</SelectItem>
+              ))}
+            </PermissionProtectedSelect>
+            <PermissionProtectedSelect
+              requiredTier="pro"
+              featureName="场合筛选"
+              value={selectedOccasion}
+              onValueChange={setSelectedOccasion}
+              placeholder="选择场合"
+            >
+              <SelectItem value="all">全部场合</SelectItem>
+              {occasions.map(occasion => (
+                <SelectItem key={occasion} value={occasion}>{occasion}</SelectItem>
+              ))}
+            </PermissionProtectedSelect>
             <PermissionLockedButton
               requiredTier="pro"
               featureName="标签过滤"
