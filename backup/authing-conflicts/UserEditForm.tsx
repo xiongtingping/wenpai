@@ -255,8 +255,13 @@ export function UserEditForm({
         }
       }
 
-      // 更新用户资料
-      // await updateProfile(updateData); // This line was removed as per the edit hint.
+      // 🔧 使用真实的Authing API更新用户资料
+      const { authingService } = await import('@/services/authingService');
+      const updateResult = await authingService.updateProfile(updateData);
+
+      if (!updateResult.success) {
+        throw new Error(updateResult.error || '更新用户资料失败');
+      }
 
       // 重新加载用户信息
       await loadUserInfo();

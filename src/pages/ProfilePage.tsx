@@ -304,12 +304,6 @@ export default function ProfilePage() {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // 🛡️ CRITICAL FIX: 确保头像和个人信息持久化到Authing服务器
-      console.log('💾 开始保存个人资料到Authing服务器...');
-
-      // 🛡️ ENHANCED FIX: 强化的用户信息持久化策略
-      console.log('💾 开始保存用户信息，使用多重持久化策略...');
-
       const updatedUserData = {
         nickname: profileForm.nickname,
         email: profileForm.email,
@@ -317,76 +311,44 @@ export default function ProfilePage() {
         avatar: profileForm.avatar
       };
 
-      try {
-        // 1. 立即更新本地状态和localStorage
-        console.log('📱 第一步：立即更新本地状态');
-        updateUser(updatedUserData);
+      // 🔧 使用真实的Authing API更新用户资料
+      const { authingService } = await import('@/services/authingService');
 
-        // 2. 🔧 增强的服务器同步机制
-        console.log('☁️ 第二步：尝试同步到服务器');
+      const updateResult = await authingService.updateProfile(updatedUserData);
 
-        // 尝试同步到多个存储位置
-        const syncPromises = [];
+      if (updateResult.success && updateResult.user) {
 
-        // 同步到localStorage（立即）
-        const currentUser = JSON.parse(localStorage.getItem('authing_user') || '{}');
-        const enhancedUser = {
-          ...currentUser,
-          ...updatedUserData,
+        // 更新本地状态为服务器返回的最新数据
+        const serverUserData = {
+          nickname: updateResult.user.nickname,
+          email: updateResult.user.email,
+          phone: updateResult.user.phone,
+          avatar: updateResult.user.photo || updateResult.user.avatar,
           lastUpdated: new Date().toISOString(),
-          isPersistent: true,
           syncStatus: 'synced'
         };
-        localStorage.setItem('authing_user', JSON.stringify(enhancedUser));
 
-        // 同步到sessionStorage（会话级备份）
-        sessionStorage.setItem('user_profile_backup', JSON.stringify(enhancedUser));
-
-        // 🔧 模拟服务器同步（实际应用中替换为真实API调用）
-        const serverSyncPromise = new Promise((resolve, reject) => {
-          setTimeout(() => {
-            // 模拟90%成功率
-            if (Math.random() > 0.1) {
-              console.log('✅ 服务器同步成功（模拟）');
-              resolve({ success: true, timestamp: new Date().toISOString() });
-            } else {
-              console.warn('⚠️ 服务器同步失败（模拟）');
-              reject(new Error('服务器同步失败'));
-            }
-          }, 1000);
-        });
-
-        syncPromises.push(serverSyncPromise);
-
-        // 等待所有同步完成
-        const syncResults = await Promise.allSettled(syncPromises);
-        const serverSyncResult = syncResults[0];
-
-        if (serverSyncResult.status === 'fulfilled') {
-          console.log('🎯 用户信息完全同步完成:', enhancedUser);
-        } else {
-          console.warn('⚠️ 服务器同步失败，但本地已保存:', serverSyncResult.reason);
-          // 标记为需要重新同步
-          enhancedUser.syncStatus = 'pending';
-          localStorage.setItem('authing_user', JSON.stringify(enhancedUser));
-        }
-
-      } catch (error) {
-        console.error('❌ 保存过程中出现错误:', error);
-
-        // 确保至少本地状态已更新
-        updateUser(updatedUserData);
+        // 同步到本地状态和存储
+        updateUser(serverUserData);
+        localStorage.setItem('authing_user', JSON.stringify({
+          ...JSON.parse(localStorage.getItem('authing_user') || '{}'),
+          ...serverUserData
+        }));
 
         toast({
-          title: "保存完成",
-          description: "个人资料已保存到本地。服务器同步将在后台进行。",
+          title: "保存成功",
+          description: "个人资料已成功更新到服务器",
         });
-      }
 
-      toast({
-        title: "保存成功",
-        description: "个人资料已更新",
-      });
+      } else {
+        toast({
+          title: "保存失败",
+          description: updateResult.error || "服务器更新失败，请稍后重试",
+          variant: "destructive"
+        });
+
+        return;
+      }
       setHasUnsavedChanges(false);
     } catch (error) {
       toast({

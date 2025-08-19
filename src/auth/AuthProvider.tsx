@@ -49,6 +49,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // 检查数据一致性
           const consistencyCheck = await userInfoSyncService.checkConsistency(parsedUser.id);
 
+          // 🔧 关键修复：应用启动时主动从Authing服务器拉取最新用户信息
+          try {
+            const { authingService } = await import('@/services/authingService');
+            const latestUserInfo = await authingService.getCurrentUser();
+
+            if (latestUserInfo) {
+              // 使用服务器最新数据覆盖本地数据
+              const refreshedUserData = {
+                ...parsedUser,
+                nickname: latestUserInfo.nickname || parsedUser.nickname,
+                email: latestUserInfo.email || parsedUser.email,
+                phone: latestUserInfo.phone || parsedUser.phone,
+                avatar: latestUserInfo.photo || latestUserInfo.avatar || parsedUser.avatar,
+                lastUpdated: new Date().toISOString(),
+                syncStatus: 'synced'
+              };
+
+              // 更新本地存储
+              localStorage.setItem('authing_user', JSON.stringify(refreshedUserData));
+              sessionStorage.setItem('user_profile_backup', JSON.stringify(refreshedUserData));
+
+              // 设置用户状态
+              setUser(refreshedUserData);
+              setIsAuthenticated(true);
+
+              // 设置token
+              const storedToken = localStorage.getItem('auth_token');
+              if (storedToken) {
+                setAuthTokenGetter(() => storedToken);
+              }
+
+              logger.debug('✅ 从服务器刷新用户信息成功', { userId: refreshedUserData.id });
+              return;
+            }
+          } catch (serverError) {
+            logger.warn('⚠️ 服务器同步失败，使用本地缓存:', serverError);
+          }
+
+          // 如果服务器同步失败，进行本地一致性检查
           if (!consistencyCheck.isConsistent) {
             logger.warn('⚠️ 检测到用户信息不一致，自动修复中...', consistencyCheck.conflicts);
 
@@ -70,8 +109,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
           } else {
             logger.debug('✅ 用户信息一致性检查通过');
-            setUser(parsedUser);
+            // 标记为需要同步（因为服务器同步失败）
+            const cachedUserData = {
+              ...parsedUser,
+              syncStatus: 'pending'
+            };
+            setUser(cachedUserData);
             setIsAuthenticated(true);
+
+            // 设置token
+            const storedToken = localStorage.getItem('auth_token');
+            if (storedToken) {
+              setAuthTokenGetter(() => storedToken);
+            }
           }
         }
       } catch (error) {
@@ -81,6 +131,57 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     checkUserInfoConsistency();
   }, []);
+
+  // 🔧 页面焦点时刷新用户信息
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      // 当页面重新获得焦点且用户已登录时，刷新用户信息
+      if (!document.hidden && isAuthenticated && user) {
+        try {
+          const { authingService } = await import('@/services/authingService');
+          const latestUserInfo = await authingService.getCurrentUser();
+
+          if (latestUserInfo) {
+            const refreshedUserData = {
+              ...user,
+              nickname: latestUserInfo.nickname || user.nickname,
+              email: latestUserInfo.email || user.email,
+              phone: latestUserInfo.phone || user.phone,
+              avatar: latestUserInfo.photo || latestUserInfo.avatar || user.avatar,
+              lastUpdated: new Date().toISOString(),
+              syncStatus: 'synced'
+            };
+
+            // 只有数据真正发生变化时才更新
+            const hasChanges =
+              refreshedUserData.nickname !== user.nickname ||
+              refreshedUserData.email !== user.email ||
+              refreshedUserData.phone !== user.phone ||
+              refreshedUserData.avatar !== user.avatar;
+
+            if (hasChanges) {
+              localStorage.setItem('authing_user', JSON.stringify(refreshedUserData));
+              sessionStorage.setItem('user_profile_backup', JSON.stringify(refreshedUserData));
+              setUser(refreshedUserData);
+
+              logger.debug('✅ 页面焦点时刷新用户信息成功', {
+                userId: refreshedUserData.id,
+                changes: { hasChanges }
+              });
+            }
+          }
+        } catch (error) {
+          logger.warn('⚠️ 页面焦点时刷新用户信息失败:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isAuthenticated, user]);
 
   // 初始化时从 localStorage 恢复用户状态
   React.useEffect(() => {
@@ -139,7 +240,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.log('🔧 标准化后的用户信息:', standardUserInfo);
 
       // 转换为AuthUser格式（保持向后兼容）
-      const authUser: AuthUser = {
+      let authUser: AuthUser = {
         ...standardUserInfo,
         token: userInfo.token || undefined,
       };
@@ -164,37 +265,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (isIncompleteUserInfo) {
         console.log('🔍 检测到用户信息不完整，尝试重新获取...');
 
-        // 尝试使用token重新获取用户信息
+        // 🔧 使用真实的Authing API获取完整用户信息
         try {
-          const response = await fetch('/.netlify/functions/authing-user-info', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ access_token: userInfo.token })
-          });
+          const { authingService } = await import('@/services/authingService');
+          const fullUserInfo = await authingService.getCurrentUser();
 
-          if (response.ok) {
-            const completeUserInfo = await response.json();
-            console.log('🔍 重新获取的完整用户信息:', completeUserInfo);
+          if (fullUserInfo) {
+            // 合并服务器返回的用户信息
+            const completeNickname = [
+              fullUserInfo.nickname,
+              fullUserInfo.name,
+              fullUserInfo.preferred_username,
+              fullUserInfo.username,
+              fullUserInfo.given_name
+            ].filter(val => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim())[0];
 
-            if (completeUserInfo.userInfo) {
-              // 重新处理完整的用户信息
-              const completeNickname = [
-                completeUserInfo.userInfo?.nickname,
-                completeUserInfo.userInfo?.name,
-                completeUserInfo.userInfo?.preferred_username,
-                completeUserInfo.userInfo?.username,
-                completeUserInfo.userInfo?.given_name
-              ].filter(val => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim())[0];
-
-              if (completeNickname) {
-                authUser.nickname = completeNickname.trim();
-                console.log('✅ 用户信息已补全:', { nickname: authUser.nickname });
-              }
+            if (completeNickname) {
+              authUser.nickname = completeNickname.trim();
+              authUser.email = fullUserInfo.email || authUser.email;
+              authUser.phone = fullUserInfo.phone || authUser.phone;
+              authUser.avatar = fullUserInfo.photo || fullUserInfo.avatar || authUser.avatar;
+              authUser.lastUpdated = new Date().toISOString();
             }
           }
         } catch (error) {
-          console.warn('⚠️ 重新获取用户信息失败:', error);
+          console.warn('⚠️ 从Authing服务器获取用户信息失败:', error);
         }
+      }
+
+      // 🔧 登录成功后，强制从Authing服务器获取最新用户信息
+      try {
+        const { authingService } = await import('@/services/authingService');
+        const serverUserInfo = await authingService.getCurrentUser();
+
+        if (serverUserInfo) {
+          // 使用服务器最新数据覆盖本地数据
+          const updatedAuthUser = {
+            ...authUser,
+            nickname: serverUserInfo.nickname || authUser.nickname,
+            email: serverUserInfo.email || authUser.email,
+            phone: serverUserInfo.phone || authUser.phone,
+            avatar: serverUserInfo.photo || serverUserInfo.avatar || authUser.avatar,
+            lastUpdated: new Date().toISOString(),
+            syncStatus: 'synced'
+          };
+          authUser = updatedAuthUser;
+        }
+      } catch (error) {
+        console.warn('⚠️ 登录后获取服务器用户信息失败，使用本地数据:', error);
       }
 
       // 保存到状态
@@ -387,7 +505,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       code_challenge: challenge,
       code_challenge_method: 'S256',
       response_mode: 'query',
-      prompt: 'consent',           // 强制显示同意页面，避免自动登录
       screen_hint: 'signup',       // 提示显示注册页面
       ui_locales: 'zh-CN',
       // 添加Authing特定的注册参数
@@ -483,6 +600,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // 合并更新
       const updatedUserInfo = { ...user, ...updates, lastUpdated: new Date().toISOString() };
+
+      // 更新本地状态
+      setUser(updatedUserInfo);
 
       // 使用同步服务更新所有存储位置
       const syncResult = await userInfoSyncService.syncUserInfo(updatedUserInfo);
