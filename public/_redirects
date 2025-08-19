@@ -1,0 +1,2 @@
+# SPA重定向规则 - 所有路由都重定向到index.html
+/*    /index.html   200
