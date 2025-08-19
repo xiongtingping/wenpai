@@ -303,52 +303,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   };
 
-  // 注册方法（PKCE + 同窗口跳转）
+  // 注册方法（直接跳转到注册页面）
   const register = async (redirectTo?: string) => {
     logger.debug('📝 开始注册流程...', { method: 'REGISTER', redirectTo });
 
-    // 🔧 强制注册：清除现有会话，确保跳转到注册页面
-    logger.debug('[Authing] 清除现有会话以强制显示注册页面');
+    // 🔧 注册应该跳转到注册页面，而不是执行OAuth授权流程
+    logger.debug('[Authing] 跳转到注册页面');
 
-    // 清除本地存储的认证信息
-    localStorage.removeItem('authing_user');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('authing_access_token');
-    localStorage.removeItem('authing_id_token');
-    // 注意：不清除 auth_pkce_verifier，因为注册流程需要它
-
-    // 重置用户状态
-    setUser(null);
-    setIsAuthenticated(false);
-
-    // 🔧 强制调用Authing登出API，清除服务端会话
-    try {
-      const logoutUrl = `${cfg.host}/api/v2/logout?app_id=${cfg.appId}`;
-      logger.debug('🔧 调用Authing登出API清除服务端会话:', logoutUrl);
-
-      // 使用fetch调用登出API，不等待结果
-      fetch(logoutUrl, {
-        method: 'GET',
-        credentials: 'include',
-        mode: 'cors'
-      }).catch(e => {
-        logger.debug('ℹ️ Authing登出API调用失败，但不影响注册流程:', e?.message);
-      });
-    } catch (e) {
-      logger.debug('⚠️ 调用登出API失败，但不影响流程:', e);
-    }
-
-    // 🔧 清除Authing域名下的cookies，强制重新认证
-    try {
-      // 尝试清除Authing相关的cookies
-      const authingDomain = cfg.host.replace('https://', '').replace('http://', '');
-      document.cookie.split(";").forEach(function(c) {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/;domain=" + authingDomain);
-      });
-      logger.debug('🔧 已清除Authing域名cookies');
-    } catch (e) {
-      logger.debug('⚠️ 清除cookies失败，但不影响流程:', e);
-    }
+    // 🔧 注册不需要清除会话，直接跳转到注册页面即可
 
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
@@ -357,7 +319,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    // 域源 Guard：非本地且非生产域，一律先跳转到生产域再发起授权
+    // 域源 Guard：非本地且非生产域，一律先跳转到生产域再发起注册
     const h = window.location.hostname;
     const isLocal = h === 'localhost' || h === '127.0.0.1';
     const isProd = h === 'www.wenpai.xyz';
@@ -367,145 +329,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       u.searchParams.set('authstart', '1');
       u.searchParams.set('authmode', 'register'); // 标记为注册模式
       u.searchParams.set('next', nextUrl);
-      logger.debug('🌐 非生产域发起注册，先跳转到生产域再授权:', { from: window.location.href, to: u.toString() });
+      logger.debug('🌐 非生产域发起注册，先跳转到生产域:', { from: window.location.href, to: u.toString() });
       window.location.href = u.toString();
       return;
     }
 
-    const genRandom = (length: number) => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-      let res = '';
-      const array = new Uint8Array(length);
-      crypto.getRandomValues(array);
-      for (let i = 0; i < array.length; i++) {
-        res += chars[array[i] % chars.length];
-      }
-      return res;
+    // 🔧 直接跳转到Authing注册页面，不执行OAuth授权流程
+    // 保存重定向信息到localStorage，注册完成后可以返回
+    const redirectInfo = {
+      redirectTo: redirectTo || window.location.href,
+      timestamp: Date.now()
     };
-    const toBase64Url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    const encoder = new TextEncoder();
-    const verifier = genRandom(64);
-    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
-    const challenge = toBase64Url(digest);
+    localStorage.setItem('register_redirect_info', JSON.stringify(redirectInfo));
 
-    // 🔧 增强PKCE验证器保存机制 - 多重备份防止丢失
-    const pkceData = {
-      verifier,
-      challenge,
-      timestamp: Date.now(),
-      redirectTo: redirectTo || '/'
-    };
+    // 🔧 构建注册页面URL - 直接跳转到注册表单，不执行OAuth流程
+    const registerPageUrl = `${cfg.host}/${cfg.appId}/register`;
 
-    // 保存到多个存储位置
-    sessionStorage.setItem('auth_pkce_verifier', verifier);
-    localStorage.setItem('auth_pkce_verifier_backup', verifier);
-    localStorage.setItem('auth_pkce_data', JSON.stringify(pkceData));
-
-    // 额外保存到cookie作为最后的备份
-    document.cookie = `pkce_verifier=${verifier}; path=/; max-age=3600; SameSite=Lax`;
-
-    logger.debug('🔐 PKCE验证器已保存到多个位置:', {
-      verifierLength: verifier.length,
-      challengeLength: challenge.length,
-      sessionStored: !!sessionStorage.getItem('auth_pkce_verifier'),
-      localStored: !!localStorage.getItem('auth_pkce_verifier_backup'),
-      pkceDataStored: !!localStorage.getItem('auth_pkce_data'),
-      cookieStored: document.cookie.includes('pkce_verifier')
-    });
-
-    const timestamp = Date.now();
-    const stateObj = { ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href };
-    const state = encodeURIComponent(JSON.stringify(stateObj));
-    logger.debug('📝 REGISTER State生成:', {
-      stateObj,
-      state,
-      method: 'REGISTER',
-      verifier: verifier.substring(0, 10) + '...',
-      challenge: challenge.substring(0, 10) + '...',
-      verifierSaved: !!sessionStorage.getItem('auth_pkce_verifier')
-    });
-    const params = new URLSearchParams({
-      client_id: cfg.appId,
+    // 添加回调参数，注册成功后可以返回到我们的网站
+    const urlParams = new URLSearchParams({
       redirect_uri: cfg.redirectUri,
-      response_type: 'code',
-      scope: 'openid',
-      state,
-      code_challenge: challenge,
-      code_challenge_method: 'S256',
-      nonce: genRandom(16),
-      response_mode: 'query'
-    } as any);
-    try {
-      // 使用智能注册助手生成最佳注册URL
-      const registerUrl = getRegisterUrlFast({
-        appId: cfg.appId,
-        host: cfg.host.replace(/\/$/, ''),
-        redirectUri: cfg.redirectUri,
-        state,
-        codeChallenge: challenge,
-        nonce: genRandom(16)
-      });
+      app_id: cfg.appId
+    });
 
-      logger.debug('[Authing] 智能注册URL', {
-        registerUrl,
-        redirectUri: cfg.redirectUri,
-        mode: 'register'
-      });
+    const finalRegisterUrl = `${registerPageUrl}?${urlParams.toString()}`;
 
-      window.location.href = registerUrl;
-    } catch (e) {
-      // 🔧 过滤Authing的正常重定向错误
-      const errorMessage = e?.toString() || '';
-      if (errorMessage.includes('Error: redirect') || errorMessage.includes('authing.co')) {
-        logger.debug('🔧 Authing内部重定向（正常行为）:', errorMessage);
-        return; // 这是正常的重定向，不需要处理
-      }
+    logger.debug('📝 跳转到注册页面:', {
+      registerPageUrl: finalRegisterUrl,
+      redirectUri: cfg.redirectUri,
+      mode: 'register_page'
+    });
 
-      logger.error('注册URL生成失败，使用备选方案', e);
-
-      // 🔧 强制修复：确保备选方案也使用正确的配置
-      const correctAppId = '68823897631e1ef8ff3720b2';
-      const wrongAppId = '688237f8f58e454393add99e';
-
-      // 清理host，移除任何App ID路径
-      let cleanBase = cfg.host.replace(/\/$/, '');
-      cleanBase = cleanBase.replace(new RegExp(`/${wrongAppId}.*$`), '');
-      cleanBase = cleanBase.replace(new RegExp(`/${correctAppId}.*$`), '');
-      cleanBase = cleanBase.replace(/\/.*$/, '');
-
-      // 确保使用正确的域名
-      if (!cleanBase.includes('rzcswqs4sq0f.authing.cn')) {
-        cleanBase = 'https://rzcswqs4sq0f.authing.cn';
-      }
-
-      // 强制使用正确的App ID
-      const safeAppId = correctAppId;
-
-      // 🔧 尝试多种注册端点
-      const fallbackUrls = [
-        `${cleanBase}/${safeAppId}/register?${params.toString()}`,
-        `${cleanBase}/${safeAppId}/signup?${params.toString()}`,
-        `${cleanBase}/oidc/auth?${params.toString()}&prompt=signup`,
-        `${cleanBase}/${safeAppId}/login?${params.toString()}&mode=register`
-      ];
-
-      logger.debug('🔧 尝试备选注册URL:', {
-        originalHost: cfg.host,
-        cleanBase,
-        originalAppId: cfg.appId,
-        safeAppId,
-        fallbackUrl: fallbackUrls[0]
-      });
-
-      // 最后安全检查
-      let finalUrl = fallbackUrls[0];
-      if (finalUrl.includes(wrongAppId)) {
-        finalUrl = finalUrl.replace(new RegExp(wrongAppId, 'g'), correctAppId);
-        logger.debug('🔧 修正备选URL中的错误App ID:', finalUrl);
-      }
-
-      window.location.href = finalUrl;
-    }
+    // 直接跳转到注册页面
+    window.location.href = finalRegisterUrl;
   };
 
   // 登出方法
