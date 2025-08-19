@@ -119,20 +119,26 @@ export function applyGlobalAuthingFixes() {
   fixAuthingEnvironment();
   
   // 拦截window.location.href设置，自动修复错误的URL
-  const originalLocationSetter = Object.getOwnPropertyDescriptor(window.location, 'href')?.set;
-  if (originalLocationSetter) {
-    Object.defineProperty(window.location, 'href', {
-      set: function(url: string) {
-        const fixedUrl = fixUrlAppId(url);
-        if (fixedUrl !== url) {
-          console.log('🔧 拦截并修复location.href:', { original: url, fixed: fixedUrl });
-        }
-        originalLocationSetter.call(this, fixedUrl);
-      },
-      get: function() {
-        return window.location.toString();
-      }
-    });
+  try {
+    const originalLocationSetter = Object.getOwnPropertyDescriptor(window.location, 'href')?.set;
+    if (originalLocationSetter) {
+      Object.defineProperty(window.location, 'href', {
+        set: function(url: string) {
+          const fixedUrl = fixUrlAppId(url);
+          if (fixedUrl !== url) {
+            console.log('🔧 拦截并修复location.href:', { original: url, fixed: fixedUrl });
+          }
+          originalLocationSetter.call(this, fixedUrl);
+        },
+        get: function() {
+          return window.location.toString();
+        },
+        configurable: true
+      });
+      console.log('✅ 已安装location.href拦截器');
+    }
+  } catch (e) {
+    console.log('⚠️ 无法安装location.href拦截器，将使用其他方法:', e);
   }
   
   // 拦截fetch请求，修复可能的错误URL
