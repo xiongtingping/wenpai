@@ -491,13 +491,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const timestamp = Date.now();
     const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
 
-    // 🔧 使用OIDC标准端点，但强制显示注册页面
+    // 🔧 修复：使用Authing专用注册端点，而不是OIDC端点
     const CORRECT_APP_ID = '68823897631e1ef8ff3720b2';
 
-    // 使用OIDC端点，但添加强制注册的参数
-    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/oidc/auth`;
+    // 使用Authing专用注册端点
+    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/${CORRECT_APP_ID}/register`;
     const registerParams = new URLSearchParams({
-      client_id: CORRECT_APP_ID,
       redirect_uri: cfg.redirectUri,
       response_type: 'code',
       scope: 'openid profile email',
@@ -505,11 +504,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       code_challenge: challenge,
       code_challenge_method: 'S256',
       response_mode: 'query',
-      screen_hint: 'signup',       // 提示显示注册页面
-      ui_locales: 'zh-CN',
-      // 添加Authing特定的注册参数
-      action: 'register',          // Authing特定参数
-      mode: 'register'             // 明确指定为注册模式
+      ui_locales: 'zh-CN'
     });
 
     const finalRegisterUrl = `${authEndpoint}?${registerParams.toString()}`;

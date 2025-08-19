@@ -62,7 +62,8 @@ class AuthingService {
     }
 
     try {
-      this.client.setAccessToken(token);
+      // 🔧 修复：使用正确的API方法 setToken 而不是 setAccessToken
+      this.client.setToken(token);
       return true;
     } catch (error) {
       console.error('❌ 设置访问令牌失败:', error);
