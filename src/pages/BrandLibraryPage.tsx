@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
+import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
 import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
 import { logger } from '@/utils/logger';
@@ -2083,26 +2084,18 @@ export default function BrandLibraryPageFixed() {
                   </h4>
                   <div className="space-y-3">
                     <div className="flex gap-2 relative">
-                      <div className="flex-1 relative">
+                      <PermissionProtectedInput
+                        requiredTier="premium"
+                        featureName="网页内容提取输入"
+                        className="flex-1"
+                      >
                         <Input
                           placeholder="输入网页链接，如：https://example.com"
                           value={webUrl}
                           onChange={(e) => setWebUrl(e.target.value)}
-                          className="flex-1"
                           disabled={isExtractingWeb}
                         />
-                        {/* 权限遮罩 */}
-                        <div className="absolute inset-0 pointer-events-none">
-                          <PermissionLockedButton
-                            requiredTier="premium"
-                            featureName="网页内容提取输入"
-                            variant="ghost"
-                            className="w-full h-full opacity-0 pointer-events-auto"
-                            onClick={() => {}}
-                          >
-                          </PermissionLockedButton>
-                        </div>
-                      </div>
+                      </PermissionProtectedInput>
                       <PermissionLockedButton
                         requiredTier="premium"
                         featureName="网页内容提取"
@@ -2181,86 +2174,58 @@ export default function BrandLibraryPageFixed() {
                   {/* 左侧：搜索和筛选 */}
                   <div className="flex flex-col sm:flex-row gap-3 flex-1">
                     <div className="flex-1 min-w-0">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                        <Input
-                          placeholder="搜索资料名称..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10"
-                        />
-                        {/* 权限遮罩 */}
-                        <div className="absolute inset-0 pointer-events-none">
-                          <PermissionLockedButton
-                            requiredTier="premium"
-                            featureName="品牌资料搜索"
-                            variant="ghost"
-                            className="w-full h-full opacity-0 pointer-events-auto"
-                            onClick={() => {}}
-                          >
-                          </PermissionLockedButton>
+                      <PermissionProtectedInput
+                        requiredTier="premium"
+                        featureName="品牌资料搜索"
+                      >
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <Input
+                            placeholder="搜索资料名称..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10"
+                          />
                         </div>
-                      </div>
+                      </PermissionProtectedInput>
                     </div>
                     <div className="flex gap-2">
-                      <div className="relative">
-                        <Select value={selectedCategories[0] || 'all'} onValueChange={(value) => {
+                      <PermissionProtectedSelect
+                        requiredTier="premium"
+                        featureName="分类筛选"
+                        value={selectedCategories[0] || 'all'}
+                        onValueChange={(value) => {
                           if (value === 'all') {
                             setSelectedCategories([]);
                           } else {
                             setSelectedCategories([value]);
                           }
-                        }}>
-                          <SelectTrigger className="w-40">
-                            <SelectValue placeholder="选择分类" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">全部分类</SelectItem>
-                            {SYSTEM_CATEGORIES.map((category) => (
-                              <SelectItem key={category.value} value={category.value}>
-                                {category.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {/* 权限遮罩 */}
-                        <div className="absolute inset-0 pointer-events-none">
-                          <PermissionLockedButton
-                            requiredTier="premium"
-                            featureName="分类筛选"
-                            variant="ghost"
-                            className="w-full h-full opacity-0 pointer-events-auto"
-                            onClick={() => {}}
-                          >
-                          </PermissionLockedButton>
-                        </div>
-                      </div>
-                      <div className="relative">
-                        <Select value={sortOption} onValueChange={setSortOption}>
-                          <SelectTrigger className="w-32">
-                            <SelectValue placeholder="排序" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="date-new">最新上传</SelectItem>
-                            <SelectItem value="date-old">最早上传</SelectItem>
-                            <SelectItem value="name-asc">名称A-Z</SelectItem>
-                            <SelectItem value="name-desc">名称Z-A</SelectItem>
-                            <SelectItem value="size-large">文件最大</SelectItem>
-                            <SelectItem value="size-small">文件最小</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {/* 权限遮罩 */}
-                        <div className="absolute inset-0 pointer-events-none">
-                          <PermissionLockedButton
-                            requiredTier="premium"
-                            featureName="排序选择"
-                            variant="ghost"
-                            className="w-full h-full opacity-0 pointer-events-auto"
-                            onClick={() => {}}
-                          >
-                          </PermissionLockedButton>
-                        </div>
-                      </div>
+                        }}
+                        placeholder="选择分类"
+                        className="w-40"
+                      >
+                        <SelectItem value="all">全部分类</SelectItem>
+                        {SYSTEM_CATEGORIES.map((category) => (
+                          <SelectItem key={category.value} value={category.value}>
+                            {category.label}
+                          </SelectItem>
+                        ))}
+                      </PermissionProtectedSelect>
+                      <PermissionProtectedSelect
+                        requiredTier="premium"
+                        featureName="排序选择"
+                        value={sortOption}
+                        onValueChange={setSortOption}
+                        placeholder="排序"
+                        className="w-32"
+                      >
+                        <SelectItem value="date-new">最新上传</SelectItem>
+                        <SelectItem value="date-old">最早上传</SelectItem>
+                        <SelectItem value="name-asc">名称A-Z</SelectItem>
+                        <SelectItem value="name-desc">名称Z-A</SelectItem>
+                        <SelectItem value="size-large">文件最大</SelectItem>
+                        <SelectItem value="size-small">文件最小</SelectItem>
+                      </PermissionProtectedSelect>
                     </div>
                   </div>
 

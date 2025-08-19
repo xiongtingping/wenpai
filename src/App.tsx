@@ -88,10 +88,10 @@ const App: React.FC = () => {
                     {/* 核心功能页面 - 需要登录 */}
                     <Route path="/adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
                     <Route path="/new-adapt" element={<AuthGuard><AdaptPage /></AuthGuard>} />
-                    <Route path="/creative-studio" element={<AuthGuard><CreativeStudioPage /></AuthGuard>} />
+                    <Route path="/creative-studio" element={<ProGuard><CreativeStudioPage /></ProGuard>} />
                     <Route path="/hot-topics" element={<HotTopicsPage />} />
                     <Route path="/bookmark" element={<AuthGuard><BookmarkPage /></AuthGuard>} />
-                    <Route path="/brand-library" element={<ProGuard><BrandLibraryPage /></ProGuard>} />
+                    <Route path="/brand-library" element={<PremiumGuard><BrandLibraryPage /></PremiumGuard>} />
                     <Route path="/history" element={<AuthGuard><HistoryPage /></AuthGuard>} />
                     <Route path="/emoji" element={<EmojiPage />} />
                     <Route path="/share-manager" element={<AuthGuard><ShareManagerPage /></AuthGuard>} />
