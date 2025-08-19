@@ -303,9 +303,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
 
-  // 注册方法（跳转到Authing注册页面）
+  // 注册方法（使用OAuth流程，参考authingRegisterHelper.ts的正确实现）
   const register = async (redirectTo?: string) => {
-    logger.debug('📝 开始注册流程...', { method: 'REGISTER_PAGE', redirectTo });
+    logger.debug('📝 开始注册流程...', { method: 'OAUTH_REGISTER', redirectTo });
 
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
@@ -330,22 +330,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    // 🔧 直接跳转到Authing控制台的注册页面，不使用OAuth流程
-    // 这样可以确保用户看到真正的注册表单
-    const registerPageUrl = `${cfg.host.replace(/\/$/, '')}/register`;
+    // 🔧 生成PKCE验证器（与登录方法相同的逻辑）
+    const genRandom = (length: number) => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+      let res = '';
+      const array = new Uint8Array(length);
+      crypto.getRandomValues(array);
+      for (let i = 0; i < array.length; i++) {
+        res += chars[array[i] % chars.length];
+      }
+      return res;
+    };
+    const toBase64Url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const encoder = new TextEncoder();
+    const verifier = genRandom(64);
+    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
+    const challenge = toBase64Url(digest);
 
-    // 添加回调参数
-    const urlParams = new URLSearchParams({
-      app_id: cfg.appId,
-      redirect_uri: redirectTo || window.location.href
+    // 保存PKCE验证器（与登录方法相同）
+    sessionStorage.setItem('auth_pkce_verifier', verifier);
+    localStorage.setItem('auth_pkce_verifier_backup', verifier);
+
+    // 生成state参数
+    const timestamp = Date.now();
+    const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
+
+    // 🔧 使用OIDC标准端点，添加注册模式参数（参考authingRegisterHelper.ts）
+    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/oidc/auth`;
+    const registerParams = new URLSearchParams({
+      client_id: cfg.appId,
+      redirect_uri: cfg.redirectUri,
+      response_type: 'code',
+      scope: 'openid profile email',
+      state: encodeURIComponent(state),
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      prompt: 'login',           // Authing支持的prompt值
+      screen_hint: 'signup',     // 指示显示注册表单
+      register: 'true',          // 注册模式标识
+      ui_locales: 'zh-CN'        // 设置中文界面
     });
 
-    const finalRegisterUrl = `${registerPageUrl}?${urlParams.toString()}`;
+    const finalRegisterUrl = `${authEndpoint}?${registerParams.toString()}`;
 
-    logger.debug('📝 跳转到Authing注册页面:', {
-      registerPageUrl: finalRegisterUrl,
-      redirectUri: redirectTo || window.location.href,
-      mode: 'register_direct_page'
+    logger.debug('📝 跳转到Authing注册页面（OIDC）:', {
+      registerUrl: finalRegisterUrl,
+      redirectUri: cfg.redirectUri,
+      mode: 'oauth_register_oidc',
+      verifierSaved: !!sessionStorage.getItem('auth_pkce_verifier'),
+      state: state
     });
 
     // 跳转到注册页面
