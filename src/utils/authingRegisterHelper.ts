@@ -223,7 +223,8 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
 
   // 🔧 尝试使用OIDC标准端点，避免App ID路径问题
   const oidcParams = new URLSearchParams(params);
-  oidcParams.set('prompt', 'signup');  // OIDC标准的注册提示
+  oidcParams.set('prompt', 'login');  // Authing支持的prompt值
+  oidcParams.set('screen_hint', 'signup');  // 使用screen_hint指示注册
 
   const oidcUrl = `${cleanHost}/oidc/auth?${oidcParams.toString()}`;
   console.log('🔧 尝试OIDC注册URL:', oidcUrl);
