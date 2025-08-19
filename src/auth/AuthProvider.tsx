@@ -462,18 +462,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       logger.error('注册URL生成失败，使用备选方案', e);
-      const base = `${cfg.host.replace(/\/$/, '')}`;
+
+      // 🔧 强制修复：确保备选方案也使用正确的配置
+      const correctAppId = '68823897631e1ef8ff3720b2';
+      const wrongAppId = '688237f8f58e454393add99e';
+
+      // 清理host，移除任何App ID路径
+      let cleanBase = cfg.host.replace(/\/$/, '');
+      cleanBase = cleanBase.replace(new RegExp(`/${wrongAppId}.*$`), '');
+      cleanBase = cleanBase.replace(new RegExp(`/${correctAppId}.*$`), '');
+      cleanBase = cleanBase.replace(/\/.*$/, '');
+
+      // 确保使用正确的域名
+      if (!cleanBase.includes('rzcswqs4sq0f.authing.cn')) {
+        cleanBase = 'https://rzcswqs4sq0f.authing.cn';
+      }
+
+      // 强制使用正确的App ID
+      const safeAppId = correctAppId;
 
       // 🔧 尝试多种注册端点
       const fallbackUrls = [
-        `${base}/${cfg.appId}/register?${params.toString()}`,
-        `${base}/${cfg.appId}/signup?${params.toString()}`,
-        `${base}/oidc/auth?${params.toString()}&prompt=signup`,
-        `${base}/${cfg.appId}/login?${params.toString()}&mode=register`
+        `${cleanBase}/${safeAppId}/register?${params.toString()}`,
+        `${cleanBase}/${safeAppId}/signup?${params.toString()}`,
+        `${cleanBase}/oidc/auth?${params.toString()}&prompt=signup`,
+        `${cleanBase}/${safeAppId}/login?${params.toString()}&mode=register`
       ];
 
-      logger.debug('🔧 尝试备选注册URL:', fallbackUrls[0]);
-      window.location.href = fallbackUrls[0];
+      logger.debug('🔧 尝试备选注册URL:', {
+        originalHost: cfg.host,
+        cleanBase,
+        originalAppId: cfg.appId,
+        safeAppId,
+        fallbackUrl: fallbackUrls[0]
+      });
+
+      // 最后安全检查
+      let finalUrl = fallbackUrls[0];
+      if (finalUrl.includes(wrongAppId)) {
+        finalUrl = finalUrl.replace(new RegExp(wrongAppId, 'g'), correctAppId);
+        logger.debug('🔧 修正备选URL中的错误App ID:', finalUrl);
+      }
+
+      window.location.href = finalUrl;
     }
   };
 

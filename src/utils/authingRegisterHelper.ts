@@ -4,6 +4,7 @@
  */
 
 import { logger } from '@/utils/logger';
+import { fixAppIdConfig, fixHostConfig, fixUrlAppId } from '@/utils/authingConfigFix';
 
 export interface RegisterConfig {
   appId: string;
@@ -161,10 +162,23 @@ export async function getBestRegisterUrl(config: RegisterConfig): Promise<{
  * 简化版本：直接返回最可能的注册URL（无网络检测）
  */
 export function getRegisterUrlFast(config: RegisterConfig): string {
-  const { appId, host, redirectUri, state, codeChallenge, nonce } = config;
+  const { appId: originalAppId, host: originalHost, redirectUri, state, codeChallenge, nonce } = config;
+
+  // 🔧 使用修复函数确保配置正确
+  const safeAppId = fixAppIdConfig(originalAppId);
+  const cleanHost = fixHostConfig(originalHost);
+
+  console.log('🔧 配置修复检查:', {
+    originalAppId,
+    safeAppId,
+    originalHost,
+    cleanHost,
+    wasAppIdFixed: originalAppId !== safeAppId,
+    wasHostFixed: originalHost !== cleanHost
+  });
 
   const params = new URLSearchParams({
-    client_id: appId,
+    client_id: safeAppId,  // 使用安全的App ID
     redirect_uri: redirectUri,
     response_type: 'code',
     scope: 'openid profile email',
@@ -181,7 +195,8 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
   });
 
   console.log('🔧 注册URL参数检查:', {
-    appId,
+    safeAppId,
+    cleanHost,
     redirectUri,
     state: JSON.parse(state),
     hasCodeChallenge: !!codeChallenge,
@@ -191,16 +206,26 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
   // 🔧 使用Authing的注册端点
   // 尝试多种可能的注册URL格式
   const registerEndpoints = [
-    `${host}/${appId}/register`,           // 标准注册端点
-    `${host}/${appId}/signup`,             // 备选注册端点
-    `${host}/${appId}/login?mode=register`, // 登录页面注册模式
-    `${host}/oidc/auth?${params.toString()}&prompt=signup`, // OIDC注册
+    `${cleanHost}/${safeAppId}/register`,           // 标准注册端点
+    `${cleanHost}/${safeAppId}/signup`,             // 备选注册端点
+    `${cleanHost}/${safeAppId}/login?mode=register`, // 登录页面注册模式
+    `${cleanHost}/oidc/auth?${params.toString()}&prompt=signup`, // OIDC注册
   ];
 
   console.log('🔧 尝试注册端点:', registerEndpoints);
 
   // 优先使用标准注册端点
-  return `${host}/${appId}/register?${params.toString()}`;
+  const finalUrl = `${cleanHost}/${safeAppId}/register?${params.toString()}`;
+  console.log('🔧 最终注册URL:', finalUrl);
+
+  // 🔧 最后安全检查：使用修复函数确保URL正确
+  const safeFinalUrl = fixUrlAppId(finalUrl);
+
+  if (safeFinalUrl !== finalUrl) {
+    console.log('🔧 URL最终修复:', { before: finalUrl, after: safeFinalUrl });
+  }
+
+  return safeFinalUrl;
 }
 
 /**

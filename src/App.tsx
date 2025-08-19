@@ -48,6 +48,7 @@ import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
 import ShareManagerPage from '@/pages/ShareManagerPage';
 import WechatTemplatePage from '@/pages/WechatTemplatePage';
+import { DebugAuthPage } from '@/pages/DebugAuthPage';
 
 /**
  * 条件性导航组件
@@ -110,6 +111,9 @@ const App: React.FC = () => {
                     <Route path="/terms" element={<TermsPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
                     <Route path="/features" element={<FeatureShowcasePage />} />
+
+                    {/* 调试页面 */}
+                    <Route path="/debug-auth" element={<DebugAuthPage />} />
 
                     {/* 错误页面 */}
                     <Route path="/403" element={<ForbiddenPage />} />

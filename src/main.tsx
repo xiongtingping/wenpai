@@ -3,6 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
+import { applyGlobalAuthingFixes } from './utils/authingConfigFix';
+
+// 🔧 在应用启动前应用全局Authing配置修复
+applyGlobalAuthingFixes();
 
 // 🔧 过滤第三方服务的已知错误，减少控制台噪音
 const originalConsoleError = console.error;
