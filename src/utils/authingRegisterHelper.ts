@@ -221,9 +221,19 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
 
   console.log('🔧 尝试注册端点:', registerEndpoints);
 
-  // 优先使用标准注册端点
-  const finalUrl = `${cleanHost}/${safeAppId}/register?${params.toString()}`;
-  console.log('🔧 最终注册URL:', finalUrl);
+  // 🔧 尝试使用OIDC标准端点，避免App ID路径问题
+  const oidcParams = new URLSearchParams(params);
+  oidcParams.set('prompt', 'signup');  // OIDC标准的注册提示
+
+  const oidcUrl = `${cleanHost}/oidc/auth?${oidcParams.toString()}`;
+  console.log('🔧 尝试OIDC注册URL:', oidcUrl);
+
+  // 备选：标准注册端点
+  const standardUrl = `${cleanHost}/${safeAppId}/register?${params.toString()}`;
+  console.log('🔧 备选注册URL:', standardUrl);
+
+  // 优先使用OIDC端点
+  const finalUrl = oidcUrl;
 
   // 🔧 最后安全检查：使用修复函数确保URL正确
   const safeFinalUrl = fixUrlAppId(finalUrl);
