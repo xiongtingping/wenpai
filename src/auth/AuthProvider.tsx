@@ -355,8 +355,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const timestamp = Date.now();
     const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
 
-    // 🔧 使用OIDC标准端点，添加注册模式参数（参考authingRegisterHelper.ts）
-    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/oidc/auth`;
+    // 🔧 使用Authing专用注册端点，避免OIDC端点的限制（参考authingRegisterHelper.ts第216行）
+    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}/register`;
     const registerParams = new URLSearchParams({
       client_id: cfg.appId,
       redirect_uri: cfg.redirectUri,
@@ -365,7 +365,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       state: encodeURIComponent(state),
       code_challenge: challenge,
       code_challenge_method: 'S256',
-      prompt: 'signup',          // 🔧 修复：使用signup而不是login
+      response_mode: 'query',    // 明确指定响应模式
       register: 'true',          // 注册模式标识
       mode: 'register',          // 模式参数
       action: 'register',        // 动作参数
@@ -374,10 +374,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const finalRegisterUrl = `${authEndpoint}?${registerParams.toString()}`;
 
-    logger.debug('📝 跳转到Authing注册页面（OIDC）:', {
+    logger.debug('📝 跳转到Authing专用注册端点:', {
       registerUrl: finalRegisterUrl,
       redirectUri: cfg.redirectUri,
-      mode: 'oauth_register_oidc',
+      mode: 'oauth_register_dedicated',
+      endpoint: 'register_endpoint',
       verifierSaved: !!sessionStorage.getItem('auth_pkce_verifier'),
       state: state
     });
