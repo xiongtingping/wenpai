@@ -303,12 +303,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   };
 
-  // 注册方法（直接跳转到注册页面）
+  // 注册方法（跳转到Authing注册页面）
   const register = async (redirectTo?: string) => {
     logger.debug('📝 开始注册流程...', { method: 'REGISTER_PAGE', redirectTo });
-
-    // 🔧 注册跳转到注册页面，但仍需要OAuth流程支持回调
-    logger.debug('[Authing] 跳转到注册页面（含OAuth支持）');
 
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
@@ -333,53 +330,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    // 🔧 生成PKCE验证器 - 注册页面仍然需要OAuth授权流程
-    const genRandom = (length: number) => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-      let res = '';
-      const array = new Uint8Array(length);
-      crypto.getRandomValues(array);
-      for (let i = 0; i < array.length; i++) {
-        res += chars[array[i] % chars.length];
-      }
-      return res;
-    };
-    const toBase64Url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    const encoder = new TextEncoder();
-    const verifier = genRandom(64);
-    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
-    const challenge = toBase64Url(digest);
+    // 🔧 直接跳转到Authing的注册页面，不使用OAuth流程
+    // 这样用户会看到真正的注册表单而不是直接登录
+    const registerPageUrl = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}/register`;
 
-    // 保存PKCE验证器到sessionStorage，回调时需要
-    sessionStorage.setItem('auth_pkce_verifier', verifier);
-
-    // 生成state参数
-    const timestamp = Date.now();
-    const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
-
-    // 🔧 构建注册页面URL - 跳转到Authing登录/注册统一页面，添加注册模式参数
-    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}`;
-
-    // 添加OAuth参数和注册模式标识
+    // 添加回调参数，注册成功后跳转回来
     const urlParams = new URLSearchParams({
-      client_id: cfg.appId,
-      redirect_uri: cfg.redirectUri,
-      response_type: 'code',
-      scope: 'openid',
-      state: encodeURIComponent(state),
-      code_challenge: challenge,
-      code_challenge_method: 'S256',
-      register: 'true'  // 添加注册模式参数
+      redirect_uri: redirectTo || window.location.href
     });
 
-    const finalRegisterUrl = `${authEndpoint}?${urlParams.toString()}`;
+    const finalRegisterUrl = `${registerPageUrl}?${urlParams.toString()}`;
 
-    logger.debug('📝 跳转到注册页面:', {
+    logger.debug('📝 跳转到Authing注册页面:', {
       registerPageUrl: finalRegisterUrl,
-      redirectUri: cfg.redirectUri,
-      mode: 'register_oauth',
-      verifierSaved: !!sessionStorage.getItem('auth_pkce_verifier'),
-      state: state
+      redirectUri: redirectTo || window.location.href,
+      mode: 'register_direct'
     });
 
     // 跳转到注册页面
