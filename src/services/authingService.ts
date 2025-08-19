@@ -37,6 +37,26 @@ class AuthingService {
       const config = getAuthConfig();
       const token = localStorage.getItem('auth_token');
 
+      // 🔧 调试：检查token的详细信息
+      if (token) {
+        try {
+          // 尝试解码JWT token查看内容
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const now = Math.floor(Date.now() / 1000);
+          const isExpired = payload.exp && payload.exp < now;
+          console.log('🔍 Token详细信息:', {
+            hasToken: true,
+            tokenLength: token.length,
+            tokenType: payload.token_use || 'unknown',
+            isExpired,
+            expiresAt: payload.exp ? new Date(payload.exp * 1000).toISOString() : 'unknown',
+            currentTime: new Date().toISOString()
+          });
+        } catch (e) {
+          console.log('🔍 Token信息:', { hasToken: true, tokenLength: token.length, parseError: e.message });
+        }
+      }
+
       // 🔧 修复：创建AuthenticationClient实例时传入token
       this.client = new AuthenticationClient({
         appId: config.appId,
@@ -113,13 +133,47 @@ class AuthingService {
       };
     }
 
-    // 🔧 修复：token已在初始化时设置，只需检查是否存在
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
+    // 🔧 修复：尝试多种token获取方式
+    const authToken = localStorage.getItem('auth_token');
+    const idToken = localStorage.getItem('id_token');
+    const accessToken = localStorage.getItem('access_token');
+
+    console.log('🔍 可用的token类型:', {
+      hasAuthToken: !!authToken,
+      hasIdToken: !!idToken,
+      hasAccessToken: !!accessToken
+    });
+
+    if (!authToken && !idToken && !accessToken) {
       return {
         success: false,
         error: '用户未登录或令牌无效'
       };
+    }
+
+    // 🔧 尝试使用不同的token类型
+    const tokenToUse = idToken || accessToken || authToken;
+
+    // 重新创建客户端实例，使用正确的token
+    try {
+      const config = getAuthConfig();
+      const { AuthenticationClient } = await import('authing-js-sdk');
+
+      this.client = new AuthenticationClient({
+        appId: config.appId,
+        appHost: config.host,
+        token: tokenToUse,
+        onError: (code, message, data) => {
+          console.error('🔴 Authing客户端错误:', { code, message, data });
+        }
+      });
+
+      console.log('🔧 使用token类型:', {
+        tokenType: idToken ? 'id_token' : (accessToken ? 'access_token' : 'auth_token'),
+        tokenLength: tokenToUse?.length
+      });
+    } catch (error) {
+      console.error('❌ 重新初始化客户端失败:', error);
     }
 
     try {
