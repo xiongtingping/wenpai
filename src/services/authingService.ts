@@ -28,23 +28,27 @@ class AuthingService {
    * 初始化Authing客户端
    */
   private async initializeClient(): Promise<void> {
-    if (this.isInitialized && this.client) {
-      return;
-    }
+    // 🔧 修复：每次都重新初始化，确保使用最新的token
+    // if (this.isInitialized && this.client) {
+    //   return;
+    // }
 
     try {
       const config = getAuthConfig();
-      
-      // 创建AuthenticationClient实例
+      const token = localStorage.getItem('auth_token');
+
+      // 🔧 修复：创建AuthenticationClient实例时传入token
       this.client = new AuthenticationClient({
         appId: config.appId,
         appHost: config.host,
+        token: token, // 关键修复：初始化时传入token
         onError: (code, message, data) => {
           console.error('🔴 Authing客户端错误:', { code, message, data });
         }
       });
 
       this.isInitialized = true;
+      console.log('✅ Authing客户端初始化成功', { hasToken: !!token });
 
     } catch (error) {
       console.error('❌ Authing客户端初始化失败:', error);
@@ -81,8 +85,9 @@ class AuthingService {
       throw new Error('Authing客户端未初始化');
     }
 
-    // 🔧 关键修复：设置访问令牌
-    if (!this.setAccessToken()) {
+    // 🔧 修复：token已在初始化时设置，无需再次设置
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
       throw new Error('用户未登录或令牌无效');
     }
 
@@ -108,8 +113,9 @@ class AuthingService {
       };
     }
 
-    // 🔧 关键修复：设置访问令牌
-    if (!this.setAccessToken()) {
+    // 🔧 修复：token已在初始化时设置，只需检查是否存在
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
       return {
         success: false,
         error: '用户未登录或令牌无效'
