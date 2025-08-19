@@ -307,27 +307,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (redirectTo?: string) => {
     logger.debug('📝 开始注册流程...', { method: 'REGISTER_PAGE', redirectTo });
 
-    // 🔧 注册应该跳转到注册页面，而不是执行OAuth授权流程
-    logger.debug('[Authing] 跳转到注册页面而不是登录');
-    console.log('🚨 步骤1: 开始注册流程');
-
-    // 🔧 注册不需要清除会话，直接跳转到注册页面即可
+    // 🔧 注册跳转到注册页面，但仍需要OAuth流程支持回调
+    logger.debug('[Authing] 跳转到注册页面（含OAuth支持）');
 
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
       logger.error(errorMsg);
       setError(errorMsg);
-      console.log('🚨 错误: 配置无效，提前返回');
       return;
     }
-
-    console.log('🚨 步骤2: 配置验证通过');
 
     // 域源 Guard：非本地且非生产域，一律先跳转到生产域再发起注册
     const h = window.location.hostname;
     const isLocal = h === 'localhost' || h === '127.0.0.1';
     const isProd = h === 'www.wenpai.xyz';
-    console.log('🚨 步骤3: 域名检查', { hostname: h, isLocal, isProd });
 
     if (!isLocal && !isProd) {
       const nextUrl = redirectTo || window.location.href;
@@ -336,28 +329,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       u.searchParams.set('authmode', 'register'); // 标记为注册模式
       u.searchParams.set('next', nextUrl);
       logger.debug('🌐 非生产域发起注册，先跳转到生产域:', { from: window.location.href, to: u.toString() });
-      console.log('🚨 域名重定向，提前返回');
       window.location.href = u.toString();
       return;
     }
 
-    console.log('🚨 步骤4: 域名检查通过，继续执行');
-
-    // 🔧 直接跳转到Authing注册页面，不执行OAuth授权流程
-    // 保存重定向信息到localStorage，注册完成后可以返回
-    const redirectInfo = {
-      redirectTo: redirectTo || window.location.href,
-      timestamp: Date.now()
+    // 🔧 生成PKCE验证器 - 注册页面仍然需要OAuth授权流程
+    const genRandom = (length: number) => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+      let res = '';
+      const array = new Uint8Array(length);
+      crypto.getRandomValues(array);
+      for (let i = 0; i < array.length; i++) {
+        res += chars[array[i] % chars.length];
+      }
+      return res;
     };
-    localStorage.setItem('register_redirect_info', JSON.stringify(redirectInfo));
+    const toBase64Url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const encoder = new TextEncoder();
+    const verifier = genRandom(64);
+    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
+    const challenge = toBase64Url(digest);
 
-    // 🔧 构建注册页面URL - 直接跳转到注册表单，不执行OAuth流程
+    // 保存PKCE验证器到sessionStorage，回调时需要
+    sessionStorage.setItem('auth_pkce_verifier', verifier);
+
+    // 生成state参数
+    const timestamp = Date.now();
+    const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
+
+    // 🔧 构建注册页面URL - 使用OAuth参数以支持回调
     const registerPageUrl = `${cfg.host}/${cfg.appId}/register`;
 
-    // 添加回调参数，注册成功后可以返回到我们的网站
+    // 添加OAuth参数，支持注册完成后的回调
     const urlParams = new URLSearchParams({
       redirect_uri: cfg.redirectUri,
-      app_id: cfg.appId
+      app_id: cfg.appId,
+      response_type: 'code',
+      scope: 'openid',
+      state: encodeURIComponent(state),
+      code_challenge: challenge,
+      code_challenge_method: 'S256'
     });
 
     const finalRegisterUrl = `${registerPageUrl}?${urlParams.toString()}`;
@@ -365,17 +376,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logger.debug('📝 跳转到注册页面:', {
       registerPageUrl: finalRegisterUrl,
       redirectUri: cfg.redirectUri,
-      mode: 'register_page'
+      mode: 'register_oauth',
+      verifierSaved: !!sessionStorage.getItem('auth_pkce_verifier'),
+      state: state
     });
 
-    // 🚨 详细调试日志
-    console.log('🚨 即将跳转到注册页面:', finalRegisterUrl);
-    console.log('🚨 当前位置:', window.location.href);
-
-    // 直接跳转到注册页面
-    console.log('🚨 执行跳转...');
+    // 跳转到注册页面
     window.location.href = finalRegisterUrl;
-    console.log('🚨 跳转命令已执行');
   };
 
   // 登出方法
