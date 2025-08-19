@@ -308,7 +308,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logger.debug('📝 开始注册流程...', { method: 'REGISTER', redirectTo });
 
     // 🔧 注册应该跳转到注册页面，而不是执行OAuth授权流程
-    logger.debug('[Authing] 跳转到注册页面');
+    logger.debug('[Authing] 跳转到注册页面而不是登录');
 
     // 🔧 注册不需要清除会话，直接跳转到注册页面即可
 
