@@ -50,7 +50,6 @@ import {
   Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import MarketingCalendar from './MarketingCalendar';
 import { MomentsTextGenerator } from './MomentsTextGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -2208,6 +2207,7 @@ ${generateStandardCallToAction()}
                       className="w-full h-full opacity-0 pointer-events-auto"
                       onClick={() => {}}
                     >
+                      <span></span>
                     </PermissionLockedButton>
                   </div>
                 </div>

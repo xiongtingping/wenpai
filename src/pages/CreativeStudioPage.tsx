@@ -51,8 +51,6 @@ import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
 
-import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
-
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
 const EmojiPage = React.lazy(() => import('@/pages/EmojiPage'));

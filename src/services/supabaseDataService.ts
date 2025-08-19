@@ -399,7 +399,7 @@ export const TABLE_NAMES = {
   USER_ORDERS: 'user_orders',
   USER_NOTES: 'user_notes',
   USER_FILES: 'user_files',
-  USER_USAGE_LOGS: 'user_usage_logs',
+  USER_USAGE_LOGS: 'cdk_usage_logs', // 🔧 修复：使用实际存在的表名
   USER_LIBRARY_ITEMS: 'user_library_items',
   USER_CHAT_HISTORY: 'user_chat_history',
   USER_BRAND_CORPUS: 'user_brand_corpus'

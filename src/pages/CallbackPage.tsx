@@ -110,8 +110,10 @@ const CallbackPage: React.FC = () => {
               if (pkceData.verifier) {
                 console.log('🔄 从JSON数据恢复PKCE验证器');
                 codeVerifier = pkceData.verifier;
-                sessionStorage.setItem('auth_pkce_verifier', codeVerifier);
-                localStorage.setItem('auth_pkce_verifier_backup', codeVerifier);
+                if (codeVerifier) {
+                  sessionStorage.setItem('auth_pkce_verifier', codeVerifier);
+                  localStorage.setItem('auth_pkce_verifier_backup', codeVerifier);
+                }
               }
             } catch (e) {
               console.warn('⚠️ 解析PKCE数据失败:', e);
@@ -370,7 +372,12 @@ const CallbackPage: React.FC = () => {
                         originalState: state,
                         stateLength: state.length,
                         statePreview: state.substring(0, 100),
-                        errors: { e1: e1.message, e2: e2.message, e3: e3.message, e4: e4.message }
+                        errors: {
+                          e1: e1 instanceof Error ? e1.message : String(e1),
+                          e2: e2 instanceof Error ? e2.message : String(e2),
+                          e3: e3 instanceof Error ? e3.message : String(e3),
+                          e4: e4 instanceof Error ? e4.message : String(e4)
+                        }
                       });
                       logger.warn('⚠️ 所有state解析方式都失败，使用默认值');
                       stateObj = { redirectTo: '/' }; // 使用默认值而不是抛出错误
