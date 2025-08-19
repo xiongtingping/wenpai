@@ -198,7 +198,14 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     safeAppId,
     cleanHost,
     redirectUri,
-    state: JSON.parse(state),
+    state: state,
+    stateDecoded: (() => {
+      try {
+        return JSON.parse(decodeURIComponent(state));
+      } catch (e) {
+        return 'Invalid JSON';
+      }
+    })(),
     hasCodeChallenge: !!codeChallenge,
     forceAuth: true
   });
