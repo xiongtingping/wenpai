@@ -109,6 +109,7 @@ import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
+import TopNavigation from '@/components/layout/TopNavigation';
 
 /**
  * 主流平台内容发布入口URL映射
@@ -3869,6 +3870,9 @@ ${charCountControl.source === 'platform-specific'
 
   return (
     <div className="min-h-screen bg-background">
+      {/* 顶部导航 */}
+      <TopNavigation />
+
       {/* 页面导航 */}
       <PageNavigation
         title="AI内容适配器"

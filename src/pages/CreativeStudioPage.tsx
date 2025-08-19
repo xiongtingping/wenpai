@@ -50,6 +50,7 @@ import { CreativeCube } from '@/components/creative/CreativeCube';
 import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
+import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
 
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
