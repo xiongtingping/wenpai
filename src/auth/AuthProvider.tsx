@@ -355,9 +355,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const timestamp = Date.now();
     const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
 
-    // 🔧 强制使用正确的App ID，避免配置污染问题
+    // 🔧 使用OIDC标准端点，避免App ID路径重定向问题
     const CORRECT_APP_ID = '68823897631e1ef8ff3720b2';
-    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/${CORRECT_APP_ID}/register`;
+    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/oidc/auth`;
     const registerParams = new URLSearchParams({
       client_id: CORRECT_APP_ID,
       redirect_uri: cfg.redirectUri,
@@ -367,9 +367,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       code_challenge: challenge,
       code_challenge_method: 'S256',
       response_mode: 'query',    // 明确指定响应模式
-      register: 'true',          // 注册模式标识
-      mode: 'register',          // 模式参数
-      action: 'register',        // 动作参数
+      screen_hint: 'signup',     // OIDC标准的注册提示参数
       ui_locales: 'zh-CN'        // 设置中文界面
     });
 
