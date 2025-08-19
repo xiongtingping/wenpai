@@ -222,7 +222,9 @@ function DimensionCard({
               const isPinned = pinnedItems.includes(item);
               return (
                 <div key={`default-${item}-${index}`} className="relative group">
-                  <Button
+                  <PermissionLockedButton
+                    requiredTier="pro"
+                    featureName="创意魔方维度选择"
                     size="sm"
                     variant={selectedItem === item ? "default" : "outline"}
                     className={`creative-module-button h-6 px-1.5 justify-center w-full transition-all ${
@@ -234,7 +236,7 @@ function DimensionCard({
                     disabled={!!selectedItem && selectedItem !== item}
                   >
                     <span className="truncate text-center">{isPinned ? '📌 ' : ''}{item}</span>
-                  </Button>
+                  </PermissionLockedButton>
 
                   {/* 管理按钮 - 默认项显示钉住和删除按钮 */}
                   <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -282,7 +284,9 @@ function DimensionCard({
             const isPinned = pinnedItems.includes(item);
             return (
               <div key={`custom-${dimension.id}-${index}-${item}`} className="relative group">
-                <Button
+                <PermissionLockedButton
+                  requiredTier="pro"
+                  featureName="创意魔方自定义选项"
                   size="sm"
                   variant={selectedItem === item ? "default" : "outline"}
                   className={`text-xs h-6 px-1.5 justify-center w-full transition-all ${
@@ -294,7 +298,7 @@ function DimensionCard({
                   disabled={!!selectedItem && selectedItem !== item}
                 >
                   <span className="truncate text-center">{isPinned ? '📌 ' : ''}🔧 {item}</span>
-                </Button>
+                </PermissionLockedButton>
 
                 {/* 管理按钮 */}
                 <div className="absolute -top-0.5 -right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -339,14 +343,16 @@ function DimensionCard({
 
           {/* 添加自定义选项按钮 - 放在网格的最后 */}
           {!showAddInput ? (
-            <Button
+            <PermissionLockedButton
+              requiredTier="pro"
+              featureName="添加自定义选项"
               size="sm"
               variant="ghost"
               className="text-xs h-6 border border-dashed border-border hover:border-border/80 hover:bg-muted/50 w-full"
               onClick={() => setShowAddInput(true)}
             >
               <Plus className="w-4 h-4" />
-            </Button>
+            </PermissionLockedButton>
           ) : null}
         </div>
 
@@ -2174,24 +2180,37 @@ ${generateStandardCallToAction()}
           <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-t">
             <div className="flex items-center gap-4">
               {/* 随机选择控制 */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 relative">
                 <UILabel className="text-sm font-medium">控制维度数量为</UILabel>
-                <Select
-                  value={selectedDimensionCount.toString()}
-                  onValueChange={(value) => setSelectedDimensionCount(parseInt(value))}
-                >
-                  <SelectTrigger className="w-20 h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="4">4个</SelectItem>
-                    <SelectItem value="5">5个</SelectItem>
-                    <SelectItem value="6">6个</SelectItem>
-                    <SelectItem value="7">7个</SelectItem>
-                    <SelectItem value="8">8个</SelectItem>
-                    <SelectItem value="9">9个</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="relative">
+                  <Select
+                    value={selectedDimensionCount.toString()}
+                    onValueChange={(value) => setSelectedDimensionCount(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-20 h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="4">4个</SelectItem>
+                      <SelectItem value="5">5个</SelectItem>
+                      <SelectItem value="6">6个</SelectItem>
+                      <SelectItem value="7">7个</SelectItem>
+                      <SelectItem value="8">8个</SelectItem>
+                      <SelectItem value="9">9个</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {/* 权限遮罩 */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <PermissionLockedButton
+                      requiredTier="pro"
+                      featureName="维度数量控制"
+                      variant="ghost"
+                      className="w-full h-full opacity-0 pointer-events-auto"
+                      onClick={() => {}}
+                    >
+                    </PermissionLockedButton>
+                  </div>
+                </div>
                 <span className="text-xs text-muted-foreground">
                   {requiredDimensions.length}必选+{selectedDimensionCount - requiredDimensions.length}随机
                 </span>
@@ -2208,7 +2227,9 @@ ${generateStandardCallToAction()}
                 </PermissionLockedButton>
               </div>
               
-              <Button
+              <PermissionLockedButton
+                requiredTier="pro"
+                featureName="清空维度选择"
                 variant="outline"
                 size="sm"
                 onClick={clearAllSelections}
@@ -2216,7 +2237,7 @@ ${generateStandardCallToAction()}
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 清空选择
-              </Button>
+              </PermissionLockedButton>
             </div>
             
             <div className="flex items-center gap-2">

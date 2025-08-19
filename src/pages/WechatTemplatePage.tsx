@@ -540,33 +540,75 @@ Good night, beautiful world 🌎
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
+              {/* 权限遮罩 */}
+              <div className="absolute inset-0 pointer-events-none">
+                <PermissionLockedButton
+                  requiredTier="pro"
+                  featureName="文案搜索"
+                  variant="ghost"
+                  className="w-full h-full opacity-0 pointer-events-auto"
+                  onClick={() => {}}
+                >
+                </PermissionLockedButton>
+              </div>
             </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="选择分类" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部分类</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedOccasion} onValueChange={setSelectedOccasion}>
-              <SelectTrigger>
-                <SelectValue placeholder="选择场合" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部场合</SelectItem>
-                {occasions.map(occasion => (
-                  <SelectItem key={occasion} value={occasion}>{occasion}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button variant="outline" onClick={() => setSelectedTags([])}>
+            <div className="relative">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择分类" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部分类</SelectItem>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* 权限遮罩 */}
+              <div className="absolute inset-0 pointer-events-none">
+                <PermissionLockedButton
+                  requiredTier="pro"
+                  featureName="分类筛选"
+                  variant="ghost"
+                  className="w-full h-full opacity-0 pointer-events-auto"
+                  onClick={() => {}}
+                >
+                </PermissionLockedButton>
+              </div>
+            </div>
+            <div className="relative">
+              <Select value={selectedOccasion} onValueChange={setSelectedOccasion}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择场合" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部场合</SelectItem>
+                  {occasions.map(occasion => (
+                    <SelectItem key={occasion} value={occasion}>{occasion}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* 权限遮罩 */}
+              <div className="absolute inset-0 pointer-events-none">
+                <PermissionLockedButton
+                  requiredTier="pro"
+                  featureName="场合筛选"
+                  variant="ghost"
+                  className="w-full h-full opacity-0 pointer-events-auto"
+                  onClick={() => {}}
+                >
+                </PermissionLockedButton>
+              </div>
+            </div>
+            <PermissionLockedButton
+              requiredTier="pro"
+              featureName="标签过滤"
+              variant="outline"
+              onClick={() => setSelectedTags([])}
+            >
               <Filter className="w-4 h-4 mr-2" />
               清除标签过滤
-            </Button>
+            </PermissionLockedButton>
           </div>
           
           {/* 标签过滤 */}

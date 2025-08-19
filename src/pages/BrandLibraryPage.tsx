@@ -2071,14 +2071,27 @@ export default function BrandLibraryPageFixed() {
                     <span className="leading-none">网页内容提取</span>
                   </h4>
                   <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="输入网页链接，如：https://example.com"
-                        value={webUrl}
-                        onChange={(e) => setWebUrl(e.target.value)}
-                        className="flex-1"
-                        disabled={isExtractingWeb}
-                      />
+                    <div className="flex gap-2 relative">
+                      <div className="flex-1 relative">
+                        <Input
+                          placeholder="输入网页链接，如：https://example.com"
+                          value={webUrl}
+                          onChange={(e) => setWebUrl(e.target.value)}
+                          className="flex-1"
+                          disabled={isExtractingWeb}
+                        />
+                        {/* 权限遮罩 */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          <PermissionLockedButton
+                            requiredTier="premium"
+                            featureName="网页内容提取输入"
+                            variant="ghost"
+                            className="w-full h-full opacity-0 pointer-events-auto"
+                            onClick={() => {}}
+                          >
+                          </PermissionLockedButton>
+                        </div>
+                      </div>
                       <PermissionLockedButton
                         requiredTier="premium"
                         featureName="网页内容提取"
@@ -2165,41 +2178,78 @@ export default function BrandLibraryPageFixed() {
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="pl-10"
                         />
+                        {/* 权限遮罩 */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          <PermissionLockedButton
+                            requiredTier="premium"
+                            featureName="品牌资料搜索"
+                            variant="ghost"
+                            className="w-full h-full opacity-0 pointer-events-auto"
+                            onClick={() => {}}
+                          >
+                          </PermissionLockedButton>
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Select value={selectedCategories[0] || 'all'} onValueChange={(value) => {
-                        if (value === 'all') {
-                          setSelectedCategories([]);
-                        } else {
-                          setSelectedCategories([value]);
-                        }
-                      }}>
-                        <SelectTrigger className="w-40">
-                          <SelectValue placeholder="选择分类" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">全部分类</SelectItem>
-                          {SYSTEM_CATEGORIES.map((category) => (
-                            <SelectItem key={category.value} value={category.value}>
-                              {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={sortOption} onValueChange={setSortOption}>
-                        <SelectTrigger className="w-32">
-                          <SelectValue placeholder="排序" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="date-new">最新上传</SelectItem>
-                          <SelectItem value="date-old">最早上传</SelectItem>
-                          <SelectItem value="name-asc">名称A-Z</SelectItem>
-                          <SelectItem value="name-desc">名称Z-A</SelectItem>
-                          <SelectItem value="size-large">文件最大</SelectItem>
-                          <SelectItem value="size-small">文件最小</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="relative">
+                        <Select value={selectedCategories[0] || 'all'} onValueChange={(value) => {
+                          if (value === 'all') {
+                            setSelectedCategories([]);
+                          } else {
+                            setSelectedCategories([value]);
+                          }
+                        }}>
+                          <SelectTrigger className="w-40">
+                            <SelectValue placeholder="选择分类" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">全部分类</SelectItem>
+                            {SYSTEM_CATEGORIES.map((category) => (
+                              <SelectItem key={category.value} value={category.value}>
+                                {category.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {/* 权限遮罩 */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          <PermissionLockedButton
+                            requiredTier="premium"
+                            featureName="分类筛选"
+                            variant="ghost"
+                            className="w-full h-full opacity-0 pointer-events-auto"
+                            onClick={() => {}}
+                          >
+                          </PermissionLockedButton>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <Select value={sortOption} onValueChange={setSortOption}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue placeholder="排序" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="date-new">最新上传</SelectItem>
+                            <SelectItem value="date-old">最早上传</SelectItem>
+                            <SelectItem value="name-asc">名称A-Z</SelectItem>
+                            <SelectItem value="name-desc">名称Z-A</SelectItem>
+                            <SelectItem value="size-large">文件最大</SelectItem>
+                            <SelectItem value="size-small">文件最小</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {/* 权限遮罩 */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          <PermissionLockedButton
+                            requiredTier="premium"
+                            featureName="排序选择"
+                            variant="ghost"
+                            className="w-full h-full opacity-0 pointer-events-auto"
+                            onClick={() => {}}
+                          >
+                          </PermissionLockedButton>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
