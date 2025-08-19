@@ -365,9 +365,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       state: encodeURIComponent(state),
       code_challenge: challenge,
       code_challenge_method: 'S256',
-      prompt: 'login',           // Authing支持的prompt值
-      screen_hint: 'signup',     // 指示显示注册表单
+      prompt: 'signup',          // 🔧 修复：使用signup而不是login
       register: 'true',          // 注册模式标识
+      mode: 'register',          // 模式参数
+      action: 'register',        // 动作参数
       ui_locales: 'zh-CN'        // 设置中文界面
     });
 
