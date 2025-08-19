@@ -309,6 +309,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // 🔧 注册应该跳转到注册页面，而不是执行OAuth授权流程
     logger.debug('[Authing] 跳转到注册页面而不是登录');
+    console.log('🚨 步骤1: 开始注册流程');
 
     // 🔧 注册不需要清除会话，直接跳转到注册页面即可
 
@@ -316,13 +317,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const errorMsg = 'Authing 配置无效，请检查环境变量';
       logger.error(errorMsg);
       setError(errorMsg);
+      console.log('🚨 错误: 配置无效，提前返回');
       return;
     }
+
+    console.log('🚨 步骤2: 配置验证通过');
 
     // 域源 Guard：非本地且非生产域，一律先跳转到生产域再发起注册
     const h = window.location.hostname;
     const isLocal = h === 'localhost' || h === '127.0.0.1';
     const isProd = h === 'www.wenpai.xyz';
+    console.log('🚨 步骤3: 域名检查', { hostname: h, isLocal, isProd });
+
     if (!isLocal && !isProd) {
       const nextUrl = redirectTo || window.location.href;
       const u = new URL('https://www.wenpai.xyz/');
@@ -330,9 +336,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       u.searchParams.set('authmode', 'register'); // 标记为注册模式
       u.searchParams.set('next', nextUrl);
       logger.debug('🌐 非生产域发起注册，先跳转到生产域:', { from: window.location.href, to: u.toString() });
+      console.log('🚨 域名重定向，提前返回');
       window.location.href = u.toString();
       return;
     }
+
+    console.log('🚨 步骤4: 域名检查通过，继续执行');
 
     // 🔧 直接跳转到Authing注册页面，不执行OAuth授权流程
     // 保存重定向信息到localStorage，注册完成后可以返回
