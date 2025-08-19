@@ -303,14 +303,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
 
-  // 注册方法（使用OAuth流程，参考authingRegisterHelper.ts的正确实现）
+  // 注册方法（根因修复：正确处理已登录用户的注册请求）
   const register = async (redirectTo?: string) => {
-    logger.debug('📝 开始注册流程...', { method: 'OAUTH_REGISTER', redirectTo });
+    logger.debug('📝 开始注册流程...', { method: 'SMART_REGISTER', redirectTo });
 
     if (!isAuthConfigValid(cfg)) {
       const errorMsg = 'Authing 配置无效，请检查环境变量';
       logger.error(errorMsg);
       setError(errorMsg);
+      return;
+    }
+
+    // 🔧 根因修复：检查用户登录状态，给出正确的提示
+    if (isAuthenticated && user) {
+      console.log('🔧 用户已登录，无需注册。用户信息:', {
+        nickname: user.nickname,
+        id: user.id
+      });
+
+      // 提示用户已经登录
+      alert(`您已经登录为 ${user.nickname || user.id}，无需重复注册。\n\n如需注册新账户，请先登出当前账户。`);
+
+      // 可选：跳转到个人中心
+      // window.location.href = '/profile';
       return;
     }
 
@@ -329,6 +344,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       window.location.href = u.toString();
       return;
     }
+
+    // 🔧 只有未登录用户才执行注册流程
+    console.log('🔧 用户未登录，开始正常注册流程...');
 
     // 🔧 生成PKCE验证器（与登录方法相同的逻辑）
     const genRandom = (length: number) => {
@@ -355,13 +373,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const timestamp = Date.now();
     const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
 
-    // 🔧 使用Authing专用注册端点，而不是OIDC端点
+    // 🔧 使用OIDC标准端点，但强制显示注册页面
     const CORRECT_APP_ID = '68823897631e1ef8ff3720b2';
 
-    // 尝试Authing专用注册端点
-    const registerEndpoint = `${cfg.host.replace(/\/$/, '')}/${CORRECT_APP_ID}/register`;
+    // 使用OIDC端点，但添加强制注册的参数
+    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/oidc/auth`;
     const registerParams = new URLSearchParams({
-      app_id: CORRECT_APP_ID,
       client_id: CORRECT_APP_ID,
       redirect_uri: cfg.redirectUri,
       response_type: 'code',
@@ -370,10 +387,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       code_challenge: challenge,
       code_challenge_method: 'S256',
       response_mode: 'query',
-      ui_locales: 'zh-CN'
+      prompt: 'consent',           // 强制显示同意页面，避免自动登录
+      screen_hint: 'signup',       // 提示显示注册页面
+      ui_locales: 'zh-CN',
+      // 添加Authing特定的注册参数
+      action: 'register',          // Authing特定参数
+      mode: 'register'             // 明确指定为注册模式
     });
 
-    const finalRegisterUrl = `${registerEndpoint}?${registerParams.toString()}`;
+    const finalRegisterUrl = `${authEndpoint}?${registerParams.toString()}`;
 
     logger.debug('📝 跳转到Authing专用注册端点:', {
       registerUrl: finalRegisterUrl,
