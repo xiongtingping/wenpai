@@ -12,6 +12,7 @@ import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { Clock, Copy, Trash2 } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
+import TopNavigation from '@/components/layout/TopNavigation';
 
 /**
  * 历史记录项接口
@@ -126,6 +127,9 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* 顶部导航 */}
+      <TopNavigation />
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">历史记录</h1>

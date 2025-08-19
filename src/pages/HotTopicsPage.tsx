@@ -69,6 +69,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
+import TopNavigation from '@/components/layout/TopNavigation';
 import TopicHeatChart from '@/components/hot-topics/TopicHeatChart';
 import NotificationBadge from '@/components/hot-topics/NotificationBadge';
 import TopThreePodium from '@/components/hot-topics/TopThreePodium';
@@ -1119,6 +1120,9 @@ export default function HotTopicsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* 顶部导航 */}
+      <TopNavigation />
+
       {/* 页面导航 - PROTECTED COMPONENT */}
       <PageNavigation
         title="全网雷达"

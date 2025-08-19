@@ -61,6 +61,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import PageNavigation from '@/components/layout/PageNavigation';
+import TopNavigation from '@/components/layout/TopNavigation';
 import { useFavoritesStore, favoritesUtils, type FavoriteItem } from '@/stores/favoritesStore';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
@@ -726,6 +727,9 @@ export default function BookmarkPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* 顶部导航 */}
+      <TopNavigation />
+
       {/* 页面导航 */}
       <PageNavigation
         title="我的资料库"
