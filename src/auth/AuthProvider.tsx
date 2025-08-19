@@ -355,10 +355,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const timestamp = Date.now();
     const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
 
-    // 🔧 使用Authing专用注册端点，避免OIDC端点的限制（参考authingRegisterHelper.ts第216行）
-    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}/register`;
+    // 🔧 强制使用正确的App ID，避免配置污染问题
+    const CORRECT_APP_ID = '68823897631e1ef8ff3720b2';
+    const authEndpoint = `${cfg.host.replace(/\/$/, '')}/${CORRECT_APP_ID}/register`;
     const registerParams = new URLSearchParams({
-      client_id: cfg.appId,
+      client_id: CORRECT_APP_ID,
       redirect_uri: cfg.redirectUri,
       response_type: 'code',
       scope: 'openid profile email',
