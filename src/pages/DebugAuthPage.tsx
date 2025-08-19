@@ -10,7 +10,16 @@ import { Badge } from '@/components/ui/badge';
 import { getAuthConfig } from '@/auth/config';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { getRegisterUrlFast } from '@/utils/authingRegisterHelper';
-import { genRandom } from '@/utils/crypto';
+
+// 简单的随机字符串生成函数
+const genRandom = (length: number): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
 
 export const DebugAuthPage: React.FC = () => {
   const { register } = useUnifiedAuth();
