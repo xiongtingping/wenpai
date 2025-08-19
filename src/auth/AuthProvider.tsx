@@ -392,6 +392,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       window.location.href = registerUrl;
     } catch (e) {
+      // 🔧 过滤Authing的正常重定向错误
+      const errorMessage = e?.toString() || '';
+      if (errorMessage.includes('Error: redirect') || errorMessage.includes('authing.co')) {
+        logger.debug('🔧 Authing内部重定向（正常行为）:', errorMessage);
+        return; // 这是正常的重定向，不需要处理
+      }
+
       logger.error('注册URL生成失败，使用备选方案', e);
       const base = `${cfg.host.replace(/\/$/, '')}`;
 
