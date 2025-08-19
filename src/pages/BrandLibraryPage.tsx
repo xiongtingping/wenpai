@@ -17,6 +17,7 @@ import { useUserDataIsolation } from '@/utils/userDataIsolation';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
+import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
 import { logger } from '@/utils/logger';
 import {
   Database, Upload, FileText, File, FileImage,
@@ -1994,6 +1995,12 @@ export default function BrandLibraryPageFixed() {
 
           {/* 上传品牌资料标签页 */}
           <TabsContent value="assets" className="space-y-6">
+            <UnifiedPermissionGuard
+              requiredPermission="feature:brand-library"
+              featureName="品牌资料上传"
+              description="上传品牌资料，AI智能分析并构建品牌语料库"
+              mode="overlay"
+            >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -2669,10 +2676,17 @@ export default function BrandLibraryPageFixed() {
                 )}
               </CardContent>
             </Card>
+            </UnifiedPermissionGuard>
           </TabsContent>
 
           {/* 品牌语料库标签页 */}
           <TabsContent value="dimensions" className="space-y-6">
+            <UnifiedPermissionGuard
+              requiredPermission="feature:brand-library"
+              featureName="品牌语料库"
+              description="AI智能分析品牌资料，构建完整的品牌语料库"
+              mode="overlay"
+            >
 
 
 
@@ -2905,6 +2919,7 @@ export default function BrandLibraryPageFixed() {
                 </CardContent>
               </Card>
             </div>
+            </UnifiedPermissionGuard>
           </TabsContent>
 
 

@@ -119,23 +119,41 @@ export default function CreativeStudioPage() {
 
             {/* 九宫格创意魔方法 */}
             <TabsContent value="cube" className="mt-6">
-              <CreativeCube />
+              <UnifiedPermissionGuard
+                requiredPermission="feature:creative-cube"
+                featureName="九宫格创意魔方"
+                description="AI驱动的创意生成工具，激发无限灵感"
+              >
+                <CreativeCube />
+              </UnifiedPermissionGuard>
             </TabsContent>
 
             {/* 朋友圈文案 */}
             <TabsContent value="wechat" className="mt-6">
-              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                <WechatTemplatePage />
-              </React.Suspense>
+              <UnifiedPermissionGuard
+                requiredPermission="feature:wechat-templates"
+                featureName="微信朋友圈文案模板"
+                description="精心设计的文案模板，让你的朋友圈更有魅力"
+              >
+                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                  <WechatTemplatePage />
+                </React.Suspense>
+              </UnifiedPermissionGuard>
             </TabsContent>
 
             {/* Emoji生成器 */}
             <TabsContent value="emoji" className="mt-6">
-              <div className="bg-card rounded-lg border border-border">
-                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                  <EmojiPage />
-                </React.Suspense>
-              </div>
+              <UnifiedPermissionGuard
+                requiredPermission="feature:emoji-generator"
+                featureName="Emoji生成器"
+                description="智能生成生动表情符号，让内容更有趣更有感染力"
+              >
+                <div className="bg-card rounded-lg border border-border">
+                  <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                    <EmojiPage />
+                  </React.Suspense>
+                </div>
+              </UnifiedPermissionGuard>
             </TabsContent>
           </Tabs>
         </div>
