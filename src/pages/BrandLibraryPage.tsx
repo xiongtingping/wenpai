@@ -1996,12 +1996,8 @@ export default function BrandLibraryPageFixed() {
 
           {/* 上传品牌资料标签页 */}
           <TabsContent value="assets" className="space-y-6">
-            <UnifiedPermissionGuard
-              requiredPermission="feature:brand-library"
-              featureName="品牌资料上传"
-              description="上传品牌资料，AI智能分析并构建品牌语料库"
-              mode="overlay"
-            >
+            {/* 🔧 移除整页权限守卫，内容对所有用户可见 */}
+            <div>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -2641,17 +2637,13 @@ export default function BrandLibraryPageFixed() {
                 )}
               </CardContent>
             </Card>
-            </UnifiedPermissionGuard>
+            </div>
           </TabsContent>
 
           {/* 品牌语料库标签页 */}
           <TabsContent value="dimensions" className="space-y-6">
-            <UnifiedPermissionGuard
-              requiredPermission="feature:brand-library"
-              featureName="品牌语料库"
-              description="AI智能分析品牌资料，构建完整的品牌语料库"
-              mode="overlay"
-            >
+            {/* 🔧 移除整页权限守卫，内容对所有用户可见 */}
+            <div>
 
 
 
@@ -2884,7 +2876,7 @@ export default function BrandLibraryPageFixed() {
                 </CardContent>
               </Card>
             </div>
-            </UnifiedPermissionGuard>
+            </div>
           </TabsContent>
 
 

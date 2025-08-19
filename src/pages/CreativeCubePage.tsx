@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Wand2, Palette, Lightbulb, Zap, Star, Briefcase, Coffee, Target } from 'lucide-react';
-import { PermissionOverlay, usePermissionOverlay } from '@/components/auth/PermissionOverlay';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 
 /**
  * 创意魔方页面
@@ -18,8 +18,7 @@ const CreativeCubePage: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('creative');
 
-  // 权限检查
-  const { shouldShowOverlay } = usePermissionOverlay('creative:basic');
+  // 🔧 移除整页权限检查，改为按钮级权限控制
 
   const contentStyles = [
     { id: 'creative', name: '创意文案', icon: Sparkles, description: '富有创意的营销文案' },
@@ -82,13 +81,8 @@ const CreativeCubePage: React.FC = () => {
         </p>
       </div>
 
-      <PermissionOverlay
-        show={shouldShowOverlay}
-        featureName="创意魔方"
-        requiredPermission="creative:basic"
-        requiredTier="pro"
-        description="创意魔方是专业版/高级版专属功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
-      >
+      {/* 🔧 移除整页权限遮罩，改为按钮级权限控制 */}
+      <div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* 输入区域 */}
         <Card variant="enhanced">
@@ -132,8 +126,10 @@ const CreativeCubePage: React.FC = () => {
               </div>
             </div>
 
-            <Button 
-              onClick={handleGenerate} 
+            <PermissionLockedButton
+              requiredTier="pro"
+              featureName="创意魔方"
+              onClick={handleGenerate}
               disabled={!prompt.trim() || isGenerating}
               className="w-full"
             >
@@ -148,7 +144,7 @@ const CreativeCubePage: React.FC = () => {
                   生成创意内容
                 </>
               )}
-            </Button>
+            </PermissionLockedButton>
           </CardContent>
         </Card>
 
@@ -222,7 +218,7 @@ const CreativeCubePage: React.FC = () => {
           </Card>
         </div>
       </div>
-      </PermissionOverlay>
+      </div>
     </div>
   );
 };
