@@ -53,13 +53,36 @@ class AuthingService {
   }
 
   /**
+   * 设置访问令牌
+   */
+  private setAccessToken(): boolean {
+    const token = localStorage.getItem('auth_token');
+    if (!token || !this.client) {
+      return false;
+    }
+
+    try {
+      this.client.setAccessToken(token);
+      return true;
+    } catch (error) {
+      console.error('❌ 设置访问令牌失败:', error);
+      return false;
+    }
+  }
+
+  /**
    * 获取当前用户信息
    */
   async getCurrentUser(): Promise<any> {
     await this.initializeClient();
-    
+
     if (!this.client) {
       throw new Error('Authing客户端未初始化');
+    }
+
+    // 🔧 关键修复：设置访问令牌
+    if (!this.setAccessToken()) {
+      throw new Error('用户未登录或令牌无效');
     }
 
     try {
@@ -76,11 +99,19 @@ class AuthingService {
    */
   async updateProfile(updates: AuthingUserProfile): Promise<AuthingUpdateResult> {
     await this.initializeClient();
-    
+
     if (!this.client) {
       return {
         success: false,
         error: 'Authing客户端未初始化'
+      };
+    }
+
+    // 🔧 关键修复：设置访问令牌
+    if (!this.setAccessToken()) {
+      return {
+        success: false,
+        error: '用户未登录或令牌无效'
       };
     }
 
