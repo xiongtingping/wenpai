@@ -46,6 +46,8 @@ import SettingsPage from '@/pages/SettingsPage';
 import HistoryPage from '@/pages/HistoryPage';
 import UpgradeComparisonPage from '@/pages/UpgradeComparisonPage';
 import FeatureShowcasePage from '@/pages/FeatureShowcasePage';
+import ShareManagerPage from '@/pages/ShareManagerPage';
+import WechatTemplatePage from '@/pages/WechatTemplatePage';
 
 /**
  * 条件性导航组件
@@ -90,6 +92,8 @@ const App: React.FC = () => {
                     <Route path="/brand-library" element={<ProGuard><BrandLibraryPage /></ProGuard>} />
                     <Route path="/history" element={<AuthGuard><HistoryPage /></AuthGuard>} />
                     <Route path="/emoji" element={<EmojiPage />} />
+                    <Route path="/share-manager" element={<AuthGuard><ShareManagerPage /></AuthGuard>} />
+                    <Route path="/wechat-templates" element={<AuthGuard><WechatTemplatePage /></AuthGuard>} />
                     
                     {/* 用户相关页面 - 需要登录 */}
                     <Route path="/profile" element={<AuthGuard><ProfilePage /></AuthGuard>} />
