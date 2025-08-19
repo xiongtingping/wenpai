@@ -4,14 +4,10 @@ import { getAuthConfig, isAuthConfigValid } from './config';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
 import { getRegisterUrlFast, isRealLogin, getLoginStatus } from '@/utils/authingRegisterHelper';
+import { normalizeUserInfo, StandardUserInfo } from '@/services/userInfoNormalizer';
+import { userInfoSyncService } from '@/services/userInfoSyncService';
 
-export interface AuthUser {
-  id: string;
-  username?: string;
-  email?: string;
-  phone?: string;
-  nickname?: string;
-  avatar?: string;
+export interface AuthUser extends StandardUserInfo {
   token?: string;
   [key: string]: any;
 }
@@ -24,6 +20,7 @@ interface AuthContextType {
   login: (redirectTo?: string) => Promise<void>;
   register: (redirectTo?: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (updates: Partial<AuthUser>) => Promise<void>;
   showGuard: boolean;
   setShowGuard: (show: boolean) => void;
 }
@@ -37,6 +34,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showGuard, setShowGuard] = useState(false);
+
+  // 🔧 应用启动时检查用户信息一致性
+  useEffect(() => {
+    const checkUserInfoConsistency = async () => {
+      try {
+        // 从localStorage获取用户信息
+        const storedUserData = localStorage.getItem('authing_user');
+        if (storedUserData) {
+          const parsedUser = JSON.parse(storedUserData);
+
+          logger.debug('🔍 检查存储的用户信息一致性:', parsedUser.id);
+
+          // 检查数据一致性
+          const consistencyCheck = await userInfoSyncService.checkConsistency(parsedUser.id);
+
+          if (!consistencyCheck.isConsistent) {
+            logger.warn('⚠️ 检测到用户信息不一致，自动修复中...', consistencyCheck.conflicts);
+
+            // 自动修复
+            const repairResult = await userInfoSyncService.autoRepair(parsedUser.id);
+
+            if (repairResult.success) {
+              logger.debug('✅ 用户信息一致性修复成功:', repairResult.repairedFields);
+
+              // 重新加载修复后的用户信息
+              const repairedUserData = localStorage.getItem('authing_user');
+              if (repairedUserData) {
+                const repairedUser = JSON.parse(repairedUserData);
+                setUser(repairedUser);
+                setIsAuthenticated(true);
+              }
+            } else {
+              logger.error('❌ 用户信息一致性修复失败:', repairResult.errors);
+            }
+          } else {
+            logger.debug('✅ 用户信息一致性检查通过');
+            setUser(parsedUser);
+            setIsAuthenticated(true);
+          }
+        }
+      } catch (error) {
+        logger.error('❌ 用户信息一致性检查失败:', error);
+      }
+    };
+
+    checkUserInfoConsistency();
+  }, []);
 
   // 初始化时从 localStorage 恢复用户状态
   React.useEffect(() => {
@@ -61,8 +105,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logger.debug('[Authing] 登录成功:', userInfo);
 
     try {
-      // 🔍 详细调试用户信息
-      console.log('🔍 AuthProvider收到的用户信息:', {
+      // 🔧 使用统一的用户信息标准化服务
+      console.log('🔍 AuthProvider收到的原始用户信息:', {
         userInfo,
         availableFields: Object.keys(userInfo || {}),
         nickname: userInfo?.nickname,
@@ -73,43 +117,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         email: userInfo?.email
       });
 
-      // 🔧 智能昵称处理
-      const getNickname = () => {
-        const candidates = [
-          userInfo?.nickname,
-          userInfo?.name,
-          userInfo?.preferred_username,
-          userInfo?.username,
-          userInfo?.given_name
-        ].filter(val => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim());
+      // 检测登录方式
+      let loginMethod: StandardUserInfo['loginMethod'] = 'authing';
+      if (userInfo.loginMethod) {
+        loginMethod = userInfo.loginMethod;
+      } else if (userInfo.provider) {
+        loginMethod = 'oauth';
+      } else if (userInfo.phone && !userInfo.email) {
+        loginMethod = 'phone';
+      } else if (userInfo.email && !userInfo.phone) {
+        loginMethod = 'email';
+      }
 
-        if (candidates.length > 0) {
-          return candidates[0].trim();
-        }
+      // 标准化用户信息
+      const standardUserInfo = normalizeUserInfo(
+        userInfo,
+        loginMethod,
+        'AuthProvider'
+      );
 
-        // 从email生成昵称
-        if (userInfo?.email && typeof userInfo.email === 'string') {
-          const emailPrefix = userInfo.email.split('@')[0];
-          if (emailPrefix && emailPrefix !== 'user') {
-            return emailPrefix;
-          }
-        }
+      console.log('🔧 标准化后的用户信息:', standardUserInfo);
 
-        return undefined; // 不设置默认值，让显示组件处理
-      };
-
-      // 转换用户数据格式
+      // 转换为AuthUser格式（保持向后兼容）
       const authUser: AuthUser = {
-        id: userInfo.id || (userInfo as any).userId || userInfo?.sub || '',
-        username: userInfo.username || userInfo?.preferred_username || undefined,
-        email: userInfo.email || undefined,
-        phone: userInfo.phone || undefined,
-        nickname: getNickname(),
-        avatar: userInfo.photo || userInfo.picture || userInfo.avatar || undefined,
+        ...standardUserInfo,
         token: userInfo.token || undefined,
       };
 
-      console.log('🔧 AuthProvider处理后的用户信息:', authUser);
+      console.log('🔧 AuthProvider最终用户信息:', authUser);
+
+      // 🔧 同步用户信息到所有存储位置
+      userInfoSyncService.setGlobalStateUpdater((updatedUserInfo) => {
+        setUser(updatedUserInfo as AuthUser);
+        setIsAuthenticated(true);
+      });
+
+      const syncResult = await userInfoSyncService.syncUserInfo(standardUserInfo);
+      console.log('🔄 用户信息同步结果:', syncResult);
+
+      if (!syncResult.success) {
+        console.warn('⚠️ 用户信息同步部分失败:', syncResult.errors);
+      }
 
       // 🔧 检查用户信息完整性，如果不完整则尝试补全
       const isIncompleteUserInfo = !authUser.nickname && userInfo.token;
@@ -481,6 +529,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // 🔧 统一的用户信息更新函数
+  const updateUser = async (updates: Partial<AuthUser>) => {
+    if (!user) {
+      logger.warn('⚠️ 尝试更新用户信息，但用户未登录');
+      return;
+    }
+
+    try {
+      logger.debug('🔄 开始更新用户信息:', updates);
+
+      // 合并更新
+      const updatedUserInfo = { ...user, ...updates, lastUpdated: new Date().toISOString() };
+
+      // 使用同步服务更新所有存储位置
+      const syncResult = await userInfoSyncService.syncUserInfo(updatedUserInfo);
+
+      if (syncResult.success) {
+        logger.debug('✅ 用户信息更新成功');
+      } else {
+        logger.warn('⚠️ 用户信息更新部分失败:', syncResult.errors);
+      }
+
+      // 检查数据一致性
+      const consistencyCheck = await userInfoSyncService.checkConsistency(user.id);
+      if (!consistencyCheck.isConsistent) {
+        logger.warn('⚠️ 检测到数据不一致，尝试自动修复');
+        await userInfoSyncService.autoRepair(user.id);
+      }
+
+    } catch (error) {
+      logger.error('❌ 更新用户信息失败:', error);
+      setError('更新用户信息失败');
+    }
+  };
+
   const contextValue: AuthContextType = {
     user,
     isAuthenticated,
@@ -489,6 +572,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     login,
     register,
     logout,
+    updateUser,
     showGuard,
     setShowGuard,
   };
