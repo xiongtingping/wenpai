@@ -48,7 +48,8 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({
 
   // 检查登录状态
   if (requireAuth && !isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // 重定向到首页，首页会处理登录逻辑
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   // 检查权限等级
