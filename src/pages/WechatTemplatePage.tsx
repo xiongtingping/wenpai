@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Copy, Edit, Heart, Search, Filter, MessageCircle, Calendar, Sparkles, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 
 /**
  * 微信朋友圈文案模板接口定义
@@ -722,13 +723,15 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         </div>
 
         <div className="flex gap-2">
-          <Button
+          <PermissionLockedButton
+            requiredTier="pro"
+            featureName="朋友圈文案模板"
             onClick={handleCopy}
             className="flex-1"
           >
             <Copy className="w-4 h-4 mr-2" />
             复制文案
-          </Button>
+          </PermissionLockedButton>
         </div>
       </CardContent>
     </Card>

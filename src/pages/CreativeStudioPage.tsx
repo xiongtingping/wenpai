@@ -51,8 +51,7 @@ import MarketingCalendar from '@/components/creative/MarketingCalendar';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionAwareContainer } from '@/components/auth/PermissionAwareContainer';
 
-import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
-import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 
 // 使用懒加载避免循环依赖
 const WechatTemplatePage = React.lazy(() => import('@/pages/WechatTemplatePage'));
@@ -78,14 +77,6 @@ export default function CreativeStudioPage() {
           description="激发创意灵感，快速生成高质量内容"
           showAdaptButton={false}
           showUpgradeButton={false}
-          actions={
-            <RoleBasedUpgradePrompt
-              requiredTier="pro"
-              featureName="创意魔方"
-              description="该功能区为专业版/高级版专属，包含九宫格创意魔方、营销日历、文案模板等创意工具"
-              mode="compact"
-            />
-          }
         />
 
         <div className="container mx-auto px-4 py-8">
@@ -129,42 +120,23 @@ export default function CreativeStudioPage() {
 
             {/* 九宫格创意魔方法 */}
             <TabsContent value="cube" className="mt-6">
-              <UnifiedPermissionGuard
-                requiredPermission="feature:creative-studio"
-                featureName="九宫格创意魔方"
-                description="专业版/高级版专属功能，可以帮助您快速生成高质量的创意内容，提升内容创作效率。"
-              >
-                <CreativeCube />
-              </UnifiedPermissionGuard>
+              <CreativeCube />
             </TabsContent>
 
             {/* 朋友圈文案 */}
             <TabsContent value="wechat" className="mt-6">
-              <UnifiedPermissionGuard
-                requiredPermission="feature:creative-studio"
-                featureName="微信朋友圈文案模板"
-                description="专业版/高级版专属功能，专业设计的社交媒体文案模板库，快速生成高质量文案"
-              >
-                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                  <WechatTemplatePage />
-                </React.Suspense>
-              </UnifiedPermissionGuard>
+              <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <WechatTemplatePage />
+              </React.Suspense>
             </TabsContent>
 
             {/* Emoji生成器 */}
             <TabsContent value="emoji" className="mt-6">
-              <UnifiedPermissionGuard
-                requiredPermission="feature:creative-studio"
-                featureName="Emoji生成器"
-                description="智能生成个性化Emoji图片和推荐"
-                allowPreview={true}
-              >
-                <div className="bg-card rounded-lg border border-border">
-                  <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                    <EmojiPage />
-                  </React.Suspense>
-                </div>
-              </UnifiedPermissionGuard>
+              <div className="bg-card rounded-lg border border-border">
+                <React.Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                  <EmojiPage />
+                </React.Suspense>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

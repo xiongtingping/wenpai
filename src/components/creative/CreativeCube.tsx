@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { logger } from '@/utils/logger';
+import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import {
   Sparkles,
   RefreshCw,
