@@ -173,13 +173,11 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     code_challenge_method: 'S256',
     nonce,
     response_mode: 'query',
-    screen_hint: 'signup',
-    prompt: 'login',           // 强制显示登录页面，避免自动登录
-    max_age: '0',              // 强制重新认证
-    force_login: 'true',       // 强制登录（某些OAuth提供商支持）
-    login_hint: 'register',    // 提示注册模式
-    ui_locales: 'zh-CN'        // 设置语言，可能影响页面显示
-    // 移除 prompt: 'signup' - Authing不支持此值
+    // 🔧 注册专用参数
+    register: 'true',          // 标记为注册请求
+    mode: 'register',          // 模式参数
+    action: 'register',        // 动作参数
+    ui_locales: 'zh-CN'        // 设置语言
   });
 
   console.log('🔧 注册URL参数检查:', {
@@ -190,8 +188,19 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     forceAuth: true
   });
 
-  // 使用登录端点但强制显示注册选项
-  return `${host}/${appId}/login?${params.toString()}`;
+  // 🔧 使用Authing的注册端点
+  // 尝试多种可能的注册URL格式
+  const registerEndpoints = [
+    `${host}/${appId}/register`,           // 标准注册端点
+    `${host}/${appId}/signup`,             // 备选注册端点
+    `${host}/${appId}/login?mode=register`, // 登录页面注册模式
+    `${host}/oidc/auth?${params.toString()}&prompt=signup`, // OIDC注册
+  ];
+
+  console.log('🔧 尝试注册端点:', registerEndpoints);
+
+  // 优先使用标准注册端点
+  return `${host}/${appId}/register?${params.toString()}`;
 }
 
 /**

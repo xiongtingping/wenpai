@@ -392,10 +392,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       window.location.href = registerUrl;
     } catch (e) {
-      logger.error('OIDC Discovery failed, fallback to standard endpoint', e);
+      logger.error('注册URL生成失败，使用备选方案', e);
       const base = `${cfg.host.replace(/\/$/, '')}`;
-      const loginUrl = `${base}/oidc/auth?${params.toString()}`;
-      window.location.href = loginUrl;
+
+      // 🔧 尝试多种注册端点
+      const fallbackUrls = [
+        `${base}/${cfg.appId}/register?${params.toString()}`,
+        `${base}/${cfg.appId}/signup?${params.toString()}`,
+        `${base}/oidc/auth?${params.toString()}&prompt=signup`,
+        `${base}/${cfg.appId}/login?${params.toString()}&mode=register`
+      ];
+
+      logger.debug('🔧 尝试备选注册URL:', fallbackUrls[0]);
+      window.location.href = fallbackUrls[0];
     }
   };
 
