@@ -299,9 +299,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logger.debug('[Authing] authorize URL (direct)', { loginUrl, redirectUri: cfg.redirectUri, client_id: cfg.appId });
     window.location.href = loginUrl;
     return;
-
-
   };
+
+
 
   // 注册方法（跳转到Authing注册页面）
   const register = async (redirectTo?: string) => {
@@ -323,57 +323,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const nextUrl = redirectTo || window.location.href;
       const u = new URL('https://www.wenpai.xyz/');
       u.searchParams.set('authstart', '1');
-      u.searchParams.set('authmode', 'register'); // 标记为注册模式
+      u.searchParams.set('authmode', 'register');
       u.searchParams.set('next', nextUrl);
       logger.debug('🌐 非生产域发起注册，先跳转到生产域:', { from: window.location.href, to: u.toString() });
       window.location.href = u.toString();
       return;
     }
 
-    // 🔧 生成PKCE验证器 - OAuth回调需要
-    const genRandom = (length: number) => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-      let res = '';
-      const array = new Uint8Array(length);
-      crypto.getRandomValues(array);
-      for (let i = 0; i < array.length; i++) {
-        res += chars[array[i] % chars.length];
-      }
-      return res;
-    };
-    const toBase64Url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    const encoder = new TextEncoder();
-    const verifier = genRandom(64);
-    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
-    const challenge = toBase64Url(digest);
+    // 🔧 直接跳转到Authing控制台的注册页面，不使用OAuth流程
+    // 这样可以确保用户看到真正的注册表单
+    const registerPageUrl = `${cfg.host.replace(/\/$/, '')}/register`;
 
-    // 保存PKCE验证器到sessionStorage和localStorage（双重备份）
-    sessionStorage.setItem('auth_pkce_verifier', verifier);
-    localStorage.setItem('auth_pkce_verifier_backup', verifier);
-
-    // 生成state参数
-    const timestamp = Date.now();
-    const state = JSON.stringify({ ts: timestamp, mode: 'register', redirectTo: redirectTo || window.location.href });
-
-    // 🔧 尝试跳转到Authing的专门注册页面，添加tab参数强制显示注册表单
-    const registerPageUrl = `${cfg.host.replace(/\/$/, '')}/${cfg.appId}/register`;
-
-    // 添加参数强制显示注册表单
+    // 添加回调参数
     const urlParams = new URLSearchParams({
-      redirect_uri: cfg.redirectUri,
-      tab: 'register',  // 强制显示注册标签页
-      register: 'true', // 注册模式标识
-      state: encodeURIComponent(state)
+      app_id: cfg.appId,
+      redirect_uri: redirectTo || window.location.href
     });
 
     const finalRegisterUrl = `${registerPageUrl}?${urlParams.toString()}`;
 
     logger.debug('📝 跳转到Authing注册页面:', {
       registerPageUrl: finalRegisterUrl,
-      redirectUri: cfg.redirectUri,
-      mode: 'register_with_tab',
-      verifierSaved: !!sessionStorage.getItem('auth_pkce_verifier'),
-      state: state
+      redirectUri: redirectTo || window.location.href,
+      mode: 'register_direct_page'
     });
 
     // 跳转到注册页面
