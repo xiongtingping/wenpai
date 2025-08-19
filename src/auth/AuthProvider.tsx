@@ -340,15 +340,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
     const challenge = toBase64Url(digest);
 
-    // 🔧 双重存储PKCE验证器，防止丢失
+    // 🔧 增强PKCE验证器保存机制 - 多重备份防止丢失
+    const pkceData = {
+      verifier,
+      challenge,
+      timestamp: Date.now(),
+      redirectTo: redirectTo || '/'
+    };
+
+    // 保存到多个存储位置
     sessionStorage.setItem('auth_pkce_verifier', verifier);
     localStorage.setItem('auth_pkce_verifier_backup', verifier);
+    localStorage.setItem('auth_pkce_data', JSON.stringify(pkceData));
 
-    logger.debug('🔐 PKCE验证器已保存:', {
+    // 额外保存到cookie作为最后的备份
+    document.cookie = `pkce_verifier=${verifier}; path=/; max-age=3600; SameSite=Lax`;
+
+    logger.debug('🔐 PKCE验证器已保存到多个位置:', {
       verifierLength: verifier.length,
       challengeLength: challenge.length,
       sessionStored: !!sessionStorage.getItem('auth_pkce_verifier'),
-      localStored: !!localStorage.getItem('auth_pkce_verifier_backup')
+      localStored: !!localStorage.getItem('auth_pkce_verifier_backup'),
+      pkceDataStored: !!localStorage.getItem('auth_pkce_data'),
+      cookieStored: document.cookie.includes('pkce_verifier')
     });
 
     const timestamp = Date.now();

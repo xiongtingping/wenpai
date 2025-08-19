@@ -90,13 +90,47 @@ const CallbackPage: React.FC = () => {
 
         let codeVerifier = sessionStorage.getItem('auth_pkce_verifier');
 
-        // 🔧 如果sessionStorage中没有，尝试从localStorage备份恢复
+        // 🔧 增强PKCE验证器恢复机制 - 多重备份恢复
         if (!codeVerifier) {
+          // 尝试从localStorage备份恢复
           const backupVerifier = localStorage.getItem('auth_pkce_verifier_backup');
           if (backupVerifier) {
             console.log('🔄 从localStorage备份恢复PKCE验证器');
             codeVerifier = backupVerifier;
             sessionStorage.setItem('auth_pkce_verifier', backupVerifier);
+          }
+        }
+
+        if (!codeVerifier) {
+          // 尝试从JSON数据恢复
+          const pkceDataStr = localStorage.getItem('auth_pkce_data');
+          if (pkceDataStr) {
+            try {
+              const pkceData = JSON.parse(pkceDataStr);
+              if (pkceData.verifier) {
+                console.log('🔄 从JSON数据恢复PKCE验证器');
+                codeVerifier = pkceData.verifier;
+                sessionStorage.setItem('auth_pkce_verifier', codeVerifier);
+                localStorage.setItem('auth_pkce_verifier_backup', codeVerifier);
+              }
+            } catch (e) {
+              console.warn('⚠️ 解析PKCE数据失败:', e);
+            }
+          }
+        }
+
+        if (!codeVerifier) {
+          // 最后尝试从cookie恢复
+          const cookies = document.cookie.split(';');
+          const pkceCookie = cookies.find(cookie => cookie.trim().startsWith('pkce_verifier='));
+          if (pkceCookie) {
+            const cookieValue = pkceCookie.split('=')[1];
+            if (cookieValue) {
+              console.log('🔄 从Cookie恢复PKCE验证器');
+              codeVerifier = cookieValue;
+              sessionStorage.setItem('auth_pkce_verifier', codeVerifier);
+              localStorage.setItem('auth_pkce_verifier_backup', codeVerifier);
+            }
           }
         }
 

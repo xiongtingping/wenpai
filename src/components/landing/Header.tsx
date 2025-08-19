@@ -195,12 +195,12 @@ export function Header() {
             </Button>
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               if (isAuthenticated) {
-                navigate('/library');
+                navigate('/bookmark');
               } else {
-                login('/library');
+                login('/bookmark');
               }
             }}>
-              我的资料库
+              我的收藏
             </Button>
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition" onClick={() => {
               if (isAuthenticated) {
