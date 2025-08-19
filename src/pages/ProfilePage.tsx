@@ -311,10 +311,18 @@ export default function ProfilePage() {
         avatar: profileForm.avatar
       };
 
-      // 🔧 使用真实的Authing API更新用户资料
-      const { authingService } = await import('@/services/authingService');
+      // 🔧 根本修复：使用Netlify Functions调用Authing Management API
+      // 避免客户端权限问题（普通用户不能直接修改字段）
+      const response = await fetch('/.netlify/functions/update-user-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(updatedUserData)
+      });
 
-      const updateResult = await authingService.updateProfile(updatedUserData);
+      const updateResult = await response.json();
 
       if (updateResult.success && updateResult.user) {
 
