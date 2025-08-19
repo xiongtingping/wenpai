@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Lock, Crown, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { getSubscriptionPlan } from '@/utils/subscriptionUtils';
+import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { ToastAction } from '@/components/ui/toast';
 
 interface PermissionProtectedInputProps {
