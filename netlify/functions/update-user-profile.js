@@ -34,39 +34,87 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 🔧 临时解决方案：模拟成功响应，让前端继续工作
-    // 由于Authing权限配置问题，我们暂时返回成功状态
+    // 🔧 真正的Authing API调用
     console.log('🔧 开始处理用户资料更新请求');
     console.log('🔧 请求数据:', updateData);
 
-    // 模拟更新成功的响应
-    const updatedUser = {
-      id: 'user-id-placeholder',
-      nickname: updateData.nickname,
-      email: updateData.email,
-      phone: updateData.phone,
-      photo: updateData.avatar,
-      updatedAt: new Date().toISOString()
-    };
+    // Authing配置
+    const AUTHING_APP_ID = '68823897631e1ef8ff3720b2';
+    const AUTHING_HOST = 'https://rzcswqs4sq0f.authing.cn';
 
-    console.log('✅ API更新用户资料成功:', {
-      updates: updateData,
-      result: updatedUser
-    });
+    // 首先验证用户token并获取用户ID
+    let userId = null;
+    try {
+      const verifyResponse = await fetch(`${AUTHING_HOST}/api/v2/users/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${userToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: JSON.stringify({
-        success: true,
-        user: updatedUser
-      })
-    };
+      if (!verifyResponse.ok) {
+        throw new Error(`Token验证失败: ${verifyResponse.status}`);
+      }
+
+      const userInfo = await verifyResponse.json();
+      userId = userInfo.id;
+      console.log('✅ 用户token验证成功:', userId);
+    } catch (error) {
+      console.error('❌ 用户token验证失败:', error);
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: '用户认证失败' })
+      };
+    }
+
+    // 调用Authing API更新用户资料
+    try {
+      const updateResponse = await fetch(`${AUTHING_HOST}/api/v2/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${userToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          nickname: updateData.nickname,
+          email: updateData.email,
+          phone: updateData.phone,
+          photo: updateData.avatar
+        })
+      });
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.text();
+        throw new Error(`Authing API更新失败: ${updateResponse.status} - ${errorData}`);
+      }
+
+      const updatedUser = await updateResponse.json();
+      console.log('✅ Authing API更新用户资料成功:', updatedUser);
+
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS'
+        },
+        body: JSON.stringify({
+          success: true,
+          user: updatedUser
+        })
+      };
+    } catch (error) {
+      console.error('❌ Authing API调用失败:', error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          success: false,
+          error: `Authing API调用失败: ${error.message}`
+        })
+      };
+    }
 
   } catch (error) {
     console.error('❌ 更新用户资料失败:', error);

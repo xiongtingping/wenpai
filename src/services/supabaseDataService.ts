@@ -54,6 +54,27 @@ export async function getSupabaseClient(): Promise<SupabaseClient> {
   return await initializeSupabase();
 }
 
+/**
+ * 获取带认证的 Supabase 客户端实例
+ */
+export async function getAuthenticatedSupabaseClient(token?: string): Promise<SupabaseClient> {
+  const client = await initializeSupabase();
+
+  if (token) {
+    // 设置用户认证token
+    await client.auth.setSession({
+      access_token: token,
+      refresh_token: '',
+      expires_in: 3600,
+      expires_at: Date.now() + 3600000,
+      token_type: 'bearer',
+      user: null
+    });
+  }
+
+  return client;
+}
+
 export interface DatabaseRecord {
   id?: string;
   userId: string;

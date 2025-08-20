@@ -5,7 +5,7 @@
 
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier, SubscriptionPlan } from '@/types/subscription';
-import { getSupabaseClient, TABLE_NAMES } from '@/services/supabaseDataService';
+import { getSupabaseClient, getAuthenticatedSupabaseClient, TABLE_NAMES } from '@/services/supabaseDataService';
 
 /**
  * 权限检查结果
