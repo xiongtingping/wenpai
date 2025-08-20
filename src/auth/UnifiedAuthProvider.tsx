@@ -252,14 +252,30 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       console.log('🎭 显示登录弹窗...');
       guard.show();
 
-      // 简化的弹窗样式优化
+      // 增强的弹窗样式优化
       setTimeout(() => {
         const authingModal = document.querySelector('[class*="authing"], [id*="authing"]');
         if (authingModal) {
           const modal = authingModal as HTMLElement;
-          modal.style.zIndex = '9999';
-          modal.style.position = 'fixed';
-          console.log('✅ 弹窗样式已优化');
+          // 设置弹窗居中显示
+          modal.style.cssText = `
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 9999 !important;
+            background: white !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+            max-width: 400px !important;
+            max-height: 600px !important;
+            width: auto !important;
+            height: auto !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          `;
+          console.log('✅ 登录弹窗样式已优化');
         }
       }, 500);
 
@@ -365,13 +381,29 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       console.log('🎭 显示注册弹窗...');
       guard.show();
 
-      // 简化的弹窗样式优化
+      // 增强的弹窗样式优化
       setTimeout(() => {
         const authingModal = document.querySelector('[class*="authing"], [id*="authing"]');
         if (authingModal) {
           const modal = authingModal as HTMLElement;
-          modal.style.zIndex = '9999';
-          modal.style.position = 'fixed';
+          // 设置弹窗居中显示
+          modal.style.cssText = `
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 9999 !important;
+            background: white !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+            max-width: 400px !important;
+            max-height: 600px !important;
+            width: auto !important;
+            height: auto !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          `;
           console.log('✅ 注册弹窗样式已优化');
         }
       }, 500);
