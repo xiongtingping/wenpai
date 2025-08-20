@@ -4,7 +4,6 @@
  */
 
 import { logger } from '@/utils/logger';
-import { fixAppIdConfig, fixHostConfig, fixUrlAppId } from '@/utils/authingConfigFix';
 
 export interface RegisterConfig {
   appId: string;
@@ -169,9 +168,9 @@ export async function getBestRegisterUrl(config: RegisterConfig): Promise<{
 export function getRegisterUrlFast(config: RegisterConfig): string {
   const { appId: originalAppId, host: originalHost, redirectUri, state, codeChallenge, nonce } = config;
 
-  // 🔧 使用修复函数确保配置正确
-  const safeAppId = fixAppIdConfig(originalAppId);
-  const cleanHost = fixHostConfig(originalHost);
+  // 🔧 配置已通过文件清理脚本修复，直接使用
+  const safeAppId = originalAppId || '68823897631e1ef8ff3720b2';
+  const cleanHost = originalHost || 'https://rzcswqs4sq0f.authing.cn';
 
   console.log('🔧 配置修复检查:', {
     originalAppId,
@@ -241,12 +240,8 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
   // 优先使用OIDC端点
   const finalUrl = oidcUrl;
 
-  // 🔧 最后安全检查：使用修复函数确保URL正确
-  const safeFinalUrl = fixUrlAppId(finalUrl);
-
-  if (safeFinalUrl !== finalUrl) {
-    console.log('🔧 URL最终修复:', { before: finalUrl, after: safeFinalUrl });
-  }
+  // 🔧 URL已通过文件清理脚本修复，直接使用
+  const safeFinalUrl = finalUrl;
 
   return safeFinalUrl;
 }
