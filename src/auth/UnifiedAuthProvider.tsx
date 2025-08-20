@@ -295,58 +295,125 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
       }
 
-      // 🔧 修复弹窗样式和位置
+      // 🚨 紧急修复：立即恢复页面布局
       setTimeout(() => {
-        console.log('🔍 检查并修复登录弹窗样式...');
+        console.log('🚨 紧急恢复页面布局...');
 
-        // 首先清理可能被错误修改的页面元素
-        const pageElements = ['html', 'body', '#root', '.min-h-screen'];
-        pageElements.forEach(selector => {
-          const element = document.querySelector(selector) as HTMLElement;
-          if (element && element.style.position === 'fixed') {
-            console.log('🔧 清理被错误修改的页面元素:', selector);
-            element.style.cssText = '';
-            element.removeAttribute('style');
+        // 强制恢复页面主要元素的正常样式
+        const restorePageLayout = () => {
+          // 恢复html元素
+          const html = document.documentElement;
+          if (html) {
+            html.style.position = '';
+            html.style.transform = '';
+            html.style.top = '';
+            html.style.left = '';
+            html.style.width = '';
+            html.style.height = '';
+            html.style.overflow = '';
+            console.log('✅ 恢复了html元素样式');
           }
-        });
 
-        // 查找真正的Authing弹窗容器（使用更精确的选择器）
-        const authingContainers = [
-          document.querySelector('#authing-guard-container'),
-          document.querySelector('.authing-guard-container'),
-          document.querySelector('[data-authing-guard]'),
-          document.querySelector('.authing-ant-modal-root'),
-          document.querySelector('.ant-modal-root')
-        ].filter(Boolean);
+          // 恢复body元素
+          const body = document.body;
+          if (body) {
+            body.style.position = '';
+            body.style.transform = '';
+            body.style.top = '';
+            body.style.left = '';
+            body.style.width = '';
+            body.style.height = '';
+            body.style.overflow = '';
+            console.log('✅ 恢复了body元素样式');
+          }
 
+          // 恢复root元素
+          const root = document.getElementById('root');
+          if (root) {
+            root.style.position = '';
+            root.style.transform = '';
+            root.style.top = '';
+            root.style.left = '';
+            root.style.width = '';
+            root.style.height = '';
+            root.style.overflow = '';
+            console.log('✅ 恢复了root元素样式');
+          }
+        };
+
+        // 立即恢复页面布局
+        restorePageLayout();
+
+        // 查找真正的Authing弹窗（排除页面主要元素）
+        const findRealAuthingModal = () => {
+          // 查找所有可能的弹窗元素
+          const allElements = document.querySelectorAll('*');
+          const candidates = [];
+
+          for (const element of allElements) {
+            // 严格排除页面主要元素
+            if (element === document.documentElement ||
+                element === document.body ||
+                element.id === 'root' ||
+                element.tagName === 'HTML' ||
+                element.tagName === 'BODY') {
+              continue;
+            }
+
+            // 检查是否是Authing相关元素
+            const className = element.className || '';
+            const id = element.id || '';
+
+            // 确保className是字符串
+            const classNameStr = typeof className === 'string' ? className : '';
+            const idStr = typeof id === 'string' ? id : '';
+
+            if (classNameStr.includes('authing') ||
+                classNameStr.includes('guard') ||
+                classNameStr.includes('modal') ||
+                idStr.includes('authing')) {
+              candidates.push(element as HTMLElement);
+            }
+          }
+
+          return candidates;
+        };
+
+        const authingContainers = findRealAuthingModal();
+
+        // 只修改真正的弹窗元素
         authingContainers.forEach((container, index) => {
           if (container) {
-            console.log(`✅ 找到登录弹窗容器 ${index + 1}:`, container);
+            // 再次确认不是页面主要元素
+            if (container === document.documentElement ||
+                container === document.body ||
+                container.id === 'root') {
+              console.log(`⚠️ 跳过页面主要元素: ${container.tagName}#${container.id}`);
+              return;
+            }
+
+            console.log(`✅ 找到真正的登录弹窗容器 ${index + 1}:`, container);
 
             const element = container as HTMLElement;
 
-            // 强制设置弹窗样式
-            element.style.cssText = `
-              position: fixed !important;
-              top: 50% !important;
-              left: 50% !important;
-              transform: translate(-50%, -50%) !important;
-              z-index: 999999 !important;
-              background: white !important;
-              border-radius: 8px !important;
-              box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-              max-width: 400px !important;
-              max-height: 600px !important;
-              width: auto !important;
-              height: auto !important;
-              display: block !important;
-              visibility: visible !important;
-              opacity: 1 !important;
-              margin: 0 !important;
-              padding: 20px !important;
-            `;
+            // 只为真正的弹窗设置样式
+            element.style.position = 'fixed';
+            element.style.top = '50%';
+            element.style.left = '50%';
+            element.style.transform = 'translate(-50%, -50%)';
+            element.style.zIndex = '999999';
+            element.style.backgroundColor = 'white';
+            element.style.borderRadius = '8px';
+            element.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+            element.style.maxWidth = '400px';
+            element.style.maxHeight = '600px';
+            element.style.width = 'auto';
+            element.style.height = 'auto';
+            element.style.display = 'block';
+            element.style.visibility = 'visible';
+            element.style.opacity = '1';
 
-            console.log('🔧 已修复登录弹窗样式');
+            console.log('🔧 已正确修复登录弹窗样式');
           }
         });
 
@@ -587,46 +654,96 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setTimeout(() => {
         console.log('🔍 检查并修复注册弹窗样式...');
 
-        // 查找Authing弹窗容器
-        const authingContainers = [
-          document.querySelector('#authing-guard-container'),
-          document.querySelector('.authing-guard-container'),
-          document.querySelector('[data-authing-guard]'),
-          document.querySelector('.authing-ant-modal-root'),
-          document.querySelector('.ant-modal-root'),
-          document.querySelector('[class*="authing"]'),
-          document.querySelector('[class*="guard"]'),
-          document.querySelector('[class*="modal"]')
-        ].filter(Boolean);
+        // 🚨 首先恢复页面布局
+        const restorePageLayout = () => {
+          const html = document.documentElement;
+          const body = document.body;
+          const root = document.getElementById('root');
 
+          [html, body, root].forEach(element => {
+            if (element) {
+              element.style.position = '';
+              element.style.transform = '';
+              element.style.top = '';
+              element.style.left = '';
+              element.style.width = '';
+              element.style.height = '';
+              element.style.overflow = '';
+            }
+          });
+          console.log('✅ 恢复了页面布局（注册）');
+        };
+
+        restorePageLayout();
+
+        // 查找真正的Authing弹窗（排除页面主要元素）
+        const findRealAuthingModal = () => {
+          const allElements = document.querySelectorAll('*');
+          const candidates = [];
+
+          for (const element of allElements) {
+            // 严格排除页面主要元素
+            if (element === document.documentElement ||
+                element === document.body ||
+                element.id === 'root' ||
+                element.tagName === 'HTML' ||
+                element.tagName === 'BODY') {
+              continue;
+            }
+
+            const className = element.className || '';
+            const id = element.id || '';
+
+            // 确保className是字符串
+            const classNameStr = typeof className === 'string' ? className : '';
+            const idStr = typeof id === 'string' ? id : '';
+
+            if (classNameStr.includes('authing') ||
+                classNameStr.includes('guard') ||
+                classNameStr.includes('modal') ||
+                idStr.includes('authing')) {
+              candidates.push(element as HTMLElement);
+            }
+          }
+
+          return candidates;
+        };
+
+        const authingContainers = findRealAuthingModal();
+
+        // 只修改真正的弹窗元素
         authingContainers.forEach((container, index) => {
           if (container) {
-            console.log(`✅ 找到注册弹窗容器 ${index + 1}:`, container);
+            // 再次确认不是页面主要元素
+            if (container === document.documentElement ||
+                container === document.body ||
+                container.id === 'root') {
+              console.log(`⚠️ 跳过页面主要元素: ${container.tagName}#${container.id}`);
+              return;
+            }
+
+            console.log(`✅ 找到真正的注册弹窗容器 ${index + 1}:`, container);
 
             const element = container as HTMLElement;
 
-            // 强制设置弹窗样式
-            element.style.cssText = `
-              position: fixed !important;
-              top: 50% !important;
-              left: 50% !important;
-              transform: translate(-50%, -50%) !important;
-              z-index: 999999 !important;
-              background: white !important;
-              border-radius: 8px !important;
-              box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-              max-width: 400px !important;
-              max-height: 600px !important;
-              width: auto !important;
-              height: auto !important;
-              display: block !important;
-              visibility: visible !important;
-              opacity: 1 !important;
-              margin: 0 !important;
-              padding: 20px !important;
-            `;
+            // 只为真正的弹窗设置样式
+            element.style.position = 'fixed';
+            element.style.top = '50%';
+            element.style.left = '50%';
+            element.style.transform = 'translate(-50%, -50%)';
+            element.style.zIndex = '999999';
+            element.style.backgroundColor = 'white';
+            element.style.borderRadius = '8px';
+            element.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+            element.style.maxWidth = '400px';
+            element.style.maxHeight = '600px';
+            element.style.width = 'auto';
+            element.style.height = 'auto';
+            element.style.display = 'block';
+            element.style.visibility = 'visible';
+            element.style.opacity = '1';
 
-            console.log('🔧 已修复注册弹窗样式');
+            console.log('🔧 已正确修复注册弹窗样式');
           }
         });
 
