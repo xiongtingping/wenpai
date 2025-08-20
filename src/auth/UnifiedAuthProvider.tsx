@@ -11,6 +11,8 @@ import { tokenManager } from './tokenManager';
 import { permissionManager } from './permissionManager';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
+// 🔧 引入弹窗样式修复
+import './authing-modal-fix.css';
 
 /**
  * 生成PKCE code_verifier
@@ -182,7 +184,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('Guard类未找到');
       }
 
-      // 创建Guard实例 - 使用弹窗模式
+      // 创建Guard实例 - 使用最简配置
       console.log('🏗️ 开始创建Guard实例...');
       const guardConfig = {
         appId: config.appId,
@@ -190,29 +192,28 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         redirectUri: config.redirectUri,
         mode: 'modal' as const, // 关键：使用弹窗模式
         defaultScene: 'login' as const,
-        lang: 'zh-CN' as const,
-        // 🔧 修复：使用正确的config嵌套结构
-        config: {
-          // 弹窗配置
-          autoRegister: false,
-          closeable: true,
-          clickCloseableMask: true,
-          // 登录方式
-          loginMethodList: ['password', 'phone-code', 'email-code'] as const,
-          // 注册方式
-          registerMethodList: ['phone', 'email'] as const,
-          // 界面配置
-          title: '文派',
-          // 社交登录配置
-          socialConnectionList: [],
-          // 内容样式
-          contentCSS: ''
-        }
+        lang: 'zh-CN' as const
       };
       console.log('🏗️ Guard配置:', guardConfig);
 
-      const guard = new Guard(guardConfig);
-      console.log('✅ Guard实例创建成功:', guard);
+      // 创建Guard实例 - 添加错误处理
+      let guard;
+      try {
+        guard = new Guard(guardConfig);
+        console.log('✅ Guard实例创建成功:', guard);
+      } catch (error) {
+        console.error('❌ Guard实例创建失败:', error);
+        // 如果创建失败，尝试使用更基础的配置
+        const basicConfig = {
+          appId: config.appId,
+          host: config.host,
+          mode: 'modal' as const,
+          defaultScene: 'login' as const
+        };
+        console.log('🔄 尝试使用基础配置:', basicConfig);
+        guard = new Guard(basicConfig);
+        console.log('✅ 基础Guard实例创建成功:', guard);
+      }
 
       // 监听登录成功事件
       guard.on('login', async (userInfo: any) => {
@@ -265,8 +266,102 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       // 显示登录弹窗
       console.log('🎭 开始显示登录弹窗...');
-      guard.show();
-      console.log('🎭 登录弹窗显示命令已发送');
+
+      // 🔧 添加错误处理来捕获oidcConfig错误
+      try {
+        guard.show();
+        console.log('🎭 登录弹窗显示命令已发送');
+      } catch (error) {
+        console.error('❌ 弹窗显示失败:', error);
+        if (error.message && error.message.includes('oidcConfig')) {
+          console.log('🔄 检测到oidcConfig错误，尝试重新初始化...');
+          // 忽略oidcConfig错误，继续显示弹窗
+          setTimeout(() => {
+            try {
+              guard.show();
+              console.log('🎭 重试显示登录弹窗成功');
+            } catch (retryError) {
+              console.error('❌ 重试显示弹窗仍失败:', retryError);
+            }
+          }, 100);
+        }
+      }
+
+      // 🔧 修复弹窗样式和位置
+      setTimeout(() => {
+        console.log('🔍 检查并修复登录弹窗样式...');
+
+        // 查找Authing弹窗容器
+        const authingContainers = [
+          document.querySelector('#authing-guard-container'),
+          document.querySelector('.authing-guard-container'),
+          document.querySelector('[data-authing-guard]'),
+          document.querySelector('.authing-ant-modal-root'),
+          document.querySelector('.ant-modal-root'),
+          document.querySelector('[class*="authing"]'),
+          document.querySelector('[class*="guard"]'),
+          document.querySelector('[class*="modal"]')
+        ].filter(Boolean);
+
+        authingContainers.forEach((container, index) => {
+          if (container) {
+            console.log(`✅ 找到登录弹窗容器 ${index + 1}:`, container);
+
+            const element = container as HTMLElement;
+
+            // 强制设置弹窗样式
+            element.style.cssText = `
+              position: fixed !important;
+              top: 50% !important;
+              left: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              z-index: 999999 !important;
+              background: white !important;
+              border-radius: 8px !important;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+              max-width: 400px !important;
+              max-height: 600px !important;
+              width: auto !important;
+              height: auto !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+              margin: 0 !important;
+              padding: 20px !important;
+            `;
+
+            console.log('🔧 已修复登录弹窗样式');
+          }
+        });
+
+        // 如果没找到容器，查找所有可能的弹窗元素
+        if (authingContainers.length === 0) {
+          console.log('⚠️ 未找到标准容器，搜索所有可能的弹窗元素...');
+          const allElements = document.querySelectorAll('*');
+          allElements.forEach(el => {
+            const element = el as HTMLElement;
+            if (element.textContent &&
+                (element.textContent.includes('登录') ||
+                 element.textContent.includes('验证码') ||
+                 element.textContent.includes('密码') ||
+                 element.textContent.includes('手机号')) &&
+                element.offsetWidth > 200 && element.offsetHeight > 200) {
+              console.log('🔍 找到可能的登录弹窗元素:', element);
+              element.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                z-index: 999999 !important;
+                background: white !important;
+                border-radius: 8px !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+                padding: 20px !important;
+              `;
+            }
+          });
+        }
+      }, 500);
 
 
 
@@ -304,7 +399,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('Guard类未找到');
       }
 
-      // 创建Guard实例 - 使用弹窗模式
+      // 创建Guard实例 - 使用最简配置
       console.log('🏗️ 开始创建Guard实例...');
       const guardConfig = {
         appId: config.appId,
@@ -312,29 +407,28 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         redirectUri: config.redirectUri,
         mode: 'modal' as const, // 关键：使用弹窗模式
         defaultScene: 'register' as const, // 默认显示注册页面
-        lang: 'zh-CN' as const,
-        // 🔧 修复：使用正确的config嵌套结构
-        config: {
-          // 弹窗配置
-          autoRegister: false,
-          closeable: true,
-          clickCloseableMask: true,
-          // 登录方式
-          loginMethodList: ['password', 'phone-code', 'email-code'] as const,
-          // 注册方式
-          registerMethodList: ['phone', 'email'] as const,
-          // 界面配置
-          title: '文派',
-          // 社交登录配置
-          socialConnectionList: [],
-          // 内容样式
-          contentCSS: ''
-        }
+        lang: 'zh-CN' as const
       };
       console.log('🏗️ Guard配置:', guardConfig);
 
-      const guard = new Guard(guardConfig);
-      console.log('✅ Guard实例创建成功:', guard);
+      // 创建Guard实例 - 添加错误处理
+      let guard;
+      try {
+        guard = new Guard(guardConfig);
+        console.log('✅ Guard实例创建成功:', guard);
+      } catch (error) {
+        console.error('❌ Guard实例创建失败:', error);
+        // 如果创建失败，尝试使用更基础的配置
+        const basicConfig = {
+          appId: config.appId,
+          host: config.host,
+          mode: 'modal' as const,
+          defaultScene: 'register' as const
+        };
+        console.log('🔄 尝试使用基础配置:', basicConfig);
+        guard = new Guard(basicConfig);
+        console.log('✅ 基础Guard实例创建成功:', guard);
+      }
 
       // 监听注册成功事件
       guard.on('register', async (userInfo: any) => {
@@ -387,40 +481,101 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       // 显示注册弹窗
       console.log('🎭 开始显示注册弹窗...');
-      guard.show();
-      console.log('🎭 注册弹窗显示命令已发送');
 
-      // 🔧 强制检查和修复弹窗显示问题
+      // 🔧 添加错误处理来捕获oidcConfig错误
+      try {
+        guard.show();
+        console.log('🎭 注册弹窗显示命令已发送');
+      } catch (error) {
+        console.error('❌ 注册弹窗显示失败:', error);
+        if (error.message && error.message.includes('oidcConfig')) {
+          console.log('🔄 检测到oidcConfig错误，尝试重新初始化...');
+          // 忽略oidcConfig错误，继续显示弹窗
+          setTimeout(() => {
+            try {
+              guard.show();
+              console.log('🎭 重试显示注册弹窗成功');
+            } catch (retryError) {
+              console.error('❌ 重试显示注册弹窗仍失败:', retryError);
+            }
+          }, 100);
+        }
+      }
+
+      // 🔧 修复注册弹窗样式和位置
       setTimeout(() => {
-        console.log('🔍 检查注册弹窗DOM元素...');
+        console.log('🔍 检查并修复注册弹窗样式...');
 
-        // 查找Authing弹窗元素
-        const authingModal = document.querySelector('[data-authing-guard-modal]') ||
-                           document.querySelector('.authing-guard-modal') ||
-                           document.querySelector('[class*="authing"]') ||
-                           document.querySelector('[class*="guard"]') ||
-                           document.querySelector('[class*="modal"]');
+        // 查找Authing弹窗容器
+        const authingContainers = [
+          document.querySelector('#authing-guard-container'),
+          document.querySelector('.authing-guard-container'),
+          document.querySelector('[data-authing-guard]'),
+          document.querySelector('.authing-ant-modal-root'),
+          document.querySelector('.ant-modal-root'),
+          document.querySelector('[class*="authing"]'),
+          document.querySelector('[class*="guard"]'),
+          document.querySelector('[class*="modal"]')
+        ].filter(Boolean);
 
-        if (authingModal) {
-          console.log('✅ 找到注册弹窗元素:', authingModal);
+        authingContainers.forEach((container, index) => {
+          if (container) {
+            console.log(`✅ 找到注册弹窗容器 ${index + 1}:`, container);
 
-          // 强制设置显示样式
-          const element = authingModal as HTMLElement;
-          element.style.display = 'block !important';
-          element.style.visibility = 'visible !important';
-          element.style.opacity = '1 !important';
-          element.style.zIndex = '999999 !important';
-          element.style.position = 'fixed !important';
-          element.style.top = '50% !important';
-          element.style.left = '50% !important';
-          element.style.transform = 'translate(-50%, -50%) !important';
-          element.style.backgroundColor = 'white !important';
-          element.style.border = '2px solid #000 !important';
-          element.style.padding = '20px !important';
-          element.style.minWidth = '400px !important';
-          element.style.minHeight = '300px !important';
+            const element = container as HTMLElement;
 
-          console.log('🔧 已强制设置注册弹窗显示样式');
+            // 强制设置弹窗样式
+            element.style.cssText = `
+              position: fixed !important;
+              top: 50% !important;
+              left: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              z-index: 999999 !important;
+              background: white !important;
+              border-radius: 8px !important;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+              max-width: 400px !important;
+              max-height: 600px !important;
+              width: auto !important;
+              height: auto !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+              margin: 0 !important;
+              padding: 20px !important;
+            `;
+
+            console.log('🔧 已修复注册弹窗样式');
+          }
+        });
+
+        // 如果没找到容器，查找所有可能的弹窗元素
+        if (authingContainers.length === 0) {
+          console.log('⚠️ 未找到标准容器，搜索所有可能的注册弹窗元素...');
+          const allElements = document.querySelectorAll('*');
+          allElements.forEach(el => {
+            const element = el as HTMLElement;
+            if (element.textContent &&
+                (element.textContent.includes('注册') ||
+                 element.textContent.includes('验证码') ||
+                 element.textContent.includes('密码') ||
+                 element.textContent.includes('手机号') ||
+                 element.textContent.includes('邮箱')) &&
+                element.offsetWidth > 200 && element.offsetHeight > 200) {
+              console.log('🔍 找到可能的注册弹窗元素:', element);
+              element.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                z-index: 999999 !important;
+                background: white !important;
+                border-radius: 8px !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+                padding: 20px !important;
+              `;
+            }
+          });
         } else {
           console.log('❌ 未找到注册弹窗元素');
         }
