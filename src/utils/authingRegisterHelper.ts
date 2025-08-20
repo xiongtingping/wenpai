@@ -20,10 +20,15 @@ export interface RegisterConfig {
  */
 async function checkRegisterEndpoint(url: string): Promise<boolean> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
     const response = await fetch(url, {
       method: 'HEAD',
-      timeout: 3000
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
     
     // 200, 302, 或者404都可能是有效的（404可能是因为缺少参数）
     return response.status < 500;

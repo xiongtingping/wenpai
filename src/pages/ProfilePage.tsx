@@ -92,6 +92,7 @@ export default function ProfilePage() {
   });
   const [avatarKey, setAvatarKey] = useState(0); // 用于强制刷新头像
   const [isLoggingOut, setIsLoggingOut] = useState(false); // 登出状态
+  const [isUploading, setIsUploading] = useState(false); // 头像上传状态
 
   // ✅ FIXED: 个人资料表单状态 - 使用安全的用户信息获取函数
   const [profileForm, setProfileForm] = useState({

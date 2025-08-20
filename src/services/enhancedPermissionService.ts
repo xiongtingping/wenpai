@@ -98,6 +98,7 @@ interface FeaturePermissionConfig {
 class EnhancedPermissionService {
   private readonly STORAGE_KEY = 'enhanced_permissions_cache';
   private readonly GRACE_PERIOD_DAYS = 7; // 7天宽限期
+  private readonly API_ENDPOINT = '/api/permissions'; // API端点
   
   /**
    * 功能权限配置映射
@@ -290,10 +291,10 @@ class EnhancedPermissionService {
         error = e;
       }
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      if (error && (error as any).code !== 'PGRST116') { // PGRST116 = no rows returned
         // 如果是权限错误(406)或表不存在错误，使用默认值而不是抛出错误
-        if (error.message?.includes('406') || error.message?.includes('Not Acceptable') ||
-            error.message?.includes('table') || error.message?.includes('schema')) {
+        if ((error as any).message?.includes('406') || (error as any).message?.includes('Not Acceptable') ||
+            (error as any).message?.includes('table') || (error as any).message?.includes('schema')) {
           console.warn('查询用户订阅信息失败，使用默认值:', error);
           // 继续执行，使用默认的试用状态
         } else {
@@ -348,17 +349,21 @@ class EnhancedPermissionService {
     effectiveDate?: string
   ): Promise<PermissionTransitionResult> {
     try {
-      const response = await request.post(`${this.API_ENDPOINT}/upgrade`, {
-        userId,
-        fromTier,
-        toTier,
-        effectiveDate: effectiveDate || new Date().toISOString()
+      const response = await fetch(`${this.API_ENDPOINT}/upgrade`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          fromTier,
+          toTier,
+          effectiveDate: effectiveDate || new Date().toISOString()
+        })
       });
       
       // 清除权限缓存
       this.clearPermissionCache(userId);
       
-      return response.data;
+      return await response.json();
     } catch (error) {
       console.error('处理权限升级失败:', error);
       
@@ -377,18 +382,22 @@ class EnhancedPermissionService {
     reason: 'expiry' | 'cancellation' | 'payment_failed'
   ): Promise<PermissionTransitionResult> {
     try {
-      const response = await request.post(`${this.API_ENDPOINT}/downgrade`, {
-        userId,
-        fromTier,
-        toTier,
-        reason,
-        effectiveDate: new Date().toISOString()
+      const response = await fetch(`${this.API_ENDPOINT}/downgrade`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          fromTier,
+          toTier,
+          reason,
+          effectiveDate: new Date().toISOString()
+        })
       });
       
       // 清除权限缓存
       this.clearPermissionCache(userId);
       
-      return response.data;
+      return await response.json();
     } catch (error) {
       console.error('处理权限降级失败:', error);
       

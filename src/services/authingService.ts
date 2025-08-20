@@ -53,7 +53,7 @@ class AuthingService {
             currentTime: new Date().toISOString()
           });
         } catch (e) {
-          console.log('🔍 Token信息:', { hasToken: true, tokenLength: token.length, parseError: e.message });
+          console.log('🔍 Token信息:', { hasToken: true, tokenLength: token.length, parseError: e instanceof Error ? e.message : 'Unknown error' });
         }
       }
 
@@ -61,7 +61,7 @@ class AuthingService {
       this.client = new AuthenticationClient({
         appId: config.appId,
         appHost: config.host,
-        token: token, // 关键修复：初始化时传入token
+        token: token || undefined, // 修复：null转换为undefined
         onError: (code, message, data) => {
           console.error('🔴 Authing客户端错误:', { code, message, data });
         }
@@ -162,7 +162,7 @@ class AuthingService {
       this.client = new AuthenticationClient({
         appId: config.appId,
         appHost: config.host,
-        token: tokenToUse,
+        token: tokenToUse || undefined,
         onError: (code, message, data) => {
           console.error('🔴 Authing客户端错误:', { code, message, data });
         }

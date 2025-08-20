@@ -128,7 +128,7 @@ export const DebugAuthPage: React.FC = () => {
               <div key={key} className="flex justify-between">
                 <span className="font-medium">{key}:</span>
                 <Badge variant={value ? 'default' : 'secondary'}>
-                  {value || '未设置'}
+                  {value ? String(value) : '未设置'}
                 </Badge>
               </div>
             ))}

@@ -121,7 +121,7 @@ export const PermissionProtectedInputField: React.FC<PermissionProtectedInputFie
       featureName={featureName}
       className={className}
     >
-      <Input {...inputProps} />
+      <Input {...(inputProps as any)} />
     </PermissionProtectedInput>
   );
 };
