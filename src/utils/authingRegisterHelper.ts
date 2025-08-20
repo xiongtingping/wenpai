@@ -230,8 +230,8 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
   oidcParams.set('prompt', 'login');  // Authing支持的prompt值
   oidcParams.set('screen_hint', 'signup');  // 使用screen_hint指示注册
 
-  const oidcUrl = `${cleanHost}/${safeAppId}/sso/oidc/auth?${oidcParams.toString()}`;
-  console.log('🔧 尝试SSO注册URL:', oidcUrl);
+  const oidcUrl = `${cleanHost}/${safeAppId}/oidc/auth?${oidcParams.toString()}`;
+  console.log('🔧 尝试OIDC注册URL:', oidcUrl);
 
   // 备选：标准注册端点
   const standardUrl = `${cleanHost}/${safeAppId}/register?${params.toString()}`;
