@@ -180,17 +180,25 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // 动态导入Guard - 使用更简单的配置
       const { Guard } = await import('@authing/guard');
 
-      // 最小化配置，避免复杂参数导致的问题
+      // ✅ 修复Guard配置 - 使用官方文档推荐的完整配置格式
       const guardConfig = {
         appId: config.appId,
         host: config.host,
+        redirectUri: config.redirectUri,
         mode: 'modal' as const,
         defaultScene: 'login' as const,
         lang: 'zh-CN' as const,
-        // 简化配置，只保留必要参数
-        autoRegister: false,
-        clickCloseable: true,
-        escCloseable: true
+        isSSO: true, // ✅ 添加：启用SSO支持
+        // ✅ 添加config对象 - 根据官方文档，这是必需的
+        config: {
+          autoRegister: false,
+          clickCloseable: true,
+          escCloseable: true,
+          maskCloseable: true,
+          // ✅ 添加：防止oidcConfig初始化失败的配置
+          skipComplateFileds: false,
+          skipComplateFiledsPlace: 'modal'
+        }
       };
 
       console.log('🏗️ Guard配置:', guardConfig);
@@ -248,9 +256,64 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setAuthState(prev => ({ ...prev, loading: false }));
       });
 
-      // 显示登录弹窗 - 简化版本
+      // ✅ 最终修复：添加完整的错误处理和回退机制
       console.log('🎭 显示登录弹窗...');
-      guard.show();
+
+      // 添加全局错误监听，捕获oidcConfig相关错误
+      const originalErrorHandler = window.onerror;
+      const originalUnhandledRejection = window.onunhandledrejection;
+
+      let guardErrorOccurred = false;
+
+      const guardErrorHandler = (error: any) => {
+        if (error && (error.message?.includes('oidcConfig') || error.toString().includes('oidcConfig'))) {
+          guardErrorOccurred = true;
+          console.error('🚨 检测到Guard oidcConfig错误，回退到页面跳转方式');
+          // 回退到页面跳转方式
+          const authUrl = `${config.host}/sso/oidc/auth?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(config.scope)}&prompt=login`;
+          window.location.href = authUrl;
+          return true; // 阻止错误继续传播
+        }
+        return false;
+      };
+
+      // 临时设置错误处理器
+      window.onerror = (message, source, lineno, colno, error) => {
+        if (guardErrorHandler(error || message)) return true;
+        return originalErrorHandler ? originalErrorHandler(message, source, lineno, colno, error) : false;
+      };
+
+      window.onunhandledrejection = (event) => {
+        if (guardErrorHandler(event.reason)) {
+          event.preventDefault();
+          return;
+        }
+        return originalUnhandledRejection ? originalUnhandledRejection(event) : undefined;
+      };
+
+      // 使用setTimeout确保Guard实例完全创建后再调用show()
+      setTimeout(() => {
+        try {
+          guard.show();
+          console.log('✅ Guard弹窗显示成功');
+
+          // 延迟检查是否有错误发生
+          setTimeout(() => {
+            if (guardErrorOccurred) {
+              console.log('🔄 Guard错误已处理，已回退到页面跳转');
+            } else {
+              console.log('✅ Guard弹窗正常工作');
+            }
+            // 恢复原始错误处理器
+            window.onerror = originalErrorHandler;
+            window.onunhandledrejection = originalUnhandledRejection;
+          }, 1000);
+
+        } catch (error) {
+          console.error('❌ Guard弹窗显示失败:', error);
+          guardErrorHandler(error);
+        }
+      }, 100); // 100ms延迟确保Guard完全初始化
 
       // 增强的弹窗样式优化
       setTimeout(() => {
