@@ -273,7 +273,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         console.log('🎭 登录弹窗显示命令已发送');
       } catch (error) {
         console.error('❌ 弹窗显示失败:', error);
-        if (error.message && error.message.includes('oidcConfig')) {
+        if (error instanceof Error && error.message && error.message.includes('oidcConfig')) {
           console.log('🔄 检测到oidcConfig错误，尝试重新初始化...');
           // 忽略oidcConfig错误，继续显示弹窗
           setTimeout(() => {
@@ -488,7 +488,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         console.log('🎭 注册弹窗显示命令已发送');
       } catch (error) {
         console.error('❌ 注册弹窗显示失败:', error);
-        if (error.message && error.message.includes('oidcConfig')) {
+        if (error instanceof Error && error.message && error.message.includes('oidcConfig')) {
           console.log('🔄 检测到oidcConfig错误，尝试重新初始化...');
           // 忽略oidcConfig错误，继续显示弹窗
           setTimeout(() => {

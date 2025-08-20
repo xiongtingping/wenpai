@@ -342,7 +342,7 @@ class AuthService implements IAuthService {
   /**
    * 标准化用户信息
    */
-  private normalizeAuthUser(rawUser: any): AuthUser {
+  public normalizeAuthUser(rawUser: any): AuthUser {
     const normalized = normalizeUserInfo(rawUser);
 
     return {
