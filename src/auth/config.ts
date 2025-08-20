@@ -41,7 +41,7 @@ export const getAuthConfig = (): AuthConfig => {
   // 🔧 Host已通过文件清理脚本修复，直接使用环境变量
   const host = rawHost || 'https://rzcswqs4sq0f.authing.cn';
 
-  // 选择 redirectUri：优先使用环境变量，避免硬编码
+  // 选择 redirectUri：使用动态Origin避免域名解析问题
   const h = window.location.hostname;
   const p = window.location.port;
 
@@ -52,9 +52,21 @@ export const getAuthConfig = (): AuthConfig => {
     redirectUri = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_DEV ||
                   `http://localhost:${p || '5173'}/callback`;
   } else {
-    // 生产环境：优先使用环境变量，否则使用默认值
+    // 生产环境：使用动态Origin解决DNS重定向问题
+    // 如果www.wenpai.xyz解析到wenpai.netlify.app，使用实际的Origin
+    const dynamicRedirectUri = `${window.location.origin}/callback`;
     redirectUri = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_PROD ||
-                  'https://www.wenpai.xyz/callback';
+                  dynamicRedirectUri;
+
+    // 调试日志：显示Origin vs 配置的差异
+    if (isDevelopment) {
+      console.log('🔍 RedirectUri分析:', {
+        windowOrigin: window.location.origin,
+        envConfigured: (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_PROD,
+        finalRedirectUri: redirectUri,
+        hostnameResolution: h
+      });
+    }
   }
 
   const config: AuthConfig = {

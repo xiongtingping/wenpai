@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>认证配置调试</title>
+</head>
+<body>
+    <h1>认证配置调试</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+        // 模拟生产环境的配置检查
+        const debugInfo = {
+            // 当前页面信息
+            currentUrl: window.location.href,
+            hostname: window.location.hostname,
+            origin: window.location.origin,
+            protocol: window.location.protocol,
+            
+            // 用户代理
+            userAgent: navigator.userAgent,
+            
+            // 模拟环境变量（生产环境值）
+            envVars: {
+                VITE_AUTHING_APP_ID: '68823897631e1ef8ff3720b2',
+                VITE_AUTHING_DOMAIN: 'rzcswqs4sq0f.authing.cn',
+                VITE_AUTHING_HOST: 'https://rzcswqs4sq0f.authing.cn',
+                VITE_AUTHING_REDIRECT_URI_PROD: 'https://www.wenpai.xyz/callback'
+            },
+            
+            // 计算的redirectUri
+            calculatedRedirectUri: null,
+            
+            // 构建的认证URL
+            authUrl: null
+        };
+        
+        // 模拟配置逻辑
+        const h = window.location.hostname;
+        const p = window.location.port;
+        
+        let redirectUri;
+        if (h === 'localhost' || h === '127.0.0.1') {
+            redirectUri = `http://localhost:${p || '5173'}/callback`;
+        } else {
+            redirectUri = 'https://www.wenpai.xyz/callback';
+        }
+        
+        debugInfo.calculatedRedirectUri = redirectUri;
+        
+        // 构建认证URL
+        const appId = '68823897631e1ef8ff3720b2';
+        const host = 'https://rzcswqs4sq0f.authing.cn';
+        
+        const authUrl = `${host}/${appId}/oidc/auth?` + new URLSearchParams({
+            client_id: appId,
+            redirect_uri: redirectUri,
+            response_type: 'code',
+            scope: 'openid profile email phone',
+            state: '/',
+            prompt: 'login',
+            screen_hint: 'signup'
+        }).toString();
+        
+        debugInfo.authUrl = authUrl;
+        
+        // 显示调试信息
+        document.getElementById('debug-info').innerHTML = `
+            <h2>调试信息</h2>
+            <pre>${JSON.stringify(debugInfo, null, 2)}</pre>
+            
+            <h2>关键检查</h2>
+            <p><strong>当前域名:</strong> ${debugInfo.hostname}</p>
+            <p><strong>计算的redirectUri:</strong> ${debugInfo.calculatedRedirectUri}</p>
+            <p><strong>是否匹配预期:</strong> ${debugInfo.calculatedRedirectUri === 'https://www.wenpai.xyz/callback' ? '✅ 是' : '❌ 否'}</p>
+            
+            <h2>生成的认证URL</h2>
+            <p><a href="${authUrl}" target="_blank">点击测试认证</a></p>
+            <textarea style="width:100%;height:100px;">${authUrl}</textarea>
+            
+            <h2>URL解析</h2>
+            <p><strong>编码的redirect_uri:</strong> ${encodeURIComponent(redirectUri)}</p>
+            <p><strong>是否匹配错误信息:</strong> ${encodeURIComponent(redirectUri) === 'https%3A%2F%2Fwww.wenpai.xyz%2Fcallback' ? '✅ 是' : '❌ 否'}</p>
+        `;
+        
+        // 输出到控制台
+        console.log('🔍 认证配置调试信息:', debugInfo);
+    </script>
+</body>
+</html>
