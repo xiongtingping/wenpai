@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { UnifiedPermissionGuard } from '@/components/auth/UnifiedPermissionGuard';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { 

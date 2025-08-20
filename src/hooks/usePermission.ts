@@ -10,7 +10,7 @@
  */
 
 import { useMemo } from 'react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { logger } from '@/utils/logger';
 
 /**

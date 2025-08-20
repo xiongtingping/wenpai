@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { SUBSCRIPTION_PLANS } from '@/config/subscriptionPlans';
 import { SubscriptionPlan, SubscriptionPeriod } from '@/types/subscription';
 import AlipayQRCode from '@/components/payment/AlipayQRCode';

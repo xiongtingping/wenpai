@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext"
+import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider"
 
 export function CTASection() {
   const { isAuthenticated, login } = useUnifiedAuth();

@@ -6,7 +6,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { Button } from '@/components/ui/button';
 import { ThemeAwareLogo } from '@/components/ui/ThemeAwareLogo';
 

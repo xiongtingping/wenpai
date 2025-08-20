@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 // 开发环境用户模拟数据
 const DEV_USER_PROFILES = {

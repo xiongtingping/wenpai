@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
 import { checkUserTokenLimit } from '@/services/aiWithTokenTracking';
 import type { SubscriptionTier } from '@/types/subscription';
@@ -41,7 +41,7 @@ export function useTokenLimitCheck() {
    */
   const getUserTier = useCallback((): SubscriptionTier => {
     // 从用户信息或本地存储获取套餐类型
-    return user?.subscription?.tier || 'trial';
+    return (user?.subscription as any)?.tier || 'trial';
   }, [user]);
 
   /**

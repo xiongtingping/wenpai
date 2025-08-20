@@ -3,7 +3,7 @@
  * 提供用户相关的便捷方法
  */
 
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 /**
  * 用户 Hook

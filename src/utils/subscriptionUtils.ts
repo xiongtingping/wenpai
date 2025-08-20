@@ -13,11 +13,30 @@ export interface UserSubscription {
   features?: string[];
 }
 
+// 导入认证系统的AuthUser类型
+import type { AuthUser as AuthSystemUser } from '@/auth/types';
+
+// 兼容类型定义
 export interface AuthUser {
   id: string;
   subscription?: UserSubscription;
   tier?: SubscriptionTier;
   [key: string]: any;
+}
+
+// 类型适配器：将认证系统的AuthUser转换为订阅工具期望的格式
+export function adaptAuthUser(user: AuthSystemUser | null): AuthUser | null {
+  if (!user) return null;
+
+  return {
+    ...user,
+    subscription: user.subscription ? {
+      tier: user.subscription.tier,
+      isActive: user.subscription.isActive,
+      expiresAt: user.subscription.expiresAt,
+      features: user.subscription.features
+    } : undefined
+  };
 }
 
 /**
@@ -76,21 +95,28 @@ const TIER_FEATURES: Record<SubscriptionTier, string[]> = {
 /**
  * 获取用户当前订阅等级
  */
-export function getUserTier(user: AuthUser | null | undefined): SubscriptionTier {
+export function getUserTier(user: AuthUser | AuthSystemUser | null | undefined): SubscriptionTier {
   if (!user) return 'trial';
 
+  // 如果是认证系统的用户类型，先进行适配
+  const adaptedUser = 'subscription' in user && user.subscription && 'tier' in user.subscription
+    ? user as AuthUser
+    : adaptAuthUser(user as AuthSystemUser);
+
+  if (!adaptedUser) return 'trial';
+
   // 优先从 subscription 对象获取
-  if (user.subscription?.tier) {
-    return user.subscription.tier;
+  if (adaptedUser.subscription?.tier) {
+    return adaptedUser.subscription.tier;
   }
 
   // 其次从 tier 字段获取
-  if (user.tier) {
-    return user.tier;
+  if (adaptedUser.tier) {
+    return adaptedUser.tier;
   }
 
   // 兼容旧版本字段
-  const subscription = user.subscription || user.plan || user.tier;
+  const subscription = adaptedUser.subscription || adaptedUser.plan || adaptedUser.tier;
   if (typeof subscription === 'string') {
     switch (subscription.toLowerCase()) {
       case 'premium':
@@ -105,7 +131,7 @@ export function getUserTier(user: AuthUser | null | undefined): SubscriptionTier
   }
 
   // 检查用户的权限或角色
-  const roles = user.roles || user.permissions || [];
+  const roles = adaptedUser.roles || adaptedUser.permissions || [];
   if (Array.isArray(roles)) {
     if (roles.includes('premium') || roles.includes('enterprise')) {
       return 'premium';
@@ -122,7 +148,7 @@ export function getUserTier(user: AuthUser | null | undefined): SubscriptionTier
 /**
  * 检查用户是否有指定等级的权限
  */
-export function hasPermission(user: AuthUser | null | undefined, requiredTier: SubscriptionTier): boolean {
+export function hasPermission(user: AuthUser | AuthSystemUser | null | undefined, requiredTier: SubscriptionTier): boolean {
   const userTier = getUserTier(user);
   const userWeight = TIER_WEIGHTS[userTier];
   const requiredWeight = TIER_WEIGHTS[requiredTier];

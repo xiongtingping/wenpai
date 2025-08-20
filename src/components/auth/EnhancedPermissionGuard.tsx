@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lock, Crown, Zap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { useToast } from '@/hooks/use-toast';

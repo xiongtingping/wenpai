@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 // 🔒 [AUTHING_GUARD_NAVIGATION_v2025.08.14]
 // 统一使用@authing/guard架构，禁止引入@authing/web
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { usePermission } from '@/hooks/usePermission';
 import { isDevelopment } from '@/utils/env-validator';
 import { UserAvatar } from '@/components/auth/UserAvatar';

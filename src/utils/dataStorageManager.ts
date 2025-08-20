@@ -8,7 +8,7 @@
  * - sessionStorage：临时数据（表单缓存、草稿）
  */
 
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 export type StorageType = 'database' | 'localStorage' | 'sessionStorage';
 

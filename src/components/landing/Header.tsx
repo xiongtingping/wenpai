@@ -1,5 +1,5 @@
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"

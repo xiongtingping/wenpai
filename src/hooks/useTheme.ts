@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { generateStorageKey } from '@/utils/userDataIsolation';
 
 /**

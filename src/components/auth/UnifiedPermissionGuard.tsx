@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { PermissionText, UpgradeText } from '@/components/ui/ThemeAwareText';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getSubscriptionPlan, SUBSCRIPTION_PLANS, calculateDiscountCountdown, isInDiscountPeriod } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';

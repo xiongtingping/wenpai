@@ -10,7 +10,7 @@
  */
 
 import { createDataService, TABLE_NAMES, type DatabaseRecord, type QueryOptions, type QueryResult } from './supabaseDataService';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 export interface DataAccessOptions extends QueryOptions {
   /** 是否跳过权限检查（仅限系统管理员） */

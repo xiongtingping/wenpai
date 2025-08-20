@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getUserTier } from '@/utils/subscriptionUtils';
 
 export type UserRole = 'trial' | 'pro' | 'premium';

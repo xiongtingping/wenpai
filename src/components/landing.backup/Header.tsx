@@ -1,4 +1,4 @@
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"

@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -105,32 +105,15 @@ export default function ProfilePage() {
   // 🔧 数据一致性检查和同步
   useEffect(() => {
     if (user) {
-      console.log('🔄 检查用户数据一致性...');
+      console.log('🔄 同步用户数据到表单...');
 
-      // 检查localStorage中的数据是否与当前用户状态一致
-      const storedUser = localStorage.getItem('authing_user');
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          const hasInconsistency =
-            parsedUser.nickname !== user.nickname ||
-            parsedUser.email !== user.email ||
-            parsedUser.phone !== user.phone ||
-            parsedUser.avatar !== user.avatar;
-
-          if (hasInconsistency) {
-            console.log('⚠️ 检测到数据不一致，同步表单状态');
-            setProfileForm({
-              nickname: getUserDisplayName(user, ''),
-              phone: user?.phone || '',
-              email: user?.email || '',
-              avatar: getUserAvatar(user)
-            });
-          }
-        } catch (error) {
-          console.error('❌ 解析存储的用户数据失败:', error);
-        }
-      }
+      // 直接从用户状态同步到表单
+      setProfileForm({
+        nickname: getUserDisplayName(user, ''),
+        phone: user?.phone || '',
+        email: user?.email || '',
+        avatar: getUserAvatar(user)
+      });
     }
   }, [user]);
 
@@ -312,83 +295,21 @@ export default function ProfilePage() {
         avatar: profileForm.avatar
       };
 
-      // 🔧 使用Authing SDK直接更新用户资料
-      try {
-        const { authingService } = await import('@/services/authingService');
-        const updateResult = await authingService.updateProfile({
-          nickname: updatedUserData.nickname,
-          email: updatedUserData.email,
-          phone: updatedUserData.phone,
-          avatar: updatedUserData.avatar
-        });
+      // 🔧 使用统一认证系统更新用户资料
+      await updateUser(updatedUserData);
 
-        if (updateResult.success && updateResult.user) {
-          // 更新本地状态为服务器返回的最新数据
-          const serverUserData = {
-            nickname: updateResult.user.nickname,
-            email: updateResult.user.email,
-            phone: updateResult.user.phone,
-            avatar: updateResult.user.photo || updateResult.user.avatar,
-            lastUpdated: new Date().toISOString(),
-            syncStatus: 'synced'
-          };
-
-          // 同步到本地状态和存储
-          updateUser(serverUserData);
-          localStorage.setItem('authing_user', JSON.stringify({
-            ...JSON.parse(localStorage.getItem('authing_user') || '{}'),
-            ...serverUserData
-          }));
-
-          toast({
-            title: "保存成功",
-            description: "个人资料已成功更新到Authing服务器",
-          });
-
-        } else {
-          throw new Error(updateResult.error || "Authing API更新失败");
-        }
-      } catch (authingError) {
-        console.error('❌ Authing SDK更新失败，尝试备用方案:', authingError);
-
-        // 备用方案：使用Netlify Function
-        const response = await fetch('/.netlify/functions/update-user-profile', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          },
-          body: JSON.stringify(updatedUserData)
-        });
-
-        const updateResult = await response.json();
-
-        if (updateResult.success && updateResult.user) {
-          // 更新本地状态
-          const serverUserData = {
-            nickname: updateResult.user.nickname,
-            email: updateResult.user.email,
-            phone: updateResult.user.phone,
-            avatar: updateResult.user.photo || updateResult.user.avatar,
-            lastUpdated: new Date().toISOString(),
-            syncStatus: 'synced'
-          };
-
-          updateUser(serverUserData);
-          localStorage.setItem('authing_user', JSON.stringify({
-            ...JSON.parse(localStorage.getItem('authing_user') || '{}'),
-            ...serverUserData
-          }));
-
-          toast({
-            title: "保存成功",
-            description: "个人资料已成功更新（备用方案）",
-          });
-        } else {
-          throw new Error(updateResult.error || "备用方案也失败了");
-        }
-      }
+      // updateUser成功执行，表示更新成功
       setHasUnsavedChanges(false);
+
+      toast({
+        title: "保存成功",
+        description: "个人资料已成功更新",
+      });
+
+      logger.info('✅ 个人资料保存成功', {
+        userId: user?.id,
+        updatedFields: Object.keys(updatedUserData)
+      });
     } catch (error) {
       toast({
         title: "保存失败",

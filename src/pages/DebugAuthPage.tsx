@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAuthConfig } from '@/auth/config';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getRegisterUrlFast } from '@/utils/authingRegisterHelper';
 
 // 简单的随机字符串生成函数
@@ -218,8 +218,8 @@ export const DebugAuthPage: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span>是否包含错误App ID:</span>
-              <Badge variant={debugInfo.testRegisterUrl.includes('68823897631e1ef8ff3720b2') ? 'destructive' : 'default'}>
-                {debugInfo.testRegisterUrl.includes('68823897631e1ef8ff3720b2') ? '❌ 包含错误ID' : '✅ 无错误ID'}
+              <Badge variant={debugInfo.testRegisterUrl.includes('688237f8f58e454393add99e') ? 'destructive' : 'default'}>
+                {debugInfo.testRegisterUrl.includes('688237f8f58e454393add99e') ? '❌ 包含错误ID' : '✅ 无错误ID'}
               </Badge>
             </div>
             <div className="flex justify-between">

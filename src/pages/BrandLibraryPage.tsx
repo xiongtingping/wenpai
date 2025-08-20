@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { PermissionLockedButton, PermissionLockedIconButton } from '@/components/auth/PermissionLockedButton';
 import { PermissionProtectedInput, PermissionProtectedInputField, PermissionProtectedSelect } from '@/components/auth/PermissionProtectedInput';
 import { RoleBasedUpgradePrompt } from '@/components/ui/RoleBasedUpgradePrompt';

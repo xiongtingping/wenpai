@@ -4,7 +4,7 @@
  */
 
 import React, { createContext, useContext } from 'react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getUserTier } from '@/utils/subscriptionUtils';
 
 export interface PermissionContextValue {

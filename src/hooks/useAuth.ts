@@ -9,7 +9,7 @@
  * 4. 类型安全保障
  */
 
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 /**
  * 统一认证Hook - 应用的唯一认证入口

@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Lock, Crown, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getUserTier } from '@/utils/subscriptionUtils';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import { useToast } from '@/hooks/use-toast';

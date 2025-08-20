@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getUserTier, hasPermission, getTierDisplayName } from '@/utils/subscriptionUtils';
 
 export type SubscriptionTier = 'trial' | 'pro' | 'premium';

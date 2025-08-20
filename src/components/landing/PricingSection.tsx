@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 // 🔧 [DIRECT_AUTH_FIX_v2025.08.15] 使用DirectAuth替代UnifiedAuth
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext"
+import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider"
 import { Crown, Sparkles, Check, X, Star, TrendingUp, Zap } from "lucide-react"
 import { SUBSCRIPTION_PLANS } from "@/config/subscriptionPlans"
 import { SubscriptionPeriod } from "@/types/subscription"

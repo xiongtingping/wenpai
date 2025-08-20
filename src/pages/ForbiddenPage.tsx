@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, ArrowLeft, Crown, Lock, AlertTriangle } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 /**
  * 403 禁止访问页面组件

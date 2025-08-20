@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { usePermission } from '@/hooks/usePermission';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
 import { UpgradePromptCard } from './UpgradePromptCard';
 

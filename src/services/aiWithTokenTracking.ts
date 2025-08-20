@@ -5,7 +5,7 @@
 
 import { callAI as originalCallAI, AITaskType } from '@/api/aiService';
 import { tokenUsageService } from '@/services/tokenUsageService';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { getSubscriptionPlan } from '@/config/subscriptionPlans';
 import type { SubscriptionTier } from '@/types/subscription';
 import type { AICallParams, AIResponse } from '@/api/types';

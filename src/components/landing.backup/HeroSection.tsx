@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { Button } from '@/components/ui/button';
 
 /**

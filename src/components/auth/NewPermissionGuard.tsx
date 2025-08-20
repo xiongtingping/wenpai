@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { PermissionUpgradeDialog } from './PermissionUpgradeDialog';
 import { PermissionUpgradeCard } from './PermissionUpgradeCard';
 import { Button } from '@/components/ui/button';

@@ -16,8 +16,7 @@
 import React, { Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/auth/AuthProvider';
-import { UnifiedAuthProvider } from '@/contexts/UnifiedAuthContext';
+import { UnifiedAuthProvider } from '@/auth/UnifiedAuthProvider';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -69,10 +68,8 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ThemeProvider>
         <ErrorBoundary>
-          <AuthProvider>
+          <UnifiedAuthProvider>
             <ErrorBoundary>
-              <UnifiedAuthProvider>
-                <ErrorBoundary>
                   <>
                     <div className="min-h-screen bg-background">
               <ConditionalNavigation>
@@ -127,10 +124,8 @@ const App: React.FC = () => {
             {/* 全局通知组件 */}
             <Toaster />
                   </>
-                </ErrorBoundary>
-              </UnifiedAuthProvider>
             </ErrorBoundary>
-          </AuthProvider>
+          </UnifiedAuthProvider>
         </ErrorBoundary>
       </ThemeProvider>
     </ErrorBoundary>

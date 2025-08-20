@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDataStorage } from '@/utils/dataStorageManager';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 
 export interface UseSecureStorageOptions {
   /** 是否在组件挂载时自动加载数据 */

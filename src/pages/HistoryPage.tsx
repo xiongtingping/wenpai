@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+import { useUnifiedAuth } from "@/auth/UnifiedAuthProvider";
 import { Clock, Copy, Trash2 } from 'lucide-react';
 import { getUserDisplayName } from '@/utils/userDisplayUtils';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';

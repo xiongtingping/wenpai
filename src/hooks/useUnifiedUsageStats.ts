@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { useTokenUsageStore } from '@/stores/tokenUsageStore';
 import { unifiedUsageService } from '@/services/unifiedUsageService';
 import { enhancedPermissionService } from '@/services/enhancedPermissionService';
@@ -165,7 +165,7 @@ export function useUnifiedUsageStats(): EnhancedUnifiedUsageStats & {
 
   // 获取用户套餐类型
   const getUserTier = useCallback((): SubscriptionTier => {
-    return user?.subscription?.tier || 'trial';
+    return (user?.subscription as any)?.tier || 'trial';
   }, [user]);
 
   const userTier = getUserTier();

@@ -107,7 +107,7 @@ import { MentionTextarea } from '@/components/ui/mention-textarea';
 import { useContentSyncStore } from '@/stores/contentSyncStore';
 import { useFavoritesStore, favoritesUtils } from '@/stores/favoritesStore';
 import { useUserDataIsolation } from '@/utils/userDataIsolation';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/auth/UnifiedAuthProvider';
 import { PermissionLockedButton } from '@/components/auth/PermissionLockedButton';
 import TopNavigation from '@/components/layout/TopNavigation';
 
