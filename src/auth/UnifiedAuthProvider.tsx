@@ -192,7 +192,15 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         redirectUri: config.redirectUri,
         mode: 'modal' as const, // 关键：使用弹窗模式
         defaultScene: 'login' as const,
-        lang: 'zh-CN' as const
+        lang: 'zh-CN' as const,
+        // 添加必要的配置以避免oidcConfig错误
+        isSSO: false,
+        usePrefixCls: true,
+        autoRegister: true,
+        disableRegister: false,
+        disableResetPwd: false,
+        clickCloseable: true,
+        escCloseable: true
       };
       console.log('🏗️ Guard配置:', guardConfig);
 
@@ -291,16 +299,24 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setTimeout(() => {
         console.log('🔍 检查并修复登录弹窗样式...');
 
-        // 查找Authing弹窗容器
+        // 首先清理可能被错误修改的页面元素
+        const pageElements = ['html', 'body', '#root', '.min-h-screen'];
+        pageElements.forEach(selector => {
+          const element = document.querySelector(selector) as HTMLElement;
+          if (element && element.style.position === 'fixed') {
+            console.log('🔧 清理被错误修改的页面元素:', selector);
+            element.style.cssText = '';
+            element.removeAttribute('style');
+          }
+        });
+
+        // 查找真正的Authing弹窗容器（使用更精确的选择器）
         const authingContainers = [
           document.querySelector('#authing-guard-container'),
           document.querySelector('.authing-guard-container'),
           document.querySelector('[data-authing-guard]'),
           document.querySelector('.authing-ant-modal-root'),
-          document.querySelector('.ant-modal-root'),
-          document.querySelector('[class*="authing"]'),
-          document.querySelector('[class*="guard"]'),
-          document.querySelector('[class*="modal"]')
+          document.querySelector('.ant-modal-root')
         ].filter(Boolean);
 
         authingContainers.forEach((container, index) => {
@@ -334,36 +350,101 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
           }
         });
 
-        // 如果没找到容器，查找所有可能的弹窗元素
+        // 如果没找到容器，使用MutationObserver等待弹窗出现
         if (authingContainers.length === 0) {
-          console.log('⚠️ 未找到标准容器，搜索所有可能的弹窗元素...');
-          const allElements = document.querySelectorAll('*');
-          allElements.forEach(el => {
-            const element = el as HTMLElement;
-            if (element.textContent &&
-                (element.textContent.includes('登录') ||
-                 element.textContent.includes('验证码') ||
-                 element.textContent.includes('密码') ||
-                 element.textContent.includes('手机号')) &&
-                element.offsetWidth > 200 && element.offsetHeight > 200) {
-              console.log('🔍 找到可能的登录弹窗元素:', element);
-              element.style.cssText = `
-                position: fixed !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                z-index: 999999 !important;
-                background: white !important;
-                border-radius: 8px !important;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-                padding: 20px !important;
-              `;
-            }
+          console.log('⚠️ 未找到Authing容器，启动监听器等待弹窗出现...');
+
+          // 内联样式应用函数
+          const applyModalStyles = (el: HTMLElement) => {
+            el.style.cssText = `
+              position: fixed !important;
+              top: 50% !important;
+              left: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              z-index: 999999 !important;
+              background: white !important;
+              border-radius: 8px !important;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+              padding: 20px !important;
+              min-width: 400px !important;
+              min-height: 300px !important;
+              max-width: 500px !important;
+              max-height: 700px !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+            `;
+            console.log('✅ 已应用弹窗样式到元素:', el);
+          };
+
+          // 使用MutationObserver监听DOM变化
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                  const element = node as HTMLElement;
+                  // 检查是否是Authing弹窗（更精确的判断）
+                  if (element.id && element.id.includes('authing')) {
+                    console.log('🔍 检测到Authing弹窗:', element);
+                    applyModalStyles(element);
+                    observer.disconnect();
+                  } else if (element.className &&
+                           typeof element.className === 'string' &&
+                           (element.className.includes('authing-guard') ||
+                            element.className.includes('ant-modal'))) {
+                    console.log('🔍 检测到弹窗元素:', element);
+                    applyModalStyles(element);
+                    observer.disconnect();
+                  }
+                }
+              });
+            });
           });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+
+          // 3秒后停止监听
+          setTimeout(() => {
+            observer.disconnect();
+            console.log('⏰ 弹窗监听器已停止');
+          }, 3000);
         }
-      }, 500);
+      }, 1000);
 
-
+      // 再次尝试修复（延迟更长时间）
+      setTimeout(() => {
+        console.log('🔄 第二次尝试修复弹窗样式...');
+        const containers = document.querySelectorAll('[class*="authing"], [id*="authing"], .ant-modal-root');
+        containers.forEach(container => {
+          if (container && (container as HTMLElement).offsetWidth > 0) {
+            console.log('🔍 第二次找到弹窗容器:', container);
+            // 直接应用样式
+            const element = container as HTMLElement;
+            element.style.cssText = `
+              position: fixed !important;
+              top: 50% !important;
+              left: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              z-index: 999999 !important;
+              background: white !important;
+              border-radius: 8px !important;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+              padding: 20px !important;
+              min-width: 400px !important;
+              min-height: 300px !important;
+              max-width: 500px !important;
+              max-height: 700px !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+            `;
+            console.log('✅ 第二次修复完成:', element);
+          }
+        });
+      }, 3000);
 
     } catch (error) {
       logger.error('❌ 初始化Guard失败:', error);
