@@ -159,81 +159,189 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // ===== 认证方法 =====
 
   /**
-   * 用户登录
+   * 用户登录 - 使用弹窗模式避免redirect_uri问题
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
-      
-      // 使用PKCE流程进行登录
+
       const config = authService.getConfig();
       if (!config) {
         throw new Error('认证配置未初始化');
       }
 
-      // SPA模式：生成PKCE参数
-      const codeVerifier = generateCodeVerifier();
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      // 动态导入Guard组件
+      const { Guard } = await import('@authing/guard');
 
-      // 存储code_verifier用于后续token交换
-      sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+      // 创建Guard实例 - 使用弹窗模式
+      const guard = new Guard({
+        appId: config.appId,
+        host: config.host,
+        mode: 'modal', // 关键：使用弹窗模式
+        defaultScene: 'login',
+        // 弹窗配置
+        autoRegister: false,
+        closeable: true,
+        clickCloseableMask: true,
+        // 登录方式
+        loginMethodList: ['password', 'phone-code', 'email-code'],
+        // 界面配置
+        title: '文派',
+        lang: 'zh-CN'
+      });
 
-      // 构建授权URL - 使用标准OIDC端点
-      const authUrl = `${config.host}/${config.appId}/oidc/auth?` + new URLSearchParams({
-        client_id: config.appId,
-        redirect_uri: config.redirectUri,
-        response_type: 'code',
-        scope: 'openid profile email phone',
-        state: redirectTo || window.location.pathname,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256'
-      }).toString();
+      // 监听登录成功事件
+      guard.on('login', async (userInfo: any) => {
+        try {
+          logger.info('✅ Guard登录成功:', userInfo);
 
-      // 跳转到授权页面
-      window.location.href = authUrl;
-      
+          // 标准化用户信息
+          const user = authService.normalizeAuthUser(userInfo);
+
+          // 更新认证状态
+          setAuthState(prev => ({
+            ...prev,
+            user,
+            isAuthenticated: true,
+            loading: false,
+            error: null
+          }));
+
+          // 关闭弹窗
+          guard.hide();
+
+          // 跳转到目标页面
+          if (redirectTo) {
+            window.location.href = redirectTo;
+          }
+        } catch (error) {
+          logger.error('❌ 处理登录结果失败:', error);
+          setAuthState(prev => ({
+            ...prev,
+            loading: false,
+            error: '登录处理失败'
+          }));
+        }
+      });
+
+      // 监听登录失败事件
+      guard.on('login-error', (error: any) => {
+        logger.error('❌ Guard登录失败:', error);
+        setAuthState(prev => ({
+          ...prev,
+          loading: false,
+          error: error?.message || '登录失败'
+        }));
+      });
+
+      // 监听弹窗关闭事件
+      guard.on('close', () => {
+        setAuthState(prev => ({ ...prev, loading: false }));
+      });
+
+      // 显示登录弹窗
+      guard.show();
+
     } catch (error) {
-      logger.error('❌ 登录失败:', error);
-      setAuthState(prev => ({ 
-        ...prev, 
+      logger.error('❌ 初始化Guard失败:', error);
+      setAuthState(prev => ({
+        ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : '登录失败' 
+        error: error instanceof Error ? error.message : '登录初始化失败'
       }));
     }
   }, []);
 
   /**
-   * 用户注册
+   * 用户注册 - 使用弹窗模式避免redirect_uri问题
    */
   const register = useCallback(async (redirectTo?: string) => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
-      
+
       const config = authService.getConfig();
       if (!config) {
         throw new Error('认证配置未初始化');
       }
 
-      // 构建注册URL - 使用标准OIDC端点
-      const registerUrl = `${config.host}/${config.appId}/oidc/auth?` + new URLSearchParams({
-        client_id: config.appId,
-        redirect_uri: config.redirectUri,
-        response_type: 'code',
-        scope: 'openid profile email phone',
-        state: redirectTo || window.location.pathname,
-        prompt: 'login', // 使用Authing支持的prompt值
-        screen_hint: 'signup' // 使用screen_hint指示注册页面
-      }).toString();
+      // 动态导入Guard组件
+      const { Guard } = await import('@authing/guard');
 
-      // 跳转到注册页面
-      window.location.href = registerUrl;
-      
+      // 创建Guard实例 - 使用弹窗模式
+      const guard = new Guard({
+        appId: config.appId,
+        host: config.host,
+        mode: 'modal', // 关键：使用弹窗模式
+        defaultScene: 'register', // 默认显示注册页面
+        // 弹窗配置
+        autoRegister: false,
+        closeable: true,
+        clickCloseableMask: true,
+        // 注册方式
+        registerMethodList: ['phone', 'email'],
+        // 界面配置
+        title: '文派',
+        lang: 'zh-CN'
+      });
+
+      // 监听注册成功事件
+      guard.on('register', async (userInfo: any) => {
+        try {
+          logger.info('✅ Guard注册成功:', userInfo);
+
+          // 标准化用户信息
+          const user = authService.normalizeAuthUser(userInfo);
+
+          // 更新认证状态
+          setAuthState(prev => ({
+            ...prev,
+            user,
+            isAuthenticated: true,
+            loading: false,
+            error: null
+          }));
+
+          // 关闭弹窗
+          guard.hide();
+
+          // 跳转到目标页面
+          if (redirectTo) {
+            window.location.href = redirectTo;
+          }
+        } catch (error) {
+          logger.error('❌ 处理注册结果失败:', error);
+          setAuthState(prev => ({
+            ...prev,
+            loading: false,
+            error: '注册处理失败'
+          }));
+        }
+      });
+
+      // 监听注册失败事件
+      guard.on('register-error', (error: any) => {
+        logger.error('❌ Guard注册失败:', error);
+        setAuthState(prev => ({
+          ...prev,
+          loading: false,
+          error: error?.message || '注册失败'
+        }));
+      });
+
+      // 监听弹窗关闭事件
+      guard.on('close', () => {
+        setAuthState(prev => ({ ...prev, loading: false }));
+      });
+
+      // 显示注册弹窗
+      guard.show();
+
     } catch (error) {
-      logger.error('❌ 注册失败:', error);
-      setAuthState(prev => ({ 
-        ...prev, 
+      logger.error('❌ 初始化Guard失败:', error);
+      setAuthState(prev => ({
+        ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : '注册失败' 
+        error: error instanceof Error ? error.message : '注册初始化失败'
       }));
     }
   }, []);
