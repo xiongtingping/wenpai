@@ -136,7 +136,7 @@ export class ConfigManager {
     return {
       authing: {
         appId: import.meta.env.VITE_AUTHING_APP_ID || '68823897631e1ef8ff3720b2',
-        userPoolId: import.meta.env.VITE_AUTHING_USER_POOL_ID || '68823897631e1ef8ff3720b2',
+        userPoolId: import.meta.env.VITE_AUTHING_USER_POOL_ID || '688237f7f9e118de849dc274',
         domain: import.meta.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn',
         host: import.meta.env.VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn',
         redirectUri: this.getRedirectUri(),

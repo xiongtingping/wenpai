@@ -146,7 +146,7 @@
   VITE_AUTHING_REDIRECT_URI_DEV = "http://localhost:5173/callback"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://wenpai.netlify.app/callback"
   VITE_AUTHING_REDIRECT_URI_CUSTOM = "https://wenpai.netlify.app/callback"
-  VITE_AUTHING_USER_POOL_ID = "68823897631e1ef8ff3720b2"
+  VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_APP_TYPE = "oidc"
   # Authing配置 - 服务端 (Netlify Functions)
   AUTHING_APP_ID = "68823897631e1ef8ff3720b2"

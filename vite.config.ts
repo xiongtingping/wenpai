@@ -30,7 +30,7 @@ export default defineConfig({
       VITE_AUTHING_DOMAIN: process.env.VITE_AUTHING_DOMAIN || 'rzcswqs4sq0f.authing.cn',
       VITE_AUTHING_HOST: process.env.VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn',
       VITE_AUTHING_REDIRECT_URI: process.env.VITE_AUTHING_REDIRECT_URI || '',
-VITE_AUTHING_USER_POOL_ID: process.env.VITE_AUTHING_USER_POOL_ID || '68823897631e1ef8ff3720b2',
+VITE_AUTHING_USER_POOL_ID: process.env.VITE_AUTHING_USER_POOL_ID || '688237f7f9e118de849dc274',
       NODE_ENV: process.env.NODE_ENV || '',
       BASE_PATH: process.env.VITE_BASE_PATH || process.env.BASE_PATH || '/',
       VITE_AUTHING_FALLBACK_HOSTED: process.env.VITE_AUTHING_FALLBACK_HOSTED || '',
