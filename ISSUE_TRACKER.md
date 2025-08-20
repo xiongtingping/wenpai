@@ -370,6 +370,31 @@
 - 🕒 等待验证: redirect_uri_mismatch是否最终解决
 **优先级**: 紧急 (已完成)
 
+### 34. SSO端点适配 - 最终根因修复 ✅
+**文件**: src/auth/UnifiedAuthProvider.tsx, src/utils/authingRegisterHelper.ts, netlify/functions/authing-token-exchange.cjs
+**错误**: `redirect_uri_mismatch` - 应用为SSO类型，需要SSO专用端点
+- 错误端点: /oidc/auth ❌
+- 正确端点: /sso/oidc/auth ✅
+- 应用类型: SSO (单点登录) 类型
+**状态**: 已修复 - 完成SSO端点全面适配
+**根因分析**:
+- 发现应用为SSO类型，需要使用SSO专用端点
+- curl测试证实/sso/oidc/auth端点成功，无redirect_uri_mismatch
+- 注册功能中的authingRegisterHelper.ts仍使用旧端点
+- 导致注册按钮跳转到错误的认证端点
+**修复方案**:
+- 前端登录: 使用/sso/oidc/auth端点
+- 前端注册: 修复authingRegisterHelper.ts使用SSO端点
+- 后端Token: 使用/sso/oidc/token端点
+- 多端点支持: 按优先级尝试SSO和标准端点
+**验证结果**:
+- ✅ 构建成功: 无TypeScript错误
+- ✅ SSO端点测试: curl验证成功，无redirect_uri_mismatch
+- ✅ 注册修复: 注册按钮现在跳转到正确端点
+- ✅ 前后端统一: 都使用SSO端点
+- 🕒 等待验证: 生产环境最终效果
+**优先级**: 紧急 (已完成)
+
 ### 20. App ID污染问题彻底解决 ✅
 **文件**: 84个文件包含错误App ID
 **错误**: 系统使用错误App ID导致"应用面板未开启"错误
@@ -482,8 +507,8 @@
 **优先级**: 已完成 (生产环境验证100%成功)
 
 ## 📈 修复统计
-- **总问题数**: 33
-- **已修复**: 28
+- **总问题数**: 34
+- **已修复**: 29
 - **未修复**: 4
 - **部分修复**: 1
 - **紧急优先级**: 1 (进行中)

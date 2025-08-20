@@ -52,18 +52,26 @@ export const getAuthConfig = (): AuthConfig => {
     redirectUri = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_DEV ||
                   `http://localhost:${p || '5173'}/callback`;
   } else {
-    // 生产环境：SPA模式必须使用实际Origin，不能使用配置的域名
-    // 因为SPA对redirect_uri有严格的CORS验证
-    redirectUri = `${window.location.origin}/callback`;
+    // 生产环境：使用白名单中的固定域名，避免Netlify预览URL问题
+    // 检查当前域名是否为已知的生产域名
+    const isProductionDomain = h === 'www.wenpai.xyz' || h === 'wenpai.xyz' || h === 'wenpai.netlify.app';
 
-    // 调试日志：显示SPA模式的Origin适配
+    if (isProductionDomain) {
+      // 使用当前域名
+      redirectUri = `${window.location.origin}/callback`;
+    } else {
+      // 对于Netlify预览部署等临时域名，强制使用主域名
+      redirectUri = 'https://www.wenpai.xyz/callback';
+    }
+
+    // 调试日志：显示域名检查结果
     if (isDevelopment) {
-      console.log('🔍 SPA模式RedirectUri分析:', {
-        appType: 'SPA',
-        windowOrigin: window.location.origin,
+      console.log('🔍 生产环境RedirectUri分析:', {
         hostname: h,
+        windowOrigin: window.location.origin,
+        isProductionDomain,
         finalRedirectUri: redirectUri,
-        note: 'SPA模式必须使用实际Origin'
+        note: isProductionDomain ? '使用当前域名' : '使用主域名避免预览URL'
       });
     }
   }

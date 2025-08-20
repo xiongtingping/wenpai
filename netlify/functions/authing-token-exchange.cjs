@@ -45,22 +45,31 @@ exports.handler = async (event) => {
     const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a58c57614a821a46f264f7';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
-    // 🔧 SPA模式适配：必须使用实际请求Origin
-    // SPA应用对redirect_uri有严格的CORS验证，必须与请求来源完全匹配
+    // 🔧 修复Netlify预览URL问题：只允许白名单域名
     const requestOrigin = event.headers.origin || event.headers.Origin || event.headers.referer;
     let dynamicRedirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
 
     if (requestOrigin) {
       try {
         const originUrl = new URL(requestOrigin);
-        dynamicRedirectUri = `${originUrl.origin}/callback`;
-        console.log('✅ SPA模式：使用实际Origin', originUrl.origin);
+        const hostname = originUrl.hostname;
+
+        // 检查是否为白名单中的生产域名
+        const isProductionDomain = hostname === 'www.wenpai.xyz' ||
+                                   hostname === 'wenpai.xyz' ||
+                                   hostname === 'wenpai.netlify.app';
+
+        if (isProductionDomain) {
+          dynamicRedirectUri = `${originUrl.origin}/callback`;
+          console.log('✅ 使用生产域名Origin:', originUrl.origin);
+        } else {
+          console.log('⚠️ 非生产域名，使用默认redirectUri:', hostname);
+        }
       } catch (e) {
         console.log('⚠️ 无法解析Origin，使用默认redirectUri');
       }
     }
 
-    // SPA模式：优先使用动态Origin，忽略环境变量配置
     const redirectUri = dynamicRedirectUri;
 
     // 调试日志：输出配置信息（生产环境下隐藏敏感信息）
