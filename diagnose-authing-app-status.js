@@ -8,8 +8,8 @@ const fs = require('fs');
 
 // Authing配置
 const AUTHING_CONFIG = {
-  appId: '688237f7f9e118de849dc274',
-  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
+  appId: '68823897631e1ef8ff3720b2',
+  host: 'rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2',
   redirectUri: 'http://localhost:5173/callback'
 };
 

@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 688237f7f9e118de849dc274
- * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
+ * App ID: 68823897631e1ef8ff3720b2
+ * Host: rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -15,7 +15,7 @@
 manifest.json:1 Manifest: property 'start_url' ignored, should be same origin as document.
 Error: redirect
     at cdn.authing.co/authing-fe-user-portal/2.30.95/static/js/main.js:2:587937
-已转到 https://ai-wenpai.authing.cn/688237f7f9e118de849dc274/login?app_id=688237f7f9e118de849dc274&protocol=oidc&finish_login_url=%2Finteraction%2Foidc%2Fd5cac186-43bf-4f0e-8e3c-b7eb80ede3cc%2Flogin&login_page_context=
+已转到 https://rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2/login?app_id=68823897631e1ef8ff3720b2&protocol=oidc&finish_login_url=%2Finteraction%2Foidc%2Fd5cac186-43bf-4f0e-8e3c-b7eb80ede3cc%2Flogin&login_page_context=
 ```
 
 ## 🔍 问题分析
@@ -36,8 +36,8 @@ Error: redirect
 
 1. **配置正确的 Authing 参数**
    ```bash
-   VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
-   VITE_AUTHING_HOST=ai-wenpai.authing.cn/688237f7f9e118de849dc274
+   VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
+   VITE_AUTHING_HOST=rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2
    VITE_AUTHING_REDIRECT_URI_DEV=http://localhost:5173/callback
    VITE_AUTHING_REDIRECT_URI_PROD=https://wenpai.xyz/callback
    ```
@@ -61,7 +61,7 @@ Error: redirect
 - **选择应用**: wenpai
 - **进入**: 应用配置 -> 应用信息
 - **检查配置**:
-  - 应用 ID: `688237f7f9e118de849dc274`
+  - 应用 ID: `68823897631e1ef8ff3720b2`
   - 应用域名: `https://wenpai.authing.cn`
   - 登录回调 URL: `http://localhost:5173/callback`
   - 登出回调 URL: `http://localhost:5173`
@@ -83,7 +83,7 @@ Error: redirect
 
 | 项目 | 修复前 | 修复后 |
 |------|--------|--------|
-| Authing 应用 ID | offline-mode | 688237f7f9e118de849dc274 |
+| Authing 应用 ID | offline-mode | 68823897631e1ef8ff3720b2 |
 | Authing 域名 | offline | https://wenpai.authing.cn |
 | 回调 URL | 错误 | http://localhost:5173/callback |
 | 重定向错误 | ❌ 存在 | ✅ 已修复 |

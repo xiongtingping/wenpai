@@ -2,7 +2,7 @@
 
 ## 🚨 发现的问题
 
-根据 [Authing 后台设置页面](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start) 的截图，发现了以下配置问题：
+根据 [Authing 后台设置页面](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/68823897631e1ef8ff3720b2?app_detail_active_tab=quick_start) 的截图，发现了以下配置问题：
 
 ### 1. 域名配置错误
 - **当前配置**: `https://qutkgzkfaezk-demo.authing.cn`
@@ -64,7 +64,7 @@ https://www.wenpai.xyz/
 ## 📋 操作步骤
 
 ### 步骤 1: 更新认证地址 ⭐ **最重要**
-1. 进入 [Authing 应用配置页面](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start)
+1. 进入 [Authing 应用配置页面](https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/68823897631e1ef8ff3720b2?app_detail_active_tab=quick_start)
 2. 找到"认证地址"字段
 3. 将 `https://qutkgzkfaezk-demo.authing.cn` 修改为 `https://wenpai.authing.cn`
 4. 点击"保存"
@@ -98,7 +98,7 @@ curl -I https://wenpai.authing.cn/oidc/session/end
 
 ### 3. 测试配置 API ✅
 ```bash
-curl -I https://wenpai.authing.cn/api/v2/applications/688237f7f9e118de849dc274/public-config
+curl -I https://wenpai.authing.cn/api/v2/applications/68823897631e1ef8ff3720b2/public-config
 # 预期结果: HTTP/2 200 (配置可获取)
 ```
 

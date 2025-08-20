@@ -34,7 +34,7 @@
 - **状态**: ✅ 可正常访问
 
 ### ✅ Authing 服务状态
-- **服务**: https://ai-wenpai.authing.cn
+- **服务**: https://rzcswqs4sq0f.authing.cn
 - **状态**: ✅ 可正常访问 (302 重定向正常)
 
 ## 🔧 技术实现
@@ -76,14 +76,14 @@
 ```bash
 VITE_AUTHING_APP_ID=687e0afae2b84f86865b644
 VITE_AUTHING_USERPOOL_ID=687e0a47a9c1c3d9177b8da1
-VITE_AUTHING_HOST=https://ai-wenpai.authing.cn
+VITE_AUTHING_HOST=https://rzcswqs4sq0f.authing.cn
 VITE_AUTHING_REDIRECT_URI=http://localhost:5177/callback
 ```
 
 ### Authing 后台配置
 - **应用 ID**: `687e0afae2b84f86865b644`
 - **用户池 ID**: `687e0a47a9c1c3d9177b8da1`
-- **域名**: `ai-wenpai.authing.cn`
+- **域名**: `rzcswqs4sq0f.authing.cn`
 - **回调地址**: `http://localhost:5177/callback`
 
 ## 📊 性能指标

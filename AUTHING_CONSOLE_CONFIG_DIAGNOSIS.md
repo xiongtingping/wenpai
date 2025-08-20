@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 688237f7f9e118de849dc274
- * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
+ * App ID: 68823897631e1ef8ff3720b2
+ * Host: rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -14,7 +14,7 @@
 
 ### ✅ 我们的代码工作正常
 ```
-🔗 跳转到Authing登录页面: https://ai-wenpai.authing.cn/688237f7f9e118de849dc274/login?app_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
+🔗 跳转到Authing登录页面: https://rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
 ```
 
 ### ❌ Authing控制台配置错误
@@ -38,7 +38,7 @@
 ### 第二步：找到应用
 
 1. 在左侧菜单中点击"应用管理"
-2. 找到应用ID为 `688237f7f9e118de849dc274` 的应用
+2. 找到应用ID为 `68823897631e1ef8ff3720b2` 的应用
 3. 点击应用名称进入详情页面
 
 ### 第三步：进入应用配置
@@ -106,7 +106,7 @@ A:
 ## 配置检查清单
 
 - [ ] 登录Authing控制台
-- [ ] 找到应用ID: 688237f7f9e118de849dc274
+- [ ] 找到应用ID: 68823897631e1ef8ff3720b2
 - [ ] 进入应用配置页面
 - [ ] 清除登录回调URL字段的所有内容
 - [ ] 添加正确的回调URL: `http://localhost:5173/callback`

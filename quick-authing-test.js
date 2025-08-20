@@ -10,7 +10,7 @@ console.log('🚀 开始快速 Authing 配置测试...\n');
 // 新的配置信息
 const config = {
   appId: '687bc631c105de597b993202',
-  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
+  host: 'rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2',
   redirectUri: 'http://localhost:5173/callback'
 };
 

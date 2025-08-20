@@ -13,7 +13,7 @@
 
 #### Authing配置文件 (`src/config/authing.ts`)
 - ✅ **配置文件存在**: 文件结构完整
-- ✅ **App ID**: `688237f7f9e118de849dc274`
+- ✅ **App ID**: `68823897631e1ef8ff3720b2`
 - ✅ **Host**: `https://qutkgzkfaezk-demo.authing.cn`
 - ✅ **Redirect URI**: 动态配置，支持开发和生产环境
 - ✅ **Mode**: `normal` (正常模式)

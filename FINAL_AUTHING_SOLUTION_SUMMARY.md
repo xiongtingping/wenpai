@@ -19,7 +19,7 @@
 
 ```
 ✅ 我们的代码工作正常：
-🔗 跳转到Authing登录页面: https://wenpai.authing.cn/login?app_id=688237f7f9e118de849dc274&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
+🔗 跳转到Authing登录页面: https://wenpai.authing.cn/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcallback
 
 ❌ Authing控制台配置错误：
 已转到 https://www.wenpai.xyz/callback%20%20https://*.netlify.app/callback%20%20http://localhost:5173/callback?code=...
@@ -37,7 +37,7 @@
 修复Authing控制台配置：
 
 1. **访问Authing控制台**：https://console.authing.cn/
-2. **找到应用**：应用ID `688237f7f9e118de849dc274`
+2. **找到应用**：应用ID `68823897631e1ef8ff3720b2`
 3. **进入配置**：点击"配置"标签
 4. **清除错误配置**：删除回调URL字段中的所有内容
 5. **添加正确配置**：`http://localhost:5173/callback`

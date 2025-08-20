@@ -15,7 +15,7 @@
    - ✅ 优化了状态检查逻辑
 
 3. **配置验证通过**
-   - ✅ App ID: `688237f7f9e118de849dc274`
+   - ✅ App ID: `68823897631e1ef8ff3720b2`
    - ✅ 域名: `aiwenpai.authing.cn`
    - ✅ 回调地址: `http://localhost:5174/callback`
    - ✅ 应用类型: OIDC
@@ -64,8 +64,8 @@
 ```typescript
 // 验证通过的配置
 {
-  appId: '688237f7f9e118de849dc274',
-  userPoolId: '688237f7f9e118de849dc274',
+  appId: '68823897631e1ef8ff3720b2',
+  userPoolId: '68823897631e1ef8ff3720b2',
   host: 'aiwenpai.authing.cn',
   redirectUri: 'http://localhost:5174/callback',
   scope: 'openid profile email phone'

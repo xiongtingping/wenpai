@@ -4,7 +4,7 @@
 当前遇到 `redirect_uri_mismatch` 错误，需要在 Authing 控制台正确配置回调 URL。
 
 ## 当前配置信息
-- **应用 ID**: `688237f7f9e118de849dc274`
+- **应用 ID**: `68823897631e1ef8ff3720b2`
 - **应用域名**: `https://qutkgzkfaezk-demo.authing.cn`
 - **回调 URL**: `http://localhost:3002/callback`
 
@@ -18,7 +18,7 @@
 2. 点击进入应用列表
 
 ### 3. 选择应用
-找到应用 ID 为 `688237f7f9e118de849dc274` 的应用
+找到应用 ID 为 `68823897631e1ef8ff3720b2` 的应用
 点击进入应用详情
 
 ### 4. 配置登录回调 URL
@@ -60,7 +60,7 @@ A: 更新 `src/config/authing.ts` 中的 `redirectUri` 配置，并在 Authing �
 
 ## 调试信息
 当前授权 URL 构建成功，参数如下：
-- `client_id`: 688237f7f9e118de849dc274
+- `client_id`: 68823897631e1ef8ff3720b2
 - `redirect_uri`: http://localhost:3000/callback
 - `response_type`: code
 - `scope`: openid profile email phone

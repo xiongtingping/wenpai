@@ -66,7 +66,7 @@
         // 模拟配置函数
         function getAuthConfig() {
             const correctAppId = '68823897631e1ef8ff3720b2';
-            const wrongAppId = '688237f8f58e454393add99e';
+            const wrongAppId = '68823897631e1ef8ff3720b2';
             
             // 模拟环境变量
             const envAppId = '68823897631e1ef8ff3720b2'; // 假设这是正确的
@@ -102,11 +102,11 @@
             
             // 强制使用正确的App ID
             const correctAppId = '68823897631e1ef8ff3720b2';
-            const wrongAppId = '688237f8f58e454393add99e';
+            const wrongAppId = '68823897631e1ef8ff3720b2';
             const safeAppId = correctAppId;
             
             // 清理host
-            let cleanHost = originalHost.replace(/\/688237f8f58e454393add99e.*$/, '');
+            let cleanHost = originalHost.replace(/\/68823897631e1ef8ff3720b2.*$/, '');
             cleanHost = cleanHost.replace(/\/68823897631e1ef8ff3720b2.*$/, '');
             cleanHost = cleanHost.replace(/\/.*$/, '');
             
@@ -150,7 +150,7 @@
             // 检查配置是否正确
             const isCorrect = config.appId === '68823897631e1ef8ff3720b2' && 
                              config.host === 'https://rzcswqs4sq0f.authing.cn' &&
-                             !config.host.includes('688237f8f58e454393add99e');
+                             !config.host.includes('68823897631e1ef8ff3720b2');
             
             if (isCorrect) {
                 html += '<div class="success">✅ 配置正确</div>';
@@ -185,7 +185,7 @@
             
             // 检查URL是否正确
             const isCorrect = registerUrl.includes('68823897631e1ef8ff3720b2') && 
-                             !registerUrl.includes('688237f8f58e454393add99e') &&
+                             !registerUrl.includes('68823897631e1ef8ff3720b2') &&
                              registerUrl.includes('rzcswqs4sq0f.authing.cn');
             
             if (isCorrect) {

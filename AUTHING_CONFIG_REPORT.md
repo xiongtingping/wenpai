@@ -3,7 +3,7 @@
 ## 📊 检查结果概览
 
 ### ✅ 配置正确的项目
-- [x] Authing 应用 ID: `688237f7f9e118de849dc274`
+- [x] Authing 应用 ID: `68823897631e1ef8ff3720b2`
 - [x] Authing 域名: `https://qutkgzkfaezk-demo.authing.cn`
 - [x] 开发环境回调: `http://localhost:5173/callback`
 - [x] 生产环境回调: `https://www.wenpai.xyz/callback`
@@ -41,12 +41,12 @@ src/
 **authing.ts 配置：**
 ```typescript
 // 开发环境
-appId: '688237f7f9e118de849dc274'
+appId: '68823897631e1ef8ff3720b2'
 host: 'https://qutkgzkfaezk-demo.authing.cn'
 redirectUri: 'http://localhost:5173/callback'
 
 // 生产环境
-appId: '688237f7f9e118de849dc274'
+appId: '68823897631e1ef8ff3720b2'
 host: 'https://qutkgzkfaezk-demo.authing.cn'
 redirectUri: 'https://www.wenpai.xyz/callback'
 ```
@@ -96,7 +96,7 @@ redirectUri: 'https://www.wenpai.xyz/callback'
 ```
 
 **应用设置：**
-- 应用 ID: `688237f7f9e118de849dc274`
+- 应用 ID: `68823897631e1ef8ff3720b2`
 - 应用域名: `https://qutkgzkfaezk-demo.authing.cn`
 
 ### 2. 本地测试

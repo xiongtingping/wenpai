@@ -9,7 +9,7 @@ Authing 正在尝试解析 JSON 但收到了 HTML 页面，说明回调 URL 配�
 ### 第1步：更新 Authing 后台配置
 
 **进入 Authing 后台**：
-https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start
+https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/68823897631e1ef8ff3720b2?app_detail_active_tab=quick_start
 
 **更新以下配置**：
 
@@ -32,7 +32,7 @@ http://localhost:5173/
 ```javascript
 // 检查当前 Authing 配置
 console.log('🔧 当前 Authing 配置:');
-console.log('App ID:', '688237f7f9e118de849dc274');
+console.log('App ID:', '68823897631e1ef8ff3720b2');
 console.log('Host:', 'https://qutkgzkfaezk-demo.authing.cn');
 console.log('回调地址:', window.location.origin + '/');
 ```

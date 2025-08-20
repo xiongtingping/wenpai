@@ -5,7 +5,7 @@ console.log('🧪 开始测试注册URL修复...');
 
 // 正确和错误的App ID
 const CORRECT_APP_ID = '68823897631e1ef8ff3720b2';
-const WRONG_APP_ID = '688237f8f58e454393add99e';
+const WRONG_APP_ID = '68823897631e1ef8ff3720b2';
 const CORRECT_HOST = 'https://rzcswqs4sq0f.authing.cn';
 
 // 修复函数

@@ -300,7 +300,7 @@ const paymentLog = {
 ### 1. 环境变量
 ```bash
 # Authing配置
-AUTHING_USER_POOL_ID=688237f7f9e118de849dc274
+AUTHING_USER_POOL_ID=68823897631e1ef8ff3720b2
 AUTHING_SECRET=your-authing-secret-key
 AUTHING_HOST=https://qutkgzkfaezk-demo.authing.cn
 

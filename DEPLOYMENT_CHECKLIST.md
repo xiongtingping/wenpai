@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 688237f7f9e118de849dc274
- * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
+ * App ID: 68823897631e1ef8ff3720b2
+ * Host: rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -27,8 +27,8 @@
 在 Netlify 控制台 → Site settings → Environment variables 中添加：
 
 ```
-VITE_AUTHING_APP_ID=688237f7f9e118de849dc274
-VITE_AUTHING_HOST=ai-wenpai.authing.cn/688237f7f9e118de849dc274
+VITE_AUTHING_APP_ID=68823897631e1ef8ff3720b2
+VITE_AUTHING_HOST=rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2
 VITE_AUTHING_REDIRECT_URI_PROD=https://www.wenpai.xyz/callback
 ```
 

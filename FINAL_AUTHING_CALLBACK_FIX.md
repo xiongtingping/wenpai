@@ -16,7 +16,7 @@ SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON
 **步骤：**
 
 1. **进入 Authing 后台**：
-   https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/688237f7f9e118de849dc274?app_detail_active_tab=quick_start
+   https://console.authing.cn/console/6867fdc7b4558b8b92d8ea6d/application/self-built-apps/detail/68823897631e1ef8ff3720b2?app_detail_active_tab=quick_start
 
 2. **更新回调 URL 配置**：
 
@@ -89,7 +89,7 @@ fetch('/debug-authing-url.js')
 ## 🎯 关键配置
 
 ### Authing 后台配置
-- **App ID**: `688237f7f9e118de849dc274`
+- **App ID**: `68823897631e1ef8ff3720b2`
 - **Host**: `https://qutkgzkfaezk-demo.authing.cn`
 - **登录回调**: `http://localhost:5173/`
 - **登出回调**: `http://localhost:5173/`

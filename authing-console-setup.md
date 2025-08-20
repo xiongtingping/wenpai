@@ -10,7 +10,7 @@
 
 ### 基本信息
 - **应用名称**: 文派AI
-- **应用 ID**: 688237f7f9e118de849dc274
+- **应用 ID**: 68823897631e1ef8ff3720b2
 - **应用域名**: https://qutkgzkfaezk-demo.authing.cn
 
 ### 回调地址配置

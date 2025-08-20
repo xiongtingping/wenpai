@@ -3,7 +3,7 @@
 ## ✅ 配置更新完成
 
 ### 🎯 新Authing应用信息：
-- **App ID**: `688237f7f9e118de849dc274`
+- **App ID**: `68823897631e1ef8ff3720b2`
 - **认证地址**: `https://rzcswqs4sq0f.authing.cn`
 - **登录回调 URL**: `https://wenpai.netlify.app/callback`
 - **应用类型**: OIDC 单页 Web 应用
@@ -33,7 +33,7 @@
 - ✅ 域名白名单：`wenpai.netlify.app`
 
 ### 代码配置：
-- ✅ App ID：`688237f7f9e118de849dc274`
+- ✅ App ID：`68823897631e1ef8ff3720b2`
 - ✅ Host：`rzcswqs4sq0f.authing.cn`
 - ✅ 回调URL：`https://wenpai.netlify.app/callback`
 
@@ -70,5 +70,5 @@
 ---
 
 **配置完成时间**: 2024年7月20日 18:21
-**新App ID**: 688237f7f9e118de849dc274
+**新App ID**: 68823897631e1ef8ff3720b2
 **状态**: ✅ 配置完成，等待测试 

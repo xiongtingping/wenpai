@@ -8,9 +8,9 @@ const crypto = require('crypto');
 
 // Authing 管理客户端配置
 const AUTHING_CONFIG = {
-  userPoolId: process.env.AUTHING_USER_POOL_ID || '688237f7f9e118de849dc274',
+  userPoolId: process.env.AUTHING_USER_POOL_ID || '68823897631e1ef8ff3720b2',
   secret: process.env.AUTHING_SECRET || 'your-secret-key',
-  host: process.env.AUTHING_HOST || 'ai-wenpai.authing.cn/688237f7f9e118de849dc274'
+  host: process.env.AUTHING_HOST || 'rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2'
 };
 
 // 支付平台配置

@@ -7,8 +7,8 @@ console.log('=== Authing 配置检查 ===');
 console.log('');
 
 console.log('当前配置:');
-console.log('- App ID: 688237f7f9e118de849dc274');
-console.log('- Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274');
+console.log('- App ID: 68823897631e1ef8ff3720b2');
+console.log('- Host: rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2');
 console.log('- Redirect URI: http://localhost:3000/callback');
 console.log('- Mode: normal');
 console.log('- Default Scene: login');

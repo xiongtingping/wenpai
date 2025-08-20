@@ -69,8 +69,8 @@ interface UnifiedAuthContextType {
 **配置标准**:
 ```typescript
 const config = {
-  appId: '688237f7f9e118de849dc274',
-  host: 'ai-wenpai.authing.cn/688237f7f9e118de849dc274',
+  appId: '68823897631e1ef8ff3720b2',
+  host: 'rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2',
   redirectUri: 'http://localhost:5173/callback' // 动态获取
 };
 ```
@@ -122,15 +122,15 @@ const { user, isAuthenticated, login, logout } = useUnifiedAuth();
    ✅ 开发服务器正常运行
 
 2️⃣ 测试 Authing 配置:
-   📋 App ID: 688237f7f9e118de849dc274
-   📋 Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
+   📋 App ID: 68823897631e1ef8ff3720b2
+   📋 Host: rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2
    📋 回调地址: http://localhost:5173/callback
 
 3️⃣ 测试 Authing 服务可访问性:
    ✅ Authing 服务可访问
 
 4️⃣ 测试登录 URL 生成:
-   🔗 登录 URL: https://ai-wenpai.authing.cn/688237f7f9e118de849dc274/oidc/auth?...
+   🔗 登录 URL: https://rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2/oidc/auth?...
 
 5️⃣ 测试回调页面:
    ✅ 回调页面可访问

@@ -8,14 +8,14 @@
 ## 📋 更新的配置信息
 
 ### 新配置（基于Authing控制台截图）
-- **App ID**: `688237f7f9e118de849dc274`
+- **App ID**: `68823897631e1ef8ff3720b2`
 - **认证域名**: `rzcswqs4sq0f.authing.cn`
 - **认证地址**: `https://rzcswqs4sq0f.authing.cn`
 
 ### 旧配置（已替换）
 - **旧App ID 1**: `687e0aafee2b84f86685b644`
 - **旧App ID 2**: `6867fdc88034eb95ae86167d`
-- **旧域名 1**: `ai-wenpai.authing.cn`
+- **旧域名 1**: `rzcswqs4sq0f.authing.cn`
 - **旧域名 2**: `qutkgzkfaezk-demo.authing.cn`
 
 ## 🔧 已更新的文件

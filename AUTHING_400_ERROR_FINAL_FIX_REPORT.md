@@ -121,7 +121,7 @@ const handleAuthCallback = async (code: string, state?: string | null) => {
 ### 服务器状态测试
 - ✅ 主项目服务器: http://localhost:5175 (正常运行)
 - ✅ MRE 项目服务器: http://localhost:3000 (正常运行)
-- ✅ Authing 服务: https://ai-wenpai.authing.cn (可访问)
+- ✅ Authing 服务: https://rzcswqs4sq0f.authing.cn (可访问)
 
 ### 功能测试
 - ✅ 登录弹窗显示
@@ -152,14 +152,14 @@ const handleAuthCallback = async (code: string, state?: string | null) => {
 # 环境变量
 VITE_AUTHING_APP_ID=687e0afae2b84f86865b644
 VITE_AUTHING_USERPOOL_ID=687e0a47a9c1c3d9177b8da1
-VITE_AUTHING_HOST=https://ai-wenpai.authing.cn
+VITE_AUTHING_HOST=https://rzcswqs4sq0f.authing.cn
 VITE_AUTHING_REDIRECT_URI=https://www.wenpai.xyz/callback
 ```
 
 ### Authing 后台配置
 - **应用 ID**: `687e0afae2b84f86865b644`
 - **用户池 ID**: `687e0a47a9c1c3d9177b8da1`
-- **域名**: `ai-wenpai.authing.cn`
+- **域名**: `rzcswqs4sq0f.authing.cn`
 - **回调地址**: `https://www.wenpai.xyz/callback`
 
 ## 📊 性能优化

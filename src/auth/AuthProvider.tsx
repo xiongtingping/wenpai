@@ -522,7 +522,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     console.log('🔧 REGISTER DEBUG - 最终URL检查:', {
       finalRegisterUrl,
       containsCorrectAppId: finalRegisterUrl.includes('68823897631e1ef8ff3720b2'),
-      containsWrongAppId: finalRegisterUrl.includes('688237f8f58e454393add99e'),
+      containsWrongAppId: finalRegisterUrl.includes('68823897631e1ef8ff3720b2'),
       urlPath: new URL(finalRegisterUrl).pathname,
       timestamp: Date.now()
     });

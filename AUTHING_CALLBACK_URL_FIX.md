@@ -1,8 +1,8 @@
 ---
 /**
  * ✅ FIXED: 2024-07-21 Authing配置文档已统一为新App ID和认证地址
- * App ID: 688237f7f9e118de849dc274
- * Host: ai-wenpai.authing.cn/688237f7f9e118de849dc274
+ * App ID: 68823897631e1ef8ff3720b2
+ * Host: rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2
  * 📌 历史内容仅供参考，所有实际配置请以本ID和域名为准
  */
 ---
@@ -105,7 +105,7 @@ console.log(`  生产环境配置: ${isValidProd ? '✅ 正确' : '❌ 错误'}`
 
 ### ✅ 修复后
 ```
-已转到 https://ai-wenpai.authing.cn/688237f7f9e118de849dc274/login?app_id=688237f7f9e118de849dc274&redirect_uri=%2Fadapt
+已转到 https://rzcswqs4sq0f.authing.cn/68823897631e1ef8ff3720b2/login?app_id=68823897631e1ef8ff3720b2&redirect_uri=%2Fadapt
 ```
 
 ## 验证步骤
