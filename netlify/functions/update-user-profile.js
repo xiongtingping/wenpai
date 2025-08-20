@@ -50,7 +50,7 @@ exports.handler = async (event, context) => {
     };
 
     console.log('✅ API更新用户资料成功:', {
-      updates: authingUpdates,
+      updates: updateData,
       result: updatedUser
     });
 
