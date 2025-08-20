@@ -222,8 +222,8 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('认证配置未初始化');
       }
 
-      // 构建注册URL - 使用Authing的App ID路径和支持的参数
-      const registerUrl = `${config.host}/${config.appId}/oidc/auth?` + new URLSearchParams({
+      // 构建注册URL - 使用SSO端点
+      const registerUrl = `${config.host}/${config.appId}/sso/oidc/auth?` + new URLSearchParams({
         client_id: config.appId,
         redirect_uri: config.redirectUri,
         response_type: 'code',
