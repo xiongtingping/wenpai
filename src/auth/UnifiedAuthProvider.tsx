@@ -146,8 +146,8 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('认证配置未初始化');
       }
 
-      // 构建授权URL
-      const authUrl = `${config.host}/oidc/auth?` + new URLSearchParams({
+      // 构建授权URL - 使用Authing的App ID路径
+      const authUrl = `${config.host}/${config.appId}/oidc/auth?` + new URLSearchParams({
         client_id: config.appId,
         redirect_uri: config.redirectUri,
         response_type: 'code',
@@ -180,8 +180,8 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('认证配置未初始化');
       }
 
-      // 构建注册URL - 使用Authing支持的参数
-      const registerUrl = `${config.host}/oidc/auth?` + new URLSearchParams({
+      // 构建注册URL - 使用Authing的App ID路径和支持的参数
+      const registerUrl = `${config.host}/${config.appId}/oidc/auth?` + new URLSearchParams({
         client_id: config.appId,
         redirect_uri: config.redirectUri,
         response_type: 'code',

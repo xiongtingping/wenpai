@@ -81,15 +81,15 @@ exports.handler = async (event) => {
     }
 
     // 构建token端点URL - 根据Authing的实际端点格式
-    // 尝试多种可能的token端点格式
+    // 尝试多种可能的token端点格式，优先使用App ID路径
     const possibleTokenEndpoints = [
+      `${host}/${appId}/oidc/token`, // Authing标准格式：带App ID
       `${host}/oidc/token`,
-      `${host}/${appId}/oidc/token`,
       `${host}/api/v2/oidc/token`,
       `${host}/oauth/token`
     ];
 
-    let tokenEndpoint = possibleTokenEndpoints[0]; // 默认使用第一个
+    let tokenEndpoint = possibleTokenEndpoints[0]; // 默认使用第一个（带App ID）
 
     // 尝试通过 OIDC Discovery 获取正确的 token 端点
     try {
