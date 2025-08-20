@@ -178,8 +178,16 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // 存储code_verifier用于后续token交换
       sessionStorage.setItem('pkce_code_verifier', codeVerifier);
 
-      // 构建授权URL - 使用Authing的App ID路径，包含PKCE参数
-      const authUrl = `${config.host}/${config.appId}/oidc/auth?` + new URLSearchParams({
+      // 构建授权URL - 适配SSO类型，尝试多种端点格式
+      const possibleEndpoints = [
+        `${config.host}/${config.appId}/sso/oidc/auth`, // SSO端点
+        `${config.host}/sso/oidc/auth`, // 通用SSO端点
+        `${config.host}/${config.appId}/oidc/auth`, // 标准端点
+        `${config.host}/oidc/auth` // 通用端点
+      ];
+
+      // 使用第一个端点（SSO优先）
+      const authUrl = `${possibleEndpoints[0]}?` + new URLSearchParams({
         client_id: config.appId,
         redirect_uri: config.redirectUri,
         response_type: 'code',

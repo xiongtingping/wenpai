@@ -99,10 +99,11 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: baseHeaders, body: JSON.stringify({ error: 'Missing code or code_verifier' }) };
     }
 
-    // 构建token端点URL - 根据Authing的实际端点格式
-    // 尝试多种可能的token端点格式，优先使用App ID路径
+    // 构建token端点URL - 适配SSO类型，优先使用SSO端点
     const possibleTokenEndpoints = [
-      `${host}/${appId}/oidc/token`, // Authing标准格式：带App ID
+      `${host}/${appId}/sso/oidc/token`, // SSO格式：带App ID
+      `${host}/sso/oidc/token`, // 通用SSO格式
+      `${host}/${appId}/oidc/token`, // 标准格式：带App ID
       `${host}/oidc/token`,
       `${host}/api/v2/oidc/token`,
       `${host}/oauth/token`

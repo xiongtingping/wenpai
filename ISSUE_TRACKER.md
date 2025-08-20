@@ -345,6 +345,31 @@
 - 🕒 等待验证: 生产环境redirect_uri_mismatch是否解决
 **优先级**: 紧急 (已完成)
 
+### 33. App ID配置错误 - 真正的根因 ✅
+**文件**: src/auth/config.ts, src/config/configManager.ts, vite.config.ts, netlify.toml, netlify/functions/authing-token-exchange.cjs
+**错误**: `redirect_uri_mismatch` - 使用了完全错误的App ID
+- 旧的错误App ID: 68823897631e1ef8ff3720b2 ❌
+- 新的正确App ID: 68a58c57614a821a46f264f7 ✅
+- 应用类型: 标准Web应用 (不是SPA)
+**状态**: 已修复 - 完成App ID全面更新
+**根因分析**:
+- 发现用户提供的最新正确App ID与代码中使用的完全不同
+- 这解释了为什么所有技术修复都无效
+- 错误的App ID导致Authing无法找到对应的应用配置
+- 即使后台配置正确，但App ID错误导致验证失败
+**修复方案**:
+- 修复src/auth/config.ts中的App ID
+- 修复src/config/configManager.ts中的App ID
+- 修复vite.config.ts中的VITE_AUTHING_APP_ID
+- 修复netlify.toml中的所有App ID配置
+- 修复netlify/functions中的App ID
+**验证结果**:
+- ✅ 构建成功: 无TypeScript错误
+- ✅ 配置统一: 所有文件使用正确的App ID
+- ✅ 应用类型: 标准Web应用，无需SPA特殊处理
+- 🕒 等待验证: redirect_uri_mismatch是否最终解决
+**优先级**: 紧急 (已完成)
+
 ### 20. App ID污染问题彻底解决 ✅
 **文件**: 84个文件包含错误App ID
 **错误**: 系统使用错误App ID导致"应用面板未开启"错误
@@ -457,8 +482,8 @@
 **优先级**: 已完成 (生产环境验证100%成功)
 
 ## 📈 修复统计
-- **总问题数**: 32
-- **已修复**: 27
+- **总问题数**: 33
+- **已修复**: 28
 - **未修复**: 4
 - **部分修复**: 1
 - **紧急优先级**: 1 (进行中)
