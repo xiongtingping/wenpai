@@ -297,50 +297,198 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
           guard.show();
           console.log('✅ Guard弹窗显示成功');
 
-          // 延迟检查是否有错误发生
+          // 立即检查并修复弹窗显示问题
           setTimeout(() => {
-            if (guardErrorOccurred) {
-              console.log('🔄 Guard错误已处理，已回退到页面跳转');
-            } else {
-              console.log('✅ Guard弹窗正常工作');
+            if (!guardErrorOccurred) {
+              // 更全面的选择器尝试找到弹窗元素
+              const selectors = [
+                '[class*="authing"]',
+                '[id*="authing"]',
+                '.authing-guard-modal',
+                '.authing-guard-container',
+                '.authing-guard',
+                '[data-testid*="authing"]',
+                'iframe[src*="authing"]',
+                'div[style*="position: fixed"]',
+                'div[style*="z-index"]',
+                '[class*="modal"]',
+                '[class*="dialog"]',
+                '[class*="popup"]',
+                '[role="dialog"]',
+                '[aria-modal="true"]'
+              ];
+
+              let modalFound = false;
+
+              // 首先尝试标准选择器
+              for (const selector of selectors) {
+                const authingModal = document.querySelector(selector);
+                if (authingModal) {
+                  const modal = authingModal as HTMLElement;
+                  console.log(`🎯 找到弹窗元素: ${selector}`, modal);
+
+                  // 强制显示弹窗
+                  modal.style.cssText = `
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    z-index: 99999 !important;
+                    background: white !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+                    max-width: 420px !important;
+                    max-height: 650px !important;
+                    width: auto !important;
+                    height: auto !important;
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                  `;
+
+                  // 确保父容器也可见
+                  let parent = modal.parentElement;
+                  while (parent && parent !== document.body) {
+                    parent.style.display = 'block';
+                    parent.style.visibility = 'visible';
+                    parent.style.opacity = '1';
+                    parent = parent.parentElement;
+                  }
+
+                  modalFound = true;
+                  console.log('✅ 登录弹窗样式已强制修复');
+                  break;
+                }
+              }
+
+              // 如果标准选择器没找到，尝试更激进的搜索
+              if (!modalFound) {
+                console.warn('⚠️ 未找到弹窗元素，尝试更全面的搜索...');
+
+                // 搜索所有可能的弹窗元素
+                const allElements = document.querySelectorAll('*');
+                for (const element of allElements) {
+                  const el = element as HTMLElement;
+                  const className = el.className?.toString() || '';
+                  const id = el.id || '';
+                  const textContent = el.textContent || '';
+
+                  // 检查是否是弹窗相关元素
+                  if (
+                    className.includes('authing') ||
+                    className.includes('modal') ||
+                    className.includes('dialog') ||
+                    className.includes('popup') ||
+                    id.includes('authing') ||
+                    (textContent.includes('登录') && textContent.includes('密码')) ||
+                    (textContent.includes('注册') && textContent.includes('邮箱'))
+                  ) {
+                    console.log('🔍 发现可能的登录弹窗:', el);
+
+                    // 强制显示
+                    el.style.cssText = `
+                      position: fixed !important;
+                      top: 50% !important;
+                      left: 50% !important;
+                      transform: translate(-50%, -50%) !important;
+                      z-index: 99999 !important;
+                      background: white !important;
+                      border-radius: 8px !important;
+                      box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+                      max-width: 420px !important;
+                      max-height: 650px !important;
+                      width: auto !important;
+                      height: auto !important;
+                      display: block !important;
+                      visibility: visible !important;
+                      opacity: 1 !important;
+                      pointer-events: auto !important;
+                    `;
+
+                    modalFound = true;
+                    console.log('✅ 通过全面搜索找到并修复弹窗');
+                    break;
+                  }
+                }
+              }
+
+              // 最后的尝试：监听DOM变化
+              if (!modalFound) {
+                console.log('🔄 启动DOM变化监听，等待弹窗出现...');
+                const observer = new MutationObserver((mutations) => {
+                  for (const mutation of mutations) {
+                    if (mutation.type === 'childList') {
+                      for (const node of mutation.addedNodes) {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                          const element = node as HTMLElement;
+                          const className = element.className?.toString() || '';
+                          const id = element.id || '';
+
+                          if (className.includes('authing') || id.includes('authing')) {
+                            console.log('🎯 DOM监听发现弹窗:', element);
+
+                            element.style.cssText = `
+                              position: fixed !important;
+                              top: 50% !important;
+                              left: 50% !important;
+                              transform: translate(-50%, -50%) !important;
+                              z-index: 99999 !important;
+                              background: white !important;
+                              border-radius: 8px !important;
+                              box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+                              max-width: 420px !important;
+                              max-height: 650px !important;
+                              width: auto !important;
+                              height: auto !important;
+                              display: block !important;
+                              visibility: visible !important;
+                              opacity: 1 !important;
+                              pointer-events: auto !important;
+                            `;
+
+                            console.log('✅ DOM监听修复弹窗成功');
+                            observer.disconnect();
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                });
+
+                observer.observe(document.body, {
+                  childList: true,
+                  subtree: true
+                });
+
+                // 5秒后停止监听
+                setTimeout(() => {
+                  observer.disconnect();
+                  console.log('⏰ DOM监听超时，停止监听');
+                }, 5000);
+              }
             }
-            // 恢复原始错误处理器
-            window.onerror = originalErrorHandler;
-            window.onunhandledrejection = originalUnhandledRejection;
-          }, 1000);
+
+            // 延迟检查是否有错误发生
+            setTimeout(() => {
+              if (guardErrorOccurred) {
+                console.log('🔄 Guard错误已处理，已回退到页面跳转');
+              } else {
+                console.log('✅ Guard弹窗正常工作');
+              }
+              // 恢复原始错误处理器
+              window.onerror = originalErrorHandler;
+              window.onunhandledrejection = originalUnhandledRejection;
+            }, 2000);
+
+          }, 200); // 减少延迟，更快修复显示
 
         } catch (error) {
           console.error('❌ Guard弹窗显示失败:', error);
           guardErrorHandler(error);
         }
       }, 100); // 100ms延迟确保Guard完全初始化
-
-      // 增强的弹窗样式优化
-      setTimeout(() => {
-        const authingModal = document.querySelector('[class*="authing"], [id*="authing"]');
-        if (authingModal) {
-          const modal = authingModal as HTMLElement;
-          // 设置弹窗居中显示
-          modal.style.cssText = `
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            z-index: 9999 !important;
-            background: white !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-            max-width: 400px !important;
-            max-height: 600px !important;
-            width: auto !important;
-            height: auto !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-          `;
-          console.log('✅ 登录弹窗样式已优化');
-        }
-      }, 500);
 
     } catch (error) {
       console.error('❌ 登录流程失败:', error);
@@ -444,32 +592,86 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       console.log('🎭 显示注册弹窗...');
       guard.show();
 
-      // 增强的弹窗样式优化
+      // 立即检查并修复弹窗显示问题
       setTimeout(() => {
-        const authingModal = document.querySelector('[class*="authing"], [id*="authing"]');
-        if (authingModal) {
-          const modal = authingModal as HTMLElement;
-          // 设置弹窗居中显示
-          modal.style.cssText = `
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            z-index: 9999 !important;
-            background: white !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-            max-width: 400px !important;
-            max-height: 600px !important;
-            width: auto !important;
-            height: auto !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-          `;
-          console.log('✅ 注册弹窗样式已优化');
+        // 多种选择器尝试找到弹窗元素
+        const selectors = [
+          '[class*="authing"]',
+          '[id*="authing"]',
+          '.authing-guard-modal',
+          '.authing-guard-container',
+          '[data-testid*="authing"]',
+          'iframe[src*="authing"]',
+          'div[style*="position: fixed"]',
+          'div[style*="z-index"]'
+        ];
+
+        let modalFound = false;
+        for (const selector of selectors) {
+          const authingModal = document.querySelector(selector);
+          if (authingModal) {
+            const modal = authingModal as HTMLElement;
+            console.log(`🎯 找到注册弹窗元素: ${selector}`);
+
+            // 强制显示弹窗
+            modal.style.cssText = `
+              position: fixed !important;
+              top: 50% !important;
+              left: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              z-index: 99999 !important;
+              background: white !important;
+              border-radius: 8px !important;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+              max-width: 420px !important;
+              max-height: 650px !important;
+              width: auto !important;
+              height: auto !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+              pointer-events: auto !important;
+            `;
+
+            // 确保父容器也可见
+            let parent = modal.parentElement;
+            while (parent && parent !== document.body) {
+              parent.style.display = 'block';
+              parent.style.visibility = 'visible';
+              parent.style.opacity = '1';
+              parent = parent.parentElement;
+            }
+
+            modalFound = true;
+            console.log('✅ 注册弹窗样式已强制修复');
+            break;
+          }
         }
-      }, 500);
+
+        if (!modalFound) {
+          console.warn('⚠️ 未找到注册弹窗元素，可能需要更多时间加载');
+          // 再次尝试
+          setTimeout(() => {
+            const allDivs = document.querySelectorAll('div');
+            for (const div of allDivs) {
+              if (div.textContent?.includes('注册') || div.textContent?.includes('登录')) {
+                console.log('🔍 发现可能的注册弹窗:', div);
+                (div as HTMLElement).style.cssText = `
+                  position: fixed !important;
+                  top: 50% !important;
+                  left: 50% !important;
+                  transform: translate(-50%, -50%) !important;
+                  z-index: 99999 !important;
+                  display: block !important;
+                  visibility: visible !important;
+                  opacity: 1 !important;
+                `;
+                break;
+              }
+            }
+          }, 1000);
+        }
+      }, 200); // 减少延迟，更快修复显示
 
     } catch (error) {
       console.error('❌ 注册流程失败:', error);
