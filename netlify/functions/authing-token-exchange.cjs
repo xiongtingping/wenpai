@@ -42,7 +42,7 @@ exports.handler = async (event) => {
 
     // 环境变量优先级：服务端专用 > 客户端构建期变量 > 默认值
     // 支持新的 VITE_AUTHING_CLIENT_ID 配置
-    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68823897631e1ef8ff3720b2';
+    const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68a58c57614a821a46f264f7';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
     // 🔧 SPA模式适配：必须使用实际请求Origin

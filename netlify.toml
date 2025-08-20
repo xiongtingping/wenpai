@@ -85,7 +85,7 @@
   NODE_ENV = "production"
   VITE_DEBUG = "false"  # 确保生产环境控制台静默
   # Authing配置 - 客户端
-  VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  VITE_AUTHING_APP_ID = "68a58c57614a821a46f264f7"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI_PROD = "https://www.wenpai.xyz/callback"
@@ -139,7 +139,7 @@
   NODE_ENV = "development"
   VITE_AUTHING_FALLBACK_HOSTED = "1"
   # Authing配置 - 客户端
-  VITE_AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  VITE_AUTHING_APP_ID = "68a58c57614a821a46f264f7"
   VITE_AUTHING_DOMAIN = "rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   VITE_AUTHING_REDIRECT_URI = "https://wenpai.netlify.app/callback"
@@ -149,7 +149,7 @@
   VITE_AUTHING_USER_POOL_ID = "688237f7f9e118de849dc274"
   VITE_AUTHING_APP_TYPE = "oidc"
   # Authing配置 - 服务端 (Netlify Functions)
-  AUTHING_APP_ID = "68823897631e1ef8ff3720b2"
+  AUTHING_APP_ID = "68a58c57614a821a46f264f7"
   AUTHING_HOST = "https://rzcswqs4sq0f.authing.cn"
   AUTHING_REDIRECT_URI = "https://wenpai.netlify.app/callback"
   # OpenAI配置
