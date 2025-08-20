@@ -41,12 +41,21 @@ export const getAuthConfig = (): AuthConfig => {
   // 🔧 Host已通过文件清理脚本修复，直接使用环境变量
   const host = rawHost || 'https://rzcswqs4sq0f.authing.cn';
 
-  // 选择 redirectUri：非本地环境一律使用生产回调，避免多域导致的校验分歧
+  // 选择 redirectUri：优先使用环境变量，避免硬编码
   const h = window.location.hostname;
   const p = window.location.port;
-  const redirectUri = (h === 'localhost' || h === '127.0.0.1')
-    ? `http://localhost:${p || '5173'}/callback`
-    : 'https://www.wenpai.xyz/callback';
+
+  let redirectUri: string;
+
+  if (h === 'localhost' || h === '127.0.0.1') {
+    // 开发环境：优先使用环境变量，否则使用动态端口
+    redirectUri = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_DEV ||
+                  `http://localhost:${p || '5173'}/callback`;
+  } else {
+    // 生产环境：优先使用环境变量，否则使用默认值
+    redirectUri = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_PROD ||
+                  'https://www.wenpai.xyz/callback';
+  }
 
   const config: AuthConfig = {
     appId: effectiveAppId,
