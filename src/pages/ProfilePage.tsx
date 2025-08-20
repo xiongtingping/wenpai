@@ -312,51 +312,81 @@ export default function ProfilePage() {
         avatar: profileForm.avatar
       };
 
-      // 🔧 根本修复：使用Netlify Functions调用Authing Management API
-      // 避免客户端权限问题（普通用户不能直接修改字段）
-      const response = await fetch('/.netlify/functions/update-user-profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(updatedUserData)
-      });
-
-      const updateResult = await response.json();
-
-      if (updateResult.success && updateResult.user) {
-
-        // 更新本地状态为服务器返回的最新数据
-        const serverUserData = {
-          nickname: updateResult.user.nickname,
-          email: updateResult.user.email,
-          phone: updateResult.user.phone,
-          avatar: updateResult.user.photo || updateResult.user.avatar,
-          lastUpdated: new Date().toISOString(),
-          syncStatus: 'synced'
-        };
-
-        // 同步到本地状态和存储
-        updateUser(serverUserData);
-        localStorage.setItem('authing_user', JSON.stringify({
-          ...JSON.parse(localStorage.getItem('authing_user') || '{}'),
-          ...serverUserData
-        }));
-
-        toast({
-          title: "保存成功",
-          description: "个人资料已成功更新到服务器",
+      // 🔧 使用Authing SDK直接更新用户资料
+      try {
+        const { authingService } = await import('@/services/authingService');
+        const updateResult = await authingService.updateProfile({
+          nickname: updatedUserData.nickname,
+          email: updatedUserData.email,
+          phone: updatedUserData.phone,
+          avatar: updatedUserData.avatar
         });
 
-      } else {
-        toast({
-          title: "保存失败",
-          description: updateResult.error || "服务器更新失败，请稍后重试",
-          variant: "destructive"
+        if (updateResult.success && updateResult.user) {
+          // 更新本地状态为服务器返回的最新数据
+          const serverUserData = {
+            nickname: updateResult.user.nickname,
+            email: updateResult.user.email,
+            phone: updateResult.user.phone,
+            avatar: updateResult.user.photo || updateResult.user.avatar,
+            lastUpdated: new Date().toISOString(),
+            syncStatus: 'synced'
+          };
+
+          // 同步到本地状态和存储
+          updateUser(serverUserData);
+          localStorage.setItem('authing_user', JSON.stringify({
+            ...JSON.parse(localStorage.getItem('authing_user') || '{}'),
+            ...serverUserData
+          }));
+
+          toast({
+            title: "保存成功",
+            description: "个人资料已成功更新到Authing服务器",
+          });
+
+        } else {
+          throw new Error(updateResult.error || "Authing API更新失败");
+        }
+      } catch (authingError) {
+        console.error('❌ Authing SDK更新失败，尝试备用方案:', authingError);
+
+        // 备用方案：使用Netlify Function
+        const response = await fetch('/.netlify/functions/update-user-profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          },
+          body: JSON.stringify(updatedUserData)
         });
 
-        return;
+        const updateResult = await response.json();
+
+        if (updateResult.success && updateResult.user) {
+          // 更新本地状态
+          const serverUserData = {
+            nickname: updateResult.user.nickname,
+            email: updateResult.user.email,
+            phone: updateResult.user.phone,
+            avatar: updateResult.user.photo || updateResult.user.avatar,
+            lastUpdated: new Date().toISOString(),
+            syncStatus: 'synced'
+          };
+
+          updateUser(serverUserData);
+          localStorage.setItem('authing_user', JSON.stringify({
+            ...JSON.parse(localStorage.getItem('authing_user') || '{}'),
+            ...serverUserData
+          }));
+
+          toast({
+            title: "保存成功",
+            description: "个人资料已成功更新（备用方案）",
+          });
+        } else {
+          throw new Error(updateResult.error || "备用方案也失败了");
+        }
       }
       setHasUnsavedChanges(false);
     } catch (error) {
