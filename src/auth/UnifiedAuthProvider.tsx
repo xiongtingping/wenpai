@@ -187,18 +187,27 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const guardConfig = {
         appId: config.appId,
         host: config.host,
-        redirectUri: config.redirectUri, // 即使弹窗模式也需要配置
-        mode: 'modal', // 关键：使用弹窗模式
-        defaultScene: 'login',
-        // 弹窗配置
-        autoRegister: false,
-        closeable: true,
-        clickCloseableMask: true,
-        // 登录方式
-        loginMethodList: ['password', 'phone-code', 'email-code'],
-        // 界面配置
-        title: '文派',
-        lang: 'zh-CN'
+        redirectUri: config.redirectUri,
+        mode: 'modal' as const, // 关键：使用弹窗模式
+        defaultScene: 'login' as const,
+        lang: 'zh-CN' as const,
+        // 🔧 修复：使用正确的config嵌套结构
+        config: {
+          // 弹窗配置
+          autoRegister: false,
+          closeable: true,
+          clickCloseableMask: true,
+          // 登录方式
+          loginMethodList: ['password', 'phone-code', 'email-code'] as const,
+          // 注册方式
+          registerMethodList: ['phone', 'email'] as const,
+          // 界面配置
+          title: '文派',
+          // 社交登录配置
+          socialConnectionList: [],
+          // 内容样式
+          contentCSS: ''
+        }
       };
       console.log('🏗️ Guard配置:', guardConfig);
 
@@ -259,6 +268,8 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       guard.show();
       console.log('🎭 登录弹窗显示命令已发送');
 
+
+
     } catch (error) {
       logger.error('❌ 初始化Guard失败:', error);
       setAuthState(prev => ({
@@ -298,18 +309,27 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const guardConfig = {
         appId: config.appId,
         host: config.host,
-        redirectUri: config.redirectUri, // 即使弹窗模式也需要配置
-        mode: 'modal', // 关键：使用弹窗模式
-        defaultScene: 'register', // 默认显示注册页面
-        // 弹窗配置
-        autoRegister: false,
-        closeable: true,
-        clickCloseableMask: true,
-        // 注册方式
-        registerMethodList: ['phone', 'email'],
-        // 界面配置
-        title: '文派',
-        lang: 'zh-CN'
+        redirectUri: config.redirectUri,
+        mode: 'modal' as const, // 关键：使用弹窗模式
+        defaultScene: 'register' as const, // 默认显示注册页面
+        lang: 'zh-CN' as const,
+        // 🔧 修复：使用正确的config嵌套结构
+        config: {
+          // 弹窗配置
+          autoRegister: false,
+          closeable: true,
+          clickCloseableMask: true,
+          // 登录方式
+          loginMethodList: ['password', 'phone-code', 'email-code'] as const,
+          // 注册方式
+          registerMethodList: ['phone', 'email'] as const,
+          // 界面配置
+          title: '文派',
+          // 社交登录配置
+          socialConnectionList: [],
+          // 内容样式
+          contentCSS: ''
+        }
       };
       console.log('🏗️ Guard配置:', guardConfig);
 
@@ -369,6 +389,42 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       console.log('🎭 开始显示注册弹窗...');
       guard.show();
       console.log('🎭 注册弹窗显示命令已发送');
+
+      // 🔧 强制检查和修复弹窗显示问题
+      setTimeout(() => {
+        console.log('🔍 检查注册弹窗DOM元素...');
+
+        // 查找Authing弹窗元素
+        const authingModal = document.querySelector('[data-authing-guard-modal]') ||
+                           document.querySelector('.authing-guard-modal') ||
+                           document.querySelector('[class*="authing"]') ||
+                           document.querySelector('[class*="guard"]') ||
+                           document.querySelector('[class*="modal"]');
+
+        if (authingModal) {
+          console.log('✅ 找到注册弹窗元素:', authingModal);
+
+          // 强制设置显示样式
+          const element = authingModal as HTMLElement;
+          element.style.display = 'block !important';
+          element.style.visibility = 'visible !important';
+          element.style.opacity = '1 !important';
+          element.style.zIndex = '999999 !important';
+          element.style.position = 'fixed !important';
+          element.style.top = '50% !important';
+          element.style.left = '50% !important';
+          element.style.transform = 'translate(-50%, -50%) !important';
+          element.style.backgroundColor = 'white !important';
+          element.style.border = '2px solid #000 !important';
+          element.style.padding = '20px !important';
+          element.style.minWidth = '400px !important';
+          element.style.minHeight = '300px !important';
+
+          console.log('🔧 已强制设置注册弹窗显示样式');
+        } else {
+          console.log('❌ 未找到注册弹窗元素');
+        }
+      }, 1000);
 
     } catch (error) {
       logger.error('❌ 初始化Guard失败:', error);
