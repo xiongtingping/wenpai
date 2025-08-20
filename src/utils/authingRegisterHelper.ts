@@ -220,7 +220,7 @@ export function getRegisterUrlFast(config: RegisterConfig): string {
     `${cleanHost}/${safeAppId}/register`,           // 标准注册端点
     `${cleanHost}/${safeAppId}/signup`,             // 备选注册端点
     `${cleanHost}/${safeAppId}/login?mode=register`, // 登录页面注册模式
-    `${cleanHost}/oidc/auth?${params.toString()}&prompt=signup`, // OIDC注册
+    `${cleanHost}/oidc/auth?${params.toString()}&prompt=login&screen_hint=signup`, // OIDC注册
   ];
 
   console.log('🔧 尝试注册端点:', registerEndpoints);

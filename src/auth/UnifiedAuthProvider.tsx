@@ -180,14 +180,15 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('认证配置未初始化');
       }
 
-      // 构建注册URL
+      // 构建注册URL - 使用Authing支持的参数
       const registerUrl = `${config.host}/oidc/auth?` + new URLSearchParams({
         client_id: config.appId,
         redirect_uri: config.redirectUri,
         response_type: 'code',
         scope: 'openid profile email phone',
         state: redirectTo || window.location.pathname,
-        prompt: 'register' // 强制显示注册页面
+        prompt: 'login', // 使用Authing支持的prompt值
+        screen_hint: 'signup' // 使用screen_hint指示注册页面
       }).toString();
 
       // 跳转到注册页面
