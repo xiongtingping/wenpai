@@ -64,11 +64,7 @@ export async function getAuthenticatedSupabaseClient(token?: string): Promise<Su
     // 设置用户认证token
     await client.auth.setSession({
       access_token: token,
-      refresh_token: '',
-      expires_in: 3600,
-      expires_at: Date.now() + 3600000,
-      token_type: 'bearer',
-      user: null
+      refresh_token: ''
     });
   }
 
