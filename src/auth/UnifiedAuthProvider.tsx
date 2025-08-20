@@ -163,18 +163,28 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const login = useCallback(async (redirectTo?: string) => {
     try {
+      console.log('🔄 开始登录流程...');
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       const config = authService.getConfig();
+      console.log('🔧 获取配置:', config);
       if (!config) {
         throw new Error('认证配置未初始化');
       }
 
       // 动态导入Guard组件
-      const { Guard } = await import('@authing/guard');
+      console.log('📦 开始导入Guard组件...');
+      const guardModule = await import('@authing/guard');
+      console.log('📦 Guard模块导入成功:', guardModule);
+
+      const { Guard } = guardModule;
+      if (!Guard) {
+        throw new Error('Guard类未找到');
+      }
 
       // 创建Guard实例 - 使用弹窗模式
-      const guard = new Guard({
+      console.log('🏗️ 开始创建Guard实例...');
+      const guardConfig = {
         appId: config.appId,
         host: config.host,
         redirectUri: config.redirectUri, // 即使弹窗模式也需要配置
@@ -189,7 +199,11 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // 界面配置
         title: '文派',
         lang: 'zh-CN'
-      });
+      };
+      console.log('🏗️ Guard配置:', guardConfig);
+
+      const guard = new Guard(guardConfig);
+      console.log('✅ Guard实例创建成功:', guard);
 
       // 监听登录成功事件
       guard.on('login', async (userInfo: any) => {
@@ -241,7 +255,9 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       });
 
       // 显示登录弹窗
+      console.log('🎭 开始显示登录弹窗...');
       guard.show();
+      console.log('🎭 登录弹窗显示命令已发送');
 
     } catch (error) {
       logger.error('❌ 初始化Guard失败:', error);
@@ -258,18 +274,28 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
    */
   const register = useCallback(async (redirectTo?: string) => {
     try {
+      console.log('🔄 开始注册流程...');
       setAuthState(prev => ({ ...prev, loading: true, error: null }));
 
       const config = authService.getConfig();
+      console.log('🔧 获取配置:', config);
       if (!config) {
         throw new Error('认证配置未初始化');
       }
 
       // 动态导入Guard组件
-      const { Guard } = await import('@authing/guard');
+      console.log('📦 开始导入Guard组件...');
+      const guardModule = await import('@authing/guard');
+      console.log('📦 Guard模块导入成功:', guardModule);
+
+      const { Guard } = guardModule;
+      if (!Guard) {
+        throw new Error('Guard类未找到');
+      }
 
       // 创建Guard实例 - 使用弹窗模式
-      const guard = new Guard({
+      console.log('🏗️ 开始创建Guard实例...');
+      const guardConfig = {
         appId: config.appId,
         host: config.host,
         redirectUri: config.redirectUri, // 即使弹窗模式也需要配置
@@ -284,7 +310,11 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // 界面配置
         title: '文派',
         lang: 'zh-CN'
-      });
+      };
+      console.log('🏗️ Guard配置:', guardConfig);
+
+      const guard = new Guard(guardConfig);
+      console.log('✅ Guard实例创建成功:', guard);
 
       // 监听注册成功事件
       guard.on('register', async (userInfo: any) => {
@@ -336,7 +366,9 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       });
 
       // 显示注册弹窗
+      console.log('🎭 开始显示注册弹窗...');
       guard.show();
+      console.log('🎭 注册弹窗显示命令已发送');
 
     } catch (error) {
       logger.error('❌ 初始化Guard失败:', error);
