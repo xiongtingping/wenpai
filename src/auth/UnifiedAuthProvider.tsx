@@ -12,6 +12,31 @@ import { permissionManager } from './permissionManager';
 import { setAuthTokenGetter } from '@/api/request';
 import { logger } from '@/utils/logger';
 
+/**
+ * 生成PKCE code_verifier
+ */
+function generateCodeVerifier(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
+/**
+ * 生成PKCE code_challenge
+ */
+async function generateCodeChallenge(verifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
 // 创建认证上下文
 const UnifiedAuthContext = createContext<AuthContextType | null>(null);
 
@@ -146,13 +171,22 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
         throw new Error('认证配置未初始化');
       }
 
-      // 构建授权URL - 使用Authing的App ID路径
+      // SPA模式：生成PKCE参数
+      const codeVerifier = generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+      // 存储code_verifier用于后续token交换
+      sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+
+      // 构建授权URL - 使用Authing的App ID路径，包含PKCE参数
       const authUrl = `${config.host}/${config.appId}/oidc/auth?` + new URLSearchParams({
         client_id: config.appId,
         redirect_uri: config.redirectUri,
         response_type: 'code',
         scope: 'openid profile email phone',
-        state: redirectTo || window.location.pathname
+        state: redirectTo || window.location.pathname,
+        code_challenge: codeChallenge,
+        code_challenge_method: 'S256'
       }).toString();
 
       // 跳转到授权页面

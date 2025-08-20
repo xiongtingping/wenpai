@@ -45,8 +45,8 @@ exports.handler = async (event) => {
     const appId = AUTHING_APP_ID || VITE_AUTHING_CLIENT_ID || VITE_AUTHING_APP_ID || '68823897631e1ef8ff3720b2';
     const host = (AUTHING_HOST || VITE_AUTHING_HOST || 'https://rzcswqs4sq0f.authing.cn').replace(/\/$/, '');
 
-    // 🔧 修复：使用动态Origin解决DNS重定向问题
-    // 从请求头获取实际的Origin，解决www.wenpai.xyz -> wenpai.netlify.app的DNS重定向
+    // 🔧 SPA模式适配：必须使用实际请求Origin
+    // SPA应用对redirect_uri有严格的CORS验证，必须与请求来源完全匹配
     const requestOrigin = event.headers.origin || event.headers.Origin || event.headers.referer;
     let dynamicRedirectUri = 'https://www.wenpai.xyz/callback'; // 默认值
 
@@ -54,12 +54,14 @@ exports.handler = async (event) => {
       try {
         const originUrl = new URL(requestOrigin);
         dynamicRedirectUri = `${originUrl.origin}/callback`;
+        console.log('✅ SPA模式：使用实际Origin', originUrl.origin);
       } catch (e) {
         console.log('⚠️ 无法解析Origin，使用默认redirectUri');
       }
     }
 
-    const redirectUri = AUTHING_REDIRECT_URI || VITE_AUTHING_REDIRECT_URI_PROD || dynamicRedirectUri;
+    // SPA模式：优先使用动态Origin，忽略环境变量配置
+    const redirectUri = dynamicRedirectUri;
 
     // 调试日志：输出配置信息（生产环境下隐藏敏感信息）
     console.log('🔧 Authing配置检查:', {

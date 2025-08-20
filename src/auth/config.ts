@@ -52,19 +52,18 @@ export const getAuthConfig = (): AuthConfig => {
     redirectUri = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_DEV ||
                   `http://localhost:${p || '5173'}/callback`;
   } else {
-    // 生产环境：使用动态Origin解决DNS重定向问题
-    // 如果www.wenpai.xyz解析到wenpai.netlify.app，使用实际的Origin
-    const dynamicRedirectUri = `${window.location.origin}/callback`;
-    redirectUri = (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_PROD ||
-                  dynamicRedirectUri;
+    // 生产环境：SPA模式必须使用实际Origin，不能使用配置的域名
+    // 因为SPA对redirect_uri有严格的CORS验证
+    redirectUri = `${window.location.origin}/callback`;
 
-    // 调试日志：显示Origin vs 配置的差异
+    // 调试日志：显示SPA模式的Origin适配
     if (isDevelopment) {
-      console.log('🔍 RedirectUri分析:', {
+      console.log('🔍 SPA模式RedirectUri分析:', {
+        appType: 'SPA',
         windowOrigin: window.location.origin,
-        envConfigured: (import.meta as any).env.VITE_AUTHING_REDIRECT_URI_PROD,
+        hostname: h,
         finalRedirectUri: redirectUri,
-        hostnameResolution: h
+        note: 'SPA模式必须使用实际Origin'
       });
     }
   }
